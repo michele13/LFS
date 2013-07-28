@@ -85,7 +85,6 @@ $Date$
 
     <!-- sect1:
            When there is a role attibute, use it as the class value.
-           Process the SVN keywords found in sect1info as a footnote.
            Removed unused code. -->
     <!-- The original template is in {docbook-xsl}/xhtml/sections.xsl -->
   <xsl:template match="sect1">
@@ -103,7 +102,6 @@ $Date$
       <xsl:call-template name="language.attribute"/>
       <xsl:call-template name="sect1.titlepage"/>
       <xsl:apply-templates/>
-      <xsl:apply-templates select="sect1info" mode="svn-keys"/>
     </div>
   </xsl:template>
 
