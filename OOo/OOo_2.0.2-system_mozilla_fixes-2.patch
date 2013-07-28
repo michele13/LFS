@@ -1,0 +1,355 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2006-05-16
+Initial Package Version: 2.0.2 
+Origin: http://ooo.ximian.com/ and self
+Description: Fixes compilation with Mozilla Firefox.
+             Adds support for Seamonkey.
+             Adds support for standalone NSS/NSPR. 
+Upstream Status: not submitted
+
+--- OOB680_m5-orig/config_office/configure.in	2006-05-14 13:04:24.000000000 -0500
++++ OOB680_m5/config_office/configure.in	2006-05-14 13:07:08.000000000 -0500
+@@ -45,6 +45,10 @@
+ AC_ARG_WITH(firefox,
+ [  --with-firefox          Use Firefox instead of Mozilla Suite for building.
+                           Only honoured with --with-system-mozilla
++],,enable_mozilla="yes")
++AC_ARG_WITH(seamonkey,
++[  --with-seamonkey        Use Seamonkey instead of Mozilla Suite for building.
++                          Only honoured with --with-system-mozilla
+ ],,)
+ AC_ARG_WITH(fonts,
+ [  --without-fonts         Removes Bitstream Vera fonts from
+@@ -2873,9 +2877,11 @@
+ if test -n "$with_system_mozilla"; then
+     AC_MSG_RESULT([external])
+     SYSTEM_MOZILLA=YES
+-    AC_MSG_CHECKING([whether to use Mozilla or Firefox])
++    AC_MSG_CHECKING([whether to use Firefox, Mozilla, or Seamonkey])
+     if test -n "$with_firefox" && test "$with_firefox" != "no"; then
+       moz_flavour=firefox
++    elif test -n "$with_seamonkey" && test "$with_seamonkey" != "no"; then
++      moz_flavour=seamonkey
+      else
+       moz_flavour=mozilla
+     fi
+@@ -2887,7 +2893,7 @@
+     if $PKG_CONFIG --exists nspr ; then
+       PKG_CHECK_MODULES( MOZ_NSPR, nspr )
+     else
+-      PKG_CHECK_MODULES( MOZ_NSPR, mozilla-nspr )
++      PKG_CHECK_MODULES( MOZ_NSPR, $moz_flavour-nspr )
+     fi
+ 
+     PKG_CHECK_MODULES( MOZ_NSS, nss, STANDALONENSS="TRUE", STANDALONENSS="" )
+@@ -2908,6 +2914,8 @@
+     CPPFLAGS="$save_CPPFLAGS"
+     LIBS="$save_LIBS"
+ 
++    PKG_CHECK_MODULES( MOZ_PLUGIN, $moz_flavour-plugin )
++
+     MOZ_INC=`$PKG_CONFIG --variable=includedir $moz_flavour-xpcom`
+     MOZ_LIB=`$PKG_CONFIG --variable=libdir $moz_flavour-xpcom`
+     MOZ_LIB_XPCOM=$MOZILLAXPCOM_LIBS
+@@ -3030,6 +3038,7 @@
+ AC_SUBST(MOZ_LIB_XPCOM)
+ AC_SUBST(MOZ_NSPR_CFLAGS)
+ AC_SUBST(MOZ_NSS_CFLAGS)
++AC_SUBST(MOZ_PLUGIN_CFLAGS)
+ AC_SUBST(MOZ_LDAP_CFLAGS)
+ 
+ dnl ===================================================================
+--- OOB680_m5-orig/config_office/set_soenv.in	2006-02-10 09:00:26.000000000 -0600
++++ OOB680_m5/config_office/set_soenv.in	2006-05-14 13:03:59.000000000 -0500
+@@ -1745,6 +1745,7 @@
+ ToFile( "MOZ_LIB_XPCOM",     "@MOZ_LIB_XPCOM@",    "e" );
+ ToFile( "MOZ_NSPR_CFLAGS",   "@MOZ_NSPR_CFLAGS@",  "e" );
+ ToFile( "MOZ_NSS_CFLAGS",    "@MOZ_NSS_CFLAGS@",   "e" );
++ToFile( "MOZ_PLUGIN_CFLAGS", "@MOZ_PLUGIN_CFLAGS@","e" );
+ ToFile( "MOZ_LDAP_CFLAGS",   "@MOZ_LDAP_CFLAGS@",  "e" );
+ ToFile( "WITH_FONTS",        "@WITH_FONTS@",       "e" );
+ ToFile( "WITHOUT_AFMS",      "@WITHOUT_AFMS@",     "e" );
+diff -Naur OOB680_m5-orig/extensions/source/plugin/util/makefile.pmk OOB680_m5/extensions/source/plugin/util/makefile.pmk
+--- OOB680_m5-orig/extensions/source/plugin/util/makefile.pmk	2005-12-21 05:14:30.000000000 -0600
++++ OOB680_m5/extensions/source/plugin/util/makefile.pmk	2006-05-14 13:03:59.000000000 -0500
+@@ -40,7 +40,6 @@
+ .INCLUDE :  sv.mk
+ 
+ .IF "$(SYSTEM_MOZILLA)" == "YES"
++INCPRE+=$(MOZ_PLUGIN_CFLAGS)
+ CFLAGS+=-DSYSTEM_MOZILLA
+-PKGCONFIG_MODULES=mozilla-plugin
+-.INCLUDE : pkg_config.mk
+ .ENDIF
+--- OOB680_m5-orig/libxmlsec/xmlsec1-1.2.6.patch	2005-12-29 10:14:51.000000000 -0600
++++ OOB680_m5/libxmlsec/xmlsec1-1.2.6.patch	2006-05-14 13:34:44.000000000 -0500
+@@ -54,6 +54,122 @@
+   NSS_CRYPTO_LIB="$PACKAGE-nss"
+   NSS_FOUND="no"
+ ***************
++*** 25766,25771 ****
++--- 25766,25868 ----
++    else
++       PKG_CONFIG_MIN_VERSION=0.9.0
++       if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
+++         echo "$as_me:$LINENO: checking for nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION" >&5
+++ echo $ECHO_N "checking for nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION... $ECHO_C" >&6
+++ 
+++         if $PKG_CONFIG --exists "nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION" ; then
+++             echo "$as_me:$LINENO: result: yes" >&5
+++ echo "${ECHO_T}yes" >&6
+++             succeeded=yes
+++ 
+++             echo "$as_me:$LINENO: checking NSS_CFLAGS" >&5
+++ echo $ECHO_N "checking NSS_CFLAGS... $ECHO_C" >&6
+++             NSS_CFLAGS=`$PKG_CONFIG --cflags "nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION"`
+++             echo "$as_me:$LINENO: result: $NSS_CFLAGS" >&5
+++ echo "${ECHO_T}$NSS_CFLAGS" >&6
+++ 
+++             echo "$as_me:$LINENO: checking NSS_LIBS" >&5
+++ echo $ECHO_N "checking NSS_LIBS... $ECHO_C" >&6
+++             NSS_LIBS=`$PKG_CONFIG --libs "nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION"`
+++             echo "$as_me:$LINENO: result: $NSS_LIBS" >&5
+++ echo "${ECHO_T}$NSS_LIBS" >&6
+++         else
+++             NSS_CFLAGS=""
+++             NSS_LIBS=""
+++             ## If we have a custom action on failure, don't print errors, but
+++             ## do set a variable so people can do so.
+++             NSS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION"`
+++ 
+++         fi
+++ 
+++ 
+++ 
+++      else
+++         echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
+++         echo "*** See http://www.freedesktop.org/software/pkgconfig"
+++      fi
+++   fi
+++ 
+++   if test $succeeded = yes; then
+++      NSS_FOUND=yes
+++   else
+++      NSS_FOUND=no
+++   fi
+++ 
+++         if test "z$NSS_FOUND" = "zno" ; then
+++ 
+++   succeeded=no
+++ 
+++   if test -z "$PKG_CONFIG"; then
+++     # Extract the first word of "pkg-config", so it can be a program name with args.
+++ set dummy pkg-config; ac_word=$2
+++ echo "$as_me:$LINENO: checking for $ac_word" >&5
+++ echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+++ if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
+++   echo $ECHO_N "(cached) $ECHO_C" >&6
+++ else
+++   case $PKG_CONFIG in
+++   [\\/]* | ?:[\\/]*)
+++   ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
+++   ;;
+++   *)
+++   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+++ for as_dir in $PATH
+++ do
+++   IFS=$as_save_IFS
+++   test -z "$as_dir" && as_dir=.
+++   for ac_exec_ext in '' $ac_executable_extensions; do
+++   if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+++     ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+++     echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+++     break 2
+++   fi
+++ done
+++ done
+++ 
+++   test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
+++   ;;
+++ esac
+++ fi
+++ PKG_CONFIG=$ac_cv_path_PKG_CONFIG
+++ 
+++ if test -n "$PKG_CONFIG"; then
+++   echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
+++ echo "${ECHO_T}$PKG_CONFIG" >&6
+++ else
+++   echo "$as_me:$LINENO: result: no" >&5
+++ echo "${ECHO_T}no" >&6
+++ fi
+++ 
+++   fi
+++ 
+++   if test "$PKG_CONFIG" = "no" ; then
+++      echo "*** The pkg-config script could not be found. Make sure it is"
+++      echo "*** in your path, or set the PKG_CONFIG environment variable"
+++      echo "*** to the full path to pkg-config."
+++      echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
+++   else
+++      PKG_CONFIG_MIN_VERSION=0.9.0
+++      if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
++          echo "$as_me:$LINENO: checking for mozilla-nspr >= $MOZILLA_MIN_VERSION mozilla-nss >= $MOZILLA_MIN_VERSION" >&5
++  echo $ECHO_N "checking for mozilla-nspr >= $MOZILLA_MIN_VERSION mozilla-nss >= $MOZILLA_MIN_VERSION... $ECHO_C" >&6
++  
++***************
++*** 25808,25813 ****
++--- 25905,25911 ----
++       NSS_FOUND=no
++    fi
++  
+++     fi
++  fi
++  
++  if test "z$NSS_FOUND" = "zno" ; then
++***************
+ *** 25817,25824 ****
+           ac_mozilla_name=mozilla-$MOZILLA_MIN_VERSION
+       fi
+@@ -63,7 +179,7 @@
+   
+       echo "$as_me:$LINENO: checking for nspr libraries >= $NSPR_MIN_VERSION" >&5
+   echo $ECHO_N "checking for nspr libraries >= $NSPR_MIN_VERSION... $ECHO_C" >&6
+---- 25817,25824 ----
++--- 25915,25922 ----
+           ac_mozilla_name=mozilla-$MOZILLA_MIN_VERSION
+       fi
+   
+@@ -81,7 +197,7 @@
+   		        	if test "z$dir" = "z/usr/lib" ; then
+               	    NSPR_LIBS="$NSPR_LIBS_LIST"
+       		else
+---- 25853,25859 ----
++--- 25951,25957 ----
+   	done
+   
+   	for dir in $ac_nss_lib_dir ; do
+@@ -98,7 +214,7 @@
+           	    		if test "z$dir" = "z/usr/lib" ; then
+           	    NSS_LIBS="$NSS_LIBS_LIST"
+                   else
+---- 25939,25945 ----
++--- 26037,26043 ----
+           done
+   
+           for dir in $ac_nss_lib_dir ; do
+@@ -143,6 +259,34 @@
+   NSS_CRYPTO_LIB="$PACKAGE-nss"
+   NSS_FOUND="no"
+ ***************
++*** 521,529 ****
++      AC_MSG_RESULT(no)
++      NSS_FOUND="without"
++  elif test "z$with_nss" = "z" -a "z$with_nspr" = "z" -a "z$with_mozilla_ver" = "z" -a "z$PKG_CONFIG_ENABLED" = "zyes" ; then
++!     PKG_CHECK_MODULES(NSS, mozilla-nspr >= $MOZILLA_MIN_VERSION mozilla-nss >= $MOZILLA_MIN_VERSION,
++  	[NSS_FOUND=yes],
++  	[NSS_FOUND=no])
++  fi
++  
++  if test "z$NSS_FOUND" = "zno" ; then 
++--- 521,536 ----
++      AC_MSG_RESULT(no)
++      NSS_FOUND="without"
++  elif test "z$with_nss" = "z" -a "z$with_nspr" = "z" -a "z$with_mozilla_ver" = "z" -a "z$PKG_CONFIG_ENABLED" = "zyes" ; then
++!     dnl try system nspr and nss
++!     PKG_CHECK_MODULES(NSS, nspr >= $NSPR_MIN_VERSION nss >= $NSS_MIN_VERSION,
++  	[NSS_FOUND=yes],
++  	[NSS_FOUND=no])
+++     dnl fallback to the mozilla nspr and nss
+++     if test "z$NSS_FOUND" = "zno" ; then
+++ 	PKG_CHECK_MODULES(NSS, mozilla-nspr >= $MOZILLA_MIN_VERSION mozilla-nss >= $MOZILLA_MIN_VERSION,
+++ 	    [NSS_FOUND=yes],
+++ 	    [NSS_FOUND=no])
+++     fi
++  fi
++  
++  if test "z$NSS_FOUND" = "zno" ; then 
++***************
+ *** 534,541 ****
+           ac_mozilla_name=mozilla-$MOZILLA_MIN_VERSION
+       fi
+@@ -152,7 +296,7 @@
+   
+       AC_MSG_CHECKING(for nspr libraries >= $NSPR_MIN_VERSION)
+       NSPR_INCLUDES_FOUND="no"
+---- 534,541 ----
++--- 541,548 ----
+           ac_mozilla_name=mozilla-$MOZILLA_MIN_VERSION
+       fi
+   
+@@ -170,7 +314,7 @@
+   		dnl do not add -L/usr/lib because compiler does it anyway
+           	if test "z$dir" = "z/usr/lib" ; then
+               	    NSPR_LIBS="$NSPR_LIBS_LIST"
+---- 570,576 ----
++--- 577,583 ----
+   	done
+   	
+   	for dir in $ac_nss_lib_dir ; do
+@@ -187,7 +331,7 @@
+           	dnl do not add -L/usr/lib because compiler does it anyway
+       		if test "z$dir" = "z/usr/lib" ; then
+           	    NSS_LIBS="$NSS_LIBS_LIST"
+---- 641,647 ----
++--- 648,654 ----
+           done
+          
+           for dir in $ac_nss_lib_dir ; do
+@@ -14037,3 +14181,57 @@
+   XMLSEC_NSS_ALIBS    	= smime3.lib ssl3.lib nss3.lib libnspr4_s.lib libplds4_s.lib libplc4_s.lib kernel32.lib user32.lib gdi32.lib
+   
+   XMLSEC_MSCRYPTO_SOLIBS  = kernel32.lib user32.lib gdi32.lib Crypt32.lib Advapi32.lib
++--- misc/xmlsec1-1.2.6/configure	2006-05-14 13:19:01.000000000 -0500
+++++ misc/build/xmlsec1-1.2.6/configure	2006-05-14 13:33:18.000000000 -0500
++@@ -463,7 +463,7 @@
++ # include <unistd.h>
++ #endif"
++ 
++-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os XMLSEC_VERSION XMLSEC_PACKAGE XMLSEC_VERSION_SAFE XMLSEC_VERSION_MAJOR XMLSEC_VERSION_MINOR XMLSEC_VERSION_SUBMINOR XMLSEC_VERSION_INFO INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL RM CP MV TAR HELP2MAN MAN2HTML U ANSI2KNR INSTALL_LTDL_TRUE INSTALL_LTDL_FALSE CONVENIENCE_LTDL_TRUE CONVENIENCE_LTDL_FALSE LIBADD_DL PKG_CONFIG_ENABLED PKG_CONFIG LIBXML_CFLAGS LIBXML_LIBS LIBXML262_CFLAGS LIBXML262_LIBS LIBXML_CONFIG LIBXML_MIN_VERSION LIBXSLT_CFLAGS LIBXSLT_LIBS XMLSEC_NO_LIBXSLT LIBXSLT_CONFIG LIBXSLT_MIN_VERSION OPENSSL_CFLAGS OPENSSL_LIBS OPENSSL097_CFLAGS OPENSSL097_LIBS XMLSEC_NO_OPENSSL_TRUE XMLSEC_NO_OPENSSL_FALSE XMLSEC_NO_OPENSSL OPENSSL_CRYPTO_LIB OPENSSL_MIN_VERSION GNUTLS_CFLAGS GNUTLS_LIBS XMLSEC_NO_GNUTLS_TRUE XMLSEC_NO_GNUTLS_FALSE XMLSEC_NO_GNUTLS GNUTLS_CRYPTO_LIB GNUTLS_MIN_VERSION NSS_CFLAGS NSS_LIBS XMLSEC_NO_NSS_TRUE XMLSEC_NO_NSS_FALSE XMLSEC_NO_NSS NSS_CRYPTO_LIB NSS_MIN_VERSION NSPR_MIN_VERSION MOZILLA_MIN_VERSION XMLSEC_NO_SHA1_TRUE XMLSEC_NO_SHA1_FALSE XMLSEC_NO_SHA1 XMLSEC_NO_RIPEMD160_TRUE XMLSEC_NO_RIPEMD160_FALSE XMLSEC_NO_RIPEMD160 XMLSEC_NO_HMAC_TRUE XMLSEC_NO_HMAC_FALSE XMLSEC_NO_HMAC XMLSEC_NO_DSA_TRUE XMLSEC_NO_DSA_FALSE XMLSEC_NO_DSA XMLSEC_NO_RSA_TRUE XMLSEC_NO_RSA_FALSE XMLSEC_NO_RSA XMLSEC_NO_X509_TRUE XMLSEC_NO_X509_FALSE XMLSEC_NO_X509 XMLSEC_NO_DES_TRUE XMLSEC_NO_DES_FALSE XMLSEC_NO_DES XMLSEC_NO_AES_TRUE XMLSEC_NO_AES_FALSE XMLSEC_NO_AES XMLSEC_NO_XMLDSIG_TRUE XMLSEC_NO_XMLDSIG_FALSE XMLSEC_NO_XMLDSIG XMLSEC_NO_XMLENC_TRUE XMLSEC_NO_XMLENC_FALSE XMLSEC_NO_XMLENC XMLSEC_NO_XKMS_TRUE XMLSEC_NO_XKMS_FALSE XMLSEC_NO_XKMS XMLSEC_NO_CRYPTO_DYNAMIC_LOADING_TRUE XMLSEC_NO_CRYPTO_DYNAMIC_LOADING_FALSE XMLSEC_NO_CRYPTO_DYNAMIC_LOADING XMLSEC_DL_INCLUDES XMLSEC_DL_LIBS XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING_TRUE XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING_FALSE XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING XMLSEC_DOCDIR XMLSEC_STATIC_BINARIES XMLSEC_CORE_CFLAGS XMLSEC_CORE_LIBS XMLSEC_LIBDIR XMLSEC_OPENSSL_CFLAGS XMLSEC_OPENSSL_LIBS XMLSEC_GNUTLS_CFLAGS XMLSEC_GNUTLS_LIBS XMLSEC_NSS_CFLAGS XMLSEC_NSS_LIBS XMLSEC_CFLAGS XMLSEC_LIBS XMLSEC_DEFINES XMLSEC_APP_DEFINES XMLSEC_CRYPTO XMLSEC_CRYPTO_LIST XMLSEC_CRYPTO_DISABLED_LIST XMLSEC_CRYPTO_LIB XMLSEC_CRYPTO_CFLAGS XMLSEC_CRYPTO_LIBS XMLSEC_CRYPTO_PC_FILES_LIST LIBOBJS LTLIBOBJS'
+++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os XMLSEC_VERSION XMLSEC_PACKAGE XMLSEC_VERSION_SAFE XMLSEC_VERSION_MAJOR XMLSEC_VERSION_MINOR XMLSEC_VERSION_SUBMINOR XMLSEC_VERSION_INFO INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL RM CP MV TAR HELP2MAN MAN2HTML U ANSI2KNR INSTALL_LTDL_TRUE INSTALL_LTDL_FALSE CONVENIENCE_LTDL_TRUE CONVENIENCE_LTDL_FALSE LIBADD_DL PKG_CONFIG_ENABLED PKG_CONFIG LIBXML_CFLAGS LIBXML_LIBS LIBXML262_CFLAGS LIBXML262_LIBS LIBXML_CONFIG LIBXML_MIN_VERSION LIBXSLT_CFLAGS LIBXSLT_LIBS XMLSEC_NO_LIBXSLT LIBXSLT_CONFIG LIBXSLT_MIN_VERSION OPENSSL_CFLAGS OPENSSL_LIBS OPENSSL097_CFLAGS OPENSSL097_LIBS XMLSEC_NO_OPENSSL_TRUE XMLSEC_NO_OPENSSL_FALSE XMLSEC_NO_OPENSSL OPENSSL_CRYPTO_LIB OPENSSL_MIN_VERSION GNUTLS_CFLAGS GNUTLS_LIBS XMLSEC_NO_GNUTLS_TRUE XMLSEC_NO_GNUTLS_FALSE XMLSEC_NO_GNUTLS GNUTLS_CRYPTO_LIB GNUTLS_MIN_VERSION NSS_CFLAGS NSS_LIBS XMLSEC_NO_NSS_TRUE XMLSEC_NO_NSS_FALSE XMLSEC_NO_NSS NSS_CRYPTO_LIB NSS_MIN_VERSION NSPR_MIN_VERSION MOZILLA_MIN_VERSION FIREFOX_MIN_VERSION XMLSEC_NO_SHA1_TRUE XMLSEC_NO_SHA1_FALSE XMLSEC_NO_SHA1 XMLSEC_NO_RIPEMD160_TRUE XMLSEC_NO_RIPEMD160_FALSE XMLSEC_NO_RIPEMD160 XMLSEC_NO_HMAC_TRUE XMLSEC_NO_HMAC_FALSE XMLSEC_NO_HMAC XMLSEC_NO_DSA_TRUE XMLSEC_NO_DSA_FALSE XMLSEC_NO_DSA XMLSEC_NO_RSA_TRUE XMLSEC_NO_RSA_FALSE XMLSEC_NO_RSA XMLSEC_NO_X509_TRUE XMLSEC_NO_X509_FALSE XMLSEC_NO_X509 XMLSEC_NO_DES_TRUE XMLSEC_NO_DES_FALSE XMLSEC_NO_DES XMLSEC_NO_AES_TRUE XMLSEC_NO_AES_FALSE XMLSEC_NO_AES XMLSEC_NO_XMLDSIG_TRUE XMLSEC_NO_XMLDSIG_FALSE XMLSEC_NO_XMLDSIG XMLSEC_NO_XMLENC_TRUE XMLSEC_NO_XMLENC_FALSE XMLSEC_NO_XMLENC XMLSEC_NO_XKMS_TRUE XMLSEC_NO_XKMS_FALSE XMLSEC_NO_XKMS XMLSEC_NO_CRYPTO_DYNAMIC_LOADING_TRUE XMLSEC_NO_CRYPTO_DYNAMIC_LOADING_FALSE XMLSEC_NO_CRYPTO_DYNAMIC_LOADING XMLSEC_DL_INCLUDES XMLSEC_DL_LIBS XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING_TRUE XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING_FALSE XMLSEC_NO_APPS_CRYPTO_DYNAMIC_LOADING XMLSEC_DOCDIR XMLSEC_STATIC_BINARIES XMLSEC_CORE_CFLAGS XMLSEC_CORE_LIBS XMLSEC_LIBDIR XMLSEC_OPENSSL_CFLAGS XMLSEC_OPENSSL_LIBS XMLSEC_GNUTLS_CFLAGS XMLSEC_GNUTLS_LIBS XMLSEC_NSS_CFLAGS XMLSEC_NSS_LIBS XMLSEC_CFLAGS XMLSEC_LIBS XMLSEC_DEFINES XMLSEC_APP_DEFINES XMLSEC_CRYPTO XMLSEC_CRYPTO_LIST XMLSEC_CRYPTO_DISABLED_LIST XMLSEC_CRYPTO_LIB XMLSEC_CRYPTO_CFLAGS XMLSEC_CRYPTO_LIBS XMLSEC_CRYPTO_PC_FILES_LIST LIBOBJS LTLIBOBJS'
++ ac_subst_files=''
++ 
++ # Initialize some variables set by options.
++@@ -25678,6 +25678,7 @@
++ 
++ XMLSEC_NO_NSS="1"
++ MOZILLA_MIN_VERSION="1.4"
+++FIREFOX_MIN_VERSION="1.0.5"
++ NSS_MIN_VERSION="3.2"
++ NSPR_MIN_VERSION="4.0"
++ NSS_CFLAGS=""
++@@ -25882,7 +25883,33 @@
++             NSS_LIBS=`$PKG_CONFIG --libs "mozilla-nspr >= $MOZILLA_MIN_VERSION mozilla-nss >= $MOZILLA_MIN_VERSION"`
++             echo "$as_me:$LINENO: result: $NSS_LIBS" >&5
++ echo "${ECHO_T}$NSS_LIBS" >&6
++-        else
+++        fi
+++	
+++	if test $succeeded = no; then
+++		# Check if Firefox is present and can be used instead of Mozilla
+++		echo "$as_me:$LINENO: checking for firefox-nspr >= $FIREFOX_MIN_VERSION firefox-nss >= $FIREFOX_MIN_VERSION" >&5
+++		echo $ECHO_N "checking for firefox-nspr >= $FIREFOX_MIN_VERSION firefox-nss >= $FIREFOX_MIN_VERSION... $ECHO_C" >&6
+++		if $PKG_CONFIG --exists "firefox-nspr >= $FIREFOX_MIN_VERSION firefox-nss >= $FIREFOX_MIN_VERSION" ; then
+++			echo "$as_me:$LINENO: result: yes" >&5
+++			echo "${ECHO_T}yes" >&6
+++			succeeded=yes
+++
+++			echo "$as_me:$LINENO: checking NSS_CFLAGS" >&5
+++			echo $ECHO_N "checking NSS_CFLAGS... $ECHO_C" >&6
+++			NSS_CFLAGS=`$PKG_CONFIG --cflags "firefox-nspr >= $FIREFOX_MIN_VERSION firefox-nss >= $FIREFOX_MIN_VERSION"`
+++			echo "$as_me:$LINENO: result: $NSS_CFLAGS" >&5
+++			echo "${ECHO_T}$NSS_CFLAGS" >&6
+++			
+++			echo "$as_me:$LINENO: checking NSS_LIBS" >&5
+++			echo $ECHO_N "checking NSS_LIBS... $ECHO_C" >&6
+++			NSS_LIBS=`$PKG_CONFIG --libs "firefox-nspr >= $FIREFOX_MIN_VERSION firefox-nss >= $FIREFOX_MIN_VERSION"`
+++			echo "$as_me:$LINENO: result: $NSS_LIBS" >&5
+++			echo "${ECHO_T}$NSS_LIBS" >&6
+++		fi
+++	fi
+++
+++        if test $succeeded = no; then
+++	    # No suitable Mozilla/Firefox version found.
++             NSS_CFLAGS=""
++             NSS_LIBS=""
++             ## If we have a custom action on failure, don't print errors, but

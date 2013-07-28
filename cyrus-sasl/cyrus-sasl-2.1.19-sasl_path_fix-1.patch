@@ -1,0 +1,28 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2004-10-23
+Initial Package Version: 2.1.19
+Upstream Status: From Upstream
+Origin: http://bugs.gentoo.org/show_bug.cgi?id=56314
+	https://bugzilla.andrew.cmu.edu/cgi-bin/cvsweb.cgi/src/sasl/lib/common.c.diff?r1=1.103&r2=1.104&f=u
+Description: This patches fixes CAN-2004-0884.  The gentoo advisory
+	<http://www.gentoo.org/security/en/glsa/glsa-200410-05.xml>  mentions
+	two vulnerabilities. The buffer overflow is fixed by upgrading to
+	cyrus-sasl 2.1.19, the other hole is fixed by this patch.
+
+--- cyrus-sasl-2.1.19/lib/common.c.orig	2004-10-23 17:00:33.000000000 +0200
++++ cyrus-sasl-2.1.19/lib/common.c	2004-10-23 17:00:51.000000000 +0200
+@@ -1838,9 +1838,11 @@
+   if (! path)
+     return SASL_BADPARAM;
+ 
+-  *path = getenv(SASL_PATH_ENV_VAR);
+-  if (! *path)
+-    *path = PLUGINDIR;
++  if (getuid() == geteuid() && getgid() == getegid()) {
++    *path = getenv(SASL_PATH_ENV_VAR);
++    if (! *path)
++      *path = PLUGINDIR;
++  }
+ 
+   return SASL_OK;
+ }

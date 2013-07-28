@@ -1,0 +1,98 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-12-25
+Initial Package Version: 4.1.2
+Upstream Status: Not Submitted
+Origin: me
+Description: This patch makes '-fPIE -pie -z now -z relro -z combreloc' the
+default for C, C++, ObjC, and ObjC++, on x86.
+
+Note that 'make profiledbootstrap' will still work... the profiled stages
+will not be PIE's, but the final will be.
+
+diff -Naur gcc-4.1.2.orig/gcc/Makefile.in gcc-4.1.2/gcc/Makefile.in
+--- gcc-4.1.2.orig/gcc/Makefile.in	2006-11-01 14:40:44.000000000 +0000
++++ gcc-4.1.2/gcc/Makefile.in	2007-12-25 08:40:39.000000000 +0000
+@@ -538,7 +538,7 @@
+ LIBGCC2_CFLAGS = -O2 $(LIBGCC2_INCLUDES) $(GCC_CFLAGS) $(TARGET_LIBGCC2_CFLAGS) \
+ 		 $(LIBGCC2_DEBUG_CFLAGS) $(GTHREAD_FLAGS) \
+ 		 -DIN_LIBGCC2 -D__GCC_FLOAT_NOT_NEEDED \
+-		 $(INHIBIT_LIBC_CFLAGS)
++		 $(INHIBIT_LIBC_CFLAGS) -fno-PIE
+ 
+ # Additional options to use when compiling libgcc2.a.
+ # Some targets override this to -isystem include
+@@ -551,7 +551,7 @@
+ CRTSTUFF_CFLAGS = -O2 $(GCC_CFLAGS) $(INCLUDES) $(MULTILIB_CFLAGS) -g0 \
+   -finhibit-size-directive -fno-inline-functions -fno-exceptions \
+   -fno-zero-initialized-in-bss -fno-unit-at-a-time \
+-  $(INHIBIT_LIBC_CFLAGS)
++  $(INHIBIT_LIBC_CFLAGS) -fno-PIE
+ 
+ # Additional sources to handle exceptions; overridden by targets as needed.
+ LIB2ADDEH = $(srcdir)/unwind-dw2.c $(srcdir)/unwind-dw2-fde.c \
+diff -Naur gcc-4.1.2.orig/gcc/common.opt gcc-4.1.2/gcc/common.opt
+--- gcc-4.1.2.orig/gcc/common.opt	2006-05-17 18:38:58.000000000 +0000
++++ gcc-4.1.2/gcc/common.opt	2007-12-25 08:40:39.000000000 +0000
+@@ -639,7 +639,7 @@
+ Generate position-independent code if possible (large mode)
+ 
+ fPIE
+-Common Report Var(flag_pie,2)
++Common Report Var(flag_pie,2) Init(2)
+ Generate position-independent code for executables if possible (large mode)
+ 
+ fpic
+diff -Naur gcc-4.1.2.orig/gcc/config/i386/linux.h gcc-4.1.2/gcc/config/i386/linux.h
+--- gcc-4.1.2.orig/gcc/config/i386/linux.h	2005-08-10 17:53:01.000000000 +0000
++++ gcc-4.1.2/gcc/config/i386/linux.h	2007-12-25 08:40:39.000000000 +0000
+@@ -125,7 +125,8 @@
+ #undef  ENDFILE_SPEC
+ #define ENDFILE_SPEC \
+   "%{ffast-math|funsafe-math-optimizations:crtfastmath.o%s} \
+-   %{shared|pie:crtendS.o%s;:crtend.o%s} crtn.o%s"
++   %{shared|pie:crtendS.o%s;static|nopie|pg|p|profile:crtend.o%s;:crtendS.o%s} \
++   crtn.o%s"
+ 
+ /* A C statement (sans semicolon) to output to the stdio stream
+    FILE the assembler definition of uninitialized global DECL named
+diff -Naur gcc-4.1.2.orig/gcc/config/linux.h gcc-4.1.2/gcc/config/linux.h
+--- gcc-4.1.2.orig/gcc/config/linux.h	2005-08-06 13:26:35.000000000 +0000
++++ gcc-4.1.2/gcc/config/linux.h	2007-12-25 08:40:39.000000000 +0000
+@@ -41,8 +41,9 @@
+ #undef	STARTFILE_SPEC
+ #if defined HAVE_LD_PIE
+ #define STARTFILE_SPEC \
+-  "%{!shared: %{pg|p|profile:gcrt1.o%s;pie:Scrt1.o%s;:crt1.o%s}} \
+-   crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s;:crtbegin.o%s}"
++  "%{!shared: %{pg|p|profile:gcrt1.o%s;pie:Scrt1.o%s;static|nopie:crt1.o%s;: \
++   Scrt1.o%s}} crti.o%s %{static:crtbeginT.o%s;shared|pie:crtbeginS.o%s; \
++   nopie|pg|p|profile:crtbegin.o%s;:crtbeginS.o%s}"
+ #else
+ #define STARTFILE_SPEC \
+   "%{!shared: %{pg|p|profile:gcrt1.o%s;:crt1.o%s}} \
+diff -Naur gcc-4.1.2.orig/gcc/gcc.c gcc-4.1.2/gcc/gcc.c
+--- gcc-4.1.2.orig/gcc/gcc.c	2006-11-07 14:26:21.000000000 +0000
++++ gcc-4.1.2/gcc/gcc.c	2007-12-25 08:42:41.000000000 +0000
+@@ -680,7 +680,11 @@
+ 
+ #ifndef LINK_PIE_SPEC
+ #ifdef HAVE_LD_PIE
+-#define LINK_PIE_SPEC "%{pie:-pie} "
++#define LINK_PIE_SPEC "%{pie:-pie}\
++  %{static|Bstatic|shared|Bshareable|i|r|pie|nopie:;:-pie}\
++  %{!static:%{!Bstatic: %{norelro:-z norelro;:-z relro}\
++  %{nocombreloc:-z nocombreloc;:-z combreloc}\
++  %{nonow:-z lazy;:-z now} }} "
+ #else
+ #define LINK_PIE_SPEC "%{pie:} "
+ #endif
+@@ -792,6 +796,9 @@
+ /* NB: This is shared amongst all front-ends.  */
+ static const char *cc1_options =
+ "%{pg:%{fomit-frame-pointer:%e-pg and -fomit-frame-pointer are incompatible}}\
++ %{fpic|fPIC|fpie|static|D__KERNEL__:-fno-PIE}\
++ %{shared|nostdlib|nostartfiles:-fno-PIE -fPIC}\
++ %{static:%{pie:%e-static and -pie are incompatible}}\
+  %1 %{!Q:-quiet} -dumpbase %B %{d*} %{m*} %{a*}\
+  %{c|S:%{o*:-auxbase-strip %*}%{!o*:-auxbase %b}}%{!c:%{!S:-auxbase %b}}\
+  %{g*} %{O*} %{W*&pedantic*} %{w} %{std*&ansi&trigraphs}\

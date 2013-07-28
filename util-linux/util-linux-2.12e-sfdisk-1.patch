@@ -1,0 +1,26 @@
+Submitted By: Jeremy Utley (jeremy@linuxfromscratch.org)
+Date: 2004-09-13
+Initial Package Version: 2.12b
+Upstream Status: Not submitted - fixes GCC miscompilation
+Origin: Created from troubleshooting on IRC
+Description: When using GCC 3.4.{1,2}, the sfdisk program is miscompiled,
+causing a seek error to be output.  Troubleshooting narrowed the problem down
+to the fact that Util-Linux by default uses the -O2 optimization level,
+which includes the unit-at-a-time optimization, exposing this problem.  This
+patch passes -fno-unit-at-a-time to the sfdisk, fdisk, and cfdisk programs,
+resolving this error.  Developed by Matthew Burgess, Ronald Hummelink, and
+Jeremy Utley.
+
+
+diff -Naur util-linux-2.12b/fdisk/Makefile util-linux-2.12b-new/fdisk/Makefile
+--- util-linux-2.12b/fdisk/Makefile	2002-11-24 17:33:58.000000000 +0000
++++ util-linux-2.12b-new/fdisk/Makefile	2004-09-14 00:45:31.303286087 +0000
+@@ -6,6 +6,8 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS:=$(CFLAGS) -fno-unit-at-a-time
++
+ MAN8=
+ SBIN=
+ CFDISK=cfdisk

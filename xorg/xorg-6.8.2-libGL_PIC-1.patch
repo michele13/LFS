@@ -1,0 +1,23 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-16
+Initial Package Version: 6.8.2 
+Upstream Status: Not submitted - They already know
+Origin: Debian - 062_make_libGL_PIC_compliant.diff
+Description: libGL.so is not position independent for some weird reason.
+This patch makes all of libGL.so sharable.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -ruN xc-old/extras/Mesa/src/mesa/x86/glapi_x86.S xc/extras/Mesa/src/mesa/x86/glapi_x86.S
+--- xc-old/extras/Mesa/src/mesa/x86/glapi_x86.S	2004-08-28 04:28:19.000000000 +0000
++++ xc/extras/Mesa/src/mesa/x86/glapi_x86.S	2004-10-25 09:21:26.420017064 +0000
+@@ -106,6 +106,8 @@
+ EXTERN GLNAME(_glapi_get_dispatch)
+ #endif
+ 
++.section Gltext, "awx"
++
+ 		ALIGNTEXT16 ; GLOBL GLNAME(gl_dispatch_functions_start)
+ GLNAME(gl_dispatch_functions_start):
+ 

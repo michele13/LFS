@@ -1,0 +1,48 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-04-26
+Initial Package Version: 1.1.1
+Upstream status: hack, will not submit.
+Origin: Alexander E. Patrakov
+Description: Sets the default UI font to Arial. Without this patch,
+OpenOffice may pick a wrong font for UI. This is especially bad if
+the picked font does not contain national characters necessary to
+display menus (and to reconfigure the default UI font also).
+This happens e.g. in Russia when Bitstream Vera fonts are installed.
+The official solution is to use the "xset" command to remove such
+bad fonts from the path and then reconfigure the UI font using
+the font replacement table. This patch does the same configuration
+change without any mouse clicks and for all users.
+
+Before use, replace the string "Arial" with something more suitable to you.
+
+diff -ur oo_1.1.1_cvs.orig/officecfg/registry/data/org/openoffice/Office/Common.xcu oo_1.1.1_cvs/officecfg/registry/data/org/openoffice/Office/Common.xcu
+--- oo_1.1.1_cvs.orig/officecfg/registry/data/org/openoffice/Office/Common.xcu	2004-03-07 11:17:55.000000000 +0500
++++ oo_1.1.1_cvs/officecfg/registry/data/org/openoffice/Office/Common.xcu	2004-04-25 12:57:17.248186304 +0600
+@@ -395,4 +395,27 @@
+       </node>
+     </node>
+   </node>
++ <node oor:name="Font">
++  <node oor:name="Substitution">
++   <prop oor:name="Replacement" oor:type="xs:boolean">
++    <value>true</value>
++   </prop>
++   <node oor:name="FontPairs">
++    <node oor:name="_0" oor:op="replace">
++     <prop oor:name="Always" oor:type="xs:boolean">
++      <value>true</value>
++     </prop>
++     <prop oor:name="OnScreenOnly" oor:type="xs:boolean">
++      <value>true</value>
++     </prop>
++     <prop oor:name="ReplaceFont" oor:type="xs:string">
++      <value>Andale Sans UI</value>
++     </prop>
++     <prop oor:name="SubstituteFont" oor:type="xs:string">
++      <value>Arial</value>
++     </prop>
++    </node>
++   </node>
++  </node>
++ </node>
+ </oor:component-data>

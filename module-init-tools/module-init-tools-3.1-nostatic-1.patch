@@ -1,0 +1,103 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-12-26
+Initial Package Version: 3.1
+Upstream Status: Not Submitted
+Origin: None
+Description: This patch removes the use of zlib.a, and removes insmod.static.
+
+diff -Naur module-init-tools-3.1.orig/Makefile.in module-init-tools-3.1/Makefile.in
+--- module-init-tools-3.1.orig/Makefile.in	2005-01-26 16:43:36.722051554 +0000
++++ module-init-tools-3.1/Makefile.in	2005-01-26 17:03:47.328402517 +0000
+@@ -89,16 +89,10 @@
+ depmod_SOURCES = depmod.c moduleops.c tables.c zlibsupport.c depmod.h moduleops.h tables.h list.h testing.h  zlibsupport.h
+ modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h
+ 
+-insmod_static_SOURCES = insmod.c
+-insmod_static_LDFLAGS = -static
+-# We don't want the $(zlib_flags) here: that makes a dynamic executable
+-insmod_static_LDADD = 
+-
+ EXTRA_insmod_SOURCES = backwards_compat.c
+ EXTRA_lsmod_SOURCES = backwards_compat.c
+ EXTRA_modprobe_SOURCES = backwards_compat.c
+ EXTRA_rmmod_SOURCES = backwards_compat.c
+-EXTRA_insmod_static_SOURCES = backwards_compat.c
+ EXTRA_depmod_SOURCES = moduleops_core.c
+ EXTRA_modinfo_SOURCES = backwards_compat.c
+ 
+@@ -109,7 +103,7 @@
+ 
+ EXTRA_DIST = generate-modprobe.conf modprobe.devfs FAQ stress_modules.sh install-with-care $(SGML) $(man_MANS)
+ 
+-sbin_PROGRAMS = insmod modprobe rmmod depmod modinfo insmod.static
++sbin_PROGRAMS = insmod modprobe rmmod depmod modinfo
+ bin_PROGRAMS = lsmod
+ sbin_SCRIPTS = generate-modprobe.conf
+ 
+@@ -127,7 +121,7 @@
+ CONFIG_CLEAN_FILES =
+ bin_PROGRAMS = lsmod$(EXEEXT)
+ sbin_PROGRAMS = insmod$(EXEEXT) modprobe$(EXEEXT) rmmod$(EXEEXT) \
+-	depmod$(EXEEXT) modinfo$(EXEEXT) insmod.static$(EXEEXT)
++	depmod$(EXEEXT) modinfo$(EXEEXT)
+ PROGRAMS = $(bin_PROGRAMS) $(sbin_PROGRAMS)
+ 
+ am_depmod_OBJECTS = depmod.$(OBJEXT) moduleops.$(OBJEXT) \
+@@ -141,9 +135,6 @@
+ insmod_LDADD = $(LDADD)
+ insmod_DEPENDENCIES =
+ insmod_LDFLAGS =
+-am_insmod_static_OBJECTS = insmod.$(OBJEXT)
+-insmod_static_OBJECTS = $(am_insmod_static_OBJECTS)
+-insmod_static_DEPENDENCIES =
+ am_lsmod_OBJECTS = lsmod.$(OBJEXT)
+ lsmod_OBJECTS = $(am_lsmod_OBJECTS)
+ lsmod_LDADD = $(LDADD)
+@@ -187,7 +178,6 @@
+ CFLAGS = @CFLAGS@
+ DIST_SOURCES = $(depmod_SOURCES) $(EXTRA_depmod_SOURCES) \
+ 	$(insmod_SOURCES) $(EXTRA_insmod_SOURCES) \
+-	$(insmod_static_SOURCES) $(EXTRA_insmod_static_SOURCES) \
+ 	$(lsmod_SOURCES) $(EXTRA_lsmod_SOURCES) $(modinfo_SOURCES) \
+ 	$(EXTRA_modinfo_SOURCES) $(modprobe_SOURCES) \
+ 	$(EXTRA_modprobe_SOURCES) $(rmmod_SOURCES) \
+@@ -198,7 +188,7 @@
+ DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
+ 	Makefile.in NEWS TODO aclocal.m4 config.guess config.sub \
+ 	configure configure.in depcomp install-sh missing mkinstalldirs
+-SOURCES = $(depmod_SOURCES) $(EXTRA_depmod_SOURCES) $(insmod_SOURCES) $(EXTRA_insmod_SOURCES) $(insmod_static_SOURCES) $(EXTRA_insmod_static_SOURCES) $(lsmod_SOURCES) $(EXTRA_lsmod_SOURCES) $(modinfo_SOURCES) $(EXTRA_modinfo_SOURCES) $(modprobe_SOURCES) $(EXTRA_modprobe_SOURCES) $(rmmod_SOURCES) $(EXTRA_rmmod_SOURCES)
++SOURCES = $(depmod_SOURCES) $(EXTRA_depmod_SOURCES) $(insmod_SOURCES) $(EXTRA_insmod_SOURCES) $(lsmod_SOURCES) $(EXTRA_lsmod_SOURCES) $(modinfo_SOURCES) $(EXTRA_modinfo_SOURCES) $(modprobe_SOURCES) $(EXTRA_modprobe_SOURCES) $(rmmod_SOURCES) $(EXTRA_rmmod_SOURCES)
+ 
+ all: all-am
+ 
+@@ -274,9 +264,6 @@
+ insmod$(EXEEXT): $(insmod_OBJECTS) $(insmod_DEPENDENCIES) 
+ 	@rm -f insmod$(EXEEXT)
+ 	$(LINK) $(insmod_LDFLAGS) $(insmod_OBJECTS) $(insmod_LDADD) $(LIBS)
+-insmod.static$(EXEEXT): $(insmod_static_OBJECTS) $(insmod_static_DEPENDENCIES) 
+-	@rm -f insmod.static$(EXEEXT)
+-	$(LINK) $(insmod_static_LDFLAGS) $(insmod_static_OBJECTS) $(insmod_static_LDADD) $(LIBS)
+ lsmod$(EXEEXT): $(lsmod_OBJECTS) $(lsmod_DEPENDENCIES) 
+ 	@rm -f lsmod$(EXEEXT)
+ 	$(LINK) $(lsmod_LDFLAGS) $(lsmod_OBJECTS) $(lsmod_LDADD) $(LIBS)
+diff -Naur module-init-tools-3.1.orig/configure module-init-tools-3.1/configure
+--- module-init-tools-3.1.orig/configure	2005-01-26 16:43:36.731049027 +0000
++++ module-init-tools-3.1/configure	2005-01-26 17:07:44.542883147 +0000
+@@ -1731,8 +1731,6 @@
+ 
+ 
+ 
+-# If zlib is required, libz must be linked static, modprobe is in
+-# /sbin, libz is in /usr/lib and may not be available when it is run.
+ # Check whether --enable-zlib or --disable-zlib was given.
+ if test "${enable_zlib+set}" = set; then
+   enableval="$enable_zlib"
+@@ -1741,7 +1739,7 @@
+ #define CONFIG_USE_ZLIB 1
+ _ACEOF
+ 
+-  zlib_flags="-Wl,-Bstatic -lz -Wl,-Bdynamic"
++  zlib_flags="-Wl,-Bdynamic -lz"
+ fi
+ fi;
+ 

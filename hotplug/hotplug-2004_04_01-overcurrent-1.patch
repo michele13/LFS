@@ -1,0 +1,76 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-15
+Initial Package Version: 2004_04_01
+Upstream Status: needs more testing on LFS
+Origin: Alexander E. Patrakov
+Description: Probing wrong HCDs by brute force (as the original package does)
+may result in USB overcurrent messages from kernel. This patch removes such
+brute-force probing and relies on pci.rc to detect the proper HCD.
+May break functionality of non-PCI OHCI HCDs.
+
+diff -ur hotplug-2004_04_01/etc/hotplug/usb.rc hotplug-2004_04_01.tweaked/etc/hotplug/usb.rc
+--- hotplug-2004_04_01/etc/hotplug/usb.rc	2004-05-15 21:24:55.165442296 +0600
++++ hotplug-2004_04_01.tweaked/etc/hotplug/usb.rc	2004-05-15 21:23:57.905147184 +0600
+@@ -139,6 +139,8 @@
+     # assume we synthesize unless "usbfs" is clearly not initted (which
+     # we currently need when synthesizing, anyway).
+ 
++    # FIXME: this is wrong for LFS
++
+     SYNTHESIZE=true
+     if [ ! -d /proc/bus/usb ]; then
+ 	SYNTHESIZE=false
+@@ -163,29 +165,9 @@
+ 	fi
+     fi
+ 
+-    # Load Host Controller Drivers (HCDs) ... this automatically handles
+-    # systems with multiple controllers (EHCI, OHCI, UHCI) without needing
+-    # /proc or tools (lspci -v|grep USB, etc) to do so.  If hotplugging
+-    # is enabled on this system, initting a root hub will cause hotplug
+-    # events to fire for every device on the tree at that root.
+-
+-    # FIXME: some of this should be driven by PCI hotplugging, and have
+-    # the blacklist control which uhci driver gets used (before 2.5).
+-
+-    # "new style" HCDs ... more common code
+-    modprobe -q ehci-hcd >/dev/null 2>&1
+-    modprobe -q ohci-hcd >/dev/null 2>&1
+-    modprobe -q uhci-hcd >/dev/null 2>&1
+-
+-    # "old style" HCDs ... more driver-specific bugs
+-    modprobe -q usb-ohci >/dev/null 2>&1
+-    # NOTE: this prefers "uhci"; you may prefer "usb-uhci".
+-    # modprobe -q usb-uhci >/dev/null 2>&1 || modprobe -q uhci >/dev/null 2>&1
+-    modprobe -q uhci >/dev/null 2>&1 || modprobe -q usb-uhci >/dev/null 2>&1
+-
+-    # ... add any non-PCI HCDS here.  Examples include the
+-    # CRIS usb-host, Philips ISP-1161, Symlogic 811HS, and so on.
+-    # ohci-hcd can handle some non-pci variants.
++    # Host Controller Drivers (HCDs) were loaded here in the original version...
++    # But PCI hotplug already handles this, and probing wrong HCDs
++    # leads to bogus overcurrent messages on Declan Moriarty's computer
+ 
+     if [ -d /proc/bus/usb ]; then
+ 	# If we see there are no busses, we "failed" and
+@@ -211,6 +193,9 @@
+     # hotplug events didn't fire during booting;
+     # cope with devices that enumerated earlier
+     # and may not have been fully configured.
++
++    # FIXME: why do they need sleep here?
++
+     if [ $SYNTHESIZE = true ]; then
+ 	sleep 1
+     	usb_boot_events
+@@ -218,6 +203,9 @@
+ 
+     # Some modules are statically loaded, perhaps because they are
+     # needed to activate filesystem device nodes.
++
++    # FIXME: probably better handled by a separate "modules" script
++
+     for MODULE in $STATIC_MODULE_LIST; do
+ 	modprobe $MODULE
+     done
+

@@ -1,0 +1,53 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2005-11-07
+Initial Package Version: 2.0.0
+Origin: ooo-build
+Description: Fixes compilation with pkg-config versions that do not
+             honor implicit dependencies by default.
+Upstream Status:  In ooo-build
+
+--- OOo_2.0.0-orig/shell/source/backends/gconfbe/makefile.mk	2005-09-07 14:47:59.000000000 -0500
++++ OOo_2.0.0/shell/source/backends/gconfbe/makefile.mk	2005-10-19 20:36:06.000000000 -0500
+@@ -56,7 +56,7 @@
+ 
+ .IF "$(ENABLE_GNOMEVFS)"!=""
+ COMPILER_WARN_ALL=TRUE
+-PKGCONFIG_MODULES=gconf-2.0 gobject-2.0
++PKGCONFIG_MODULES=gconf-2.0 gobject-2.0 glib-2.0 ORBit-2.0
+ .INCLUDE: pkg_config.mk
+ 
+ .IF "$(OS)" == "SOLARIS"
+--- OOo_2.0.0-orig/ucb/source/ucp/gvfs/makefile.mk	2005-09-09 10:43:39.000000000 -0500
++++ OOo_2.0.0/ucb/source/ucp/gvfs/makefile.mk	2005-10-19 20:36:06.000000000 -0500
+@@ -48,7 +48,7 @@
+ 
+ .IF "$(ENABLE_GNOMEVFS)"!=""
+ COMPILER_WARN_ALL=TRUE
+-PKGCONFIG_MODULES=gnome-vfs-2.0
++PKGCONFIG_MODULES=gnome-vfs-2.0  glib-2.0 ORBit-2.0 gthread-2.0
+ .INCLUDE: pkg_config.mk
+ 
+ .IF "$(OS)" == "SOLARIS"
+--- OOo_2.0.0-orig/vcl/util/makefile.mk	2005-10-05 05:29:16.000000000 -0500
++++ OOo_2.0.0/vcl/util/makefile.mk	2005-10-19 20:36:06.000000000 -0500
+@@ -350,7 +350,8 @@
+ 
+ # gtk plugin
+ .IF "$(ENABLE_GTK)" != ""
+-PKGCONFIG_MODULES=gtk+-2.0 gthread-2.0
++PKGCONFIG_MODULES=gtk+-2.0 gthread-2.0 gdk-x11-2.0 gdk-pixbuf-2.0 glib-2.0 gobject-2.0 pango
++
+ .INCLUDE: pkg_config.mk
+ 
+ LIB4TARGET=$(SLB)$/igtk_plug_
+--- OOo_2.0.0-orig/fpicker/source/unx/gnome/makefile.mk	2005-09-08 18:36:36.000000000 -0500
++++ OOo_2.0.0/fpicker/source/unx/gnome/makefile.mk	2005-10-19 20:36:06.000000000 -0500
+@@ -54,7 +54,7 @@
+ 
+ .ELSE # we build for GNOME
+ 
+-PKGCONFIG_MODULES=gtk+-2.0
++PKGCONFIG_MODULES=gtk+-2.0 glib-2.0 gobject-2.0 gdk-pixbuf-2.0 pango
+ .INCLUDE : pkg_config.mk
+ 
+ # check gtk version

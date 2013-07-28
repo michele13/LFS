@@ -1,0 +1,54 @@
+Submitted By: Kelledin <kelledin at users dot sourceforge dot net>
+Date: 2004-02-13
+Initial Package Version: 2.1.5
+Upstream status: fixed in 2.1.7 (2.1.7 severely breaks API compat though)
+Origin: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=216605
+Description: freetype 2.1.5 has trouble handling Type1 fonts with nonzero
+             PaintType or StrokeWidth fields.  This usually manifests itself
+             as a segfault when running fc-cache on GhostScript fonts.
+
+--- freetype-2.1.5/src/type1/t1objs.c.orig	2003-10-21 15:58:18.000000000 +0200
++++ freetype-2.1.5/src/type1/t1objs.c	2003-10-21 15:58:40.000000000 +0200
+@@ -229,8 +229,8 @@
+       FT_FREE( type1->encoding.char_name );
+       FT_FREE( type1->font_name );
+ 
+-      FT_FREE( type1->paint_type );
+-      FT_FREE( type1->stroke_width );
++      /* FT_FREE( type1->paint_type ); */
++      /* FT_FREE( type1->stroke_width ); */
+ 
+ #ifndef T1_CONFIG_OPTION_NO_AFM
+       /* release afm data if present */
+--- freetype-2.1.5/src/type42/t42objs.c.orig	2003-10-21 15:59:47.000000000 +0200
++++ freetype-2.1.5/src/type42/t42objs.c	2003-10-21 16:00:02.000000000 +0200
+@@ -398,8 +398,8 @@
+       FT_FREE( type1->encoding.char_name );
+       FT_FREE( type1->font_name );
+ 
+-      FT_FREE( type1->paint_type );
+-      FT_FREE( type1->stroke_width );
++      /* FT_FREE( type1->paint_type ); */
++      /* FT_FREE( type1->stroke_width ); */
+ 
+       FT_FREE( face->ttf_data );
+ 
+--- freetype-2.1.5/include/freetype/internal/t1types.h.orig	2003-10-21 16:00:42.000000000 +0200
++++ freetype-2.1.5/include/freetype/internal/t1types.h	2003-10-21 16:00:56.000000000 +0200
+@@ -108,14 +108,14 @@
+     FT_Byte**        charstrings;       /* array of glyph charstrings */
+     FT_Int*          charstrings_len;
+ 
+-    FT_Byte*         paint_type;
++    FT_Byte          paint_type;
+     FT_Byte          font_type;
+     FT_Matrix        font_matrix;
+     FT_Vector        font_offset;
+     FT_BBox          font_bbox;
+     FT_Long          font_id;
+ 
+-    FT_Fixed*        stroke_width;
++    FT_Fixed         stroke_width;
+ 
+   } T1_FontRec, *T1_Font;
+ 

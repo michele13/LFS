@@ -1,0 +1,37 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Origin: Alexander E. Patrakov
+Date: 2003-11-27
+Initial Package Version: 2.4.7-now-ss020116-try
+Description: Fixes compilation problem with newer kernels (>=2.4.22)
+The inserted declarations and definitions match those in linux 2.4.22.
+Before using this patch with other kernel versions, please view
+/usr/src/linux/include/linux/socket.h
+and make sure that structures and definitions in this patch
+match those in that header.
+
+diff -ur iproute2/include-glibc/glibc-bugs.h iproute2-fixed/include-glibc/glibc-bugs.h
+--- iproute2/include-glibc/glibc-bugs.h	2000-10-11 00:12:59.000000000 +0600
++++ iproute2-fixed/include-glibc/glibc-bugs.h	2003-11-27 19:17:32.000000000 +0500
+@@ -14,6 +14,22 @@
+ 
+ typedef __u16 in_port_t;
+ typedef __u32 in_addr_t;
++typedef unsigned short  sa_family_t;
++#define _SS_MAXSIZE     128     /* Implementation specific max size */
++#define _SS_ALIGNSIZE   (__alignof__ (struct sockaddr *))
++                                /* Implementation specific desired alignment */
++
++
++struct sockaddr_storage {
++        sa_family_t     ss_family;              /* address family */
++        /* Following field(s) are implementation specific */
++        char            __data[_SS_MAXSIZE - sizeof(sa_family_t)];
++                                /* space to achieve desired size, */
++                                /* _SS_MAXSIZE value minus size of ss_family */
++} __attribute__ ((aligned(_SS_ALIGNSIZE)));     /* force desired alignment */
++
++
++
+ 
+ #endif
+ 

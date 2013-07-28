@@ -1,0 +1,303 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-17
+Initial Package Version: 1.1.30
+Origin: Debian Maintainer and Mandrake Specs CVS
+Description: Fixes locking
+	     Change from mktemp mkstemp
+	     Adds new modems
+	     64 Bit Patches
+	     Adds missing includes
+ 
+diff -Naur mgetty-1.1.30.orig/compat/newslock.c mgetty-1.1.30/compat/newslock.c
+--- mgetty-1.1.30.orig/compat/newslock.c	1997-10-30 18:33:39.000000000 +0000
++++ mgetty-1.1.30/compat/newslock.c	2003-09-17 16:38:00.000000000 +0000
+@@ -6,6 +6,7 @@
+  * TAKEN UNMODIFIED FROM C-NEWS BY Geoffrey Collyer AND Henry Spencer
+  */
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <unistd.h>
+ 
+ int
+diff -Naur mgetty-1.1.30.orig/fax/faxspool.in mgetty-1.1.30/fax/faxspool.in
+--- mgetty-1.1.30.orig/fax/faxspool.in	2002-11-23 15:14:57.000000000 +0000
++++ mgetty-1.1.30/fax/faxspool.in	2003-09-17 16:14:05.000000000 +0000
+@@ -637,10 +637,14 @@
+ #
+     if [ x$file = x- ]
+     then
++	file=`mktemp /tmp/faxspool.XXXXXX`
++	if test -z $file
++	then
++	    $echo "ERROR: can't create work file, giving up" >&2 ; exit 6
++	fi
++	trap "rm $file" 0
+ 	$echo "spooling $file (stdin)..."
+-	trap "rm /tmp/faxsp.$$" 0
+-        cat - >/tmp/faxsp.$$
+-	file=/tmp/faxsp.$$
++        cat - >$file
+     else
+ 	$echo "spooling $file..."
+     fi
+diff -Naur mgetty-1.1.30.orig/locks.c mgetty-1.1.30/locks.c
+--- mgetty-1.1.30.orig/locks.c	2001-01-06 17:46:34.000000000 +0000
++++ mgetty-1.1.30/locks.c	2003-09-17 16:37:32.000000000 +0000
+@@ -394,9 +394,42 @@
+ 
+ #else	/* not SVR4 */ 
+ 
++static char * unslash_name _P1 ( (device),
++				 char *device )
++{
++    char *lock_device, *ldev_begin, *ldevice_orig;
++
++    ldevice_orig = malloc( strlen (device) + 1 );
++    sprintf( ldevice_orig, "%s", device );
++
++    lock_device = strchr( ldevice_orig, '/' );
++    while (lock_device)
++      {
++	*lock_device = '_';
++	lock_device = strchr( lock_device, '/' );
++      }
++
++    if ( *ldevice_orig == '_' )
++      {
++	lock_device = strchr( ldevice_orig + 1, '_' );
++	if (! lock_device)
++	  lock_device = ldevice_orig;
++	lock_device++;
++      }
++    else
++      lock_device = ldevice_orig;
++
++    ldev_begin = malloc( strlen( lock_device ) + 1 );
++    sprintf( ldev_begin, "%s", lock_device );
++    free( ldevice_orig );
++
++    return ldev_begin;
++}
++
+ static char * get_lock_name _P2( (lock_name, device),
+ 			  char * lock_name, char * device )
+ {
++    char *lock;
+ #ifdef LOCKS_LOWERCASE
+     /* sco locking convention -> change all device names to lowercase */
+ 
+@@ -425,10 +458,10 @@
+ #endif	/* LOCKS_LOWERCASE */
+ 
+     /* throw out all directory prefixes */
+-    if ( strchr( device, '/' ) != NULL )
+-        device = strrchr( device, '/' ) +1;
+-    
+-    sprintf( lock_name, LOCK, device);
++
++    lock = unslash_name ( device );
++    sprintf( lock_name, LOCK, lock );
++    free ( lock );
+ 
+     return lock_name;
+ }
+diff -Naur mgetty-1.1.30.orig/logfile.c mgetty-1.1.30/logfile.c
+--- mgetty-1.1.30.orig/logfile.c	2002-11-25 13:08:26.000000000 +0000
++++ mgetty-1.1.30/logfile.c	2003-09-17 16:35:04.000000000 +0000
+@@ -56,10 +56,14 @@
+ /* Most systems have these variables but do not declare them. On many
+    of those systems that _do_ declare them, it won't hurt */
+ 
+-extern int sys_nerr;
+-#if !defined(__NetBSD__) && !defined( __FreeBSD__ ) && !defined(__OpenBSD__) && !defined(__GLIBC__) && !defined(__MACH__)
+-extern char *sys_errlist[];
+-#endif
++/* commented in by was@debian.org on Wed, 27 Nov 2002 01:15:11 -0500
++   because sys_nerr and sys_errlist are deprecated. strerror() is used
++   instead below.*/
++
++/* extern int sys_nerr; */
++/* #if !defined(__NetBSD__) && !defined( __FreeBSD__ ) && !defined(__OpenBSD__) && !defined(__GLIBC__) && !defined(__MACH__) */
++/* extern char *sys_errlist[]; */
++/* #endif */
+ 
+ /* Interactive Unix is a little bit braindead - does not have atexit(),
+  */
+@@ -209,6 +213,7 @@
+ va_list pvar;
+ int     errnr;
+ char * p;
++char *error_string;
+ static int first_open = TRUE;
+ 
+     if ( level > log_level )	/* log level high enough? */
+@@ -325,12 +330,20 @@
+     }
+     else		/* ERROR or FATAL */
+     {
++        error_string = strerror (errnr);
++	if ( error_string == NULL )
++	{
++            if ( errno == EINVAL )
++	        error_string = "<error not in list>";
++	    else
++	        error_string = "<error calling strerror()>";
++	}
++
+ 	fprintf(log_fp, "\n%02d/%02d %02d:%02d:%02d %s %s: %s",
+ 		             tm->tm_mon+1,  tm->tm_mday,
+ 			     tm->tm_hour, tm->tm_min, tm->tm_sec,
+ 		             log_infix, ws,
+-			     ( errnr <= sys_nerr ) ? sys_errlist[errnr]:
+-			     "<error not in list>" );
++			     strerror (errnr));
+ #ifdef SYSLOG
+ 	syslog( level == L_FATAL? LOG_ALERT: LOG_ERR, "%s: %m", ws );
+ #endif
+diff -Naur mgetty-1.1.30.orig/ring.c mgetty-1.1.30/ring.c
+--- mgetty-1.1.30.orig/ring.c	2002-12-05 20:29:10.000000000 +0000
++++ mgetty-1.1.30/ring.c	2003-09-17 16:39:05.000000000 +0000
+@@ -219,6 +219,9 @@
+ char	buf[BUFSIZE], ch, *p;
+ int	i, w, r;
+ int	rc = SUCCESS;
++boolean got_name = FALSE;
++boolean got_nmbr = FALSE;
++boolean got_action = FALSE;
+ boolean	got_dle;		/* for <DLE><char> events (voice mode) */
+ 
+     lprintf( L_MESG, "wfr: waiting for ``RING''" );
+@@ -290,14 +293,15 @@
+ 	    if ( actions != NULL )
+ 	      for( i=0; actions[i].expect != NULL; i++ )
+ 	    {
+-		int len = strlen( actions[i].expect );
+-		if ( w == len &&
+-		     memcmp( buf, actions[i].expect, len ) == 0 )
++	      int len = strlen( actions[i].expect );
++	      if ( w >= len &&
++		   memcmp( &buf[w-len], actions[i].expect, len ) == 0 )
+ 		{
+-		    lprintf( L_MESG, "wfr: found action string: ``%s''",
+-				     actions[i].expect );
+-		    *action = actions[i].action;
+-		    rc = FAIL; break;
++		  got_action = TRUE;	/* found *possible* action */
++		  lprintf( L_MESG, "wfr: found action string: ``%s''",
++			   actions[i].expect );
++		  *action = actions[i].action;
++		  break;
+ 		}
+ 	    }
+ 	    if ( rc == FAIL ) break;		/* break out of while() */
+@@ -321,7 +325,19 @@
+ 	 * instead of waiting for the next "real" RING
+ 	 * (but don't do this for V253 DRON/DROF modems!)
+ 	 */
+-	if ( strncmp( buf, "NMBR", 4 ) == 0 && drox_count == 0 ) { break; }
++	if ( strncmp( buf, "NMBR", 4 ) == 0 && drox_count == 0 ) { got_nmbr = TRUE; }
++ 	if ( strncmp( buf, "NAME", 4 ) == 0 ) { got_name = TRUE;
++ 	    if ( got_action ) { lprintf( L_MESG, "wfr: action false alarm" );
++	        got_action = FALSE; } }		/* false alarm -> no action */
++
++ 	if ( got_nmbr && got_name ) break;	/* got both name & number */
++
++ 	/* special case -> break; do not expect caller name */
++ 	if ( got_nmbr && CallerId[0] == 'P' ) break; /* private */
++ 	if ( got_nmbr && CallerId[0] == 'O' ) break; /* out of area */
++
++ 	/* really found "action" (not a false alarm from caller id info) */
++	if ( got_action ) { rc = FAIL; break; }
+ 
+ 	/* V.253 ring cadences */
+ 	if ( strncmp( buf, "DRON", 4 ) == 0 ||
+diff -Naur mgetty-1.1.30.orig/voice/libmgsm/code.c mgetty-1.1.30/voice/libmgsm/code.c
+--- mgetty-1.1.30.orig/voice/libmgsm/code.c	1998-09-09 21:06:43.000000000 +0000
++++ mgetty-1.1.30/voice/libmgsm/code.c	2003-09-17 16:35:58.000000000 +0000
+@@ -8,7 +8,6 @@
+ 
+ #include  "config.h"
+ 
+-
+ #ifdef    HAS_STDLIB_H
+ #include  <stdlib.h>
+ #else
+@@ -16,6 +15,8 @@
+      extern char    * memcpy P((char *, char *, int));
+ #endif
+ 
++#include <string.h>
++
+ #include  "private.h"
+ #include  "gsm.h"
+ #include  "proto.h"
+diff -Naur mgetty-1.1.30.orig/voice/libpvf/usr.c mgetty-1.1.30/voice/libpvf/usr.c
+--- mgetty-1.1.30.orig/voice/libpvf/usr.c	2001-12-22 22:52:29.000000000 +0000
++++ mgetty-1.1.30/voice/libpvf/usr.c	2003-09-17 16:36:31.000000000 +0000
+@@ -103,9 +103,13 @@
+          }
+        }
+        gsm_encode(r, s, d);
++#if defined(old_USR_GSM_with_head_and_tail_bytes)
+        fwrite((char *)gsm_head, 2, 1, fd_out);
++#endif
+        fwrite((char *)d, sizeof(d), 1, fd_out);
++#if defined(old_USR_GSM_with_head_and_tail_bytes)
+        fwrite((char *)gsm_tail, 3, 1, fd_out);
++#endif
+      }
+      gsm_destroy(r);
+      return(OK);
+diff -Naur mgetty-1.1.30.orig/voice/libvoice/detect.c mgetty-1.1.30/voice/libvoice/detect.c
+--- mgetty-1.1.30.orig/voice/libvoice/detect.c	2002-12-12 06:44:38.000000000 +0000
++++ mgetty-1.1.30/voice/libvoice/detect.c	2003-09-17 16:33:32.000000000 +0000
+@@ -86,6 +86,7 @@
+      {ati, "Venus V.90 USB U052099a", NULL, &Lucent},
+      {ati, "AEIGPM560LKTF1  Voice V2 V92cap", NULL, &V253modem},
+      {ati, "Zoom V.90 PCI I030100gV -H Z207",NULL, &Lucent},
++     {ati, "Zoom V.90 PCI I052099gV -G Z207",NULL, &Lucent},
+      {ati, "28800",                ati6, NULL},
+      {ati, "2886",                 NULL,   &US_Robotics},
+      {ati, "336",                  NULL,   &Rockwell},
+@@ -106,6 +107,7 @@
+      {ati, "3X WYSIWYF 628DBX",    NULL,   &Rockwell},
+      {ati, "56000",                NULL,   &Rockwell},
+      {ati, "5601",                 NULL,   &US_Robotics},
++     {ati, "57600",                NULL,   &Multitech_2834ZDXv},
+      {ati, "961",                  NULL,   &Rockwell},
+      {ati, "Digi RAS modem 56000", NULL,   &Digi_RAS},
+      {ati, "Linux ISDN",           NULL,   &ISDN4Linux},
+@@ -114,6 +116,8 @@
+ 				   NULL, &Multitech_5634ZPX},
+      {ati, "LT V.90 1.0 MT5634ZBAV Serial Data/Fax/Voice Modem Version 4.09a",
+                                    NULL,   &Multitech_5634ZBAV},
++     {ati, "LT V.92 1.0 MT5634ZBAV-V92 Serial Data/Fax/Voice Modem Version 1.25p",
++                                   NULL,   &Multitech_5634ZBAV},
+      {ati4, "33600bps Voice Modem For Italy",
+                                    NULL, &Rockwell},
+      {ati6, "RCV336DPFSP Rev 44BC",
+diff -Naur mgetty-1.1.30.orig/voice/libvoice/record.c mgetty-1.1.30/voice/libvoice/record.c
+--- mgetty-1.1.30.orig/voice/libvoice/record.c	1999-07-24 21:26:49.000000000 +0000
++++ mgetty-1.1.30/voice/libvoice/record.c	2003-09-17 16:13:41.000000000 +0000
+@@ -16,6 +16,7 @@
+      int result;
+      rmd_header header;
+      int bits;
++     int compression, speed;
+ 
+      lprintf(L_MESG, "recording voice file %s", name);
+ 
+@@ -38,8 +39,11 @@
+           return(FAIL);
+           }
+ 
+-     if (voice_modem->set_compression(&cvd.rec_compression.d.i,
+-      &cvd.rec_speed.d.i, &bits) != OK)
++     result = voice_modem->set_compression(&compression, &speed, &bits);
++     cvd.rec_compression.d.i = compression;
++     cvd.rec_speed.d.i = speed;
++
++     if (result != OK)
+           {
+           lprintf(L_WARN, "%s: Illegal compression method 0x%04x, speed %d",
+            program_name, cvd.rec_compression.d.i, cvd.rec_speed.d.i);

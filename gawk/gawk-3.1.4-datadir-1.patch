@@ -1,0 +1,44 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-08-24
+Initial Package Version: 3.1.4
+Origin: LFS PATCH
+Upstream Status: Not submitted - LFS Specific
+Description: Create a unique datadir instead of using awk.
+	     8-24-04 - Made generic to work with future versions
+	     of gawk 
+ 
+diff -Naur gawk-3.1.4.orig/Makefile.in gawk-3.1.4/Makefile.in
+--- gawk-3.1.4.orig/Makefile.in	2004-08-02 09:16:30.000000000 +0000
++++ gawk-3.1.4/Makefile.in	2004-08-24 17:13:57.716903560 +0000
+@@ -361,7 +361,7 @@
+ 
+ # Get extra libs as needed
+ LDADD = @LIBINTL@ @SOCKET_LIBS@
+-awkdatadir = @datadir@/awk
++awkdatadir = @datadir@/gawk-$(PACKAGE_VERSION)
+ 
+ # stuff for compiling gawk/pgawk
+ DEFPATH = "\".$(PATH_SEPARATOR)$(awkdatadir)\""
+diff -Naur gawk-3.1.4.orig/awklib/Makefile.in gawk-3.1.4/awklib/Makefile.in
+--- gawk-3.1.4.orig/awklib/Makefile.in	2004-08-02 09:16:30.000000000 +0000
++++ gawk-3.1.4/awklib/Makefile.in	2004-08-24 17:14:29.454078776 +0000
+@@ -199,7 +199,7 @@
+ build_cpu = @build_cpu@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+-datadir = @datadir@/awk
++datadir = @datadir@/gawk-$(PACKAGE_VERSION)
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+@@ -516,7 +516,9 @@
+ 
+ # libexecdir and datadir are removed in the top level Makefile's uninstall
+ uninstall-local:
+-	rm -fr $(DESTDIR)$(libexecdir)/* $(DESTDIR)$(datadir)/*
++	rm -f $(DESTDIR)$(libexecdir)/grcat
++	rm -f $(DESTDIR)$(libexecdir)/pwcat
++	rm -fr $(DESTDIR)$(datadir)
+ 	rm -f $(DESTDIR)$(bindir)/igawk
+ 
+ clean-local:

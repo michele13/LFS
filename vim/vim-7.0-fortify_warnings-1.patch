@@ -1,0 +1,446 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-12
+Initial Package Version: 7.0
+Upstream Status: Submitted
+Origin: None
+Description: This patch fixes warnings caused by -D_FORTIFY_SOURCE=2.
+
+diff -Naur vim70.orig/src/diff.c vim70/src/diff.c
+--- vim70.orig/src/diff.c	2006-04-22 16:15:04.000000000 +0000
++++ vim70/src/diff.c	2006-10-13 13:23:05.000000000 +0000
+@@ -699,12 +699,18 @@
+ 	fd = mch_fopen((char *)tmp_orig, "w");
+ 	if (fd != NULL)
+ 	{
+-	    fwrite("line1\n", (size_t)6, (size_t)1, fd);
++	    if (fwrite("line1\n", (size_t)6, (size_t)1, fd) != 0){
++		(void)fprintf(stderr, "fwrite failed\n");
++		exit(1);
++	    }
+ 	    fclose(fd);
+ 	    fd = mch_fopen((char *)tmp_new, "w");
+ 	    if (fd != NULL)
+ 	    {
+-		fwrite("line2\n", (size_t)6, (size_t)1, fd);
++		if (fwrite("line2\n", (size_t)6, (size_t)1, fd) !=0) {
++		    (void)fprintf(stderr, "fwrite failed\n");
++		    exit(1);
++		}
+ 		fclose(fd);
+ 		diff_file(tmp_orig, tmp_new, tmp_diff);
+ 		fd = mch_fopen((char *)tmp_diff, "r");
+@@ -921,11 +927,18 @@
+     else
+     {
+ # ifdef TEMPDIRNAMES
+-	if (vim_tempdir != NULL)
+-	    mch_chdir((char *)vim_tempdir);
++	if (vim_tempdir != NULL) {
++	    if (mch_chdir((char *)vim_tempdir) !=0) {
++		(void)fprintf(stderr, "mch_chdir failed\n");
++		exit(1);
++	    }
++	}
+ 	else
+ # endif
+-	    mch_chdir("/tmp");
++	    if (mch_chdir("/tmp") != 0) {
++		(void)fprintf(stderr, "mch_chdir failed\n");
++		exit(1);
++	    }
+ 	shorten_fnames(TRUE);
+     }
+ #endif
+diff -Naur vim70.orig/src/ex_cmds.c vim70/src/ex_cmds.c
+--- vim70.orig/src/ex_cmds.c	2006-04-22 18:56:56.000000000 +0000
++++ vim70/src/ex_cmds.c	2006-10-13 13:23:05.000000000 +0000
+@@ -1919,7 +1919,10 @@
+ 	     * root.
+ 	     */
+ 	    if (fp_out != NULL)
+-		(void)fchown(fileno(fp_out), st_old.st_uid, st_old.st_gid);
++		if (fchown(fileno(fp_out), st_old.st_uid, st_old.st_gid) != 0) {
++		    (void)fprintf(stderr, "fchown failed\n");
++		    exit(1);
++		}
+ #endif
+ 	}
+     }
+diff -Naur vim70.orig/src/ex_docmd.c vim70/src/ex_docmd.c
+--- vim70.orig/src/ex_docmd.c	2006-05-05 16:33:19.000000000 +0000
++++ vim70/src/ex_docmd.c	2006-10-13 13:23:05.000000000 +0000
+@@ -8651,7 +8651,11 @@
+ 		else if (*dirnow != NUL
+ 			&& (ssop_flags & SSOP_CURDIR) && globaldir != NULL)
+ 		{
+-		    (void)mch_chdir((char *)globaldir);
++		    if (mch_chdir((char *)globaldir) != 0) {
++			(void)fprintf(stderr, "mch_chdir failed\n");
++			exit(1);
++		}
++
+ 		    shorten_fnames(TRUE);
+ 		}
+ 
+diff -Naur vim70.orig/src/fileio.c vim70/src/fileio.c
+--- vim70.orig/src/fileio.c	2006-04-30 15:28:57.000000000 +0000
++++ vim70/src/fileio.c	2006-10-13 13:23:05.000000000 +0000
+@@ -2141,7 +2141,10 @@
+     {
+ 	/* Use stderr for stdin, makes shell commands work. */
+ 	close(0);
+-	dup(2);
++	if (dup(2) != 0) {
++	    (void)fprintf(stderr, "dup failed\n");
++	    exit(1);
++	}
+     }
+ #endif
+ 
+@@ -3321,7 +3324,8 @@
+ 		{
+ # ifdef UNIX
+ #  ifdef HAVE_FCHOWN
+-		    fchown(fd, st_old.st_uid, st_old.st_gid);
++		    if (fchown(fd, st_old.st_uid, st_old.st_gid) == 0)
++			fchmod(fd, perm);
+ #  endif
+ 		    if (mch_stat((char *)IObuff, &st) < 0
+ 			    || st.st_uid != st_old.st_uid
+@@ -4224,7 +4228,10 @@
+ 		|| st.st_uid != st_old.st_uid
+ 		|| st.st_gid != st_old.st_gid)
+ 	{
+-	    fchown(fd, st_old.st_uid, st_old.st_gid);
++	    if (fchown(fd, st_old.st_uid, st_old.st_gid) != 0) {
++		(void)fprintf(stderr, "fchown failed\n");
++		exit(1);
++	    }
+ 	    if (perm >= 0)	/* set permission again, may have changed */
+ 		(void)mch_setperm(wfname, perm);
+ 	}
+@@ -5862,9 +5869,15 @@
+ 	{
+ 	    tbuf[FGETS_SIZE - 2] = NUL;
+ #ifdef USE_CR
+-	    fgets_cr((char *)tbuf, FGETS_SIZE, fp);
++	    if (fgets_cr((char *)tbuf, FGETS_SIZE, fp) != 0) {
++		(void)fprintf(stderr, "fgets_cr failed\n");
++		exit(1);
++	    }
+ #else
+-	    fgets((char *)tbuf, FGETS_SIZE, fp);
++	    if (fgets((char *)tbuf, FGETS_SIZE, fp) != 0) {
++		(void)fprintf(stderr, "fgets failed\n");
++		exit(1);
++	    }
+ #endif
+ 	} while (tbuf[FGETS_SIZE - 2] != NUL && tbuf[FGETS_SIZE - 2] != '\n');
+     }
+diff -Naur vim70.orig/src/main.c vim70/src/main.c
+--- vim70.orig/src/main.c	2006-05-03 17:36:44.000000000 +0000
++++ vim70/src/main.c	2006-10-13 13:23:05.000000000 +0000
+@@ -2267,7 +2267,10 @@
+      * Is there any other system that cannot do this?
+      */
+     close(0);
+-    dup(2);
++    if (dup(2) != 0) {
++	(void)fprintf(stderr, "dup failed\n");
++	exit(1);
++    }
+ #endif
+ }
+ 
+diff -Naur vim70.orig/src/mbyte.c vim70/src/mbyte.c
+--- vim70.orig/src/mbyte.c	2006-04-30 11:51:01.000000000 +0000
++++ vim70/src/mbyte.c	2006-10-13 13:23:05.000000000 +0000
+@@ -705,7 +705,10 @@
+ 		     * where mblen() returns 0 for invalid character.
+ 		     * Therefore, following condition includes 0.
+ 		     */
+-		    (void)mblen(NULL, 0);	/* First reset the state. */
++		    if (mblen(NULL, 0) != 0) {	/* First reset the state. */
++			(void)fprintf(stderr, "mblen failed\n");
++			exit(1);
++		    }
+ 		    if (mblen(buf, (size_t)1) <= 0)
+ 			n = 2;
+ 		    else
+diff -Naur vim70.orig/src/os_unix.c vim70/src/os_unix.c
+--- vim70.orig/src/os_unix.c	2006-05-01 08:13:15.000000000 +0000
++++ vim70/src/os_unix.c	2006-10-13 13:23:49.000000000 +0000
+@@ -296,7 +296,11 @@
+     char_u	*s;
+     int		len;
+ {
+-    write(1, (char *)s, len);
++    /* This write(3) function often doesn't return 0. That's fine.
++       But to make FORTIFY_SOURCE happy we'll check it. */
++    if (write(1, (char *)s, len) == 0) {
++    }
++
+     if (p_wd)		/* Unix is too fast, slow down a bit more */
+ 	RealWaitForChar(read_cmd_fd, p_wd, NULL);
+ }
+@@ -3732,9 +3736,18 @@
+ 		 */
+ 		if (fd >= 0)
+ 		{
+-		    dup(fd); /* To replace stdin  (file descriptor 0) */
+-		    dup(fd); /* To replace stdout (file descriptor 1) */
+-		    dup(fd); /* To replace stderr (file descriptor 2) */
++		    if (dup(fd) != 0) { /* To replace stdin  (file descriptor 0) */
++			(void)fprintf(stderr, "dup failed\n");
++			exit(1);
++		    }
++		    if (dup(fd) != 0) { /* To replace stdout (file descriptor 1) */
++			(void)fprintf(stderr, "dup failed\n");
++			exit(1);
++		    }
++		    if (dup(fd) != 0) { /* To replace stderr (file descriptor 2) */
++			(void)fprintf(stderr, "dup failed\n");
++			exit(1);
++		    }
+ 
+ 		    /* Don't need this now that we've duplicated it */
+ 		    close(fd);
+@@ -3819,13 +3832,19 @@
+ 		    /* set up stdin for the child */
+ 		    close(fd_toshell[1]);
+ 		    close(0);
+-		    dup(fd_toshell[0]);
++		    if (dup(fd_toshell[0]) != 0) {
++			(void)fprintf(stderr, "dup failed\n");
++			exit(1);
++		    }
+ 		    close(fd_toshell[0]);
+ 
+ 		    /* set up stdout for the child */
+ 		    close(fd_fromshell[0]);
+ 		    close(1);
+-		    dup(fd_fromshell[1]);
++		    if (dup(fd_fromshell[1]) != 0) {
++			(void)fprintf(stderr, "dup failed\n");
++			exit(1);
++		    }
+ 		    close(fd_fromshell[1]);
+ 
+ # ifdef FEAT_GUI
+@@ -3964,7 +3983,10 @@
+ 					    && (lnum !=
+ 						    curbuf->b_ml.ml_line_count
+ 						    || curbuf->b_p_eol)))
+-				    write(toshell_fd, "\n", (size_t)1);
++				    if (write(toshell_fd, "\n", (size_t)1) != 0) {
++					(void)fprintf(stderr, "write failed\n");
++					exit(1);
++				    }
+ 				++lnum;
+ 				if (lnum > curbuf->b_op_end.lnum)
+ 				{
+diff -Naur vim70.orig/src/spell.c vim70/src/spell.c
+--- vim70.orig/src/spell.c	2006-05-05 07:49:58.000000000 +0000
++++ vim70/src/spell.c	2006-10-13 13:23:05.000000000 +0000
+@@ -7905,7 +7905,10 @@
+ 
+ 	i = (int)STRLEN(spin->si_info);
+ 	put_bytes(fd, (long_u)i, 4);			/* <sectionlen> */
+-	fwrite(spin->si_info, (size_t)i, (size_t)1, fd); /* <infotext> */
++	if (fwrite(spin->si_info, (size_t)i, (size_t)1, fd) != 0) { /* <infotext> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* SN_REGION: <regionname> ...
+@@ -7916,7 +7919,10 @@
+ 	putc(SNF_REQUIRED, fd);				/* <sectionflags> */
+ 	l = spin->si_region_count * 2;
+ 	put_bytes(fd, (long_u)l, 4);			/* <sectionlen> */
+-	fwrite(spin->si_region_name, (size_t)l, (size_t)1, fd);
++	if (fwrite(spin->si_region_name, (size_t)l, (size_t)1, fd) != 0) {
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+ 							/* <regionname> ... */
+ 	regionmask = (1 << spin->si_region_count) - 1;
+     }
+@@ -7966,7 +7972,10 @@
+ 	}
+ 
+ 	put_bytes(fd, (long_u)l, 2);			/* <folcharslen> */
+-	fwrite(folchars, (size_t)l, (size_t)1, fd);	/* <folchars> */
++	if (fwrite(folchars, (size_t)l, (size_t)1, fd) != 0) {	/* <folchars> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* SN_MIDWORD: <midword> */
+@@ -7977,7 +7986,10 @@
+ 
+ 	i = (int)STRLEN(spin->si_midword);
+ 	put_bytes(fd, (long_u)i, 4);			/* <sectionlen> */
+-	fwrite(spin->si_midword, (size_t)i, (size_t)1, fd); /* <midword> */
++	if (fwrite(spin->si_midword, (size_t)i, (size_t)1, fd) != 0) { /* <midword> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* SN_PREFCOND: <prefcondcnt> <prefcond> ... */
+@@ -8063,7 +8075,10 @@
+ 		p = rr == 1 ? ftp->ft_from : ftp->ft_to;
+ 		l = (int)STRLEN(p);
+ 		putc(l, fd);
+-		fwrite(p, l, (size_t)1, fd);
++		if (fwrite(p, l, (size_t)1, fd) != 0) {
++		    (void)fprintf(stderr, "fwrite failed\n");
++		    exit(1);
++		}
+ 	    }
+ 	}
+ 
+@@ -8081,11 +8096,17 @@
+ 							/* <sectionlen> */
+ 
+ 	put_bytes(fd, (long_u)l, 2);			/* <sofofromlen> */
+-	fwrite(spin->si_sofofr, l, (size_t)1, fd);	/* <sofofrom> */
++	if (fwrite(spin->si_sofofr, l, (size_t)1, fd) != 0) {	/* <sofofrom> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+ 
+ 	l = (int)STRLEN(spin->si_sofoto);
+ 	put_bytes(fd, (long_u)l, 2);			/* <sofotolen> */
+-	fwrite(spin->si_sofoto, l, (size_t)1, fd);	/* <sofoto> */
++	if (fwrite(spin->si_sofoto, l, (size_t)1, fd) != 0) {	/* <sofoto> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* SN_WORDS: <word> ...
+@@ -8110,7 +8131,10 @@
+ 		    l = (int)STRLEN(hi->hi_key) + 1;
+ 		    len += l;
+ 		    if (round == 2)			/* <word> */
+-			fwrite(hi->hi_key, (size_t)l, (size_t)1, fd);
++			if (fwrite(hi->hi_key, (size_t)l, (size_t)1, fd) != 0) {
++			    (void)fprintf(stderr, "fwrite failed\n");
++			    exit(1);
++			}
+ 		    --todo;
+ 		}
+ 	    if (round == 1)
+@@ -8126,7 +8150,10 @@
+ 	putc(0, fd);					/* <sectionflags> */
+ 	l = spin->si_map.ga_len;
+ 	put_bytes(fd, (long_u)l, 4);			/* <sectionlen> */
+-	fwrite(spin->si_map.ga_data, (size_t)l, (size_t)1, fd);
++	if (fwrite(spin->si_map.ga_data, (size_t)l, (size_t)1, fd) != 0) {
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+ 							/* <mapstr> */
+     }
+ 
+@@ -8182,11 +8209,17 @@
+ 	{
+ 	    p = ((char_u **)(spin->si_comppat.ga_data))[i];
+ 	    putc((int)STRLEN(p), fd);			/* <comppatlen> */
+-	    fwrite(p, (size_t)STRLEN(p), (size_t)1, fd);/* <comppattext> */
++	    if (fwrite(p, (size_t)STRLEN(p), (size_t)1, fd) != 0) { /* <comppattext> */
++		(void)fprintf(stderr, "fwrite failed\n");
++		exit(1);
++	    }
+ 	}
+ 							/* <compflags> */
+-	fwrite(spin->si_compflags, (size_t)STRLEN(spin->si_compflags),
+-							       (size_t)1, fd);
++	if (fwrite(spin->si_compflags, (size_t)STRLEN(spin->si_compflags),
++							       (size_t)1, fd) != 0) {
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* SN_NOBREAK: NOBREAK flag */
+@@ -8209,7 +8242,10 @@
+ 
+ 	l = (int)STRLEN(spin->si_syllable);
+ 	put_bytes(fd, (long_u)l, 4);			/* <sectionlen> */
+-	fwrite(spin->si_syllable, (size_t)l, (size_t)1, fd); /* <syllable> */
++	if (fwrite(spin->si_syllable, (size_t)l, (size_t)1, fd) != 0) { /* <syllable> */
++	    (void)fprintf(stderr, "fwrite failed\n");
++	    exit(1);
++	}
+     }
+ 
+     /* end of <SECTIONS> */
+@@ -9834,7 +9870,10 @@
+ 	    if (fd != NULL)
+ 	    {
+ 		fputc(len, fd);
+-		fwrite(p, (size_t)len, (size_t)1, fd);
++		if (fwrite(p, (size_t)len, (size_t)1, fd) != 0) {
++		    (void)fprintf(stderr, "fwrite failed\n");
++		    exit(1);
++		}
+ 	    }
+ 	    totlen += len;
+ 	}
+diff -Naur vim70.orig/src/structs.h vim70/src/structs.h
+--- vim70.orig/src/structs.h	2006-04-09 17:57:46.000000000 +0000
++++ vim70/src/structs.h	2006-10-13 13:23:05.000000000 +0000
+@@ -1082,7 +1082,7 @@
+ {
+     typval_T	di_tv;		/* type and value of the variable */
+     char_u	di_flags;	/* flags (only used for variable) */
+-    char_u	di_key[1];	/* key (actually longer!) */
++    char_u	di_key[10];	/* key (actually longer!) */
+ };
+ 
+ typedef struct dictitem_S dictitem_T;
+diff -Naur vim70.orig/src/ui.c vim70/src/ui.c
+--- vim70.orig/src/ui.c	2006-03-27 19:15:09.000000000 +0000
++++ vim70/src/ui.c	2006-10-13 13:23:05.000000000 +0000
+@@ -1813,7 +1813,10 @@
+ #ifdef HAVE_DUP
+ 	    /* Use stderr for stdin, also works for shell commands. */
+ 	    close(0);
+-	    dup(2);
++	    if (dup(2) != 0) {
++		(void)fprintf(stderr, "dup failed\n");
++		exit(1);
++	    }
+ #else
+ 	    read_cmd_fd = 2;	/* read from stderr instead of stdin */
+ #endif
+diff -Naur vim70.orig/src/window.c vim70/src/window.c
+--- vim70.orig/src/window.c	2006-05-06 10:54:51.000000000 +0000
++++ vim70/src/window.c	2006-10-13 13:23:05.000000000 +0000
+@@ -3911,14 +3911,20 @@
+ 	    if (mch_dirname(cwd, MAXPATHL) == OK)
+ 		globaldir = vim_strsave(cwd);
+ 	}
+-	mch_chdir((char *)curwin->w_localdir);
++	if (mch_chdir((char *)curwin->w_localdir) != 0) {
++	    (void)fprintf(stderr, "mch_chdir failed\n");
++	    exit(1);
++	}
+ 	shorten_fnames(TRUE);
+     }
+     else if (globaldir != NULL)
+     {
+ 	/* Window doesn't have a local directory and we are not in the global
+ 	 * directory: Change to the global directory. */
+-	mch_chdir((char *)globaldir);
++	if (mch_chdir((char *)globaldir) != 0) {
++	    (void)fprintf(stderr, "mch_chdir failed\n");
++	    exit(1);
++	}
+ 	vim_free(globaldir);
+ 	globaldir = NULL;
+ 	shorten_fnames(TRUE);

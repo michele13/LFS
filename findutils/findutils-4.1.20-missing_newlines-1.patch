@@ -1,0 +1,29 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-02-08
+Initial Package Version: 4.1.20
+Origin: Debian findutils_4.1.20-3.diff.gz
+Description: Fix missing newlines in usage for locate(1) and xargs(1).
+
+diff -Naur findutils-4.1.20.orig/locate/locate.c findutils-4.1.20/locate/locate.c
+--- findutils-4.1.20.orig/locate/locate.c	2003-05-26 09:39:54.000000000 -0400
++++ findutils-4.1.20/locate/locate.c	2004-02-08 16:31:28.583216968 -0500
+@@ -482,7 +482,7 @@
+ Usage: %s [-d path | --database=path] [-e | --existing]\n\
+       [-i | --ignore-case] [--version] [--help] pattern...\n"),
+ 	   program_name);
+-  fputs (_("\nReport bugs to <bug-findutils@gnu.org>."), stream);
++  fputs (_("\nReport bugs to <bug-findutils@gnu.org>.\n"), stream);
+   exit (status);
+ }
+ 
+diff -Naur findutils-4.1.20.orig/xargs/xargs.c findutils-4.1.20/xargs/xargs.c
+--- findutils-4.1.20.orig/xargs/xargs.c	2003-05-26 09:39:14.000000000 -0400
++++ findutils-4.1.20/xargs/xargs.c	2004-02-08 16:31:28.584216816 -0500
+@@ -933,6 +933,6 @@
+        [--max-args=max-args] [--no-run-if-empty] [--version] [--help]\n\
+        [command [initial-arguments]]\n"),
+ 	   program_name);
+-  fputs (_("\nReport bugs to <bug-findutils@gnu.org>."), stream);
++  fputs (_("\nReport bugs to <bug-findutils@gnu.org>.\n"), stream);
+   exit (status);
+ }

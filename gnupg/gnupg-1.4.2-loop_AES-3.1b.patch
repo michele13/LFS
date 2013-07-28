@@ -1,0 +1,21 @@
+Submitted By: Jerome Pinot <ngc891@gmail.com>
+Date: 2005-12-01
+Initial Package Version: 1.4.2 (should work for gnupg >= 1.4.0)
+Upstream Status: Not Submitted
+Origin: Jari Ruusu <http://sourceforge.net/projects/loop-aes/>
+Description: patch for GnuPG that increases password iteration and thus
+slows down dictionary attacks against gpg encrypted key files (from
+eswap.txt).
+
+diff -Naur gnupg-1.4.2/g10/passphrase.c gnupg-1.4.2-mod/g10/passphrase.c
+--- gnupg-1.4.2/g10/passphrase.c	Tue Jul 26 15:54:18 2005
++++ gnupg-1.4.2-mod/g10/passphrase.c	Thu Dec  1 05:35:38 2005
+@@ -1030,7 +1030,7 @@
+ 	    if( create && !pass ) {
+ 		randomize_buffer(s2k->salt, 8, 1);
+ 		if( s2k->mode == 3 )
+-		    s2k->count = 96; /* 65536 iterations */
++		    s2k->count = 208; /* 8388608 byte count */
+ 	    }
+ 
+ 	    if( s2k->mode == 3 ) {

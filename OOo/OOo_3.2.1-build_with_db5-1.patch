@@ -1,0 +1,46 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2010-09-19
+Initial Package Version: 3.2.1
+Upstream Status: Submitted
+Origin: self
+Description: Allows the configure to complete when the system db version is 5.x.
+
+
+--- OOO320_m19-orig/configure.in	2010-07-17 23:39:32.000000000 -0500
++++ OOO320_m19/configure.in	2010-07-17 23:15:21.000000000 -0500
+@@ -4149,19 +4149,31 @@
+         ], []
+     )
+     AC_MSG_CHECKING([whether db is at least 4.1])
+-    for v in `seq 1 7`; do
++    for v in `seq 4 5`; do
+        AC_TRY_RUN([
+ #include <db.h>
+ 
+ int main(int argc, char **argv) {
+-       if(DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR == $v) return 0;
++       if (DB_VERSION_MAJOR==$v) return 0;
++       else return 1;
++}
++       ], [DB_VERSION_MAJOR=$v], [])
++    done
++
++    for v in `seq 1 8`; do
++       AC_TRY_RUN([
++#include <db.h>
++
++int main(int argc, char **argv) {
++       if(DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR == $v || DB_VERSSION_MAJOR == 5) return 0;
+        else return 1;
+ }
+        ], [DB_VERSION_MINOR=$v], [])
+     done
+-    if test "$DB_VERSION_MINOR" -gt "1"; then
++
++    if test "$DB_VERSION_MAJOR" = "5" || test "$DB_VERSION_MINOR" -gt "1"; then
+        AC_MSG_RESULT([OK])
+-       DB_VERSION=4.$DB_VERSION_MINOR
++       DB_VERSION=$DB_VERSION_MAJOR.$DB_VERSION_MINOR
+     else
+        AC_MSG_ERROR([no. you need at least db 4.1])
+     fi

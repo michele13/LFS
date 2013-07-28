@@ -1,0 +1,18 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-13
+Initial Package Version: 2.12
+Origin: Gentoo
+Description: Fix rare failures with -j4 or higher
+
+diff -Naur util-linux-2.12.orig/mount/Makefile util-linux-2.12/mount/Makefile
+--- util-linux-2.12.orig/mount/Makefile	2003-07-16 20:07:27.000000000 +0000
++++ util-linux-2.12/mount/Makefile	2003-09-13 09:19:23.000000000 +0000
+@@ -78,7 +78,7 @@
+ 
+ sundries.o nfsmount.o nfsmount_xdr.o nfsmount_clnt.o: nfsmount.h
+ 
+-umount.o: mount_constants.h
++umount.o: mount_constants.h nfsmount.h
+ 
+ mount.o mount_by_label.o mount_guess_fstype.o: linux_fs.h
+ 

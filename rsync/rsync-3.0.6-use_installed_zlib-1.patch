@@ -1,0 +1,38 @@
+Submitted By: ken moffat < ken at linuxfromscratch dot org >
+Date: 2009-07-12
+Initial Package Version: 3.0.6
+Upstream Status: Not submitted
+Origin: update of rsync-2.6.6-use_installed_zlib-1.patch which was itself
+an update of the 2.6.0 patch, whose original origin is unknown.
+Description: Links to system installed zlib instead of the included zlib.
+
+diff -Naur rsync-3.0.6.orig/Makefile.in rsync-3.0.6/Makefile.in
+--- rsync-3.0.6.orig/Makefile.in	2009-04-11 00:24:49.000000000 +0100
++++ rsync-3.0.6/Makefile.in	2009-07-12 16:30:35.000000000 +0100
+@@ -7,7 +7,7 @@
+ bindir=@bindir@
+ mandir=@mandir@
+ 
+-LIBS=@LIBS@
++LIBS=@LIBS@ -lz
+ CC=@CC@
+ CFLAGS=@CFLAGS@
+ CPPFLAGS=@CPPFLAGS@
+@@ -30,8 +30,6 @@
+ HEADERS=byteorder.h config.h errcode.h proto.h rsync.h ifuncs.h lib/pool_alloc.h
+ LIBOBJ=lib/wildmatch.o lib/compat.o lib/snprintf.o lib/mdfour.o lib/md5.o \
+ 	lib/permstring.o lib/pool_alloc.o lib/sysacls.o lib/sysxattrs.o @LIBOBJS@
+-ZLIBOBJ=zlib/deflate.o zlib/inffast.o zlib/inflate.o zlib/inftrees.o \
+-	zlib/trees.o zlib/zutil.o zlib/adler32.o zlib/compress.o zlib/crc32.o
+ OBJS1=flist.o rsync.o generator.o receiver.o cleanup.o sender.o exclude.o \
+ 	util.o main.o checksum.o match.o syscall.o log.o backup.o
+ OBJS2=options.o io.o compat.o hlink.o token.o uidlist.o socket.o hashtable.o \
+@@ -40,7 +38,7 @@
+ DAEMON_OBJ = params.o loadparm.o clientserver.o access.o connection.o authenticate.o
+ popt_OBJS=popt/findme.o  popt/popt.o  popt/poptconfig.o \
+ 	popt/popthelp.o popt/poptparse.o
+-OBJS=$(OBJS1) $(OBJS2) $(OBJS3) $(DAEMON_OBJ) $(LIBOBJ) $(ZLIBOBJ) @BUILD_POPT@
++OBJS=$(OBJS1) $(OBJS2) $(OBJS3) $(DAEMON_OBJ) $(LIBOBJ) @BUILD_POPT@
+ 
+ TLS_OBJ = tls.o syscall.o lib/compat.o lib/snprintf.o lib/permstring.o lib/sysxattrs.o @BUILD_POPT@
+ 

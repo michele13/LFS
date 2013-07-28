@@ -1,0 +1,93 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2008-05-19
+Initial Package Version: 3.4
+Upstream Status: Not Submitted
+Origin: None
+Description: This patch removes the use of zlib.a, and removes insmod.static.
+
+diff -Naur module-init-tools-3.4.orig/Makefile.in module-init-tools-3.4/Makefile.in
+--- module-init-tools-3.4.orig/Makefile.in	2007-10-07 22:03:25.000000000 +0000
++++ module-init-tools-3.4/Makefile.in	2008-05-19 21:28:02.000000000 +0000
+@@ -38,7 +38,7 @@
+ host_triplet = @host@
+ target_triplet = @target@
+ sbin_PROGRAMS = insmod$(EXEEXT) modprobe$(EXEEXT) rmmod$(EXEEXT) \
+-	depmod$(EXEEXT) modinfo$(EXEEXT) insmod.static$(EXEEXT)
++	depmod$(EXEEXT) modinfo$(EXEEXT)
+ bin_PROGRAMS = lsmod$(EXEEXT)
+ DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
+ 	$(srcdir)/Makefile.in $(top_srcdir)/configure AUTHORS COPYING \
+@@ -68,9 +68,6 @@
+ insmod_OBJECTS = $(am_insmod_OBJECTS)
+ insmod_LDADD = $(LDADD)
+ insmod_DEPENDENCIES =
+-am_insmod_static_OBJECTS = insmod.$(OBJEXT)
+-insmod_static_OBJECTS = $(am_insmod_static_OBJECTS)
+-insmod_static_DEPENDENCIES =
+ am_lsmod_OBJECTS = lsmod.$(OBJEXT)
+ lsmod_OBJECTS = $(am_lsmod_OBJECTS)
+ lsmod_LDADD = $(LDADD)
+@@ -97,15 +94,13 @@
+ CCLD = $(CC)
+ LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+ SOURCES = $(depmod_SOURCES) $(EXTRA_depmod_SOURCES) $(insmod_SOURCES) \
+-	$(EXTRA_insmod_SOURCES) $(insmod_static_SOURCES) \
+-	$(EXTRA_insmod_static_SOURCES) $(lsmod_SOURCES) \
++	$(EXTRA_insmod_SOURCES) $(lsmod_SOURCES) \
+ 	$(EXTRA_lsmod_SOURCES) $(modinfo_SOURCES) \
+ 	$(EXTRA_modinfo_SOURCES) $(modprobe_SOURCES) \
+ 	$(EXTRA_modprobe_SOURCES) $(rmmod_SOURCES) \
+ 	$(EXTRA_rmmod_SOURCES)
+ DIST_SOURCES = $(depmod_SOURCES) $(EXTRA_depmod_SOURCES) \
+ 	$(insmod_SOURCES) $(EXTRA_insmod_SOURCES) \
+-	$(insmod_static_SOURCES) $(EXTRA_insmod_static_SOURCES) \
+ 	$(lsmod_SOURCES) $(EXTRA_lsmod_SOURCES) $(modinfo_SOURCES) \
+ 	$(EXTRA_modinfo_SOURCES) $(modprobe_SOURCES) \
+ 	$(EXTRA_modprobe_SOURCES) $(rmmod_SOURCES) \
+@@ -218,15 +213,10 @@
+ rmmod_SOURCES = rmmod.c testing.h
+ depmod_SOURCES = depmod.c moduleops.c tables.c zlibsupport.c depmod.h moduleops.h tables.h list.h testing.h  zlibsupport.h
+ modinfo_SOURCES = modinfo.c zlibsupport.c testing.h zlibsupport.h
+-insmod_static_SOURCES = insmod.c
+-insmod_static_LDFLAGS = -static
+-# We don't want the $(zlib_flags) here: that makes a dynamic executable
+-insmod_static_LDADD = 
+ EXTRA_insmod_SOURCES = backwards_compat.c
+ EXTRA_lsmod_SOURCES = backwards_compat.c
+ EXTRA_modprobe_SOURCES = backwards_compat.c
+ EXTRA_rmmod_SOURCES = backwards_compat.c
+-EXTRA_insmod_static_SOURCES = backwards_compat.c
+ EXTRA_depmod_SOURCES = moduleops_core.c
+ EXTRA_modinfo_SOURCES = backwards_compat.c
+ MAN5 = modprobe.conf.5 modules.dep.5 depmod.conf.5
+@@ -331,9 +321,6 @@
+ insmod$(EXEEXT): $(insmod_OBJECTS) $(insmod_DEPENDENCIES) 
+ 	@rm -f insmod$(EXEEXT)
+ 	$(LINK) $(insmod_LDFLAGS) $(insmod_OBJECTS) $(insmod_LDADD) $(LIBS)
+-insmod.static$(EXEEXT): $(insmod_static_OBJECTS) $(insmod_static_DEPENDENCIES) 
+-	@rm -f insmod.static$(EXEEXT)
+-	$(LINK) $(insmod_static_LDFLAGS) $(insmod_static_OBJECTS) $(insmod_static_LDADD) $(LIBS)
+ lsmod$(EXEEXT): $(lsmod_OBJECTS) $(lsmod_DEPENDENCIES) 
+ 	@rm -f lsmod$(EXEEXT)
+ 	$(LINK) $(lsmod_LDFLAGS) $(lsmod_OBJECTS) $(lsmod_LDADD) $(LIBS)
+diff -Naur module-init-tools-3.4.orig/configure module-init-tools-3.4/configure
+--- module-init-tools-3.4.orig/configure	2007-10-07 22:03:27.000000000 +0000
++++ module-init-tools-3.4/configure	2008-05-19 21:23:09.000000000 +0000
+@@ -1786,8 +1786,6 @@
+ 
+ 
+ 
+-# If zlib is required, libz must be linked static, modprobe is in
+-# /sbin, libz is in /usr/lib and may not be available when it is run.
+ # Check whether --enable-zlib or --disable-zlib was given.
+ if test "${enable_zlib+set}" = set; then
+   enableval="$enable_zlib"
+@@ -1796,7 +1794,7 @@
+ #define CONFIG_USE_ZLIB 1
+ _ACEOF
+ 
+-  zlib_flags="-Wl,-Bstatic -lz -Wl,-Bdynamic"
++  zlib_flags="-Wl,-Bdynamic -lz"
+ fi
+ fi;
+ 

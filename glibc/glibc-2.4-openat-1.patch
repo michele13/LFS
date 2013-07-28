@@ -1,0 +1,47 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2006-08-11
+Initial Package Version: 2.4
+Origin: http://sourceware.org/bugzilla/show_bug.cgi?id=2873
+Upstream Status: Applied
+Description: Fixes http://sourceware.org/bugzilla/show_bug.cgi?id=2873
+             Fixes http://linuxfromscratch.org/pipermail/lfs-dev/2006-June/057562.html
+
+diff -Naur glibc-2.4.orig/sysdeps/unix/sysv/linux/openat.c glibc-2.4/sysdeps/unix/sysv/linux/openat.c
+--- glibc-2.4.orig/sysdeps/unix/sysv/linux/openat.c	2006-02-28 21:32:42.000000000 -0800
++++ glibc-2.4/sysdeps/unix/sysv/linux/openat.c	2006-08-14 22:48:17.000000000 -0700
+@@ -27,6 +27,9 @@
+ #include <sysdep-cancel.h>
+ #include <not-cancel.h>
+ 
++#if !defined OPENAT
++# define OPENAT openat
++#endif
+ 
+ #if !defined OPENAT && !defined __ASSUME_ATFCTS
+ # define OPENAT openat
+@@ -70,11 +73,7 @@
+ 
+ 
+ int
+-OPENAT_NOT_CANCEL (fd, file, oflag, mode)
+-     int fd;
+-     const char *file;
+-     int oflag;
+-     mode_t mode;
++OPENAT_NOT_CANCEL (int fd, const char *file, int oflag, mode_t mode)
+ {
+ 
+   /* We have to add the O_LARGEFILE flag for openat64.  */
+@@ -144,10 +143,7 @@
+    the directory associated with FD.  If OFLAG includes O_CREAT, a
+    third argument is the file protection.  */
+ int
+-__OPENAT (fd, file, oflag)
+-     int fd;
+-     const char *file;
+-     int oflag;
++__OPENAT (int fd, const char *file, int oflag, ...)
+ {
+   mode_t mode = 0;
+   if (oflag & O_CREAT)
+

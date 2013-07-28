@@ -1,0 +1,181 @@
+Submitted By: Anderson Lizardo <lizardo at linuxfromscratch dot org>
+Date: 2004-02-09
+Initial Package Version: 1.4.2
+Upstream Status: Submitted
+Origin: Anderson Lizardo
+Description: Some programs from this package, like r{sh,login,cp}, insist on being
+    installed even when disabled by ./configure. The programs are not installed, but
+    bogus install errors are shown. Additionally, the manpages are installed despite
+    their programs are disabled or not. This patch fixes these problems for some
+    programs from this package, so the manpages and the program's binary are not
+    installed if disabled on ./configure.
+
+diff -Naur inetutils-1.4.2/ftpd/Makefile.in inetutils-1.4.2-patched/ftpd/Makefile.in
+--- inetutils-1.4.2/ftpd/Makefile.in	2002-12-23 04:30:12.000000000 +0000
++++ inetutils-1.4.2-patched/ftpd/Makefile.in	2004-02-08 22:57:03.000000000 +0000
+@@ -494,7 +494,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(ftpd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/inetd/Makefile.in inetutils-1.4.2-patched/inetd/Makefile.in
+--- inetutils-1.4.2/inetd/Makefile.in	2002-12-23 04:30:13.000000000 +0000
++++ inetutils-1.4.2-patched/inetd/Makefile.in	2004-02-08 22:57:44.000000000 +0000
+@@ -434,7 +434,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(inetd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/logger/Makefile.in inetutils-1.4.2-patched/logger/Makefile.in
+--- inetutils-1.4.2/logger/Makefile.in	2002-12-23 04:30:16.000000000 +0000
++++ inetutils-1.4.2-patched/logger/Makefile.in	2004-02-08 22:58:31.000000000 +0000
+@@ -433,7 +433,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(logger_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rcp/Makefile.in inetutils-1.4.2-patched/rcp/Makefile.in
+--- inetutils-1.4.2/rcp/Makefile.in	2002-12-23 04:30:16.000000000 +0000
++++ inetutils-1.4.2-patched/rcp/Makefile.in	2004-02-08 22:55:13.000000000 +0000
+@@ -442,7 +442,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rcp_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rexecd/Makefile.in inetutils-1.4.2-patched/rexecd/Makefile.in
+--- inetutils-1.4.2/rexecd/Makefile.in	2002-12-23 04:30:17.000000000 +0000
++++ inetutils-1.4.2-patched/rexecd/Makefile.in	2004-02-08 22:59:10.000000000 +0000
+@@ -435,7 +435,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rexecd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rlogin/Makefile.in inetutils-1.4.2-patched/rlogin/Makefile.in
+--- inetutils-1.4.2/rlogin/Makefile.in	2002-12-23 04:30:17.000000000 +0000
++++ inetutils-1.4.2-patched/rlogin/Makefile.in	2004-02-08 22:54:33.000000000 +0000
+@@ -435,7 +435,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rlogin_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rlogind/Makefile.in inetutils-1.4.2-patched/rlogind/Makefile.in
+--- inetutils-1.4.2/rlogind/Makefile.in	2002-12-23 04:30:18.000000000 +0000
++++ inetutils-1.4.2-patched/rlogind/Makefile.in	2004-02-08 22:59:59.000000000 +0000
+@@ -435,7 +435,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rlogind_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rsh/Makefile.in inetutils-1.4.2-patched/rsh/Makefile.in
+--- inetutils-1.4.2/rsh/Makefile.in	2002-12-23 04:30:18.000000000 +0000
++++ inetutils-1.4.2-patched/rsh/Makefile.in	2004-02-08 22:53:45.000000000 +0000
+@@ -435,7 +435,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rsh_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/rshd/Makefile.in inetutils-1.4.2-patched/rshd/Makefile.in
+--- inetutils-1.4.2/rshd/Makefile.in	2002-12-23 04:30:19.000000000 +0000
++++ inetutils-1.4.2-patched/rshd/Makefile.in	2004-02-08 23:00:34.000000000 +0000
+@@ -434,7 +434,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(rshd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/syslogd/Makefile.in inetutils-1.4.2-patched/syslogd/Makefile.in
+--- inetutils-1.4.2/syslogd/Makefile.in	2002-12-23 04:30:19.000000000 +0000
++++ inetutils-1.4.2-patched/syslogd/Makefile.in	2004-02-08 23:01:11.000000000 +0000
+@@ -483,7 +483,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(syslogd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/talkd/Makefile.in inetutils-1.4.2-patched/talkd/Makefile.in
+--- inetutils-1.4.2/talkd/Makefile.in	2002-12-23 04:30:20.000000000 +0000
++++ inetutils-1.4.2-patched/talkd/Makefile.in	2004-02-08 23:02:10.000000000 +0000
+@@ -462,7 +462,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(talkd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/telnetd/Makefile.in inetutils-1.4.2-patched/telnetd/Makefile.in
+--- inetutils-1.4.2/telnetd/Makefile.in	2002-12-23 04:30:21.000000000 +0000
++++ inetutils-1.4.2-patched/telnetd/Makefile.in	2004-02-08 23:02:45.000000000 +0000
+@@ -468,7 +468,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(telnetd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:
+diff -Naur inetutils-1.4.2/tftpd/Makefile.in inetutils-1.4.2-patched/tftpd/Makefile.in
+--- inetutils-1.4.2/tftpd/Makefile.in	2002-12-23 04:30:22.000000000 +0000
++++ inetutils-1.4.2-patched/tftpd/Makefile.in	2004-02-08 23:03:31.000000000 +0000
+@@ -434,7 +434,9 @@
+ uninstall: uninstall-am
+ 
+ install-am: all-am
++ifneq ($(strip $(tftpd_BUILD)),)
+ 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++endif
+ 
+ installcheck: installcheck-am
+ install-strip:

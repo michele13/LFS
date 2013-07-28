@@ -1,0 +1,23 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2012-04-09
+Initial Package Version: 0.9.4.0
+Upstream Status:         In upstream SVN
+Origin:                  Upstream
+Description:             libnm-glib: initialize GError, else invalid free() crash can occur (rh #809123)
+
+---
+diff --git a/libnm-glib/nm-remote-settings.c b/libnm-glib/nm-remote-settings.c
+index 9a81a8d..68aaeb4 100644
+--- a/libnm-glib/nm-remote-settings.c
++++ b/libnm-glib/nm-remote-settings.c
+@@ -109,7 +109,7 @@ static void
+ _nm_remote_settings_ensure_inited (NMRemoteSettings *self)
+ {
+ 	NMRemoteSettingsPrivate *priv = NM_REMOTE_SETTINGS_GET_PRIVATE (self);
+-	GError *error;
++	GError *error = NULL;
+ 
+ 	if (!priv->inited) {
+ 		if (!g_initable_init (G_INITABLE (self), NULL, &error)) {
+--
+cgit v0.9.0.2-2-gbebe

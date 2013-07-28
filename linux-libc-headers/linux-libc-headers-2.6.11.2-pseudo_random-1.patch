@@ -1,0 +1,36 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-12
+Initial Package Version: 2.6.10.0
+Upstream Status: Not submitted
+Origin: http://frandom.sourceforge.net/
+Description: This patch adds support for sysctl erandom and urandom.
+
+This patch depends on the kernel pseudo_random patch.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+http://www.linuxfromscratch.org/hints/downloads/files/entropy.txt
+
+diff -Naur linux-libc-headers-2.6.10.0.orig/include/linux/sysctl.h linux-libc-headers-2.6.10.0/include/linux/sysctl.h
+--- linux-libc-headers-2.6.10.0.orig/include/linux/sysctl.h	2005-01-08 14:03:21.000000000 +0000
++++ linux-libc-headers-2.6.10.0/include/linux/sysctl.h	2005-02-12 18:10:36.386370616 +0000
+@@ -195,6 +195,8 @@
+ };
+ 
+ /* /proc/sys/kernel/random */
++#define SYSCTL_URANDOM
++#define SYSCTL_ERANDOM
+ enum
+ {
+ 	RANDOM_POOLSIZE=1,
+@@ -202,7 +204,9 @@
+ 	RANDOM_READ_THRESH=3,
+ 	RANDOM_WRITE_THRESH=4,
+ 	RANDOM_BOOT_ID=5,
+-	RANDOM_UUID=6
++	RANDOM_UUID=6,
++	RANDOM_URANDOM=7,
++	RANDOM_ERANDOM=8
+ };
+ 
+ /* /proc/sys/kernel/pty */

@@ -1,0 +1,22 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-16
+Initial Package Version: 1.0.4
+Upstream Status: This is the official fix
+Origin: ALSA CVS
+Description: arecord didn't record if you don't indicate the time limit
+
+diff -ur alsa-utils-1.0.4/aplay/aplay.c alsa-utils/aplay/aplay.c
+--- alsa-utils-1.0.4/aplay/aplay.c	2004-03-09 22:43:46.000000000 +0500
++++ alsa-utils/aplay/aplay.c	2004-05-03 16:03:57.000000000 +0600
+@@ -1922,7 +1927,10 @@
+ 	pbrec_count = calc_count();
+ 	/* WAVE-file should be even (I'm not sure), but wasting one byte
+ 	   isn't a problem (this can only be in 8 bit mono) */
+-	pbrec_count += pbrec_count % 2;
++	if (pbrec_count < LLONG_MAX)
++		pbrec_count += pbrec_count % 2;
++	else
++		pbrec_count -= pbrec_count % 2;
+ 	if (pbrec_count == 0)
+ 		pbrec_count -= 2;
+ 	if (fmt_rec_table[file_type].start)

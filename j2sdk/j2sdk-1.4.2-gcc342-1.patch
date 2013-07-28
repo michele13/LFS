@@ -1,0 +1,126 @@
+Submitted By: DJ Lucas (dj AT linuxfromscratch DOT org)
+Date: 2004-11-24
+Initial Package Version: 1.4.2
+Origin: Portions of the previous j2sdk-1.4.2 gcc33 and asm patches, and
+        Hamish Greig's assembler code fixes (courtesy of gentoo/sourcemage)
+Description: Fixes syntax for use with gcc-3.4.2.
+
+diff -Naur j2sdk-orig-orig/hotspot/src/cpu/i486/vm/i486.ad j2sdk-orig/hotspot/src/cpu/i486/vm/i486.ad
+--- j2sdk-orig-orig/hotspot/src/cpu/i486/vm/i486.ad	2003-09-10 20:40:13.000000000 -0500
++++ j2sdk-orig/hotspot/src/cpu/i486/vm/i486.ad	2004-11-23 19:42:39.000000000 -0600
+@@ -230,18 +230,18 @@
+ // These masks are used to provide 128-bit aligned bitmasks to the XMM
+ // instructions, to allow sign-masking or sign-bit flipping.  They allow
+ // fast versions of NegF/NegD and AbsF/AbsD.
+-static jlong float_signmask_pool[3] =  {0x7FFFFFFF7FFFFFFF,
+-                                        0x7FFFFFFF7FFFFFFF,
+-                                        0x7FFFFFFF7FFFFFFF};
+-static jlong double_signmask_pool[3] = {0x7FFFFFFFFFFFFFFF,
+-                                        0x7FFFFFFFFFFFFFFF,
+-                                        0x7FFFFFFFFFFFFFFF};
+-static jlong float_signflip_pool[3] =  {0x8000000080000000,
+-                                        0x8000000080000000,
+-                                        0x8000000080000000};
+-static jlong double_signflip_pool[3] = {0x8000000000000000,
+-                                        0x8000000000000000,
+-                                        0x8000000000000000};
++static jlong float_signmask_pool[3] =  {0x7FFFFFFF7FFFFFFFULL,
++                                        0x7FFFFFFF7FFFFFFFULL,
++                                        0x7FFFFFFF7FFFFFFFULL};
++static jlong double_signmask_pool[3] = {0x7FFFFFFFFFFFFFFFULL,
++                                        0x7FFFFFFFFFFFFFFFULL,
++                                        0x7FFFFFFFFFFFFFFFULL};
++static jlong float_signflip_pool[3] =  {0x8000000080000000ULL,
++                                        0x8000000080000000ULL,
++                                        0x8000000080000000ULL};
++static jlong double_signflip_pool[3] = {0x8000000000000000ULL,
++                                        0x8000000000000000ULL,
++                                        0x8000000000000000ULL};
+ 
+ // !!!!! Special hack to get all type of calls to specify the byte offset
+ //       from the start of the call to the point where the return address
+diff -Naur j2sdk-orig-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp j2sdk-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp
+--- j2sdk-orig-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp	2003-09-10 20:40:30.000000000 -0500
++++ j2sdk-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp	2004-11-23 20:09:24.702565264 -0600
+@@ -49,8 +49,8 @@
+   jlong old_value;
+   __asm__ volatile (  "pushl %%ebx;mov 4+%1,%%ecx;mov %1,%%ebx;lock;cmpxchg8b (%3);popl %%ebx"
+                     : "=A" (old_value)
+-                    : "o" (exchange_value), "A" (compare_value), "r" (dest)
+-                    : "%ebx", "%ecx", "memory");
++                    : "m" (exchange_value), "A" (compare_value), "r" (dest)
++                    : "%ecx", "memory");
+   return old_value;
+ }
+ 
+diff -Naur j2sdk-orig-orig/hotspot/src/share/vm/runtime/classFileParser.cpp j2sdk-orig/hotspot/src/share/vm/runtime/classFileParser.cpp
+--- j2sdk-orig-orig/hotspot/src/share/vm/runtime/classFileParser.cpp	2003-09-10 20:41:52.000000000 -0500
++++ j2sdk-orig/hotspot/src/share/vm/runtime/classFileParser.cpp	2004-11-23 19:42:39.000000000 -0600
+@@ -25,6 +25,10 @@
+   classfile_parse_error("Truncated class file", CHECK);
+ }
+ 
++// 2.6 Kernel/linux-libc-headers fix
++#undef inline
++#undef __inline
++
+ // Verification of class file properties
+ 
+ void inline guarantee_property(bool b, const char* msg, TRAPS) {
+diff -Naur j2sdk-orig-orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp j2sdk-orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp
+--- j2sdk-orig-orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp	2003-09-10 20:41:55.000000000 -0500
++++ j2sdk-orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp	2004-11-23 19:42:39.000000000 -0600
+@@ -24,7 +24,7 @@
+   result_type JNICALL methodName signature {                                         \
+     JavaThread* thread = (JavaThread*) ThreadLocalStorage::thread();                 \
+     TransitionClass __tiv(thread);                                                   \
+-    __ENTRY(result_type, methodName##signature, thread)                              \
++    __ENTRY(result_type, methodName#signature, thread)                              \
+     debug_only(VMNativeEntryWrapper __vew;)                                          \
+     debug_only(const char* const _jvmdi_methodName_ = #methodName;)                  \
+     debug_only(bool  _trace_ = trace; );                                             \
+diff -Naur j2sdk-orig-orig/hotspot/src/share/vm/runtime/mutexLocker.cpp j2sdk-orig/hotspot/src/share/vm/runtime/mutexLocker.cpp
+--- j2sdk-orig-orig/hotspot/src/share/vm/runtime/mutexLocker.cpp	2003-09-10 20:41:55.000000000 -0500
++++ j2sdk-orig/hotspot/src/share/vm/runtime/mutexLocker.cpp	2004-11-23 19:42:39.000000000 -0600
+@@ -98,7 +98,7 @@
+ #endif
+ 
+ #define def(var, type, pri, vm_block) \
+-  var = new type(Mutex::##pri, #var, vm_block)
++  var = new type(Mutex::pri, #var, vm_block)
+ 
+ void mutex_init() {  
+   def(Event_lock                   , Mutex  , event,       true ); // allow to lock in VM
+
+--- j2sdk-orig/j2se/src/share/native/sun/awt/font/fontmanager/fontobjects/t2kScalerContext.cpp	2003-09-10 20:53:51.000000000 -0500
++++ j2sdk/j2se/src/share/native/sun/awt/font/fontmanager/fontobjects/t2kScalerContext.cpp	2004-11-23 22:20:30.079968128 -0600
+@@ -933,14 +933,14 @@
+ CMAPMapper::CharsToGlyphs(
+     int count, const Unicode16 unicodes[], UInt32 glyphs[]) const
+ {
+-    ConvertUnicodeToGlyphs(*font, (unsigned char *)cmap, count, unicodes, glyphs);
++    ConvertUnicodeToGlyphs(*font, (unsigned char *&)cmap, count, unicodes, glyphs);
+ }
+ 
+ void
+ CMAPMapper::CharsToGlyphs(
+         int count, const Unicode32 unicodes[], UInt32 glyphs[]) const
+ {
+-    ConvertUnicodeToGlyphs(*font, (unsigned char *)cmap, count, unicodes, glyphs);
++    ConvertUnicodeToGlyphs(*font, (unsigned char *&)cmap, count, unicodes, glyphs);
+ }
+ 
+ //////////////////////////////////////////////////////////////////////////////
+--- j2sdk-orig/share/plugin/mozilla_headers_ns610/nscore.h	2001-05-21 11:34:20.000000000 -0500
++++ j2sdk/share/plugin/mozilla_headers_ns610/nscore.h	2004-11-24 00:55:28.271428168 -0600
+@@ -192,6 +192,10 @@
+   #define HAVE_CPP_2BYTE_WCHAR_T
+ #endif
+ 
++#if defined(__GNUC__)
++  #define HAVE_CPP_MODERN_SPECIALIZE_TEMPLATE_SYNTAX
++#endif
++
+   /* until we get an autoconf test for this, we'll assume it's on (since we're using it already) */
+ #define HAVE_CPP_TYPENAME
+ 

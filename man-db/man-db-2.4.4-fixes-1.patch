@@ -1,0 +1,68 @@
+Submitted By: Alexander E. Patrakov
+Date: 2007-08-20
+Initial Package Version: 2.4.4
+Origin: Debian
+Upstream Status: Backport
+Description: Fixes two bugs:
+
+1) makewhatis didn't break descriptions at certain macros
+2) ugly error message was displayed when the user pressed
+   "q" without reading the long manual page
+
+--- man-db-2.4.4.orig/src/lexgrog.l
++++ man-db-2.4.4/src/lexgrog.l
+@@ -314,14 +314,18 @@
+  /* collapse spaces, escaped spaces, tabs, newlines to a single space */
+ <CAT_NAME>{next}((\\[ ])|{blank})*	add_char_to_whatis (' ');
+ 
+- /* a ROFF break request (.br) or a paragraph request (.LP, .PP, .P)
++ /* a ROFF break request, a paragraph request, or an indentation change
+     usually means we have multiple whatis definitions, provide a separator
+     for later processing */
+ <MAN_NAME>{
+ 	{bol}\.br{blank}*		|
+ 	{bol}\.LP{blank}*		|
+ 	{bol}\.PP{blank}*		|
+-	{bol}\.P{blank}*		add_char_to_whatis ((char) 0x11);
++	{bol}\.P{blank}*		|
++	{bol}\.IP{blank}.*		|
++	{bol}\.HP{blank}.*		|
++	{bol}\.RS{blank}.*		|
++	{bol}\.RE{blank}.*		add_char_to_whatis ((char) 0x11);
+ }
+ 
+ <MAN_NAME>{bol}\.{alpha}{2}{blank}*  	{ /* very general roff requests */
+--- man-db-2.4.4.orig/lib/pipeline.c
++++ man-db-2.4.4/lib/pipeline.c
+@@ -633,8 +633,6 @@
+ 		if (pid < 0)
+ 			error (FATAL, errno, _("fork failed"));
+ 		if (pid == 0) {
+-			struct sigaction sa;
+-
+ 			/* child */
+ 			pop_all_cleanups ();
+ 
+@@ -677,11 +675,6 @@
+ 			/* Restore signals. */
+ 			xsigaction (SIGINT, &osa_sigint, NULL);
+ 			xsigaction (SIGQUIT, &osa_sigquit, NULL);
+-			/* ... but we don't want to know about SIGPIPE. */
+-			sa.sa_handler = SIG_IGN;
+-			sigemptyset(&sa.sa_mask);
+-			sa.sa_flags = 0;
+-			xsigaction (SIGPIPE, &sa, NULL);
+ 
+ 			execvp (p->commands[i]->name, p->commands[i]->argv);
+ 			error (EXEC_FAILED_EXIT_STATUS, errno,
+@@ -840,7 +833,9 @@
+ 			if (WIFSIGNALED (status)) {
+ 				int sig = WTERMSIG (status);
+ #ifdef SIGPIPE
+-				if (sig != SIGPIPE) {
++				if (sig == SIGPIPE)
++					status = 0;
++				else {
+ #endif /* SIGPIPE */
+ 					if (WCOREDUMP (status))
+ 						error (0, 0,

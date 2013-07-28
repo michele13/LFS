@@ -1,0 +1,170 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-05-29
+Initial Package Version: 1.4.1
+Origin: Jim Gifford
+Description: Fixes GCC 3.3 Compile Errors
+
+diff -Naur java.orig/hotspot/src/os/linux/vm/os_linux.cpp java/hotspot/src/os/linux/vm/os_linux.cpp
+--- java.orig/hotspot/src/os/linux/vm/os_linux.cpp	2002-09-06 00:02:04.000000000 -0000
++++ java/hotspot/src/os/linux/vm/os_linux.cpp	2003-05-29 00:21:53.000000000 -0000
+@@ -1012,9 +1012,6 @@
+   if (dump_core) {
+     NOT_PRODUCT(tty->print("Current thread is %p\n", pthread_self()));
+     NOT_PRODUCT(tty->print("Dumping core ...\n"));
+-    // 4450681 : kill all other threads before abort to make sure the 
+-    // calling thread is the one that gets dumped in core file. 
+-    pthread_kill_other_threads_np();
+     ::abort(); // dump core
+   }
+   ::exit(1);
+@@ -1716,12 +1713,7 @@
+   act.sa_flags = SA_RESTART|SA_SIGINFO;
+   act.sa_handler = (void (*)(int)) SR_handler;
+   // SR_signum is blocked by default. 
+-  // 4528190 - We also need to block pthread restart signal (32 on all
+-  // supported Linux platforms). Note that LinuxThreads need to block
+-  // this signal for all threads to work properly. So we don't have
+-  // to use hard-coded signal number when setting up the mask.
+   pthread_sigmask(SIG_BLOCK, NULL, &act.sa_mask);
+-  assert(sigismember(&act.sa_mask, 32), "incompatible pthread library");
+   if (sigaction(SR_signum, &act, 0) == -1) {
+     return -1;
+   }
+diff -Naur java.orig/hotspot/src/share/vm/prims/jni.cpp java/hotspot/src/share/vm/prims/jni.cpp
+--- java.orig/hotspot/src/share/vm/prims/jni.cpp	2002-09-06 00:04:41.000000000 -0000
++++ java/hotspot/src/share/vm/prims/jni.cpp	2003-05-29 00:15:23.000000000 -0000
+@@ -902,7 +902,7 @@
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_VIRTUAL, methodID, &ap, CHECK_0); \
+   va_end(args); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -912,7 +912,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_VIRTUAL, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -922,7 +922,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherArray ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_VIRTUAL, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END
+ 
+ // the runtime type of subword integral basic types is integer
+@@ -976,7 +976,7 @@
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_NONVIRTUAL, methodID, &ap, CHECK_0); \
+   va_end(args); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -986,7 +986,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_NONVIRTUAL, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -996,7 +996,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherArray ap(methodID, args); \
+   jni_invoke_nonstatic(env, &jvalue, obj, JNI_NONVIRTUAL, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END
+ 
+ // the runtime type of subword integral basic types is integer
+@@ -1051,7 +1051,7 @@
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_static(env, &jvalue, NULL, JNI_STATIC, methodID, &ap, CHECK_0); \
+   va_end(args); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -1061,7 +1061,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherVaArg ap(methodID, args); \
+   jni_invoke_static(env, &jvalue, NULL, JNI_STATIC, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END \
+ \
+ \
+@@ -1071,7 +1071,7 @@
+   JavaValue jvalue(Tag); \
+   JNI_ArgumentPusherArray ap(methodID, args); \
+   jni_invoke_static(env, &jvalue, NULL, JNI_STATIC, methodID, &ap, CHECK_0); \
+-  return (ResultType)(jvalue._value.##unionType); \
++  return (ResultType)(jvalue._value.unionType); \
+ JNI_END
+ 
+ // the runtime type of subword integral basic types is integer
+@@ -1204,7 +1204,7 @@
+   /* and creates a ResetNoHandleMark.                                   */ \
+   if (jvmdi::enabled()) { \
+     jvalue field_value; \
+-    field_value.##unionType = value; \
++    field_value.unionType = value; \
+     o = jvmdi::jni_SetField_probe_nh(thread, obj, o, k, fieldID, false, SigType, (jvalue *)&field_value); \
+   } \
+   o->Fieldname##_field_put(offset, value); \
+@@ -1333,7 +1333,7 @@
+   /* jni_SetField_probe() assumes that is okay to create handles. */ \
+   if (jvmdi::enabled()) { \
+     jvalue field_value; \
+-    field_value.##unionType = value; \
++    field_value.unionType = value; \
+     jvmdi::jni_SetField_probe(thread, NULL, NULL, id->holder(), fieldID, true, SigType, (jvalue *)&field_value); \
+   } \
+   id->holder()-> Fieldname##_field_put (id->offset(), value); \
+diff -Naur java.orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp java/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp
+--- java.orig/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp	2002-09-06 00:04:51.000000000 -0000
++++ java/hotspot/src/share/vm/runtime/jvmdiInterfaceSupport.hpp	2003-05-29 00:15:23.000000000 -0000
+@@ -24,7 +24,7 @@
+   result_type JNICALL methodName signature {                                         \
+     JavaThread* thread = (JavaThread*) ThreadLocalStorage::thread();                 \
+     TransitionClass __tiv(thread);                                                   \
+-    __ENTRY(result_type, methodName##signature, thread)                              \
++    __ENTRY(result_type, methodName#signature, thread)                              \
+     debug_only(VMNativeEntryWrapper __vew;)                                          \
+     debug_only(const char* const _jvmdi_methodName_ = #methodName;)                  \
+     debug_only(bool  _trace_ = trace; );                                             \
+diff -Naur java.orig/hotspot/src/share/vm/runtime/mutexLocker.cpp java/hotspot/src/share/vm/runtime/mutexLocker.cpp
+--- java.orig/hotspot/src/share/vm/runtime/mutexLocker.cpp	2002-09-06 00:04:52.000000000 -0000
++++ java/hotspot/src/share/vm/runtime/mutexLocker.cpp	2003-05-29 00:15:23.000000000 -0000
+@@ -95,7 +95,7 @@
+ #endif
+ 
+ #define def(var, type, pri, vm_block) \
+-  var = new type(Mutex::##pri, #var, vm_block)
++  var = new type(Mutex::pri, #var, vm_block)
+ 
+ void mutex_init() {  
+   def(Event_lock                   , Mutex  , event,       true ); // allow to lock in VM
+diff -Naur java.orig/j2se/src/solaris/native/sun/nio/ch/NativeThread.c java/j2se/src/solaris/native/sun/nio/ch/NativeThread.c
+--- java.orig/j2se/src/solaris/native/sun/nio/ch/NativeThread.c	2002-09-06 00:29:54.000000000 -0000
++++ java/j2se/src/solaris/native/sun/nio/ch/NativeThread.c	2003-05-29 00:21:53.000000000 -0000
+@@ -66,7 +66,7 @@
+ Java_sun_nio_ch_NativeThread_signal(JNIEnv *env, jclass cl, jlong thread)
+ {
+ #ifdef __linux__
+-    if (pthread_kill((pthread_t)thread, INTERRUPT_SIGNAL))
++    if (pthread_kill((pthread_t)(unsigned long int)thread, INTERRUPT_SIGNAL))
+ 	JNU_ThrowIOExceptionWithLastError(env, "Thread signal failed");
+ #endif
+ }

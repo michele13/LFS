@@ -1,0 +1,727 @@
+Submitted By: Bernard Leak, bernard at brenda hyphen arkle dot demon dot co dot uk
+Date: 2006-09-26
+Initial Package Version: 1.5.0_08
+Upstream Status: Not submitted (gcc-4. builds are unsupported)
+Origin: See Description: at http://www/brenda-arkle.demon.co.uk/patches/jdk/jdk-1.5.0_08-gcc4-2.patch.bz2
+Description: Work with tighter requirements of gcc-4.1.x
+    Much is from version 1, by DJ Lucas (dj AT linuxfromscratch DOT org)
+    The use of -ffriend-injection in hotspot/build/linux/makefiles/vm.make
+    is taken from steevcoco, posting at
+    http://weblogs.java.net/blog/cayhorstmann/archive/2006/06/honey_i_built_t.html
+    The specific patches removing erroneous class qualifiers are mine.
+
+diff -Naur jdk-build-orig/deploy/src/javaws/share/native/xmlparser.c jdk-build/deploy/src/javaws/share/native/xmlparser.c
+--- jdk-build-orig/deploy/src/javaws/share/native/xmlparser.c	2004-10-19 14:04:17.000000000 -0500
++++ jdk-build/deploy/src/javaws/share/native/xmlparser.c	2005-09-21 23:18:55.000000000 -0500
+@@ -50,7 +50,7 @@
+  *                               10   | bits  6-11
+  *                               10   | bits  0-5
+  */
+-static void RemoveNonAsciiUTF8FromBuffer(char *buf) {
++void RemoveNonAsciiUTF8FromBuffer(char *buf) {
+     char* p;
+     char* q;
+     char c;
+diff -Naur jdk-build-orig/hotspot/src/cpu/i486/vm/i486.ad jdk-build/hotspot/src/cpu/i486/vm/i486.ad
+--- jdk-build-orig/hotspot/src/cpu/i486/vm/i486.ad	2004-10-19 13:41:32.000000000 -0500
++++ jdk-build/hotspot/src/cpu/i486/vm/i486.ad	2005-09-21 23:18:55.000000000 -0500
+@@ -246,10 +246,10 @@
+ static jlong fp_signmask_pool[(4+1)*2]; // 4*128bits(data) + 128bits(alignment)
+ 
+ // Static initialization during VM startup.
+-static jlong *float_signmask_pool  = double_quadword(&fp_signmask_pool[1*2], 0x7FFFFFFF7FFFFFFF, 0x7FFFFFFF7FFFFFFF); 
+-static jlong *double_signmask_pool = double_quadword(&fp_signmask_pool[2*2], 0x7FFFFFFFFFFFFFFF, 0x7FFFFFFFFFFFFFFF); 
+-static jlong *float_signflip_pool  = double_quadword(&fp_signmask_pool[3*2], 0x8000000080000000, 0x8000000080000000); 
+-static jlong *double_signflip_pool = double_quadword(&fp_signmask_pool[4*2], 0x8000000000000000, 0x8000000000000000); 
++static jlong *float_signmask_pool  = double_quadword(&fp_signmask_pool[1*2], 0x7FFFFFFF7FFFFFFFULL, 0x7FFFFFFF7FFFFFFFULL); 
++static jlong *double_signmask_pool = double_quadword(&fp_signmask_pool[2*2], 0x7FFFFFFFFFFFFFFFULL, 0x7FFFFFFFFFFFFFFFULL); 
++static jlong *float_signflip_pool  = double_quadword(&fp_signmask_pool[3*2], 0x8000000080000000ULL, 0x8000000080000000ULL); 
++static jlong *double_signflip_pool = double_quadword(&fp_signmask_pool[4*2], 0x8000000000000000ULL, 0x8000000000000000ULL); 
+ 
+ // !!!!! Special hack to get all type of calls to specify the byte offset
+ //       from the start of the call to the point where the return address
+diff -Naur jdk-build-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp jdk-build/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp
+--- jdk-build-orig/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp	2004-10-19 13:41:46.000000000 -0500
++++ jdk-build/hotspot/src/os_cpu/linux_i486/vm/atomic_linux_i486.inline.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -111,7 +111,7 @@
+                     "cmpxchg8b (%5); xchgl %%ebx, %1"
+                     : "=A" (old_value), "=r" (lo)
+                     : "1" (lo), "c" (hi), "A" (compare_value), "r" (dest), "m" (mp)
+-                    : "%ebx", "cc", "memory");
++                    : "cc", "memory");
+   return old_value;
+ }
+ 
+diff -Naur jdk-build-orig/hotspot/src/share/vm/asm/assembler.hpp jdk-build/hotspot/src/share/vm/asm/assembler.hpp
+--- jdk-build-orig/hotspot/src/share/vm/asm/assembler.hpp	2004-10-19 13:41:56.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/asm/assembler.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -8,7 +8,10 @@
+ 
+ // This file contains platform-independant assembler declarations.
+ 
++class AbstractAssembler;
+ class CodeBuffer;
++class Displacement;
++class Label;
+ class MacroAssembler;
+ 
+ // Labels represent target destinations for jumps and calls.
+diff -Naur jdk-build-orig/hotspot/src/share/vm/c1/c1_CacheLocals.hpp jdk-build/hotspot/src/share/vm/c1/c1_CacheLocals.hpp
+--- jdk-build-orig/hotspot/src/share/vm/c1/c1_CacheLocals.hpp	2004-10-19 13:41:56.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/c1/c1_CacheLocals.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -9,6 +9,7 @@
+ class IR;
+ class ALocalList;
+ class RInfoCollection;
++class RegisterManager;
+ class RegisterState;
+ class LIR_ScanInfo;
+ 
+diff -Naur jdk-build-orig/hotspot/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.hpp jdk-build/hotspot/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.hpp
+--- jdk-build-orig/hotspot/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.hpp	2004-10-19 13:42:06.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/gc_implementation/parallelScavenge/parallelScavengeHeap.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -6,6 +6,7 @@
+  * SUN PROPRIETARY/CONFIDENTIAL.  Use is subject to license terms.
+  */
+ 
++class AdjoiningGenerations;
+ class PSAdaptiveSizePolicy;
+ 
+ class ParallelScavengeHeap : public CollectedHeap {
+diff -Naur jdk-build-orig/hotspot/src/share/vm/memory/concurrentMarkSweepGeneration.hpp jdk-build/hotspot/src/share/vm/memory/concurrentMarkSweepGeneration.hpp
+--- jdk-build-orig/hotspot/src/share/vm/memory/concurrentMarkSweepGeneration.hpp	2004-10-19 13:42:14.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/memory/concurrentMarkSweepGeneration.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -19,6 +19,7 @@
+ // means of a sliding mark-compact. (Not yet implemented.)
+ 
+ class ConcurrentMarkSweepGeneration;
++class ConcurrentMarkSweepThread;
+ class CompactibleFreeListSpace;
+ class FreeChunk;
+ class PromotionInfo;
+diff -Naur jdk-build-orig/hotspot/src/share/vm/memory/dump.cpp jdk-build/hotspot/src/share/vm/memory/dump.cpp
+--- jdk-build-orig/hotspot/src/share/vm/memory/dump.cpp	2004-10-19 13:42:14.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/memory/dump.cpp	2005-09-21 23:18:55.000000000 -0500
+@@ -1035,7 +1035,7 @@
+ // Support for a simple checksum of the contents of the class list
+ // file to prevent trivial tampering. The algorithm matches that in
+ // the MakeClassList program used by the J2SE build process.
+-#define JSUM_SEED ((jlong)0xcafebabebabecafe)
++#define JSUM_SEED ((jlong)0xcafebabebabecafeULL)
+ static jlong
+ jsum(jlong start, const char *buf, const int len)
+ {
+diff -Naur jdk-build-orig/hotspot/src/share/vm/opto/node.hpp jdk-build/hotspot/src/share/vm/opto/node.hpp
+--- jdk-build-orig/hotspot/src/share/vm/opto/node.hpp	2004-10-19 13:42:26.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/opto/node.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -93,6 +93,7 @@
+ #if OPTO_DU_ITERATOR_ASSERT
+ class DUIterator;
+ class DUIterator_Fast;
++class DUIterator_Last;
+ #else
+ typedef uint   DUIterator;
+ typedef Node** DUIterator_Fast;
+diff -Naur jdk-build-orig/hotspot/src/share/vm/opto/parse.hpp jdk-build/hotspot/src/share/vm/opto/parse.hpp
+--- jdk-build-orig/hotspot/src/share/vm/opto/parse.hpp	2004-10-19 13:42:26.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/opto/parse.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -9,7 +9,7 @@
+ class InlineTree;
+ class Parse;
+ class BytecodeParseHistogram;
+-
++class SwitchRange;
+ 
+ //------------------------------InlineTree-------------------------------------
+ class InlineTree : public ResourceObj {
+@@ -405,7 +405,7 @@
+   void do_call();
+ 
+   // Helper function to uncommon-trap or bailout for non-compilable call-sites
+-  bool Parse::can_not_compile_call_site(ciMethod *dest_method, ciInstanceKlass *klass);
++  bool can_not_compile_call_site(ciMethod *dest_method, ciInstanceKlass *klass);
+ 
+   // Helper function to identify inlining potential at call-site
+   ciMethod* optimize_inlining(ciMethod* caller, int bci, ciInstanceKlass* klass, 
+
+diff -Naur jdk-build-orig/hotspot/src/share/vm/prims/jvmtiEnvThreadState.hpp jdk-build/hotspot/src/share/vm/prims/jvmtiEnvThreadState.hpp
+--- jdk-build-orig/hotspot/src/share/vm/prims/jvmtiEnvThreadState.hpp	2004-10-19 13:42:32.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/prims/jvmtiEnvThreadState.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -8,6 +8,10 @@
+ #ifndef _JAVA_JVMTIENVTHREADSTATE_H_
+ #define _JAVA_JVMTIENVTHREADSTATE_H_
+ 
++
++class JvmtiEnv;
++
++
+ ///////////////////////////////////////////////////////////////
+ //
+ // class JvmtiFramePop
+diff -Naur jdk-build-orig/hotspot/src/share/vm/prims/jvmtiEventController.cpp jdk-build/hotspot/src/share/vm/prims/jvmtiEventController.cpp
+--- jdk-build-orig/hotspot/src/share/vm/prims/jvmtiEventController.cpp	2004-10-19 13:42:32.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/prims/jvmtiEventController.cpp	2005-09-21 23:18:55.000000000 -0500
+@@ -10,7 +10,7 @@
+ # include "incls/_jvmtiEventController.cpp.incl"
+ 
+ #ifdef JVMTI_TRACE
+-#define EC_TRACE(out) if (JvmtiTrace::trace_event_controller()) { SafeResourceMark rm; tty->print_cr##out; } while (0)
++#define EC_TRACE(out) if (JvmtiTrace::trace_event_controller()) { SafeResourceMark rm; tty->print_cr out; } while (0)
+ #else
+ #define EC_TRACE(out)
+ #endif /*JVMTI_TRACE */
+diff -Naur jdk-build-orig/hotspot/src/share/vm/prims/jvmtiExport.cpp jdk-build/hotspot/src/share/vm/prims/jvmtiExport.cpp
+--- jdk-build-orig/hotspot/src/share/vm/prims/jvmtiExport.cpp	2004-10-19 13:42:32.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/prims/jvmtiExport.cpp	2005-09-21 23:18:55.000000000 -0500
+@@ -13,8 +13,8 @@
+ extern struct JVMDI_Interface_1_ jvmdiTrace_Interface;  // temporary
+ 
+ #ifdef JVMTI_TRACE
+-#define EVT_TRACE(evt,out) if ((JvmtiTrace::event_trace_flags(evt) & JvmtiTrace::SHOW_EVENT_SENT) != 0) { SafeResourceMark rm; tty->print_cr##out; }
+-#define EVT_TRIG_TRACE(evt,out) if ((JvmtiTrace::event_trace_flags(evt) & JvmtiTrace::SHOW_EVENT_TRIGGER) != 0) { SafeResourceMark rm; tty->print_cr##out; }
++#define EVT_TRACE(evt,out) if ((JvmtiTrace::event_trace_flags(evt) & JvmtiTrace::SHOW_EVENT_SENT) != 0) { SafeResourceMark rm; tty->print_cr out; }
++#define EVT_TRIG_TRACE(evt,out) if ((JvmtiTrace::event_trace_flags(evt) & JvmtiTrace::SHOW_EVENT_TRIGGER) != 0) { SafeResourceMark rm; tty->print_cr out; }
+ #else
+ #define EVT_TRIG_TRACE(evt,out)
+ #define EVT_TRACE(evt,out)
+diff -Naur jdk-build-orig/hotspot/src/share/vm/runtime/classFileParser.cpp jdk-build/hotspot/src/share/vm/runtime/classFileParser.cpp
+--- jdk-build-orig/hotspot/src/share/vm/runtime/classFileParser.cpp	2004-10-19 13:42:34.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/runtime/classFileParser.cpp	2005-09-21 23:18:55.000000000 -0500
+@@ -16,6 +16,9 @@
+ 
+ // We add assert in debug mode when class format is not checked.
+ 
++#undef inline
++#undef __inline
++
+ #ifdef ASSERT
+ void inline assert_property(bool b, const char* msg, TRAPS) {
+   if (!b) { fatal(msg); }
+diff -Naur jdk-build-orig/hotspot/src/share/vm/runtime/globals_extension.hpp jdk-build/hotspot/src/share/vm/runtime/globals_extension.hpp
+--- jdk-build-orig/hotspot/src/share/vm/runtime/globals_extension.hpp	2004-10-19 13:42:35.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/runtime/globals_extension.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -110,7 +110,9 @@
+ 
+ #define FLAG_SET_DEFAULT(name, value) ((name) = (value))
+ 
+-#define FLAG_SET(type, name, value)   (CommandLineFlagsEx::##type##AtPut(FLAG_MEMBER_WITH_TYPE(name,type), (type)(value)))
++//#define FLAG_SET(type, name, value)   (CommandLineFlagsEx::##type##AtPut(FLAG_MEMBER_WITH_TYPE(name,type), (type)(value)))
++
++#define FLAG_SET(type, name, value)   (CommandLineFlagsEx::type##AtPut(FLAG_MEMBER_WITH_TYPE(name,type), (type)(value)))
+ 
+ // Can't put the following in CommandLineFlags because
+ // of a circular dependency on the enum definition.
+diff -Naur jdk-build-orig/hotspot/src/share/vm/runtime/stackMapTable.hpp jdk-build/hotspot/src/share/vm/runtime/stackMapTable.hpp
+--- jdk-build-orig/hotspot/src/share/vm/runtime/stackMapTable.hpp	2004-10-19 13:42:38.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/runtime/stackMapTable.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -6,6 +6,8 @@
+  * SUN PROPRIETARY/CONFIDENTIAL.  Use is subject to license terms.
+  */
+ 
++class StackMapReader;
++
+ // StackMapTable class is the StackMap table used by type checker
+ class StackMapTable : public CHeapObj {
+   friend class ClassVerifier;
+diff -Naur jdk-build-orig/hotspot/src/share/vm/runtime/thread.hpp jdk-build/hotspot/src/share/vm/runtime/thread.hpp
+--- jdk-build-orig/hotspot/src/share/vm/runtime/thread.hpp	2004-10-19 13:42:40.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/runtime/thread.hpp	2006-09-26 11:09:53.000000000 +0100
+@@ -459,9 +459,9 @@
+   static ByteSize stack_base_offset()            { return byte_offset_of(Thread, _stack_base ); }
+   static ByteSize stack_size_offset()            { return byte_offset_of(Thread, _stack_size ); }
+ 
+-#define TLAB_FIELD_OFFSET(name) \
+-  static ByteSize tlab_##name##_offset()            { return byte_offset_of(Thread, _tlab) + ThreadLocalAllocBuffer::##name##_offset(); }
+-
++ #define TLAB_FIELD_OFFSET(name) \
++  static ByteSize tlab_##name##_offset()            { return byte_offset_of(Thread, _tlab) + ThreadLocalAllocBuffer::name##_offset(); }
++                                                                                 
+   TLAB_FIELD_OFFSET(start)
+   TLAB_FIELD_OFFSET(end)
+   TLAB_FIELD_OFFSET(top)
+@@ -470,7 +470,7 @@
+   TLAB_FIELD_OFFSET(number_of_refills)
+   TLAB_FIELD_OFFSET(fast_refill_waste)
+   TLAB_FIELD_OFFSET(slow_allocations)
+-
++                                                                                 
+ #undef TLAB_FIELD_OFFSET
+ 
+ };
+@@ -1518,7 +1518,7 @@
+   static void find_deadlocks(GrowableArray<JavaThread*>* deadlock_threads, bool print_to_tty);
+ 
+   // Fabricate heavyweight monitor info for each lightweight monitor.
+-  static GrowableArray<ObjectMonitor*>* Threads::jvmpi_fab_heavy_monitors();
++  static GrowableArray<ObjectMonitor*>* jvmpi_fab_heavy_monitors();
+ 
+   // Get Java threads that are waiting to enter a monitor. If doLock
+   // is true, then Threads_lock is grabbed as needed. Otherwise, the
+
+diff -Naur jdk-build-orig/hotspot/src/share/vm/runtime/verificationType.hpp jdk-build/hotspot/src/share/vm/runtime/verificationType.hpp
+--- jdk-build-orig/hotspot/src/share/vm/runtime/verificationType.hpp	2004-10-19 13:42:40.000000000 -0500
++++ jdk-build/hotspot/src/share/vm/runtime/verificationType.hpp	2005-09-21 23:18:55.000000000 -0500
+@@ -39,6 +39,7 @@
+ class ArrType;
+ class ObjType;
+ class UninitializedType;
++class ClassVerifier;
+ 
+ // represents primary types
+ // super class of all other inference types
+diff -Naur jdk-build-orig/j2se/make/java/nio/Makefile jdk-build/j2se/make/java/nio/Makefile
+--- jdk-build-orig/j2se/make/java/nio/Makefile	2004-10-19 13:44:54.000000000 -0500
++++ jdk-build/j2se/make/java/nio/Makefile	2005-09-21 23:18:55.000000000 -0500
+@@ -117,7 +117,7 @@
+      $(OBJDIR)/../../../java.lang/java/$(OBJDIRNAME)/FileDescriptor_md.obj
+ endif
+ ifeq ($(PLATFORM), linux)
+-OTHER_CFLAGS += -Werror
++OTHER_CFLAGS += -Werror -Wno-pointer-sign
+ OTHER_LDLIBS += -L$(LIBDIR)/$(LIBARCH)$(SUFFIX) -ljava$(SUFFIX) -lnet$(SUFFIX) -lpthread
+ endif
+ ifeq ($(PLATFORM), solaris)
+diff -Naur jdk-build-orig/j2se/src/share/native/sun/awt/cmm/spattrio.c jdk-build/j2se/src/share/native/sun/awt/cmm/spattrio.c
+--- jdk-build-orig/j2se/src/share/native/sun/awt/cmm/spattrio.c	2004-10-19 14:00:10.000000000 -0500
++++ jdk-build/j2se/src/share/native/sun/awt/cmm/spattrio.c	2005-09-21 23:20:16.000000000 -0500
+@@ -866,7 +866,7 @@
+ 			(SpTypeMultiLanguage == Record->DeviceModelDesc.TagType)) {
+ 			Record++;
+ 		} else {
+-			((SpProfileSeqDescRecord_t	FAR *)Record)++;
++			(SpProfileSeqDescRecord_t	FAR *)Record++;
+ 		}
+ 	}
+ 	return SpStatSuccess;
+diff -Naur jdk-build-orig/j2se/src/share/native/sun/awt/cmm/sprof-pr.h jdk-build/j2se/src/share/native/sun/awt/cmm/sprof-pr.h
+--- jdk-build-orig/j2se/src/share/native/sun/awt/cmm/sprof-pr.h	2004-10-19 14:00:11.000000000 -0500
++++ jdk-build/j2se/src/share/native/sun/awt/cmm/sprof-pr.h	2005-09-21 23:18:55.000000000 -0500
+@@ -619,7 +619,7 @@
+ 
+ void FAR *SpMalloc (KpInt32_t Size);
+ 
+-KpBool_t TestFileCB(KpfileDirEntry_t FAR *fileSearch,
++static KpBool_t TestFileCB(KpfileDirEntry_t FAR *fileSearch,
+                     Limits_t             *Limits);
+ 
+ KpInt32_t TestHeaderDate(SpDateTime_t *ValA, SpDateTime_t *ValB);
+diff -Naur jdk-build-orig/j2se/src/share/native/sun/font/bidi/uchardir.c jdk-build/j2se/src/share/native/sun/font/bidi/uchardir.c
+--- jdk-build-orig/j2se/src/share/native/sun/font/bidi/uchardir.c	2004-10-19 14:00:29.000000000 -0500
++++ jdk-build/j2se/src/share/native/sun/font/bidi/uchardir.c	2005-09-21 23:18:55.000000000 -0500
+@@ -34,6 +34,8 @@
+ 
+ #include "uchardir.h"
+ 
++static UCharDirection u_getDirectionInternal(uint32_t);
++
+ /* new 4.0 surrogate data */
+ static uint32_t ASCII_START = 0x0;
+ static uint32_t ASCII_LIMIT = 0x80;
+diff -Naur jdk-build-orig/j2se/src/solaris/bin/java_md.c jdk-build/j2se/src/solaris/bin/java_md.c
+--- jdk-build-orig/j2se/src/solaris/bin/java_md.c	2004-10-19 14:01:43.000000000 -0500
++++ jdk-build/j2se/src/solaris/bin/java_md.c	2005-09-21 23:18:55.000000000 -0500
+@@ -1136,7 +1136,7 @@
+                     : /* Inputs */
+                     "m" (arg)
+                     : /* Clobbers */
+-                    "%eax", "%ebx", "%ecx", "%edx"
++                    "%eax", "%ecx", "%edx"
+                     );
+   *eaxp = value_of_eax;
+   *ebxp = value_of_ebx;
+diff -Naur jdk-build-orig/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c jdk-build/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c
+--- jdk-build-orig/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c	2004-10-19 14:02:03.000000000 -0500
++++ jdk-build/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c	2005-09-21 23:18:55.000000000 -0500
+@@ -110,8 +110,8 @@
+ }
+ 
+ #ifndef HAVE_SIGIGNORE
+-static int							
+-sigignore(int sig)		
++/* static int */							
++int sigignore(int sig)		
+ {				
+     struct sigaction action;
+     sigset_t set;
+diff -Naur jdk-build-orig/j2se/src/solaris/hpi/src/system_md.c jdk-build/j2se/src/solaris/hpi/src/system_md.c
+--- jdk-build-orig/j2se/src/solaris/hpi/src/system_md.c	2004-10-19 14:02:04.000000000 -0500
++++ jdk-build/j2se/src/solaris/hpi/src/system_md.c	2005-09-21 23:18:55.000000000 -0500
+@@ -23,6 +23,7 @@
+ #include <dlfcn.h>
+ 
+ #include "jni_md.h"
++#include "jvm_md.h"
+ #include "mutex_md.h"
+ 
+ #include "hpi_init.h"
+diff -Naur jdk-build-orig/j2se/src/solaris/javavm/export/jvm_md.h jdk-build/j2se/src/solaris/javavm/export/jvm_md.h
+--- jdk-build-orig/j2se/src/solaris/javavm/export/jvm_md.h	2004-10-19 14:02:04.000000000 -0500
++++ jdk-build/j2se/src/solaris/javavm/export/jvm_md.h	2005-09-21 23:18:55.000000000 -0500
+@@ -48,7 +48,7 @@
+ #define JVM_O_O_APPEND   O_APPEND
+ #define JVM_O_EXCL       O_EXCL
+ #define JVM_O_CREAT      O_CREAT
+-#define JVM_O_DELETE     0x10000
++#define JVM_O_DELETE     0x1000000
+ 
+ /* Signals */
+ 
+diff -Naur jdk-build-orig/j2se/src/solaris/native/sun/awt/awt_dnd.c jdk-build/j2se/src/solaris/native/sun/awt/awt_dnd.c
+--- jdk-build-orig/j2se/src/solaris/native/sun/awt/awt_dnd.c	2004-10-19 14:02:14.000000000 -0500
++++ jdk-build/j2se/src/solaris/native/sun/awt/awt_dnd.c	2005-09-21 23:18:55.000000000 -0500
+@@ -169,7 +169,7 @@
+     return awt_root_window;
+ }
+ 
+-static unsigned char xerror_code = Success;
++unsigned char xerror_code = Success;
+ 
+ static int 
+ xerror_handler(Display *dpy, XErrorEvent *err) {
+diff -Naur jdk-build-orig/share/plugin/mozilla_headers_ns610/nscore.h jdk-build/share/plugin/mozilla_headers_ns610/nscore.h
+--- jdk-build-orig/share/plugin/mozilla_headers_ns610/nscore.h	2001-05-21 11:34:20.000000000 -0500
++++ jdk-build/share/plugin/mozilla_headers_ns610/nscore.h	2005-09-21 23:18:55.000000000 -0500
+@@ -192,6 +192,10 @@
+   #define HAVE_CPP_2BYTE_WCHAR_T
+ #endif
+ 
++#if defined(__GNUC__)
++  #define HAVE_CPP_MODERN_SPECIALIZE_TEMPLATE_SYNTAX
++#endif
++
+   /* until we get an autoconf test for this, we'll assume it's on (since we're using it already) */
+ #define HAVE_CPP_TYPENAME
+ 
+diff -Naur jdk-build-orig/share/plugin/mozilla_headers_ns7/nscore.h jdk-build/share/plugin/mozilla_headers_ns7/nscore.h
+--- jdk-build-orig/share/plugin/mozilla_headers_ns7/nscore.h	2002-09-07 12:12:44.000000000 -0500
++++ jdk-build/share/plugin/mozilla_headers_ns7/nscore.h	2005-09-21 23:18:55.000000000 -0500
+@@ -202,6 +202,10 @@
+   #define HAVE_CPP_2BYTE_WCHAR_T
+ #endif
+ 
++#if defined(__GNUC__)
++  #define HAVE_CPP_MODERN_SPECIALIZE_TEMPLATE_SYNTAX
++#endif
++
+   /* until we get an autoconf test for this, we'll assume it's on (since we're using it already) */
+ #define HAVE_CPP_TYPENAME
+ 
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/adlc/output_h.cpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/adlc/output_h.cpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/adlc/output_h.cpp	2006-09-26 11:25:49.000000000 +0100
+@@ -672,7 +672,7 @@
+     fprintf(fp_hpp, "    _mask <<= n;\n");
+     fprintf(fp_hpp, "    return *this;\n");
+     fprintf(fp_hpp, "  }\n\n");
+-    fprintf(fp_hpp, "  void Pipeline_Use_Cycle_Mask::Or(const Pipeline_Use_Cycle_Mask &in2) {\n");
++    fprintf(fp_hpp, "  void Or(const Pipeline_Use_Cycle_Mask &in2) {\n");
+     fprintf(fp_hpp, "    _mask |= in2._mask;\n");
+     fprintf(fp_hpp, "  }\n\n");
+     fprintf(fp_hpp, "  friend Pipeline_Use_Cycle_Mask operator&(const Pipeline_Use_Cycle_Mask &, const Pipeline_Use_Cycle_Mask &);\n");
+@@ -1870,7 +1870,7 @@
+   fprintf(fp,"  bool DFA( int opcode, const Node *ideal );\n");
+   fprintf(fp,"\n");
+   fprintf(fp,"  // Access function for _valid bit vector\n");
+-  fprintf(fp,"  bool State::valid(uint index) {\n");
++  fprintf(fp,"  bool valid(uint index) {\n");
+   fprintf(fp,"    return( STATE__VALID(index) );\n");
+   fprintf(fp,"  }\n");
+   fprintf(fp,"\n");
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObject.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObject.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObject.hpp	2006-09-26 11:18:46.000000000 +0100
+@@ -50,7 +50,7 @@
+ 
+   jobject      handle()  const { return _handle; }
+   // Get the VM oop that this object holds.
+-  oop ciObject::get_oop() const {
++  oop get_oop() const {
+     assert(_handle != NULL, "null oop");
+     return JNIHandles::resolve_non_null(_handle);
+   }
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObjectFactory.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObjectFactory.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/ci/ciObjectFactory.hpp	2006-09-26 11:19:38.000000000 +0100
+@@ -87,7 +87,7 @@
+ 
+   // Get the ciMethodData representing the methodData for a method 
+   // with none.
+-  ciMethodData* ciObjectFactory::get_empty_methodData();
++  ciMethodData* get_empty_methodData();
+ 
+   ciReturnAddress* get_return_address(int bci);
+ 
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/opto/callnode.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/opto/callnode.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/opto/callnode.hpp	2006-09-26 11:20:28.000000000 +0100
+@@ -335,8 +335,8 @@
+   // Handle monitor stack
+   void push_monitor( const FastLockNode *lock );
+   void pop_monitor ();
+-  Node *SafePointNode::peek_monitor_box() const;
+-  Node *SafePointNode::peek_monitor_obj() const;
++  Node *peek_monitor_box() const;
++  Node *peek_monitor_obj() const;
+ 
+   // Access functions for the JVM
+   Node *control  () const { return in(TypeFunc::Control  ); }
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/runtime/os.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/runtime/os.hpp-old	2006-09-26 01:03:21.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/runtime/os.hpp	2006-09-26 11:05:08.000000000 +0100
+@@ -322,7 +322,7 @@
+ 
+   // returns a string to describe the exception/signal; 
+   // returns NULL if exception_code is not an OS exception/signal.
+-  static const char * os::exception_name(int exception_code, char* buf, int buflen);
++  static const char * exception_name(int exception_code, char* buf, int buflen);
+ 
+   // Returns native Java library, loads if necessary
+   static void*    native_java_library();
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/build/linux/makefiles/vm.make{-old,}
+--- jdk-1.5.0-08/hotspot/build/linux/makefiles/vm.make-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/build/linux/makefiles/vm.make	2006-09-26 10:00:45.000000000 +0100
+@@ -72,7 +72,7 @@
+ CPPFLAGS = ${SYSDEFS} ${INCLUDES} ${BUILD_VERSION}
+ 
+ # Suppress warnings (for now)
+-CFLAGS += -w
++CFLAGS += -w -ffriend-injection
+ 
+ # do not include shared lib path in a.outs
+ #AOUT_FLAGS += -norunpath
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/cpu/i486/vm/frame_i486.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/cpu/i486/vm/frame_i486.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/cpu/i486/vm/frame_i486.hpp	2006-09-26 11:07:24.000000000 +0100
+@@ -95,5 +95,5 @@
+   inline address* sender_pc_addr() const;
+ 
+   // return address of param, zero origin index.
+-  inline address* frame::native_param_addr(int idx) const;
++  inline address* native_param_addr(int idx) const;
+   
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/memory/referenceProcessor.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/memory/referenceProcessor.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/memory/referenceProcessor.hpp	2006-09-26 11:09:03.000000000 +0100
+@@ -115,7 +115,7 @@
+ 
+   // Returns the name of the discovered reference list 
+   // occupying the i / _num_q slot.
+-  const char* ReferenceProcessor::list_name(int i);
++  const char* list_name(int i);
+ 
+  protected:
+   virtual void enqueue_discovered_reflists(oop* pending_list_addr);
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/runtime/arguments.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/runtime/arguments.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/runtime/arguments.hpp	2006-09-26 11:36:17.000000000 +0100
+@@ -408,7 +408,7 @@
+   }
+     
+   //System properties
+-  static void Arguments::init_system_properties(JavaVMInitArgs* args);
++  static void init_system_properties(JavaVMInitArgs* args);
+ 
+   // Proptery List manipulation
+   static void PropertyList_add(SystemProperty** plist, SystemProperty *element);
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/cpu/i486/vm/interpreter_i486.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/cpu/i486/vm/interpreter_i486.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/cpu/i486/vm/interpreter_i486.hpp	2006-09-26 11:43:10.000000000 +0100
+@@ -52,8 +52,8 @@
+   void generate_stack_overflow_check(void);
+ 
+ #ifndef CORE
+-  void InterpreterGenerator::generate_counter_incr(Label* overflow, Label* profile_method, Label* profile_method_continue);
+-  void InterpreterGenerator::generate_counter_overflow(address entry_point);
++  void generate_counter_incr(Label* overflow, Label* profile_method, Label* profile_method_continue);
++  void generate_counter_overflow(address entry_point);
+   void generate_run_compiled_code(void);
+   void check_for_compiled_code(Label & run_compiled_code);
+ #endif
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/cpu/i486/vm/stubGenerator_i486.cpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/cpu/i486/vm/stubGenerator_i486.cpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/cpu/i486/vm/stubGenerator_i486.cpp	2006-09-26 12:13:26.000000000 +0100
+@@ -1198,7 +1198,7 @@
+   //
+   // Note: the routine set_pc_not_at_call_for_caller in SharedRuntime.cpp requires
+   // that this code be generated into a RuntimeStub.
+-  address StubGenerator::generate_throw_exception(const char* name, address runtime_entry, bool restore_saved_exception_pc) {
++  address generate_throw_exception(const char* name, address runtime_entry, bool restore_saved_exception_pc) {
+ 
+     int insts_size = 256;
+     int locs_size  = 32;
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_AllocTable.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_AllocTable.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_AllocTable.hpp	2006-09-26 12:58:47.000000000 +0100
+@@ -27,7 +27,7 @@
+     allFreeState  = 0  // state when all registers are released
+   };
+ 
+-  int c1_AllocTable::get_free_helper(intx lock_state);
++  int get_free_helper(intx lock_state);
+ 
+  public:
+   c1_AllocTable(int size);
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_ValueMap.cpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_ValueMap.cpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/c1/c1_ValueMap.cpp	2006-09-26 13:01:57.000000000 +0100
+@@ -37,7 +37,7 @@
+ 
+  public:
+   // creation
+-  Bucket::Bucket(int id)
++  Bucket(int id)
+   : _values(ValueMapBucketInitialSize)
+   , _hashes(ValueMapBucketInitialSize)
+ #ifndef PRODUCT
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/ci/ciMethodData.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/ci/ciMethodData.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/ci/ciMethodData.hpp	2006-09-26 12:39:40.000000000 +0100
+@@ -54,7 +54,7 @@
+   // Copy & translate from oop based VirtualCallData
+   void translate_from(ProfileData* data);
+ #ifndef PRODUCT
+-  void ciVirtualCallData::print_data_on(outputStream* st);
++  void print_data_on(outputStream* st);
+ #endif
+ };
+ 
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/code/onStackReplacement.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/code/onStackReplacement.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/code/onStackReplacement.hpp	2006-09-26 12:00:44.000000000 +0100
+@@ -23,7 +23,7 @@
+  private:
+   int _returning_fp_entry_offset;
+ 
+-  OSRAdapter::OSRAdapter(CodeBuffer *cb, OopMapSet *oop_maps, int size,
++  OSRAdapter(CodeBuffer *cb, OopMapSet *oop_maps, int size,
+                          int frame_size, int returning_fp_entry_offset);
+   void* operator new(size_t s, unsigned size);
+ 
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/gc_implementation/parallelScavenge/generationSizer.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/gc_implementation/parallelScavenge/generationSizer.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/gc_implementation/parallelScavenge/generationSizer.hpp	2006-09-26 12:09:11.000000000 +0100
+@@ -19,7 +19,7 @@
+     initialize_size_info();
+   }
+ 
+-  void GenerationSizer::initialize_flags() {
++  void initialize_flags() {
+     // Do basic sizing work
+     this->TwoGenerationCollectorPolicy::initialize_flags();
+     
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/memory/symbolTable.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/memory/symbolTable.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/memory/symbolTable.hpp	2006-09-26 11:51:21.000000000 +0100
+@@ -145,7 +145,7 @@
+   }
+ 
+ 
+-  static int StringTable::hash_string(jchar* s, int len);
++  static int hash_string(jchar* s, int len);
+ 
+ 
+   // GC support
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/prims/jvmtiEnvBase.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/prims/jvmtiEnvBase.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/prims/jvmtiEnvBase.hpp	2006-09-26 11:56:48.000000000 +0100
+@@ -263,19 +263,19 @@
+ 
+ 
+   // JVMTI API helper functions which are called at safepoint or thread is suspended.
+-  jvmtiError JvmtiEnvBase::get_frame_count(JvmtiThreadState *state, jint *count_ptr);
+-  jvmtiError JvmtiEnvBase::get_frame_location(JavaThread* java_thread, jint depth, 
++  jvmtiError get_frame_count(JvmtiThreadState *state, jint *count_ptr);
++  jvmtiError get_frame_location(JavaThread* java_thread, jint depth, 
+                                               jmethodID* method_ptr, jlocation* location_ptr);
+-  jvmtiError JvmtiEnvBase::get_object_monitor_usage(JavaThread *calling_thread,
++  jvmtiError get_object_monitor_usage(JavaThread *calling_thread,
+                                                     jobject object, jvmtiMonitorUsage* info_ptr);
+-  jvmtiError JvmtiEnvBase::get_stack_trace(JavaThread *java_thread, 
++  jvmtiError get_stack_trace(JavaThread *java_thread, 
+                                            jint stack_depth, jint max_count,
+                                            jvmtiFrameInfo* frame_buffer, jint* count_ptr);
+-  jvmtiError JvmtiEnvBase::get_owned_monitor_info(JavaThread *calling_thread,
++  jvmtiError get_owned_monitor_info(JavaThread *calling_thread,
+                                                          JavaThread *java_thread,
+                                                          jint* count_ptr,
+                                                          jobject** owned_monitors_ptr);
+-  jvmtiError JvmtiEnvBase::get_current_contended_monitor(JavaThread *calling_thread, 
++  jvmtiError get_current_contended_monitor(JavaThread *calling_thread, 
+                                                          JavaThread *java_thread,
+                                                          jobject *monitor_ptr);
+ 
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/prims/jniId.cpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/prims/jniId.cpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/prims/jniId.cpp	2006-09-26 12:03:23.000000000 +0100
+@@ -63,8 +63,8 @@
+   int bucket_count(int index_cnt);           // Converts the number of indicies into the number of bucket slots.
+ 
+  public:
+-  jniIdTableHolder::jniIdTableHolder(int index_cnt);
+-  jniIdTableHolder::~jniIdTableHolder();
++  jniIdTableHolder(int index_cnt);
++  ~jniIdTableHolder();
+   void set_default_bucket(int index_cnt, jniIdBucket *initial_bucket);
+   inline jniIdBucket** bucket_table() const     { return _bucket_table; }
+   jniIdTableHolder** addr_next()                { return &_next; }
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/runtime/compilationPolicy.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/runtime/compilationPolicy.hpp-old	2006-09-26 01:03:20.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/runtime/compilationPolicy.hpp	2006-09-26 11:53:42.000000000 +0100
+@@ -60,8 +60,8 @@
+   int compilation_level(methodHandle m, int branch_bci);
+ 
+  private:
+-  RFrame* StackWalkCompPolicy::findTopInlinableFrame(GrowableArray<RFrame*>* stack);
+-  RFrame* StackWalkCompPolicy::senderOf(RFrame* rf, GrowableArray<RFrame*>* stack);
++  RFrame* findTopInlinableFrame(GrowableArray<RFrame*>* stack);
++  RFrame* senderOf(RFrame* rf, GrowableArray<RFrame*>* stack);
+ 
+   // the following variables hold values computed by the last inlining decision
+   // they are used for performance debugging only (print better messages)
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/runtime/mutex.hpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/runtime/mutex.hpp-old	2006-09-26 01:03:21.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/runtime/mutex.hpp	2006-09-26 12:17:11.000000000 +0100
+@@ -74,7 +74,7 @@
+   debug_only(int _rank;)     	   // rank (to avoid/detect potential deadlocks)
+   debug_only(Mutex* _next;)        // Used by a Thread to link up owned locks    
+   debug_only(Thread* _last_owner;) // the last thread to own the lock    
+-  debug_only(static bool Mutex::contains(Mutex* locks, Mutex* lock);)
++  debug_only(static bool contains(Mutex* locks, Mutex* lock);)
+   debug_only(static Mutex* get_least_ranked_lock(Mutex* locks);)
+   debug_only(Mutex* get_least_ranked_lock_besides_this(Mutex* locks);)
+ #endif
+
+#Output of diff -Nru jdk-1.5.0-08/hotspot/src/share/vm/utilities/events.cpp{-old,}
+--- jdk-1.5.0-08/hotspot/src/share/vm/utilities/events.cpp-old	2006-09-26 01:03:21.000000000 +0100
++++ jdk-1.5.0-08/hotspot/src/share/vm/utilities/events.cpp	2006-09-26 12:45:52.000000000 +0100
+@@ -143,7 +143,7 @@
+     }
+   }
+ 
+-  static void EventBuffer::print_all(outputStream* st) {
++  static void print_all(outputStream* st) {
+     print_last(st, size);
+   }
+ 
+

@@ -1,0 +1,45 @@
+Submitted By: Archaic <archaic AT linuxfromscratch DOT org>
+Date: 2007-04-28
+Initial Package Version: 1.2.0
+Upstream Status: Applied
+Origin: http://xorg.freedesktop.org/archive/X11R7.2/patches/
+Description: Fixes possible integer overflow in XC-MISC extension.
+http://lists.freedesktop.org/archives/xorg-announce/2007-April/000286.html
+
+diff -Naur xorg-server-1.2.0.orig/Xext/xcmisc.c xorg-server-1.2.0/Xext/xcmisc.c
+--- xorg-server-1.2.0.orig/Xext/xcmisc.c	2007-01-23 05:39:15.000000000 +0000
++++ xorg-server-1.2.0/Xext/xcmisc.c	2007-04-29 02:18:13.000000000 +0000
+@@ -42,6 +42,12 @@
+ #include <X11/extensions/xcmiscstr.h>
+ #include "modinit.h"
+ 
++#if HAVE_STDINT_H
++#include <stdint.h>
++#elif !defined(UINT32_MAX)
++#define UINT32_MAX 0xffffffffU
++#endif
++
+ #if 0
+ static unsigned char XCMiscCode;
+ #endif
+@@ -143,7 +149,10 @@
+ 
+     REQUEST_SIZE_MATCH(xXCMiscGetXIDListReq);
+ 
+-    pids = (XID *)ALLOCATE_LOCAL(stuff->count * sizeof(XID));
++    if (stuff->count > UINT32_MAX / sizeof(XID))
++	    return BadAlloc;
++
++    pids = (XID *)Xalloc(stuff->count * sizeof(XID));
+     if (!pids)
+     {
+ 	return BadAlloc;
+@@ -164,7 +173,7 @@
+     	client->pSwapReplyFunc = (ReplySwapPtr) Swap32Write;
+ 	WriteSwappedDataToClient(client, count * sizeof(XID), pids);
+     }
+-    DEALLOCATE_LOCAL(pids);
++    Xfree(pids);
+     return(client->noClientException);
+ }
+ 

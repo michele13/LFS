@@ -1,0 +1,79 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2011-02-01
+Initial Package Version: 1.9.4
+Upstream Status: not applicable
+Origin: self
+Description: Changes fixed paths in build tree to match those of BLFS.
+             Rediffed for 1.9.5.
+
+diff -Naur icedtea6-1.9.5-orig//Makefile.am icedtea6-1.9.5//Makefile.am
+--- icedtea6-1.9.5-orig//Makefile.am	2011-02-01 11:31:29.000000000 -0600
++++ icedtea6-1.9.5//Makefile.am	2011-02-01 11:32:34.000000000 -0600
+@@ -324,7 +324,8 @@
+ 	patches/openjdk/6795356-proxylazyvalue-leak.patch \
+ 	patches/openjdk/6687968-pngimagereader_mem_leak.patch \
+ 	patches/openjdk/6541476-png-iTXt-chunk.patch \
+-	patches/openjdk/6782079-png_metadata_oom.patch
++	patches/openjdk/6782079-png_metadata_oom.patch \
++	patches/openjdk-lfs-paths.patch
+ 
+ if WITH_ALT_HSBUILD
+ ICEDTEA_PATCHES += \
+diff -Naur icedtea6-1.9.5-orig//patches/openjdk-lfs-paths.patch icedtea6-1.9.5//patches/openjdk-lfs-paths.patch
+--- icedtea6-1.9.5-orig//patches/openjdk-lfs-paths.patch	1969-12-31 18:00:00.000000000 -0600
++++ icedtea6-1.9.5//patches/openjdk-lfs-paths.patch	2011-02-01 11:31:44.000000000 -0600
+@@ -0,0 +1,54 @@
++diff -Nru openjdk.orig/corba/make/common/shared/Defs-utils.gmk openjdk/corba/make/common/shared/Defs-utils.gmk
++--- openjdk.orig/corba/make/common/shared/Defs-utils.gmk	2010-06-21 16:11:20.000000000 -0500
+++++ openjdk/corba/make/common/shared/Defs-utils.gmk	2011-01-11 01:30:48.000000000 -0600
++@@ -88,12 +88,12 @@
++ EGREP          = $(UTILS_COMMAND_PATH)egrep
++ EXPR           = $(UTILS_USR_BIN_PATH)expr
++ FILE           = $(UTILS_USR_BIN_PATH)file
++-FIND           = $(UTILS_USR_BIN_PATH)find
+++FIND           = $(UTILS_COMMAND_PATH)find
++ FMT            = $(UTILS_COMMAND_PATH)fmt
++ GDB            = $(UTILS_USR_BIN_PATH)gdb
++ GREP           = $(UTILS_COMMAND_PATH)grep
++ GUNZIP         = $(UTILS_COMMAND_PATH)gunzip
++-HEAD           = $(UTILS_USR_BIN_PATH)head
+++HEAD           = $(UTILS_COMMAND_PATH)head
++ ID             = $(UTILS_COMMAND_PATH)id
++ ISAINFO        = $(UTILS_COMMAND_PATH)isainfo
++ KSH            = $(UTILS_COMMAND_PATH)ksh
++@@ -125,7 +125,7 @@
++ TAIL           = $(UTILS_USR_BIN_PATH)tail
++ TAR            = $(UTILS_COMMAND_PATH)tar
++ TEST           = $(UTILS_USR_BIN_PATH)test
++-TOUCH          = $(UTILS_COMMAND_PATH)touch
+++TOUCH          = $(UTILS_USR_BIN_PATH)touch
++ TR             = $(UTILS_USR_BIN_PATH)tr
++ TRUE           = $(UTILS_COMMAND_PATH)true
++ UNAME          = $(UTILS_COMMAND_PATH)uname
++diff -Nru openjdk.orig/jdk/make/common/shared/Defs-utils.gmk openjdk/jdk/make/common/shared/Defs-utils.gmk
++--- openjdk.orig//jdk/make/common/shared/Defs-utils.gmk	2010-06-21 16:15:08.000000000 -0500
+++++ openjdk/jdk/make/common/shared/Defs-utils.gmk	2011-01-11 01:32:07.000000000 -0600
++@@ -101,12 +101,12 @@
++ EGREP          = $(UTILS_COMMAND_PATH)egrep
++ EXPR           = $(UTILS_USR_BIN_PATH)expr
++ FILE           = $(UTILS_USR_BIN_PATH)file
++-FIND           = $(UTILS_USR_BIN_PATH)find
+++FIND           = $(UTILS_COMMAND_PATH)find
++ FMT            = $(UTILS_COMMAND_PATH)fmt
++ GDB            = $(UTILS_USR_BIN_PATH)gdb
++ GREP           = $(UTILS_COMMAND_PATH)grep
++ GUNZIP         = $(UTILS_COMMAND_PATH)gunzip
++-HEAD           = $(UTILS_USR_BIN_PATH)head
+++HEAD           = $(UTILS_COMMAND_PATH)head
++ ID             = $(UTILS_COMMAND_PATH)id
++ ISAINFO        = $(UTILS_COMMAND_PATH)isainfo
++ KSH	       = $(UTILS_COMMAND_PATH)ksh
++@@ -137,7 +137,7 @@
++ TAIL           = $(UTILS_USR_BIN_PATH)tail
++ TAR            = $(UTILS_COMMAND_PATH)tar
++ TEST           = $(UTILS_USR_BIN_PATH)test
++-TOUCH          = $(UTILS_COMMAND_PATH)touch
+++TOUCH          = $(UTILS_USR_BIN_PATH)touch
++ TR             = $(UTILS_USR_BIN_PATH)tr
++ TRUE           = $(UTILS_COMMAND_PATH)true
++ UNAME          = $(UTILS_COMMAND_PATH)uname

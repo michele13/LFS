@@ -1,0 +1,139 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2013-01-18
+Initial Package Version: 2.7.3
+Upstream Status:         Unknown
+Origin:                  Gentoo
+Description:             Fixes building of the bsddb module against Berkeley DB 5.0 and later.
+
+--- Python.orig/Modules/_bsddb.c	2012-04-09 23:07:33.000000000 +0000
++++ Python/Modules/_bsddb.c	2012-11-17 16:43:38.852839990 +0000
+@@ -696,8 +696,6 @@
+         case DB_RUNRECOVERY:        errObj = DBRunRecoveryError;    break;
+         case DB_VERIFY_BAD:         errObj = DBVerifyBadError;      break;
+         case DB_NOSERVER:           errObj = DBNoServerError;       break;
+-        case DB_NOSERVER_HOME:      errObj = DBNoServerHomeError;   break;
+-        case DB_NOSERVER_ID:        errObj = DBNoServerIDError;     break;
+         case DB_PAGE_NOTFOUND:      errObj = DBPageNotFoundError;   break;
+         case DB_SECONDARY_BAD:      errObj = DBSecondaryBadError;   break;
+         case DB_BUFFER_SMALL:       errObj = DBNoMemoryError;       break;
+@@ -7616,6 +7614,7 @@
+     char *host;
+     int port;
+     int flags = 0;
++    DB_SITE *dbSite;
+     static char* kwnames[] = {"host", "port", "flags", NULL};
+ 
+     if (!PyArg_ParseTupleAndKeywords(args, kwargs,
+@@ -7625,7 +7624,9 @@
+     }
+     CHECK_ENV_NOT_CLOSED(self);
+     MYDB_BEGIN_ALLOW_THREADS;
+-    err = self->db_env->repmgr_set_local_site(self->db_env, host, port, flags);
++    err = self->db_env->repmgr_site(self->db_env,host, port, &dbSite, flags);
++    dbSite->set_config(dbSite, DB_LOCAL_SITE, 1);
++    dbSite->close(dbSite);
+     MYDB_END_ALLOW_THREADS;
+     RETURN_IF_ERR();
+     RETURN_NONE();
+@@ -7640,6 +7641,7 @@
+     int port;
+     int flags = 0;
+     int eidp;
++    DB_SITE *dbSite;
+     static char* kwnames[] = {"host", "port", "flags", NULL};
+ 
+     if (!PyArg_ParseTupleAndKeywords(args, kwargs,
+@@ -7649,7 +7651,9 @@
+     }
+     CHECK_ENV_NOT_CLOSED(self);
+     MYDB_BEGIN_ALLOW_THREADS;
+-    err = self->db_env->repmgr_add_remote_site(self->db_env, host, port, &eidp, flags);
++    err = self->db_env->repmgr_site(self->db_env, host, port, &dbSite, flags);
++    dbSite->get_eid(dbSite, &eidp);
++    dbSite->close(dbSite);
+     MYDB_END_ALLOW_THREADS;
+     RETURN_IF_ERR();
+     return NUMBER_FromLong(eidp);
+@@ -9651,8 +9655,6 @@
+     ADD_INT(d, DB_LOCK_DEADLOCK);
+     ADD_INT(d, DB_LOCK_NOTGRANTED);
+     ADD_INT(d, DB_NOSERVER);
+-    ADD_INT(d, DB_NOSERVER_HOME);
+-    ADD_INT(d, DB_NOSERVER_ID);
+     ADD_INT(d, DB_NOTFOUND);
+     ADD_INT(d, DB_OLD_VERSION);
+     ADD_INT(d, DB_RUNRECOVERY);
+@@ -9766,7 +9768,11 @@
+     ADD_INT(d, DB_REP_PERMANENT);
+ 
+ #if (DBVER >= 44)
++#if (DBVER >= 50)
++    ADD_INT(d, DB_REP_CONF_AUTOINIT);
++#else
+     ADD_INT(d, DB_REP_CONF_NOAUTOINIT);
++#endif
+     ADD_INT(d, DB_REP_CONF_DELAYCLIENT);
+     ADD_INT(d, DB_REP_CONF_BULK);
+     ADD_INT(d, DB_REP_CONF_NOWAIT);
+--- Python.orig/setup.py	2012-04-09 23:07:36.000000000 +0000
++++ Python/setup.py	2012-11-17 16:43:25.092839526 +0000
+@@ -799,7 +799,7 @@
+         # a release.  Most open source OSes come with one or more
+         # versions of BerkeleyDB already installed.
+ 
+-        max_db_ver = (4, 8)
++        max_db_ver = (5, 3)
+         min_db_ver = (4, 1)
+         db_setup_debug = False   # verbose debug prints from this script?
+ 
+@@ -821,7 +821,11 @@
+             return True
+ 
+         def gen_db_minor_ver_nums(major):
+-            if major == 4:
++            if major == 5:
++                for x in range(max_db_ver[1]+1):
++                    if allow_db_ver((5, x)):
++                        yield x
++            elif major == 4:
+                 for x in range(max_db_ver[1]+1):
+                     if allow_db_ver((4, x)):
+                         yield x
+@@ -835,6 +839,9 @@
+         # construct a list of paths to look for the header file in on
+         # top of the normal inc_dirs.
+         db_inc_paths = [
++            '/usr/include/db5',
++            '/usr/local/include/db5',
++            '/opt/sfw/include/db5',
+             '/usr/include/db4',
+             '/usr/local/include/db4',
+             '/opt/sfw/include/db4',
+@@ -845,6 +852,16 @@
+             '/sw/include/db4',
+             '/sw/include/db3',
+         ]
++        # 5.x minor number specific paths
++        for x in gen_db_minor_ver_nums(5):
++            db_inc_paths.append('/usr/include/db5%d' % x)
++            db_inc_paths.append('/usr/include/db5.%d' % x)
++            db_inc_paths.append('/usr/local/BerkeleyDB.5.%d/include' % x)
++            db_inc_paths.append('/usr/local/include/db5%d' % x)
++            db_inc_paths.append('/pkg/db-5.%d/include' % x)
++            db_inc_paths.append('/opt/db-5.%d/include' % x)
++            # MacPorts default (http://www.macports.org/)
++            db_inc_paths.append('/opt/local/include/db5%d' % x)
+         # 4.x minor number specific paths
+         for x in gen_db_minor_ver_nums(4):
+             db_inc_paths.append('/usr/include/db4%d' % x)
+@@ -871,6 +888,10 @@
+         for dn in inc_dirs:
+             std_variants.append(os.path.join(dn, 'db3'))
+             std_variants.append(os.path.join(dn, 'db4'))
++            std_variants.append(os.path.join(dn, 'db5'))
++            for x in gen_db_minor_ver_nums(5):
++                std_variants.append(os.path.join(dn, "db5%d"%x))
++                std_variants.append(os.path.join(dn, "db5.%d"%x))
+             for x in gen_db_minor_ver_nums(4):
+                 std_variants.append(os.path.join(dn, "db4%d"%x))
+                 std_variants.append(os.path.join(dn, "db4.%d"%x))

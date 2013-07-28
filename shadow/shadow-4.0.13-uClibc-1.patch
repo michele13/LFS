@@ -1,0 +1,124 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-10-17
+Initial Package Version: 4.0.13
+Upstream Status: Unknown
+Origin: Gentoo: shadow-4.0.10-nonis.patch and
+	shadow-4.0.11.1-uclibc-missing-l64a.patch
+Description: This is a combination of two patches needed to compile Shadow
+on uClibc.
+
+diff -Naur shadow-4.0.13.orig/libmisc/salt.c shadow-4.0.13/libmisc/salt.c
+--- shadow-4.0.13.orig/libmisc/salt.c	2005-08-31 17:24:58.000000000 +0000
++++ shadow-4.0.13/libmisc/salt.c	2005-10-17 05:40:47.000000000 +0000
+@@ -14,6 +14,57 @@
+ #include "prototypes.h"
+ #include "defines.h"
+ #include "getdef.h"
++
++#ifndef HAVE_A64L
++
++/*
++ * i64c - convert an integer to a radix 64 character
++ */
++
++int
++i64c(int i)
++{
++	if (i <= 0)
++		return ('.');
++
++	if (i == 1)
++		return ('/');
++
++	if (i >= 2 && i < 12)
++		return ('0' - 2 + i);
++
++	if (i >= 12 && i < 38)
++		return ('A' - 12 + i);
++
++	if (i >= 38 && i < 63)
++		return ('a' - 38 + i);
++
++	return ('z');
++}
++
++/*
++ * l64a - convert a long to a string of radix 64 characters
++ */
++
++char *
++l64a(long l)
++{
++	static	char	buf[8];
++	int	i = 0;
++
++	if (l < 0L)
++		return ((char *) 0);
++
++	do {
++		buf[i++] = i64c ((int) (l % 64));
++		buf[i] = '\0';
++	} while (l /= 64L, l > 0 && i < 6);
++
++	return (buf);
++}
++
++#endif /* !HAVE_A64L */
++
+ /*
+  * Generate 8 base64 ASCII characters of random salt.  If MD5_CRYPT_ENAB
+  * in /etc/login.defs is "yes", the salt string will be prefixed by "$1$"
+diff -Naur shadow-4.0.13.orig/src/login_nopam.c shadow-4.0.13/src/login_nopam.c
+--- shadow-4.0.13.orig/src/login_nopam.c	2005-09-15 16:44:12.000000000 +0000
++++ shadow-4.0.13/src/login_nopam.c	2005-10-17 05:42:17.000000000 +0000
+@@ -50,7 +50,9 @@
+ #include <netinet/in.h>
+ #include <arpa/inet.h>		/* for inet_ntoa() */
+ extern struct group *getgrnam ();
++#ifdef USE_NIS
+ extern int innetgr ();
++#endif
+ 
+ #if !defined(MAXHOSTNAMELEN) || (MAXHOSTNAMELEN < 64)
+ #undef MAXHOSTNAMELEN
+@@ -178,6 +180,7 @@
+ 	return (name);
+ }
+ 
++#ifdef USE_NIS
+ /* netgroup_match - match group against machine or user */
+ static int
+ netgroup_match (const char *group, const char *machine, const char *user)
+@@ -193,6 +196,7 @@
+ 
+ 	return innetgr (group, machine, user, mydomain);
+ }
++#endif
+ 
+ /* user_match - match a username against one token */
+ static int user_match (const char *tok, const char *string)
+@@ -214,8 +218,10 @@
+ 		*at = 0;
+ 		return (user_match (tok, string)
+ 			&& from_match (at + 1, myhostname ()));
++#ifdef USE_NIS
+ 	} else if (tok[0] == '@') {	/* netgroup */
+ 		return (netgroup_match (tok + 1, (char *) 0, string));
++#endif
+ 	} else if (string_match (tok, string)) {	/* ALL or exact match */
+ 		return (YES);
+ 	} else if ((group = getgrnam (tok))) {	/* try group membership */
+@@ -271,9 +277,13 @@
+ 	 * contain a "." character. If the token is a network number, return YES
+ 	 * if it matches the head of the string.
+ 	 */
++#ifdef USE_NIS
+ 	if (tok[0] == '@') {	/* netgroup */
+ 		return (netgroup_match (tok + 1, string, (char *) 0));
+ 	} else if (string_match (tok, string)) {	/* ALL or exact match */
++#else
++	if (string_match (tok, string)) {       /* ALL or exact match */
++#endif
+ 		return (YES);
+ 	} else if (tok[0] == '.') {	/* domain: match last fields */
+ 		if ((str_len = strlen (string)) > (tok_len = strlen (tok))

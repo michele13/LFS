@@ -1,0 +1,51 @@
+Submitted By:            Thomas Trepl <ttrepl@yahoo.de>
+Date:                    2005-02-12
+Initial Package Version: 1.11.19
+Upstream Status:         Not submitted
+Origin:                  Based on Matthew Burgess <matthew@linuxfromscratch.org>
+                         work for version 1.11.2/1.11.18
+Description:             Links against system zlib instead of the
+                         internal zlib.
+
+diff -Naur cvs-1.11.19.orig/src/Makefile.in cvs-1.11.19/src/Makefile.in
+--- cvs-1.11.19.orig/src/Makefile.in	2005-02-01 00:11:15.000000000 +0100
++++ cvs-1.11.19/src/Makefile.in	2005-02-12 17:15:45.055515769 +0100
+@@ -88,7 +88,7 @@
+ 	version.$(OBJEXT) vers_ts.$(OBJEXT) watch.$(OBJEXT) \
+ 	wrapper.$(OBJEXT) zlib.$(OBJEXT)
+ cvs_OBJECTS = $(am_cvs_OBJECTS)
+-cvs_DEPENDENCIES = ../diff/libdiff.a ../lib/libcvs.a ../zlib/libz.a
++cvs_DEPENDENCIES = ../diff/libdiff.a ../lib/libcvs.a
+ binSCRIPT_INSTALL = $(INSTALL_SCRIPT)
+ SCRIPTS = $(bin_SCRIPTS)
+ DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
+@@ -201,7 +201,7 @@
+ # some namespace hackery going on that maybe shouldn't be.  Long term fix is to
+ # try and remove naming ocnflicts and fix Automake to allow particular includes
+ # to be attached only to particular object files.  Short term fix is either or.
+-INCLUDES = -I$(top_srcdir)/lib -I$(top_srcdir)/diff -I$(top_srcdir)/zlib $(includeopt)
++INCLUDES = -I$(top_srcdir)/lib -I$(top_srcdir)/diff $(includeopt)
+ bin_SCRIPTS = cvsbug
+ 
+ # The cvs executable
+@@ -280,7 +280,7 @@
+ cvs_LDADD = \
+ 	../diff/libdiff.a \
+ 	../lib/libcvs.a \
+-	../zlib/libz.a
++	-lz
+ 
+ 
+ # extra clean targets
+diff -Naur cvs-1.11.19.orig/src/zlib.c cvs-1.11.19/src/zlib.c
+--- cvs-1.11.19.orig/src/zlib.c	2004-03-19 20:18:57.000000000 +0100
++++ cvs-1.11.19/src/zlib.c	2005-02-12 17:16:10.264959885 +0100
+@@ -22,7 +22,7 @@
+ 
+ #if defined (SERVER_SUPPORT) || defined (CLIENT_SUPPORT)
+ 
+-#include "zlib.h"
++#include <zlib.h>
+ 
+ /* OS/2 doesn't have EIO.  FIXME: this whole notion of turning
+    a different error into EIO strikes me as pretty dubious.  */

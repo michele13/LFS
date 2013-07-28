@@ -1,0 +1,132 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-12-30
+Initial Package Version: 3.4
+Upstream Status: Not submitted - Stack protector specific. Will not be
+accepted upstream.
+Origin: Based on gcc-3.3.2-pie-ssp.patch by Alexander Gabert
+Description: This adds -fstack-protector-all to the default gcc/g++
+behaviour, with filters to prevent libraries and kernel from getting
+built with it.
+
+See: http://www.linuxfromscratch.org/hlfs/
+
+diff -Naur gcc-3.4.3.orig/gcc/gcc.c gcc-3.4.3/gcc/gcc.c
+--- gcc-3.4.3.orig/gcc/gcc.c	2004-12-30 20:11:06.616994370 +0000
++++ gcc-3.4.3/gcc/gcc.c	2004-12-30 20:16:40.690077185 +0000
+@@ -574,6 +574,7 @@
+ 
+ /* config.h can define CC1_SPEC to provide extra args to cc1 and cc1plus
+    or extra switch-translations.  */
++#include "sspspecs.h"
+ #ifndef CC1_SPEC
+ #define CC1_SPEC ""
+ #endif
+@@ -581,7 +582,7 @@
+ /* config.h can define CC1PLUS_SPEC to provide extra args to cc1plus
+    or extra switch-translations.  */
+ #ifndef CC1PLUS_SPEC
+-#define CC1PLUS_SPEC ""
++#define CC1PLUS_SPEC "%{!DIN_GCC:%{!DIN_LIBGCC:%{!DIN_LIBGCC2:%{!nostdlib:%{!nostartfiles:%{!nostdinc:%{!nodefaultlibs:%{!nostdinc++:%{!fno-stack-protector:%{!fno-stack-protector-all:-fstack-protector-all -fforce-addr}}}}}}}}}}"
+ #endif
+ 
+ /* config.h can define LINK_SPEC to provide extra args to the linker
+diff -Naur gcc-3.4.3.orig/gcc/sspspecs.h gcc-3.4.3/gcc/sspspecs.h
+--- gcc-3.4.3.orig/gcc/sspspecs.h	1970-01-01 00:00:00.000000000 +0000
++++ gcc-3.4.3/gcc/sspspecs.h	2004-12-30 20:13:15.924640477 +0000
+@@ -0,0 +1,96 @@
++/* Adds spec for RTL buffer overflow protection function
++Copyright (C) 1987, 1989, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
++1999, 2000, 2001, 2002 Free Software Foundation, Inc.
++
++This file is part of GCC.
++
++GCC is free software; you can redistribute it and/or modify it under
++the terms of the GNU General Public License as published by the Free
++Software Foundation; either version 2, or (at your option) any later
++version.
++
++GCC is distributed in the hope that it will be useful, but WITHOUT ANY
++WARRANTY; without even the implied warranty of MERCHANTABILITY or
++FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++for more details.
++
++You should have received a copy of the GNU General Public License
++along with GCC; see the file COPYING.  If not, write to the Free
++Software Foundation, 59 Temple Place - Suite 330, Boston, MA
++02111-1307, USA. */
++
++/* Based on http://dev.gentoo.org/~pappy/gentoo-projects/\
++hardened-gcc/gentoo/distrib/3.3.2.2/noarch/gcc-3.3.2-pie-ssp.patch
++thanks to Alexander Gabert and Hardened Gentoo. Modified for just
++SSP, and for addition compatability with NetBSD. This patch adds
++default specs for -fstack-protector-all with filters so libs should
++build normaly. This patch does not have SSP functions, get those from
++http://www.research.ibm.com/trl/projects/security/ssp/
++Workgroup at hlfs-dev@linuxfromscratch.org
++Website at http://www.linuxfromscratch.org/hlfs/ */
++/* ashes */
++
++/* Hopefully this define will prevent this header from being looped.
++	It gets endif'd at the bottom */
++#ifndef SSP_SPEC_H
++#define SSP_SPEC_H
++
++/* FreeBSD and OpenBSD targets are untested but should work.
++	Please report error or success to the workgroup mailing list. */
++#ifdef __FreeBSD__
++#define SSP_KERNEL_EXCLUDE "D_KERNEL"
++#endif
++#ifdef __NetBSD__
++#define SSP_KERNEL_EXCLUDE "D_KERNEL"
++#endif
++#ifdef __OpenBSD__
++#define SSP_KERNEL_EXCLUDE "D_KERNEL"
++#endif
++#ifdef __linux__
++#define SSP_KERNEL_EXCLUDE "D__KERNEL__"
++#endif
++
++/* Fail if none of the above match. */
++#ifndef SSP_KERNEL_EXCLUDE
++ #error "FAILED in sspspecs.h: Unknown target system - Hackme"
++#endif
++
++/* Setup macro. */
++#ifndef NSPEC
++#define NSPEC(a,b) "%{!"a": "b"} "
++#endif
++
++/* These are the exclusion flags wrapped in the above macro. */
++#ifndef STD_SSP_EXCLUDE
++#define STD_SSP_EXCLUDE(flag)			\
++	NSPEC(SSP_KERNEL_EXCLUDE,				\
++	NSPEC("D_LIBC",				\
++	NSPEC("DIN_GCC",                                        \
++	NSPEC("DIN_LIBGCC",                                     \
++	NSPEC("DIN_LIBGCC2",                            \
++	NSPEC("nostdlib",					\
++	NSPEC("nostartfiles",                           \
++	NSPEC("nostdinc",                               \
++	NSPEC("nodefaultlibs",                          \
++	NSPEC("D_LIBC_REENTRANT",				\
++	NSPEC("nostdinc++",                               \
++	NSPEC("shared-libgcc",			\
++	NSPEC("static-libgcc",                  \
++	NSPEC("fno-stack-protector",		\
++	NSPEC("fno-stack-protector-all",	\
++	flag								\
++	)))))))))))))))
++#endif
++
++/* -fforce-addr has been heavily tested by Gentoo and should be safe. */
++#ifndef CC1_SSP
++#define CC1_SSP	"-fstack-protector-all -fforce-addr"
++#endif
++
++/* Setup our new spec string with exclusion flags, and prepend the original spec. */
++static char cc1_spec_string[] = CC1_SPEC STD_SSP_EXCLUDE(CC1_SSP);
++/* Redefine cc1 specs. */
++#undef CC1_SPEC
++#define CC1_SPEC (cc1_spec_string)
++
++#endif /* End of SSP_SPEC_H */

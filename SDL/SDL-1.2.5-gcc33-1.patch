@@ -1,0 +1,21 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-05-16
+Initial Package Version: 1.2.5
+Origin: SDL CVS
+Description: Fixes GCC 3.3 Compile Errors
+
+diff -Naur SDL-1.2.5.orig/src/video/SDL_stretch.c SDL-1.2.5/src/video/SDL_stretch.c
+--- SDL-1.2.5.orig/src/video/SDL_stretch.c	2002-03-06 03:23:03.000000000 -0000
++++ SDL-1.2.5/src/video/SDL_stretch.c	2003-05-16 17:15:17.000000000 -0000
+@@ -261,9 +261,8 @@
+ 			break;
+ 		    default:
+ #ifdef __GNUC__
+-			__asm__ __volatile__ ("
+-				call _copy_row
+-			"
++			__asm__ __volatile__ (
++			"call _copy_row"
+ 			: "=&D" (u1), "=&S" (u2)
+ 			: "0" (dstp), "1" (srcp)
+ 			: "memory" );

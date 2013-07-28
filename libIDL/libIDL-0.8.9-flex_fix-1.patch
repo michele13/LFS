@@ -1,0 +1,23 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-02-19
+Initial Package Version: 0.8.9
+Upstream Status: awaiting response, but arguably a flex issue.
+Origin: judeau, from the quoted bug report.
+Description: Allows it to compile with flex-2.5.34.
+
+ flex-2.5.34 seems to be more pedantic, and chokes when it encounters %p
+http://sourceforge.net/tracker/index.php?func=detail&aid=1860773&group_id=97492&atid=618177
+The info manual apparently used to state that the lex table size declarations
+(%p, %n, %a, %e, %k, %o) are silently ignored.
+
+--- libIDL-0.8.9/lexer.l~	2007-01-01 23:41:34.000000000 +0000
++++ libIDL-0.8.9/lexer.l	2008-01-04 19:29:16.000000000 +0000
+@@ -113,7 +113,7 @@
+ sqstring		\'[^\'\n]*[\'\n]
+ dqstring		\"[^\"\n]*[\"\n]
+ 
+-%p 5000
++/*%p 5000 */
+ 
+ %s XP
+ 

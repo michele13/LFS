@@ -1,0 +1,17 @@
+Submitted By: BLFS Book <blfs-book@linuxfromscratch.org>
+Date: 2003-10-04
+Initial Package Version: 5.8.0
+Origin: BLFS Book
+Description: Patch to fix compilation when compiled against db-4.1.25
+diff -ur perl-5.8.0.orig/ext/DB_File/DB_File.xs perl-5.8.0/ext/DB_File/DB_File.xs
+--- perl-5.8.0.orig/ext/DB_File/DB_File.xs	2002-09-21 13:20:41.000000000 -0500
++++ perl-5.8.0/ext/DB_File/DB_File.xs	2002-09-21 12:55:52.000000000 -0500
+@@ -1366,7 +1366,7 @@
+             Flags |= DB_TRUNCATE ;
+ #endif
+ 
+-        status = (RETVAL->dbp->open)(RETVAL->dbp, name, NULL, RETVAL->type, 
++        status = (RETVAL->dbp->open)(NULL, RETVAL->dbp, name, NULL, RETVAL->type, 
+ 	    			Flags, mode) ; 
+ 	/* printf("open returned %d %s\n", status, db_strerror(status)) ; */
+ 

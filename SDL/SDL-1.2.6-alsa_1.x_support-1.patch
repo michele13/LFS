@@ -1,0 +1,20 @@
+Submitted By: R. Bosch <remybosch -at- zonnet -dot- nl>
+Date: 2004-02-20
+Initial Package Version: 1.2.6
+Origin: Stephane Marchesin -> SDL-CVS
+Description: The patch does the trick, although there will have to be code changes when the alsa 0.9 api get deprecated.
+
+Subject: Re: [SDL] compile problem with sdl <-> alsa
+
+diff -u SDL12/src/audio/alsa/SDL_alsa_audio.h:1.4 SDL12/src/audio/alsa/SDL_alsa_audio.h:1.5
+--- SDL12/src/audio/alsa/SDL_alsa_audio.h:1.4   Mon Apr 15 00:38:54 2002
++++ SDL12/src/audio/alsa/SDL_alsa_audio.h       Tue Dec 16 05:16:50 2003
+@@ -24,6 +24,8 @@
+ #define _ALSA_PCM_audio_h
+
+ #include "SDL_sysaudio.h"
++#define ALSA_PCM_OLD_HW_PARAMS_API
++#define ALSA_PCM_OLD_SW_PARAMS_API
+ #include <alsa/asoundlib.h>
+
+ /* Hidden "this" pointer for the video functions */

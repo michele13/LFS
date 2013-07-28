@@ -1,0 +1,31 @@
+Submitted By: Alexander E. Patrakov
+Date: 2007-04-25
+Initial Package Version: 2.7
+Origin: Upstream
+Upstream Status: backport
+Description: Fixes the following two bugs:
+
+1) in copypass mode, cpio set permissions to 0600
+2) symlink targets were not terminated correctly
+
+--- cpio-2.7/src/copypass.c
++++ cpio-2.7/src/copypass.c
+@@ -197,7 +197,7 @@
+ 	      if (close (out_file_des) < 0)
+ 		close_error (output_name.ds_string);
+ 
+-	      set_copypass_perms (input_name.ds_string, &in_file_stat);
++	      set_copypass_perms (output_name.ds_string, &in_file_stat);
+ 
+ 	      if (reset_time_flag)
+                 {
+--- cpio-2.7/src/copyout.c	2006/09/27 09:28:50	1.19
++++ cpio-2.7/src/copyout.c	2006/10/24 10:48:04	1.20
+@@ -806,6 +806,7 @@
+ 		    free (link_name);
+ 		    continue;
+ 		  }
++		link_name[link_size] = 0;
+ 		cpio_safer_name_suffix (link_name, false,
+ 					!no_abs_paths_flag, true);
+ 		link_size = strlen (link_name);

@@ -1,0 +1,21 @@
+Submitted By: Kevin P. Fleming (kpfleming at cox dot net)
+Date: 2003-09-25
+Initial Package Version: 2.3.2
+Origin: Kevin P. Fleming (kpfleming at cox dot net)
+Description: Modifies the Makefile for glibc's io/test-lfs test so that
+	     the test will be run in the object directory instead of /tmp.
+             This is done because the test will fail (incorrectly) if /tmp
+	     is a tmpfs filesystem.
+
+--- /root/cvs/libc/io/Makefile	Thu Sep 25 19:43:34 2003
++++ libc-new/io/Makefile	Thu Sep 25 21:20:30 2003
+@@ -91,6 +91,9 @@
+ endif
+ 
+ test-stat2-ARGS = Makefile . $(objpfx)test-stat2
++# test-lfs will fail if run against a tmpfs filesystem on Linux, so try to
++# avoid that by running the test in the build directory
++test-lfs-ARGS = --test-dir=${common-objpfx}io
+ 
+ ifeq ($(cross-compiling),no)
+ tests: $(objpfx)ftwtest.out

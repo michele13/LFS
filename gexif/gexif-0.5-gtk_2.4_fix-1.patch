@@ -1,0 +1,31 @@
+Submitted By: Nick Fotopoulos <weasel at beyondnormal dot org>
+Date: 2004-09-30
+Initial Package Version: 0.5
+Upstream Status: None
+Origin:	Self
+Description:	Updates gexif to use new function form for gtk_exif_get_value
+		in libexif-0.6.10 which now take three parameters instead
+		of one.
+
+diff -Naur gexif-0.5.orig/gexif/Makefile.am gexif-0.5/gexif/Makefile.am
+--- gexif-0.5.orig/gexif/Makefile.am	2002-12-15 06:35:45.000000000 -0500
++++ gexif-0.5/gexif/Makefile.am	2004-09-30 18:43:08.290392680 -0400
+@@ -1,7 +1,6 @@
+ INCLUDES =						\
+ 	-I$(top_srcdir)					\
+ 	-I$(top_srcdir)/intl				\
+-	-DGTK_DISABLE_DEPRECATED			\
+ 	-DGEXIF_LOCALEDIR="\"$(datadir)/locale\""	\
+ 	$(GEXIF_CFLAGS)
+ 
+diff -Naur gexif-0.5.orig/gexif/Makefile.in gexif-0.5/gexif/Makefile.in
+--- gexif-0.5.orig/gexif/Makefile.in	2003-01-07 13:10:59.000000000 -0500
++++ gexif-0.5/gexif/Makefile.in	2004-09-30 18:43:01.133480696 -0400
+@@ -115,7 +115,6 @@
+ INCLUDES = \
+ 	-I$(top_srcdir)					\
+ 	-I$(top_srcdir)/intl				\
+-	-DGTK_DISABLE_DEPRECATED			\
+ 	-DGEXIF_LOCALEDIR="\"$(datadir)/locale\""	\
+ 	$(GEXIF_CFLAGS)
+ 

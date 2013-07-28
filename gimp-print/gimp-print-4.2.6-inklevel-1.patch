@@ -1,0 +1,25 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-08
+Initial Package Version: 4.2.6
+Upstream Status: a copy of this patch has been sent upstream
+Origin: xwLinux, mtink
+Description: This patch allows escputil to get ink levels
+for Epson Stylus C84 and similar printers. The correct
+command is:
+
+escputil -i -u -r /dev/usb/lp0
+
+--- gimp-print/src/escputil/escputil.c	2004-05-08 12:16:47.897480536 +0600
++++ gimp-print/src/escputil/escputil.c	2004-05-08 12:18:46.400465344 +0600
+@@ -639,7 +639,10 @@
+       exit(1);
+     }
+   initialize_print_cmd();
+-  do_remote_cmd("ST", 2, 0, 1);
++  if (isnew)
++    do_remote_cmd("IQ", 1, 1);
++  else
++    do_remote_cmd("ST", 2, 0, 1);
+   add_resets(2);
+   if (write(fd, printer_cmd, bufpos) < bufpos)
+     {

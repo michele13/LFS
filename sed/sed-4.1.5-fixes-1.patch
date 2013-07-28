@@ -1,0 +1,1715 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-16
+Initial Package Version: 4.1.5
+Upstream Status: Submitted
+Origin: Redhat/Fedora, OpenWall/Owl, Gentoo, and me.
+Description: This patch includes:
+Redhat/Fedora - sed-4.1.5-bz185374.patch
+Redhat/Fedora - sed-4.1.5-relsymlink.patch
+OpenWall/Owl - sed-4.1.5-owl-warnings.diff
+Gentoo - sed-4.1.5-alloca.patch
+And a handfull of additional compiler warning fixes, including the addition
+  of --enable-gcc-warnings (-Werror -Wall -Wformat -Wformat-security).
+Wrap fchown in assert() to deal with gcc -D_FORTIFY_SOURCE warnings (only
+  if _FORTIFY_SOURCE is defined).
+Added strlcpy(), and assert(), code if the system does not have them.
+
+This had to be put into one big patch mainly because of strlcpy().
+
+diff -Naur sed-4.1.5.orig/ChangeLog sed-4.1.5/ChangeLog
+--- sed-4.1.5.orig/ChangeLog	2006-02-03 09:08:36.000000000 +0000
++++ sed-4.1.5/ChangeLog	2006-10-16 12:36:42.000000000 +0000
+@@ -1,3 +1,43 @@
++2006-10-16  Robert Connolly <robert@linuxfromscratch.org>
++
++	* config/warning.m4: New autoconf macro, SED_WARNING (WARNING_CFLAGS
++	  and WERROR_CFLAGS).
++	* configure.ac: Added --enable-gcc-warnings (yes by default, with
++	  checks for -Werror, -Wall, -Wformat, and -Wformat-security.
++	  Check for <assert.h> header.
++	* doc/Makefile.am: Removed docdir definition.
++	* lib/Makefile.am testsuite/Makefile.am: Added -Werror to AM_CFLAGS.
++	* lib/regexec.c: Wrap 're_dfa_t' in '#ifdef _LIBC'.
++	* lib/regex_internal.h: If HAVE_ASSERT_H is not defined then use
++	  and included minimalistic version of assert(3). Don't redefine
++	  __mempcpy.
++	* lib/utils.c: Include unistd.h. Removed unused fd's. Initialize
++	  'int result'. Fixed compiler warnings.
++	* sed/compile.c: Removed unused is_stderr. Initialize 'int delim'.
++	  Removed unused 'size_t len'. Fixed compiler warnings.
++	* sed/execute.c: Include assert.h if we have it, or use a private
++	  version. Fixed compiler warnings. Added assert to fchown() if
++	  _FORTIFY_SOURCE is defined, to silence warnings.
++	* sed/Makefile.am: Added WARNING_CFLAGS and WERROR_CFLAGS to
++	  AM_CFLAGS.
++	* sed/sed.c: Fixed format warning.
++	* testsuite/bug-regex14.c: Don't redefine _REGEX_RE_COMP.
++	* testsuite/Makefile.am: Added WERROR_CFLAGS to AM_CFLAGS.
++	* lib/strlcpy.c: New file, adding the strlcpy() function.
++	* sed/sed.h: Added strlcpy prototype.
++	* sed/sed.c: Replace strcpy with strlcpy.
++	* sed/execute.c: Replace strcpy with strlcpy.
++	* lib/regex_internal.h: Only include alloca.h if it exists.
++	* configure.ac: Added strlcpy to AC_REPLACE_FUNCS.
++	* lib/utils.c lib/utils.h sed/execute.c sed/sed.c sed/sed.h:
++	  New functions 'copy_instead_of_rename' and 'ck_follow_symlink'.
++	  Don't clobber symlinks, follow them instead. Add -c flag for
++	  copy, instead of rename, to avoid ownership change.
++	* configure.ac: Added libgen.h and fcntl.h to AC_CHECK_HEADERS.
++	* doc/sed.1: Added the -c option.
++	* aclocal.m4 configure lib/Makefile.in sed/Makefile.in
++	  testsuite/Makefile.in doc/Makefile.in config_h.in: Regenerated.
++
+ 2006-02-03  Paolo Bonzini  <bonzini@gnu.org>
+ 
+ 	* sed/compile.c (compile_program) <case 'y'>: Pass false to match_slash.
+diff -Naur sed-4.1.5.orig/Makefile.in sed-4.1.5/Makefile.in
+--- sed-4.1.5.orig/Makefile.in	2006-02-03 09:24:36.000000000 +0000
++++ sed-4.1.5/Makefile.in	2006-10-16 12:36:42.000000000 +0000
+@@ -58,7 +58,8 @@
+ 	$(top_srcdir)/config/lib-prefix.m4 \
+ 	$(top_srcdir)/config/progtest.m4 \
+ 	$(top_srcdir)/config/stdbool.m4 \
+-	$(top_srcdir)/config/strverscmp.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/config/strverscmp.m4 \
++	$(top_srcdir)/config/warning.m4 $(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
+@@ -120,6 +121,7 @@
+ GENCAT = @GENCAT@
+ GLIBC21 = @GLIBC21@
+ GMSGFMT = @GMSGFMT@
++GREP = @GREP@
+ HAVE__BOOL = @HAVE__BOOL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -166,10 +168,10 @@
+ USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
++WARNING_CFLAGS = @WARNING_CFLAGS@
++WERROR_CFLAGS = @WERROR_CFLAGS@
+ XGETTEXT = @XGETTEXT@
+ ac_ct_CC = @ac_ct_CC@
+-ac_ct_RANLIB = @ac_ct_RANLIB@
+-ac_ct_STRIP = @ac_ct_STRIP@
+ am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
+ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
+ am__include = @am__include@
+@@ -184,23 +186,30 @@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+ datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+ host_cpu = @host_cpu@
+ host_os = @host_os@
+ host_vendor = @host_vendor@
++htmldir = @htmldir@
+ includedir = @includedir@
+ infodir = @infodir@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localedir = @localedir@
+ localstatedir = @localstatedir@
+ mandir = @mandir@
+ mkdir_p = @mkdir_p@
+ oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
++psdir = @psdir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+diff -Naur sed-4.1.5.orig/aclocal.m4 sed-4.1.5/aclocal.m4
+--- sed-4.1.5.orig/aclocal.m4	2006-02-03 09:24:22.000000000 +0000
++++ sed-4.1.5/aclocal.m4	2006-10-16 12:36:42.000000000 +0000
+@@ -873,3 +873,4 @@
+ m4_include([config/progtest.m4])
+ m4_include([config/stdbool.m4])
+ m4_include([config/strverscmp.m4])
++m4_include([config/warning.m4])
+diff -Naur sed-4.1.5.orig/config/warning.m4 sed-4.1.5/config/warning.m4
+--- sed-4.1.5.orig/config/warning.m4	1970-01-01 00:00:00.000000000 +0000
++++ sed-4.1.5/config/warning.m4	2006-10-16 12:36:42.000000000 +0000
+@@ -0,0 +1,34 @@
++# From bison-2.3
++#
++# Finding valid warning flags for the C Compiler.           -*-Autoconf-*-
++#
++# Copyright (C) 2001, 2002 Free Software Foundation, Inc.
++#
++# This program is free software; you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation; either version 2 of the License, or
++# (at your option) any later version.
++#
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with this program; if not, write to the Free Software
++# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
++# 02110-1301  USA
++
++# serial 1
++
++AC_DEFUN([SED_WARNING],
++[AC_MSG_CHECKING(whether compiler accepts $1)
++AC_SUBST(WARNING_CFLAGS)
++ac_save_CFLAGS="$CFLAGS"
++CFLAGS="$CFLAGS $1"
++AC_TRY_COMPILE(,
++[int x;],
++WARNING_CFLAGS="$WARNING_CFLAGS $1"
++AC_MSG_RESULT(yes),
++AC_MSG_RESULT(no))
++CFLAGS="$ac_save_CFLAGS"])
+diff -Naur sed-4.1.5.orig/config_h.in sed-4.1.5/config_h.in
+--- sed-4.1.5.orig/config_h.in	2006-02-03 09:26:22.000000000 +0000
++++ sed-4.1.5/config_h.in	2006-10-16 12:36:42.000000000 +0000
+@@ -22,6 +22,9 @@
+ /* Define to 1 if you have the <argz.h> header file. */
+ #undef HAVE_ARGZ_H
+ 
++/* Define to 1 if you have the <assert.h> header file. */
++#undef HAVE_ASSERT_H
++
+ /* Define to 1 if you have the `bcopy' function. */
+ #undef HAVE_BCOPY
+ 
+@@ -51,6 +54,9 @@
+ /* Define to 1 if you have the `fchown' function. */
+ #undef HAVE_FCHOWN
+ 
++/* Define to 1 if you have the <fcntl.h> header file. */
++#undef HAVE_FCNTL_H
++
+ /* Define to 1 if you have the `feof_unlocked' function. */
+ #undef HAVE_FEOF_UNLOCKED
+ 
+@@ -105,6 +111,9 @@
+ /* Define if your <locale.h> file defines LC_MESSAGES. */
+ #undef HAVE_LC_MESSAGES
+ 
++/* Define to 1 if you have the <libgen.h> header file. */
++#undef HAVE_LIBGEN_H
++
+ /* Define to 1 if you have the `regex' library (-lregex). */
+ #undef HAVE_LIBREGEX
+ 
+@@ -222,6 +231,9 @@
+ /* Define to 1 if you have the <string.h> header file. */
+ #undef HAVE_STRING_H
+ 
++/* Define to 1 if you have the `strlcpy' function. */
++#undef HAVE_STRLCPY
++
+ /* Define to 1 if you have the `strtoul' function. */
+ #undef HAVE_STRTOUL
+ 
+diff -Naur sed-4.1.5.orig/configure sed-4.1.5/configure
+--- sed-4.1.5.orig/configure	2006-02-03 09:24:40.000000000 +0000
++++ sed-4.1.5/configure	2006-10-16 12:36:42.000000000 +0000
+@@ -311,7 +311,7 @@
+ # include <unistd.h>
+ #endif"
+ 
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar SED_FEATURE_VERSION CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE RANLIB ac_ct_RANLIB CPP EGREP HAVE__BOOL ALLOCA LIBOBJS TEST_REGEX_TRUE TEST_REGEX_FALSE BUILD_HTML_TRUE BUILD_HTML_FALSE TEXI2HTML MAKEINFO_HTML_TRUE MAKEINFO_HTML_FALSE TEXI2HTML_HTML_TRUE TEXI2HTML_HTML_FALSE MKINSTALLDIRS MSGFMT GMSGFMT XGETTEXT MSGMERGE build build_cpu build_vendor build_os host host_cpu host_vendor host_os GLIBC21 LIBICONV LTLIBICONV INTLBISON USE_NLS BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT INTLOBJS DATADIRNAME INSTOBJEXT GENCAT INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM mkdir_p AWK SET_MAKE am__leading_dot AMTAR am__tar am__untar SED_FEATURE_VERSION CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE RANLIB ac_ct_RANLIB CPP EGREP WARNING_CFLAGS WERROR_CFLAGS HAVE__BOOL ALLOCA LIBOBJS TEST_REGEX_TRUE TEST_REGEX_FALSE BUILD_HTML_TRUE BUILD_HTML_FALSE TEXI2HTML MAKEINFO_HTML_TRUE MAKEINFO_HTML_FALSE TEXI2HTML_HTML_TRUE TEXI2HTML_HTML_FALSE MKINSTALLDIRS MSGFMT GMSGFMT XGETTEXT MSGMERGE build build_cpu build_vendor build_os host host_cpu host_vendor host_os GLIBC21 LIBICONV LTLIBICONV INTLBISON USE_NLS BUILD_INCLUDED_LIBINTL USE_INCLUDED_LIBINTL CATOBJEXT INTLOBJS DATADIRNAME INSTOBJEXT GENCAT INTL_LIBTOOL_SUFFIX_PREFIX INTLLIBS LIBINTL LTLIBINTL POSUB LTLIBOBJS'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -855,16 +855,17 @@
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+   --disable-dependency-tracking  speeds up one-time build
+   --enable-dependency-tracking   do not reject slow dependency extractors
++  --enable-gcc-warnings   turn on GCC warnings [default=yes]
+   --disable-largefile     omit support for large files
+-  --disable-i18n          disable internationalization (default=yes)
+-  --enable-regex-tests    enable regex matcher regression tests (default=yes)
+-  --enable-html           build HTML manual (default=no)
++  --disable-i18n          disable internationalization [default=yes]
++  --enable-regex-tests    enable regex matcher regression tests [default=yes]
++  --enable-html           build HTML manual [default=yes]
+   --disable-nls           do not use Native Language Support
+ 
+ Optional Packages:
+   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+-  --with-included-regex   use included regex matcher (default=yes)
++  --with-included-regex   use included regex matcher [default=yes]
+   --with-gnu-ld           assume the C compiler uses GNU ld default=no
+   --with-libiconv-prefix=DIR  search for libiconv in DIR/include and DIR/lib
+   --without-libiconv-prefix     don't search for libiconv in includedir and libdir
+@@ -3650,6 +3651,241 @@
+ 
+ fi
+ 
++
++# Check whether --enable-gcc-warnings or --disable-gcc-warnings was given.
++if test "${enable_gcc_warnings+set}" = set; then
++  enableval="$enable_gcc_warnings"
++  case "${enableval}" in
++   yes|no) ;;
++   *)      { { echo "$as_me:$LINENO: error: bad value ${enableval} for gcc-warnings option" >&5
++echo "$as_me: error: bad value ${enableval} for gcc-warnings option" >&2;}
++   { (exit 1); exit 1; }; } ;;
++ esac
++else
++  enableval=yes
++fi;
++if test "x${enableval}" != xno; then
++  echo "$as_me:$LINENO: checking whether compiler accepts -Werror" >&5
++echo $ECHO_N "checking whether compiler accepts -Werror... $ECHO_C" >&6
++
++ac_save_CFLAGS="$CFLAGS"
++CFLAGS="$CFLAGS -Werror"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++int
++main ()
++{
++int x;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  WARNING_CFLAGS="$WARNING_CFLAGS -Werror"
++echo "$as_me:$LINENO: result: yes" >&5
++echo "${ECHO_T}yes" >&6
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++CFLAGS="$ac_save_CFLAGS"
++  WERROR_CFLAGS=$WARNING_CFLAGS
++
++  WARNING_CFLAGS=
++  echo "$as_me:$LINENO: checking whether compiler accepts -Wall" >&5
++echo $ECHO_N "checking whether compiler accepts -Wall... $ECHO_C" >&6
++
++ac_save_CFLAGS="$CFLAGS"
++CFLAGS="$CFLAGS -Wall"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++int
++main ()
++{
++int x;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  WARNING_CFLAGS="$WARNING_CFLAGS -Wall"
++echo "$as_me:$LINENO: result: yes" >&5
++echo "${ECHO_T}yes" >&6
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++CFLAGS="$ac_save_CFLAGS"
++  echo "$as_me:$LINENO: checking whether compiler accepts -Wformat" >&5
++echo $ECHO_N "checking whether compiler accepts -Wformat... $ECHO_C" >&6
++
++ac_save_CFLAGS="$CFLAGS"
++CFLAGS="$CFLAGS -Wformat"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++int
++main ()
++{
++int x;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  WARNING_CFLAGS="$WARNING_CFLAGS -Wformat"
++echo "$as_me:$LINENO: result: yes" >&5
++echo "${ECHO_T}yes" >&6
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++CFLAGS="$ac_save_CFLAGS"
++  echo "$as_me:$LINENO: checking whether compiler accepts -Wformat-security" >&5
++echo $ECHO_N "checking whether compiler accepts -Wformat-security... $ECHO_C" >&6
++
++ac_save_CFLAGS="$CFLAGS"
++CFLAGS="$CFLAGS -Wformat-security"
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++int
++main ()
++{
++int x;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  WARNING_CFLAGS="$WARNING_CFLAGS -Wformat-security"
++echo "$as_me:$LINENO: result: yes" >&5
++echo "${ECHO_T}yes" >&6
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++echo "$as_me:$LINENO: result: no" >&5
++echo "${ECHO_T}no" >&6
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++CFLAGS="$ac_save_CFLAGS"
++fi
++
+ echo "$as_me:$LINENO: checking for library containing strerror" >&5
+ echo $ECHO_N "checking for library containing strerror... $ECHO_C" >&6
+ if test "${ac_cv_search_strerror+set}" = set; then
+@@ -4592,8 +4828,11 @@
+ 
+ 
+ 
+-for ac_header in io.h limits.h locale.h stdarg.h alloca.h stddef.h errno.h \
+-		 wchar.h wctype.h sys/file.h mcheck.h
++
++
++
++for ac_header in fcntl.h io.h limits.h locale.h stdarg.h alloca.h stddef.h errno.h \
++		 wchar.h wctype.h sys/file.h mcheck.h libgen.h assert.h
+ do
+ as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ echo "$as_me:$LINENO: checking for $ac_header" >&5
+@@ -6116,7 +6355,8 @@
+ 
+ 
+ 
+-for ac_func in memchr memcmp memmove strerror mkstemp
++
++for ac_func in memchr memcmp memmove strerror strlcpy mkstemp
+ do
+ as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ echo "$as_me:$LINENO: checking for $ac_func" >&5
+@@ -6730,6 +6970,7 @@
+ 
+ fi
+ 
++if test "x$enable_html" != xno; then
+ # Check whether --enable-html or --disable-html was given.
+ if test "${enable_html+set}" = set; then
+   enableval="$enable_html"
+@@ -6774,6 +7015,7 @@
+     enable_html=no
+   fi
+ fi
++fi
+ 
+ 
+ 
+@@ -10301,6 +10543,8 @@
+ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
+ s,@CPP@,$CPP,;t t
+ s,@EGREP@,$EGREP,;t t
++s,@WARNING_CFLAGS@,$WARNING_CFLAGS,;t t
++s,@WERROR_CFLAGS@,$WERROR_CFLAGS,;t t
+ s,@HAVE__BOOL@,$HAVE__BOOL,;t t
+ s,@ALLOCA@,$ALLOCA,;t t
+ s,@LIBOBJS@,$LIBOBJS,;t t
+diff -Naur sed-4.1.5.orig/configure.ac sed-4.1.5/configure.ac
+--- sed-4.1.5.orig/configure.ac	2006-02-03 09:23:48.000000000 +0000
++++ sed-4.1.5/configure.ac	2006-10-16 12:36:42.000000000 +0000
+@@ -16,6 +16,23 @@
+ AC_GNU_SOURCE
+ AC_AIX
+ AC_MINIX
++
++AC_ARG_ENABLE(gcc-warnings,
++[  --enable-gcc-warnings   turn on GCC warnings @<:@default=yes@:>@],
++[case "${enableval}" in
++   yes|no) ;;
++   *)      AC_MSG_ERROR([bad value ${enableval} for gcc-warnings option]) ;;
++ esac],
++              [enableval=yes])
++if test "x${enableval}" != xno; then
++  SED_WARNING(-Werror)
++  AC_SUBST([WERROR_CFLAGS], [$WARNING_CFLAGS])
++  WARNING_CFLAGS=
++  SED_WARNING(-Wall)
++  SED_WARNING(-Wformat)
++  SED_WARNING(-Wformat-security)
++fi
++
+ AC_ISC_POSIX
+ AC_SYS_LARGEFILE
+ AC_SYS_LONG_FILE_NAMES
+@@ -44,8 +61,8 @@
+ fi
+ 
+ AC_HEADER_DIRENT
+-AC_CHECK_HEADERS(io.h limits.h locale.h stdarg.h alloca.h stddef.h errno.h \
+-		 wchar.h wctype.h sys/file.h mcheck.h, [], [],
++AC_CHECK_HEADERS(fcntl.h io.h limits.h locale.h stdarg.h alloca.h stddef.h errno.h \
++		 wchar.h wctype.h sys/file.h mcheck.h libgen.h assert.h, [], [],
+ 		 [AC_INCLUDES_DEFAULT])
+ AC_C_CONST
+ AC_TYPE_SIZE_T
+@@ -69,19 +86,19 @@
+ AC_FUNC_MBRTOWC
+ AC_TYPE_MBSTATE_T
+ gl_FUNC_STRVERSCMP
+-AC_REPLACE_FUNCS(memchr memcmp memmove strerror mkstemp)
++AC_REPLACE_FUNCS(memchr memcmp memmove strerror strlcpy mkstemp)
+ AC_CHECK_FUNCS(isatty bcopy bzero isascii memcpy memset strchr strtoul popen \
+ 		pathconf isblank fchown fchmod setlocale wcrtomb wcscoll btowc)
+ 
+ AC_ARG_ENABLE(i18n,
+-[  --disable-i18n          disable internationalization (default=yes)], ,
++[  --disable-i18n          disable internationalization @<:@default=yes@:>@], ,
+ enable_i18n=yes)
+ if test "x$enable_i18n" = xno; then
+   ac_cv_func_wcscoll=false
+ fi
+ 
+ AC_ARG_WITH(included-regex, 
+-[  --with-included-regex   use included regex matcher (default=yes)], ,
++[  --with-included-regex   use included regex matcher @<:@default=yes@:>@], ,
+ with_included_regex=yes)
+ 
+ if test "x$with_included_regex" = xno; then
+@@ -95,7 +112,7 @@
+ fi
+ 
+ AC_ARG_ENABLE(regex-tests, 
+-[  --enable-regex-tests    enable regex matcher regression tests (default=yes)],
++[  --enable-regex-tests    enable regex matcher regression tests @<:@default=yes@:>@],
+ [if test "x$with_included_regex" = xno; then
+   enable_regex_tests=no
+ fi],
+@@ -111,8 +128,9 @@
+     [Include BSD functions in regex, used by the testsuite])
+ fi
+ 
++if test "x$enable_html" != xno; then
+ AC_ARG_ENABLE(html, 
+-[  --enable-html           build HTML manual (default=no)], ,
++[  --enable-html           build HTML manual @<:@default=yes@:>@], ,
+ enable_html=no)
+ 
+ AM_CONDITIONAL(BUILD_HTML, test "x$enable_html" != xno)
+@@ -135,6 +153,7 @@
+     fi
+     enable_html=no
+   fi
++fi
+ fi 
+ 
+ AM_CONDITIONAL(MAKEINFO_HTML, test "x$enable_html" = xmakeinfo)
+diff -Naur sed-4.1.5.orig/doc/Makefile.am sed-4.1.5/doc/Makefile.am
+--- sed-4.1.5.orig/doc/Makefile.am	2005-09-23 14:08:59.000000000 +0000
++++ sed-4.1.5/doc/Makefile.am	2006-10-16 12:36:42.000000000 +0000
+@@ -26,7 +26,6 @@
+ 
+ # This rule is used if --enable-html is passed
+ if BUILD_HTML
+-docdir = $(datadir)/doc
+ pkgdocdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
+ pkgdoc_DATA = sed.html
+ 
+diff -Naur sed-4.1.5.orig/doc/Makefile.in sed-4.1.5/doc/Makefile.in
+--- sed-4.1.5.orig/doc/Makefile.in	2006-02-03 09:24:33.000000000 +0000
++++ sed-4.1.5/doc/Makefile.in	2006-10-16 12:36:42.000000000 +0000
+@@ -54,7 +54,8 @@
+ 	$(top_srcdir)/config/lib-prefix.m4 \
+ 	$(top_srcdir)/config/progtest.m4 \
+ 	$(top_srcdir)/config/stdbool.m4 \
+-	$(top_srcdir)/config/strverscmp.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/config/strverscmp.m4 \
++	$(top_srcdir)/config/warning.m4 $(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ mkinstalldirs = $(install_sh) -d
+@@ -119,6 +120,7 @@
+ GENCAT = @GENCAT@
+ GLIBC21 = @GLIBC21@
+ GMSGFMT = @GMSGFMT@
++GREP = @GREP@
+ HAVE__BOOL = @HAVE__BOOL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -165,10 +167,10 @@
+ USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
++WARNING_CFLAGS = @WARNING_CFLAGS@
++WERROR_CFLAGS = @WERROR_CFLAGS@
+ XGETTEXT = @XGETTEXT@
+ ac_ct_CC = @ac_ct_CC@
+-ac_ct_RANLIB = @ac_ct_RANLIB@
+-ac_ct_STRIP = @ac_ct_STRIP@
+ am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
+ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
+ am__include = @am__include@
+@@ -183,23 +185,30 @@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+ datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+ host_cpu = @host_cpu@
+ host_os = @host_os@
+ host_vendor = @host_vendor@
++htmldir = @htmldir@
+ includedir = @includedir@
+ infodir = @infodir@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localedir = @localedir@
+ localstatedir = @localstatedir@
+ mandir = @mandir@
+ mkdir_p = @mkdir_p@
+ oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
++psdir = @psdir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+@@ -215,7 +224,6 @@
+ SED = $(top_builddir)/sed/sed
+ 
+ # This rule is used if --enable-html is passed
+-@BUILD_HTML_TRUE@docdir = $(datadir)/doc
+ @BUILD_HTML_TRUE@pkgdocdir = $(datadir)/doc/$(PACKAGE)-$(VERSION)
+ @BUILD_HTML_TRUE@pkgdoc_DATA = sed.html
+ all: all-am
+diff -Naur sed-4.1.5.orig/doc/sed.1 sed-4.1.5/doc/sed.1
+--- sed-4.1.5.orig/doc/sed.1	2006-02-03 09:27:35.000000000 +0000
++++ sed-4.1.5/doc/sed.1	2006-10-16 12:36:42.000000000 +0000
+@@ -1,5 +1,5 @@
+ .\" DO NOT MODIFY THIS FILE!  It was generated by help2man 1.28.
+-.TH SED "1" "February 2006" "sed version 4.1.4" "User Commands"
++.TH SED "1" "June 2006" "sed version 4.1.5" "User Commands"
+ .SH NAME
+ sed \- stream editor for filtering and transforming text
+ .SH SYNOPSIS
+@@ -36,6 +36,11 @@
+ .IP
+ edit files in place (makes backup if extension supplied)
+ .HP
++\fB\-c\fR, \fB\-\-copy\fR
++.IP
++use copy instead of rename when shuffling files in \fB\-i\fR mode
++(avoids change of input file ownership)
++.HP
+ \fB\-l\fR N, \fB\-\-line\-length\fR=\fIN\fR
+ .IP
+ specify the desired line-wrap length for the `l' command
+diff -Naur sed-4.1.5.orig/lib/Makefile.am sed-4.1.5/lib/Makefile.am
+--- sed-4.1.5.orig/lib/Makefile.am	2005-06-21 14:09:37.000000000 +0000
++++ sed-4.1.5/lib/Makefile.am	2006-10-16 12:36:42.000000000 +0000
+@@ -7,6 +7,7 @@
+ 
+ EXTRA_DIST = memmove.c strerror.c regcomp.c regexec.c regex_internal.c
+ 
++AM_CFLAGS = $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I$(top_srcdir)/lib -I$(top_srcdir)/intl -I$(top_srcdir) \
+ 	-I$(top_builddir)/lib -I$(top_builddir)/intl
+ 
+diff -Naur sed-4.1.5.orig/lib/Makefile.in sed-4.1.5/lib/Makefile.in
+--- sed-4.1.5.orig/lib/Makefile.in	2006-02-03 09:24:34.000000000 +0000
++++ sed-4.1.5/lib/Makefile.in	2006-10-16 12:36:42.000000000 +0000
+@@ -43,7 +43,7 @@
+ DIST_COMMON = $(noinst_HEADERS) $(srcdir)/Makefile.am \
+ 	$(srcdir)/Makefile.in $(srcdir)/regex_.h $(srcdir)/stdbool_.h \
+ 	alloca.c getline.c memchr.c memcmp.c memmove.c mkstemp.c \
+-	obstack.c obstack.h regex.c strerror.c strverscmp.c
++	obstack.c obstack.h regex.c strerror.c strlcpy.c strverscmp.c
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+ am__aclocal_m4_deps = $(top_srcdir)/config/codeset.m4 \
+ 	$(top_srcdir)/config/getline.m4 \
+@@ -56,7 +56,8 @@
+ 	$(top_srcdir)/config/lib-prefix.m4 \
+ 	$(top_srcdir)/config/progtest.m4 \
+ 	$(top_srcdir)/config/stdbool.m4 \
+-	$(top_srcdir)/config/strverscmp.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/config/strverscmp.m4 \
++	$(top_srcdir)/config/warning.m4 $(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ mkinstalldirs = $(install_sh) -d
+@@ -112,6 +113,7 @@
+ GENCAT = @GENCAT@
+ GLIBC21 = @GLIBC21@
+ GMSGFMT = @GMSGFMT@
++GREP = @GREP@
+ HAVE__BOOL = @HAVE__BOOL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -158,10 +160,10 @@
+ USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
++WARNING_CFLAGS = @WARNING_CFLAGS@
++WERROR_CFLAGS = @WERROR_CFLAGS@
+ XGETTEXT = @XGETTEXT@
+ ac_ct_CC = @ac_ct_CC@
+-ac_ct_RANLIB = @ac_ct_RANLIB@
+-ac_ct_STRIP = @ac_ct_STRIP@
+ am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
+ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
+ am__include = @am__include@
+@@ -176,23 +178,30 @@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+ datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+ host_cpu = @host_cpu@
+ host_os = @host_os@
+ host_vendor = @host_vendor@
++htmldir = @htmldir@
+ includedir = @includedir@
+ infodir = @infodir@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localedir = @localedir@
+ localstatedir = @localstatedir@
+ mandir = @mandir@
+ mkdir_p = @mkdir_p@
+ oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
++psdir = @psdir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+@@ -203,6 +212,7 @@
+ 
+ libsed_a_SOURCES = getopt1.c getopt.c utils.c
+ EXTRA_DIST = memmove.c strerror.c regcomp.c regexec.c regex_internal.c
++AM_CFLAGS = $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I$(top_srcdir)/lib -I$(top_srcdir)/intl -I$(top_srcdir) \
+ 	-I$(top_builddir)/lib -I$(top_builddir)/intl
+ 
+@@ -267,6 +277,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/obstack.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/regex.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/strerror.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/strlcpy.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/strverscmp.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/getopt1.Po@am__quote@
+diff -Naur sed-4.1.5.orig/lib/regex_internal.h sed-4.1.5/lib/regex_internal.h
+--- sed-4.1.5.orig/lib/regex_internal.h	2005-12-06 08:50:56.000000000 +0000
++++ sed-4.1.5/lib/regex_internal.h	2006-10-16 12:36:42.000000000 +0000
+@@ -21,12 +21,22 @@
+ #ifndef _REGEX_INTERNAL_H
+ #define _REGEX_INTERNAL_H 1
+ 
+-#include <assert.h>
+ #include <ctype.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+ 
++#ifdef HAVE_ASSERT_H
++# include <assert.h>
++#else
++ void assert( int expression );
++ void assert( int expression )
++ {
++	if( expression==0 )
++		exit(2);
++ }
++#endif /* HAVE_ASSERT_H */
++
+ #if defined HAVE_LANGINFO_H || defined HAVE_LANGINFO_CODESET || defined _LIBC
+ # include <langinfo.h>
+ #endif
+@@ -108,7 +118,9 @@
+ # define __wctype wctype
+ # define __iswctype iswctype
+ # define __btowc btowc
++# ifndef __mempcpy
+ # define __mempcpy mempcpy
++# endif
+ # define __wcrtomb wcrtomb
+ # define __regfree regfree
+ # define attribute_hidden
+@@ -410,7 +422,9 @@
+ #define re_string_skip_bytes(pstr,idx) ((pstr)->cur_idx += (idx))
+ #define re_string_set_index(pstr,idx) ((pstr)->cur_idx = (idx))
+ 
++#ifdef HAVE_ALLOCA_H
+ #include <alloca.h>
++#endif
+ 
+ #ifndef _LIBC
+ # if HAVE_ALLOCA
+diff -Naur sed-4.1.5.orig/lib/regexec.c sed-4.1.5/lib/regexec.c
+--- sed-4.1.5.orig/lib/regexec.c	2005-12-06 08:46:56.000000000 +0000
++++ sed-4.1.5/lib/regexec.c	2006-10-16 12:36:42.000000000 +0000
+@@ -227,7 +227,9 @@
+ {
+   reg_errcode_t err;
+   int start, length;
++#ifdef _LIBC
+   re_dfa_t *dfa = (re_dfa_t *) preg->buffer;
++#endif
+ 
+   if (eflags & ~(REG_NOTBOL | REG_NOTEOL | REG_STARTEND))
+     return REG_BADPAT;
+@@ -418,7 +420,9 @@
+   regmatch_t *pmatch;
+   int nregs, rval;
+   int eflags = 0;
++#ifdef _LIBC
+   re_dfa_t *dfa = (re_dfa_t *) bufp->buffer;
++#endif
+ 
+   /* Check for out-of-range.  */
+   if (BE (start < 0 || start > length, 0))
+diff -Naur sed-4.1.5.orig/lib/strlcpy.c sed-4.1.5/lib/strlcpy.c
+--- sed-4.1.5.orig/lib/strlcpy.c	1970-01-01 00:00:00.000000000 +0000
++++ sed-4.1.5/lib/strlcpy.c	2006-10-16 12:38:11.000000000 +0000
+@@ -0,0 +1,61 @@
++/*	$OpenBSD: strlcpy.c,v 1.10 2005/08/08 08:05:37 espie Exp $	*/
++
++/*
++ * Copyright (c) 1998 Todd C. Miller <Todd.Miller@courtesan.com>
++ *
++ * Permission to use, copy, modify, and distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++/* OPENBSD ORIGINAL: lib/libc/string/strlcpy.c */
++
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
++#ifndef HAVE_STRLCPY
++
++#include <sys/types.h>
++#include <string.h>
++
++/*
++ * Copy src to string dst of size siz.  At most siz-1 characters
++ * will be copied.  Always NUL terminates (unless siz == 0).
++ * Returns strlen(src); if retval >= siz, truncation occurred.
++ */
++size_t
++strlcpy(char *dst, const char *src, size_t siz)
++{
++	char *d = dst;
++	const char *s = src;
++	size_t n = siz;
++
++	/* Copy as many bytes as will fit */
++	if (n != 0 && --n != 0) {
++		do {
++			if ((*d++ = *s++) == 0)
++				break;
++		} while (--n != 0);
++	}
++
++	/* Not enough room in dst, add NUL and traverse rest of src */
++	if (n == 0) {
++		if (siz != 0)
++			*d = '\0';		/* NUL-terminate dst */
++		while (*s++)
++			;
++	}
++
++	return(s - src - 1);	/* count does not include NUL */
++}
++
++#endif /* !HAVE_STRLCPY */
+diff -Naur sed-4.1.5.orig/lib/utils.c sed-4.1.5/lib/utils.c
+--- sed-4.1.5.orig/lib/utils.c	2005-06-21 14:09:40.000000000 +0000
++++ sed-4.1.5/lib/utils.c	2006-10-16 12:36:42.000000000 +0000
+@@ -35,6 +35,22 @@
+ # include <stdlib.h>
+ #endif /* HAVE_STDLIB_H */
+ 
++#ifdef HAVE_UNISTD_H
++# include <unistd.h>
++#endif /* HAVE_UNISTD_H */
++
++#ifdef HAVE_SYS_TYPES_H
++# include <sys/types.h>
++#endif
++
++#ifdef HAVE_SYS_STAT_H
++#include <sys/stat.h>
++#endif
++
++#ifdef HAVE_FCNTL_H
++#include <fcntl.h>
++#endif
++
+ #include "utils.h"
+ 
+ const char *myname;
+@@ -90,7 +106,6 @@
+     {
+       if (open_files->temp)
+ 	{
+-	  int fd = fileno (open_files->fp);
+ 	  fclose (open_files->fp);
+ 	  errno = 0;
+ 	  unlink (open_files->name);
+@@ -243,7 +258,7 @@
+   size_t *buflen;
+   FILE *stream;
+ {
+-  int result;
++  int result = 0;
+   if (!ferror (stream))
+     result = getline (text, buflen, stream);
+ 
+@@ -305,7 +320,6 @@
+ do_ck_fclose(fp)
+   FILE *fp;
+ {
+-  int fd;
+   ck_fflush(fp);
+   clearerr(fp);
+ 
+@@ -315,32 +329,164 @@
+ }
+ 
+ 
+-/* Panic on failing rename */
++/* Temporary buffer for ck_follow_symlink and ck_fcopy. */
++static char buf[2048], buf2[2048];
++static size_t bufsize = sizeof (buf);
++#include <libgen.h>
++
++/* Follow symlink and panic if something fails.  Returned value is
++   ultimate symlink target, stored in temporary buffer.  You need to
++   strdup the return value, if you intend to use it later.*/
++const char*
++ck_follow_symlink(const char * fname)
++{
++  static struct stat statbuf;
++  int err;
++  char * dir;
++
++  if (strlen (fname) >= bufsize)
++    panic("ck_follow_symlink: file name too long");
++  strlcpy (buf, fname, sizeof(buf));
++
++  while (1)
++    {
++      err = lstat (buf, &statbuf);
++
++      if (err != 0)
++	panic("ck_follow_symlink: couldn't lstat %s: %s", buf, strerror(errno));
++
++      if ((statbuf.st_mode & S_IFLNK) == S_IFLNK)
++	{
++	  err = readlink (buf, buf2, bufsize);
++
++	  if (err < 0)
++	    panic("ck_follow_symlink: readlink failed on %s: %s", buf, strerror(errno));
++	  else if (err == bufsize)
++	    panic("ck_follow_symlink: pointee name too long");
++	  else
++	    buf2 [err] = '\0';
++
++	  /* need to handle relative paths with care */
++	  if (buf2[0] != '/')
++	    {
++	      dir = dirname (buf);    // dir part of orig path
++	      int len = strlen (dir); // orig path len
++	      buf[len] = '/';
++	      strncpy (buf+len+1, buf2, bufsize - len - 1);
++	      if (buf[bufsize-1] != 0)
++		panic("ck_follow_symlink: pointee name too long");
++	    }
++	  else
++	    {
++	      strlcpy (buf, buf2, sizeof(buf));
++	    }
++	}
++      else
++	break;
++    }
++
++  return buf;
++}
++
++/* Panic on failing unlink */
+ void
+-ck_rename (from, to, unlink_if_fail)
+-  const char *from, *to;
+-  const char *unlink_if_fail;
++ck_unlink (name)
++  const char *name;
+ {
+-  int rd = rename (from, to);
+-  if (rd != -1)
+-    return;
++  if (unlink (name) == -1)
++    panic (_("cannot remove %s: %s"), name, strerror (errno));
++}
+ 
+-  if (unlink_if_fail)
++/* Attempt to unlink denoted file if operation rd failed. */
++static int
++_unlink_if_fail (rd, unlink_if_fail)
++  int rd;
++  const char *unlink_if_fail;
++{
++  if (rd == -1 && unlink_if_fail)
+     {
+       int save_errno = errno;
++      ck_unlink (unlink_if_fail);
++      errno = save_errno;
++    }
++
++  return rd != -1;
++}
++
++/* Copy contents between files. */
++static int
++_copy (from, to)
++  const char *from, *to;
++{
++  FILE *infile, *outfile;
++  int c, retval = 0;
+       errno = 0;
+-      unlink (unlink_if_fail);
+ 
+-      /* Failure to remove the temporary file is more severe, so trigger it first.  */
+-      if (errno != 0)
+-        panic (_("cannot remove %s: %s"), unlink_if_fail, strerror (errno));
++  infile = fopen (from, "r");
++  if (infile == NULL)
++    return -1;
+ 
+-      errno = save_errno;
++  outfile = fopen (to, "w");
++  if (outfile == NULL)
++    {
++      fclose (infile);
++      return -1;
++    }
++
++  while (1)
++    {
++      size_t bytes_in = fread (buf, 1, bufsize, infile);
++      size_t bytes_out;
++      if (bytes_in == 0)
++	{
++	  if (ferror (infile))
++	    retval = -1;
++	  break;
++	}
++
++      bytes_out = fwrite (buf, 1, bytes_in, outfile);
++      if (bytes_out != bytes_in)
++	{
++	  retval = -1;
++	  break;
++	}
+     }
+ 
++  fclose (outfile);
++  fclose (infile);
++
++  return retval;
++}
++
++/* Panic on failing rename */
++void
++ck_rename (from, to, unlink_if_fail)
++  const char *from, *to;
++  const char *unlink_if_fail;
++{
++  if (!_unlink_if_fail (rename (from, to), unlink_if_fail))
+   panic (_("cannot rename %s: %s"), from, strerror (errno));
+ }
+ 
++/* Attempt to copy file contents between the files. */
++void
++ck_fcmove (from, to, unlink_if_fail)
++  const char *from, *to;
++  const char *unlink_if_fail;
++{
++  if (!_unlink_if_fail (_copy (from, to), unlink_if_fail))
++    panic (_("cannot copy %s to %s: %s"), from, to, strerror (errno));
++}
++
++/* Copy contents between files, and then unlink the source. */
++void
++ck_fcopy (from, to, unlink_if_fail)
++  const char *from, *to;
++  const char *unlink_if_fail;
++{
++  ck_fcmove (from, to, unlink_if_fail);
++  ck_unlink (from);
++}
+ 
+ 
+ 
+diff -Naur sed-4.1.5.orig/lib/utils.h sed-4.1.5/lib/utils.h
+--- sed-4.1.5.orig/lib/utils.h	2005-06-21 14:09:40.000000000 +0000
++++ sed-4.1.5/lib/utils.h	2006-10-16 12:36:42.000000000 +0000
+@@ -29,7 +29,10 @@
+ void ck_fclose P_((FILE *stream));
+ size_t ck_getline P_((char **text, size_t *buflen, FILE *stream));
+ FILE * ck_mkstemp P_((char **p_filename, char *tmpdir, char *base));
++const char* ck_follow_symlink P_((const char * fname));
+ void ck_rename P_((const char *from, const char *to, const char *unlink_if_fail));
++void ck_fcopy P_((const char *from, const char *to, const char *unlink_if_fail));
++void ck_fcmove P_((const char *from, const char *to, const char *unlink_if_fail));
+ 
+ VOID *ck_malloc P_((size_t size));
+ VOID *xmalloc P_((size_t size));
+diff -Naur sed-4.1.5.orig/sed/Makefile.am sed-4.1.5/sed/Makefile.am
+--- sed-4.1.5.orig/sed/Makefile.am	2005-06-21 14:09:47.000000000 +0000
++++ sed-4.1.5/sed/Makefile.am	2006-10-16 12:36:42.000000000 +0000
+@@ -6,6 +6,7 @@
+ sed_SOURCES = sed.c compile.c execute.c regexp.c fmt.c mbcs.c
+ noinst_HEADERS = sed.h
+ 
++AM_CFLAGS = $(WARNING_CFLAGS) $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I$(top_srcdir)/lib -I$(top_srcdir)/intl \
+ 	-I$(top_srcdir) -I$(top_builddir)/lib \
+ 	-I$(top_builddir)/intl -DLOCALEDIR=\"$(localedir)\"
+diff -Naur sed-4.1.5.orig/sed/Makefile.in sed-4.1.5/sed/Makefile.in
+--- sed-4.1.5.orig/sed/Makefile.in	2006-02-03 09:24:35.000000000 +0000
++++ sed-4.1.5/sed/Makefile.in	2006-10-16 12:36:42.000000000 +0000
+@@ -55,7 +55,8 @@
+ 	$(top_srcdir)/config/lib-prefix.m4 \
+ 	$(top_srcdir)/config/progtest.m4 \
+ 	$(top_srcdir)/config/stdbool.m4 \
+-	$(top_srcdir)/config/strverscmp.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/config/strverscmp.m4 \
++	$(top_srcdir)/config/warning.m4 $(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ mkinstalldirs = $(install_sh) -d
+@@ -110,6 +111,7 @@
+ GENCAT = @GENCAT@
+ GLIBC21 = @GLIBC21@
+ GMSGFMT = @GMSGFMT@
++GREP = @GREP@
+ HAVE__BOOL = @HAVE__BOOL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -156,10 +158,10 @@
+ USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
++WARNING_CFLAGS = @WARNING_CFLAGS@
++WERROR_CFLAGS = @WERROR_CFLAGS@
+ XGETTEXT = @XGETTEXT@
+ ac_ct_CC = @ac_ct_CC@
+-ac_ct_RANLIB = @ac_ct_RANLIB@
+-ac_ct_STRIP = @ac_ct_STRIP@
+ am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
+ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
+ am__include = @am__include@
+@@ -174,30 +176,37 @@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+ datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+ host_cpu = @host_cpu@
+ host_os = @host_os@
+ host_vendor = @host_vendor@
++htmldir = @htmldir@
+ includedir = @includedir@
+ infodir = @infodir@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localedir = $(datadir)/locale
+ localstatedir = @localstatedir@
+ mandir = @mandir@
+ mkdir_p = @mkdir_p@
+ oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
++psdir = @psdir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+-localedir = $(datadir)/locale
+ sed_SOURCES = sed.c compile.c execute.c regexp.c fmt.c mbcs.c
+ noinst_HEADERS = sed.h
++AM_CFLAGS = $(WARNING_CFLAGS) $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I$(top_srcdir)/lib -I$(top_srcdir)/intl \
+ 	-I$(top_srcdir) -I$(top_builddir)/lib \
+ 	-I$(top_builddir)/intl -DLOCALEDIR=\"$(localedir)\"
+diff -Naur sed-4.1.5.orig/sed/compile.c sed-4.1.5/sed/compile.c
+--- sed-4.1.5.orig/sed/compile.c	2006-02-03 09:06:26.000000000 +0000
++++ sed-4.1.5/sed/compile.c	2006-10-16 12:36:42.000000000 +0000
+@@ -384,7 +384,6 @@
+   struct buffer *b;
+   char *file_name;
+   struct output *p;
+-  int is_stderr;
+ 
+   b = read_filename();
+   file_name = get_buffer(b);
+@@ -457,7 +456,7 @@
+ {
+   int ch;
+   int state = 0;
+-  int delim;
++  int delim = 0;
+   bool pending_mb = 0;
+   
+   ch = inchar();
+@@ -493,7 +492,7 @@
+ 	      delim = ch;
+ 	      state++;
+ 	    }
+-	  else if (ch == delim && state == 2)
++	  else if (state == 2 && ch == delim)
+ 	    state++;
+ 	  else
+ 	    break;
+@@ -1347,7 +1346,7 @@
+               }
+             else
+               {
+-	        char *translate = OB_MALLOC(&obs, YMAP_LENGTH, char);
++	        unsigned char *translate = OB_MALLOC(&obs, YMAP_LENGTH, char);
+                 unsigned char *ustring = CAST(unsigned char *)src_buf;
+ 
+ 		if (len != dest_len)
+@@ -1581,7 +1580,6 @@
+   struct vector *cur_program;
+   const char *cmdfile;
+ {
+-  size_t len;
+   struct vector *ret;
+ 
+   prog.file = stdin;
+diff -Naur sed-4.1.5.orig/sed/execute.c sed-4.1.5/sed/execute.c
+--- sed-4.1.5.orig/sed/execute.c	2006-02-03 09:06:39.000000000 +0000
++++ sed-4.1.5/sed/execute.c	2006-10-16 12:36:42.000000000 +0000
+@@ -69,7 +69,24 @@
+ # include <sys/types.h>
+ #endif
+ 
++#ifdef HAVE_SYS_STAT_H
+ #include <sys/stat.h>
++#endif
++
++/* We need assert() here just to deal with 'unused result'
++   warnings from _FORTIFY_SOURCE, not for debugging */
++#if _FORTIFY_SOURCE > 0
++# ifdef HAVE_ASSERT_H
++#  include <assert.h>
++# else
++   void assert( int expression );
++   void assert( int expression )
++   {
++	if( expression==0 )
++		exit(2);
++   }
++# endif /* HAVE_ASSERT_H */
++#endif /* _FORTIFY_SOURCE */
+ 
+ 
+ /* Sed operates a line at a time. */
+@@ -260,8 +277,10 @@
+   size_t length;
+   enum replacement_types type;
+ {
++#ifndef HAVE_MBRTOWC
+   size_t old_length = to->length;
+   char *start, *end;
++#endif
+ 
+   if (length == 0)
+     return;
+@@ -608,7 +627,7 @@
+ 
+   /* Compute the length of the backup file */
+   for (asterisk = in_place_extension - 1, old_asterisk = asterisk + 1;
+-       asterisk = strchr(old_asterisk, '*');
++       (asterisk = strchr(old_asterisk, '*'));
+        old_asterisk = asterisk + 1)
+     backup_length += name_length - 1;
+ 
+@@ -616,17 +635,17 @@
+ 
+   /* Each iteration gobbles up to an asterisk */
+   for (asterisk = in_place_extension - 1, old_asterisk = asterisk + 1;
+-       asterisk = strchr(old_asterisk, '*');
++       (asterisk = strchr(old_asterisk, '*'));
+        old_asterisk = asterisk + 1)
+     {
+       MEMCPY (p, old_asterisk, asterisk - old_asterisk);
+       p += asterisk - old_asterisk;
+-      strcpy (p, name);
++      strlcpy (p, name, sizeof(p));
+       p += name_length;
+     }
+ 
+   /* Tack on what's after the last asterisk */
+-  strcpy (p, old_asterisk);
++  strlcpy (p, old_asterisk, sizeof(p));
+   return backup;
+ }
+ 
+@@ -662,10 +681,10 @@
+       struct stat st;
+ 
+       /* get the base name */
+-      if (p = strrchr(tmpdir, '/'))
++      if ((p = strrchr(tmpdir, '/')))
+ 	*(p + 1) = 0;
+       else
+-	strcpy(tmpdir, ".");
++	strlcpy(tmpdir, ".", sizeof(tmpdir));
+       
+       input->in_file_name = name;
+ 
+@@ -689,7 +708,11 @@
+ #endif
+ #ifdef HAVE_FCHOWN
+       if (fchown (output_fd, st.st_uid, st.st_gid) == -1)
+-        fchown (output_fd, -1, st.st_gid);
++# if _FORTIFY_SOURCE > 0
++	assert (fchown (output_fd, -1, st.st_gid));
++# else
++	fchown (output_fd, -1, st.st_gid);
++# endif /* _FORTIFY_SOURCE */
+ #endif
+     }
+   else
+@@ -711,16 +734,20 @@
+ 
+   if (in_place_extension && output_file.fp != NULL)
+     {
++      char * target_name = ck_strdup (ck_follow_symlink (input->in_file_name));
+       ck_fclose (output_file.fp);
+       if (strcmp(in_place_extension, "*") != 0)
+         {
+           char *backup_file_name = get_backup_file_name(input->in_file_name);
+-	  ck_rename (input->in_file_name, backup_file_name, input->out_file_name);
++	  (copy_instead_of_rename?ck_fcmove:ck_rename)
++	    (target_name, backup_file_name, input->out_file_name);
+           free (backup_file_name);
+ 	}
+ 
+-      ck_rename (input->out_file_name, input->in_file_name, input->out_file_name);
++      (copy_instead_of_rename?ck_fcopy:ck_rename)
++	(input->out_file_name, target_name, input->out_file_name);
+       free (input->out_file_name);
++      free (target_name);
+     }
+ 
+   input->fp = NULL;
+@@ -1045,6 +1072,7 @@
+         }
+ 
+       if (0 <= i)
++	{
+         if (regs->end[i] == regs->start[i] && p->repl_type & REPL_MODIFIERS)
+           /* Save this modifier, we shall apply it later.
+ 	     e.g. in s/()([a-z])/\u\1\2/
+@@ -1055,6 +1083,7 @@
+ 	  str_append_modified(buf, line.active + regs->start[i],
+ 			      CAST(size_t)(regs->end[i] - regs->start[i]),
+ 			      curr_type);
++	}
+     }
+ 
+   return repl_mod;
+@@ -1083,6 +1112,7 @@
+     return;
+   
+   if (!sub->replacement && sub->numb <= 1)
++    {
+     if (regs.start[0] == 0 && !sub->global)
+       {
+ 	/* We found a match, set the `replaced' flag. */
+@@ -1101,6 +1131,7 @@
+ 	line.length = regs.start[0];
+ 	goto post_subst;
+       }
++    }
+ 
+   do
+     {
+@@ -1360,10 +1391,12 @@
+ 		      char buf[4096];
+ 		      int n = fread (buf, sizeof(char), 4096, pipe);
+ 		      if (n > 0)
++			{
+ 			if (!cmd_length)
+ 			  str_append(&s_accum, buf, n);
+ 			else
+ 			  ck_fwrite(buf, 1, n, output_file.fp);
++			}
+ 		    }
+ 		  
+ 		  pclose (pipe);
+diff -Naur sed-4.1.5.orig/sed/sed.c sed-4.1.5/sed/sed.c
+--- sed-4.1.5.orig/sed/sed.c	2005-06-21 14:09:47.000000000 +0000
++++ sed-4.1.5/sed/sed.c	2006-10-16 12:36:42.000000000 +0000
+@@ -73,6 +73,10 @@
+ /* How do we edit files in-place? (we don't if NULL) */
+ char *in_place_extension = NULL;
+ 
++/* Do we use copy or rename when in in-place edit mode? (boolean
++   value, non-zero for copy, zero for rename).*/
++int copy_instead_of_rename = 0;
++
+ /* Do we need to be pedantically POSIX compliant? */
+ enum posixicity_types posixicity;
+ 
+@@ -107,13 +111,16 @@
+                  add the contents of script-file to the commands to be executed\n"));
+   fprintf(out, _("  -i[SUFFIX], --in-place[=SUFFIX]\n\
+                  edit files in place (makes backup if extension supplied)\n"));
++  fprintf(out, _("  -c, --copy\n\
++                 use copy instead of rename when shuffling files in -i mode\n\
++		 (avoids change of input file ownership)\n"));
+   fprintf(out, _("  -l N, --line-length=N\n\
+                  specify the desired line-wrap length for the `l' command\n"));
+   fprintf(out, _("  --posix\n\
+                  disable all GNU extensions.\n"));
+   fprintf(out, _("  -r, --regexp-extended\n\
+                  use extended regular expressions in the script.\n"));
+-  fprintf(out, PERL_HELP);
++  fprintf(out, "%s", PERL_HELP);
+   fprintf(out, _("  -s, --separate\n\
+                  consider files as separate rather than as a single continuous\n\
+                  long stream.\n"));
+@@ -142,9 +149,9 @@
+   char **argv;
+ {
+ #ifdef REG_PERL
+-#define SHORTOPTS "snrRue:f:l:i::V:"
++#define SHORTOPTS "csnrRue:f:l:i::V:"
+ #else
+-#define SHORTOPTS "snrue:f:l:i::V:"
++#define SHORTOPTS "csnrue:f:l:i::V:"
+ #endif
+ 
+   static struct option longopts[] = {
+@@ -155,6 +162,7 @@
+     {"expression", 1, NULL, 'e'},
+     {"file", 1, NULL, 'f'},
+     {"in-place", 2, NULL, 'i'},
++    {"copy", 0, NULL, 'c'},
+     {"line-length", 1, NULL, 'l'},
+     {"quiet", 0, NULL, 'n'},
+     {"posix", 0, NULL, 'p'},
+@@ -215,6 +223,10 @@
+ 	  the_program = compile_file(the_program, optarg);
+ 	  break;
+ 
++	case 'c':
++	  copy_instead_of_rename = true;
++	  break;
++
+ 	case 'i':
+ 	  separate_files = true;
+ 	  if (optarg == NULL)
+@@ -228,7 +240,7 @@
+ 	    {
+ 	      in_place_extension = MALLOC (strlen(optarg) + 2, char);
+ 	      in_place_extension[0] = '*';
+-	      strcpy (in_place_extension + 1, optarg);
++	      strlcpy (in_place_extension + 1, optarg, sizeof(in_place_extension + 1));
+ 	    }
+ 
+ 	  break;
+@@ -284,6 +296,12 @@
+ 	}
+     }
+ 
++  if (copy_instead_of_rename && in_place_extension == NULL)
++    {
++      fprintf (stderr, _("Error: -c used without -i.\n"));
++      usage(4);
++    }
++
+   if (!the_program)
+     {
+       if (optind < argc)
+diff -Naur sed-4.1.5.orig/sed/sed.h sed-4.1.5/sed/sed.h
+--- sed-4.1.5.orig/sed/sed.h	2005-06-21 14:09:47.000000000 +0000
++++ sed-4.1.5/sed/sed.h	2006-10-16 12:36:42.000000000 +0000
+@@ -228,6 +228,10 @@
+ /* How do we edit files in-place? (we don't if NULL) */
+ extern char *in_place_extension;
+ 
++/* Do we use copy or rename when in in-place edit mode? (boolean
++   value, non-zero for copy, zero for rename).*/
++extern int copy_instead_of_rename;
++
+ /* Should we use EREs? */
+ extern bool use_extended_syntax_p;
+ 
+@@ -267,3 +271,7 @@
+ extern int brlen P_ ((int ch, mbstate_t *ps));
+ extern void initialize_mbcs P_ ((void));
+ 
++#ifndef HAVE_STRLCPY
++extern size_t strlcpy (char *__restrict __dest,
++	__const char *__restrict __src, size_t __n) __THROW;
++#endif
+diff -Naur sed-4.1.5.orig/testsuite/Makefile.am sed-4.1.5/testsuite/Makefile.am
+--- sed-4.1.5.orig/testsuite/Makefile.am	2006-02-03 09:03:11.000000000 +0000
++++ sed-4.1.5/testsuite/Makefile.am	2006-10-16 12:36:42.000000000 +0000
+@@ -5,6 +5,7 @@
+ 
+ LDADD = ../lib/libsed.a
+ noinst_HEADERS = testcases.h ptestcases.h
++AM_CFLAGS = $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I../lib
+ 
+ if TEST_REGEX
+diff -Naur sed-4.1.5.orig/testsuite/Makefile.in sed-4.1.5/testsuite/Makefile.in
+--- sed-4.1.5.orig/testsuite/Makefile.in	2006-02-03 09:24:36.000000000 +0000
++++ sed-4.1.5/testsuite/Makefile.in	2006-10-16 12:36:42.000000000 +0000
+@@ -63,7 +63,8 @@
+ 	$(top_srcdir)/config/lib-prefix.m4 \
+ 	$(top_srcdir)/config/progtest.m4 \
+ 	$(top_srcdir)/config/stdbool.m4 \
+-	$(top_srcdir)/config/strverscmp.m4 $(top_srcdir)/configure.ac
++	$(top_srcdir)/config/strverscmp.m4 \
++	$(top_srcdir)/config/warning.m4 $(top_srcdir)/configure.ac
+ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
+ 	$(ACLOCAL_M4)
+ mkinstalldirs = $(install_sh) -d
+@@ -186,6 +187,7 @@
+ GENCAT = @GENCAT@
+ GLIBC21 = @GLIBC21@
+ GMSGFMT = @GMSGFMT@
++GREP = @GREP@
+ HAVE__BOOL = @HAVE__BOOL@
+ INSTALL_DATA = @INSTALL_DATA@
+ INSTALL_PROGRAM = @INSTALL_PROGRAM@
+@@ -232,10 +234,10 @@
+ USE_INCLUDED_LIBINTL = @USE_INCLUDED_LIBINTL@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
++WARNING_CFLAGS = @WARNING_CFLAGS@
++WERROR_CFLAGS = @WERROR_CFLAGS@
+ XGETTEXT = @XGETTEXT@
+ ac_ct_CC = @ac_ct_CC@
+-ac_ct_RANLIB = @ac_ct_RANLIB@
+-ac_ct_STRIP = @ac_ct_STRIP@
+ am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
+ am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
+ am__include = @am__include@
+@@ -250,23 +252,30 @@
+ build_os = @build_os@
+ build_vendor = @build_vendor@
+ datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
+ exec_prefix = @exec_prefix@
+ host = @host@
+ host_alias = @host_alias@
+ host_cpu = @host_cpu@
+ host_os = @host_os@
+ host_vendor = @host_vendor@
++htmldir = @htmldir@
+ includedir = @includedir@
+ infodir = @infodir@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localedir = @localedir@
+ localstatedir = @localstatedir@
+ mandir = @mandir@
+ mkdir_p = @mkdir_p@
+ oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
+ prefix = @prefix@
+ program_transform_name = @program_transform_name@
++psdir = @psdir@
+ sbindir = @sbindir@
+ sharedstatedir = @sharedstatedir@
+ sysconfdir = @sysconfdir@
+@@ -282,6 +291,7 @@
+ 	version file quiet factor binary3 binary2 binary dc
+ LDADD = ../lib/libsed.a
+ noinst_HEADERS = testcases.h ptestcases.h
++AM_CFLAGS = $(WERROR_CFLAGS)
+ AM_CPPFLAGS = -I../lib
+ TESTS_ENVIRONMENT = MAKE="$(MAKE)" VERSION="$(VERSION)" $(srcdir)/runtest
+ EXTRA_DIST = \
+diff -Naur sed-4.1.5.orig/testsuite/bug-regex14.c sed-4.1.5/testsuite/bug-regex14.c
+--- sed-4.1.5.orig/testsuite/bug-regex14.c	2005-06-21 14:09:58.000000000 +0000
++++ sed-4.1.5/testsuite/bug-regex14.c	2006-10-16 12:36:42.000000000 +0000
+@@ -20,7 +20,9 @@
+ 
+ #include "config.h"
+ 
++#ifndef _REGEX_RE_COMP
+ #define _REGEX_RE_COMP
++#endif
+ #include <sys/types.h>
+ #ifdef HAVE_MCHECK_H
+ #include <mcheck.h>

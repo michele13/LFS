@@ -1,0 +1,152 @@
+From df13ddfffb37ed797386c1afc7658c9e8b171af3 Mon Sep 17 00:00:00 2001
+From: Thibault Godouet <fcron@free.fr>
+Date: Sun, 3 Feb 2013 13:03:52 +0000
+Subject: [PATCH] Fixed configure --without-sendmail, and compilation errors when sendmail is disabled
+ Also don't check if email should be output if sendmail is disabled
+ (Thank you Thomas Trepl for pointing out the problem and submitting a patch)
+
+---
+ configure.in |   23 +++++++++++++++++------
+ fileconf.c   |    6 +++---
+ job.c        |   44 +++++++++++++++++++++++---------------------
+ 3 files changed, 43 insertions(+), 30 deletions(-)
+
+diff --git a/configure.in b/configure.in
+index d0a4d7b..29abd5e 100644
+--- a/configure.in
++++ b/configure.in
+@@ -181,7 +181,8 @@ AC_ARG_ENABLE(checks,
+ dnl ---------------------------------------------------------------------
+ dnl Programs ...
+ 
+-AC_PATH_PROG(SENDMAIL, sendmail, , $PATH:/usr/lib:/usr/sbin )
++AC_PATH_PROG(FOUND_SENDMAIL, sendmail, , $PATH:/usr/lib:/usr/sbin )
++SENDMAIL=
+ USE_SENDMAIL=1
+ AC_MSG_CHECKING([actual sendmail to use])
+ AC_ARG_WITH(sendmail, [  --with-sendmail=PATH	Path to sendmail.],
+@@ -195,18 +196,28 @@ AC_ARG_WITH(sendmail, [  --with-sendmail=PATH	Path to sendmail.],
+ if test "$USE_SENDMAIL" != "1" ; then
+   AC_MSG_RESULT([disabled])
+   AC_MSG_WARN([Without sendmail you will not get the output of the jobs by mail])
+-elif test -z "$SENDMAIL" ; then
++elif test -n "$SENDMAIL" ; then
++  dnl The user defined a sendmail program to use:
++  if test ! -x "$SENDMAIL" ; then
++    dnl ... but it is not an executable file!
++    AC_MSG_RESULT([$SENDMAIL])
++    AC_MSG_ERROR([File $SENDMAIL is not an executable file])
++  else
++    dnl ... and it is valid
++    AC_MSG_RESULT([$SENDMAIL])
++  fi
++elif test -z "$FOUND_SENDMAIL" ; then
++  dnl The user didn't defined a program to use, and we didn't find one automatically
+   AC_MSG_RESULT([not found])
+   AC_MSG_ERROR([Empty sendmail path or cannot determine path to sendmail: try option --with-sendmail=PATH])
+-elif test ! -x "$SENDMAIL" ; then
+-  AC_MSG_RESULT([$SENDMAIL])
+-  AC_MSG_ERROR([File $SENDMAIL is not an executable file])
+ else
++  dnl Use the automatically found sendmail program:
++  SENDMAIL="$FOUND_SENDMAIL"
+   AC_MSG_RESULT([$SENDMAIL])
+ fi
+ 
+ AC_SUBST([SENDMAIL])
+-if test x"$USE_SENDMAIL" != x ; then
++if test "$USE_SENDMAIL" = "1"; then
+   AC_DEFINE([USE_SENDMAIL])
+ fi
+ 
+diff --git a/fileconf.c b/fileconf.c
+index 3605a7d..b1fbead 100644
+--- a/fileconf.c
++++ b/fileconf.c
+@@ -1462,7 +1462,7 @@ read_freq(char *ptr, cf_t * cf)
+ 
+ #ifndef USE_SENDMAIL
+     clear_mail(cl->cl_option);
+-    clear_forcemail(cl->cl_option);
++    clear_mailzerolength(cl->cl_option);
+ #endif
+ 
+     cl->cl_next = cf->cf_line_base;
+@@ -1566,7 +1566,7 @@ read_arys(char *ptr, cf_t * cf)
+ 
+ #ifndef USE_SENDMAIL
+     clear_mail(cl->cl_option);
+-    clear_forcemail(cl->cl_option);
++    clear_mailzerolength(cl->cl_option);
+ #endif
+ 
+     cl->cl_next = cf->cf_line_base;
+@@ -1721,7 +1721,7 @@ read_period(char *ptr, cf_t * cf)
+  ok:
+ #ifndef USE_SENDMAIL
+     clear_mail(cl->cl_option);
+-    clear_forcemail(cl->cl_option);
++    clear_mailzerolength(cl->cl_option);
+ #endif
+ 
+     cl->cl_next = cf->cf_line_base;
+diff --git a/job.c b/job.c
+index c211d82..998da12 100644
+--- a/job.c
++++ b/job.c
+@@ -768,29 +768,31 @@ end_job(cl_t * line, int status, FILE * mailf, short mailpos,
+     /* if task have made some output, mail it to user */
+ {
+ 
+-    char mail_output;
+-    char *m;
+-
+-    if (mailf != NULL && (is_mailzerolength(line->cl_option)
+-                          || (is_mail(line->cl_option)
+-                              && (
+-                                     /* job wrote some output and we wan't it in any case: */
+-                                     ((fseek(mailf, 0, SEEK_END) == 0
+-                                       && ftell(mailf) > mailpos)
+-                                      && !is_erroronlymail(line->cl_option))
+-                                     ||
+-                                     /* or we want an email only if the job returned an error: */
+-                                     !(WIFEXITED(status)
+-                                       && WEXITSTATUS(status) == 0)
+-                              )
+-                          )
+-        )
+-        )
++    char mail_output = 0;
++    char *m = NULL;
++
++#ifdef USE_SENDMAIL
++    if (mailf != NULL
++            && (is_mailzerolength(line->cl_option)
++                || (is_mail(line->cl_option)
++                    && (
++                        /* job wrote some output and we wan't it in any case: */
++                        ((fseek(mailf, 0, SEEK_END) == 0
++                          && ftell(mailf) > mailpos)
++                         && !is_erroronlymail(line->cl_option))
++                        ||
++                        /* or we want an email only if the job returned an error: */
++                        !(WIFEXITED(status)
++                            && WEXITSTATUS(status) == 0)
++                       )
++                   )
++               )
++        ) {
+         /* an output exit : we will mail it */
+         mail_output = 1;
+-    else
+-        /* no output */
+-        mail_output = 0;
++    }
++    /* or else there is no output to email -- mail_output is already set to 0 */
++#endif /* USE_SENDMAIL */
+ 
+     m = (mail_output == 1) ? " (mailing output)" : "";
+     if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+-- 
+1.7.2.5
+

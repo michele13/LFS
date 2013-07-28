@@ -1,0 +1,125 @@
+Submitted By: Csaba Henk (ekho@math-inst.hu)
+Date: 2003-10-27
+Initial Package Version: 0.1
+Origin: Homebrew
+Description: This patch adds a new option to svncviewer, thus making it possible
+             to force an arbitrary svga mode on the viewer. This has use, eg., when
+             you try to calibrate a floppy-based thin-client setup, as the
+             svnc-thinclient hint describes; in fact, this patch is an attachment
+             to the svnc-thinclient hint.
+
+diff -Naur old/svncviewer/args.c svncviewer/args.c
+--- old/svncviewer/args.c	1998-03-16 11:51:56.000000000 +0000
++++ svncviewer/args.c	2003-10-26 20:19:12.000000000 +0000
+@@ -50,6 +50,7 @@
+ Bool useBGR233 = False;
+ Bool forceOwnCmap = False;
+ Bool forceTruecolour = False;
++int forceMode = -3;
+ int requestedDepth = 0;
+ 
+ char *passwdFile = NULL;
+@@ -72,7 +73,7 @@
+ 	    "              [-raw] [-copyrect] [-rre] [-corre] [-hextile]\n"
+ 	    "              [-nocopyrect] [-norre] [-nocorre] [-nohextile]\n"
+ 	    "              [-bgr233] [-owncmap] [-truecolour] [-depth <d>]\n"
+-	    "              [-passwd <passwd-file>]\n"
++	    "              [-mode <mode>] [-passwd <passwd-file>]\n"
+ 	    "              [-period <ms>] [-delay <ms>]\n"
+ 	    "              [-debug]\n\n"
+ 	    ,programName);
+@@ -165,6 +166,11 @@
+ 	    if (++i >= argc) usage();
+ 	    requestedDepth = atoi(argv[i]);
+ 
++	} else if (strcmp(argv[i],"-mode") == 0) {
++
++	    if (++i >= argc) usage();
++	    forceMode = atoi(argv[i]);
++
+ 	} else if (strcmp(argv[i],"-passwd") == 0) {
+ 
+ 	    if (++i >= argc) usage();
+diff -Naur old/svncviewer/svga.c svncviewer/svga.c
+--- old/svncviewer/svga.c	1998-03-15 18:38:03.000000000 +0000
++++ svncviewer/svga.c	2003-10-26 20:19:12.000000000 +0000
+@@ -108,33 +108,36 @@
+ 
+ static void FindBestMode (void)
+ {
+-	int i;
+-	int mode = -1;
+ 	vga_modeinfo *mi;
+-	int width, height, depth;
+-
+-	width = si.framebufferWidth;
+-	height = si.framebufferHeight;
+-	depth = si.format.depth;
+-
+-	if (forceOwnCmap || useBGR233) {
+-		if ((mode = hasmode (width, height, 8)) < 0)
+-			goto nomode;
+-	} else if (forceTruecolour) {
+-		i = (requestedDepth) ? requestedDepth : depth;
+-		i = (i == 8) ? 16 : i;
+-		if ((mode = hasmode (width, height, i)) < 0)
+-			if ((mode = hasmode (width, height, 16)) < 0)
++	if (forceMode == -3)
++	{
++		int i;
++		int mode = -1;
++		int width, height, depth;
++	
++		width = si.framebufferWidth;
++		height = si.framebufferHeight;
++		depth = si.format.depth;
++	
++		if (forceOwnCmap || useBGR233) {
++			if ((mode = hasmode (width, height, 8)) < 0)
+ 				goto nomode;
+-	} else {
+-		if ((mode = hasmode (width, height, depth)) < 0)
+-			if ((mode = hasmode (width, height, 16)) < 0)
+-				if ((mode = hasmode (width, height, 8)) < 0)
++		} else if (forceTruecolour) {
++			i = (requestedDepth) ? requestedDepth : depth;
++			i = (i == 8) ? 16 : i;
++			if ((mode = hasmode (width, height, i)) < 0)
++				if ((mode = hasmode (width, height, 16)) < 0)
+ 					goto nomode;
+-	}
+-
+-	Mode = mode;
+-	mi = vga_getmodeinfo (mode);
++		} else {
++			if ((mode = hasmode (width, height, depth)) < 0)
++				if ((mode = hasmode (width, height, 16)) < 0)
++					if ((mode = hasmode (width, height, 8)) < 0)
++						goto nomode;
++		}
++	
++		Mode = mode;
++	} else Mode = forceMode;
++	mi = vga_getmodeinfo (Mode);
+ 
+ 	myFormat.bitsPerPixel = mi->bytesperpixel * 8;
+ 	myFormat.depth = colorbits(mi->colors);
+diff -Naur old/svncviewer/vncviewer.h svncviewer/vncviewer.h
+--- old/svncviewer/vncviewer.h	1998-03-15 18:26:02.000000000 +0000
++++ svncviewer/vncviewer.h	2003-10-26 20:19:12.000000000 +0000
+@@ -64,6 +64,7 @@
+ extern Bool useBGR233;
+ extern Bool forceOwnCmap;
+ extern Bool forceTruecolour;
++extern int forceMode;
+ extern int requestedDepth;
+ extern char *passwdFile;
+ extern Bool outlineSolid;
+@@ -129,6 +130,7 @@
+ extern void CopyDataToScreen(CARD8 *buf, int x, int y, int width, int height);
+ extern Bool svncKeyboardInit(void);
+ 
++
+ #define STORE_COLOUR(xc) gl_setpalettecolor ((xc).pixel, (xc).red >> 10, \
+ 							(xc).green >> 10, (xc).blue >> 10)
+ #define COPY_AREA(x1 ,y1, w, h, x2, y2) gl_copybox (x1, y1, w, h, x2, y2)

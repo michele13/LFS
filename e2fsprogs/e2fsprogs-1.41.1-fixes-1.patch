@@ -1,0 +1,171 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2008-09-28
+Initial Package Version: 4.7.25
+Upstream Status: From Upstream
+Origin: http://sourceforge.net/tracker/download.php?group_id=2406&atid=102406&file_id=291851&aid=2088537
+Description:  Fixes linking errors with blkid and fsck.
+
+
+diff -Naur e2fsprogs-1.41.1-orig/configure e2fsprogs-1.41.1/configure
+--- e2fsprogs-1.41.1-orig/configure	2008-09-01 10:36:59.000000000 -0500
++++ e2fsprogs-1.41.1/configure	2008-09-28 00:45:28.000000000 -0500
+@@ -684,6 +684,8 @@
+ LIB_EXT
+ STATIC_LIB_EXT
+ PROFILED_LIB_EXT
++LDFLAG_DYNAMIC
++PRIVATE_LIBS_CMT
+ TEST_IO_CMT
+ DEBUGFS_CMT
+ IMAGER_CMT
+@@ -3842,6 +3844,8 @@
+ 
+ 
+ E2_PKG_CONFIG_STATIC=--static
++LDFLAG_DYNAMIC=
++PRIVATE_LIBS_CMT=
+ # Check whether --enable-elf-shlibs was given.
+ if test "${enable_elf_shlibs+set}" = set; then
+   enableval=$enable_elf_shlibs; if test "$enableval" = "no"
+@@ -3861,6 +3865,8 @@
+ 	esac
+ 	BINARY_TYPE=elfbin
+ 	LIB_EXT=.so
++	PRIVATE_LIBS_CMT=#
++	LDFLAG_DYNAMIC='-Wl,-rpath-link,$(top_builddir)/lib'
+ 	{ echo "$as_me:$LINENO: result: Enabling ELF shared libraries" >&5
+ echo "${ECHO_T}Enabling ELF shared libraries" >&6; }
+ fi
+@@ -3962,6 +3968,8 @@
+ 
+ 
+ 
++
++
+ # Check whether --enable-jbd-debug was given.
+ if test "${enable_jbd_debug+set}" = set; then
+   enableval=$enable_jbd_debug; if test "$enableval" = "no"
+@@ -15902,8 +15910,8 @@
+ LIB_EXT!$LIB_EXT$ac_delim
+ STATIC_LIB_EXT!$STATIC_LIB_EXT$ac_delim
+ PROFILED_LIB_EXT!$PROFILED_LIB_EXT$ac_delim
+-TEST_IO_CMT!$TEST_IO_CMT$ac_delim
+-DEBUGFS_CMT!$DEBUGFS_CMT$ac_delim
++LDFLAG_DYNAMIC!$LDFLAG_DYNAMIC$ac_delim
++PRIVATE_LIBS_CMT!$PRIVATE_LIBS_CMT$ac_delim
+ _ACEOF
+ 
+   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 73; then
+@@ -15977,6 +15985,8 @@
+ ac_delim='%!_!# '
+ for ac_last_try in false false false false false :; do
+   cat >conf$$subs.sed <<_ACEOF
++TEST_IO_CMT!$TEST_IO_CMT$ac_delim
++DEBUGFS_CMT!$DEBUGFS_CMT$ac_delim
+ IMAGER_CMT!$IMAGER_CMT$ac_delim
+ RESIZER_CMT!$RESIZER_CMT$ac_delim
+ FSCK_PROG!$FSCK_PROG$ac_delim
+@@ -16060,7 +16070,7 @@
+ LTLIBOBJS!$LTLIBOBJS$ac_delim
+ _ACEOF
+ 
+-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 81; then
++  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 83; then
+     break
+   elif $ac_last_try; then
+     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
+@@ -16508,4 +16518,3 @@
+ fi
+ 
+ if test -f util/gen-tarball; then chmod +x util/gen-tarball; fi
+-
+diff -Naur e2fsprogs-1.41.1-orig/configure.in e2fsprogs-1.41.1/configure.in
+--- e2fsprogs-1.41.1-orig/configure.in	2008-09-01 10:36:59.000000000 -0500
++++ e2fsprogs-1.41.1/configure.in	2008-09-28 00:45:28.000000000 -0500
+@@ -211,6 +211,8 @@
+ dnl This needs to be before all of the --enable-*-shlibs options
+ dnl
+ E2_PKG_CONFIG_STATIC=--static
++LDFLAG_DYNAMIC=
++PRIVATE_LIBS_CMT=
+ dnl
+ dnl handle --enable-elf-shlibs
+ dnl
+@@ -232,6 +234,8 @@
+ 	esac]
+ 	BINARY_TYPE=elfbin
+ 	LIB_EXT=.so
++	PRIVATE_LIBS_CMT=#
++	LDFLAG_DYNAMIC=['-Wl,-rpath-link,$(top_builddir)/lib']
+ 	AC_MSG_RESULT([Enabling ELF shared libraries])
+ fi
+ ,
+@@ -322,6 +326,8 @@
+ AC_SUBST(LIB_EXT)
+ AC_SUBST(STATIC_LIB_EXT)
+ AC_SUBST(PROFILED_LIB_EXT)
++AC_SUBST(LDFLAG_DYNAMIC)
++AC_SUBST(PRIVATE_LIBS_CMT)
+ dnl
+ dnl handle --enable-jbd-debug
+ dnl
+@@ -921,4 +927,3 @@
+ done
+ AC_OUTPUT($outlist)
+ if test -f util/gen-tarball; then chmod +x util/gen-tarball; fi
+-
+diff -Naur e2fsprogs-1.41.1-orig/e2fsck/Makefile.in e2fsprogs-1.41.1/e2fsck/Makefile.in
+--- e2fsprogs-1.41.1-orig/e2fsck/Makefile.in	2008-08-24 23:19:56.000000000 -0500
++++ e2fsprogs-1.41.1/e2fsck/Makefile.in	2008-09-28 00:45:28.000000000 -0500
+@@ -8,7 +8,6 @@
+ top_builddir = ..
+ my_dir = e2fsck
+ INSTALL = @INSTALL@
+-LDFLAG_STATIC = @LDFLAG_STATIC@
+ 
+ @MCONFIG@
+ 
+@@ -119,8 +118,7 @@
+ 
+ e2fsck.static: $(OBJS) $(STATIC_DEPLIBS)
+ 	@echo "	LD $@"
+-	@$(LD) $(ALL_LDFLAGS) $(LDFLAG_STATIC) -o e2fsck.static $(OBJS) \
+-		$(STATIC_LIBS) 
++	@$(LD) $(LDFLAGS_STATIC) -o e2fsck.static $(OBJS) $(STATIC_LIBS) 
+ 
+ e2fsck.profiled: $(PROFILED_OBJS)  $(PROFILED_DEPLIBS)
+ 	@echo "	LD $@"
+diff -Naur e2fsprogs-1.41.1-orig/MCONFIG.in e2fsprogs-1.41.1/MCONFIG.in
+--- e2fsprogs-1.41.1-orig/MCONFIG.in	2008-08-28 09:26:31.000000000 -0500
++++ e2fsprogs-1.41.1/MCONFIG.in	2008-09-28 00:45:28.000000000 -0500
+@@ -41,7 +41,8 @@
+ ALL_CFLAGS = $(CPPFLAGS) $(DEFS) $(USE_WFLAGS) $(CFLAGS) $(XTRA_CFLAGS) \
+ 	$(INTL_FLAGS) $(LINUX_INCLUDE) 
+ LDFLAGS = @LDFLAGS@
+-ALL_LDFLAGS = $(LDFLAGS)
++ALL_LDFLAGS = $(LDFLAGS) @LDFLAG_DYNAMIC@
++LDFLAGS_STATIC = $(LDFLAGS) @LDFLAG_STATIC@
+ BUILD_CFLAGS = @BUILD_CFLAGS@
+ BUILD_LDFLAGS = @BUILD_LDFLAGS@
+ RM = @RM@
+@@ -69,7 +70,7 @@
+ # Library definitions
+ #
+ LIB = $(top_builddir)/lib
+-LIBSS = $(LIB)/libss@LIB_EXT@ @DLOPEN_LIB@
++LIBSS = $(LIB)/libss@LIB_EXT@ @PRIVATE_LIBS_CMT@ @DLOPEN_LIB@
+ LIBCOM_ERR = $(LIB)/libcom_err@LIB_EXT@
+ LIBE2P = $(LIB)/libe2p@LIB_EXT@
+ LIBEXT2FS = $(LIB)/libext2fs@LIB_EXT@
+diff -Naur e2fsprogs-1.41.1-orig/misc/Makefile.in e2fsprogs-1.41.1/misc/Makefile.in
+--- e2fsprogs-1.41.1-orig/misc/Makefile.in	2008-08-24 23:19:56.000000000 -0500
++++ e2fsprogs-1.41.1/misc/Makefile.in	2008-09-28 00:45:28.000000000 -0500
+@@ -108,7 +108,7 @@
+ 
+ tune2fs.static: $(TUNE2FS_OBJS) $(STATIC_DEPLIBS) $(STATIC_LIBE2P) $(DEPSTATIC_LIBBLKID)
+ 	@echo "	LD $@"
+-	@$(CC) $(ALL_LDFLAGS) -static -o tune2fs.static $(TUNE2FS_OBJS) \
++	@$(CC) $(LDFLAGS_STATIC) -o tune2fs.static $(TUNE2FS_OBJS) \
+ 		$(STATIC_LIBS) $(STATIC_LIBBLKID) $(STATIC_LIBUUID) \
+ 		$(STATIC_LIBE2P) $(LIBINTL)
+ 

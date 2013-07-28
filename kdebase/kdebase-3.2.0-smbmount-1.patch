@@ -1,0 +1,111 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Origin: Alexander E. Patrakov
+Date: 2003-09-27
+Initial Package Version: 3.1.3
+Description: implement the logic in the smb kioslave to make smbmounter from
+kdeaddons work with this kioslave. Earlier it worked with smbro ioslave only.
+Patch also applies to KDE 3.1.4
+Notes:
+1) Sorry for the "char samba3_corrupts_memory_here[4096]" hack.
+Please help debugging.
+2) The password is passed as an argument to smbmount. Beware!
+(This is also true for smbro)
+
+diff -ur kdebase-3.1.4.orig/kioslave/smb/kio_smb.h kdebase-3.1.4/kioslave/smb/kio_smb.h
+--- kdebase-3.1.4.orig/kioslave/smb/kio_smb.h	2003-09-09 00:40:26.000000000 +0600
++++ kdebase-3.1.4/kioslave/smb/kio_smb.h	2003-09-27 12:51:02.000000000 +0600
+@@ -267,6 +267,7 @@
+     void readOutput(KProcess *proc, char *buffer, int buflen);
+ 
+ private:
++    char samba3_corrupts_memory_here[4096];
+     QString mybuf;
+ 
+ };
+diff -ur kdebase-3.1.4.orig/kioslave/smb/kio_smb_mount.cpp kdebase-3.1.4/kioslave/smb/kio_smb_mount.cpp
+--- kdebase-3.1.4.orig/kioslave/smb/kio_smb_mount.cpp	2003-06-24 12:29:58.000000000 +0600
++++ kdebase-3.1.4/kioslave/smb/kio_smb_mount.cpp	2003-09-27 13:00:31.000000000 +0600
+@@ -54,7 +54,7 @@
+          }
+ 
+          if (tmp==3) {
+-             if (!KStandardDirs::makeDir(mountPoint)) {
++             if (!KStandardDirs::makeDir(mountPoint,0700)) {
+                  error(KIO::ERR_COULD_NOT_MKDIR, mountPoint);
+                  return;
+              }
+@@ -62,11 +62,12 @@
+          mybuf.truncate(0);
+ 
+          KProcess proc;
+-         proc << "mount";
+-         proc << "-o guest";
+-         proc << "-t smbfs";
++         proc << "smbmount";
+          proc << remotePath.local8Bit();
+          proc << mountPoint.local8Bit();
++         QString autharg = "-o username=" + user;
++         autharg += ",password=" + password;
++         proc << autharg.local8Bit();
+          connect(&proc, SIGNAL( receivedStdout(KProcess *, char *, int )),
+                  SLOT(readOutput(KProcess *, char *, int)));
+ 
+@@ -85,47 +86,22 @@
+    case 2:
+    case 4:
+       {
+-/*         QString mountPoint;
++         QString mountPoint;
+          stream >> mountPoint;
+-         ClientProcess proc;
+-         QCStringList args;
+-         args<<mountPoint.local8Bit();
+-         if (!proc.start("smbumount",args))
++         KProcess proc;
++         proc<<"smbumount";
++         proc<<mountPoint.local8Bit();
++         mybuf.truncate(0);
++         connect(&proc, SIGNAL( receivedStdout(KProcess *, char *, int )),
++                 SLOT(readOutput(KProcess *, char *, int)));
++         if (!proc.start(KProcess::Block, KProcess::AllOutput))
+          {
+             error( KIO::ERR_CANNOT_LAUNCH_PROCESS, "smbumount"+i18n("\nMake sure that the samba package is installed properly on your system."));
+             return;
+          }
+-         clearBuffer();
+-         while (1)  //until smbumount exits
+-         {
+-            bool stdoutEvent;
+-            proc.select(1,0,&stdoutEvent);
+-            int exitStatus=proc.exited();
+-            if (exitStatus!=-1)
+-            {
+-               kdDebug(KIO_SMB)<<"Smb::waitUntilStarted() smbclient exited with exitcode "<<exitStatus<<endl;
+-               if (tmp==4)
+-               {
+-                  QDir dir(mountPoint);
+-                  dir.cdUp();
+-                  dir.rmdir(mountPoint);
+-                  QString p=dir.path();
+-                  dir.cdUp();
+-                  dir.rmdir(p);
+-               }
+-               if (exitStatus!=0)
+-               {
+-                  if (m_stdoutSize>0)
+-                     kdDebug(KIO_SMB)<<"Smb::waitUntilStarted(): received: -"<<m_stdoutBuffer<<"-"<<endl;
+-                  error( KIO::ERR_CANNOT_LAUNCH_PROCESS, "smbumount");
+-               }
+-               else
+-                  finished();
+-               return;
+-            }
+-            if (stdoutEvent)
+-               readOutput(proc.fd());
+-               }*/
++         if (proc.exitStatus() != 0) {
++             error( KIO::ERR_COULD_NOT_UNMOUNT, mybuf);
++         }
+       }
+       break;
+    default:

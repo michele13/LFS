@@ -1,0 +1,3184 @@
+Submitted By: Rainer Wirtz <rainer dot wirtz at gmx dot de>
+Date: 2006-03-05
+Inital Package Version: 1.1.2
+Upstream Status: Unknown
+Origin: http://www.geocities.jp/aoyoume/aotuv/
+Description: An alternative encoder for libvorbis.  This patch contains the
+             the aoTuV-beta4.51 encoder.  libvorbis-1.1.2 contains the
+             aoTuV-beta2 encoder.  Numerous listening tests have been performed
+             attesting to the superiority of this encoder.  Two example cans be
+             seen here:
+             http://www.hydrogenaudio.org/forums/index.php?showtopic=38792
+             http://www.hydrogenaudio.org/forums/index.php?showtopic=36465
+
+diff -Naur libvorbis-1.1.2.orig/COPYING libvorbis-1.1.2/COPYING
+--- libvorbis-1.1.2.orig/COPYING	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/COPYING	2006-03-06 15:46:44.000000000 +0000
+@@ -1,4 +1,5 @@
+-Copyright (c) 2002-2004 Xiph.org Foundation
++aoTuV - Copyright (c) 2003-2005 Aoyumi
++libvorbis - Copyright (c) 2002-2005 Xiph.org Foundation
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+diff -Naur libvorbis-1.1.2.orig/aoTuV_README-1st.txt libvorbis-1.1.2/aoTuV_README-1st.txt
+--- libvorbis-1.1.2.orig/aoTuV_README-1st.txt	1970-01-01 00:00:00.000000000 +0000
++++ libvorbis-1.1.2/aoTuV_README-1st.txt	2006-03-06 15:46:44.000000000 +0000
+@@ -0,0 +1,24 @@
++aoTuV beta4.51 release note
++
++"aoTuV" tunes up Xiph.Org's libvorbis uniquely. 
++A license is taken as "BSD-style license" as well as original libvorbis. 
++
++
++# NOTICE #
++
++  Manuke's patch is used for improvement in the speed of sort processing. 
++  When "#define OPT_SORT" of "lib/psy.h" is deleted, the conventional 
++  processing method is used.
++
++
++Thanks! Manuke.
++
++
++
++aoTuV based on <Xiph.Org libvorbis>
++
++Copyright (c) 2002-2005 Xiph.Org Foundation
++Copyright (c) 2003-2005 Aoyumi
++
++
++AUTHOR : aoyumi <aoyumi@inter7.jp>
+\ No newline at end of file
+diff -Naur libvorbis-1.1.2.orig/aoTuV_technical.txt libvorbis-1.1.2/aoTuV_technical.txt
+--- libvorbis-1.1.2.orig/aoTuV_technical.txt	1970-01-01 00:00:00.000000000 +0000
++++ libvorbis-1.1.2/aoTuV_technical.txt	2006-03-06 15:46:44.000000000 +0000
+@@ -0,0 +1,149 @@
++aoTuV beta4.51 technical information
++
++
++The differences from the aoTuV beta 4.5...
++
++
++  1.  The changed part of "scale.h" of Xiph.Org SVN was reflected in aoTuV. This will solve the problem of the compile by gcc4. 
++
++  2.  A part of portion added by beta4.5 had caused memory access violation. Depending on environment, a problem arises in qualiy-1/-2. This problem was corrected. 
++
++
++2005/11/17
++Aoyumi
++
++----------------------------------------------------------------------------
++
++aoTuV beta4.5 technical information
++
++
++The differences from the aoTuV beta 4...
++
++
++
++  1.  M4 code of beta3 was deleted. M5 is added as what is replaced with it. The advantage of this method is that the result stabilized more is obtained. Instead, the change width of the bit rate becomes large rather than before. [32/44.1/48kHz only] 
++
++@2.  New M4 was added. There is this for the same purpose as M1. However, it is tuned up only in the low bit rate region according to work and individual parameters. [32/44.1/48kHz only] 
++
++@3.  M2 code was extended. This decreases a specific noise problem.  [32/44.1/48kHz only] 
++
++...and I mainly tune up tone/noise masking and noise normalization parameters. 
++
++The above change is applied below quality3. 
++
++
++2005/11/05
++Aoyumi
++
++----------------------------------------------------------------------------
++
++aoTuV beta4a technical information
++
++
++The differences from the aoTuV beta 4...
++
++
++
++  1.  Adoption of new hypot (point stereo). This works in general better than
++  dipole/round hypot. And when residue is likely to decrease greatly at the
++  time of a reverse phase, added code is made to increase the ratio of lossless.
++
++  2.  Change of ATH curve. This is not a big change. 
++
++  3.  Residue used for threshold calculation of channel coupling is changed.
++  This one seems to be good selection. 
++
++  4.  HF reduction code of beta3 was deleted. Now, this is not required. 
++
++  5.  The energy deficit of M4 code of beta3 -- correction of a bug Now.
++
++  6.  The code for pulling downward floor of the frequency range which can
++  be easy to be heard was added (New M2). This works by the low bit rate and
++  has a comparatively good trade-off. 
++
++  7.  Change of threshold calculation of noise normalization. Moreover, it
++  takes phase information into consideration. 
++
++
++...and I mainly tune up tone/noise masking parameters. 
++
++
++
++2005/06/18
++Aoyumi
++
++----------------------------------------------------------------------------
++
++The differences from the aoTuV beta 3...
++
++
++
++  1.  Adoption of new hypot (point stereo). This works in general better than
++  dipole/round hypot. And when residue is likely to decrease greatly at the
++  time of a reverse phase, added code is made to increase the ratio of lossless.
++
++  2.  Change of ATH curve. This is not a big change. 
++
++  3.  Residue used for threshold calculation of channel coupling is changed.
++  This one seems to be good selection. 
++
++  4.  HF reduction code of beta3 was deleted. Now, this is not required. 
++
++  5.  The energy deficit of M4 code of beta3 -- correction of a bug Now.
++
++  6.  The code for pulling downward floor of the frequency range which can
++  be easy to be heard was added (New M2). This works by the low bit rate and
++  has a comparatively good trade-off. 
++
++  7.  Change of threshold calculation of noise normalization. Moreover, it
++  takes phase information into consideration. 
++
++
++...and I mainly tune up tone/noise masking and noise compander parameters. 
++
++
++
++2005/06/18
++Aoyumi
++
++----------------------------------------------------------------------------
++
++aoTuV beta3 technical information
++
++
++The differences from the aoTuV beta 2 and Vorbis 1.1...
++
++
++
++  1. Dynamic impulse block noise control(q0-10). [32/44.1/48kHz only] 
++  Conspicuous pre-echo is reduced.
++
++  2. New ATH curve. 
++
++  3. In order to cancel that a small sound becomes unstable, the noise level
++  of low frequency is lowered under specific conditions. (Only below q3) 
++  There is a greatest effect on a piano etc. [32/44.1/48kHz only]
++
++  4. The rate of lossless stereo is increased in specific conditions. This
++  improves many of conspicuous problems which a point stereo causes. (e.g 
++  drumus's hiss/voice, guitar and brass's distortion) [32/44.1/48kHz only]
++
++  5. The action of the noise normalization of point stereo is corrected. It
++  was set to one of the causes of distortion in a long tone (e.g 
++  strings/oboe/high tone voice). 
++
++  6. The HF reduction code was not working normally. This is corrected and
++  it retuned up according to the present condition. [32/44.1/48kHz only]
++
++  7. The q-2 mode was added in all sampling frequencies. And nominal bitrate
++  of q-1 are changed into a more nearly average value. Although nominal 
++  bitrate is more large at a low sampling frequency, average bitrate hardly
++  differs from the former version. 
++
++
++...and I mainly tune up tone/noise masking parameters. 
++
++
++
++2004/11/21
++Aoyumi
+diff -Naur libvorbis-1.1.2.orig/lib/block.c libvorbis-1.1.2/lib/block.c
+--- libvorbis-1.1.2.orig/lib/block.c	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/block.c	2006-03-06 15:46:44.000000000 +0000
+@@ -106,7 +106,7 @@
+       oggpack_writeinit(vbi->packetblob[i]);
+     }    
+   }
+-
++  
+   return(0);
+ }
+ 
+@@ -287,6 +287,11 @@
+   b=v->backend_state;
+   b->psy_g_look=_vp_global_look(vi);
+ 
++  /* added by aoyumi */
++  b->nblock = _ogg_calloc((128*vi->channels), sizeof(*b->nblock));
++  b->tblock = _ogg_calloc((128*vi->channels), sizeof(*b->tblock));
++  b->lownoise_compand_level = _ogg_calloc(vi->channels, sizeof(*b->lownoise_compand_level));
++  
+   /* Initialize the envelope state storage */
+   b->ve=_ogg_calloc(1,sizeof(*b->ve));
+   _ve_envelope_init(b->ve,vi);
+@@ -348,6 +353,11 @@
+ 
+       drft_clear(&b->fft_look[0]);
+       drft_clear(&b->fft_look[1]);
++      
++      /* added by aoyumi */
++      if(b->nblock) _ogg_free(b->nblock);
++      if(b->tblock) _ogg_free(b->tblock);
++      if(b->lownoise_compand_level) _ogg_free(b->lownoise_compand_level);
+ 
+     }
+     
+diff -Naur libvorbis-1.1.2.orig/lib/codec_internal.h libvorbis-1.1.2/lib/codec_internal.h
+--- libvorbis-1.1.2.orig/lib/codec_internal.h	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/codec_internal.h	2006-03-06 15:46:44.000000000 +0000
+@@ -82,6 +82,15 @@
+   bitrate_manager_state bms;
+ 
+   ogg_int64_t sample_count;
++
++  /* encode only
++    added by aoyumi */
++  float *lownoise_compand_level;
++  float *nblock; /* lW logmdct buffer */  
++  float *tblock; /* temporal masking buffer (impulse block) */
++  int lW_blocktype; /* last window block type */
++  int lW_modenumber; /* last window mode number (0=short, 1=long) */
++  int lW_no; /* the number of continuous window blocks (last window) */
+ } private_state;
+ 
+ /* codec_setup_info contains all the setup information specific to the
+diff -Naur libvorbis-1.1.2.orig/lib/info.c libvorbis-1.1.2/lib/info.c
+--- libvorbis-1.1.2.orig/lib/info.c	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/info.c	2006-03-06 15:46:45.000000000 +0000
+@@ -416,7 +416,7 @@
+ }
+ 
+ static int _vorbis_pack_comment(oggpack_buffer *opb,vorbis_comment *vc){
+-  char temp[]="Xiph.Org libVorbis I 20050304";
++  char temp[]="AO; aoTuV b4b [20051117] (based on Xiph.Org's libVorbis)";
+   int bytes = strlen(temp);
+ 
+   /* preamble */  
+diff -Naur libvorbis-1.1.2.orig/lib/mapping0.c libvorbis-1.1.2/lib/mapping0.c
+--- libvorbis-1.1.2.orig/lib/mapping0.c	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/mapping0.c	2006-03-06 15:46:45.000000000 +0000
+@@ -251,6 +251,8 @@
+ 
+   int    *nonzero    = alloca(sizeof(*nonzero)*vi->channels);
+   float  **gmdct     = _vorbis_block_alloc(vb,vi->channels*sizeof(*gmdct));
++  float  **gmdct_org = _vorbis_block_alloc(vb,vi->channels*sizeof(*gmdct_org));
++  float  **res_org   = _vorbis_block_alloc(vb,vi->channels*sizeof(*res_org));
+   int    **ilogmaskch= _vorbis_block_alloc(vb,vi->channels*sizeof(*ilogmaskch));
+   int ***floor_posts = _vorbis_block_alloc(vb,vi->channels*sizeof(*floor_posts));
+   
+@@ -273,6 +275,8 @@
+     float *logfft  =pcm;
+ 
+     gmdct[i]=_vorbis_block_alloc(vb,n/2*sizeof(**gmdct));
++    gmdct_org[i]=_vorbis_block_alloc(vb,n/2*sizeof(**gmdct_org));
++    res_org[i]=_vorbis_block_alloc(vb,n/2*sizeof(**res_org));
+ 
+     scale_dB=todB(&scale) + .345; /* + .345 is a hack; the original
+                                      todB estimation used on IEEE 754
+@@ -311,6 +315,7 @@
+     /* transform the PCM data */
+     /* only MDCT right now.... */
+     mdct_forward(b->transform[vb->W][0],pcm,gmdct[i]);
++    memcpy(gmdct_org[i], gmdct[i], n/2*sizeof(**gmdct_org));
+     
+     /* FFT yields more accurate tonal estimation (not phase sensitive) */
+     drft_forward(&b->fft_look[vb->W],pcm);
+@@ -380,6 +385,11 @@
+       
+       float *logmdct =logfft+n/2;
+       float *logmask =logfft;
++      
++      float *lastmdct = b->nblock+i*128;
++      float *tempmdct = b->tblock+i*128;
++      
++      float *lowcomp = b->lownoise_compand_level+i;
+ 
+       vb->mode=modenumber;
+ 
+@@ -419,7 +429,15 @@
+          us a tonality estimate (the larger the value in the
+          'noise_depth' vector, the more tonal that area is) */
+ 
++      *lowcomp=
++      	lb_loudnoise_fix(psy_look,
++      			*lowcomp,
++      			logmdct,
++      			b->lW_modenumber,
++      			blocktype, modenumber);
++      
+       _vp_noisemask(psy_look,
++      		*lowcomp,
+ 		    logmdct,
+ 		    noise); /* noise does not have by-frequency offset
+                                bias applied yet */
+@@ -467,7 +485,11 @@
+ 			   1,
+ 			   logmask,
+ 			   mdct,
+-			   logmdct);
++			   logmdct,
++			   lastmdct, tempmdct,
++			   blocktype, modenumber,
++			   vb->nW,
++			   b->lW_blocktype, b->lW_modenumber, b->lW_no);
+ 	
+ #if 0
+ 	if(vi->channels==2){
+@@ -510,7 +532,11 @@
+ 			   2,
+ 			   logmask,
+ 			   mdct,
+-			   logmdct);
++			   logmdct,
++			   lastmdct, tempmdct,
++			   blocktype, modenumber,
++			   vb->nW,
++			   b->lW_blocktype, b->lW_modenumber, b->lW_no);
+ 
+ #if 0
+ 	if(vi->channels==2){
+@@ -533,7 +559,11 @@
+ 			   0,
+ 			   logmask,
+ 			   mdct,
+-			   logmdct);
++			   logmdct,
++			   lastmdct, tempmdct,
++			   blocktype, modenumber,
++			   vb->nW,
++			   b->lW_blocktype, b->lW_modenumber, b->lW_no);
+ 
+ #if 0
+ 	if(vi->channels==2)
+@@ -600,11 +630,6 @@
+ 					psy_look,
+ 					info,
+ 					mag_memo);    
+-
+-      hf_reduction(&ci->psy_g_param,
+-		   psy_look,
+-		   info,
+-		   mag_memo);
+     }
+ 
+     memset(sortindex,0,sizeof(*sortindex)*vi->channels);
+@@ -636,7 +661,9 @@
+       for(i=0;i<vi->channels;i++){
+ 	int submap=info->chmuxlist[i];
+ 	float *mdct    =gmdct[i];
++	float *mdct_org=gmdct_org[i];
+ 	float *res     =vb->pcm[i];
++	float *resorgch=res_org[i];
+ 	int   *ilogmask=ilogmaskch[i]=
+ 	  _vorbis_block_alloc(vb,n/2*sizeof(**gmdct));
+       
+@@ -659,6 +686,14 @@
+ 			 res,
+ 			 ci->psy_g_param.sliding_lowpass[vb->W][k]);
+ 
++	/* stereo threshold */
++	_vp_remove_floor(psy_look,
++			 mdct_org,
++			 ilogmask,
++			 resorgch,
++			 ci->psy_g_param.sliding_lowpass[vb->W][k]);
++		 
++
+ 	_vp_noise_normalize(psy_look,res,res+n/2,sortindex[i]);
+ 
+ 	
+@@ -691,7 +726,10 @@
+ 		   mag_sort,
+ 		   ilogmaskch,
+ 		   nonzero,
+-		   ci->psy_g_param.sliding_lowpass[vb->W][k]);
++		   ci->psy_g_param.sliding_lowpass[vb->W][k],
++		   blocktype, modenumber,
++		   b->lW_blocktype, b->lW_modenumber,
++		   gmdct, res_org);
+       }
+       
+       /* classify and encode by submap */
+@@ -717,6 +755,11 @@
+ 		  couple_bundle,NULL,zerobundle,ch_in_bundle,classifications);
+       }
+       
++      /* set last-window type & number */
++      if((blocktype == b->lW_blocktype) && (modenumber == b->lW_modenumber)) b->lW_no++;
++      else b->lW_no = 1;
++      b->lW_blocktype = blocktype;
++      b->lW_modenumber = modenumber;
+       /* ok, done encoding.  Next protopacket. */
+     }
+     
+diff -Naur libvorbis-1.1.2.orig/lib/masking.h libvorbis-1.1.2/lib/masking.h
+--- libvorbis-1.1.2.orig/lib/masking.h	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/masking.h	2006-03-06 15:46:45.000000000 +0000
+@@ -23,16 +23,29 @@
+ 
+ #define MAX_ATH 88
+ static float ATH[]={
+-  /*15*/  -51, -52, -53, -54, -55, -56, -57, -58,  
+-  /*31*/  -59, -60, -61, -62, -63, -64, -65, -66,
+-  /*63*/  -67, -68, -69, -70, -71, -72, -73, -74, 
+-  /*125*/ -75, -76, -77, -78, -80, -81, -82, -83,
+-  /*250*/ -84, -85, -86, -87, -88, -88, -89, -89, 
+-  /*500*/ -90, -91, -91, -92, -93, -94, -95, -96,
+-  /*1k*/  -96, -97, -98, -98, -99, -99,-100,-100,
+-  /*2k*/ -101,-102,-103,-104,-106,-107,-107,-107,
+-  /*4k*/ -107,-105,-103,-102,-101, -99, -98, -96,
+-  /*8k*/  -95, -95, -96, -97, -96, -95, -93, -90,
++/* original ATH */
++  /*15*/ // -51, -52, -53, -54, -55, -56, -57, -58,  
++  /*31*/ // -59, -60, -61, -62, -63, -64, -65, -66,
++  /*63*/ // -67, -68, -69, -70, -71, -72, -73, -74, 
++  /*125*/ // -75, -76, -77, -78, -80, -81, -82, -83,
++  /*250*/ //-84, -85, -86, -87, -88, -88, -89, -89, 
++  /*500*/ //-90, -91, -91, -92, -93, -94, -95, -96,
++  /*1k*/  //-96, -97, -98, -98, -99, -99,-100,-100,
++  /*2k*/ //-101,-102,-103,-104,-106,-107,-107,-107,
++  /*4k*/ //-107,-105,-103,-102,-101, -99, -98, -96,
++  /*8k*/  //-95, -95, -96, -97, -96, -95, -93, -90,
++  /*16k*/ //-80, -70, -50, -40, -30, -30, -30, -30
++/*Aoyumi's ATH (v5) */
++  /*15*/  -31, -33, -35, -37, -39, -41, -43, -45,
++  /*31*/  -47, -49, -51, -53, -55, -57, -59, -61,
++  /*63*/  -63, -65, -67, -69, -71, -73, -75, -77, 
++  /*125*/ -79, -81, -83, -84, -85, -86, -87, -88,
++  /*250*/ -89, -90, -91, -92, -93, -94, -95, -96,
++  /*500*/ -96, -97, -97, -97, -98, -98, -98, -99, 
++  /*1k*/  -98, -97, -97, -98, -99,-100,-101,-101,
++  /*2k*/ -102,-103,-104,-105,-106,-106,-107,-107,
++  /*4k*/ -105,-104,-102,-101,-100, -99, -98, -97,
++  /*8k*/  -96, -95, -95, -96, -97, -97, -93, -88,
+   /*16k*/ -80, -70, -50, -40, -30, -30, -30, -30
+ };
+ 
+diff -Naur libvorbis-1.1.2.orig/lib/modes/psych_11.h libvorbis-1.1.2/lib/modes/psych_11.h
+--- libvorbis-1.1.2.orig/lib/modes/psych_11.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/psych_11.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,26 +15,32 @@
+ 
+  ********************************************************************/
+ 
+-static double _psy_lowpass_11[3]={4.5,5.5,30.,};
++static double _psy_lowpass_11[4]={4,4.5,5.5,30.,};
+ 
+-static att3 _psy_tone_masteratt_11[3]={
+-  {{ 30,  25,  12},  0,   0},  /* 0 */
+-  {{ 30,  25,  12},  0,   0},  /* 0 */
+-  {{ 20,   0, -14},  0,   0}, /* 0 */
++static att3 _psy_tone_masteratt_11[4]={
++  {{ 30,  25,  12},  0,   0},  /* -2 */
++  {{ 30,  25,  12},  0,   0},  /* -1 */
++  {{ 30,  25,  12},  0,   0},  /*  0 */
++  {{ 20,   0, -14},  0,   0},  /* 10 */
+ };
+ 
+-static vp_adjblock _vp_tonemask_adj_11[3]={
++static vp_adjblock _vp_tonemask_adj_11[4]={
+   /* adjust for mode zero */
+   /* 63     125     250     500     1     2     4     8    16 */
+-  {{-20,-20,-20,-20,-20,-16,-10, 0, 0, 0, 0,10, 2, 0,99,99,99}}, /* 0 */
+-  {{-20,-20,-20,-20,-20,-16,-10, 0, 0, 0, 0, 5, 0, 0,99,99,99}}, /* 1 */
+-  {{-20,-20,-20,-20,-20,-16,-10, 0, 0, 0, 0, 0, 0, 0,99,99,99}}, /* 2 */
++  {{-16,-16,-16,-16,-16,-16,-10,-8,-4, 0, 0, 0, 5, 5,99,99,99}}, /* -2 */
++  {{-16,-16,-16,-16,-16,-16,-10,-8,-4, 0, 0, 0, 0, 0,99,99,99}}, /* -1 */
++  {{-20,-20,-20,-20,-20,-16,-10,-8,-4,-2, 0, 0, 0, 0,99,99,99}}, /*  0 */
++  {{-20,-20,-20,-20,-20,-16,-10,-8,-4,-2, 0, 0, 0, 0,99,99,99}}, /* 10 */
+ };
+ 
+ 
+-static noise3 _psy_noisebias_11[3]={
++static noise3 _psy_noisebias_11[4]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+   {{{-10,-10,-10,-10, -5, -5, -5,  0,  4, 10, 10, 12, 12, 12, 99, 99, 99},
++    {-12,-12,-12,-12,-10,-10, -3,  0,  2,  4,  4,  5,  5, 10, 99, 99, 99},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, 99, 99, 99}}},
++
++  {{{-10,-10,-10,-10, -5, -5, -5,  0,  4, 10, 10, 12, 12, 12, 99, 99, 99},
+     {-15,-15,-15,-15,-10,-10, -5,  0,  0,  4,  4,  5,  5, 10, 99, 99, 99},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, 99, 99, 99}}},
+ 
+@@ -47,5 +53,5 @@
+     {-30,-30,-30,-30,-26,-26,-26,-26,-26,-26,-26,-26,-26,-24, 99, 99, 99}}},
+ };
+ 
+-static double _noise_thresh_11[3]={ .3,.5,.5 };
++static double _noise_thresh_11[4]={ .3,.3,.5,.5 };
+ 
+diff -Naur libvorbis-1.1.2.orig/lib/modes/psych_16.h libvorbis-1.1.2/lib/modes/psych_16.h
+--- libvorbis-1.1.2.orig/lib/modes/psych_16.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/psych_16.h	2006-03-06 15:46:45.000000000 +0000
+@@ -16,7 +16,7 @@
+  ********************************************************************/
+ 
+ /* stereo mode by base quality level */
+-static adj_stereo _psy_stereo_modes_16[4]={
++static adj_stereo _psy_stereo_modes_16[5]={
+   /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  */
+   {{  4,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
+    {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+@@ -24,6 +24,10 @@
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+   {{  4,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
+    {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
++   {  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  3,  4,  4},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
++  {{  4,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
++   {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+    {  2,  2,  2,  2,  2,  2,  2,  2,  2,  3,  4,  4,  4,  4,  4},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+   {{  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
+@@ -36,28 +40,34 @@
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+ };
+ 
+-static double _psy_lowpass_16[4]={6.5,8,30.,99.};
++static double _psy_lowpass_16[5]={6.,6.5,8,30.,99.};
+ 
+-static att3 _psy_tone_masteratt_16[4]={
+-  {{ 30,  25,  12},  0,   0},  /* 0 */
+-  {{ 25,  22,  12},  0,   0},  /* 0 */
+-  {{ 20,  12,   0},  0,   0},  /* 0 */
+-  {{ 15,   0, -14},  0,   0}, /* 0 */
++static att3 _psy_tone_masteratt_16[5]={
++  {{ 30,  25,  12},  0,   0},  /* -2 */
++  {{ 30,  25,  12},  0,   0},  /* -1 */
++  {{ 25,  22,  12},  0,   0},  /* 0.5 */
++  {{ 20,  12,   0},  0,   0},  /*  5 */
++  {{ 15,   0, -14},  0,   0},  /* 10 */
+ };
+ 
+-static vp_adjblock _vp_tonemask_adj_16[4]={
++static vp_adjblock _vp_tonemask_adj_16[5]={
+   /* adjust for mode zero */
+   /* 63     125     250     500       1     2     4     8    16 */
+-  {{-20,-20,-20,-20,-20,-16,-10,  0,  0, 0, 0,10, 0, 0, 0, 0, 0}}, /* 0 */
+-  {{-20,-20,-20,-20,-20,-16,-10,  0,  0, 0, 0,10, 0, 0, 0, 0, 0}}, /* 1 */
+-  {{-20,-20,-20,-20,-20,-16,-10,  0,  0, 0, 0, 0, 0, 0, 0, 0, 0}}, /* 2 */
+-  {{-30,-30,-30,-30,-30,-26,-20,-10, -5, 0, 0, 0, 0, 0, 0, 0, 0}}, /* 2 */
++  {{-16,-16,-16,-16,-16,-16,-10, -8, -6,-2, 0, 0, 0, 0, 0, 0, 0}}, /* -2 */
++  {{-16,-16,-16,-16,-16,-16,-10, -8, -6,-2, 0, 0, 0, 0, 0, 0, 0}}, /* -1 */
++  {{-16,-16,-16,-16,-16,-16,-10, -8, -6,-4, 0, 0, 0, 0, 0, 0, 0}}, /* 0.5 */
++  {{-20,-20,-20,-20,-20,-16,-10,-10, -8,-6,-2,-2, 0, 0, 0, 0, 0}}, /*  5 */
++  {{-30,-30,-30,-30,-30,-26,-20,-10, -8,-6,-2,-2, 0, 0, 0, 0, 0}}, /* 10 */
+ };
+ 
+ 
+-static noise3 _psy_noisebias_16_short[4]={
++static noise3 _psy_noisebias_16_short[5]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+   {{{-15,-15,-15,-15,-15,-10,-10,-5,   4, 10, 10, 10, 10, 12, 12, 14, 20},
++    {-12,-12,-12,-12,-12, -7, -4, -2,  3,  3,  4,  5,  5,  6,  8,  8, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
++
++  {{{-15,-15,-15,-15,-15,-10,-10,-5,   4, 10, 10, 10, 10, 12, 12, 14, 20},
+     {-15,-15,-15,-15,-15,-10,-10, -5,  0,  0,  4,  5,  5,  6,  8,  8, 15},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
+ 
+@@ -74,9 +84,13 @@
+     {-30,-30,-30,-30,-26,-26,-26,-26,-26,-26,-26,-26,-26,-24,-20,-20,-20}}},
+ };
+ 
+-static noise3 _psy_noisebias_16_impulse[4]={
++static noise3 _psy_noisebias_16_impulse[5]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+   {{{-15,-15,-15,-15,-15,-10,-10,-5,   4, 10, 10, 10, 10, 12, 12, 14, 20},
++    {-12,-12,-12,-12,-12, -7, -4, -2,  3,  3,  4,  5,  5,  6,  8,  8, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
++
++  {{{-15,-15,-15,-15,-15,-10,-10,-5,   4, 10, 10, 10, 10, 12, 12, 14, 20},
+     {-15,-15,-15,-15,-15,-10,-10, -5,  0,  0,  4,  5,  5,  6,  8,  8, 15},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
+ 
+@@ -93,9 +107,13 @@
+     {-30,-30,-30,-30,-26,-26,-26,-26,-26,-26,-26,-26,-26,-24,-20,-20,-20}}},
+ };
+ 
+-static noise3 _psy_noisebias_16[4]={
++static noise3 _psy_noisebias_16[5]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+   {{{-10,-10,-10,-10, -5, -5, -5,  0,  4,  6,  8,  8, 10, 10, 10, 14, 20},
++    {-10,-10,-10,-10,-10, -5, -2, -2,  3,  3,  3,  4,  5,  6,  8,  8, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
++
++  {{{-10,-10,-10,-10, -5, -5, -5,  0,  4,  6,  8,  8, 10, 10, 10, 14, 20},
+     {-10,-10,-10,-10,-10, -5, -2, -2,  0,  0,  0,  4,  5,  6,  8,  8, 15},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -6, -6}}},
+ 
+@@ -112,17 +130,17 @@
+     {-30,-30,-30,-30,-26,-26,-26,-26,-26,-26,-26,-26,-26,-24,-20,-20,-20}}},
+ };
+ 
+-static double _noise_thresh_16[4]={ .3,.5,.5,.5 };
++static double _noise_thresh_16[5]={ .3,.3,.5,.5,.5 };
+ 
+-static int _noise_start_16[3]={ 256,256,9999 };
+-static int _noise_part_16[4]={ 8,8,8,8 };
++static int _noise_start_16[4]={ 256,256,256,9999 };
++static int _noise_part_16[5]={ 8,8,8,8,8 };
+ 
+-static int _psy_ath_floater_16[4]={
+-  -100,-100,-100,-105,
++static int _psy_ath_floater_16[5]={
++  -100,-100,-100,-100,-105,
+ };
+ 
+-static int _psy_ath_abs_16[4]={
+-  -130,-130,-130,-140,
++static int _psy_ath_abs_16[5]={
++  -130,-130,-130,-130,-140,
+ };
+ 
+ 
+diff -Naur libvorbis-1.1.2.orig/lib/modes/psych_44.h libvorbis-1.1.2/lib/modes/psych_44.h
+--- libvorbis-1.1.2.orig/lib/modes/psych_44.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/psych_44.h	2006-03-06 15:46:45.000000000 +0000
+@@ -18,8 +18,23 @@
+ 
+ /* preecho trigger settings *****************************************/
+ 
+-static vorbis_info_psy_global _psy_global_44[5]={
+-
++static vorbis_info_psy_global _psy_global_44[6]={
++/*
++  { lines per eighth octave,
++   { pre-echo thresh.}, 
++   { post-echo thresh.}, stretch penalty, pre-echo minimum energy,
++   ampmax att 1/sec,
++   {coupling point(kHz)},{{coupling point limit0},{coupling point limit1}},
++     {coupling pre-point amp},{coupling post-point amp},{{sliding lowpass0},{sliding lowpass1}}
++  },
++*/
++/* q-2 */
++  {8,   /* lines per eighth octave */
++   {24.f,14.f,14.f,14.f,14.f,14.f,14.f}, 
++   {-60.f,-30.f,-40.f,-40.f,-40.f,-40.f,-40.f}, 2,-75.f,
++   -6.f,
++   {99.},{{99.},{99.}},{0},{0},{{0.},{0.}}
++  },
+   {8,   /* lines per eighth octave */
+    {20.f,14.f,12.f,12.f,12.f,12.f,12.f}, 
+    {-60.f,-30.f,-40.f,-40.f,-40.f,-40.f,-40.f}, 2,-75.f,
+@@ -39,14 +54,16 @@
+    {99.},{{99.},{99.}},{0},{0},{{0.},{0.}}
+   },
+   {8,   /* lines per eighth octave */
+-   {10.f,8.f,8.f,8.f,8.f,8.f,8.f}, 
++//   {10.f,8.f,8.f,8.f,8.f,8.f,8.f}, 
++   {10.f,8.f,8.f,6.f,6.f,6.f,7.f},
+    {-20.f,-15.f,-12.f,-12.f,-12.f,-12.f,-12.f}, 0,-80.f,
+    -6.f,
+    {99.},{{99.},{99.}},{0},{0},{{0.},{0.}}
+   },
+   {8,   /* lines per eighth octave */
+    {10.f,6.f,6.f,6.f,6.f,6.f,6.f}, 
+-   {-15.f,-15.f,-12.f,-12.f,-12.f,-12.f,-12.f}, 0,-85.f,
++//   {-15.f,-15.f,-12.f,-12.f,-12.f,-12.f,-12.f}, 0,-85.f,
++   {-15.f,-14.f,-10.f,-10.f,-10.f,-11.f,-12.f}, 0,-85.f,
+    -6.f,
+    {99.},{{99.},{99.}},{0},{0},{{0.},{0.}}
+   },
+@@ -56,35 +73,55 @@
+ static compandblock _psy_compand_44[6]={
+   /* sub-mode Z short */
+   {{
+-    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
+-    8, 9,10,11,12,13,14, 15,     /* 15dB */
+-    16,17,18,19,20,21,22, 23,     /* 23dB */
+-    24,25,26,27,28,29,30, 31,     /* 31dB */
+-    32,33,34,35,36,37,38, 39,     /* 39dB */
++//    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
++//    8, 9,10,11,12,13,14, 15,     /* 15dB */
++//    16,17,18,19,20,21,22, 23,     /* 23dB */
++//    24,25,26,27,28,29,30, 31,     /* 31dB */
++//    32,33,34,35,36,37,38, 39,     /* 39dB */
++     0, 1, 2, 3, 4, 5, 6,  6,     /* 7dB */
++     6, 6, 7, 7, 7, 7, 8,  8,     /* 15dB */
++     9,10,11,12,13,14,15, 16,     /* 23dB */
++    17,17,18,19,20,21,22, 23,     /* 31dB */
++    23,24,25,26,27,28,29, 30,     /* 39dB */
+   }},
+   /* mode_Z nominal short */
+   {{
++//     0, 1, 2, 3, 4, 5, 6,  6,     /* 7dB */
++//     7, 7, 7, 7, 6, 6, 6,  7,     /* 15dB */
++//     7, 8, 9,10,11,12,13, 14,     /* 23dB */
++//    15,16,17,17,17,18,18, 19,     /* 31dB */
++//    19,19,20,21,22,23,24, 25,     /* 39dB */
+      0, 1, 2, 3, 4, 5, 6,  6,     /* 7dB */
+-     7, 7, 7, 7, 6, 6, 6,  7,     /* 15dB */
++     6, 6, 7, 7, 7, 7, 7,  7,     /* 15dB */
+      7, 8, 9,10,11,12,13, 14,     /* 23dB */
+     15,16,17,17,17,18,18, 19,     /* 31dB */
+     19,19,20,21,22,23,24, 25,     /* 39dB */
+   }},
+   /* mode A short */
+   {{
++//    0, 1, 2, 3, 4, 5, 5,  5,     /* 7dB */
++//    6, 6, 6, 5, 4, 4, 4,  4,     /* 15dB */
++//    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
++//    7, 7, 7, 8, 8, 8, 9, 10,     /* 31dB */
++//    11,12,13,14,15,16,17, 18,     /* 39dB */
+     0, 1, 2, 3, 4, 5, 5,  5,     /* 7dB */
+-    6, 6, 6, 5, 4, 4, 4,  4,     /* 15dB */
+-    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
+-    7, 7, 7, 8, 8, 8, 9, 10,     /* 31dB */
++    6, 6, 6, 6, 6, 6, 6,  6,     /* 15dB */
++    6, 6, 6, 6, 6, 7, 7,  7,     /* 23dB */
++    8, 8, 8, 9, 9, 9,10, 11,     /* 31dB */
+     11,12,13,14,15,16,17, 18,     /* 39dB */
+   }},
+   /* sub-mode Z long */
+   {{
++//     0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
++//     8, 9,10,11,12,13,14, 15,     /* 15dB */
++//    16,17,18,19,20,21,22, 23,     /* 23dB */
++//    24,25,26,27,28,29,30, 31,     /* 31dB */
++//    32,33,34,35,36,37,38, 39,     /* 39dB */
+      0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
+-     8, 9,10,11,12,13,14, 15,     /* 15dB */
+-    16,17,18,19,20,21,22, 23,     /* 23dB */
+-    24,25,26,27,28,29,30, 31,     /* 31dB */
+-    32,33,34,35,36,37,38, 39,     /* 39dB */
++     8, 9,10,11,12,12,13, 13,     /* 15dB */
++    13,14,14,15,15,16,16, 16,     /* 23dB */
++    17,17,18,19,20,21,22, 23,     /* 31dB */
++    23,24,25,26,27,28,29, 30,     /* 39dB */
+   }},
+   /* mode_Z nominal long */
+   {{
+@@ -96,172 +133,190 @@
+   }},
+   /* mode A long */
+   {{
++//    0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
++//    8, 8, 7, 6, 5, 4, 4,  4,     /* 15dB */
++//    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
++//    7, 7, 7, 8, 8, 8, 9, 10,     /* 31dB */
++//    11,12,13,14,15,16,17, 18,     /* 39dB */
+     0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
+-    8, 8, 7, 6, 5, 4, 4,  4,     /* 15dB */
+-    4, 4, 5, 5, 5, 6, 6,  6,     /* 23dB */
+-    7, 7, 7, 8, 8, 8, 9, 10,     /* 31dB */
++    7, 7, 7, 6, 6, 6, 6,  6,     /* 15dB */
++    6, 6, 6, 6, 6, 7, 7,  7,     /* 23dB */
++    8, 8, 8, 9, 9, 9,10, 11,     /* 31dB */
+     11,12,13,14,15,16,17, 18,     /* 39dB */
+   }}
+ };
+ 
+ /* tonal masking curve level adjustments *************************/
+ 
+-static vp_adjblock _vp_tonemask_adj_longblock[12]={
+-
++static vp_adjblock _vp_tonemask_adj_longblock[13]={
+    /* 63     125     250     500       1       2       4       8      16 */
+ 
+-   {{ -3, -8,-13,-15,-10,-10,-10,-10,-10,-10,-10,  0,  0,  0,  0,  0,  0}}, /* -1 */
++// {{ -3, -9,-12,-12,-10,-10,-10,-10,-10,-10,-10, -1,  0,  0,  1,  1,  1}}, /* -2(addition) */
++   {{-14,-14,-14,-14,-14,-14,-14,-14,-13,-11,-11,-11,-10, -4, -2, -2,  1}},
+ 
++// {{ -3, -9,-12,-12,-11,-11,-11,-11,-11,-11,-10, -1, -1,  0,  0,  0,  0}}, /* -1 */
++   {{-15,-15,-15,-15,-15,-15,-15,-15,-14,-13,-13,-13,-13, -6, -4, -5,  0}}, 
++   
+ /* {{-15,-15,-15,-15,-10, -8, -4, -2,  0,  0,  0, 10,  0,  0,  0,  0,  0}},    0 */
+-   {{ -4,-10,-14,-16,-15,-14,-13,-12,-12,-12,-11, -1, -1, -1, -1, -1,  0}}, /* 0 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 0 */
+ 
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  5,  0,  0,  0,  0,  0}},    1 */
+-   {{ -6,-12,-14,-16,-15,-15,-14,-13,-13,-12,-12, -2, -2, -1, -1, -1,  0}}, /* 1 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 1 */
+ 
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    2 */
+-   {{-12,-13,-14,-16,-16,-16,-15,-14,-13,-12,-12, -6, -3, -1, -1, -1,  0}}, /* 2 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 2 */
++   
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    3 */
+-   {{-15,-15,-15,-16,-16,-16,-16,-14,-13,-13,-13,-10, -4, -2, -1, -1,  0}}, /* 3 */
+-
+-/* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}}, *//* 4 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-13,-11, -7  -3, -1, -1 , 0}}, /* 4 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 3 */
++   
++/* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    4 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 4 */
++   
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    5 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-13,-11, -7  -3, -1, -1 , 0}}, /* 5 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}},/* 5 */
++   
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    6 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -8, -4, -2, -2,  0}}, /* 6 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 6 */
++   
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    7 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 7 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 7 */
+ 
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    8 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 8 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 8 */
+ 
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    9 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 9 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 9 */
+ 
+ /* {{-15,-15,-15,-15,-15,-12,-10, -8,  0,  0,  0,  0,  0,  0,  0,  0,  0}},    10 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 10 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 10 */
+ };
+-
+-static vp_adjblock _vp_tonemask_adj_otherblock[12]={
++static vp_adjblock _vp_tonemask_adj_otherblock[13]={
+    /* 63     125     250     500       1       2       4       8      16 */
+ 
+-   {{ -3, -8,-13,-15,-10,-10, -9, -9, -9, -9, -9,  1,  1,  1,  1,  1,  1}}, /* -1 */
++// {{ -3, -9,-12,-12,-10,-10,-10,-10,-10,-10,-10, -1,  0,  0,  1,  1,  1}}, /* -2(addition) */
++   {{-14,-14,-14,-14,-14,-14,-14,-14,-13,-11,-11,-11, -7, -3, -2, -2,  1}},
+ 
++// {{ -3, -9,-12,-12,-11,-11,-11,-11,-11,-11,-10, -1, -1,  0,  0,  0,  0}}, /* -1 */
++   {{-15,-15,-15,-15,-15,-15,-15,-15,-14,-13,-13,-13,-12, -5, -3, -4,  0}},
++   
+ /* {{-20,-20,-20,-20,-14,-12,-10, -8, -4,  0,  0, 10,  0,  0,  0,  0,  0}},    0 */
+-   {{ -4,-10,-14,-16,-14,-13,-12,-12,-11,-11,-10,  0,  0,  0,  0,  0,  0}}, /* 0 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 0 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  5,  0,  0,  0,  0,  0}},    1 */
+-   {{ -6,-12,-14,-16,-15,-15,-14,-13,-13,-12,-12, -2, -2, -1,  0,  0,  0}}, /* 1 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 1 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    2 */
+-   {{-12,-13,-14,-16,-16,-16,-15,-14,-13,-12,-12, -5, -2, -1,  0,  0,  0}}, /* 2 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 2 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    3 */
+-   {{-15,-15,-15,-16,-16,-16,-16,-14,-13,-13,-13,-10, -4, -2,  0,  0,  0}}, /* 3 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -7, -5, -6,  0}}, /* 3 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    4 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-13,-11, -7  -3, -1, -1 , 0}}, /* 4 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 4 */
++   
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    5 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-13,-11, -7  -3, -1, -1 , 0}}, /* 5 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 5 */
++   
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    6 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -8, -4, -2, -2,  0}}, /* 6 */
+-
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 6 */
++   
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    7 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 7 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 7 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    8 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 8 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 8 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    9 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 9 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 9 */
+ 
+ /* {{-20,-20,-20,-20,-20,-18,-16,-14,-10,  0,  0,  0,  0,  0,  0,  0,  0}},    10 */
+-   {{-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-12, -9, -4, -2, -2,  0}}, /* 10 */
++   {{-16,-16,-16,-16,-16,-16,-16,-16,-15,-14,-14,-14,-14, -9, -7, -8,  0}}, /* 10 */
+ };
+ 
+ /* noise bias (transition block) */
+-static noise3 _psy_noisebias_trans[12]={
++static noise3 _psy_noisebias_trans[13]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+-  /* -1 */
++  /* -2(addition mode) */
+   {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-26,-26,-26,-24,-22,-16,-12, -6, -2,  2,  2,  2,  6,  7,  8,  8, 13},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
++  /* -1 */
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
+     {-30,-30,-30,-30,-26,-20,-16, -8, -6, -6, -2,  2,  2,  3,  6,  6, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},*/
++  {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-18,-10, -4,  0,  0,  0,  1,  2,  5,  5, 13},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
+-  /* 0 
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
++  /* 0 */
++/*{{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
+     {-30,-30,-30,-30,-26,-22,-20,-14, -8, -4,  0,  0,  0,  0,  2,  4,  10},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -4, -4, -4,  -2}}},*/
+-  {{{-15,-15,-15,-15,-15,-12, -6, -4,  0,  2,  4,  4,  5,  5,  5,  8,  10},
+-    {-30,-30,-30,-30,-26,-22,-20,-14, -8, -4,  0,  0,  0,  0,  2,  3,   6},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -4, -4, -4,  -2}}},
+-  /* 1 
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
++  {{{-15,-15,-15,-15,-15,-12, -6, -4,  0,  2,  4,  4,  5,  5,  5,  8, 10},
++    {-30,-30,-30,-30,-26,-22,-20,-12, -6,  0,  0,  0,  0,  1,  2,  3,  6},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -4, -4, -4, -2}}},
++  /* 1 */
++/*{{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8, 10},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  8},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},*/
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8,  10},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  1,   4},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6,  -4}}},
+-  /* 2 
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
++  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  4,  4,  5,  5,  5,  8, 10},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2, -1,  1,  4},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},
++  /* 2 */
++/*{{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6, 10},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  6},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}}, */
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -2, -1,  0,  3},
++  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6, 10},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  3},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -7, -4}}},
+-  /* 3 
+-  {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
++  /* 3 */
++/*{{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  6},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
+   {{{-15,-15,-15,-15,-15,-12,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  2},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  3},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},
+-  /* 4 
+-  {{{-20,-20,-20,-20,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
++  /* 4 */
++/*{{{-20,-20,-20,-20,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  5},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
+   {{{-20,-20,-20,-20,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2, -1,  1},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  1},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},
+-  /* 5 
+-  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
++  /* 5 */
++/*{{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-32,-32,-32,-32,-28,-24,-22,-16,-12, -6, -4, -4, -4, -4, -2, -1,  2},
+     {-34,-34,-34,-34,-30,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}}, */
+   {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-32,-32,-32,-32,-28,-24,-22,-16,-12, -6, -4, -4, -4, -4, -3, -1,  0},
+     {-34,-34,-34,-34,-30,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}},
+-  /* 6 
+-  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
++  /* 6 */
++/*{{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-32,-32,-32,-32,-28,-24,-24,-18,-14, -8, -6, -6, -6, -6, -4, -2,  1},
+     {-34,-34,-34,-34,-30,-26,-24,-18,-17,-15,-15,-15,-15,-13,-13,-12, -8}}},*/
+   {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+-    {-32,-32,-32,-32,-28,-24,-24,-18,-14, -8, -6, -6, -6, -6, -5, -2,  0},
+-    {-34,-34,-34,-34,-30,-26,-26,-24,-22,-19,-19,-19,-19,-18,-17,-16,-12}}},
+-  /* 7 
+-  {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-14, -8, -6, -6, -6, -6, -4, -2,  0},
++    {-34,-34,-34,-34,-30,-26,-24,-18,-17,-15,-15,-15,-15,-13,-13,-12, -8}}},
++  /* 7 */
++/*{{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-32,-32,-32,-32,-28,-24,-24,-18,-14,-12,-10, -8, -8, -8, -6, -4,  0},
+     {-34,-34,-34,-34,-30,-26,-26,-24,-22,-19,-19,-19,-19,-18,-17,-16,-12}}},*/
+   {{{-24,-24,-24,-24,-20,-18,-14, -8, -1,  1,  1,  1,  2,  3,  3,  4,  7},
+-    {-32,-32,-32,-32,-28,-24,-24,-24,-18,-14,-12,-10,-10,-10, -8, -6, -2},
+-    {-34,-34,-34,-34,-30,-26,-26,-26,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},
+-  /* 8 
+-  {{{-24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-14,-12,-10, -8, -8, -8, -6, -4,  0},
++    {-34,-34,-34,-34,-30,-26,-26,-24,-22,-19,-19,-19,-19,-18,-17,-16,-12}}},
++  /* 8 */
++/*{{{-24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7},
+     {-36,-36,-36,-36,-30,-30,-30,-24,-18,-14,-12,-10,-10,-10, -8, -6, -2},
+     {-36,-36,-36,-36,-34,-30,-28,-26,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},*/
+-  {{{-24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7}, 
+-    {-36,-36,-36,-36,-30,-30,-30,-24,-20,-16,-16,-16,-16,-14,-12,-10, -7},
+-    {-36,-36,-36,-36,-34,-30,-28,-26,-24,-30,-30,-30,-30,-30,-30,-24,-20}}},
+-  /* 9 
+-  {{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
++  {{{-24,-24,-24,-24,-22,-20,-15,-10, -8, -2,  0,  0,  0,  1,  2,  3,  7},
++    {-34,-34,-34,-34,-30,-30,-30,-24,-18,-14,-12,-10,-10,-10, -8, -6, -2},
++    {-36,-36,-36,-36,-34,-30,-28,-26,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},
++  /* 9 */
++/*{{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
+     {-36,-36,-36,-36,-34,-32,-32,-28,-20,-16,-16,-16,-16,-14,-12,-10, -7},
+     {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-24,-20}}},*/
+   {{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
+-    {-38,-38,-38,-38,-36,-34,-34,-30,-24,-20,-20,-20,-20,-18,-16,-12,-10},
+-    {-40,-40,-40,-40,-40,-40,-40,-38,-35,-35,-35,-35,-35,-35,-35,-35,-30}}},
++    {-36,-36,-36,-36,-34,-32,-32,-28,-20,-16,-16,-16,-16,-14,-12,-10, -7},
++    {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-24,-20}}},
+   /* 10 */
+   {{{-30,-30,-30,-30,-30,-30,-30,-28,-20,-14,-14,-14,-14,-14,-14,-12,-10},
+     {-40,-40,-40,-40,-40,-40,-40,-40,-35,-30,-30,-30,-30,-30,-30,-30,-20},
+@@ -269,62 +324,68 @@
+ };
+ 
+ /*  noise bias (long block) */
+-static noise3 _psy_noisebias_long[12]={
+-  /*63     125     250     500      1k       2k      4k      8k     16k*/
++static noise3 _psy_noisebias_long[13]={
++  /*  63     125     250     500      1k       2k      4k      8k     16k*/
++  /* -2(addition mode) */
++  {{{-10,-10,-10,-10,-10, -4,  0,  0,  2,  6,  6,  6,  6, 10, 10, 12, 20},
++    {-20,-20,-20,-20,-20,-20,-10, -2,  2,  2,  2,  2,  3,  5,  8,  8, 13},
++    {-20,-20,-20,-20,-20,-20,-20,-10, -6, -6, -6, -6, -6, -4, -4, -4, -2}}},
+   /* -1 */
+-  {{{-10,-10,-10,-10,-10, -4,  0,  0,  0,  6,  6,  6,  6, 10, 10, 12,  20},
+-    {-20,-20,-20,-20,-20,-20,-10, -2,  0,  0,  0,  0,  0,  2,  4,  6,  15},
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  0,  6,  6,  6,  6, 10, 10, 12, 20},
++    {-20,-20,-20,-20,-20,-20,-10, -2,  0,  0,  0,  0,  0,  2,  4,  6, 15},
++    {-20,-20,-20,-20,-20,-20,-20,-10, -6, -6, -6, -6, -6, -4, -4, -4, -2}}},*/
++  {{{-10,-10,-10,-10,-10, -4,  0,  0,  0,  6,  6,  6,  6, 10, 10, 12, 20},
++    {-20,-20,-20,-20,-20,-20,-12, -4,  0,  0,  0,  0,  0,  1,  4,  4, 13},
+     {-20,-20,-20,-20,-20,-20,-20,-10, -6, -6, -6, -6, -6, -4, -4, -4, -2}}},
+-
+   /* 0 */
+-  /*  {{{-10,-10,-10,-10,-10,-10, -8,  2,  2,  2,  4,  4,  5,  5,  5,  8,  10},
+-      {-20,-20,-20,-20,-20,-20,-20,-14, -6,  0,  0,  0,  0,  0,  2,  4,  10},
+-      {-20,-20,-20,-20,-20,-20,-20,-14, -8, -6, -6, -6, -6, -4, -4, -4, -2}}},*/
+-  {{{-10,-10,-10,-10,-10,-10, -8,  2,  2,  2,  4,  4,  5,  5,  5,  8,  10},
+-    {-20,-20,-20,-20,-20,-20,-20,-14, -6,  0,  0,  0,  0,  0,  2,  3,  6},
++/*{{{-10,-10,-10,-10,-10,-10, -8,  2,  2,  2,  4,  4,  5,  5,  5,  8,  10},
++    {-20,-20,-20,-20,-20,-20,-20,-14, -6,  0,  0,  0,  0,  0,  2,  4,  10},
++    {-20,-20,-20,-20,-20,-20,-20,-14, -8, -6, -6, -6, -6, -4, -4, -4, -2}}},*/
++  {{{-10,-10,-10,-10,-10,-10, -8,  2,  2,  2,  4,  4,  5,  5,  5,  8, 10},
++    {-20,-20,-20,-20,-20,-20,-20,-12, -6,  0,  0,  0,  0,  1,  2,  3,  6},
+     {-20,-20,-20,-20,-20,-20,-20,-14, -8, -6, -6, -6, -6, -4, -4, -4, -2}}},
+   /* 1 */
+-  /*  {{{-10,-10,-10,-10,-10,-10, -8, -4,  0,  2,  4,  4,  5,  5,  5,  8,  10},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  8},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},*/
+-  {{{-10,-10,-10,-10,-10,-10, -8, -4,  0,  2,  4,  4,  5,  5,  5,  8,  10},
+-    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2,  0,  1,  4},
++/*{{{-10,-10,-10,-10,-10,-10, -8, -4,  0,  2,  4,  4,  5,  5,  5,  8, 10},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  8},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},*/
++  {{{-10,-10,-10,-10,-10,-10, -8, -4,  0,  2,  4,  4,  5,  5,  5,  8, 10},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2, -1,  1,  4},
+     {-20,-20,-20,-20,-20,-20,-20,-14,-10, -8, -8, -8, -8, -6, -6, -6, -4}}},
+   /* 2 */
+-  /*  {{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  6},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
+-  {{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6,  10},
+-    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -2, -1,  0,  3},
++/*{{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6, 10},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -2, -2, -2, -2,  0,  2,  6},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
++  {{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  5,  6, 10},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  3},
+     {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},
+   /* 3 */
+-  /*  {{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  6},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
++/*{{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  6},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
+   {{{-10,-10,-10,-10,-10,-10,-10, -8,  0,  2,  2,  2,  4,  4,  4,  5,  8},
+-    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  2},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  3},
+     {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -5}}},
+   /* 4 */
+-  /*  {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  5},
+-      {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
++/*{{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -1,  1,  5},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -4}}},*/
+   {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+-    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -2, -1,  1},
++    {-20,-20,-20,-20,-20,-20,-20,-14,-10, -4, -3, -3, -3, -3, -2,  0,  1},
+     {-20,-20,-20,-20,-20,-20,-20,-14,-10,-10,-10,-10,-10, -8, -8, -8, -7}}},
+   /* 5 */
+-  /*  {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+-      {-22,-22,-22,-22,-22,-22,-22,-16,-12, -6, -4, -4, -4, -4, -2, -1,  2},
+-      {-24,-24,-24,-24,-24,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}},*/
++/*{{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
++    {-22,-22,-22,-22,-22,-22,-22,-16,-12, -6, -4, -4, -4, -4, -2, -1,  2},
++    {-24,-24,-24,-24,-24,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -5}}},*/
+   {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-22,-22,-22,-22,-22,-22,-22,-16,-12, -6, -4, -4, -4, -4, -3, -1,  0},
+     {-24,-24,-24,-24,-24,-24,-24,-18,-14,-12,-12,-12,-12,-10,-10, -9, -8}}},
+   /* 6 */
+-  /*  {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+-      {-24,-24,-24,-24,-24,-24,-24,-18,-14, -8, -6, -6, -6, -6, -4, -2,  1},
+-      {-26,-26,-26,-26,-26,-26,-26,-18,-16,-15,-15,-15,-15,-13,-13,-12, -8}}},*/
++/*{{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
++    {-24,-24,-24,-24,-24,-24,-24,-18,-14, -8, -6, -6, -6, -6, -4, -2,  1},
++    {-26,-26,-26,-26,-26,-26,-26,-18,-16,-15,-15,-15,-15,-13,-13,-12, -8}}},*/
+   {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+-    {-24,-24,-24,-24,-24,-24,-24,-18,-14, -8, -6, -6, -6, -6, -5, -2,  0},
+-    {-26,-26,-26,-26,-26,-26,-26,-18,-16,-15,-15,-15,-15,-13,-13,-12,-10}}},
++    {-24,-24,-24,-24,-24,-24,-24,-18,-14, -8, -6, -6, -6, -6, -4, -2,  0},
++    {-26,-26,-26,-26,-26,-26,-26,-18,-16,-15,-15,-15,-15,-13,-13,-12, -8}}},
+   /* 7 */
+   {{{-15,-15,-15,-15,-15,-15,-15,-10, -4,  1,  1,  1,  2,  3,  3,  4,  7},
+     {-24,-24,-24,-24,-24,-24,-24,-18,-14,-10, -8, -8, -8, -8, -6, -4,  0},
+@@ -344,23 +405,32 @@
+ };
+ 
+ /* noise bias (impulse block) */
+-static noise3 _psy_noisebias_impulse[12]={
++static noise3 _psy_noisebias_impulse[13]={
+   /*  63     125     250     500      1k      2k      4k      8k     16k*/
+-  /* -1 */
++  /* -2(addition mode) */
+   {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-26,-26,-26,-24,-22,-16,-12, -6, -2,  2,  2,  2,  6,  7,  8,  8, 13},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
++  /* -1 */
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
+     {-30,-30,-30,-30,-26,-20,-16, -8, -6, -6, -2,  2,  2,  3,  6,  6, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},*/
++  {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-18,-10, -4,  0,  0,  0,  1,  2,  5,  5, 13},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
+-
+   /* 0 */
+-  /*  {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  4,  8,  8,  8, 10, 12, 14, 20},
+-      {-30,-30,-30,-30,-26,-22,-20,-14, -6, -2,  0,  0,  0,  0,  2,  4,  10},
+-      {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},*/
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  4,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-20,-14, -6, -2,  0,  0,  0,  0,  2,  4, 10},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},*/
+   {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  4,  8,  8,  8, 10, 12, 14, 20},
+-    {-30,-30,-30,-30,-26,-22,-20,-14, -6, -2,  0,  0,  0,  0,  2,  3,  6},
++    {-30,-30,-30,-30,-26,-22,-20,-12, -6,  0,  0,  0,  0,  1,  2,  3,  6},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
+   /* 1 */
+-  {{{-12,-12,-12,-12,-12, -8, -6, -4,  0,  4,  4,  4,  4, 10, 12, 14, 20},
++/*{{{-12,-12,-12,-12,-12, -8, -6, -4,  0,  4,  4,  4,  4, 10, 12, 14, 20},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -4, -4, -2, -2, -2, -2,  2},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8,-10,-10, -8, -8, -8, -6, -4}}},*/
++  {{{-12,-12,-12,-12,-12, -8, -6, -4,  0,  4,  4,  4,  4, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2, -2, -2, -2, -2,  0,  2},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8,-10,-10, -8, -8, -8, -6, -4}}},
+   /* 2 */
+   {{{-14,-14,-14,-14,-14,-10, -8, -6, -2,  2,  2,  2,  2,  8, 10, 10, 16},
+@@ -375,36 +445,33 @@
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -4, -4, -4, -2,  0},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10,-10,-10,-10,-10,-10,-10, -8, -4}}},
+   /* 5 */
+-  {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
++/*{{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
+     {-32,-32,-32,-32,-28,-24,-22,-16,-10, -6, -8, -8, -6, -6, -6, -4, -2},
+-    {-34,-34,-34,-34,-30,-26,-24,-18,-14,-12,-12,-12,-12,-12,-10, -9, -5}}},
+-  /* 6 
++    {-34,-34,-34,-34,-30,-26,-24,-18,-14,-12,-12,-12,-12,-12,-10, -9, -5}}},*/
+   {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
+-      {-34,-34,-34,-34,-30,-30,-24,-20,-12,-12,-14,-14,-10, -9, -8, -6, -4},
+-      {-34,-34,-34,-34,-34,-30,-26,-20,-16,-15,-15,-15,-15,-15,-13,-12, -8}}},*/
++    {-32,-32,-32,-32,-28,-24,-22,-16,-12, -8, -8, -8, -6, -6, -6, -4, -2},
++    {-34,-34,-34,-34,-30,-26,-24,-18,-14,-12,-12,-12,-12,-12,-10, -9, -5}}},
++  /* 6 */
++/*{{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-12,-12,-14,-14,-10, -9, -8, -6, -4},
++    {-34,-34,-34,-34,-34,-30,-26,-20,-16,-15,-15,-15,-15,-15,-13,-12, -8}}},*/
+   {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  4,  6, 11},
+-    {-34,-34,-34,-34,-30,-30,-30,-24,-16,-16,-16,-16,-16,-16,-14,-14,-12},
+-    {-36,-36,-36,-36,-36,-34,-28,-24,-20,-20,-20,-20,-20,-20,-20,-18,-16}}},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-14,-14,-14,-14,-10, -9, -8, -6, -4},
++    {-34,-34,-34,-34,-34,-30,-26,-20,-16,-15,-15,-15,-15,-15,-13,-12, -8}}},
+   /* 7 */
+-  /*  {{{-22,-22,-22,-22,-22,-20,-14,-10, -6,  0,  0,  0,  0,  4,  4,  6, 11},
+-      {-34,-34,-34,-34,-30,-30,-24,-20,-14,-14,-16,-16,-14,-12,-10,-10,-10},
+-      {-34,-34,-34,-34,-32,-32,-30,-24,-20,-19,-19,-19,-19,-19,-17,-16,-12}}},*/
++/*{{{-22,-22,-22,-22,-22,-20,-14,-10, -6,  0,  0,  0,  0,  4,  4,  6, 11},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-14,-14,-16,-16,-14,-12,-10,-10,-10},
++    {-34,-34,-34,-34,-32,-32,-30,-24,-20,-19,-19,-19,-19,-19,-17,-16,-12}}},*/
+   {{{-22,-22,-22,-22,-22,-20,-14,-10, -6,  0,  0,  0,  0,  4,  4,  6, 11},
+-    {-34,-34,-34,-34,-30,-30,-30,-30,-26,-26,-26,-26,-26,-26,-26,-24,-22},
+-    {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-30,-24}}},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-16,-16,-16,-16,-14,-12,-10,-10,-10},
++    {-34,-34,-34,-34,-32,-32,-30,-24,-20,-19,-19,-19,-19,-19,-17,-16,-12}}},
+   /* 8 */
+-  /*  {{{-24,-24,-24,-24,-24,-22,-14,-10, -6, -1, -1, -1, -1,  3,  3,  5, 10},
+-      {-34,-34,-34,-34,-30,-30,-30,-24,-20,-20,-20,-20,-20,-18,-16,-16,-14},
+-      {-36,-36,-36,-36,-36,-34,-28,-24,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},*/
+   {{{-24,-24,-24,-24,-24,-22,-14,-10, -6, -1, -1, -1, -1,  3,  3,  5, 10},
+-    {-34,-34,-34,-34,-34,-32,-32,-30,-26,-26,-26,-26,-26,-26,-26,-26,-24},
+-    {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-30,-24}}},
++    {-34,-34,-34,-34,-30,-30,-30,-24,-20,-20,-20,-20,-20,-18,-16,-16,-14},
++    {-36,-36,-36,-36,-36,-34,-28,-24,-24,-24,-24,-24,-24,-24,-24,-20,-16}}},
+   /* 9 */
+-  /*  {{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
+-      {-36,-36,-36,-36,-34,-32,-32,-30,-26,-26,-26,-26,-26,-22,-20,-20,-18},
+-      {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-24,-20}}},*/
+   {{{-28,-28,-28,-28,-28,-28,-28,-20,-14, -8, -4, -4, -4, -4, -4, -2,  2},
+-    {-36,-36,-36,-36,-34,-32,-32,-30,-26,-26,-26,-26,-26,-26,-26,-26,-26},
++    {-36,-36,-36,-36,-34,-32,-32,-30,-26,-26,-26,-26,-26,-22,-20,-20,-18},
+     {-40,-40,-40,-40,-40,-40,-40,-32,-30,-30,-30,-30,-30,-30,-30,-24,-20}}},
+   /* 10 */
+   {{{-30,-30,-30,-30,-30,-26,-24,-24,-24,-20,-16,-16,-16,-16,-16,-14,-12},
+@@ -413,28 +480,33 @@
+ };
+ 
+ /* noise bias (padding block) */
+-static noise3 _psy_noisebias_padding[12]={
++static noise3 _psy_noisebias_padding[13]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
+-  
+-  /* -1 */
++  /* -2(addition mode) */
+   {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
+-    {-30,-30,-30,-30,-26,-20,-16, -8, -6, -6, -2,  2,  2,  3,  6,  6, 15},
++    {-26,-26,-26,-24,-22,-16,-12, -6, -2,  2,  2,  2,  6,  7,  8,  8, 15},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},
+-
+-  /* 0 */
++  /* -1 */
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-20,-16, -8, -6, -6, -2,  2,  2,  3,  6,  6, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, -6, -4, -2}}},*/
+   {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-18,-10, -4,  0,  0,  1,  2,  3,  6,  6, 15},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -4, -4, -4, -4, -4, -2,  0,  2}}},
++  /* 0 */
++/*{{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -2,  2,  3,  6,  6,  8, 10},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -4, -4, -4, -4, -2,  0,  2}}},*/
++  {{{-10,-10,-10,-10,-10, -4,  0,  0,  4,  8,  8,  8,  8, 10, 12, 14, 20},
++    {-30,-30,-30,-30,-26,-22,-20,-12, -6,  0,  0,  0,  2,  4,  4,  6, 10},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4, -4, -4, -4, -4, -2,  0,  2}}},
+   /* 1 */
+   {{{-12,-12,-12,-12,-12, -8, -6, -4,  0,  4,  4,  4,  4, 10, 12, 14, 20},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4,  0,  0,  0,  2,  2,  4,  8},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -6, -6, -6, -6, -4, -2,  0}}},
+   /* 2 */
+-  /*  {{{-14,-14,-14,-14,-14,-10, -8, -6, -2,  2,  2,  2,  2,  8, 10, 10, 16},
+-      {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4,  0,  0,  0,  2,  2,  4,  8},
+-      {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -8, -6, -4, -2}}},*/
+   {{{-14,-14,-14,-14,-14,-10, -8, -6, -2,  2,  2,  2,  2,  8, 10, 10, 16},
+-    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -6, -1, -1, -1,  0,  0,  2,  6},
++    {-30,-30,-30,-30,-26,-22,-20,-14,-10, -4,  0,  0,  0,  2,  2,  4,  8},
+     {-30,-30,-30,-30,-26,-22,-20,-14,-10, -8, -8, -8, -8, -8, -6, -4, -2}}},
+   /* 3 */
+   {{{-14,-14,-14,-14,-14,-10, -8, -6, -2,  2,  2,  2,  2,  6,  8,  8, 14},
+@@ -453,8 +525,11 @@
+     {-34,-34,-34,-34,-30,-30,-24,-20,-14, -8, -4, -4, -4, -4, -3, -1,  4},
+     {-34,-34,-34,-34,-34,-30,-26,-20,-16,-13,-13,-13,-13,-13,-11, -8, -6}}},
+   /* 7 */
+-  {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  6,  6, 12},
++/*{{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  6,  6, 12},
+     {-34,-34,-34,-34,-30,-30,-30,-24,-16,-10, -8, -6, -6, -6, -5, -3,  1},
++    {-34,-34,-34,-34,-32,-32,-28,-22,-18,-16,-16,-16,-16,-16,-14,-12,-10}}},*/
++  {{{-20,-20,-20,-20,-20,-18,-14,-10, -4,  0,  0,  0,  0,  4,  6,  6, 12},
++    {-34,-34,-34,-34,-30,-30,-24,-20,-14,-10, -8, -6, -6, -6, -5, -3,  1},
+     {-34,-34,-34,-34,-32,-32,-28,-22,-18,-16,-16,-16,-16,-16,-14,-12,-10}}},
+   /* 8 */
+   {{{-22,-22,-22,-22,-22,-20,-14,-10, -4,  0,  0,  0,  0,  3,  5,  5, 11},
+@@ -478,14 +553,17 @@
+   {10,10,100},
+ };
+ 
+-static int _psy_tone_suppress[12]={
+-  -20,-20,-20,-20,-20,-24,-30,-40,-40,-45,-45,-45,
+-};
+-static int _psy_tone_0dB[12]={
+-  90,90,95,95,95,95,105,105,105,105,105,105,
+-};
+-static int _psy_noise_suppress[12]={
+-  -20,-20,-24,-24,-24,-24,-30,-40,-40,-45,-45,-45,
++static int _psy_tone_suppress[13]={
++/*  -20,-20,-20,-20,-20,-24,-30,-40,-40,-45,-45,-45, */
++  -20,-20,-20,-20,-20,-20,-24,-30,-40,-40,-42,-45,-45,
++};
++static int _psy_tone_0dB[13]={
++/*  90,90,95,95,95,95,105,105,105,105,105,105, */
++   90,90,90,94,95,95,95,105,105,105,105,105,105,
++};
++static int _psy_noise_suppress[13]={
++/*  -20,-20,-24,-24,-24,-24,-30,-40,-40,-45,-45,-45, */
++  -20,-20,-20,-24,-24,-24,-24,-30,-40,-40,-42,-45,-45,
+ };
+ 
+ static vorbis_info_psy _psy_info_template={
+@@ -506,11 +584,13 @@
+ 
+ /* ath ****************/
+ 
+-static int _psy_ath_floater[12]={
+-  -100,-100,-100,-100,-100,-100,-105,-105,-105,-105,-110,-120,
+-};
+-static int _psy_ath_abs[12]={
+-  -130,-130,-130,-130,-140,-140,-140,-140,-140,-140,-140,-150,
++static int _psy_ath_floater[13]={
++/*  -100,-100,-100,-100,-100,-100,-105,-105,-105,-105,-110,-120, */
++  -100,-100,-100,-100,-100,-100,-100,-105,-105,-105,-105,-110,-120,
++};
++static int _psy_ath_abs[13]={
++/*  -130,-130,-130,-130,-140,-140,-140,-140,-140,-140,-140,-150, */
++  -130,-130,-130,-130,-130,-135,-140,-140,-140,-140,-140,-140,-150,
+ };
+ 
+ /* stereo setup.  These don't map directly to quality level, there's
+@@ -522,14 +602,22 @@
+ /* various stereo possibilities */
+ 
+ /* stereo mode by base quality level */
+-static adj_stereo _psy_stereo_modes_44[12]={
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         -1  */
+-  {{  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  1,  0,  0,  0,  0},
++static adj_stereo _psy_stereo_modes_44[13]={
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        -2(addition mode)  */
++  {{  4,  4,  4,  4,  4,  4,  4,  4,  3,  2,  1,  0,  0,  0,  0},
++   {  8,  8,  8,  8,  8,  8,  7,  6,  6,  6,  6,  6,  5,  4,  3},
++   {  1,  2,  2,  2,  2,  3,  3,  4,  4,  4,  5,  6,  7,  8,  8},
++   { 10,10.5, 11,11.5, 12,12.5, 13, 99, 99, 99, 99, 99, 99, 99, 99}},
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        -1  */
++/*{{  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  1,  0,  0,  0,  0},
+    {  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  5,  4,  3},
+    {  1,  2,  3,  4,  4,  4,  4,  4,  4,  5,  6,  7,  8,  8,  8},
++   { 12,12.5, 13,13.5, 14,14.5, 15, 99, 99, 99, 99, 99, 99, 99, 99}},*/
++  {{  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  1,  0,  0,  0,  0},
++   {  8,  8,  8,  8,  8,  7,  7,  6,  6,  6,  6,  6,  5,  4,  3},
++   {  1,  2,  3,  4,  4,  4,  4,  4,  4,  5,  6,  7,  8,  8,  8},
+    { 12,12.5, 13,13.5, 14,14.5, 15, 99, 99, 99, 99, 99, 99, 99, 99}},
+-
+-/*    0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         0  */
++ /*   0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        0  */
+ /*{{  4,  4,  4,  4,  4,  4,  4,  3,  2,  2,  1,  0,  0,  0,  0},
+    {  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  8,  5,  4,  3},
+    {  1,  2,  3,  4,  5,  5,  6,  6,  6,  6,  6,  7,  8,  8,  8},
+@@ -538,76 +626,76 @@
+    {  8,  8,  8,  8,  6,  6,  5,  5,  5,  5,  5,  5,  5,  4,  3},
+    {  1,  2,  3,  4,  4,  5,  6,  6,  6,  6,  6,  8,  8,  8,  8},
+    { 12,12.5, 13,13.5, 14,14.5, 15, 99, 99, 99, 99, 99, 99, 99, 99}},
+-
+-
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         1  */
+-  {{  3,  3,  3,  3,  3,  3,  3,  3,  2,  1,  0,  0,  0,  0,  0},
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        1  */
++/*{{  3,  3,  3,  3,  3,  3,  3,  3,  2,  1,  0,  0,  0,  0,  0},
+    {  8,  8,  8,  8,  6,  6,  5,  5,  5,  5,  5,  5,  5,  4,  3},
+    {  1,  2,  3,  4,  4,  5,  6,  6,  6,  6,  6,  8,  8,  8,  8},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
++  {{  3,  3,  3,  3,  3,  3,  3,  3,  2,  1,  0,  0,  0,  0,  0},
++   {  8,  8,  8,  8,  6,  6,  5,  4,  4,  4,  4,  4,  4,  3,  3},
++   {  1,  2,  3,  4,  4,  5,  6,  6,  6,  6,  6,  8,  8,  8,  8},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-
+-
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         2  */
+-  /*  {{  3,  3,  3,  3,  3,  3,  2,  2,  2,  1,  0,  0,  0,  0,  0},
+-      {  8,  8,  8,  6,  5,  5,  5,  5,  5,  5,  5,  4,  3,  2,  1},
+-      {  3,  4,  4,  4,  5,  6,  6,  6,  6,  6,  6,  8,  8,  8,  8},
+-      { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}}, */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        2  */
++/*{{  3,  3,  3,  3,  3,  3,  2,  2,  2,  1,  0,  0,  0,  0,  0},
++   {  8,  8,  8,  6,  5,  5,  5,  5,  5,  5,  5,  4,  3,  2,  1},
++   {  3,  4,  4,  4,  5,  6,  6,  6,  6,  6,  6,  8,  8,  8,  8},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}}, */
+   {{  3,  3,  3,  3,  3,  3,  3,  2,  1,  1,  0,  0,  0,  0,  0},
+    {  8,  8,  6,  6,  5,  5,  4,  4,  4,  4,  4,  4,  3,  2,  1},
+    {  3,  4,  4,  5,  5,  6,  6,  6,  6,  6,  6,  8,  8,  8,  8},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         3  */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        3  */
+   {{  2,  2,  2,  2,  2,  1,  1,  1,  1,  0,  0,  0,  0,  0,  0},
+    {  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  3,  2,  1},
+    {  4,  4,  5,  6,  6,  6,  6,  6,  8,  8, 10, 10, 10, 10, 10},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         4  */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        4  */
+   {{  2,  2,  2,  1,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  3,  3,  2,  1,  0},
+    {  6,  6,  6,  8,  8,  8,  8,  8,  8,  8, 10, 10, 10, 10, 10},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         5  */
+-  /*  {{  2,  2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  3,  3,  3,  3,  3,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0},
+-      {  6,  6,  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+-      { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        5  */
++/*{{  2,  2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  3,  3,  3,  3,  3,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0},
++   {  6,  6,  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
+   {{  2,  2,  2,  1,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  3,  3,  3,  3,  3,  2,  2,  2,  2,  2,  2,  0,  0,  0,  0},
+    {  6,  7,  8,  8,  8, 10, 10, 12, 12, 12, 12, 12, 12, 12, 12},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         6  */
+-  /*  {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  3,  3,  3,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+-      { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}}, */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        6  */
++/*{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  3,  3,  3,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}}, */
+   {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  3,  3,  3,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  8,  8,  8, 10, 10, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         7  */
+-  /*  {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  3,  3,  3,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+-      { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        7  */
++/*{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  3,  3,  3,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  8,  8,  8,  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
+   {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  3,  3,  3,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  8,  8, 10, 10, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         8  */
+-  /*  {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+-      {  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
+-      { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        8  */
++/*{{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
++   {  8, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},*/
+   {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  2,  2,  2,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  8, 10, 10, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14         9  */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        9  */
+   {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+-  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14        10  */
++  /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14       10  */
+   {{  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0},
+    {  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+@@ -615,14 +703,17 @@
+ };
+ 
+ /* tone master attenuation by base quality mode and bitrate tweak */
+-static att3 _psy_tone_masteratt_44[12]={
+-  {{ 35,  21,   9},  0,    0}, /* -1 */
+-  {{ 30,  20,   8}, -2, 1.25}, /* 0 */
+-  /*  {{ 25,  14,   4},  0,    0}, *//* 1 */
+-  {{ 25,  12,   2},  0,    0}, /* 1 */
+-  /*  {{ 20,  10,  -2},  0,    0}, *//* 2 */
+-  {{ 20,   9,  -3},  0,    0}, /* 2 */
+-  {{ 20,   9,  -4},  0,    0}, /* 3 */
++static att3 _psy_tone_masteratt_44[13]={
++  {{ 38,  24,  12},  0,    0}, /* -2 */
++//  {{ 35,  21,   9},  0,    0}, /* -1 */
++  {{ 36,  22,  10},  0,    0}, /* -1 */
++//  {{ 30,  20,   8}, -2, 1.25}, /* 0 */
++  {{ 30,  21,   8},  0,    0}, /* 0 */
++//  {{ 25,  14,   4},  0,    0}, /* 1 */
++  {{ 25,  15,   4},  0,    0}, /* 1 */
++  {{ 20,  10,  -2},  0,    0}, /* 2 */
++//  {{ 20,   9,  -4},  0,    0}, /* 3 */
++  {{ 21,  10,  -3},  0,    0}, /* 3 */
+   {{ 20,   9,  -4},  0,    0}, /* 4 */
+   {{ 20,   6,  -6},  0,    0}, /* 5 */
+   {{ 20,   3, -10},  0,    0}, /* 6 */
+@@ -633,34 +724,50 @@
+ };
+ 
+ /* lowpass by mode **************/
+-static double _psy_lowpass_44[12]={
++static double _psy_lowpass_44[13]={
+   /*  15.1,15.8,16.5,17.9,20.5,48.,999.,999.,999.,999.,999. */
+-  13.9,15.1,15.8,16.5,17.2,18.9,20.1,48.,999.,999.,999.,999.
++//  13.9,15.1,15.8,16.5,17.2,18.9,20.1,48.,999.,999.,999.,999.
++  13.2,14.8,15.1,15.8,16.5,17.2,18.3,20.1,48.,999.,999.,999.,999.
+ };
+ 
+ /* noise normalization **********/
+ 
+-static int _noise_start_short_44[11]={
++static int _noise_start_short_44[12]={
+   /*  16,16,16,16,32,32,9999,9999,9999,9999 */
+-  32,16,16,16,32,9999,9999,9999,9999,9999,9999
++//  32,16,16,16,32,9999,9999,9999,9999,9999,9999
++  16,32,16,16,32,64,9999,9999,9999,9999,9999,9999
+ };
+-static int _noise_start_long_44[11]={
++static int _noise_start_long_44[12]={
+   /*  128,128,128,256,512,512,9999,9999,9999,9999 */
+-  256,128,128,256,512,9999,9999,9999,9999,9999,9999
++//  256,128,128,256,512,9999,9999,9999,9999,9999,9999
++  128,256,128,128,256,512,9999,9999,9999,9999,9999,9999
+ };
+ 
+-static int _noise_part_short_44[11]={
+-    8,8,8,8,8,8,8,8,8,8,8
++static int _noise_part_short_44[12]={
++/*  8,8,8,8,8,8,8,8,8,8,8 */
++    8,8,8,8,8,8,8,8,8,8,8,8
+ };
+-static int _noise_part_long_44[11]={
+-    32,32,32,32,32,32,32,32,32,32,32
++static int _noise_part_long_44[12]={
++/*  32,32,32,32,32,32,32,32,32,32,32 */
++    32,32,32,32,32,32,32,32,32,32,32,32
+ };
+ 
+-static double _noise_thresh_44[11]={
++static double _noise_thresh_44[12]={
+   /*  .2,.2,.3,.4,.5,.5,9999.,9999.,9999.,9999., */
+-   .2,.2,.2,.4,.6,9999.,9999.,9999.,9999.,9999.,9999.,
++//   .2,.2,.2,.4,.6,9999.,9999.,9999.,9999.,9999.,9999.,
++   .1462,.1886,.1887,.1975,.355,.8,9999.,9999.,9999.,9999.,9999.,9999.,
+ };
+ 
+ static double _noise_thresh_5only[2]={
+  .5,.5,
+ };
++
++/* 32kHz only */
++static int _noise_start_short_32[12]={
++//  40,40,20,20,40,80,9999,9999,9999,9999,9999,9999
++  24,48,24,24,40,80,9999,9999,9999,9999,9999,9999
++};
++static int _noise_start_long_32[12]={
++//  320,320,160,160,320,640,9999,9999,9999,9999,9999,9999
++  160,320,160,160,320,640,9999,9999,9999,9999,9999,9999
++};
+diff -Naur libvorbis-1.1.2.orig/lib/modes/psych_8.h libvorbis-1.1.2/lib/modes/psych_8.h
+--- libvorbis-1.1.2.orig/lib/modes/psych_8.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/psych_8.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,23 +15,29 @@
+ 
+  ********************************************************************/
+ 
+-static att3 _psy_tone_masteratt_8[3]={
+-  {{ 32,  25,  12},  0,   0},  /* 0 */
+-  {{ 30,  25,  12},  0,   0},  /* 0 */
+-  {{ 20,   0, -14},  0,   0}, /* 0 */
++static att3 _psy_tone_masteratt_8[4]={
++  {{ 32,  25,  12},  0,   0},  /* -2 */
++  {{ 32,  25,  12},  0,   0},  /* -1 */
++  {{ 30,  25,  12},  0,   0},  /*  0 */
++  {{ 20,   0, -14},  0,   0},  /* 10 */
+ };
+ 
+-static vp_adjblock _vp_tonemask_adj_8[3]={
++static vp_adjblock _vp_tonemask_adj_8[4]={
+   /* adjust for mode zero */
+   /* 63     125     250     500     1     2     4     8    16 */
+-  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0,10, 0, 0,99,99,99}}, /* 1 */
+-  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0,10, 0, 0,99,99,99}}, /* 1 */
+-  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0, 0, 0, 0,99,99,99}}, /* 1 */
++  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0, 0, 5, 5,99,99,99}}, /* -2 */
++  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0, 0, 0, 0,99,99,99}}, /* -1 */
++  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0, 0, 0, 0,99,99,99}}, /*  0 */
++  {{-15,-15,-15,-15,-10,-10, -6, 0, 0, 0, 0, 0, 0, 0,99,99,99}}, /* 10 */
+ };
+ 
+ 
+-static noise3 _psy_noisebias_8[3]={
++static noise3 _psy_noisebias_8[4]={
+   /*  63     125     250     500      1k       2k      4k      8k     16k*/
++  {{{-10,-10,-10,-10, -5, -5, -5,  2,  4,  8,  8,  8, 10, 10, 99, 99, 99},
++    {-10,-10,-10,-10, -5, -4, -2,  2,  3,  4,  4,  4,  7,  8, 99, 99, 99},
++    {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, 99, 99, 99}}},
++
+   {{{-10,-10,-10,-10, -5, -5, -5,  0,  4,  8,  8,  8, 10, 10, 99, 99, 99},
+     {-10,-10,-10,-10, -5, -5, -5,  0,  0,  4,  4,  4,  4,  4, 99, 99, 99},
+     {-30,-30,-30,-30,-30,-24,-20,-14,-10, -6, -8, -8, -6, -6, 99, 99, 99}}},
+@@ -46,7 +52,7 @@
+ };
+ 
+ /* stereo mode by base quality level */
+-static adj_stereo _psy_stereo_modes_8[3]={
++static adj_stereo _psy_stereo_modes_8[4]={
+   /*  0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  */
+   {{  4,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
+    {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+@@ -56,18 +62,30 @@
+    {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+    {  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
++  {{  4,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
++   {  6,  5,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
++   {  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
++   { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+   {{  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3,  3},
+    {  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4},
+    {  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1},
+    { 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99, 99}},
+ };
+ 
+-static noiseguard _psy_noiseguards_8[2]={
++static noiseguard _psy_noiseguards_8[3]={
++  {10,10,-1},
+   {10,10,-1},
+   {10,10,-1},
+ };
+ 
+-static compandblock _psy_compand_8[2]={
++static compandblock _psy_compand_8[3]={
++  {{
++     0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
++     8, 8, 9, 9,10,10,11, 11,     /* 15dB */
++    12,12,13,13,14,14,15, 16,     /* 23dB */
++    17,18,19,20,21,22,23, 24,     /* 31dB */
++    25,26,27,28,29,30,31, 32,     /* 39dB */
++  }},
+   {{
+      0, 1, 2, 3, 4, 5, 6,  7,     /* 7dB */
+      8, 8, 9, 9,10,10,11, 11,     /* 15dB */
+@@ -84,19 +102,19 @@
+   }},
+ };
+ 
+-static double _psy_lowpass_8[3]={3.,4.,4.};
+-static int _noise_start_8[2]={
+-  64,64,
++static double _psy_lowpass_8[4]={2.6,3.,4.,4.};
++static int _noise_start_8[3]={
++  64,64,64,
+ };
+-static int _noise_part_8[2]={
+-  8,8,
++static int _noise_part_8[3]={
++  8,8,8,
+ };
+ 
+-static int _psy_ath_floater_8[3]={
+-  -100,-100,-105,
++static int _psy_ath_floater_8[4]={
++  -100,-100,-100,-105,
+ };
+ 
+-static int _psy_ath_abs_8[3]={
+-  -130,-130,-140,
++static int _psy_ath_abs_8[4]={
++  -130,-130,-130,-140,
+ };
+ 
+diff -Naur libvorbis-1.1.2.orig/lib/modes/residue_16.h libvorbis-1.1.2/lib/modes/residue_16.h
+--- libvorbis-1.1.2.orig/lib/modes/residue_16.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/residue_16.h	2006-03-06 15:46:45.000000000 +0000
+@@ -84,7 +84,8 @@
+    &_resbook_16s_2,&_resbook_16s_2}
+ };
+ 
+-static vorbis_mapping_template _mapres_template_16_stereo[3]={
++static vorbis_mapping_template _mapres_template_16_stereo[4]={
++  { _map_nominal, _res_16s_0 }, /* -1 */
+   { _map_nominal, _res_16s_0 }, /* 0 */
+   { _map_nominal, _res_16s_1 }, /* 1 */
+   { _map_nominal, _res_16s_2 }, /* 2 */
+@@ -156,7 +157,8 @@
+ };
+ 
+ 
+-static vorbis_mapping_template _mapres_template_16_uncoupled[3]={
++static vorbis_mapping_template _mapres_template_16_uncoupled[4]={
++  { _map_nominal_u, _res_16u_0 }, /* -1 */
+   { _map_nominal_u, _res_16u_0 }, /* 0 */
+   { _map_nominal_u, _res_16u_1 }, /* 1 */
+   { _map_nominal_u, _res_16u_2 }, /* 2 */
+diff -Naur libvorbis-1.1.2.orig/lib/modes/residue_44.h libvorbis-1.1.2/lib/modes/residue_44.h
+--- libvorbis-1.1.2.orig/lib/modes/residue_44.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/residue_44.h	2006-03-06 15:46:45.000000000 +0000
+@@ -278,6 +278,7 @@
+ };
+ 
+ static vorbis_mapping_template _mapres_template_44_stereo[]={
++  { _map_nominal, _res_44s_n1 }, /* -2 */
+   { _map_nominal, _res_44s_n1 }, /* -1 */
+   { _map_nominal, _res_44s_0 }, /* 0 */
+   { _map_nominal, _res_44s_1 }, /* 1 */
+diff -Naur libvorbis-1.1.2.orig/lib/modes/residue_44u.h libvorbis-1.1.2/lib/modes/residue_44u.h
+--- libvorbis-1.1.2.orig/lib/modes/residue_44u.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/residue_44u.h	2006-03-06 15:46:45.000000000 +0000
+@@ -304,6 +304,7 @@
+ };
+ 
+ static vorbis_mapping_template _mapres_template_44_uncoupled[]={
++  { _map_nominal_u, _res_44u_n1 }, /* -2 */
+   { _map_nominal_u, _res_44u_n1 }, /* -1 */
+   { _map_nominal_u, _res_44u_0 }, /* 0 */
+   { _map_nominal_u, _res_44u_1 }, /* 1 */
+diff -Naur libvorbis-1.1.2.orig/lib/modes/residue_8.h libvorbis-1.1.2/lib/modes/residue_8.h
+--- libvorbis-1.1.2.orig/lib/modes/residue_8.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/residue_8.h	2006-03-06 15:46:45.000000000 +0000
+@@ -48,7 +48,8 @@
+    &_resbook_8s_1,&_resbook_8s_1},
+ };
+ 
+-static vorbis_mapping_template _mapres_template_8_stereo[2]={
++static vorbis_mapping_template _mapres_template_8_stereo[3]={
++  { _map_nominal, _res_8s_0 }, /* -1 */
+   { _map_nominal, _res_8s_0 }, /* 0 */
+   { _map_nominal, _res_8s_1 }, /* 1 */
+ };
+@@ -91,7 +92,8 @@
+    &_resbook_8u_1,&_resbook_8u_1},
+ };
+ 
+-static vorbis_mapping_template _mapres_template_8_uncoupled[2]={
++static vorbis_mapping_template _mapres_template_8_uncoupled[3]={
++  { _map_nominal_u, _res_8u_0 }, /* -1 */
+   { _map_nominal_u, _res_8u_0 }, /* 0 */
+   { _map_nominal_u, _res_8u_1 }, /* 1 */
+ };
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_11.h libvorbis-1.1.2/lib/modes/setup_11.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_11.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_11.h	2006-03-06 15:46:45.000000000 +0000
+@@ -17,28 +17,31 @@
+ 
+ #include "psych_11.h"
+ 
+-static int blocksize_11[2]={
+-  512,512
++static int blocksize_11[3]={
++  512,512,512
+ };
+ 
+-static int _floor_mapping_11[2]={
+-  6,6,
++static int _floor_mapping_11[3]={
++  6,6,6
+ };
+ 
+-static double rate_mapping_11[3]={
+-  8000.,13000.,44000.,
++static double rate_mapping_11[4]={
++//  8000.,13000.,44000.,
++  8000.,10000.,13000.,44000.,
+ };
+ 
+-static double rate_mapping_11_uncoupled[3]={
+-  12000.,20000.,50000.,
++static double rate_mapping_11_uncoupled[4]={
++//  12000.,20000.,50000.,
++  14000.,16000.,20000.,50000.,
+ };
+ 
+-static double quality_mapping_11[3]={
+-  -.1,.0,1.
++static double quality_mapping_11[4]={
++  -.2,-.1,.0,1.
+ };
+ 
+ ve_setup_data_template ve_setup_11_stereo={
+-  2,
++//  2,
++  3,
+   rate_mapping_11,
+   quality_mapping_11,
+   2,
+@@ -89,7 +92,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_11_uncoupled={
+-  2,
++//  2,
++  3,
+   rate_mapping_11_uncoupled,
+   quality_mapping_11,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_16.h libvorbis-1.1.2/lib/modes/setup_16.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_16.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_16.h	2006-03-06 15:46:45.000000000 +0000
+@@ -18,36 +18,40 @@
+ #include "psych_16.h"
+ #include "residue_16.h"
+ 
+-static int blocksize_16_short[3]={
+-  1024,512,512
++static int blocksize_16_short[4]={
++  1024,1024,512,512
+ };
+-static int blocksize_16_long[3]={
+-  1024,1024,1024
++static int blocksize_16_long[4]={
++  1024,1024,1024,1024
+ };
+ 
+-static int _floor_mapping_16_short[3]={
+-  9,3,3
++static int _floor_mapping_16_short[4]={
++  9,9,3,3
+ };
+-static int _floor_mapping_16[3]={
+-  9,9,9
++static int _floor_mapping_16[4]={
++  9,9,9,9
+ };
+ 
+-static double rate_mapping_16[4]={
+-  12000.,20000.,44000.,86000.
++static double rate_mapping_16[5]={
++//  12000.,20000.,44000.,86000.
++  10000.,12000.,20000.,44000.,86000.
+ };
+ 
+-static double rate_mapping_16_uncoupled[4]={
+-  16000.,28000.,64000.,100000.
++static double rate_mapping_16_uncoupled[5]={
++//  16000.,28000.,64000.,100000.
++  16000.,18000.,28000.,64000.,100000.
+ };
+ 
+-static double _global_mapping_16[4]={ 1., 2., 3., 4. };
++static double _global_mapping_16[5]={ 2., 2., 3., 4., 5. };
+ 
+-static double quality_mapping_16[4]={ -.1,.05,.5,1. };
++static double quality_mapping_16[5]={ -.2,-.1,.05,.5,1. };
+ 
+-static double _psy_compand_16_mapping[4]={ 0., .8, 1., 1.};
++//static double _psy_compand_16_mapping[5]={ 0., 0., .8, 1., 1.};
++static double _psy_compand_16_mapping[5]={ 0., 1., 1.8, 2., 2.};
+ 
+ ve_setup_data_template ve_setup_16_stereo={
+-  3,
++//  3,
++  4,
+   rate_mapping_16,
+   quality_mapping_16,
+   2,
+@@ -98,7 +102,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_16_uncoupled={
+-  3,
++//  3,
++  4,
+   rate_mapping_16_uncoupled,
+   quality_mapping_16,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_22.h libvorbis-1.1.2/lib/modes/setup_22.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_22.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_22.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,18 +15,21 @@
+ 
+  ********************************************************************/
+ 
+-static double rate_mapping_22[4]={
+-  15000.,20000.,44000.,86000.
++static double rate_mapping_22[5]={
++//  15000.,20000.,44000.,86000.
++  14000.,16000.,20000.,44000.,86000.
+ };
+ 
+-static double rate_mapping_22_uncoupled[4]={
+-  16000.,28000.,50000.,90000.
++static double rate_mapping_22_uncoupled[5]={
++//  16000.,28000.,50000.,90000.
++  22000.,24000.,28000.,50000.,90000.
+ };
+ 
+-static double _psy_lowpass_22[4]={9.5,11.,30.,99.};
++static double _psy_lowpass_22[5]={8.5,9.5,11.,30.,99.};
+ 
+ ve_setup_data_template ve_setup_22_stereo={
+-  3,
++//  3,
++  4,
+   rate_mapping_22,
+   quality_mapping_16,
+   2,
+@@ -77,7 +80,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_22_uncoupled={
+-  3,
++//  3,
++  4,
+   rate_mapping_22_uncoupled,
+   quality_mapping_16,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_32.h libvorbis-1.1.2/lib/modes/setup_32.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_32.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_32.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,22 +15,26 @@
+ 
+  ********************************************************************/
+ 
+-static double rate_mapping_32[12]={
+-  18000.,28000.,35000.,45000.,56000.,60000.,
++static double rate_mapping_32[13]={
++//  18000.,28000.,35000.,45000.,56000.,60000.,
++  14000.,21000.,28000.,35000.,45000.,56000.,60000.,
+   75000.,90000.,100000.,115000.,150000.,190000.,
+ };
+ 
+-static double rate_mapping_32_un[12]={
+-  30000.,42000.,52000.,64000.,72000.,78000.,
++static double rate_mapping_32_un[13]={
++//  30000.,42000.,52000.,64000.,72000.,78000.,
++  24000.,32000.,42000.,52000.,64000.,72000.,78000.,
+   86000.,92000.,110000.,120000.,140000.,190000.,
+ };
+ 
+-static double _psy_lowpass_32[12]={
+-  12.3,13.,13.,14.,15.,99.,99.,99.,99.,99.,99.,99.
++static double _psy_lowpass_32[13]={
++//  12.3,13.,13.,14.,15.,99.,99.,99.,99.,99.,99.,99.
++  12.,12.6,13.,13.,14.,15.,99.,99.,99.,99.,99.,99.,99.
+ };
+ 
+ ve_setup_data_template ve_setup_32_stereo={
+-  11,
++//  11,
++  12,
+   rate_mapping_32,
+   quality_mapping_44,
+   2,
+@@ -59,7 +63,7 @@
+   _psy_compand_short_mapping,
+   _psy_compand_long_mapping,
+ 
+-  {_noise_start_short_44,_noise_start_long_44},
++  {_noise_start_short_32,_noise_start_long_32},
+   {_noise_part_short_44,_noise_part_long_44},
+   _noise_thresh_44,
+ 
+@@ -81,7 +85,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_32_uncoupled={
+-  11,
++//  11,
++  12,
+   rate_mapping_32_un,
+   quality_mapping_44,
+   -1,
+@@ -110,7 +115,7 @@
+   _psy_compand_short_mapping,
+   _psy_compand_long_mapping,
+ 
+-  {_noise_start_short_44,_noise_start_long_44},
++  {_noise_start_short_32,_noise_start_long_32},
+   {_noise_part_short_44,_noise_part_long_44},
+   _noise_thresh_44,
+ 
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_44.h libvorbis-1.1.2/lib/modes/setup_44.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_44.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_44.h	2006-03-06 15:46:45.000000000 +0000
+@@ -19,43 +19,47 @@
+ #include "modes/residue_44.h"
+ #include "modes/psych_44.h"
+ 
+-static double rate_mapping_44_stereo[12]={
+-  22500.,32000.,40000.,48000.,56000.,64000.,
++static double rate_mapping_44_stereo[13]={
++//  22500.,32000.,40000.,48000.,56000.,64000.,
++  16000.,24000.,32000.,40000.,48000.,56000.,64000.,
+   80000.,96000.,112000.,128000.,160000.,250001.
+ };
+ 
+-static double quality_mapping_44[12]={
+-  -.1,.0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0
++static double quality_mapping_44[13]={
++  -.2,-.1,.0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0
+ };
+ 
+-static int blocksize_short_44[11]={
+-  512,256,256,256,256,256,256,256,256,256,256
++static int blocksize_short_44[12]={
++  512,512,256,256,256,256,256,256,256,256,256,256
+ };
+-static int blocksize_long_44[11]={
+-  4096,2048,2048,2048,2048,2048,2048,2048,2048,2048,2048
++static int blocksize_long_44[12]={
++  4096,4096,2048,2048,2048,2048,2048,2048,2048,2048,2048,2048
+ };
+ 
+-static double _psy_compand_short_mapping[12]={
+-  0.5, 1., 1., 1.3, 1.6, 2., 2., 2., 2., 2., 2., 2.
++static double _psy_compand_short_mapping[13]={
++  1., 1., 1., 1., 1.3, 1.6, 2., 2., 2., 2., 2., 2., 2.
+ };
+-static double _psy_compand_long_mapping[12]={
+-  3.5, 4., 4., 4.3, 4.6, 5., 5., 5., 5., 5., 5., 5.
++static double _psy_compand_long_mapping[13]={
++  4., 4., 4., 4., 4.3, 4.6, 5., 5., 5., 5., 5., 5., 5.
+ };
+ 
+-static double _global_mapping_44[12]={
++static double _global_mapping_44[13]={
+   /* 1., 1., 1.5, 2., 2., 2.5, 2.7, 3.0, 3.5, 4., 4. */
+- 0., 1., 1., 1.5, 2., 2., 2.5, 2.7, 3.0, 3.7, 4., 4.
++// 0., 1., 1., 1.5, 2., 2., 2.5, 2.7, 3.0, 3.7, 4., 4.
++  0., 1., 2., 2., 2.5, 3., 3., 3.5, 3.7, 4., 4., 5., 5. // low
++//  0., 1., 2., 2., 2.5, 3., 3.2, 4.0, 4.0, 4.0, 4.5, 5., 5. // high
+ };
+ 
+-static int _floor_short_mapping_44[11]={
+-  1,0,0,2,2,4,5,5,5,5,5
++static int _floor_short_mapping_44[12]={
++  1,1,0,0,2,2,4,5,5,5,5,5
+ };
+-static int _floor_long_mapping_44[11]={
+-  8,7,7,7,7,7,7,7,7,7,7
++static int _floor_long_mapping_44[12]={
++  8,8,7,7,7,7,7,7,7,7,7,7
+ };
+ 
+ ve_setup_data_template ve_setup_44_stereo={
+-  11,
++//  11,
++  12,
+   rate_mapping_44_stereo,
+   quality_mapping_44,
+   2,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_44u.h libvorbis-1.1.2/lib/modes/setup_44u.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_44u.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_44u.h	2006-03-06 15:46:45.000000000 +0000
+@@ -17,13 +17,15 @@
+ 
+ #include "modes/residue_44u.h"
+ 
+-static double rate_mapping_44_un[12]={
+-  32000.,48000.,60000.,70000.,80000.,86000.,
++static double rate_mapping_44_un[13]={
++//  32000.,48000.,60000.,70000.,80000.,86000.,
++  26000.,32000.,48000.,60000.,70000.,80000.,86000.,
+   96000.,110000.,120000.,140000.,160000.,240001.
+ };
+ 
+ ve_setup_data_template ve_setup_44_uncoupled={
+-  11,
++//  11,
++  12,
+   rate_mapping_44_un,
+   quality_mapping_44,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_8.h libvorbis-1.1.2/lib/modes/setup_8.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_8.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_8.h	2006-03-06 15:46:45.000000000 +0000
+@@ -18,32 +18,37 @@
+ #include "psych_8.h"
+ #include "residue_8.h"
+ 
+-static int blocksize_8[2]={
+-  512,512
++static int blocksize_8[3]={
++  512,512,512
+ };
+ 
+-static int _floor_mapping_8[2]={
+-  6,6,
++static int _floor_mapping_8[3]={
++  6,6,6
+ };
+ 
+-static double rate_mapping_8[3]={
+-  6000.,9000.,32000.,
++static double rate_mapping_8[4]={
++//  6000.,9000.,32000.,
++  5000.,6000.,9000.,32000.,
+ };
+ 
+-static double rate_mapping_8_uncoupled[3]={
+-  8000.,14000.,42000.,
++static double rate_mapping_8_uncoupled[4]={
++//  8000.,14000.,42000.,
++  8000.,10000.,14000.,42000.,
+ };
+ 
+-static double quality_mapping_8[3]={
+-  -.1,.0,1.
++static double quality_mapping_8[4]={
++  -.2,-.1,.0,1.
+ };
+ 
+-static double _psy_compand_8_mapping[3]={ 0., 1., 1.};
++//static double _psy_compand_8_mapping[3]={ 0., 1., 1.};
++static double _psy_compand_8_mapping[4]={ 0., 1., 2., 2.};
+ 
+-static double _global_mapping_8[3]={ 1., 2., 3. };
++//static double _global_mapping_8[3]={ 1., 2., 3. };
++static double _global_mapping_8[4]={ 2., 2., 3., 4. };
+ 
+ ve_setup_data_template ve_setup_8_stereo={
+-  2,
++//  2,
++  3,
+   rate_mapping_8,
+   quality_mapping_8,
+   2,
+@@ -94,7 +99,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_8_uncoupled={
+-  2,
++//  2,
++  3,
+   rate_mapping_8_uncoupled,
+   quality_mapping_8,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/modes/setup_X.h libvorbis-1.1.2/lib/modes/setup_X.h
+--- libvorbis-1.1.2.orig/lib/modes/setup_X.h	2005-11-28 05:43:23.000000000 +0000
++++ libvorbis-1.1.2/lib/modes/setup_X.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,13 +15,14 @@
+ 
+  ********************************************************************/
+ 
+-static double rate_mapping_X[12]={
+-  -1.,-1.,-1.,-1.,-1.,-1.,
++static double rate_mapping_X[13]={
++  -1.,-1.,-1.,-1.,-1.,-1.,-1.
+   -1.,-1.,-1.,-1.,-1.,-1.
+ };
+ 
+ ve_setup_data_template ve_setup_X_stereo={
+-  11,
++//  11,
++  12,
+   rate_mapping_X,
+   quality_mapping_44,
+   2,
+@@ -72,7 +73,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_X_uncoupled={
+-  11,
++//  11,
++  12,
+   rate_mapping_X,
+   quality_mapping_44,
+   -1,
+@@ -123,7 +125,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_XX_stereo={
+-  2,
++//  2,
++  3,
+   rate_mapping_X,
+   quality_mapping_8,
+   2,
+@@ -174,7 +177,8 @@
+ };
+ 
+ ve_setup_data_template ve_setup_XX_uncoupled={
+-  2,
++//  2,
++  3,
+   rate_mapping_X,
+   quality_mapping_8,
+   -1,
+diff -Naur libvorbis-1.1.2.orig/lib/psy.c libvorbis-1.1.2/lib/psy.c
+--- libvorbis-1.1.2.orig/lib/psy.c	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/psy.c	2006-03-06 15:46:45.000000000 +0000
+@@ -30,8 +30,32 @@
+ #include "misc.h"
+ 
+ #define NEGINF -9999.f
+-static double stereo_threshholds[]={0.0, .5, 1.0, 1.5, 2.5, 4.5, 8.5, 16.5, 9e10};
+-static double stereo_threshholds_limited[]={0.0, .5, 1.0, 1.5, 2.0, 2.5, 4.5, 8.5, 9e10};
++
++/*
++  rephase   = reverse phase limit (postpoint)
++  lowlong   = low quality long-block limit (postpoint)
++  diffmid   = diffuse mid sound limit (postpoint)
++                                                0    1    2    3    4    5    6    7    8  */
++static double stereo_threshholds[]=           {0.0, 0.5, 1.0, 1.5, 2.5, 4.5, 8.5,16.5, 9e10};
++static double stereo_threshholds_rephase[]=   {0.0, 0.5, 0.5, 1.0, 1.5, 1.5, 1.5, 2.5, 9e10};
++static double stereo_threshholds_lowlong[]=   {0.0, 0.5, 1.0, 1.5, 2.5, 3.0, 6.5,10.5, 9e10};
++static double stereo_threshholds_diffmid[]=   {0.0, 0.5, 1.0, 1.5, 1.5, 1.5, 2.5, 5.5, 9e10};
++
++static int m3n32[] = {21,13,10,4};
++static int m3n44[] = {15,9,7,3};
++static int m3n48[] = {14,8,6,3};
++
++static int temp_bfn[128] = {
++ 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3,
++ 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7,
++ 8, 8, 8, 8, 9, 9, 9, 9,10,10,10,10,11,11,11,11,
++12,12,12,12,13,13,13,13,14,14,14,14,15,15,15,15,
++16,16,16,16,17,17,17,17,18,18,18,18,19,19,19,19,
++20,20,20,20,21,21,21,21,22,22,22,22,23,23,23,23,
++24,24,24,24,25,25,25,24,23,22,21,20,19,18,17,16,
++15,14,13,12,11,10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
++};
++
+ 
+ vorbis_look_psy_global *_vp_global_look(vorbis_info *vi){
+   codec_setup_info *ci=vi->codec_setup;
+@@ -284,12 +308,21 @@
+   p->n=n;
+   p->rate=rate;
+ 
+-  /* AoTuV HF weighting */
+-  p->m_val = 1.;
+-  if(rate < 26000) p->m_val = 0;
+-  else if(rate < 38000) p->m_val = .94;   /* 32kHz */
+-  else if(rate > 46000) p->m_val = 1.275; /* 48kHz */
+-  
++  /* AoTuV HF weighting etc. */
++  if(rate < 26000){
++  	p->m_val = 0;
++  	for(i=0; i<4; i++) p->m3n[i] = 0;
++  }else if(rate < 38000){   /* 32kHz */
++  	p->m_val = .94;
++  	for(i=0; i<4; i++) p->m3n[i] = m3n32[i];
++  }else if(rate > 46000){  /* 48kHz */
++  	p->m_val = 1.205;
++  	for(i=0; i<4; i++) p->m3n[i] = m3n48[i];
++  }else{                   /* 44.1kHz */
++  	p->m_val = 1.;
++  	for(i=0; i<4; i++) p->m3n[i] = m3n44[i];
++  }
++
+   /* set up the lookups for a given blocksize and sample rate */
+ 
+   for(i=0,j=0;i<MAX_ATH-1;i++){
+@@ -690,70 +723,70 @@
+ }
+ 
+ static float FLOOR1_fromdB_INV_LOOKUP[256]={
+-  0.F, 8.81683e+06F, 8.27882e+06F, 7.77365e+06F, 
+-  7.29930e+06F, 6.85389e+06F, 6.43567e+06F, 6.04296e+06F, 
+-  5.67422e+06F, 5.32798e+06F, 5.00286e+06F, 4.69759e+06F, 
+-  4.41094e+06F, 4.14178e+06F, 3.88905e+06F, 3.65174e+06F, 
+-  3.42891e+06F, 3.21968e+06F, 3.02321e+06F, 2.83873e+06F, 
+-  2.66551e+06F, 2.50286e+06F, 2.35014e+06F, 2.20673e+06F, 
+-  2.07208e+06F, 1.94564e+06F, 1.82692e+06F, 1.71544e+06F, 
+-  1.61076e+06F, 1.51247e+06F, 1.42018e+06F, 1.33352e+06F, 
+-  1.25215e+06F, 1.17574e+06F, 1.10400e+06F, 1.03663e+06F, 
+-  973377.F, 913981.F, 858210.F, 805842.F, 
+-  756669.F, 710497.F, 667142.F, 626433.F, 
+-  588208.F, 552316.F, 518613.F, 486967.F, 
+-  457252.F, 429351.F, 403152.F, 378551.F, 
+-  355452.F, 333762.F, 313396.F, 294273.F, 
+-  276316.F, 259455.F, 243623.F, 228757.F, 
+-  214798.F, 201691.F, 189384.F, 177828.F, 
+-  166977.F, 156788.F, 147221.F, 138237.F, 
+-  129802.F, 121881.F, 114444.F, 107461.F, 
+-  100903.F, 94746.3F, 88964.9F, 83536.2F, 
+-  78438.8F, 73652.5F, 69158.2F, 64938.1F, 
+-  60975.6F, 57254.9F, 53761.2F, 50480.6F, 
+-  47400.3F, 44507.9F, 41792.0F, 39241.9F, 
+-  36847.3F, 34598.9F, 32487.7F, 30505.3F, 
+-  28643.8F, 26896.0F, 25254.8F, 23713.7F, 
+-  22266.7F, 20908.0F, 19632.2F, 18434.2F, 
+-  17309.4F, 16253.1F, 15261.4F, 14330.1F, 
+-  13455.7F, 12634.6F, 11863.7F, 11139.7F, 
+-  10460.0F, 9821.72F, 9222.39F, 8659.64F, 
+-  8131.23F, 7635.06F, 7169.17F, 6731.70F, 
+-  6320.93F, 5935.23F, 5573.06F, 5232.99F, 
+-  4913.67F, 4613.84F, 4332.30F, 4067.94F, 
+-  3819.72F, 3586.64F, 3367.78F, 3162.28F, 
+-  2969.31F, 2788.13F, 2617.99F, 2458.24F, 
+-  2308.24F, 2167.39F, 2035.14F, 1910.95F, 
+-  1794.35F, 1684.85F, 1582.04F, 1485.51F, 
+-  1394.86F, 1309.75F, 1229.83F, 1154.78F, 
+-  1084.32F, 1018.15F, 956.024F, 897.687F, 
+-  842.910F, 791.475F, 743.179F, 697.830F, 
+-  655.249F, 615.265F, 577.722F, 542.469F, 
+-  509.367F, 478.286F, 449.101F, 421.696F, 
+-  395.964F, 371.803F, 349.115F, 327.812F, 
+-  307.809F, 289.026F, 271.390F, 254.830F, 
+-  239.280F, 224.679F, 210.969F, 198.096F, 
+-  186.008F, 174.658F, 164.000F, 153.993F, 
+-  144.596F, 135.773F, 127.488F, 119.708F, 
+-  112.404F, 105.545F, 99.1046F, 93.0572F, 
+-  87.3788F, 82.0469F, 77.0404F, 72.3394F, 
+-  67.9252F, 63.7804F, 59.8885F, 56.2341F, 
+-  52.8027F, 49.5807F, 46.5553F, 43.7144F, 
+-  41.0470F, 38.5423F, 36.1904F, 33.9821F, 
+-  31.9085F, 29.9614F, 28.1332F, 26.4165F, 
+-  24.8045F, 23.2910F, 21.8697F, 20.5352F, 
+-  19.2822F, 18.1056F, 17.0008F, 15.9634F, 
+-  14.9893F, 14.0746F, 13.2158F, 12.4094F, 
+-  11.6522F, 10.9411F, 10.2735F, 9.64662F, 
+-  9.05798F, 8.50526F, 7.98626F, 7.49894F, 
+-  7.04135F, 6.61169F, 6.20824F, 5.82941F, 
+-  5.47370F, 5.13970F, 4.82607F, 4.53158F, 
+-  4.25507F, 3.99542F, 3.75162F, 3.52269F, 
+-  3.30774F, 3.10590F, 2.91638F, 2.73842F, 
+-  2.57132F, 2.41442F, 2.26709F, 2.12875F, 
+-  1.99885F, 1.87688F, 1.76236F, 1.65482F, 
+-  1.55384F, 1.45902F, 1.36999F, 1.28640F, 
+-  1.20790F, 1.13419F, 1.06499F, 1.F
++  0.F, 8.81683e+06F, 8.27882e+06F, 7.77365e+06F, // 1-4
++  7.29930e+06F, 6.85389e+06F, 6.43567e+06F, 6.04296e+06F, // 5-8
++  5.67422e+06F, 5.32798e+06F, 5.00286e+06F, 4.69759e+06F, // 9-12
++  4.41094e+06F, 4.14178e+06F, 3.88905e+06F, 3.65174e+06F, // 13-16
++  3.42891e+06F, 3.21968e+06F, 3.02321e+06F, 2.83873e+06F, // 17-20
++  2.66551e+06F, 2.50286e+06F, 2.35014e+06F, 2.20673e+06F, // 21-24
++  2.07208e+06F, 1.94564e+06F, 1.82692e+06F, 1.71544e+06F, // 25-28
++  1.61076e+06F, 1.51247e+06F, 1.42018e+06F, 1.33352e+06F, // 29-32
++  1.25215e+06F, 1.17574e+06F, 1.10400e+06F, 1.03663e+06F, // 33-36
++  973377.F, 913981.F, 858210.F, 805842.F, // 37-40
++  756669.F, 710497.F, 667142.F, 626433.F, // 41-44
++  588208.F, 552316.F, 518613.F, 486967.F, // 45-48
++  457252.F, 429351.F, 403152.F, 378551.F, // 49-52
++  355452.F, 333762.F, 313396.F, 294273.F, // 53-56
++  276316.F, 259455.F, 243623.F, 228757.F, // 57-60
++  214798.F, 201691.F, 189384.F, 177828.F, // 61-64
++  166977.F, 156788.F, 147221.F, 138237.F, // 65-68
++  129802.F, 121881.F, 114444.F, 107461.F, // 69-72
++  100903.F, 94746.3F, 88964.9F, 83536.2F, // 73-76
++  78438.8F, 73652.5F, 69158.2F, 64938.1F, // 77-80
++  60975.6F, 57254.9F, 53761.2F, 50480.6F, // 81-84
++  47400.3F, 44507.9F, 41792.0F, 39241.9F, // 85-88
++  36847.3F, 34598.9F, 32487.7F, 30505.3F, // 89-92
++  28643.8F, 26896.0F, 25254.8F, 23713.7F, // 93-96
++  22266.7F, 20908.0F, 19632.2F, 18434.2F, // 97-100
++  17309.4F, 16253.1F, 15261.4F, 14330.1F, // 101-104
++  13455.7F, 12634.6F, 11863.7F, 11139.7F, // 105-108
++  10460.0F, 9821.72F, 9222.39F, 8659.64F, // 109-112
++  8131.23F, 7635.06F, 7169.17F, 6731.70F, // 113-116
++  6320.93F, 5935.23F, 5573.06F, 5232.99F, // 117-120
++  4913.67F, 4613.84F, 4332.30F, 4067.94F, // 121-124
++  3819.72F, 3586.64F, 3367.78F, 3162.28F, // 125-128
++  2969.31F, 2788.13F, 2617.99F, 2458.24F, // 129-132
++  2308.24F, 2167.39F, 2035.14F, 1910.95F, // 133-136
++  1794.35F, 1684.85F, 1582.04F, 1485.51F, // 137-140
++  1394.86F, 1309.75F, 1229.83F, 1154.78F, // 141-144
++  1084.32F, 1018.15F, 956.024F, 897.687F, // 145-148
++  842.910F, 791.475F, 743.179F, 697.830F, // 149-152
++  655.249F, 615.265F, 577.722F, 542.469F, // 153-156
++  509.367F, 478.286F, 449.101F, 421.696F, // 157-160
++  395.964F, 371.803F, 349.115F, 327.812F, // 161-164
++  307.809F, 289.026F, 271.390F, 254.830F, // 165-168
++  239.280F, 224.679F, 210.969F, 198.096F, // 169-172
++  186.008F, 174.658F, 164.000F, 153.993F, // 173-176
++  144.596F, 135.773F, 127.488F, 119.708F, // 177-180
++  112.404F, 105.545F, 99.1046F, 93.0572F, // 181-184
++  87.3788F, 82.0469F, 77.0404F, 72.3394F, // 185-188
++  67.9252F, 63.7804F, 59.8885F, 56.2341F, // 189-192
++  52.8027F, 49.5807F, 46.5553F, 43.7144F, // 193-196
++  41.0470F, 38.5423F, 36.1904F, 33.9821F, // 197-200
++  31.9085F, 29.9614F, 28.1332F, 26.4165F, // 201-204
++  24.8045F, 23.2910F, 21.8697F, 20.5352F, // 205-208
++  19.2822F, 18.1056F, 17.0008F, 15.9634F, // 209-212
++  14.9893F, 14.0746F, 13.2158F, 12.4094F, // 213-216
++  11.6522F, 10.9411F, 10.2735F, 9.64662F, // 217-220
++  9.05798F, 8.50526F, 7.98626F, 7.49894F, // 221-224
++  7.04135F, 6.61169F, 6.20824F, 5.82941F, // 225-228
++  5.47370F, 5.13970F, 4.82607F, 4.53158F, // 229-232
++  4.25507F, 3.99542F, 3.75162F, 3.52269F, // 233-236
++  3.30774F, 3.10590F, 2.91638F, 2.73842F, // 237-240
++  2.57132F, 2.41442F, 2.26709F, 2.12875F, // 241-244
++  1.99885F, 1.87688F, 1.76236F, 1.65482F, // 245-248
++  1.55384F, 1.45902F, 1.36999F, 1.28640F, // 249-252
++  1.20790F, 1.13419F, 1.06499F, 1.F // 253-256
+ };
+ 
+ void _vp_remove_floor(vorbis_look_psy *p,
+@@ -776,6 +809,7 @@
+ }
+ 
+ void _vp_noisemask(vorbis_look_psy *p,
++		   float noise_compand_level,
+ 		   float *logmdct, 
+ 		   float *logmask){
+ 
+@@ -814,7 +848,19 @@
+   }
+ #endif
+ 
+-  for(i=0;i<n;i++){
++  /* aoTuV M5 extension */
++  i=0;
++  if((p->vi->noisecompand_high[NOISE_COMPAND_LEVELS-1] > 1) && (noise_compand_level > 0)){
++  	int thter = n/3;
++  	for(;i<thter;i++){
++    	int dB=logmask[i]+.5;
++    	if(dB>=NOISE_COMPAND_LEVELS)dB=NOISE_COMPAND_LEVELS-1;
++    	if(dB<0)dB=0;
++    	logmask[i]= work[i]+p->vi->noisecompand[dB]-
++    	  ((p->vi->noisecompand[dB]-p->vi->noisecompand_high[dB])*noise_compand_level);
++  	}
++  }
++  for(;i<n;i++){
+     int dB=logmask[i]+.5;
+     if(dB>=NOISE_COMPAND_LEVELS)dB=NOISE_COMPAND_LEVELS-1;
+     if(dB<0)dB=0;
+@@ -854,18 +900,175 @@
+ 			int offset_select,
+ 			float *logmask,
+ 			float *mdct,
+-			float *logmdct){
+-  int i,n=p->n;
+-  float de, coeffi, cx;/* AoTuV */
++			float *logmdct,
++			float *lastmdct, float *tempmdct,
++			int blocktype, int modenumber,
++			int nW_modenumber,
++			int lW_blocktype, int lW_modenumber, int lW_no){
++
++  int i,j,n=p->n;
++  int m2_sw=0,  padth; /* aoTuV for M2 */
++  int it_sw, *m3n, m3_count; /* aoTuV for M3 */
++  int m4_start, fmask; /* aoTuV for M4 */
++  float de, coeffi, cx; /* aoTuV for M1 */
++  float toneth; /* aoTuV for M2 */
++  float noise_rate, noise_rate_low, noise_center, rate_mod; /* aoTuV for M3 */
++  float m4_val; /* aoTuV for M4 */
+   float toneatt=p->vi->tone_masteratt[offset_select];
+ 
+   cx = p->m_val;
++  m3n = p->m3n;
+   
++  /** @ M2 PRE **/
++  if(p->vi->normal_thresh<.45){
++  	if(modenumber){
++  		// sample
++    	//  21@ [q-2] 0,0,-1,-7,-11 [q2] (48/44.1/32kHz quality mode)
++    	//  20@ [q-2] 0,0, 0,-6,-10 [q2] (48/44.1/32kHz quality mode)
++    	toneth=toneatt-20.45;
++    	if(toneth>0.1) toneth=0;
++    	m2_sw=1;
++    }else if((cx > 0.5) && blocktype && (n==128)){
++    	if(p->vi->normal_thresh>.25) padth = 10+(int)(p->vi->flacint*100);
++    	else padth = 10;
++    	m2_sw=2;
++    }
++  }
++
++  /** @ M3 PRE **/
++  m3_count = 3;
++  if(toneatt < 3) m3_count = 2; // q6~
++  if((n == 128) && !modenumber && !blocktype){
++  	if(!lW_blocktype && !lW_modenumber){ /* last window "short" - type "impulse" */
++  		if(lW_no < 8){
++  			/* impulse - @impulse case1 */
++  			noise_rate = 0.8-(float)(lW_no-1)/17;
++  			noise_center = (float)(lW_no*m3_count);
++  		}else{
++  			/* impulse - @impulse case2 */
++  			noise_rate = 0.4;
++  			noise_center = 25;
++  			if((lW_no*m3_count) < 24) noise_center = lW_no*m3_count;
++  		}
++  		if(offset_select == 1){
++  			for(i=0; i<128; i++) tempmdct[i] -= 5;
++  		}
++  	}else{ /* non_impulse - @Short(impulse) case */
++  		noise_rate = 0.9;
++  		noise_center = 0;
++  		if(offset_select == 1){
++  			for(i=0; i<128; i++) tempmdct[i] = lastmdct[i] - 5;
++  		}
++  		if(p->vi->normal_thresh < .45) noise_rate = 0.8;
++  	}
++  	noise_rate_low = noise_rate*0.6;
++  	it_sw = 1;
++  }else{
++  	it_sw = 0;
++  }
++  
++  /** @ M3&M4 PRE **/
++  if(cx < 0.5){
++  	it_sw = 0; /* M3 */
++  	m4_val=-1.; /* M4 */
++  }else if((offset_select==1) && (p->vi->normal_thresh<.45)){
++  	/* for M4 */
++  	for(i=p->vi->normal_start; i<n; i++){
++  		if(p->noiseoffset[1][i] >= -0.91){
++  			m4_start = i;
++  			break;
++  		}
++  	}
++  	if(p->vi->normal_thresh < .175){
++  		m4_val=.966; // .966  q-2
++  	}else if(p->vi->normal_thresh < .195){
++  		m4_val=.973; // .973  q-1/0
++  	}else if(p->vi->normal_thresh < .3){
++  		m4_val=.974; // .974  q1
++  	}else m4_val=.986; // .986  q2
++  }else m4_val=-1.;
++
+   for(i=0;i<n;i++){
+     float val= noise[i]+p->noiseoffset[offset_select][i];
++    float tval= tone[i]+toneatt;
+     if(val>p->vi->noisemaxsupp)val=p->vi->noisemaxsupp;
+-    logmask[i]=max(val,tone[i]+toneatt);
+-
++    
++    /* AoTuV */
++    /** @ M2 MAIN **
++    floor is pulled below suitably. (long/trans./padding block)
++    by Aoyumi @ 2005/09/14
++    */
++    if(m2_sw){
++    	if(m2_sw == 1){
++   			if(val>(tval+toneth) && ((val-tval+toneth)>20) && val>-80){
++    			if((val-tval+toneth) > 30) val -= ((val-tval+toneth-30)/10+10);
++    			else val -= ((val-tval+toneth)-20);
++    		}
++    	}else{
++			// the conspicuous low level pre-echo of the padding block origin is reduced. 
++    		if((logmdct[i]-lastmdct[i]) > 20){
++    			if(i > m3n[3]) val -= (logmdct[i]-lastmdct[i]-20)/padth;
++    			else val -= (logmdct[i]-lastmdct[i]-20)/(padth+padth);
++    		}
++    	}
++    }
++    
++    /* AoTuV */
++    /** @ M3 MAIN **
++    Dynamic impulse block noise control. (#3)
++    48/44.1/32kHz only.
++    by Aoyumi @ 2004/08/30
++    */
++    if(it_sw){
++    	for(j=1; j<=temp_bfn[i]; j++){
++    		float tempbuf = logmdct[i]-(75/temp_bfn[i]*j)-5;
++			if( (tempmdct[i+j] < tempbuf) && (tempmdct[i+j] < (logmdct[i+j]-5)) )
++			 tempmdct[i+j] = logmdct[i+j] - 5;
++		}
++		
++    	if(val > tval){
++    		if( logmdct[i] > (tempmdct[i]+noise_center) ){
++    			tempmdct[i] = logmdct[i];
++    			if(logmdct[i] < lastmdct[i]) rate_mod = noise_rate;
++    			else rate_mod = noise_rate_low;
++				
++				if(i > m3n[1]){
++						if((val-tval) > 30) val = val - ((val-tval-30)/10+30)*rate_mod;
++						else val = val - (val-tval)*rate_mod;
++				}else if(i > m3n[2]){
++						if((val-tval) > 20) val = val - ((val-tval-20)/10+20)*rate_mod;
++						else val = val - (val-tval)*rate_mod;
++				}else if(i > m3n[3]){
++						if((val-tval) > 10) val = val - ((val-tval-10)/10+10)*rate_mod*0.5;
++						else val = val - (val-tval)*rate_mod*0.5;
++				}else{
++					if((val-tval) > 10) val = val - ((val-tval-10)/10+10)*rate_mod*0.3;
++					else val = val - (val-tval)*rate_mod*0.3;
++				}
++			}
++   		}
++   	}
++   	
++   	if(val>tval){
++   		logmask[i]=val;
++   		fmask=0;
++   	}else{
++   		logmask[i]=tval;
++   		fmask=1;
++   	}
++    //logmask[i]=max(val,tval);
++    
++    /* AoTuV */
++    /** @ M4 MAIN **
++    This aims at an effect similar to M1. 
++    by Aoyumi @ 2005/09/06
++    */
++    if(m4_val > 0){
++    	if(fmask && (m4_start<i)){
++    		mdct[i] *= m4_val;
++    		//logmdct[i]=todB(mdct+i)  + .345; // + .345 is a hack
++    	}
++    }
+ 
+     /* AoTuV */
+     /** @ M1 **
+@@ -904,6 +1107,24 @@
+       
+     }
+   }
++
++  /** @ M3 SET lastmdct **/
++  if(offset_select == 1){
++	if(n == 1024){
++		if(!nW_modenumber){
++			for(i=0; i<128; i++){
++				lastmdct[i] = logmdct[i*8];
++				for(j=1; j<8; j++){
++					if(lastmdct[i] > logmdct[i*8+j]){
++						lastmdct[i] = logmdct[i*8+j];
++					}
++				}
++			}
++		}
++	}else if(n == 128){
++		for(i=0; i<128; i++) lastmdct[i] = logmdct[i];
++	}
++  }
+ }
+ 
+ float _vp_ampmax_decay(float amp,vorbis_dsp_state *vd){
+@@ -955,7 +1176,7 @@
+   
+   int test=(floorA>floorB)-1;
+   int offset=31-abs(floorA-floorB);
+-  float floormag=hypot_lookup[((offset<0)-1)&offset]+1.f;
++  float floormag=hypot_lookup[((offset<0)-1)&offset]+1.f; // floormag = 0.990065 ~ 0.707107
+ 
+   floormag*=FLOOR1_fromdB_INV_LOOKUP[(floorB&test)|(floorA&(~test))];
+ 
+@@ -989,6 +1210,22 @@
+   if(-a>b)return -sqrt(a*a+b*b);
+   return sqrt(b*b+a*a);
+ }
++/* modified hypot by aoyumi 
++    better method should be found. */
++static float min_indemnity_dipole_hypot(float a, float b){
++  float thnor=0.92;
++  float threv=0.84;
++  float a2 = a*a;
++  float b2 = b*b;
++  if(a>0.){
++    if(b>0.)return sqrt(a2+b2*thnor);
++    if(a>-b)return sqrt(a2-b2+b2*threv); 
++    return -sqrt(b2-a2+a2*threv);
++  }
++  if(b<0.)return -sqrt(a2+b2*thnor);
++  if(-a>b)return -sqrt(a2-b2+b2*threv);
++  return sqrt(b2-a2+a2*threv);
++}
+ 
+ /* revert to round hypot for now */
+ float **_vp_quantize_couple_memo(vorbis_block *vb,
+@@ -1001,16 +1238,27 @@
+   float **ret=_vorbis_block_alloc(vb,vi->coupling_steps*sizeof(*ret));
+   int limit=g->coupling_pointlimit[p->vi->blockflag][PACKETBLOBS/2];
+   
+-  for(i=0;i<vi->coupling_steps;i++){
+-    float *mdctM=mdct[vi->coupling_mag[i]];
+-    float *mdctA=mdct[vi->coupling_ang[i]];
+-    ret[i]=_vorbis_block_alloc(vb,n*sizeof(**ret));
+-    for(j=0;j<limit;j++)
+-      ret[i][j]=dipole_hypot(mdctM[j],mdctA[j]);
+-    for(;j<n;j++)
+-      ret[i][j]=round_hypot(mdctM[j],mdctA[j]);
++  if(1){ // set new hypot
++  	for(i=0;i<vi->coupling_steps;i++){
++    	float *mdctM=mdct[vi->coupling_mag[i]];
++    	float *mdctA=mdct[vi->coupling_ang[i]];
++    	
++    	ret[i]=_vorbis_block_alloc(vb,n*sizeof(**ret));
++    	for(j=0;j<n;j++)
++    	 ret[i][j]=min_indemnity_dipole_hypot(mdctM[j],mdctA[j]);
++  	}
++  }else{
++    for(i=0;i<vi->coupling_steps;i++){
++    	float *mdctM=mdct[vi->coupling_mag[i]];
++    	float *mdctA=mdct[vi->coupling_ang[i]];
++    	
++    	ret[i]=_vorbis_block_alloc(vb,n*sizeof(**ret));
++    	for(j=0;j<limit;j++)
++    	 ret[i][j]=dipole_hypot(mdctM[j],mdctA[j]);
++    	for(;j<n;j++)
++      	 ret[i][j]=round_hypot(mdctM[j],mdctA[j]);
++  	}
+   }
+-
+   return(ret);
+ }
+ 
+@@ -1021,12 +1269,130 @@
+   return (f1<f2)-(f1>f2);
+ }
+ 
++/*** optimization of sort (for 8 or 32 element) ***/
++#ifdef OPT_SORT
++#define C(o,a,b)\
++  (fabs(data[o+a])>=fabs(data[o+b]))
++#define O(o,a,b,c,d)\
++  {n[o]=o+a;n[o+1]=o+b;n[o+2]=o+c;n[o+3]=o+d;}
++#define SORT4(o)\
++  if(C(o,2,3))if(C(o,0,1))if(C(o,0,2))if(C(o,1,2))O(o,0,1,2,3)\
++        else if(C(o,1,3))O(o,0,2,1,3)\
++          else O(o,0,2,3,1)\
++      else if(C(o,0,3))if(C(o,1,3))O(o,2,0,1,3)\
++          else O(o,2,0,3,1)\
++        else O(o,2,3,0,1)\
++    else if(C(o,1,2))if(C(o,0,2))O(o,1,0,2,3)\
++        else if(C(o,0,3))O(o,1,2,0,3)\
++          else O(o,1,2,3,0)\
++      else if(C(o,1,3))if(C(o,0,3))O(o,2,1,0,3)\
++          else O(o,2,1,3,0)\
++        else O(o,2,3,1,0)\
++  else if(C(o,0,1))if(C(o,0,3))if(C(o,1,3))O(o,0,1,3,2)\
++        else if(C(o,1,2))O(o,0,3,1,2)\
++          else O(o,0,3,2,1)\
++      else if(C(o,0,2))if(C(o,1,2))O(o,3,0,1,2)\
++          else O(o,3,0,2,1)\
++        else O(o,3,2,0,1)\
++    else if(C(o,1,3))if(C(o,0,3))O(o,1,0,3,2)\
++        else if(C(o,0,2))O(o,1,3,0,2)\
++          else O(o,1,3,2,0)\
++      else if(C(o,1,2))if(C(o,0,2))O(o,3,1,0,2)\
++          else O(o,3,1,2,0)\
++        else O(o,3,2,1,0)
++
++static void sortindex_fix8(int *index,
++                           float *data,
++                           int offset){
++  int i,j,k,n[8];
++  index+=offset;
++  data+=offset;
++  SORT4(0)
++  SORT4(4)
++  j=0;k=4;
++  for(i=0;i<8;i++)
++    index[i]=n[(k>=8)||(j<4)&&C(0,n[j],n[k])?j++:k++]+offset;
++}
++
++static void sortindex_fix32(int *index,
++                            float *data,
++                            int offset){
++  int i,j,k,n[32];
++  for(i=0;i<32;i+=8)
++    sortindex_fix8(index,data,offset+i);
++  index+=offset;
++  for(i=j=0,k=8;i<16;i++)
++    n[i]=index[(k>=16)||(j<8)&&C(0,index[j],index[k])?j++:k++];
++  for(i=j=16,k=24;i<32;i++)
++    n[i]=index[(k>=32)||(j<24)&&C(0,index[j],index[k])?j++:k++];
++  for(i=j=0,k=16;i<32;i++)
++    index[i]=n[(k>=32)||(j<16)&&C(0,n[j],n[k])?j++:k++];
++}
++
++static void sortindex_shellsort(int *index,
++                                float *data,
++                                int offset,
++                                int count){
++  int gap,pos,left,right,i,j;
++  index+=offset;
++  for(i=0;i<count;i++)index[i]=i+offset;
++  gap=1;
++  while (gap<=count)gap=gap*3+1;
++  gap/=3;
++  if(gap>=4)gap/=3;
++  while(gap>0){
++    for(pos=gap;pos<count;pos++){
++      for(left=pos-gap;left>=0;left-=gap){
++        i=index[left];j=index[left+gap];
++        if(!C(0,i,j)){
++          index[left]=j;
++          index[left+gap]=i;
++        }else break;
++      }
++    }
++    gap/=3;
++  }
++}
++
++static void sortindex(int *index,
++                      float *data,
++                      int offset,
++                      int count){
++  if(count==8)sortindex_fix8(index,data,offset);
++  else if(count==32)sortindex_fix32(index,data,offset);
++  else sortindex_shellsort(index,data,offset,count);
++}
++
++#undef C
++#undef O
++#undef SORT4
++
++#endif
++/*** OPT_SORT End ***/
++
++
+ int **_vp_quantize_couple_sort(vorbis_block *vb,
+ 			       vorbis_look_psy *p,
+ 			       vorbis_info_mapping0 *vi,
+ 			       float **mags){
+ 
+-
++#ifdef OPT_SORT
++  if(p->vi->normal_point_p){
++    int i,j,n=p->n;
++    int **ret=_vorbis_block_alloc(vb,vi->coupling_steps*sizeof(*ret));
++    int partition=p->vi->normal_partition;
++    
++    for(i=0;i<vi->coupling_steps;i++){
++      ret[i]=_vorbis_block_alloc(vb,n*sizeof(**ret));
++      
++      for(j=0;j<n;j+=partition){
++      sortindex(ret[i],mags[i],j,partition);
++      }
++    }
++    return(ret);
++  }
++  return(NULL);
++#else
+   if(p->vi->normal_point_p){
+     int i,j,k,n=p->n;
+     int **ret=_vorbis_block_alloc(vb,vi->coupling_steps*sizeof(*ret));
+@@ -1045,10 +1411,22 @@
+     return(ret);
+   }
+   return(NULL);
++#endif
+ }
+ 
+ void _vp_noise_normalize_sort(vorbis_look_psy *p,
+ 			      float *magnitudes,int *sortedindex){
++#ifdef OPT_SORT
++  int j,n=p->n;
++  vorbis_info_psy *vi=p->vi;
++  int partition=vi->normal_partition;
++  int start=vi->normal_start;
++
++  for(j=start;j<n;j+=partition){
++    if(j+partition>n)partition=n-j;
++    sortindex(sortedindex-start,magnitudes,j,partition);
++  }
++#else
+   int i,j,n=p->n;
+   vorbis_info_psy *vi=p->vi;
+   int partition=vi->normal_partition;
+@@ -1063,6 +1441,7 @@
+       sortedindex[i+j-start]=work[i]-magnitudes;
+     }
+   }
++#endif
+ }
+ 
+ void _vp_noise_normalize(vorbis_look_psy *p,
+@@ -1083,14 +1462,14 @@
+       int k;
+       
+       for(i=j;i<j+partition;i++)
+-	acc+=in[i]*in[i];
++	acc+=in[i]*in[i]*0.9;
+       
+       for(i=0;i<partition;i++){
+ 	k=sortedindex[i+j-start];
+ 	
+-	if(in[k]*in[k]>=.25f){
++	if(in[k]*in[k]>=.25f){ // or rint(in[k])!=0.f
+ 	  out[k]=rint(in[k]);
+-	  acc-=in[k]*in[k];
++	  acc-=in[k]*in[k]*0.9;
+ 	  flag=1;
+ 	}else{
+ 	  if(acc<vi->normal_thresh)break;
+@@ -1120,7 +1499,10 @@
+ 		int   **mag_sort,
+ 		int   **ifloor,
+ 		int   *nonzero,
+-		int  sliding_lowpass){
++		int  sliding_lowpass,
++		int blocktype, int modenumber,
++		int lW_blocktype, int lW_modenumber,
++		float **mdct, float **res_org){
+ 
+   int i,j,k,n=p->n;
+ 
+@@ -1144,39 +1526,73 @@
+ 
+       float *rM=res[vi->coupling_mag[i]];
+       float *rA=res[vi->coupling_ang[i]];
++      float *rMo=res_org[vi->coupling_mag[i]];
++      float *rAo=res_org[vi->coupling_ang[i]];
+       float *qM=rM+n;
+       float *qA=rA+n;
++      float *mdctM=mdct[vi->coupling_mag[i]];
++      float *mdctA=mdct[vi->coupling_ang[i]];
+       int *floorM=ifloor[vi->coupling_mag[i]];
+       int *floorA=ifloor[vi->coupling_ang[i]];
+       float prepoint=stereo_threshholds[g->coupling_prepointamp[blobno]];
+       float postpoint=stereo_threshholds[g->coupling_postpointamp[blobno]];
++      float postpoint_bu;
++      float diff_mid;
+       int partition=(p->vi->normal_point_p?p->vi->normal_partition:p->n);
+       int limit=g->coupling_pointlimit[p->vi->blockflag][blobno];
+       int pointlimit=limit;
+ 
+       nonzero[vi->coupling_mag[i]]=1; 
+       nonzero[vi->coupling_ang[i]]=1; 
++       
++       if(p->m_val > 0.5){
++       	/* The threshold of a stereo is changed in specific conditions. */
++       	if(modenumber) postpoint=stereo_threshholds_lowlong[g->coupling_postpointamp[blobno]];
++       }
++      postpoint_bu=postpoint;
++      
++      diff_mid = stereo_threshholds_diffmid[g->coupling_postpointamp[blobno]];
++      if((p->vi->normal_thresh>.25) && (p->vi->normal_thresh<.45))
++       diff_mid = postpoint - ((postpoint-diff_mid) * (1.-p->vi->flacint));
+ 
+-       /* The threshold of a stereo is changed with the size of n */
+-       if(n > 1000)
+-         postpoint=stereo_threshholds_limited[g->coupling_postpointamp[blobno]]; 
+- 
+       for(j=0;j<p->n;j+=partition){
+ 	float acc=0.f;
+ 
+ 	for(k=0;k<partition;k++){
+ 	  int l=k+j;
++	  float a=mdctM[l];
++	  float b=mdctA[l];
++	  float dummypoint;
++	  float hypot_reserve;
++
++	  postpoint=postpoint_bu;
++
++	  /* The following prevents an extreme reduction of residue. (2ch stereo only) */
++	  if(l>=limit){
++	  	if( ((a>0.) && (b<0.)) || ((b>0.) && (a<0.)) ){
++	  		hypot_reserve = fabs(fabs(a)-fabs(b));
++	  		if(hypot_reserve < 0.001){ // 0~0.000999-
++	  			dummypoint = stereo_threshholds_rephase[g->coupling_postpointamp[blobno]];
++	  			dummypoint = dummypoint+((postpoint-dummypoint)*(hypot_reserve*1000));
++	  			if(postpoint > dummypoint) postpoint = dummypoint;
++	  		}
++      	}else if(((p->vi->normal_thresh<.45) && (a-b)<0.0001)){
++      		if((rint(rM[l])==0.f && rint(rA[l])!=0.f) || (rint(rA[l])==0.f && rint(rM[l])!=0.f))
++      		postpoint = diff_mid;
++      	}
++	  }
+ 
+ 	  if(l<sliding_lowpass){
+-	    if((l>=limit && fabs(rM[l])<postpoint && fabs(rA[l])<postpoint) ||
+-	       (fabs(rM[l])<prepoint && fabs(rA[l])<prepoint)){
++	    if((l>=limit && fabs(rMo[l])<postpoint && fabs(rAo[l])<postpoint) ||
++	       (fabs(rMo[l])<prepoint && fabs(rAo[l])<prepoint)){
+ 
+ 
+ 	      precomputed_couple_point(mag_memo[i][l],
+ 				       floorM[l],floorA[l],
+ 				       qM+l,qA+l);
+ 
+-	      if(rint(qM[l])==0.f)acc+=qM[l]*qM[l];
++	      //if(rint(qM[l])==0.f)acc+=qM[l]*qM[l];
++	      if( (rint(qM[l])==0.f) && (l>=limit) )acc+=qM[l]*qM[l]*0.9;
+ 	    }else{
+ 	      couple_lossless(rM[l],rA[l],qM+l,qA+l);
+ 	    }
+@@ -1189,36 +1605,58 @@
+ 	if(p->vi->normal_point_p){
+ 	  for(k=0;k<partition && acc>=p->vi->normal_thresh;k++){
+ 	    int l=mag_sort[i][j+k];
++	    float a=mdctM[l];
++	    float b=mdctA[l];
+ 	    if(l<sliding_lowpass && l>=pointlimit && rint(qM[l])==0.f){
+ 	      qM[l]=unitnorm(qM[l]);
+-	      acc-=1.f;
++	      if( ((a>0.) && (b<0.)) || ((b>0.) && (a<0.)) ){
++	        acc-=1.46;
++	      }else{
++	        acc-=1.f;
++	      }
+ 	    }
+-	  } 
++	  }
+ 	}
+       }
+     }
+   }
+ }
+ 
+-/* AoTuV */
+-/** @ M2 **
+-   The boost problem by the combination of noise normalization and point stereo is eased. 
+-   However, this is a temporary patch. 
+-   by Aoyumi @ 2004/04/18
++/*  aoTuV M5
++	noise_compand_level of low frequency is determined from the level of high frequency. 
++	by Aoyumi @ 2005/09/14
++	
++	return value
++	[normal compander] 0 <> 1.0 [high compander] 
++	-1 @ disable
+ */
++float lb_loudnoise_fix(vorbis_look_psy *p,
++		float noise_compand_level,
++		float *logmdct,
++		int lW_modenumber,
++		int blocktype, int modenumber){
+ 
+-void hf_reduction(vorbis_info_psy_global *g,
+-                      vorbis_look_psy *p, 
+-                      vorbis_info_mapping0 *vi,
+-                      float **mdct){
+- 
+-  int i,j,n=p->n, de=0.3*p->m_val;
+-  int limit=g->coupling_pointlimit[p->vi->blockflag][PACKETBLOBS/2];
+-  int start=p->vi->normal_start;
+-  
+-  for(i=0; i<vi->coupling_steps; i++){
+-    /* for(j=start; j<limit; j++){} // ???*/
+-    for(j=limit; j<n; j++) 
+-      mdct[i][j] *= (1.0 - de*((float)(j-limit) / (float)(n-limit)));
+-  }
++	int i, n=p->n, nq1=n/4, nq3=nq1*3;
++	double hi_th=0;
++	
++	if(p->m_val < 0.5)return(-1); /* 48/44.1/32kHz only */
++	if(p->vi->normal_thresh>.45)return(-1); /* under q3 */
++
++	/* select trans. block(short>>long case). */
++	if(!modenumber)return(-1);
++	if(blocktype || lW_modenumber)return(noise_compand_level);
++
++	/* calculation of a threshold. */
++	for(i=nq1; i<nq3; i++){
++		if(logmdct[i]>-130)hi_th += logmdct[i];
++		else hi_th += -130;
++	}
++	hi_th /= n;
++	
++	/* calculation of a high_compand_level */
++	if(hi_th > -40.) noise_compand_level=-1;
++	else if(hi_th < -50.) noise_compand_level=1.;
++	else noise_compand_level=1.-((hi_th+50)/10);
++
++	return(noise_compand_level);
+ }
+diff -Naur libvorbis-1.1.2.orig/lib/psy.h libvorbis-1.1.2/lib/psy.h
+--- libvorbis-1.1.2.orig/lib/psy.h	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/psy.h	2006-03-06 15:46:45.000000000 +0000
+@@ -15,6 +15,8 @@
+ 
+  ********************************************************************/
+ 
++#define OPT_SORT
++
+ #ifndef _V_PSY_H_
+ #define _V_PSY_H_
+ #include "smallft.h"
+@@ -54,6 +56,9 @@
+   int   noisewindowfixed;
+   float noiseoff[P_NOISECURVES][P_BANDS];
+   float noisecompand[NOISE_COMPAND_LEVELS];
++  float noisecompand_high[NOISE_COMPAND_LEVELS];
++  
++  float flacint;
+ 
+   float max_curve_dB;
+ 
+@@ -110,6 +115,7 @@
+   int   total_octave_lines;  
+   long  rate; /* cache it */
+ 
++  int m3n[4]; /* number for M3 */
+   float m_val; /* Masking compensation value */
+ 
+ } vorbis_look_psy;
+@@ -129,6 +135,7 @@
+ 			     int sliding_lowpass);
+ 
+ extern void _vp_noisemask(vorbis_look_psy *p,
++			  float noise_compand_level,
+ 			  float *logmdct, 
+ 			  float *logmask);
+ 
+@@ -144,7 +151,11 @@
+ 			       int offset_select,
+ 			       float *logmask,
+ 			       float *mdct,
+-			       float *logmdct);
++			       float *logmdct,
++			       float *lastmdct, float *tempmdct,
++			       int blocktype, int modenumber,
++			       int nW_modenumber,
++			       int lW_blocktype, int lW_modenumber, int lW_no);
+ 
+ extern float _vp_ampmax_decay(float amp,vorbis_dsp_state *vd);
+ 
+@@ -163,7 +174,10 @@
+ 		       int   **mag_sort,
+ 		       int   **ifloor,
+ 		       int   *nonzero,
+-		       int   sliding_lowpass);
++		       int   sliding_lowpass,
++		       int blocktype, int modenumber,
++		       int lW_blocktype, int lW_modenumber,
++		       float **mdct, float **res_org);
+ 
+ extern void _vp_noise_normalize(vorbis_look_psy *p,
+ 				float *in,float *out,int *sortedindex);
+@@ -176,10 +190,11 @@
+ 				      vorbis_info_mapping0 *vi,
+ 				      float **mags);
+ 
+-extern void hf_reduction(vorbis_info_psy_global *g,
+-			 vorbis_look_psy *p,
+-			 vorbis_info_mapping0 *vi,
+-			 float **mdct);
++extern float lb_loudnoise_fix(vorbis_look_psy *p,
++		float noise_compand_level,
++		float *logmdct,
++		int lW_modenumber,
++		int blocktype, int modenumber);
+ 
+ 
+ #endif
+diff -Naur libvorbis-1.1.2.orig/lib/vorbisenc.c libvorbis-1.1.2/lib/vorbisenc.c
+--- libvorbis-1.1.2.orig/lib/vorbisenc.c	2005-11-28 05:43:25.000000000 +0000
++++ libvorbis-1.1.2/lib/vorbisenc.c	2006-03-06 15:46:45.000000000 +0000
+@@ -370,11 +370,16 @@
+ 
+ static void vorbis_encode_compand_setup(vorbis_info *vi,double s,int block,
+ 				       compandblock *in, double *x){
+-  int i,is=s;
+-  double ds=s-is;
++  int i,is=s, ishcm, hcm_stop=5; // high compander limit
++  double ds=s-is, dshcm;
++  
+   codec_setup_info *ci=vi->codec_setup;
+   vorbis_info_psy *p=ci->psy_param[block];
++  
++   /* the place was borrowed...  */
++   p->flacint=ds;
+ 
++  /* interpolate the compander mapping */
+   ds=x[is]*(1.-ds)+x[is+1]*ds;
+   is=(int)ds;
+   ds-=is;
+@@ -383,9 +388,32 @@
+     ds=1.;
+   }
+ 
++  /* high compander setup */
++  ishcm = is;
++  dshcm = ds+.3;
++  if(dshcm > 1.0){
++  	 ishcm++;
++  	 dshcm=dshcm-1;
++  }
++  if(x[hcm_stop] < ((float)ishcm+dshcm)){
++  	ishcm = x[hcm_stop];
++  	dshcm = x[hcm_stop]-ishcm;
++  }
++  if(dshcm==0 && ishcm>0){ // the same
++    ishcm--;
++    dshcm=1.;
++  }
++  
+   /* interpolate the compander settings */
+   for(i=0;i<NOISE_COMPAND_LEVELS;i++)
+     p->noisecompand[i]=in[is].data[i]*(1.-ds)+in[is+1].data[i]*ds;
++  /* interpolate the high compander settings */
++  if(s < (float)hcm_stop){
++  	for(i=0;i<NOISE_COMPAND_LEVELS;i++)
++  	  p->noisecompand_high[i]=in[ishcm].data[i]*(1.-dshcm)+in[ishcm+1].data[i]*dshcm;
++  }else{ // disable high compander
++  	for(i=0;i<NOISE_COMPAND_LEVELS;i++)p->noisecompand_high[i]=0;
++  }
+   return;
+ }
+ 

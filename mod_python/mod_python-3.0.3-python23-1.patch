@@ -1,0 +1,21 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-08-11
+Initial Package Version: 3.0.3
+Origin: Python Web Site
+Description: Fixes Compile Issue with Python 2.3
+
+diff -Naur mod_python-3.0.3.orig/src/include/mod_python.h mod_python-3.0.3/src/include/mod_python.h
+--- mod_python-3.0.3.orig/src/include/mod_python.h	2002-11-07 16:15:11.000000000 -0000
++++ mod_python-3.0.3/src/include/mod_python.h	2003-08-11 06:30:12.000000000 -0000
+@@ -138,6 +138,11 @@
+ #define SILENT 0
+ #define NOTSILENT 1
+ 
++/* python 2.3 no longer defines LONG_LONG, it defines PY_LONG_LONG */
++#ifndef LONG_LONG
++#define LONG_LONG PY_LONG_LONG
++#endif
++
+ /* structure to hold interpreter data */
+ typedef struct {
+     PyInterpreterState *istate;

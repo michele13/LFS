@@ -1,0 +1,34 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2011-01-07
+Initial Package Version: 2.7.8
+Upstream Status: Applied
+Origin: Upstream
+Description: Fix for CVE-2010-4494 (double free in xpath).
+
+Commits df83c17e5a2646bd923f75e5e507bc80d73c9722 and
+fec31bcd452e77c10579467ca87a785b41115de6 by Daniel Veillard,
+
+diff -Naur libxml2-2.7.8.orig/xpath.c libxml2-2.7.8/xpath.c
+--- libxml2-2.7.8.orig/xpath.c	2010-11-03 19:18:27.000000000 +0000
++++ libxml2-2.7.8/xpath.c	2011-01-07 13:21:33.000000000 +0000
+@@ -11763,11 +11763,16 @@
+ 
+ 	    if ((ctxt->error != XPATH_EXPRESSION_OK) || (res == -1)) {
+ 	        xmlXPathObjectPtr tmp;
+-		/* pop the result */
++		/* pop the result if any */
+ 		tmp = valuePop(ctxt);
+-		xmlXPathReleaseObject(xpctxt, tmp);
+-		/* then pop off contextObj, which will be freed later */
+-		valuePop(ctxt);
++                if (tmp != contextObj) {
++                    /*
++                     * Free up the result
++                     * then pop off contextObj, which will be freed later
++                     */
++                    xmlXPathReleaseObject(xpctxt, tmp);
++                    valuePop(ctxt);
++                }
+ 		goto evaluation_error;
+ 	    }
+ 

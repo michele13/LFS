@@ -1,0 +1,27 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2006-02-25
+Initial Package Version: 2.12.7
+Upstream Status:         Not submitted (LFS specific) This patch cannot really
+                         be sent upstream yet (well, I suppose it could, but it
+                         would probably be rejected) because Firefox/Mozilla
+                         does not yet officially support building with system
+                         installed NSPR libraries
+Origin:                  Randy McMurchy
+Description:             Fixes breakage if using system-installed NSPR libraries
+
+
+diff -Naur librsvg-2.12.7-orig/configure librsvg-2.12.7/configure
+--- librsvg-2.12.7-orig/configure	2005-10-08 03:31:22.000000000 +0000
++++ librsvg-2.12.7/configure	2006-02-25 14:58:24.000000000 +0000
+@@ -23729,7 +23729,10 @@
+ 
+    if test "x$MOZILLA_CONFIG" != "xno"; then
+       _mozilla_include_dir=`$MOZILLA_CONFIG --cflags|sed 's/-I\(.*\) .*/\1/'`
+-      MOZILLA_CFLAGS="-I$_mozilla_include_dir/plugin -I$_mozilla_include_dir/java -I$_mozilla_include_dir/nspr"
++      _nspr_include_dir=`for cflaglist in $($MOZILLA_CONFIG --cflags); \
++			do echo $cflaglist | grep nspr >/dev/null; \
++			if [ $? -eq 0 ]; then echo $cflaglist; fi; done`
++      MOZILLA_CFLAGS="-I$_mozilla_include_dir/plugin -I$_mozilla_include_dir/java $_nspr_include_dir"
+    else
+ 
+   succeeded=no

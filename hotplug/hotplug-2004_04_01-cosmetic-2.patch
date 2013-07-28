@@ -1,0 +1,74 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-16
+Initial Package Version: 2004_04_01
+Upstream Status: LFS-specific
+Origin: Alexander E. Patrakov
+Description: Makes the output more verbose and looking like the output of
+other LFS bootscripts. Removes references to RedHat-specific
+/var/lock/subsys directory, puts the initscript into /etc/rc.d/init.d.
+
+diff -ur hotplug-2004_04_01.orig/etc/rc.d/init.d/hotplug hotplug-2004_04_01/etc/rc.d/init.d/hotplug
+--- hotplug-2004_04_01.orig/etc/rc.d/init.d/hotplug	2003-03-28 05:25:03.000000000 +0500
++++ hotplug-2004_04_01/etc/rc.d/init.d/hotplug	2004-05-16 12:50:43.911080688 +0600
+@@ -22,29 +22,38 @@
+ 
+ case "$1" in
+     start|restart|status)
+-	for RC in /etc/hotplug/*.rc
+-	do
+-	    $RC $1
+-	done
+-	touch /var/lock/subsys/hotplug
++        for RC in /etc/hotplug/*.rc
++        do
++            echo "Loading modules for" \
++                `basename $RC .rc | tr [:lower:] [:upper:]` "hardware"
++            $RC $1
++            print_status success
++        done
+ 	;;
+     stop)
+-	for RC in /etc/hotplug/*.rc
++        for RC in /etc/hotplug/*.rc
+         do
++            echo "Unoading modules for" \
++                `basename $RC .rc | tr [:lower:] [:upper:]` "hardware"
+             $RC stop
++            print_status success
+         done
+-        rm -f /var/lock/subsys/hotplug
+         ;;
+     force-reload)
+-	for RC in /etc/hotplug/*.rc
++        for RC in /etc/hotplug/*.rc
+         do
++            echo "Unoading modules for" \
++                `basename $RC .rc | tr [:lower:] [:upper:]` "hardware"
+             $RC stop
++            print_status success
+         done
+-	for RC in /etc/hotplug/*.rc
++        for RC in /etc/hotplug/*.rc
+         do
+-            $RC start
++            echo "Loading modules for" \
++                `basename $RC .rc | tr [:lower:] [:upper:]` "hardware"
++            $RC $1
++            print_status success
+         done
+-        rm -f /var/lock/subsys/hotplug
+         ;;
+ 
+     *)
+diff -ur hotplug-2004_04_01.orig/Makefile hotplug-2004_04_01/Makefile
+--- hotplug-2004_04_01.orig/Makefile	2003-06-28 06:13:10.000000000 +0600
++++ hotplug-2004_04_01/Makefile	2004-05-16 12:51:01.434416736 +0600
+@@ -91,7 +91,7 @@
+ 	for F in etc/hotplug/{blacklist,usb.{user,hand,dist}map} ; do \
+ 	    ${INSTALL_DATA} $$F $(etcdir)/hotplug ; \
+ 	    done
+-	${INSTALL_SCRIPT} -D etc/rc.d/init.d/hotplug $(etcdir)/init.d/hotplug
++	${INSTALL_SCRIPT} -D etc/rc.d/init.d/hotplug $(etcdir)/rc.d/init.d/hotplug
+ 	$(INSTALL_DATA) -D hotplug.8  $(mandir)/man8/hotplug.8
+ 	$(INSTALL) -d $(prefix)/var/log/hotplug $(prefix)/var/run
+ 	$(INSTALL) -d -m 700 $(prefix)/var/run/usb

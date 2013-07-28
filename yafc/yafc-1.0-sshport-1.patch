@@ -1,0 +1,20 @@
+Submitted By: Csaba Henk (ekho@renyi.hu)
+Date: 2003-08-25
+Initial Package Version: 1.0
+Origin: Csaba Henk
+Description: If you save a bookmark of an sftp session which uses a
+non-standard port (ie., other than 22), the bookmark won't work because yafc
+tries to open the bookmarked connection at port 22. This is cured by the
+patch.
+
+--- yafc-1.0/src/login.c	2002-02-23 14:16:30.000000000 +0100
++++ 1.0/yafc-1.0/src/login.c	2003-06-22 20:43:11.000000000 +0200
+@@ -161,7 +161,7 @@
+ 		if(!url->protocol) {
+ 			url_setprotocol(url, xurl->protocol);
+ 			if(xurl->protocol && strcmp(xurl->protocol, "ssh") == 0)
+-				url_setport(url, 22);
++				url_setport(url, xurl->port);
+ 		}
+ 
+ 		if(!test(opt, OP_NOAUTO)) {

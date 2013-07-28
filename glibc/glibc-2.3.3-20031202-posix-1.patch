@@ -1,0 +1,18 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-02-20
+Initial Package Version: 2.3.3
+Origin: http://ttervo.vectorstar.net/nptl/posix-patches/glibc-2.3-20031101-posix-sort.patch
+Upstream Status: Fixed
+Description: Makes Posix Compliant
+ 
+--- glibc-2.3.3-20031202/manual/Makefile.orig	2004-02-20 20:17:24.983572868 +0000
++++ glibc-2.3.3-20031202/manual/Makefile	2004-02-20 20:17:35.316780053 +0000
+@@ -85,7 +85,7 @@
+ # Generate the summary from the Texinfo source files for each chapter.
+ summary.texi: stamp-summary ;
+ stamp-summary: summary.awk $(filter-out summary.texi, $(texis))
+-	$(AWK) -f $^ | sort -t'' -df +0 -1 | tr '\014' '\012' > summary-tmp
++	$(AWK) -f $^ | sort -t'' -df -k 1,1 | tr '\014' '\012' > summary-tmp
+ 	$(move-if-change) summary-tmp summary.texi
+ 	touch $@
+ 

@@ -1,0 +1,36 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-12-25
+Initial Package Version: 1.6
+Upstream Status:         Not submitted (LFS specific)
+Origin:                  Randy McMurchy
+Description:             Modifies the Makefile so that everything is installed
+                         with the 'make install' command
+
+
+diff -Naur libmpeg3-1.6-orig/Makefile libmpeg3-1.6/Makefile
+--- libmpeg3-1.6-orig/Makefile	2005-08-28 03:21:13.000000000 +0000
++++ libmpeg3-1.6/Makefile	2005-12-25 18:06:04.000000000 +0000
+@@ -1,5 +1,6 @@
+ CC = gcc
+ NASM = nasm
++VERSION_NAME := $(shell basename $(PWD))
+ USE_MMX = 0
+ USE_CSS = 1
+ A52DIR := $(shell expr a52dec* )
+@@ -188,9 +189,13 @@
+ 		-ldl
+ 
+ install: 
++	if [ ! -d $(PREFIX)/bin ]; then install -v -m755 -d $(PREFIX)/bin; fi
++	if [ ! -d $(PREFIX)/lib ]; then install -v -m755 -d $(PREFIX)/lib; fi
++	if [ ! -d $(PREFIX)/include ]; then install -v -m755 -d $(PREFIX)/include; fi
+ 	cp $(UTILS) $(PREFIX)/bin
+-#	cp $(OUTPUT) $(PREFIX)/lib
+-#	cp libmpeg3.h mpeg3private.h $(PREFIX)/include
++	cp $(OUTPUT) $(PREFIX)/lib
++	cp libmpeg3.h mpeg3private.h mpeg3protos.h $(PREFIX)/include
++	install -v -m644 -D docs/index.html $(PREFIX)/share/doc/$(VERSION_NAME)/index.html
+ 
+ clean:
+ 	rm -rf $(OBJDIR)
+

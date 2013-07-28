@@ -1,0 +1,20 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: 2003-09-24
+Initial Package Version: 3.5.7
+Origin: Ken Moffat
+Description: Allows the build to work on my A1XE.  At a guess this might be
+caused by using binutils-2.14.90.0.6 - the script searches for elf32ppc as
+the first option in ld's supported emulations, but what actually comes first
+is elf32ppclinux, elf32ppc comes second.
+
+--- tiff-v3.5.7/config.guess.orig	2003-09-24 23:36:12.000000000 +0100
++++ tiff-v3.5.7/config.guess	2003-09-24 23:36:41.000000000 +0100
+@@ -559,7 +559,7 @@
+ 	  sparclinux) echo "${UNAME_MACHINE}-unknown-linux-gnuaout" ; exit 0 ;;
+ 	  armlinux)   echo "${UNAME_MACHINE}-unknown-linux-gnuaout" ; exit 0 ;;
+ 	  m68klinux)  echo "${UNAME_MACHINE}-unknown-linux-gnuaout" ; exit 0 ;;
+-	  elf32ppc)   echo "powerpc-unknown-linux-gnu"              ; exit 0 ;;
++	  elf32ppc*)  echo "powerpc-unknown-linux-gnu"              ; exit 0 ;;
+ 	esac
+ 
+ 	if test "${UNAME_MACHINE}" = "alpha" ; then

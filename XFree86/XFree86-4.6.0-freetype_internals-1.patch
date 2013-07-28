@@ -1,0 +1,3562 @@
+Submitted By: Dan Nicholson
+Date: 2007-05-23
+Initial Package Version: 4.6.0
+Origin: Upstream
+Description: Allow XFree86 to build against freetype releases newer than
+	2.1.10. This removes usage of the freetype internals in most places.
+
+	http://www.mail-archive.com/cvs-commit@xfree86.org/msg05110.html
+	http://www.mail-archive.com/cvs-commit@xfree86.org/msg05102.html
+	http://cvsweb.xfree86.org/cvsweb/xc/extras/freetype2/src/lzw/zopen.h.diff?r1=1.2&r2=1.3
+
+diff -pNur xc.orig/extras/freetype2/include/freetype/config/ftconfig.h xc/extras/freetype2/include/freetype/config/ftconfig.h
+--- xc.orig/extras/freetype2/include/freetype/config/ftconfig.h	2004-04-26 09:15:53.000000000 -0700
++++ xc/extras/freetype2/include/freetype/config/ftconfig.h	2007-05-23 12:43:10.000000000 -0700
+@@ -72,11 +72,12 @@ FT_BEGIN_HEADER
+ 
+ 
+   /* The size of an `int' type.  */
+-#if   FT_UINT_MAX == 0xFFFFFFFFUL
++#if FT_UINT_MAX == 0xFFFFFFFFUL
+ #define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
+ #elif FT_UINT_MAX == 0xFFFFU
+ #define FT_SIZEOF_INT  (16 / FT_CHAR_BIT)
+-#elif FT_UINT_MAX > 0xFFFFFFFFU && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFU
++#elif ((FT_UINT_MAX & ~0xFFFFFFFFU) != 0) && \
++      (FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFU)
+ #define FT_SIZEOF_INT  (64 / FT_CHAR_BIT)
+ #else
+ #error "Unsupported size of `int' type!"
+@@ -85,7 +86,8 @@ FT_BEGIN_HEADER
+   /* The size of a `long' type.  */
+ #if   FT_ULONG_MAX == 0xFFFFFFFFUL
+ #define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
+-#elif FT_ULONG_MAX > 0xFFFFFFFFU && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFU
++#elif ((FT_ULONG_MAX & ~0xFFFFFFFFU) != 0) && \
++      (FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFU)
+ #define FT_SIZEOF_LONG  (64 / FT_CHAR_BIT)
+ #else
+ #error "Unsupported size of `long' type!"
+diff -pNur xc.orig/extras/freetype2/include/freetype/config/ftmodule.h xc/extras/freetype2/include/freetype/config/ftmodule.h
+--- xc.orig/extras/freetype2/include/freetype/config/ftmodule.h	2003-05-28 19:01:46.000000000 -0700
++++ xc/extras/freetype2/include/freetype/config/ftmodule.h	2007-05-23 15:22:28.000000000 -0700
+@@ -1,6 +1,8 @@
+ FT_USE_MODULE(autohint_module_class)
+ FT_USE_MODULE(cff_driver_class)
++#ifndef FONTMODULE
+ FT_USE_MODULE(t1cid_driver_class)
++#endif
+ FT_USE_MODULE(pcf_driver_class)
+ FT_USE_MODULE(bdf_driver_class)
+ FT_USE_MODULE(psaux_module_class)
+@@ -8,12 +10,16 @@ FT_USE_MODULE(psnames_module_class)
+ FT_USE_MODULE(pshinter_module_class)
+ FT_USE_MODULE(ft_raster1_renderer_class)
+ FT_USE_MODULE(sfnt_module_class)
++#ifndef FONTMODULE
+ FT_USE_MODULE(ft_smooth_renderer_class)
+ FT_USE_MODULE(ft_smooth_lcd_renderer_class)
+ FT_USE_MODULE(ft_smooth_lcdv_renderer_class)
++#endif
+ FT_USE_MODULE(tt_driver_class)
+ FT_USE_MODULE(t1_driver_class)
++#ifndef FONTMODULE
+ FT_USE_MODULE(t42_driver_class)
+ FT_USE_MODULE(pfr_driver_class)
+ FT_USE_MODULE(winfnt_driver_class)
++#endif
+ 
+diff -pNur xc.orig/extras/freetype2/include/freetype/config/ftoption.h xc/extras/freetype2/include/freetype/config/ftoption.h
+--- xc.orig/extras/freetype2/include/freetype/config/ftoption.h	2004-04-26 09:15:53.000000000 -0700
++++ xc/extras/freetype2/include/freetype/config/ftoption.h	2007-05-23 12:43:10.000000000 -0700
+@@ -526,7 +526,11 @@ FT_BEGIN_HEADER
+   /* files into an existing face.  Note that if set, the T1 driver will be */
+   /* unable to produce kerning distances.                                  */
+   /*                                                                       */
++#ifdef FONTMODULE
++#define T1_CONFIG_OPTION_NO_AFM
++#else
+ #undef T1_CONFIG_OPTION_NO_AFM
++#endif
+ 
+ 
+   /*************************************************************************/
+@@ -535,7 +539,11 @@ FT_BEGIN_HEADER
+   /* compilation of the Multiple Masters font support in the Type 1        */
+   /* driver.                                                               */
+   /*                                                                       */
++#ifdef FONTMODULE
++#define T1_CONFIG_OPTION_NO_MM_SUPPORT
++#else
+ #undef T1_CONFIG_OPTION_NO_MM_SUPPORT
++#endif
+ 
+  /* */
+ 
+diff -pNur xc.orig/extras/freetype2/include/freetype/config/ftstdlib.h xc/extras/freetype2/include/freetype/config/ftstdlib.h
+--- xc.orig/extras/freetype2/include/freetype/config/ftstdlib.h	2004-04-26 08:40:19.000000000 -0700
++++ xc/extras/freetype2/include/freetype/config/ftstdlib.h	2007-05-23 15:21:31.000000000 -0700
+@@ -58,6 +58,8 @@
+   /**********************************************************************/
+ 
+ 
++#ifndef FONTMODULE
++
+ #include <limits.h>
+ 
+ #define FT_UINT_MAX   UINT_MAX
+@@ -132,6 +134,74 @@
+ #define ft_longjmp  longjmp   /* "               */
+ 
+ 
++#else
++
++#include <X11/Xmd.h>
++#define _XTYPEDEF_BOOL
++#include <X11/Xdefs.h>
++#define DONT_DEFINE_WRAPPERS
++#define DEFINE_SETJMP_WRAPPERS
++#include "xf86_ansic.h"
++#undef DONT_DEFINE_WRAPPERS
++
++#ifndef offsetof
++#define offsetof(TYPE, MEMBER) ((xf86size_t)&((TYPE*)0)->MEMBER)
++#endif
++
++#define FT_CHAR_BIT  8
++#define FT_UINT_MAX  4294967295U
++#ifdef LONG64
++#define FT_ULONG_MAX 18446744073709551615UL
++#else
++#define FT_ULONG_MAX 4294967295UL
++#endif
++
++#define ft_isalnum   xf86isalnum
++#define ft_isupper   xf86isupper
++#define ft_islower   xf86islower
++#define ft_isdigit   xf86isdigit
++#define ft_isxdigit  xf86isxdigit
++
++#define ft_memcmp    xf86memcmp
++#define ft_memcpy    xf86memcpy
++#define ft_memmove   xf86memmove
++#define ft_memset    xf86memset
++#define ft_strcat    xf86strcat
++#define ft_strcmp    xf86strcmp
++#define ft_strcpy    xf86strcpy
++#define ft_strlen    xf86strlen
++#define ft_strncmp   xf86strncmp
++#define ft_strncpy   xf86strncpy
++#define ft_strrchr   xf86strrchr
++
++#define ft_sprintf   xf86sprintf
++
++#define ft_qsort     xf86qsort
++#define ft_exit      xf86exit
++
++#define ft_atol      xf86atol
++
++#define ft_jmp_buf   jmp_buf
++#define ft_setjmp    setjmp
++#define ft_longjmp   longjmp
++
++#undef  exit
++#define exit         xf86exit
++
++#undef  fprintf
++#define fprintf      xf86fprintf
++
++#undef  memcpy
++#define memcpy       xf86memcpy
++#undef  memset
++#define memset       xf86memset
++
++#undef  stderr
++#define stderr       xf86stderr
++
++#endif /* FONTMODULE */
++
++
+   /* the following is only used for debugging purposes, i.e. when */
+   /* FT_DEBUG_LEVEL_ERROR or FT_DEBUG_LEVEL_TRACE are defined     */
+   /*                                                              */
+diff -pNur xc.orig/extras/freetype2/include/freetype/fttypes.h xc/extras/freetype2/include/freetype/fttypes.h
+--- xc.orig/extras/freetype2/include/freetype/fttypes.h	2003-05-28 19:01:45.000000000 -0700
++++ xc/extras/freetype2/include/freetype/fttypes.h	2007-05-23 15:19:56.000000000 -0700
+@@ -25,7 +25,19 @@
+ #include FT_SYSTEM_H
+ #include FT_IMAGE_H
+ 
++#ifndef FONTMODULE
+ #include <stddef.h>
++#else
++#include <X11/Xmd.h>
++#define _XTYPEDEF_BOOL
++#include <X11/Xdefs.h>
++#include "xf86_ansic.h"
++#ifndef size_t
++#define DONT_DEFINE_WRAPPERS
++#define size_t xf86size_t
++#undef DONT_DEFINE_WRAPPERS
++#endif
++#endif
+ 
+ 
+ FT_BEGIN_HEADER
+diff -pNur xc.orig/extras/freetype2/src/base/ftsystem.c xc/extras/freetype2/src/base/ftsystem.c
+--- xc.orig/extras/freetype2/src/base/ftsystem.c	2005-02-28 15:19:13.000000000 -0800
++++ xc/extras/freetype2/src/base/ftsystem.c	2007-05-23 12:43:10.000000000 -0700
+@@ -35,8 +35,28 @@
+ #include FT_TYPES_H
+ #include FT_INTERNAL_STREAM_H
+ 
++#ifndef FONTMODULE
+ #include <stdio.h>
+ #include <stdlib.h>
++#else
++#include <X11/Xmd.h>
++#define _XTYPEDEF_BOOL
++#include <X11/Xdefs.h>
++#define DONT_DEFINE_WRAPPERS
++#include "xf86_ansic.h"
++#undef DONT_DEFINE_WRAPPERS
++#define malloc(x) xf86malloc(x)
++#define realloc(x, y) xf86realloc(x, y)
++#define free(x) xf86free(x)
++#define FILE XF86FILE
++#define fopen(x, y) xf86fopen(x, y)
++#define fclose(x) xf86fclose(x)
++#define fseek(x, y, z) xf86fseek(x, y, z)
++#define ftell(x) xf86ftell(x)
++#define SEEK_SET XF86_SEEK_SET
++#define SEEK_END XF86_SEEK_END
++#define fread(x, y, z, t) xf86fread(x, y, z, t)
++#endif
+ 
+ 
+   /*************************************************************************/
+@@ -267,6 +287,10 @@
+ #endif
+ 
+ 
++#ifdef FONTMODULE
++#undef free
++#endif
++
+   /* documentation is in ftobjs.h */
+ 
+   FT_EXPORT_DEF( FT_Memory )
+diff -pNur xc.orig/extras/freetype2/src/lzw/zopen.h xc/extras/freetype2/src/lzw/zopen.h
+--- xc.orig/extras/freetype2/src/lzw/zopen.h	2006-01-09 06:56:44.000000000 -0800
++++ xc/extras/freetype2/src/lzw/zopen.h	2007-05-23 16:29:05.000000000 -0700
+@@ -40,7 +40,9 @@
+  *
+  */
+ 
++#ifndef FONTMODULE
+ #include <stdio.h>
++#endif
+ 
+ #define	BITS		16		/* Default bits. */
+ #define	HSIZE		69001		/* 95% occupancy */
+diff -pNur xc.orig/lib/Xft/Imakefile xc/lib/Xft/Imakefile
+--- xc.orig/lib/Xft/Imakefile	2005-10-25 09:58:48.000000000 -0700
++++ xc/lib/Xft/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -23,7 +23,8 @@ XCOMM $XFree86: xc/lib/Xft/Imakefile,v 1
+ #endif
+ 
+ #ifdef UseInstalled
+-/* when using xmkmf, make sure the needed definitions for the fontconfig
++/*
++ * when using xmkmf, make sure the needed definitions for the fontconfig
+  * library are available
+  */
+ 
+@@ -44,7 +45,7 @@ TYPE1DIR=XftType1Dir
+ WARNINGS=-Wall -Wpointer-arith -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wnested-externs
+ #endif
+ INCLUDES=$(FONTCONFIGINCLUDES) $(FREETYPE2INCLUDES) $(WARNINGS)
+-DEFINES=$(FREETYPE2DEFINES) $(RENDERDEFINES) -DXFREE86_FT2
++DEFINES=$(FREETYPE2DEFINES) $(RENDERDEFINES)
+ 
+ XFT_REVISION=0
+ 
+diff -pNur xc.orig/lib/Xft1/Imakefile xc/lib/Xft1/Imakefile
+--- xc.orig/lib/Xft1/Imakefile	2006-02-07 16:49:12.000000000 -0800
++++ xc/lib/Xft1/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -90,7 +90,7 @@ YFLAGS = -d
+ XFTLIBDIR=XftLibDir
+ 
+ INCLUDES=$(FONTCONFIGINCLUDES) $(FREETYPE2INCLUDES)
+-DEFINES=$(FREETYPE2DEFINES) $(RENDERDEFINES) -DXFREE86_FT2
++DEFINES=$(FREETYPE2DEFINES) $(RENDERDEFINES)
+ 
+ #if UseFreetype2
+ FREETYPE2REQLIB = $(FREETYPE2LIB)
+diff -pNur xc.orig/lib/font/FreeType/Imakefile xc/lib/font/FreeType/Imakefile
+--- xc.orig/lib/font/FreeType/Imakefile	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -7,14 +7,9 @@ XCOMM $XFree86: xc/lib/font/FreeType/Ima
+ SUBDIRS = module
+ #endif
+ 
+-DEFINES = ServerExtraDefines StrcasecmpDefines Freetype2BuildDefines \
+-	  -DXFREE86_FT2
++DEFINES = ServerExtraDefines StrcasecmpDefines Freetype2BuildDefines
+ 
+-FT2SOURCEDIR = $(TOP)/extras/freetype2/src
+-FT2INCS = $(FREETYPE2INCLUDES)
+-
+-INCLUDES = $(FT2INCS) -I../include -I$(SERVERSRC)/include \
+-	   -I$(FT2SOURCEDIR)/truetype
++INCLUDES = $(FREETYPE2INCLUDES) -I../include -I$(SERVERSRC)/include
+ 
+ SRCS = xttcap.c ftfuncs.c ftenc.c fttools.c
+ OBJS = xttcap.o ftfuncs.o ftenc.o fttools.o
+diff -pNur xc.orig/lib/font/FreeType/ftconfig.h xc/lib/font/FreeType/ftconfig.h
+--- xc.orig/lib/font/FreeType/ftconfig.h	2004-04-26 09:15:56.000000000 -0700
++++ xc/lib/font/FreeType/ftconfig.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,386 +0,0 @@
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ftconfig.h                                                             */
+-/*                                                                         */
+-/*    ANSI-specific configuration file (specification only).               */
+-/*                                                                         */
+-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  Modified for XFree86.                                                  */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-
+-/* $XFree86: xc/lib/font/FreeType/ftconfig.h,v 1.8 2004/04/26 16:15:56 dawes Exp $ */
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* This header file contains a number of macro definitions that are used */
+-  /* by the rest of the engine.  Most of the macros here are automatically */
+-  /* determined at compile time, and you should not need to change it to   */
+-  /* port FreeType, except to compile the library with a non-ANSI          */
+-  /* compiler.                                                             */
+-  /*                                                                       */
+-  /* Note however that if some specific modifications are needed, we       */
+-  /* advise you to place a modified copy in your build directory.          */
+-  /*                                                                       */
+-  /* The build directory is usually `freetype/builds/<system>', and        */
+-  /* contains system-specific files that are always included first when    */
+-  /* building the library.                                                 */
+-  /*                                                                       */
+-  /* This ANSI version should stay in `include/freetype/config'.           */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-#ifndef __FTCONFIG_H__
+-#define __FTCONFIG_H__
+-
+-#include <ft2build.h>
+-#include FT_CONFIG_OPTIONS_H
+-#include FT_CONFIG_STANDARD_LIBRARY_H
+-
+-FT_BEGIN_HEADER
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*               PLATFORM-SPECIFIC CONFIGURATION MACROS                  */
+-  /*                                                                       */
+-  /* These macros can be toggled to suit a specific system.  The current   */
+-  /* ones are defaults used to compile FreeType in an ANSI C environment   */
+-  /* (16bit compilers are also supported).  Copy this file to your own     */
+-  /* `freetype/builds/<system>' directory, and edit it to port the engine. */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-#ifndef __CHAR_BIT__
+-#define __CHAR_BIT__ 8
+-#endif
+-
+-#ifndef CHAR_BIT
+-#define CHAR_BIT  8
+-#endif
+-
+-
+-#ifdef XFREE86_FT2
+-
+-# include "X11/Xmd.h"
+-
+-#ifndef FT_CHAR_BIT
+-#define FT_CHAR_BIT  CHAR_BIT
+-#endif
+-
+-  /* The number of bytes in an `int' type.  */
+-# define FT_SIZEOF_INT 4
+-
+-  /* The number of bytes in a `long' type.  */
+-# ifdef LONG64
+-#  define FT_SIZEOF_LONG 8
+-# else
+-#  define FT_SIZEOF_LONG 4
+-# endif
+-
+-#else
+-
+-  /* There are systems (like the Texas Instruments 'C54x) where a `char' */
+-  /* has 16 bits.  ANSI C says that sizeof(char) is always 1.  Since an  */
+-  /* `int' has 16 bits also for this system, sizeof(int) gives 1 which   */
+-  /* is probably unexpected.                                             */
+-  /*                                                                     */
+-  /* `CHAR_BIT' (defined in limits.h) gives the number of bits in a      */
+-  /* `char' type.                                                        */
+-
+-#ifndef FT_CHAR_BIT
+-#define FT_CHAR_BIT  CHAR_BIT
+-#endif
+-
+-
+-  /* The size of an `int' type.  */
+-#if   FT_UINT_MAX == 0xFFFFFFFFUL
+-#define FT_SIZEOF_INT  (32 / FT_CHAR_BIT)
+-#elif FT_UINT_MAX == 0xFFFFU
+-#define FT_SIZEOF_INT  (16 / FT_CHAR_BIT)
+-#elif FT_UINT_MAX > 0xFFFFFFFFU && FT_UINT_MAX == 0xFFFFFFFFFFFFFFFFU
+-#define FT_SIZEOF_INT  (64 / FT_CHAR_BIT)
+-#else
+-#error "Unsupported size of `int' type!"
+-#endif
+-
+-  /* The size of a `long' type.  */
+-#if   FT_ULONG_MAX == 0xFFFFFFFFUL
+-#define FT_SIZEOF_LONG  (32 / FT_CHAR_BIT)
+-#elif FT_ULONG_MAX > 0xFFFFFFFFU && FT_ULONG_MAX == 0xFFFFFFFFFFFFFFFFU
+-#define FT_SIZEOF_LONG  (64 / FT_CHAR_BIT)
+-#else
+-#error "Unsupported size of `long' type!"
+-#endif
+-
+-#endif
+-
+-  /* Preferred alignment of data */
+-#define FT_ALIGNMENT  8
+-
+-
+-  /* FT_UNUSED is a macro used to indicate that a given parameter is not  */
+-  /* used -- this is only used to get rid of unpleasant compiler warnings */
+-#ifndef FT_UNUSED
+-#define FT_UNUSED( arg )  ( (arg) = (arg) )
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*                     AUTOMATIC CONFIGURATION MACROS                    */
+-  /*                                                                       */
+-  /* These macros are computed from the ones defined above.  Don't touch   */
+-  /* their definition, unless you know precisely what you are doing.  No   */
+-  /* porter should need to mess with them.                                 */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Mac support                                                           */
+-  /*                                                                       */
+-  /*   This is the only necessary change, so it is defined here instead    */
+-  /*   providing a new configuration file.                                 */
+-  /*                                                                       */
+-#if ( defined( __APPLE__ ) && !defined( DARWIN_NO_CARBON ) ) || \
+-    ( defined( __MWERKS__ ) && defined( macintosh )        )
+-#define FT_MACINTOSH 1
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* IntN types                                                            */
+-  /*                                                                       */
+-  /*   Used to guarantee the size of some specific integers.               */
+-  /*                                                                       */
+-  typedef signed short    FT_Int16;
+-  typedef unsigned short  FT_UInt16;
+-
+-#if FT_SIZEOF_INT == (32 / FT_CHAR_BIT)
+-
+-  typedef signed int      FT_Int32;
+-  typedef unsigned int    FT_UInt32;
+-
+-#elif FT_SIZEOF_LONG == (32 / FT_CHAR_BIT)
+-
+-  typedef signed long     FT_Int32;
+-  typedef unsigned long   FT_UInt32;
+-
+-#else
+-#error "no 32bit type found -- please check your configuration files"
+-#endif
+-
+-  /* look up an integer type that is at least 32 bits */
+-#if FT_SIZEOF_INT >= (32 / FT_CHAR_BIT)
+-
+-  typedef int            FT_Fast;
+-  typedef unsigned int   FT_UFast;
+-
+-#elif FT_SIZEOF_LONG >= (32 / FT_CHAR_BIT)
+-
+-  typedef long           FT_Fast;
+-  typedef unsigned long  FT_UFast;
+-
+-#endif
+-
+-
+-  /* determine whether we have a 64-bit int type for platforms without */
+-  /* Autoconf                                                          */
+-#if FT_SIZEOF_LONG == (64 / FT_CHAR_BIT)
+-
+-  /* FT_LONG64 must be defined if a 64-bit type is available */
+-#define FT_LONG64
+-#define FT_INT64  long
+-
+-#elif defined( _MSC_VER ) && _MSC_VER >= 900  /* Visual C++ (and Intel C++) */
+-
+-  /* this compiler provides the __int64 type */
+-#define FT_LONG64
+-#define FT_INT64  __int64
+-
+-#elif defined( __BORLANDC__ )  /* Borland C++ */
+-
+-  /* XXXX: We should probably check the value of __BORLANDC__ in order */
+-  /*       to test the compiler version.                               */
+-
+-  /* this compiler provides the __int64 type */
+-#define FT_LONG64
+-#define FT_INT64  __int64
+-
+-#elif defined( __WATCOMC__ )   /* Watcom C++ */
+-
+-  /* Watcom doesn't provide 64-bit data types */
+-
+-#elif defined( __MWERKS__ )    /* Metrowerks CodeWarrior */
+-
+-#define FT_LONG64
+-#define FT_INT64  long long int
+-
+-#elif defined( __GNUC__ )
+-
+-  /* GCC provides the "long long" type */
+-#define FT_LONG64
+-#define FT_INT64  long long int
+-
+-#endif /* FT_SIZEOF_LONG == (64 / FT_CHAR_BIT) */
+-
+-
+-#define FT_BEGIN_STMNT  do {
+-#define FT_END_STMNT    } while ( 0 )
+-#define FT_DUMMY_STMNT  FT_BEGIN_STMNT FT_END_STMNT
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* A 64-bit data type will create compilation problems if you compile    */
+-  /* in strict ANSI mode.  To avoid them, we disable their use if          */
+-  /* __STDC__ is defined.  You can however ignore this rule by             */
+-  /* defining the FT_CONFIG_OPTION_FORCE_INT64 configuration macro.        */
+-  /*                                                                       */
+-#if defined( FT_LONG64 ) && !defined( FT_CONFIG_OPTION_FORCE_INT64 )
+-
+-#ifdef __STDC__
+-
+-  /* undefine the 64-bit macros in strict ANSI compilation mode */
+-#undef FT_LONG64
+-#undef FT_INT64
+-
+-#endif /* __STDC__ */
+-
+-#endif /* FT_LONG64 && !FT_CONFIG_OPTION_FORCE_INT64 */
+-
+-
+-#ifdef FT_MAKE_OPTION_SINGLE_OBJECT
+-
+-#define FT_LOCAL( x )      static  x
+-#define FT_LOCAL_DEF( x )  static  x
+-
+-#else
+-
+-#ifdef __cplusplus
+-#define FT_LOCAL( x )      extern "C"  x
+-#define FT_LOCAL_DEF( x )  extern "C"  x
+-#else
+-#define FT_LOCAL( x )      extern  x
+-#define FT_LOCAL_DEF( x )  x
+-#endif
+-
+-#endif /* FT_MAKE_OPTION_SINGLE_OBJECT */
+-
+-
+-#ifndef FT_BASE
+-
+-#ifdef __cplusplus
+-#define FT_BASE( x )  extern "C"  x
+-#else
+-#define FT_BASE( x )  extern  x
+-#endif
+-
+-#endif /* !FT_BASE */
+-
+-
+-#ifndef FT_BASE_DEF
+-
+-#ifdef __cplusplus
+-#define FT_BASE_DEF( x )  extern "C"  x
+-#else
+-#define FT_BASE_DEF( x )  extern  x
+-#endif
+-
+-#endif /* !FT_BASE_DEF */
+-
+-
+-#ifndef FT_EXPORT
+-
+-#ifdef __cplusplus
+-#define FT_EXPORT( x )  extern "C"  x
+-#else
+-#define FT_EXPORT( x )  extern  x
+-#endif
+-
+-#endif /* !FT_EXPORT */
+-
+-
+-#ifndef FT_EXPORT_DEF
+-
+-#ifdef __cplusplus
+-#define FT_EXPORT_DEF( x )  extern "C"  x
+-#else
+-#define FT_EXPORT_DEF( x )  extern  x
+-#endif
+-
+-#endif /* !FT_EXPORT_DEF */
+-
+-
+-#ifndef FT_EXPORT_VAR
+-
+-#ifdef __cplusplus
+-#define FT_EXPORT_VAR( x )  extern "C"  x
+-#else
+-#define FT_EXPORT_VAR( x )  extern  x
+-#endif
+-
+-#endif /* !FT_EXPORT_VAR */
+-
+-  /* The following macros are needed to compile the library with a   */
+-  /* C++ compiler and with 16bit compilers.                          */
+-  /*                                                                 */
+-
+-  /* This is special.  Within C++, you must specify `extern "C"' for */
+-  /* functions which are used via function pointers, and you also    */
+-  /* must do that for structures which contain function pointers to  */
+-  /* assure C linkage -- it's not possible to have (local) anonymous */
+-  /* functions which are accessed by (global) function pointers.     */
+-  /*                                                                 */
+-  /*                                                                 */
+-  /* FT_CALLBACK_DEF is used to _define_ a callback function.        */
+-  /*                                                                 */
+-  /* FT_CALLBACK_TABLE is used to _declare_ a constant variable that */
+-  /* contains pointers to callback functions.                        */
+-  /*                                                                 */
+-  /* FT_CALLBACK_TABLE_DEF is used to _define_ a constant variable   */
+-  /* that contains pointers to callback functions.                   */
+-  /*                                                                 */
+-  /*                                                                 */
+-  /* Some 16bit compilers have to redefine these macros to insert    */
+-  /* the infamous `_cdecl' or `__fastcall' declarations.             */
+-  /*                                                                 */
+-#ifndef FT_CALLBACK_DEF
+-#ifdef __cplusplus
+-#define FT_CALLBACK_DEF( x )  extern "C"  x
+-#else
+-#define FT_CALLBACK_DEF( x )  static  x
+-#endif
+-#endif /* FT_CALLBACK_DEF */
+-
+-#ifndef FT_CALLBACK_TABLE
+-#ifdef __cplusplus
+-#define FT_CALLBACK_TABLE      extern "C"
+-#define FT_CALLBACK_TABLE_DEF  extern "C"
+-#else
+-#define FT_CALLBACK_TABLE      extern
+-#define FT_CALLBACK_TABLE_DEF  /* nothing */
+-#endif
+-#endif /* FT_CALLBACK_TABLE */
+-
+-
+-FT_END_HEADER
+-
+-
+-#endif /* __FTCONFIG_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/ftfuncs.c xc/lib/font/FreeType/ftfuncs.c
+--- xc.orig/lib/font/FreeType/ftfuncs.c	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/ftfuncs.c	2007-05-23 12:43:10.000000000 -0700
+@@ -50,10 +50,7 @@ THE SOFTWARE.
+ #include FT_TYPE1_TABLES_H
+ #include FT_XFREE86_H
+ #include FT_BBOX_H
+-#include FT_INTERNAL_TRUETYPE_TYPES_H
+ #include FT_TRUETYPE_TAGS_H
+-#include FT_INTERNAL_SFNT_H
+-#include FT_INTERNAL_STREAM_H
+ /*
+  *  If you want to use FT_Outline_Get_CBox instead of 
+  *  FT_Outline_Get_BBox, define here.
+@@ -119,6 +116,25 @@ static char *xlfd_props[] = {
+ };
+ 
+ 
++/* read 2-byte value from a SFNT table */
++static FT_UShort
++sfnt_get_ushort( FT_Face     face,
++                 FT_ULong    table_tag,
++                 FT_ULong    table_offset )
++{
++  FT_Byte    buff[2];
++  FT_ULong   len = sizeof(buff);
++  FT_UShort  result = 0;
++
++  if ( !FT_Load_Sfnt_Table( face, table_tag, table_offset, buff, &len ) );
++    result = (FT_UShort)( (buff[0] << 8) | buff[1] );
++
++  return result;
++}
++
++#define  sfnt_get_short(f,t,o)  ((FT_Short)sfnt_get_ushort((f),(t),(o)))
++
++
+ static int ftypeInitP = 0;      /* is the engine initialised? */
+ static FT_Library ftypeLibrary;
+ 
+@@ -207,6 +223,10 @@ FreeTypeOpenFace(FTFacePtr *facep, char 
+         if(maxp && maxp->maxContours == 0)
+             face->bitmap = 1;
+     }
++
++    face->num_hmetrics = (FT_UInt) sfnt_get_ushort( face->face,
++                                                    TTAG_hhea, 34 );
++
+     /* Insert face in hashtable and return it */
+     face->next = faceTable[bucket];
+     faceTable[bucket] = face;
+@@ -458,30 +478,32 @@ FreeTypeOpenInstance(FTInstancePtr *inst
+     }
+ 
+     if( FT_IS_SFNT( face->face ) ) {
+-	/* See Set_Char_Sizes() in ttdriver.c */
+-	FT_Error err;
+-	TT_Face tt_face;
+-	FT_Long tt_dim_x, tt_dim_y;
+-	FT_UShort tt_x_ppem, tt_y_ppem;
+-	FT_F26Dot6  tt_char_width, tt_char_height;
+-	SFNT_Service sfnt;
+-	tt_face=(TT_Face)face->face;
+-	tt_char_width  = (int)(trans->scale*(1<<6) + 0.5);
+-	tt_char_height = (int)(trans->scale*(1<<6) + 0.5);
+-	if ( ( tt_face->header.Flags & 8 ) != 0 ) {
+-	    tt_dim_x = ( ( tt_char_width  * trans->xres + (36+32*72) ) / 72 ) & -64;
+-	    tt_dim_y = ( ( tt_char_height * trans->yres + (36+32*72) ) / 72 ) & -64;
+-	}
+-	else{
+-	    tt_dim_x = ( ( tt_char_width  * trans->xres + 36 ) / 72 );
+-	    tt_dim_y = ( ( tt_char_height * trans->yres + 36 ) / 72 );
+-	}
+-	tt_x_ppem  = (FT_UShort)( tt_dim_x >> 6 );
+-	tt_y_ppem  = (FT_UShort)( tt_dim_y >> 6 );
+-	/* See Reset_SBit_Size() in ttobjs.c */
+-	sfnt   = (SFNT_Service)tt_face->sfnt;
+-	err = sfnt->set_sbit_strike(tt_face,tt_x_ppem,tt_y_ppem,&instance->strike_index);
+-	if ( err ) instance->strike_index=0xFFFFU;
++        FT_F26Dot6  tt_char_width, tt_char_height, tt_dim_x, tt_dim_y;
++        FT_UInt     nn;
++
++        instance->strike_index=0xFFFFU;
++
++        tt_char_width  = (FT_F26Dot6)(trans->scale*(1<<6) + 0.5);
++        tt_char_height = (FT_F26Dot6)(trans->scale*(1<<6) + 0.5);
++
++        tt_dim_x = FLOOR64( ( tt_char_width  * trans->xres + 36 ) / 72 + 32 );
++        tt_dim_y = FLOOR64( ( tt_char_height * trans->yres + 36 ) / 72 + 32 );
++
++	if ( tt_dim_x && !tt_dim_y )
++	    tt_dim_y = tt_dim_x;
++	else if ( !tt_dim_x && tt_dim_y )
++	    tt_dim_x = tt_dim_y;
++
++        for ( nn = 0; nn < face->face->num_fixed_sizes; nn++ )
++        {
++          FT_Bitmap_Size*  sz = &face->face->available_sizes[nn];
++
++          if ( tt_dim_x == FLOOR64(sz->x_ppem + 32) && tt_dim_y == FLOOR64(sz->y_ppem + 32) )
++          {
++            instance->strike_index = nn;
++            break;
++          }
++        }
+     }
+ 
+     /* maintain a linked list of instances */
+@@ -799,31 +821,61 @@ ft_make_up_italic_bitmap( char *raster, 
+  * parse the htmx field in TrueType font.
+  */
+ 
+-/* from src/truetype/ttgload.c */
+ static void
+-tt_get_metrics( TT_HoriHeader*  header,
++tt_get_metrics( FT_Face         face,
+ 		FT_UInt         idx,
++		FT_UInt         num_hmetrics,
+ 		FT_Short*       bearing,
+ 		FT_UShort*      advance )
+-/*  Copyright 1996-2001, 2002 by                      */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg. */
+ {
+-    TT_LongMetrics  longs_m;
+-    FT_UShort       k = header->number_Of_HMetrics;
++   /* read the metrics directly from the horizontal header, we
++    * parse the SFNT table directly through the standard FreeType API.
++    * this works with any version of the library and doesn't need to
++    * peek at its internals. Maybe a bit less
++    */
++    FT_UInt  count  = num_hmetrics;
++    FT_ULong length = 0;
++    FT_ULong offset = 0;
++    FT_Error error;
+ 
+-    if ( k == 0 ) {
+-	*bearing = *advance = 0;
+-	return;
+-    }
++    error = FT_Load_Sfnt_Table( face, TTAG_hmtx, 0, NULL, &length );
+ 
+-    if ( idx < (FT_UInt)k ) {
+-	longs_m  = (TT_LongMetrics )header->long_metrics + idx;
+-	*bearing = longs_m->bearing;
+-	*advance = longs_m->advance;
++    if ( count == 0 || error )
++    {
++      *advance = 0;
++      *bearing = 0;
++    }
++    else if ( idx < count )
++    {
++	offset = idx * 4L;
++	if ( offset + 4 > length )
++	{
++	    *advance = 0;
++	    *bearing = 0;
++	}
++	else
++	{
++	    *advance = sfnt_get_ushort( face, TTAG_hmtx, offset );
++	    *bearing = sfnt_get_short ( face, TTAG_hmtx, offset+2 );
++	}
++    }
++    else
++    {
++	offset = 4L * (count - 1);
++	if ( offset + 4 > length )
++	{
++	    *advance = 0;
++	    *bearing = 0;
++	}
++	else
++	{
++	    *advance = sfnt_get_ushort ( face, TTAG_hmtx, offset );
++	    offset += 4 + 2 * ( idx - count );
++	    if ( offset + 2 > length)
++		*bearing = 0;
++	    else
++		*bearing = sfnt_get_short ( face, TTAG_hmtx, offset );
+     }
+-    else {
+-	*bearing = ((TT_ShortMetrics*)header->short_metrics)[idx - k];
+-	*advance = ((TT_LongMetrics )header->long_metrics)[k - 1].advance;
+     }
+ }
+ 
+@@ -831,6 +883,7 @@ static int                   
+ ft_get_very_lazy_bbox( FT_UInt index,
+ 		       FT_Face face,
+ 		       FT_Size size,
++		       FT_UInt num_hmetrics,
+ 		       double slant,
+ 		       FT_Matrix *matrix,
+ 		       FT_BBox *bbox,
+@@ -838,15 +891,14 @@ ft_get_very_lazy_bbox( FT_UInt index,
+ 		       FT_Long *vertAdvance)
+ {
+     if ( FT_IS_SFNT( face ) ) {
+-	TT_Face   ttface = (TT_Face)face;
+ 	FT_Size_Metrics *smetrics = &size->metrics;
+ 	FT_Short  leftBearing = 0;
+ 	FT_UShort advance = 0;
+ 	FT_Vector p0, p1, p2, p3;
+ 
+ 	/* horizontal */
+-	tt_get_metrics(&ttface->horizontal, index,
+-		       &leftBearing, &advance);
++	tt_get_metrics( face, index, num_hmetrics,
++		       &leftBearing, &advance );
+ 
+ #if 0
+ 	fprintf(stderr,"x_scale=%f y_scale=%f\n",
+@@ -905,69 +957,25 @@ static FT_Error
+ FT_Do_SBit_Metrics( FT_Face ft_face, FT_Size ft_size, FT_ULong strike_index,
+ 		    FT_UShort glyph_index, FT_Glyph_Metrics *metrics_return )
+ {
+-    SFNT_Service       sfnt;
+-    TT_Face            face;
+-    FT_Error           error;
+-    FT_Stream          stream;
+-    TT_SBit_Strike     strike;
+-    TT_SBit_Range      range;
+-    TT_SBit_MetricsRec elem_metrics;
+-    FT_ULong           ebdt_pos;
+-    FT_ULong           glyph_offset;
+-    ;
+-
+-    if ( ! FT_IS_SFNT( ft_face ) )
+-    {
+-        error=-1;
+-        goto Exit;
+-    }
+-
+-    face = (TT_Face)ft_face;
+-    sfnt   = (SFNT_Service)face->sfnt;
+-
+-    if ( strike_index != 0xFFFFU && sfnt->load_sbits ) {
+-        /* Check whether there is a glyph sbit for the current index */
+-        error = sfnt->find_sbit_image( face, glyph_index, strike_index,
+-                                       &range, &strike, &glyph_offset );
+-    }
+-    else error=-1;
+-    if ( error ) goto Exit;
+-
+-    if ( metrics_return == NULL ) goto Exit;
+-
+-    stream = face->root.stream;
+-
+-    /* now, find the location of the `EBDT' table in */
+-    /* the font file                                 */
+-    error = face->goto_table( face, TTAG_EBDT, stream, 0 );
+-    if ( error )
+-      error = face->goto_table( face, TTAG_bdat, stream, 0 );
+-    if (error)
+-      goto Exit;
+-
+-    ebdt_pos = FT_STREAM_POS();
+-
+-    /* place stream at beginning of glyph data and read metrics */
+-    if ( FT_STREAM_SEEK( ebdt_pos + glyph_offset ) )
+-      goto Exit;
+-
+-    error = sfnt->load_sbit_metrics( stream, range, &elem_metrics );
+-    if ( error )
+-      goto Exit;
+-
+-    metrics_return->width  = (FT_Pos)elem_metrics.width  << 6;
+-    metrics_return->height = (FT_Pos)elem_metrics.height << 6;
+-
+-    metrics_return->horiBearingX = (FT_Pos)elem_metrics.horiBearingX << 6;
+-    metrics_return->horiBearingY = (FT_Pos)elem_metrics.horiBearingY << 6;
+-    metrics_return->horiAdvance  = (FT_Pos)elem_metrics.horiAdvance  << 6;
+-    
+-    metrics_return->vertBearingX = (FT_Pos)elem_metrics.vertBearingX << 6;
+-    metrics_return->vertBearingY = (FT_Pos)elem_metrics.vertBearingY << 6;
+-    metrics_return->vertAdvance  = (FT_Pos)elem_metrics.vertAdvance  << 6;
+-
+-  Exit:
+-      return error;
++   if ( strike_index != 0xFFFFU && ft_face->available_sizes != NULL )
++   {
++     FT_Error         error;
++     FT_Bitmap_Size*  sz = &ft_face->available_sizes[strike_index];
++
++     error = FT_Set_Pixel_Sizes( ft_face, sz->x_ppem/64, sz->y_ppem/64 );
++     if ( !error )
++     {
++       error = FT_Load_Glyph( ft_face, glyph_index, FT_LOAD_SBITS_ONLY );
++       if ( !error )
++       {
++         if ( metrics_return != NULL )
++           *metrics_return = ft_face->glyph->metrics;
++
++         return 0;
++       }
++     }
++   }
++   return -1;
+ }
+ 
+ int
+@@ -1023,6 +1031,7 @@ FreeTypeRasteriseGlyph(unsigned idx, int
+ 	    if( bitmap_metrics == NULL ) {
+ 		if ( instance->ttcap.flags & TTCAP_IS_VERY_LAZY ) {
+ 		    if( ft_get_very_lazy_bbox( idx, face->face, instance->size, 
++					       face->num_hmetrics,
+ 					       instance->ttcap.vl_slant,
+ 					       &instance->transformation.matrix,
+ 					       &bbox, &outline_hori_advance, 
+@@ -1183,10 +1192,27 @@ FreeTypeRasteriseGlyph(unsigned idx, int
+ 	}
+ 
+ 	if( face->face->glyph->format != FT_GLYPH_FORMAT_BITMAP ) {
++#ifdef USE_GET_CBOX
++	    FT_Outline_Get_CBox(&face->face->glyph->outline, &bbox);
++	    ftrc = 0;
++#else
++	    ftrc = FT_Outline_Get_BBox(&face->face->glyph->outline, &bbox);
++#endif
++	    if( ftrc != 0 ) return FTtoXReturnCode(ftrc);
++	    bbox.yMin = FLOOR64( bbox.yMin );
++	    bbox.yMax = CEIL64 ( bbox.yMax );
++	    ht_actual = ( bbox.yMax - bbox.yMin ) >> 6;
++	    /* FreeType think a glyph with 0 height control box is invalid. 
++	     * So just let X to create a empty bitmap instead. */
++	    if ( ht_actual == 0 )
++		is_outline = -1;
++	    else
++	    {
+ 	    ftrc = FT_Render_Glyph(face->face->glyph,FT_RENDER_MODE_MONO);
+ 	    if( ftrc != 0 ) return FTtoXReturnCode(ftrc);
+ 	    is_outline = 1;
+ 	}
++	}
+ 	else{
+ 	    is_outline=0;
+ 	}
+@@ -1197,6 +1223,7 @@ FreeTypeRasteriseGlyph(unsigned idx, int
+ 	if( is_outline == 1 ){
+ 	    if( correct ){
+ 		if( ft_get_very_lazy_bbox( idx, face->face, instance->size, 
++					   face->num_hmetrics,
+ 					   instance->ttcap.vl_slant,
+ 					   &instance->transformation.matrix,
+ 					   &bbox, &outline_hori_advance, 
+diff -pNur xc.orig/lib/font/FreeType/ftfuncs.h xc/lib/font/FreeType/ftfuncs.h
+--- xc.orig/lib/font/FreeType/ftfuncs.h	2004-04-14 08:32:43.000000000 -0700
++++ xc/lib/font/FreeType/ftfuncs.h	2007-05-23 12:43:10.000000000 -0700
+@@ -47,6 +47,7 @@ typedef struct _FTFace {
+     char *filename;
+     FT_Face face;
+     int bitmap;
++    FT_UInt num_hmetrics;
+     struct _FTInstance *instances;
+     struct _FTInstance *active_instance;
+     struct _FTFace *next;       /* link to next face in bucket */
+diff -pNur xc.orig/lib/font/FreeType/ftsystem.c xc/lib/font/FreeType/ftsystem.c
+--- xc.orig/lib/font/FreeType/ftsystem.c	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/ftsystem.c	1969-12-31 16:00:00.000000000 -0800
+@@ -1,331 +0,0 @@
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ftsystem.c                                                             */
+-/*                                                                         */
+-/*    ANSI-specific FreeType low-level system interface (body).            */
+-/*                                                                         */
+-/*  Copyright 1996-2001, 2002 by                                           */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  Modified for XFree86.                                                  */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-
+-/* Modified for XFree86 */
+-/* $XFree86: xc/lib/font/FreeType/ftsystem.c,v 1.5 2005/10/14 15:16:01 tsi Exp $ */
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* This file contains the default interface used by FreeType to access   */
+-  /* low-level, i.e. memory management, i/o access as well as thread       */
+-  /* synchronisation.  It can be replaced by user-specific routines if     */
+-  /* necessary.                                                            */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-#include <ft2build.h>
+-#include FT_CONFIG_CONFIG_H
+-#include FT_INTERNAL_DEBUG_H
+-#include FT_SYSTEM_H
+-#include FT_ERRORS_H
+-#include FT_TYPES_H
+-#include FT_INTERNAL_OBJECTS_H
+-#include FT_INTERNAL_STREAM_H
+-
+-#ifndef FONTMODULE
+-#include <stdio.h>
+-#include <stdlib.h>
+-#else
+-#include <X11/Xmd.h>
+-#define _XTYPEDEF_BOOL
+-#include <X11/Xdefs.h>
+-#define DONT_DEFINE_WRAPPERS
+-#include "xf86_ansic.h"
+-#undef DONT_DEFINE_WRAPPERS
+-#define malloc(x) xf86malloc(x)
+-#define realloc(x, y) xf86realloc(x, y)
+-#define free(x) xf86free(x)
+-#define FILE XF86FILE
+-#define fopen(x, y) xf86fopen(x, y)
+-#define fclose(x) xf86fclose(x)
+-#define fseek(x, y, z) xf86fseek(x, y, z)
+-#define ftell(x) xf86ftell(x)
+-#define SEEK_SET XF86_SEEK_SET
+-#define SEEK_END XF86_SEEK_END
+-#define fread(x, y, z, t) xf86fread(x, y, z, t)
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*                       MEMORY MANAGEMENT INTERFACE                     */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* It is not necessary to do any error checking for the                  */
+-  /* allocation-related functions.  This will be done by the higher level  */
+-  /* routines like FT_Alloc() or FT_Realloc().                             */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Function>                                                            */
+-  /*    ft_alloc                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The memory allocation function.                                    */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    memory :: A pointer to the memory object.                          */
+-  /*                                                                       */
+-  /*    size   :: The requested size in bytes.                             */
+-  /*                                                                       */
+-  /* <Return>                                                              */
+-  /*    The address of newly allocated block.                              */
+-  /*                                                                       */
+-  FT_CALLBACK_DEF( void* )
+-  ft_alloc( FT_Memory  memory,
+-            long       size )
+-  {
+-    FT_UNUSED( memory );
+-
+-    return malloc( size );
+-  }
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Function>                                                            */
+-  /*    ft_realloc                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The memory reallocation function.                                  */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    memory   :: A pointer to the memory object.                        */
+-  /*                                                                       */
+-  /*    cur_size :: The current size of the allocated memory block.        */
+-  /*                                                                       */
+-  /*    new_size :: The newly requested size in bytes.                     */
+-  /*                                                                       */
+-  /*    block    :: The current address of the block in memory.            */
+-  /*                                                                       */
+-  /* <Return>                                                              */
+-  /*    The address of the reallocated memory block.                       */
+-  /*                                                                       */
+-  FT_CALLBACK_DEF( void* )
+-  ft_realloc( FT_Memory  memory,
+-              long       cur_size,
+-              long       new_size,
+-              void*      block )
+-  {
+-    FT_UNUSED( memory );
+-    FT_UNUSED( cur_size );
+-
+-    return realloc( block, new_size );
+-  }
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Function>                                                            */
+-  /*    ft_free                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The memory release function.                                       */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    memory  :: A pointer to the memory object.                         */
+-  /*                                                                       */
+-  /*    block   :: The address of block in memory to be freed.             */
+-  /*                                                                       */
+-  FT_CALLBACK_DEF( void )
+-  ft_free( FT_Memory  memory,
+-           void*      block )
+-  {
+-    FT_UNUSED( memory );
+-
+-    free( block );
+-  }
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*                     RESOURCE MANAGEMENT INTERFACE                     */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* The macro FT_COMPONENT is used in trace mode.  It is an implicit      */
+-  /* parameter of the FT_TRACE() and FT_ERROR() macros, used to print/log  */
+-  /* messages during execution.                                            */
+-  /*                                                                       */
+-#undef  FT_COMPONENT
+-#define FT_COMPONENT  trace_io
+-
+-  /* We use the macro STREAM_FILE for convenience to extract the       */
+-  /* system-specific stream handle from a given FreeType stream object */
+-#define STREAM_FILE( stream )  ( (FILE*)stream->descriptor.pointer )
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Function>                                                            */
+-  /*    ft_ansi_stream_close                                               */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The function to close a stream.                                    */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    stream :: A pointer to the stream object.                          */
+-  /*                                                                       */
+-  FT_CALLBACK_DEF( void )
+-  ft_ansi_stream_close( FT_Stream  stream )
+-  {
+-    fclose( STREAM_FILE( stream ) );
+-
+-    stream->descriptor.pointer = NULL;
+-    stream->size               = 0;
+-    stream->base               = 0;
+-  }
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Function>                                                            */
+-  /*    ft_ansi_stream_io                                                  */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The function to open a stream.                                     */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    stream :: A pointer to the stream object.                          */
+-  /*                                                                       */
+-  /*    offset :: The position in the data stream to start reading.        */
+-  /*                                                                       */
+-  /*    buffer :: The address of buffer to store the read data.            */
+-  /*                                                                       */
+-  /*    count  :: The number of bytes to read from the stream.             */
+-  /*                                                                       */
+-  /* <Return>                                                              */
+-  /*    The number of bytes actually read.                                 */
+-  /*                                                                       */
+-  FT_CALLBACK_DEF( unsigned long )
+-  ft_ansi_stream_io( FT_Stream       stream,
+-                     unsigned long   offset,
+-                     unsigned char*  buffer,
+-                     unsigned long   count )
+-  {
+-    FILE*  file;
+-
+-
+-    file = STREAM_FILE( stream );
+-
+-    fseek( file, offset, SEEK_SET );
+-
+-    return (unsigned long)fread( buffer, 1, count, file );
+-  }
+-
+-
+-  /* documentation is in ftobjs.h */
+-
+-  FT_EXPORT_DEF( FT_Error )
+-  FT_Stream_Open( FT_Stream    stream,
+-                  const char*  filepathname )
+-  {
+-    FILE*  file;
+-
+-
+-    if ( !stream )
+-      return FT_Err_Invalid_Stream_Handle;
+-
+-    file = fopen( filepathname, "rb" );
+-    if ( !file )
+-    {
+-      FT_ERROR(( "FT_Stream_Open:" ));
+-      FT_ERROR(( " could not open `%s'\n", filepathname ));
+-
+-      return FT_Err_Cannot_Open_Resource;
+-    }
+-
+-    fseek( file, 0, SEEK_END );
+-    stream->size = ftell( file );
+-    fseek( file, 0, SEEK_SET );
+-
+-    stream->descriptor.pointer = file;
+-    stream->pathname.pointer   = (char*)filepathname;
+-    stream->pos                = 0;
+-
+-    stream->read  = ft_ansi_stream_io;
+-    stream->close = ft_ansi_stream_close;
+-
+-    FT_TRACE1(( "FT_Stream_Open:" ));
+-    FT_TRACE1(( " opened `%s' (%d bytes) successfully\n",
+-                filepathname, stream->size ));
+-
+-    return FT_Err_Ok;
+-  }
+-
+-
+-#ifdef FT_DEBUG_MEMORY
+-
+-  extern FT_Int
+-  ft_mem_debug_init( FT_Memory  memory );
+-
+-  extern void
+-  ft_mem_debug_done( FT_Memory  memory );
+-
+-#endif
+-
+-
+-  /* documentation is in ftobjs.h */
+-
+-  FT_EXPORT_DEF( FT_Memory )
+-  FT_New_Memory( void )
+-  {
+-    FT_Memory  memory;
+-
+-
+-    memory = (FT_Memory)malloc( sizeof ( *memory ) );
+-    if ( memory )
+-    {
+-      memory->user    = 0;
+-      memory->alloc   = ft_alloc;
+-      memory->realloc = ft_realloc;
+-      memory->free    = ft_free;
+-#ifdef FT_DEBUG_MEMORY
+-      ft_mem_debug_init( memory );
+-#endif
+-    }
+-
+-    return memory;
+-  }
+-
+-
+-  /* documentation is in ftobjs.h */
+-
+-  FT_EXPORT_DEF( void )
+-  FT_Done_Memory( FT_Memory  memory )
+-  {
+-#ifdef FT_DEBUG_MEMORY
+-    ft_mem_debug_done( memory );
+-#endif
+-#undef free
+-    memory->free( memory, memory );
+-  }
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/module/Imakefile xc/lib/font/FreeType/module/Imakefile
+--- xc.orig/lib/font/FreeType/module/Imakefile	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/module/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -52,7 +52,7 @@ FT2INCDIR = $(TOP)/extras/freetype2/incl
+ #define IHaveModules
+ #include <Server.tmpl>
+ 
+-DEFINES = -DFONTMODULE Freetype2BuildDefines -DXFREE86_FT2
++DEFINES = -DFONTMODULE Freetype2BuildDefines
+ 
+ INCLUDES = -I.. -I../../include \
+            -I$(SERVERSRC)/include \
+@@ -96,7 +96,7 @@ LinkSourceFile(ftbase.c,$(FT2SOURCEDIR)/
+ LinkSourceFile(ftinit.c,$(FT2SOURCEDIR)/base)
+ LinkSourceFile(ftglyph.c,$(FT2SOURCEDIR)/base)
+ LinkSourceFile(ftbbox.c,$(FT2SOURCEDIR)/base)
+-LinkSourceFile(ftsystem.c,..)
++LinkSourceFile(ftsystem.c,$(FT2SOURCEDIR)/base)
+ LinkSourceFile(ftutil.c,$(FT2SOURCEDIR)/base)
+ LinkSourceFile(fttype1.c,$(FT2SOURCEDIR)/base)
+ LinkSourceFile(ftxf86.c,$(FT2SOURCEDIR)/base)
+diff -pNur xc.orig/lib/font/FreeType/module/ft2build.h xc/lib/font/FreeType/module/ft2build.h
+--- xc.orig/lib/font/FreeType/module/ft2build.h	2003-11-19 18:35:40.000000000 -0800
++++ xc/lib/font/FreeType/module/ft2build.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,41 +0,0 @@
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ft2build.h                                                             */
+-/*                                                                         */
+-/*    FreeType 2 build and setup macros.                                   */
+-/*                                                                         */
+-/*  Copyright 1996-2001 by                                                 */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  Modified for XFree86.                                                  */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-
+-/* $XFree86: xc/lib/font/FreeType/module/ft2build.h,v 1.1 2003/11/20 02:35:40 dawes Exp $ */
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* This file corresponds to the default "ft2build.h" file for            */
+-  /* FreeType 2.  It uses the "freetype" include root.                     */
+-  /*                                                                       */
+-  /* Note that specific platforms might use a different configuration.     */
+-  /* See builds/unix/ft2unix.h for an example.                             */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-#ifndef __FT2_BUILD_GENERIC_H__
+-#define __FT2_BUILD_GENERIC_H__
+-
+-#include "ftheader.h"
+-
+-#endif /* __FT2_BUILD_GENERIC_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/module/ftheader.h xc/lib/font/FreeType/module/ftheader.h
+--- xc.orig/lib/font/FreeType/module/ftheader.h	2004-04-26 09:15:56.000000000 -0700
++++ xc/lib/font/FreeType/module/ftheader.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,564 +0,0 @@
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ftheader.h                                                             */
+-/*                                                                         */
+-/*    Build macros of the FreeType 2 library.                              */
+-/*                                                                         */
+-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-/* $XFree86: xc/lib/font/FreeType/module/ftheader.h,v 1.2 2004/04/26 16:15:56 dawes Exp $ */
+-
+-#ifndef __FT_HEADER_H__
+-#define __FT_HEADER_H__
+-
+-  /*@***********************************************************************/
+-  /*                                                                       */
+-  /* <Macro>                                                               */
+-  /*    FT_BEGIN_HEADER                                                    */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This macro is used in association with @FT_END_HEADER in header    */
+-  /*    files to ensure that the declarations within are properly          */
+-  /*    encapsulated in an `extern "C" { .. }' block when included from a  */
+-  /*    C++ compiler.                                                      */
+-  /*                                                                       */
+-#ifdef __cplusplus
+-#define FT_BEGIN_HEADER  extern "C" {
+-#else
+-#define FT_BEGIN_HEADER  /* nothing */
+-#endif
+-
+-
+-  /*@***********************************************************************/
+-  /*                                                                       */
+-  /* <Macro>                                                               */
+-  /*    FT_END_HEADER                                                      */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This macro is used in association with @FT_BEGIN_HEADER in header  */
+-  /*    files to ensure that the declarations within are properly          */
+-  /*    encapsulated in an `extern "C" { .. }' block when included from a  */
+-  /*    C++ compiler.                                                      */
+-  /*                                                                       */
+-#ifdef __cplusplus
+-#define FT_END_HEADER  }
+-#else
+-#define FT_END_HEADER  /* nothing */
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Aliases for the FreeType 2 public and configuration files.            */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Section>                                                             */
+-  /*    header_file_macros                                                 */
+-  /*                                                                       */
+-  /* <Title>                                                               */
+-  /*    Header File Macros                                                 */
+-  /*                                                                       */
+-  /* <Abstract>                                                            */
+-  /*    Macro definitions used to #include specific header files.          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The following macros are defined to the name of specific           */
+-  /*    FreeType 2 header files.  They can be used directly in #include    */
+-  /*    statements as in:                                                  */
+-  /*                                                                       */
+-  /*    {                                                                  */
+-  /*      #include FT_FREETYPE_H                                           */
+-  /*      #include FT_MULTIPLE_MASTERS_H                                   */
+-  /*      #include FT_GLYPH_H                                              */
+-  /*    }                                                                  */
+-  /*                                                                       */
+-  /*    There are several reasons why we are now using macros to name      */
+-  /*    public header files.  The first one is that such macros are not    */
+-  /*    limited to the infamous 8.3 naming rule required by DOS (and       */
+-  /*    `FT_MULTIPLE_MASTERS_H' is a lot more meaningful than `ftmm.h').   */
+-  /*                                                                       */
+-  /*    The second reason is that is allows for more flexibility in the    */
+-  /*    way FreeType 2 is installed on a given system.                     */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-  /* configuration files */
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CONFIG_CONFIG_H                                                 */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    FreeType 2 configuration data.                                     */
+-  /*                                                                       */
+-#ifndef FT_CONFIG_CONFIG_H
+-#define FT_CONFIG_CONFIG_H  <ftconfig.h>
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CONFIG_STANDARD_LIBRARY_H                                       */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    FreeType 2 configuration data.                                     */
+-  /*                                                                       */
+-#ifndef FT_CONFIG_STANDARD_LIBRARY_H
+-#define FT_CONFIG_STANDARD_LIBRARY_H  <ftstdlib.h>
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CONFIG_OPTIONS_H                                                */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    FreeType 2 project-specific configuration options.                 */
+-  /*                                                                       */
+-#ifndef FT_CONFIG_OPTIONS_H
+-#define FT_CONFIG_OPTIONS_H  <ftoption.h>
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CONFIG_MODULES_H                                                */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the list of FreeType 2 modules that are statically linked to new   */
+-  /*    library instances in @FT_Init_FreeType.                            */
+-  /*                                                                       */
+-#ifndef FT_CONFIG_MODULES_H
+-#define FT_CONFIG_MODULES_H  <ftmodule.h>
+-#endif
+-
+-  /* public headers */
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_FREETYPE_H                                                      */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the base FreeType 2 API.                                           */
+-  /*                                                                       */
+-#define FT_FREETYPE_H  <freetype/freetype.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_ERRORS_H                                                        */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the list of FreeType 2 error codes (and messages).                 */
+-  /*                                                                       */
+-  /*    It is included by @FT_FREETYPE_H.                                  */
+-  /*                                                                       */
+-#define FT_ERRORS_H  <freetype/fterrors.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_MODULE_ERRORS_H                                                 */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the list of FreeType 2 module error offsets (and messages).        */
+-  /*                                                                       */
+-#define FT_MODULE_ERRORS_H  <freetype/ftmoderr.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_SYSTEM_H                                                        */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the FreeType 2 interface to low-level operations (i.e. memory      */
+-  /*    management and stream i/o).                                        */
+-  /*                                                                       */
+-  /*    It is included by @FT_FREETYPE_H.                                  */
+-  /*                                                                       */
+-#define FT_SYSTEM_H  <freetype/ftsystem.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_IMAGE_H                                                         */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    types definitions related to glyph images (i.e. bitmaps, outlines, */
+-  /*    scan-converter parameters).                                        */
+-  /*                                                                       */
+-  /*    It is included by @FT_FREETYPE_H.                                  */
+-  /*                                                                       */
+-#define FT_IMAGE_H  <freetype/ftimage.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_TYPES_H                                                         */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the basic data types defined by FreeType 2.                        */
+-  /*                                                                       */
+-  /*    It is included by @FT_FREETYPE_H.                                  */
+-  /*                                                                       */
+-#define FT_TYPES_H  <fttypes.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_LIST_H                                                          */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the list management API of FreeType 2.                             */
+-  /*                                                                       */
+-  /*    (Most applications will never need to include this file.)          */
+-  /*                                                                       */
+-#define FT_LIST_H  <freetype/ftlist.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_OUTLINE_H                                                       */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the scalable outline management API of FreeType 2.                 */
+-  /*                                                                       */
+-#define FT_OUTLINE_H  <freetype/ftoutln.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_SIZES_H                                                         */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the API used to manage multiple @FT_Size objects per face.         */
+-  /*                                                                       */
+-#define FT_SIZES_H  <freetype/ftsizes.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_MODULE_H                                                        */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the module management API of FreeType 2.                           */
+-  /*                                                                       */
+-#define FT_MODULE_H  <freetype/ftmodapi.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_RENDER_H                                                        */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the renderer module management API of FreeType 2.                  */
+-  /*                                                                       */
+-#define FT_RENDER_H  <freetype/ftrender.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_TYPE1_TABLES_H                                                  */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the types and API specific to the Type 1 format.                   */
+-  /*                                                                       */
+-#define FT_TYPE1_TABLES_H  <freetype/t1tables.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_TRUETYPE_IDS_H                                                  */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the enumeration values used to identify name strings, languages,   */
+-  /*    encodings, etc.  This file really contains a _large_ set of        */
+-  /*    constant macro definitions, taken from the TrueType and OpenType   */
+-  /*    specifications.                                                    */
+-  /*                                                                       */
+-#define FT_TRUETYPE_IDS_H  <freetype/ttnameid.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_TRUETYPE_TABLES_H                                               */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the types and API specific to the TrueType (as well as OpenType)   */
+-  /*    format.                                                            */
+-  /*                                                                       */
+-#define FT_TRUETYPE_TABLES_H  <freetype/tttables.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_TRUETYPE_TAGS_H                                                 */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the definitions of TrueType 4-byte `tags' used to identify blocks  */
+-  /*    in SFNT-based font formats (i.e. TrueType and OpenType).           */
+-  /*                                                                       */
+-#define FT_TRUETYPE_TAGS_H  <freetype/tttags.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_BDF_H                                                           */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the definitions of an API to access BDF-specific strings from a    */
+-  /*    face.                                                              */
+-  /*                                                                       */
+-#define FT_BDF_H  <freetype/ftbdf.h>
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_GZIP_H                                                          */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the definitions of an API to support for gzip-compressed files.    */
+-  /*                                                                       */
+-#define FT_GZIP_H  <freetype/ftgzip.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_LZW_H                                                           */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the definitions of an API to support for LZW-compressed files.     */
+-  /*                                                                       */
+-#define FT_LZW_H  <freetype/ftlzw.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_WINFONTS_H                                                      */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the definitions of an API to support Windows .FNT files            */
+-  /*                                                                       */
+-#define FT_WINFONTS_H   <freetype/ftwinfnt.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_GLYPH_H                                                         */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the API of the optional glyph management component.                */
+-  /*                                                                       */
+-#define FT_GLYPH_H  <freetype/ftglyph.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_BBOX_H                                                          */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the API of the optional exact bounding box computation routines.   */
+-  /*                                                                       */
+-#define FT_BBOX_H  <freetype/ftbbox.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CACHE_H                                                         */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the API of the optional FreeType 2 cache sub-system.               */
+-  /*                                                                       */
+-#define FT_CACHE_H  <freetype/ftcache.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CACHE_IMAGE_H                                                   */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the `glyph image' API of the FreeType 2 cache sub-system.          */
+-  /*                                                                       */
+-  /*    It is used to define a cache for @FT_Glyph elements.  You can also */
+-  /*    see the API defined in @FT_CACHE_SMALL_BITMAPS_H if you only need  */
+-  /*    to store small glyph bitmaps, as it will use less memory.          */
+-  /*                                                                       */
+-  /*    This macro is deprecated.  Simply include @FT_CACHE_H to have all  */
+-  /*    glyph image-related cache declarations.                            */
+-  /*                                                                       */
+-#define FT_CACHE_IMAGE_H  FT_CACHE_H
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CACHE_SMALL_BITMAPS_H                                           */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the `small bitmaps' API of the FreeType 2 cache sub-system.        */
+-  /*                                                                       */
+-  /*    It is used to define a cache for small glyph bitmaps in a          */
+-  /*    relatively memory-efficient way.  You can also use the API defined */
+-  /*    in @FT_CACHE_IMAGE_H if you want to cache arbitrary glyph images,  */
+-  /*    including scalable outlines.                                       */
+-  /*                                                                       */
+-  /*    This macro is deprecated.  Simply include @FT_CACHE_H to have all  */
+-  /*    small bitmaps-related cache declarations.                          */
+-  /*                                                                       */
+-#define FT_CACHE_SMALL_BITMAPS_H  FT_CACHE_H
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_CACHE_CHARMAP_H                                                 */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the `charmap' API of the FreeType 2 cache sub-system.              */
+-  /*                                                                       */
+-  /*    This macro is deprecated.  Simply include @FT_CACHE_H to have all  */
+-  /*    charmap-based cache declarations.                                  */
+-  /*                                                                       */
+-#define FT_CACHE_CHARMAP_H     FT_CACHE_H
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_MAC_H                                                           */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the Macintosh-specific FreeType 2 API. The latter is used to       */
+-  /*    access fonts embedded in resource forks.                           */
+-  /*                                                                       */
+-  /*    This header file must be explicitly included by client             */
+-  /*    applications compiled on the Mac (note that the base API still     */
+-  /*    works though).                                                     */
+-  /*                                                                       */
+-#define FT_MAC_H  <freetype/ftmac.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_MULTIPLE_MASTERS_H                                              */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the optional multiple-masters management API of FreeType 2.        */
+-  /*                                                                       */
+-#define FT_MULTIPLE_MASTERS_H  <freetype/ftmm.h>
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* @macro:                                                               */
+-  /*    FT_SFNT_NAMES_H                                                    */
+-  /*                                                                       */
+-  /* @description:                                                         */
+-  /*    A macro used in #include statements to name the file containing    */
+-  /*    the optional FreeType 2 API used to access embedded `name' strings */
+-  /*    in SFNT-based font formats (i.e. TrueType and OpenType).           */
+-  /*                                                                       */
+-#define FT_SFNT_NAMES_H  <freetype/ftsnames.h>
+-
+-  /* */
+-
+-#define FT_TRIGONOMETRY_H       <freetype/fttrigon.h>
+-#define FT_STROKER_H            <freetype/ftstroke.h>
+-#define FT_SYNTHESIS_H          <freetype/ftsynth.h>
+-#define FT_ERROR_DEFINITIONS_H  <freetype/fterrdef.h>
+-
+-#define FT_CACHE_MANAGER_H  <freetype/cache/ftcmanag.h>
+-
+-#define FT_CACHE_INTERNAL_MRU_H      <freetype/cache/ftcmru.h>
+-#define FT_CACHE_INTERNAL_MANAGER_H  <freetype/cache/ftcmanag.h>
+-#define FT_CACHE_INTERNAL_CACHE_H    <freetype/cache/ftccache.h>
+-#define FT_CACHE_INTERNAL_GLYPH_H    <freetype/cache/ftcglyph.h>
+-#define FT_CACHE_INTERNAL_IMAGE_H    <freetype/cache/ftcimage.h>
+-#define FT_CACHE_INTERNAL_SBITS_H    <freetype/cache/ftcsbits.h>
+-
+-
+-#define FT_XFREE86_H              <freetype/ftxf86.h>
+-
+-#define FT_INCREMENTAL_H          <freetype/ftincrem.h>
+-
+-#define FT_TRUETYPE_UNPATENTED_H  <freetype/ttunpat.h>
+-
+-  /* now include internal headers definitions from <freetype/internal/...> */
+-
+-#define  FT_INTERNAL_INTERNAL_H  <freetype/internal/internal.h>
+-#include FT_INTERNAL_INTERNAL_H
+-
+-
+-#endif /* __FT2_BUILD_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/module/ftmodule.h xc/lib/font/FreeType/module/ftmodule.h
+--- xc.orig/lib/font/FreeType/module/ftmodule.h	2003-11-19 18:35:40.000000000 -0800
++++ xc/lib/font/FreeType/module/ftmodule.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,21 +0,0 @@
+-/* $XFree86: xc/lib/font/FreeType/module/ftmodule.h,v 1.1 2003/11/20 02:35:40 dawes Exp $ */
+-
+-FT_USE_MODULE(autohint_module_class)
+-FT_USE_MODULE(cff_driver_class)
+-/* FT_USE_MODULE(t1cid_driver_class) */
+-FT_USE_MODULE(pcf_driver_class)
+-FT_USE_MODULE(bdf_driver_class)
+-FT_USE_MODULE(psaux_module_class)
+-FT_USE_MODULE(psnames_module_class)
+-FT_USE_MODULE(pshinter_module_class)
+-FT_USE_MODULE(ft_raster1_renderer_class)
+-FT_USE_MODULE(sfnt_module_class)
+-/* FT_USE_MODULE(ft_smooth_renderer_class) */
+-/* FT_USE_MODULE(ft_smooth_lcd_renderer_class) */
+-/* FT_USE_MODULE(ft_smooth_lcdv_renderer_class) */
+-FT_USE_MODULE(tt_driver_class)
+-FT_USE_MODULE(t1_driver_class)
+-/* FT_USE_MODULE(t42_driver_class) */
+-/* FT_USE_MODULE(pfr_driver_class) */
+-/* FT_USE_MODULE(winfnt_driver_class) */
+-
+diff -pNur xc.orig/lib/font/FreeType/module/ftoption.h xc/lib/font/FreeType/module/ftoption.h
+--- xc.orig/lib/font/FreeType/module/ftoption.h	2005-03-28 20:00:30.000000000 -0800
++++ xc/lib/font/FreeType/module/ftoption.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,570 +0,0 @@
+-/* $XFree86: xc/lib/font/FreeType/module/ftoption.h,v 1.3 2005/03/29 04:00:30 tsi Exp $ */
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ftoption.h                                                             */
+-/*                                                                         */
+-/*    User-selectable configuration macros (specification only).           */
+-/*                                                                         */
+-/*  Copyright 1996-2001, 2002, 2003, 2004 by                               */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  Modified for XFree86.                                                  */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-
+-
+-#ifndef __FTOPTION_H__
+-#define __FTOPTION_H__
+-
+-
+-#include <ft2build.h>
+-
+-
+-FT_BEGIN_HEADER
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*                 USER-SELECTABLE CONFIGURATION MACROS                  */
+-  /*                                                                       */
+-  /* This file contains the default configuration macro definitions for    */
+-  /* a standard build of the FreeType library.  There are three ways to    */
+-  /* use this file to build project-specific versions of the library:      */
+-  /*                                                                       */
+-  /*  - You can modify this file by hand, but this is not recommended in   */
+-  /*    cases where you would like to build several versions of the        */
+-  /*    library from a single source directory.                            */
+-  /*                                                                       */
+-  /*  - You can put a copy of this file in your build directory, more      */
+-  /*    precisely in "$BUILD/freetype/config/ftoption.h", where "$BUILD"   */
+-  /*    is the name of a directory that is included _before_ the FreeType  */
+-  /*    include path during compilation.                                   */
+-  /*                                                                       */
+-  /*    The default FreeType Makefiles and Jamfiles use the build          */
+-  /*    directory "builds/<system>" by default, but you can easily change  */
+-  /*    that for your own projects.                                        */
+-  /*                                                                       */
+-  /*  - Copy the file <ft2build.h> to "$BUILD/ft2build.h" and modify it    */
+-  /*    slightly to pre-define the macro FT_CONFIG_OPTIONS_H used to       */
+-  /*    locate this file during the build.  For example,                   */
+-  /*                                                                       */
+-  /*      #define FT_CONFIG_OPTIONS_H  <myftoptions.h>                     */
+-  /*      #include <freetype/config/ftheader.h>                            */
+-  /*                                                                       */
+-  /*    will use "$BUILD/myftoptions.h" instead of this file for macro     */
+-  /*    definitions.                                                       */
+-  /*                                                                       */
+-  /*    Note also that you can similarly pre-define the macro              */
+-  /*    FT_CONFIG_MODULES_H used to locate the file listing of the modules */
+-  /*    that are statically linked to the library at compile time.  By     */
+-  /*    default, this file is <freetype/config/ftmodule.h>.                */
+-  /*                                                                       */
+-  /*  We highly recommend using the third method whenever possible.        */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*************************************************************************/
+-  /****                                                                 ****/
+-  /**** G E N E R A L   F R E E T Y P E   2   C O N F I G U R A T I O N ****/
+-  /****                                                                 ****/
+-  /*************************************************************************/
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Many compilers provide a non-ANSI 64-bit data type that can be used   */
+-  /* by FreeType to speed up some computations.  However, this will create */
+-  /* some problems when compiling the library in strict ANSI mode.         */
+-  /*                                                                       */
+-  /* For this reason, the use of 64-bit integers is normally disabled when */
+-  /* the __STDC__ macro is defined.  You can however disable this by       */
+-  /* defining the macro FT_CONFIG_OPTION_FORCE_INT64 here.                 */
+-  /*                                                                       */
+-  /* For most compilers, this will only create compilation warnings when   */
+-  /* building the library.                                                 */
+-  /*                                                                       */
+-  /* ObNote: The compiler-specific 64-bit integers are detected in the     */
+-  /*         file "ftconfig.h" either statically or through the            */
+-  /*         `configure' script on supported platforms.                    */
+-  /*                                                                       */
+-#undef  FT_CONFIG_OPTION_FORCE_INT64
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* LZW-compressed file support.                                          */
+-  /*                                                                       */
+-  /*   FreeType now handles font files that have been compressed with the  */
+-  /*   'compress' program.  This is mostly used to parse many of the PCF   */
+-  /*   files that come with various X11 distributions.  The implementation */
+-  /*   uses NetBSD's `zopen' to partially uncompress the file on the fly   */
+-  /*   (see src/lzw/ftgzip.c).                                             */
+-  /*                                                                       */
+-  /*   Define this macro if you want to enable this `feature'.             */
+-  /*                                                                       */
+-#define FT_CONFIG_OPTION_USE_LZW
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Gzip-compressed file support.                                         */
+-  /*                                                                       */
+-  /*   FreeType now handles font files that have been compressed with the  */
+-  /*   'gzip' program.  This is mostly used to parse many of the PCF files */
+-  /*   that come with XFree86.  The implementation uses `zlib' to          */
+-  /*   partially uncompress the file on the fly (see src/gzip/ftgzip.c).   */
+-  /*                                                                       */
+-  /*   Define this macro if you want to enable this `feature'.  See also   */
+-  /*   the macro FT_CONFIG_OPTION_SYSTEM_ZLIB below.                       */
+-  /*                                                                       */
+-#define FT_CONFIG_OPTION_USE_ZLIB
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* ZLib library selection                                                */
+-  /*                                                                       */
+-  /*   This macro is only used when FT_CONFIG_OPTION_USE_ZLIB is defined.  */
+-  /*   It allows FreeType's `ftgzip' component to link to the system's     */
+-  /*   installation of the ZLib library.  This is useful on systems like   */
+-  /*   Unix or VMS where it generally is already available.                */
+-  /*                                                                       */
+-  /*   If you let it undefined, the component will use its own copy        */
+-  /*   of the zlib sources instead.  These have been modified to be        */
+-  /*   included directly within the component and *not* export external    */
+-  /*   function names.  This allows you to link any program with FreeType  */
+-  /*   _and_ ZLib without linking conflicts.                               */
+-  /*                                                                       */
+-  /*   Do not #undef this macro here since the build system might define   */
+-  /*   it for certain configurations only.                                 */
+-  /*                                                                       */
+-/* #define  FT_CONFIG_OPTION_SYSTEM_ZLIB */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* DLL export compilation                                                */
+-  /*                                                                       */
+-  /*   When compiling FreeType as a DLL, some systems/compilers need a     */
+-  /*   special keyword in front OR after the return type of function       */
+-  /*   declarations.                                                       */
+-  /*                                                                       */
+-  /*   Two macros are used within the FreeType source code to define       */
+-  /*   exported library functions: FT_EXPORT and FT_EXPORT_DEF.            */
+-  /*                                                                       */
+-  /*     FT_EXPORT( return_type )                                          */
+-  /*                                                                       */
+-  /*       is used in a function declaration, as in                        */
+-  /*                                                                       */
+-  /*         FT_EXPORT( FT_Error )                                         */
+-  /*         FT_Init_FreeType( FT_Library*  alibrary );                    */
+-  /*                                                                       */
+-  /*                                                                       */
+-  /*     FT_EXPORT_DEF( return_type )                                      */
+-  /*                                                                       */
+-  /*       is used in a function definition, as in                         */
+-  /*                                                                       */
+-  /*         FT_EXPORT_DEF( FT_Error )                                     */
+-  /*         FT_Init_FreeType( FT_Library*  alibrary )                     */
+-  /*         {                                                             */
+-  /*           ... some code ...                                           */
+-  /*           return FT_Err_Ok;                                           */
+-  /*         }                                                             */
+-  /*                                                                       */
+-  /*   You can provide your own implementation of FT_EXPORT and            */
+-  /*   FT_EXPORT_DEF here if you want.  If you leave them undefined, they  */
+-  /*   will be later automatically defined as `extern return_type' to      */
+-  /*   allow normal compilation.                                           */
+-  /*                                                                       */
+-  /*   Do not #undef these macros here since the build system might define */
+-  /*   them for certain configurations only.                               */
+-  /*                                                                       */
+-/* #define  FT_EXPORT(x)       extern x */
+-/* #define  FT_EXPORT_DEF(x)   x */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Glyph Postscript Names handling                                       */
+-  /*                                                                       */
+-  /*   By default, FreeType 2 is compiled with the `PSNames' module.  This */
+-  /*   module is in charge of converting a glyph name string into a        */
+-  /*   Unicode value, or return a Macintosh standard glyph name for the    */
+-  /*   use with the TrueType `post' table.                                 */
+-  /*                                                                       */
+-  /*   Undefine this macro if you do not want `PSNames' compiled in your   */
+-  /*   build of FreeType.  This has the following effects:                 */
+-  /*                                                                       */
+-  /*   - The TrueType driver will provide its own set of glyph names,      */
+-  /*     if you build it to support postscript names in the TrueType       */
+-  /*     `post' table.                                                     */
+-  /*                                                                       */
+-  /*   - The Type 1 driver will not be able to synthetize a Unicode        */
+-  /*     charmap out of the glyphs found in the fonts.                     */
+-  /*                                                                       */
+-  /*   You would normally undefine this configuration macro when building  */
+-  /*   a version of FreeType that doesn't contain a Type 1 or CFF driver.  */
+-  /*                                                                       */
+-#define FT_CONFIG_OPTION_POSTSCRIPT_NAMES
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Postscript Names to Unicode Values support                            */
+-  /*                                                                       */
+-  /*   By default, FreeType 2 is built with the `PSNames' module compiled  */
+-  /*   in.  Among other things, the module is used to convert a glyph name */
+-  /*   into a Unicode value.  This is especially useful in order to        */
+-  /*   synthetize on the fly a Unicode charmap from the CFF/Type 1 driver  */
+-  /*   through a big table named the `Adobe Glyph List' (AGL).             */
+-  /*                                                                       */
+-  /*   Undefine this macro if you do not want the Adobe Glyph List         */
+-  /*   compiled in your `PSNames' module.  The Type 1 driver will not be   */
+-  /*   able to synthetize a Unicode charmap out of the glyphs found in the */
+-  /*   fonts.                                                              */
+-  /*                                                                       */
+-#define FT_CONFIG_OPTION_ADOBE_GLYPH_LIST
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Support for Mac fonts                                                 */
+-  /*                                                                       */
+-  /*   Define this macro if you want support for outline fonts in Mac      */
+-  /*   format (mac dfont, mac resource, macbinary containing a mac         */
+-  /*   resource) on non-Mac platforms.                                     */
+-  /*                                                                       */
+-  /*   Note that the `FOND' resource isn't checked.                        */
+-  /*                                                                       */
+-#define FT_CONFIG_OPTION_MAC_FONTS
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Guessing methods to access embedded resource forks                    */
+-  /*                                                                       */
+-  /*   Enable extra Mac fonts support on non-Mac platforms (e.g.           */
+-  /*   GNU/Linux).                                                         */
+-  /*                                                                       */
+-  /*   Resource forks which include fonts data are stored sometimes in     */
+-  /*   locations which users or developers don't expected.  In some cases, */
+-  /*   resource forks start with some offset from the head of a file.  In  */
+-  /*   other cases, the actual resource fork is stored in file different   */
+-  /*   from what the user specifies.  If this option is activated,         */
+-  /*   FreeType tries to guess whether such offsets or different file      */
+-  /*   names must be used.                                                 */
+-  /*                                                                       */
+-  /*   Note that normal, direct access of resource forks is controlled via */
+-  /*   the FT_CONFIG_OPTION_MAC_FONTS option.                              */
+-  /*                                                                       */
+-#ifdef FT_CONFIG_OPTION_MAC_FONTS
+-#define FT_CONFIG_OPTION_GUESSING_EMBEDDED_RFORK
+-#endif
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Allow the use of FT_Incremental_Interface to load typefaces that      */
+-  /* contain no glyph data, but supply it via a callback function.         */
+-  /* This allows FreeType to be used with the PostScript language, using   */
+-  /* the GhostScript interpreter.                                          */
+-  /*                                                                       */
+-/* #define FT_CONFIG_OPTION_INCREMENTAL */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* The size in bytes of the render pool used by the scan-line converter  */
+-  /* to do all of its work.                                                */
+-  /*                                                                       */
+-  /* This must be greater than 4KByte.                                     */
+-  /*                                                                       */
+-#define FT_RENDER_POOL_SIZE  16384L
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* FT_MAX_MODULES                                                        */
+-  /*                                                                       */
+-  /*   The maximum number of modules that can be registered in a single    */
+-  /*   FreeType library object.  32 is the default.                        */
+-  /*                                                                       */
+-#define FT_MAX_MODULES  32
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Debug level                                                           */
+-  /*                                                                       */
+-  /*   FreeType can be compiled in debug or trace mode.  In debug mode,    */
+-  /*   errors are reported through the `ftdebug' component.  In trace      */
+-  /*   mode, additional messages are sent to the standard output during    */
+-  /*   execution.                                                          */
+-  /*                                                                       */
+-  /*   Define FT_DEBUG_LEVEL_ERROR to build the library in debug mode.     */
+-  /*   Define FT_DEBUG_LEVEL_TRACE to build it in trace mode.              */
+-  /*                                                                       */
+-  /*   Don't define any of these macros to compile in `release' mode!      */
+-  /*                                                                       */
+-  /*   Do not #undef these macros here since the build system might define */
+-  /*   them for certain configurations only.                               */
+-  /*                                                                       */
+-/* #define FT_DEBUG_LEVEL_ERROR */
+-/* #define FT_DEBUG_LEVEL_TRACE */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Memory Debugging                                                      */
+-  /*                                                                       */
+-  /*   FreeType now comes with an integrated memory debugger that is       */
+-  /*   capable of detecting simple errors like memory leaks or double      */
+-  /*   deletes.  To compile it within your build of the library, you       */
+-  /*   should define FT_DEBUG_MEMORY here.                                 */
+-  /*                                                                       */
+-  /*   Note that the memory debugger is only activated at runtime when     */
+-  /*   when the _environment_ variable "FT2_DEBUG_MEMORY" is defined also! */
+-  /*                                                                       */
+-  /*   Do not #undef this macro here since the build system might define   */
+-  /*   it for certain configurations only.                                 */
+-  /*                                                                       */
+-/* #define FT_DEBUG_MEMORY */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Module errors                                                         */
+-  /*                                                                       */
+-  /*   If this macro is set (which is _not_ the default), the higher byte  */
+-  /*   of an error code gives the module in which the error has occurred,  */
+-  /*   while the lower byte is the real error code.                        */
+-  /*                                                                       */
+-  /*   Setting this macro makes sense for debugging purposes only, since   */
+-  /*   it would break source compatibility of certain programs that use    */
+-  /*   FreeType 2.                                                         */
+-  /*                                                                       */
+-  /*   More details can be found in the files ftmoderr.h and fterrors.h.   */
+-  /*                                                                       */
+-#undef FT_CONFIG_OPTION_USE_MODULE_ERRORS
+-
+-
+-
+-  /*************************************************************************/
+-  /*************************************************************************/
+-  /****                                                                 ****/
+-  /****        S F N T   D R I V E R    C O N F I G U R A T I O N       ****/
+-  /****                                                                 ****/
+-  /*************************************************************************/
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_EMBEDDED_BITMAPS if you want to support       */
+-  /* embedded bitmaps in all formats using the SFNT module (namely         */
+-  /* TrueType & OpenType).                                                 */
+-  /*                                                                       */
+-#define TT_CONFIG_OPTION_EMBEDDED_BITMAPS
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_POSTSCRIPT_NAMES if you want to be able to    */
+-  /* load and enumerate the glyph Postscript names in a TrueType or        */
+-  /* OpenType file.                                                        */
+-  /*                                                                       */
+-  /* Note that when you do not compile the `PSNames' module by undefining  */
+-  /* the above FT_CONFIG_OPTION_POSTSCRIPT_NAMES, the `sfnt' module will   */
+-  /* contain additional code used to read the PS Names table from a font.  */
+-  /*                                                                       */
+-  /* (By default, the module uses `PSNames' to extract glyph names.)       */
+-  /*                                                                       */
+-#define TT_CONFIG_OPTION_POSTSCRIPT_NAMES
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_SFNT_NAMES if your applications need to       */
+-  /* access the internal name table in a SFNT-based format like TrueType   */
+-  /* or OpenType.  The name table contains various strings used to         */
+-  /* describe the font, like family name, copyright, version, etc.  It     */
+-  /* does not contain any glyph name though.                               */
+-  /*                                                                       */
+-  /* Accessing SFNT names is done through the functions declared in        */
+-  /* `freetype/ftnames.h'.                                                 */
+-  /*                                                                       */
+-#define TT_CONFIG_OPTION_SFNT_NAMES
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* TrueType CMap support                                                 */
+-  /*                                                                       */
+-  /*   Here you can fine-tune which TrueType CMap table format shall be    */
+-  /*   supported.                                                          */
+-#define TT_CONFIG_CMAP_FORMAT_0
+-#define TT_CONFIG_CMAP_FORMAT_2
+-#define TT_CONFIG_CMAP_FORMAT_4
+-#define TT_CONFIG_CMAP_FORMAT_6
+-#define TT_CONFIG_CMAP_FORMAT_8
+-#define TT_CONFIG_CMAP_FORMAT_10
+-#define TT_CONFIG_CMAP_FORMAT_12
+-
+-
+-  /*************************************************************************/
+-  /*************************************************************************/
+-  /****                                                                 ****/
+-  /****    T R U E T Y P E   D R I V E R    C O N F I G U R A T I O N   ****/
+-  /****                                                                 ****/
+-  /*************************************************************************/
+-  /*************************************************************************/
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_BYTECODE_INTERPRETER if you want to compile   */
+-  /* a bytecode interpreter in the TrueType driver.  Note that there are   */
+-  /* important patent issues related to the use of the interpreter.        */
+-  /*                                                                       */
+-  /* By undefining this, you will only compile the code necessary to load  */
+-  /* TrueType glyphs without hinting.                                      */
+-  /*                                                                       */
+-  /*   Do not #undef this macro here, since the build system might         */
+-  /*   define it for certain configurations only.                          */
+-  /*                                                                       */
+-/* #define  TT_CONFIG_OPTION_BYTECODE_INTERPRETER */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_UNPATENTED_HINTING (in addition to            */
+-  /* TT_CONFIG_OPTION_BYTECODE_INTERPRETER) to compile the unpatented      */
+-  /* work-around hinting system.  Note that for the moment, the algorithm  */
+-  /* is only used when selected at runtime through the parameter tag       */
+-  /* FT_PARAM_TAG_UNPATENTED_HINTING; or when the debug hook               */
+-  /* FT_DEBUG_HOOK_UNPATENTED_HINTING is globally actived                  */
+-  /*                                                                       */
+-#define TT_CONFIG_OPTION_UNPATENTED_HINTING
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_INTERPRETER_SWITCH to compile the TrueType    */
+-  /* bytecode interpreter with a huge switch statement, rather than a call */
+-  /* table.  This results in smaller and faster code for a number of       */
+-  /* architectures.                                                        */
+-  /*                                                                       */
+-  /* Note however that on some compiler/processor combinations, undefining */
+-  /* this macro will generate faster, though larger, code.                 */
+-  /*                                                                       */
+-#define TT_CONFIG_OPTION_INTERPRETER_SWITCH
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED to compile the        */
+-  /* TrueType glyph loader to use Apple's definition of how to handle      */
+-  /* component offsets in composite glyphs.                                */
+-  /*                                                                       */
+-  /* Apple and MS disagree on the default behavior of component offsets    */
+-  /* in composites.  Apple says that they should be scaled by the scale    */
+-  /* factors in the transformation matrix (roughly, it's more complex)     */
+-  /* while MS says they should not.  OpenType defines two bits in the      */
+-  /* composite flags array which can be used to disambiguate, but old      */
+-  /* fonts will not have them.                                             */
+-  /*                                                                       */
+-  /*   http://partners.adobe.com/asn/developer/opentype/glyf.html          */
+-  /*   http://fonts.apple.com/TTRefMan/RM06/Chap6glyf.html                 */
+-  /*                                                                       */
+-#undef TT_CONFIG_OPTION_COMPONENT_OFFSET_SCALED
+-
+-
+-  /*************************************************************************/
+-  /*************************************************************************/
+-  /****                                                                 ****/
+-  /****      T Y P E 1   D R I V E R    C O N F I G U R A T I O N       ****/
+-  /****                                                                 ****/
+-  /*************************************************************************/
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* T1_MAX_DICT_DEPTH is the maximal depth of nest dictionaries and       */
+-  /* arrays in the Type 1 stream (see t1load.c).  A minimum of 4 is        */
+-  /* required.                                                             */
+-  /*                                                                       */
+-#define T1_MAX_DICT_DEPTH  5
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* T1_MAX_SUBRS_CALLS details the maximum number of nested sub-routine   */
+-  /* calls during glyph loading.                                           */
+-  /*                                                                       */
+-#define T1_MAX_SUBRS_CALLS  16
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* T1_MAX_CHARSTRING_OPERANDS is the charstring stack's capacity.  A     */
+-  /* minimum of 16 is required.                                            */
+-  /*                                                                       */
+-  /* The Chinese font MingTiEG-Medium (CNS 11643 character set) needs 256. */
+-  /*                                                                       */
+-#define T1_MAX_CHARSTRINGS_OPERANDS  256
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define this configuration macro if you want to prevent the            */
+-  /* compilation of `t1afm', which is in charge of reading Type 1 AFM      */
+-  /* files into an existing face.  Note that if set, the T1 driver will be */
+-  /* unable to produce kerning distances.                                  */
+-  /*                                                                       */
+-#define T1_CONFIG_OPTION_NO_AFM
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* Define this configuration macro if you want to prevent the            */
+-  /* compilation of the Multiple Masters font support in the Type 1        */
+-  /* driver.                                                               */
+-  /*                                                                       */
+-#define T1_CONFIG_OPTION_NO_MM_SUPPORT
+-
+- /* */
+-
+-/*
+- * The FT_CONFIG_OPTION_CHESTER_XXXX macros are used to toggle some recent
+- * improvements to the auto-hinter contributed by David Chester.  They will
+- * most likely disappear completely in the next release.  For now, you
+- * should always keep them defined.
+- *
+- */
+-#define  FT_CONFIG_OPTION_CHESTER_HINTS
+-
+-#ifdef   FT_CONFIG_OPTION_CHESTER_HINTS
+-
+-#define  FT_CONFIG_CHESTER_SMALL_F
+-#define  FT_CONFIG_CHESTER_ASCENDER
+-#define  FT_CONFIG_CHESTER_SERIF
+-#define  FT_CONFIG_CHESTER_STEM
+-#define  FT_CONFIG_CHESTER_BLUE_SCALE
+-
+-#endif /* FT_CONFIG_OPTION_CHESTER_HINTS */
+-
+-FT_END_HEADER
+-
+-
+-#endif /* __FTOPTION_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/module/ftstdlib.h xc/lib/font/FreeType/module/ftstdlib.h
+--- xc.orig/lib/font/FreeType/module/ftstdlib.h	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/module/ftstdlib.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,207 +0,0 @@
+-/* ftstdlib.h -- modified for XFree86. */
+-/* $XFree86: xc/lib/font/FreeType/module/ftstdlib.h,v 1.4 2005/10/14 15:16:01 tsi Exp $ */
+-
+-/***************************************************************************/
+-/*                                                                         */
+-/*  ftstdlib.h                                                             */
+-/*                                                                         */
+-/*    ANSI-specific library and header configuration file (specification   */
+-/*    only).                                                               */
+-/*                                                                         */
+-/*  Copyright 2002, 2003, 2004 by                                          */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* This file is used to group all #includes to the ANSI C library that   */
+-  /* FreeType normally requires.  It also defines macros to rename the     */
+-  /* standard functions within the FreeType source code.                   */
+-  /*                                                                       */
+-  /* Load a file which defines __FTSTDLIB_H__ before this one to override  */
+-  /* it.                                                                   */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-#ifndef __FTSTDLIB_H__
+-#define __FTSTDLIB_H__
+-
+-
+-  /**********************************************************************/
+-  /*                                                                    */
+-  /*                           integer limits                           */
+-  /*                                                                    */
+-  /* UINT_MAX and ULONG_MAX are used to automatically compute the size  */
+-  /* of `int' and `long' in bytes at compile-time.  So far, this works  */
+-  /* for all platforms the library has been tested on.                  */
+-  /*                                                                    */
+-  /* Note that on the extremely rare platforms that do not provide      */
+-  /* integer types that are _exactly_ 16 and 32 bits wide (e.g. some    */
+-  /* old Crays where `int' is 36 bits), we do not make any guarantee    */
+-  /* about the correct behaviour of FT2 with all fonts.                 */
+-  /*                                                                    */
+-  /* In these case, "ftconfig.h" will refuse to compile anyway with a   */
+-  /* message like "couldn't find 32-bit type" or something similar.     */
+-  /*                                                                    */
+-  /* IMPORTANT NOTE: We do not define aliases for heap management and   */
+-  /*                 i/o routines (i.e. malloc/free/fopen/fread/...)    */
+-  /*                 since these functions should all be encapsulated   */
+-  /*                 by platform-specific implementations of            */
+-  /*                 "ftsystem.c".                                      */
+-  /*                                                                    */
+-  /**********************************************************************/
+-
+-
+-#ifndef FONTMODULE
+-
+-#include <limits.h>
+-
+-#define FT_UINT_MAX   UINT_MAX
+-#define FT_ULONG_MAX  ULONG_MAX
+-
+-
+-  /**********************************************************************/
+-  /*                                                                    */
+-  /*                 character and string processing                    */
+-  /*                                                                    */
+-  /**********************************************************************/
+-
+-
+-#include <ctype.h>
+-
+-#define ft_isalnum   isalnum
+-#define ft_isupper   isupper
+-#define ft_islower   islower
+-#define ft_isdigit   isdigit
+-#define ft_isxdigit  isxdigit
+-
+-
+-#include <string.h>
+-
+-#define ft_memcmp   memcmp
+-#define ft_memcpy   memcpy
+-#define ft_memmove  memmove
+-#define ft_memset   memset
+-#define ft_strcat   strcat
+-#define ft_strcmp   strcmp
+-#define ft_strcpy   strcpy
+-#define ft_strlen   strlen
+-#define ft_strncmp  strncmp
+-#define ft_strncpy  strncpy
+-#define ft_strrchr  strrchr
+-
+-
+-#include <stdio.h>
+-
+-#define ft_sprintf  sprintf
+-
+-
+-  /**********************************************************************/
+-  /*                                                                    */
+-  /*                             sorting                                */
+-  /*                                                                    */
+-  /**********************************************************************/
+-
+-
+-#include <stdlib.h>
+-
+-#define ft_qsort  qsort
+-#define ft_exit   exit    /* only used to exit from unhandled exceptions */
+-
+-#define ft_atol   atol
+-
+-
+-  /**********************************************************************/
+-  /*                                                                    */
+-  /*                         execution control                          */
+-  /*                                                                    */
+-  /**********************************************************************/
+-
+-
+-#include <setjmp.h>
+-
+-#define ft_jmp_buf  jmp_buf   /* note: this cannot be a typedef since */
+-                              /*       jmp_buf is defined as a macro  */
+-                              /*       on certain platforms           */
+-
+-#define ft_setjmp   setjmp    /* same thing here */
+-#define ft_longjmp  longjmp   /* "               */
+-
+-
+-#else
+-
+-#include <X11/Xmd.h>
+-#define _XTYPEDEF_BOOL
+-#include <X11/Xdefs.h>
+-#define DONT_DEFINE_WRAPPERS
+-#define DEFINE_SETJMP_WRAPPERS
+-#include "xf86_ansic.h"
+-#undef DONT_DEFINE_WRAPPERS
+-
+-#ifndef offsetof
+-#define offsetof(TYPE, MEMBER) ((xf86size_t)&((TYPE*)0)->MEMBER)
+-#endif
+-
+-#define FT_UINT_MAX   4294967295U
+-#ifdef LONG64
+-#define FT_ULONG_MAX 18446744073709551615UL
+-#else
+-#define FT_ULONG_MAX  4294967295UL
+-#endif
+-
+-#define ft_isalnum   xf86isalnum
+-#define ft_isupper   xf86isupper
+-#define ft_islower   xf86islower
+-#define ft_isdigit   xf86isdigit
+-#define ft_isxdigit  xf86isxdigit
+-
+-#define ft_memcmp    xf86memcmp
+-#define ft_memcpy    xf86memcpy
+-#define ft_memmove   xf86memmove
+-#define ft_memset    xf86memset
+-#define ft_strcat    xf86strcat
+-#define ft_strcmp    xf86strcmp
+-#define ft_strcpy    xf86strcpy
+-#define ft_strlen    xf86strlen
+-#define ft_strncmp   xf86strncmp
+-#define ft_strncpy   xf86strncpy
+-#define ft_strrchr   xf86strrchr
+-
+-#define ft_sprintf   xf86sprintf
+-
+-#define ft_qsort     xf86qsort
+-#define ft_exit      xf86exit
+-
+-#define ft_atol      xf86atol
+-
+-#define ft_jmp_buf   jmp_buf
+-#define ft_setjmp    setjmp
+-#define ft_longjmp   longjmp
+-
+-#undef  memcpy
+-#define memcpy       xf86memcpy
+-#undef  memset
+-#define memset       xf86memset
+-
+-#endif /* FONTMODULE */
+-
+-
+-  /* the following is only used for debugging purposes, i.e. when */
+-  /* FT_DEBUG_LEVEL_ERROR or FT_DEBUG_LEVEL_TRACE are defined     */
+-  /*                                                              */
+-#include <stdarg.h>
+-
+-
+-#endif /* __FTSTDLIB_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/font/FreeType/module/fttypes.h xc/lib/font/FreeType/module/fttypes.h
+--- xc.orig/lib/font/FreeType/module/fttypes.h	2005-10-14 08:16:01.000000000 -0700
++++ xc/lib/font/FreeType/module/fttypes.h	1969-12-31 16:00:00.000000000 -0800
+@@ -1,571 +0,0 @@
+-/***************************************************************************/
+-/*                                                                         */
+-/*  fttypes.h                                                              */
+-/*                                                                         */
+-/*    FreeType simple types definitions (specification only).              */
+-/*                                                                         */
+-/*  Copyright 1996-2001 by                                                 */
+-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
+-/*                                                                         */
+-/*  Modified for XFree86.                                                  */
+-/*                                                                         */
+-/*  This file is part of the FreeType project, and may only be used,       */
+-/*  modified, and distributed under the terms of the FreeType project      */
+-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
+-/*  this file you indicate that you have read the license and              */
+-/*  understand and accept it fully.                                        */
+-/*                                                                         */
+-/***************************************************************************/
+-/* $XFree86: xc/lib/font/FreeType/module/fttypes.h,v 1.2 2005/10/14 15:16:01 tsi Exp $ */
+-
+-#ifndef __FTTYPES_H__
+-#define __FTTYPES_H__
+-
+-
+-#include <ft2build.h>
+-#include FT_CONFIG_CONFIG_H
+-#include FT_SYSTEM_H
+-#include FT_IMAGE_H
+-
+-#ifndef FONTMODULE
+-#include <stddef.h>
+-#else
+-#include <X11/Xmd.h>
+-#define _XTYPEDEF_BOOL
+-#include <X11/Xdefs.h>
+-#include "xf86_ansic.h"
+-#ifndef size_t
+-#define DONT_DEFINE_WRAPPERS
+-#define size_t xf86size_t
+-#undef DONT_DEFINE_WRAPPERS
+-#endif
+-#endif
+-
+-FT_BEGIN_HEADER
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Section>                                                             */
+-  /*    basic_types                                                        */
+-  /*                                                                       */
+-  /* <Title>                                                               */
+-  /*    Basic Data Types                                                   */
+-  /*                                                                       */
+-  /* <Abstract>                                                            */
+-  /*    The basic data types defined by the library.                       */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This section contains the basic data types defined by FreeType 2,  */
+-  /*    ranging from simple scalar types to bitmap descriptors.  More      */
+-  /*    font-specific structures are defined in a different section.       */
+-  /*                                                                       */
+-  /* <Order>                                                               */
+-  /*    FT_Byte                                                            */
+-  /*    FT_Char                                                            */
+-  /*    FT_Int                                                             */
+-  /*    FT_UInt                                                            */
+-  /*    FT_Short                                                           */
+-  /*    FT_UShort                                                          */
+-  /*    FT_Long                                                            */
+-  /*    FT_ULong                                                           */
+-  /*    FT_Bool                                                            */
+-  /*    FT_Offset                                                          */
+-  /*    FT_PtrDist                                                         */
+-  /*    FT_String                                                          */
+-  /*    FT_Error                                                           */
+-  /*    FT_Fixed                                                           */
+-  /*    FT_Pointer                                                         */
+-  /*    FT_Pos                                                             */
+-  /*    FT_Vector                                                          */
+-  /*    FT_BBox                                                            */
+-  /*    FT_Matrix                                                          */
+-  /*    FT_FWord                                                           */
+-  /*    FT_UFWord                                                          */
+-  /*    FT_F2Dot14                                                         */
+-  /*    FT_UnitVector                                                      */
+-  /*    FT_F26Dot6                                                         */
+-  /*                                                                       */
+-  /*                                                                       */
+-  /*    FT_Generic                                                         */
+-  /*    FT_Generic_Finalizer                                               */
+-  /*                                                                       */
+-  /*    FT_Bitmap                                                          */
+-  /*    FT_Pixel_Mode                                                      */
+-  /*    FT_Palette_Mode                                                    */
+-  /*    FT_Glyph_Format                                                    */
+-  /*    FT_IMAGE_TAG                                                       */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Bool                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef of unsigned char, used for simple booleans.              */
+-  /*                                                                       */
+-  typedef unsigned char  FT_Bool;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_FWord                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A signed 16-bit integer used to store a distance in original font  */
+-  /*    units.                                                             */
+-  /*                                                                       */
+-  typedef signed short  FT_FWord;   /* distance in FUnits */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_UFWord                                                          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    An unsigned 16-bit integer used to store a distance in original    */
+-  /*    font units.                                                        */
+-  /*                                                                       */
+-  typedef unsigned short  FT_UFWord;  /* unsigned distance */
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Char                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple typedef for the _signed_ char type.                       */
+-  /*                                                                       */
+-  typedef signed char  FT_Char;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Byte                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple typedef for the _unsigned_ char type.                     */
+-  /*                                                                       */
+-  typedef unsigned char  FT_Byte;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_String                                                          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple typedef for the char type, usually used for strings.      */
+-  /*                                                                       */
+-  typedef char  FT_String;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Short                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for signed short.                                        */
+-  /*                                                                       */
+-  typedef signed short  FT_Short;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_UShort                                                          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for unsigned short.                                      */
+-  /*                                                                       */
+-  typedef unsigned short  FT_UShort;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Int                                                             */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for the int type.                                        */
+-  /*                                                                       */
+-  typedef int  FT_Int;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_UInt                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for the unsigned int type.                               */
+-  /*                                                                       */
+-  typedef unsigned int  FT_UInt;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Long                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for signed long.                                         */
+-  /*                                                                       */
+-  typedef signed long  FT_Long;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_ULong                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A typedef for unsigned long.                                       */
+-  /*                                                                       */
+-  typedef unsigned long  FT_ULong;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_F2Dot14                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A signed 2.14 fixed float type used for unit vectors.              */
+-  /*                                                                       */
+-  typedef signed short  FT_F2Dot14;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_F26Dot6                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A signed 26.6 fixed float type used for vectorial pixel            */
+-  /*    coordinates.                                                       */
+-  /*                                                                       */
+-  typedef signed long  FT_F26Dot6;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Fixed                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This type is used to store 16.16 fixed float values, like scales   */
+-  /*    or matrix coefficients.                                            */
+-  /*                                                                       */
+-  typedef signed long  FT_Fixed;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Error                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    The FreeType error code type.  A value of 0 is always interpreted  */
+-  /*    as a successful operation.                                         */
+-  /*                                                                       */
+-  typedef int  FT_Error;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Pointer                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple typedef for a typeless pointer.                           */
+-  /*                                                                       */
+-  typedef void*  FT_Pointer;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_Offset                                                          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This is equivalent to the ANSI C `size_t' type, i.e. the largest   */
+-  /*    _unsigned_ integer type used to express a file size or position,   */
+-  /*    or a memory block size.                                            */
+-  /*                                                                       */
+-  typedef size_t  FT_Offset;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_PtrDist                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This is equivalent to the ANSI C `ptrdiff_t' type, i.e. the        */
+-  /*    largest _signed_ integer type used to express the distance         */
+-  /*    between two pointers.                                              */
+-  /*                                                                       */
+-  typedef size_t  FT_PtrDist;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_UnitVector                                                      */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple structure used to store a 2D vector unit vector.  Uses    */
+-  /*    FT_F2Dot14 types.                                                  */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    x :: Horizontal coordinate.                                        */
+-  /*                                                                       */
+-  /*    y :: Vertical coordinate.                                          */
+-  /*                                                                       */
+-  typedef struct  FT_UnitVector_
+-  {
+-    FT_F2Dot14  x;
+-    FT_F2Dot14  y;
+-
+-  } FT_UnitVector;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_Matrix                                                          */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A simple structure used to store a 2x2 matrix.  Coefficients are   */
+-  /*    in 16.16 fixed float format.  The computation performed is:        */
+-  /*                                                                       */
+-  /*       {                                                               */
+-  /*          x' = x*xx + y*xy                                             */
+-  /*          y' = x*yx + y*yy                                             */
+-  /*       }                                                               */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    xx :: Matrix coefficient.                                          */
+-  /*                                                                       */
+-  /*    xy :: Matrix coefficient.                                          */
+-  /*                                                                       */
+-  /*    yx :: Matrix coefficient.                                          */
+-  /*                                                                       */
+-  /*    yy :: Matrix coefficient.                                          */
+-  /*                                                                       */
+-  typedef struct  FT_Matrix_
+-  {
+-    FT_Fixed  xx, xy;
+-    FT_Fixed  yx, yy;
+-
+-  } FT_Matrix;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_Data	                                                           */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    Read-only binary data represented as a pointer and a length.       */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    pointer :: The data.                                               */
+-  /*                                                                       */
+-  /*    length  :: The length of the data in bytes.                        */
+-  /*                                                                       */
+-  typedef struct  FT_Data_
+-  {
+-    const FT_Byte*  pointer;
+-    FT_Int          length;
+-
+-  } FT_Data;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <FuncType>                                                            */
+-  /*    FT_Generic_Finalizer                                               */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    Describes a function used to destroy the `client' data of any      */
+-  /*    FreeType object.  See the description of the FT_Generic type for   */
+-  /*    details of usage.                                                  */
+-  /*                                                                       */
+-  /* <Input>                                                               */
+-  /*    The address of the FreeType object which is under finalization.    */
+-  /*    Its client data is accessed through its `generic' field.           */
+-  /*                                                                       */
+-  typedef void  (*FT_Generic_Finalizer)(void*  object);
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_Generic                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    Client applications often need to associate their own data to a    */
+-  /*    variety of FreeType core objects.  For example, a text layout API  */
+-  /*    might want to associate a glyph cache to a given size object.      */
+-  /*                                                                       */
+-  /*    Most FreeType object contains a `generic' field, of type           */
+-  /*    FT_Generic, which usage is left to client applications and font    */
+-  /*    servers.                                                           */
+-  /*                                                                       */
+-  /*    It can be used to store a pointer to client-specific data, as well */
+-  /*    as the address of a `finalizer' function, which will be called by  */
+-  /*    FreeType when the object is destroyed (for example, the previous   */
+-  /*    client example would put the address of the glyph cache destructor */
+-  /*    in the `finalizer' field).                                         */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    data      :: A typeless pointer to any client-specified data. This */
+-  /*                 field is completely ignored by the FreeType library.  */
+-  /*                                                                       */
+-  /*    finalizer :: A pointer to a `generic finalizer' function, which    */
+-  /*                 will be called when the object is destroyed.  If this */
+-  /*                 field is set to NULL, no code will be called.         */
+-  /*                                                                       */
+-  typedef struct  FT_Generic_
+-  {
+-    void*                 data;
+-    FT_Generic_Finalizer  finalizer;
+-
+-  } FT_Generic;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Macro>                                                               */
+-  /*    FT_MAKE_TAG                                                        */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    This macro converts four letter tags which are used to label       */
+-  /*    TrueType tables into an unsigned long to be used within FreeType.  */
+-  /*                                                                       */
+-  /* <Note>                                                                */
+-  /*    The produced values *must* be 32bit integers.  Don't redefine this */
+-  /*    macro.                                                             */
+-  /*                                                                       */
+-#define FT_MAKE_TAG( _x1, _x2, _x3, _x4 ) \
+-          ( ( (FT_ULong)_x1 << 24 ) |     \
+-            ( (FT_ULong)_x2 << 16 ) |     \
+-            ( (FT_ULong)_x3 <<  8 ) |     \
+-              (FT_ULong)_x4         )
+-
+-
+-  /*************************************************************************/
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /*                    L I S T   M A N A G E M E N T                      */
+-  /*                                                                       */
+-  /*************************************************************************/
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Section>                                                             */
+-  /*    list_processing                                                    */
+-  /*                                                                       */
+-  /*************************************************************************/
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_ListNode                                                        */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*     Many elements and objects in FreeType are listed through a        */
+-  /*     FT_List record (see FT_ListRec).  As its name suggests, a         */
+-  /*     FT_ListNode is a handle to a single list element.                 */
+-  /*                                                                       */
+-  typedef struct FT_ListNodeRec_*  FT_ListNode;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Type>                                                                */
+-  /*    FT_List                                                            */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A handle to a list record (see FT_ListRec).                        */
+-  /*                                                                       */
+-  typedef struct FT_ListRec_*  FT_List;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_ListNodeRec                                                     */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A structure used to hold a single list element.                    */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    prev :: The previous element in the list.  NULL if first.          */
+-  /*                                                                       */
+-  /*    next :: The next element in the list.  NULL if last.               */
+-  /*                                                                       */
+-  /*    data :: A typeless pointer to the listed object.                   */
+-  /*                                                                       */
+-  typedef struct  FT_ListNodeRec_
+-  {
+-    FT_ListNode  prev;
+-    FT_ListNode  next;
+-    void*        data;
+-
+-  } FT_ListNodeRec;
+-
+-
+-  /*************************************************************************/
+-  /*                                                                       */
+-  /* <Struct>                                                              */
+-  /*    FT_ListRec                                                         */
+-  /*                                                                       */
+-  /* <Description>                                                         */
+-  /*    A structure used to hold a simple doubly-linked list.  These are   */
+-  /*    used in many parts of FreeType.                                    */
+-  /*                                                                       */
+-  /* <Fields>                                                              */
+-  /*    head :: The head (first element) of doubly-linked list.            */
+-  /*                                                                       */
+-  /*    tail :: The tail (last element) of doubly-linked list.             */
+-  /*                                                                       */
+-  typedef struct  FT_ListRec_
+-  {
+-    FT_ListNode  head;
+-    FT_ListNode  tail;
+-
+-  } FT_ListRec;
+-
+-
+-  /* */
+-
+-#define FT_IS_EMPTY( list )  ( (list).head == 0 )
+-
+-  /* return base error code (without module-specific prefix) */
+-#define FT_ERROR_BASE( x )    ( (x) & 0xFF )
+-
+-  /* return module error code */
+-#define FT_ERROR_MODULE( x )  ( (x) & 0xFF00U )
+-
+-#define FT_BOOL( x )  ( (FT_Bool)( x ) )
+-
+-FT_END_HEADER
+-
+-#endif /* __FTTYPES_H__ */
+-
+-
+-/* END */
+diff -pNur xc.orig/lib/fontconfig/Imakefile xc/lib/fontconfig/Imakefile
+--- xc.orig/lib/fontconfig/Imakefile	2005-10-25 09:58:48.000000000 -0700
++++ xc/lib/fontconfig/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -22,7 +22,7 @@ FONTCONFIGSRC=$(TOP)/extras/fontconfig
+ 
+ INCLUDES=$(EXPATINCLUDES) $(FREETYPE2INCLUDES) -I$(FONTCONFIGSRC)/src
+ 
+-DEFINES=-DFC_DEFAULT_FONTS='"$(FC_DEFAULT_FONTS)"' -DHAVE_EXPAT -DXFREE86_FT2
++DEFINES=-DFC_DEFAULT_FONTS='"$(FC_DEFAULT_FONTS)"' -DHAVE_EXPAT
+ 
+ REQUIREDLIBS=$(LDPRELIBS) $(FREETYPE2LIB) $(EXPATLIB)
+ 
+diff -pNur xc.orig/lib/freetype2/Imakefile xc/lib/freetype2/Imakefile
+--- xc.orig/lib/freetype2/Imakefile	2005-10-14 08:16:07.000000000 -0700
++++ xc/lib/freetype2/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -32,7 +32,7 @@ DARWINDEFINES = -DDARWIN_NO_CARBON
+ # endif
+ #endif
+ 
+-DEFINES = $(DARWINDEFINES) Freetype2BuildDefines -DXFREE86_FT2
++DEFINES = $(DARWINDEFINES) Freetype2BuildDefines
+ 
+ INCLUDES = \
+ 	-I$(FREETYPESRC)\
+diff -pNur xc.orig/lib/freetype2/freetype/config/Imakefile xc/lib/freetype2/freetype/config/Imakefile
+--- xc.orig/lib/freetype2/freetype/config/Imakefile	2003-10-31 12:49:05.000000000 -0800
++++ xc/lib/freetype2/freetype/config/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -14,11 +14,7 @@ HEADERS= \
+ BuildIncludes($(HEADERS),freetype2/freetype/config,../../..)
+ InstallMultipleFlags($(HEADERS),$(INCDIR)/freetype2/freetype/config,$(INSTINCFLAGS))
+ 
+-#if 0
+ LinkSourceFile(ftconfig.h,$(FREETYPEINC)/config)
+-#else
+-LinkSourceFile(ftconfig.h,$(FONTLIBSRC)/FreeType)
+-#endif
+ LinkSourceFile(ftheader.h,$(FREETYPEINC)/config)
+ LinkSourceFile(ftmodule.h,$(FREETYPEINC)/config)
+ LinkSourceFile(ftoption.h,$(FREETYPEINC)/config)
+diff -pNur xc.orig/programs/fonttosfnt/Imakefile xc/programs/fonttosfnt/Imakefile
+--- xc.orig/programs/fonttosfnt/Imakefile	2005-10-14 08:17:30.000000000 -0700
++++ xc/programs/fonttosfnt/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -17,7 +17,7 @@ OBJS = fonttosfnt.o read.o write.o struc
+ 
+ FONTENC_LIBS = -lfontenc
+ 
+-DEFINES  = $(SETENV_DEFINES) $(SNPRINTF_DEFINES) -DXFREE86_FT2 
++DEFINES  = $(SETENV_DEFINES) $(SNPRINTF_DEFINES)
+ INCLUDES = $(FREETYPE2INCLUDES) $(SNPRINTF_INCLUDES)
+ LOCAL_LIBRARIES = $(FREETYPE2LIB) $(FONTENC_LIBS) GzipLibrary MathLibrary
+ 
+diff -pNur xc.orig/programs/fonttosfnt/util.c xc/programs/fonttosfnt/util.c
+--- xc.orig/programs/fonttosfnt/util.c	2005-02-06 17:01:16.000000000 -0800
++++ xc/programs/fonttosfnt/util.c	2007-05-23 12:43:10.000000000 -0700
+@@ -34,7 +34,6 @@ THE SOFTWARE.
+ 
+ #include <ft2build.h>
+ #include FT_FREETYPE_H
+-#include FT_INTERNAL_OBJECTS_H
+ #include FT_BDF_H
+ #include "X11/Xos.h"
+ #include "fonttosfnt.h"
+diff -pNur xc.orig/programs/mkfontscale/Imakefile xc/programs/mkfontscale/Imakefile
+--- xc.orig/programs/mkfontscale/Imakefile	2005-10-14 08:17:31.000000000 -0700
++++ xc/programs/mkfontscale/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -15,7 +15,7 @@ SNPRINTF_INCLUDES = -I$(LIBSRC)/misc
+ #endif
+ 
+ INCLUDES = $(FREETYPE2INCLUDES) $(SNPRINTF_INCLUDES)
+-DEFINES = $(FREETYPE2DEFINES) $(SNPRINTF_DEFINES) -DXFREE86_FT2
++DEFINES = $(FREETYPE2DEFINES) $(SNPRINTF_DEFINES)
+ 
+ ComplexProgramTarget(mkfontscale)
+ LinkBuildBinary(ProgramTargetName(mkfontscale))
+diff -pNur xc.orig/programs/x11perf/Imakefile xc/programs/x11perf/Imakefile
+--- xc.orig/programs/x11perf/Imakefile	2005-10-14 08:17:31.000000000 -0700
++++ xc/programs/x11perf/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -14,7 +14,7 @@ XCOMM $XFree86: xc/programs/x11perf/Imak
+     XRENDERINCS = $(XRENDERINCLUDES)
+ #endif
+ #if BuildXftLibrary
+-        XFTDEFS = -DXFT -DXFREE86_FT2
++        XFTDEFS = -DXFT
+         XFTDEPS = XftClientDepLibs
+         XFTLIBS = XftClientLibs
+         XFTINCS = $(XFTINCLUDES)
+diff -pNur xc.orig/programs/xclock/Imakefile xc/programs/xclock/Imakefile
+--- xc.orig/programs/xclock/Imakefile	2005-10-14 08:17:31.000000000 -0700
++++ xc/programs/xclock/Imakefile	2007-05-23 15:10:58.000000000 -0700
+@@ -5,7 +5,7 @@ XCOMM $XFree86: xc/programs/xclock/Imake
+ #endif
+ 
+ #if XClockUseRender
+-    XRENDERDEFS = -DXRENDER -DXFREE86_FT2
++    XRENDERDEFS = -DXRENDER
+     XRENDERDEPS = XftClientDepLibs
+     XRENDERLIBS = XftClientLibs MathLibrary
+     XRENDERINCS = $(XFTINCLUDES) $(XRENDERINCLUDES)
+diff -pNur xc.orig/programs/xditview/Imakefile xc/programs/xditview/Imakefile
+--- xc.orig/programs/xditview/Imakefile	2006-01-09 07:01:02.000000000 -0800
++++ xc/programs/xditview/Imakefile	2007-05-23 15:09:56.000000000 -0700
+@@ -4,7 +4,7 @@ XCOMM $XFree86: xc/programs/xditview/Ima
+ #if BuildXftLibrary
+     DEPFONTLIBS = XftClientDepLibs
+        FONTLIBS = XftClientLibs
+-       FONTDEFS = -DUSE_XFT -DXFREE86_FT2
++       FONTDEFS = -DUSE_XFT
+       INCLUDES = $(XFTINCLUDES)
+ #endif
+ #if HasMkstemp
+diff -pNur xc.orig/programs/xfd/Imakefile xc/programs/xfd/Imakefile
+--- xc.orig/programs/xfd/Imakefile	2005-10-14 08:17:32.000000000 -0700
++++ xc/programs/xfd/Imakefile	2007-05-23 15:12:06.000000000 -0700
+@@ -5,7 +5,7 @@ XCOMM $XFree86: xc/programs/xfd/Imakefil
+ #endif
+ 
+ #if XFdUseRender
+-    XRENDERDEFS = -DXRENDER -DXFREE86_FT2
++    XRENDERDEFS = -DXRENDER
+     XRENDERDEPS = XftClientDepLibs
+     XRENDERLIBS = XftClientLibs
+     XRENDERINCS = $(XFTINCLUDES) $(XRENDERINCLUDES)
+diff -pNur xc.orig/programs/xlogo/Imakefile xc/programs/xlogo/Imakefile
+--- xc.orig/programs/xlogo/Imakefile	2005-10-14 08:17:34.000000000 -0700
++++ xc/programs/xlogo/Imakefile	2007-05-23 15:08:43.000000000 -0700
+@@ -5,7 +5,7 @@ XCOMM $XFree86: xc/programs/xlogo/Imakef
+ #endif
+ 
+ #if XLogoUseRender
+-    XRENDERDEFS = -DXRENDER -DXFREE86_FT2
++    XRENDERDEFS = -DXRENDER
+     XRENDERDEPS = XftClientDepLibs
+     XRENDERLIBS = XftClientLibs
+     XRENDERINCS = $(XFTINCLUDES) $(XRENDERINCLUDES)
+diff -pNur xc.orig/programs/xterm/Imakefile xc/programs/xterm/Imakefile
+--- xc.orig/programs/xterm/Imakefile	2006-04-09 17:34:36.000000000 -0700
++++ xc/programs/xterm/Imakefile	2007-05-23 12:43:10.000000000 -0700
+@@ -161,7 +161,7 @@ module.o: ; $(CC) -c defines $(CFLAGS) m
+ #define XRenderSupport
+ #endif
+ #ifdef XRenderSupport
+-         XRFDEF = -DXRENDERFONT -DXFREE86_FT2
++         XRFDEF = -DXRENDERFONT
+         XRFLIBS = XftClientLibs
+      XRFDEPLIBS = XftClientDepLibs
+     XRFINCLUDES = $(XFTINCLUDES)

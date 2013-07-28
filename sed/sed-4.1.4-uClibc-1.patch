@@ -1,0 +1,23 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-10-02
+Initial Package Version: 4.1.4
+Upstream Status: Accepted Upstream
+Origin: http://lists.gnu.org/archive/html/bug-gnu-utils/2005-08/txtVau5I71LDV.txt
+Description: This corrects a problem with a "Memory exhausted" error when Sed
+is linked to uClibc 0.9.28.
+
+diff -Naur sed-4.1.4.orig/lib/regex_internal.c sed-4.1.4/lib/regex_internal.c
+--- sed-4.1.4.orig/lib/regex_internal.c	2005-01-28 09:07:56 +0000
++++ sed-4.1.4/lib/regex_internal.c	2005-08-24 03:20:28 +0000
+@@ -885,8 +885,9 @@
+ {
+   set->alloc = size;
+   set->nelem = 0;
+-  set->elems = re_malloc (int, size);
+-  if (BE (set->elems == NULL, 0))
++  set->elems = re_malloc (int, size); /* can be NULL if size == 0
++				(see re_node_set_init_empty(set)) */
++  if (BE (set->elems == NULL && size != 0, 0))
+     return REG_ESPACE;
+   return REG_NOERROR;
+ }

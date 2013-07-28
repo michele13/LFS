@@ -1,0 +1,23 @@
+Submitted By: Jeremy Huntwork (jhuntwork AT linuxfromscratch DOT org)
+Date: 2005-10-14
+Initial Package Version: 3.3.4
+Upstream Status: From glibc-cvs
+Origin: http://sources.redhat.com/ml/libc-hacker/2005-02/msg00005.html
+Description: Avoid segfault if open_path doesn't find any of the standard search directories.
+
+--- libc/elf/dl-load.c.jj	2005-01-19 14:12:38.000000000 +0100
++++ libc/elf/dl-load.c	2005-02-07 11:24:58.611074914 +0100
+@@ -1876,7 +1876,12 @@ open_path (const char *name, size_t name
+ 	 must not be freed using the general free() in libc.  */
+       if (sps->malloced)
+ 	free (sps->dirs);
+-      sps->dirs = (void *) -1;
++#ifdef HAVE_Z_RELRO
++      /* rtld_search_dirs is attribute_relro, therefore avoid writing
++	 into it.  */
++      if (sps != &rtld_search_dirs)
++#endif
++	sps->dirs = (void *) -1;
+     }
+ 
+   return -1;

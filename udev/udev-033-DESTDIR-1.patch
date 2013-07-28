@@ -1,0 +1,23 @@
+Submitted By: David Jensen (djensen@inebraska.com)
+Date: 2004-10-07
+Initial Package Version: udev-033
+Upstream Status: Pending
+Origin: Joint development between David Jensen and Kevin Fleming
+Description: Makes udev respect the DESTDIR parameter passed to the makefile
+
+
+--- udev-033.orig/Makefile	2004-10-06 18:29:03.000000000 -0500
++++ udev-033/Makefile	2004-10-07 09:32:41.685906408 -0500
+@@ -397,9 +397,9 @@
+ 	$(INSTALL_PROGRAM) -D $(INFO) $(DESTDIR)$(usrbindir)/$(INFO)
+ 	$(INSTALL_PROGRAM) -D $(TESTER) $(DESTDIR)$(usrbindir)/$(TESTER)
+ 	$(INSTALL_PROGRAM) -D $(WAIT) $(DESTDIR)$(sbindir)/$(WAIT)
+-	- ln -f -s $(sbindir)/udev $(DESTDIR)$(sbindir)/$(STARTER)
+-	- ln -f -s $(sbindir)/$(SENDER) $(DESTDIR)$(hotplugdir)/10-udev.hotplug
+-	- ln -f -s $(sbindir)/$(WAIT) $(DESTDIR)$(hotplugdir)/05-wait_for_sysfs.hotplug
++	- ln -f -s $(DESTDIR)$(sbindir)/udev $(DESTDIR)$(sbindir)/$(STARTER)
++	- ln -f -s $(DESTDIR)$(sbindir)/$(SENDER) $(DESTDIR)$(hotplugdir)/10-udev.hotplug
++	- ln -f -s $(DESTDIR)$(sbindir)/$(WAIT) $(DESTDIR)$(hotplugdir)/05-wait_for_sysfs.hotplug
+ ifndef DESTDIR
+ 	- killall udevd
+ 	- rm -f $(udevdir)/.udev.tdb

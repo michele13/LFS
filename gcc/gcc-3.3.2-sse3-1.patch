@@ -1,0 +1,4996 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-02-03
+Initial Package Version: 3.3.2
+Origin:	http://gcc.gnu.org/ml/gcc-cvs/2003-11/msg00096.html
+	http://gcc.gnu.org/ml/gcc/2004-02/msg00209.html
+Upstream Status: PNI in CVS, PNI->SSE3 not yet merged.
+Description: Support for SSE3, formerly known as PNI.
+
+diff -Naur gcc-3.3.2.orig/gcc/ChangeLog gcc-3.3.2/gcc/ChangeLog
+--- gcc-3.3.2.orig/gcc/ChangeLog	2003-10-16 15:43:18.000000000 -0400
++++ gcc-3.3.2/gcc/ChangeLog	2004-02-03 18:15:48.961923536 -0500
+@@ -1,3 +1,76 @@
++2004-02-03  Kelley Cook  <kcook@gcc.gnu.org>
++
++	* config/i386/i386.c: rename pni to sse3.
++	* config/i386/i386.h: Likewise.
++	* config/i386/i386.md: Likewise.
++	* config/i386/pmmintrin.h: Likewise.
++	* doc/extend.texi: Likewise.
++	* doc/invoke.texi: Likewise.
++
++2003-11-04  H.J. Lu  <hongjiu.lu@intel.com>
++
++	Backport from 3.4-branch
++
++	2003-07-13  Andreas Jaeger  <aj@suse.de>
++
++	* config.gcc: Add pmmintrin.h for x86_64-*-*.
++
++	2003-06-26  H.J. Lu  <hongjiu.lu@intel.com>
++
++	* config.gcc (extra_headers): Add pmmintrin.h for i[34567]86-*-*.
++
++	* config/i386/i386.c (override_options): Turn on MASK_SSE2
++	for -mpni.
++	(bdesc_2arg): Add PNI builtins with 2 args.
++	(bdesc_1arg): Add PNI builtins with 1 arg.
++	(ix86_init_mmx_sse_builtins): Handle PNI builtins.
++	(ix86_expand_builtin): Likewise.
++
++	* config/i386/i386.h (MASK_3DNOW, MASK_3DNOW_A,
++	MASK_128BIT_LONG_DOUBLE, MASK_64BIT, MASK_MS_BITFIELD_LAYOUT,
++	MASK_TLS_DIRECT_SEG_REFS): Renumbered.
++	(TARGET_PNI): New.
++	(TARGET_SWITCHES): Add -mpni and -mno-pni.
++	(TARGET_CPU_CPP_BUILTINS): Defined __PNI__ for PNI.
++	(ix86_builtins): Add PNI builtins.
++	(config/i386/i386.md): Add PNI patterns.
++
++	* config/i386/pmmintrin.h: New file.
++
++	* config/i386/i386.c (override_options): Turn on MASK_SSE for
++	-msse2.
++	(MASK_SSE1): Removed.
++	(MASK_SSE164): Removed.
++	(MASK_SSE264): Removed.
++	(bdesc_2arg): Replace MASK_SSE1 with MASK_SSE. Replace
++	MASK_SSE164 with MASK_SSE | MASK_64BIT. Replace MASK_SSE264
++	with MASK_SSE2 | MASK_64BIT.
++	(bdesc_1arg): Likewise.
++	(ix86_init_mmx_sse_builtins): Likewise.
++
++	* config/i386/i386.h (TARGET_SSE): Remove MASK_SSE2.
++
++	2003-06-20  H.J. Lu  <hongjiu.lu@intel.com>
++
++	* doc/extend.texi: Document new builtin functions for Intel
++	Prescott New Instructions.
++
++	* doc/invoke.texi: Document new command-line options, -mpni and
++	-mno-pni, for Intel Prescott New Instructions.
++
++	2003-06-05  H.J. Lu  <hongjiu.lu@intel.com>
++
++	* config.gcc (extra_headers): Add emmintrin.h for i[34567]86-*-*
++	and x86_64-*-*.
++
++	* config/i386/mmintrin.h: Update version and add alternate
++	intrinsic names.
++	* config/i386/xmmintrin.h: Likewise.
++
++	* config/i386/xmmintrin.h: Include <emmintrin.h>. Move SSE2
++	intrinsics to ...
++	* config/i386/emmintrin.h: Here. New file.
++
+ 2003-10-16  Release Manager
+ 
+ 	* GCC 3.3.2 Released.
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/emmintrin.h gcc-3.3.2/gcc/config/i386/emmintrin.h
+--- gcc-3.3.2.orig/gcc/config/i386/emmintrin.h	1969-12-31 19:00:00.000000000 -0500
++++ gcc-3.3.2/gcc/config/i386/emmintrin.h	2004-02-03 18:06:48.000000000 -0500
+@@ -0,0 +1,1499 @@
++/* Copyright (C) 2003 Free Software Foundation, Inc.
++
++   This file is part of GNU CC.
++
++   GNU CC is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2, or (at your option)
++   any later version.
++
++   GNU CC is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GNU CC; see the file COPYING.  If not, write to
++   the Free Software Foundation, 59 Temple Place - Suite 330,
++   Boston, MA 02111-1307, USA.  */
++
++/* As a special exception, if you include this header file into source
++   files compiled by GCC, this header file does not by itself cause
++   the resulting executable to be covered by the GNU General Public
++   License.  This exception does not however invalidate any other
++   reasons why the executable file might be covered by the GNU General
++   Public License.  */
++
++/* Implemented from the specification included in the Intel C++ Compiler
++   User Guide and Reference, version 8.0.  */
++
++#ifndef _EMMINTRIN_H_INCLUDED
++#define _EMMINTRIN_H_INCLUDED
++
++#ifdef __SSE2__
++#include <xmmintrin.h>
++
++/* SSE2 */
++typedef int __v2df __attribute__ ((mode (V2DF)));
++typedef int __v2di __attribute__ ((mode (V2DI)));
++typedef int __v4si __attribute__ ((mode (V4SI)));
++typedef int __v8hi __attribute__ ((mode (V8HI)));
++typedef int __v16qi __attribute__ ((mode (V16QI)));
++
++/* Create a selector for use with the SHUFPD instruction.  */
++#define _MM_SHUFFLE2(fp1,fp0) \
++ (((fp1) << 1) | (fp0))
++
++#define __m128i __v2di
++#define __m128d __v2df
++
++/* Create a vector with element 0 as *P and the rest zero.  */
++static __inline __m128d
++_mm_load_sd (double const *__P)
++{
++  return (__m128d) __builtin_ia32_loadsd (__P);
++}
++
++/* Create a vector with all two elements equal to *P.  */
++static __inline __m128d
++_mm_load1_pd (double const *__P)
++{
++  __v2df __tmp = __builtin_ia32_loadsd (__P);
++  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,0));
++}
++
++static __inline __m128d
++_mm_load_pd1 (double const *__P)
++{
++  return _mm_load1_pd (__P);
++}
++
++/* Load two DPFP values from P.  The address must be 16-byte aligned.  */
++static __inline __m128d
++_mm_load_pd (double const *__P)
++{
++  return (__m128d) __builtin_ia32_loadapd (__P);
++}
++
++/* Load two DPFP values from P.  The address need not be 16-byte aligned.  */
++static __inline __m128d
++_mm_loadu_pd (double const *__P)
++{
++  return (__m128d) __builtin_ia32_loadupd (__P);
++}
++
++/* Load two DPFP values in reverse order.  The address must be aligned.  */
++static __inline __m128d
++_mm_loadr_pd (double const *__P)
++{
++  __v2df __tmp = __builtin_ia32_loadapd (__P);
++  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,1));
++}
++
++/* Create a vector with element 0 as F and the rest zero.  */
++static __inline __m128d
++_mm_set_sd (double __F)
++{
++  return (__m128d) __builtin_ia32_loadsd (&__F);
++}
++
++/* Create a vector with all two elements equal to F.  */
++static __inline __m128d
++_mm_set1_pd (double __F)
++{
++  __v2df __tmp = __builtin_ia32_loadsd (&__F);
++  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,0));
++}
++
++static __inline __m128d
++_mm_set_pd1 (double __F)
++{
++  return _mm_set1_pd (__F);
++}
++
++/* Create the vector [Z Y].  */
++static __inline __m128d
++_mm_set_pd (double __Z, double __Y)
++{
++  union {
++    double __a[2];
++    __m128d __v;
++  } __u;
++
++  __u.__a[0] = __Y;
++  __u.__a[1] = __Z;
++
++  return __u.__v;
++}
++
++/* Create the vector [Y Z].  */
++static __inline __m128d
++_mm_setr_pd (double __Z, double __Y)
++{
++  return _mm_set_pd (__Y, __Z);
++}
++
++/* Create a vector of zeros.  */
++static __inline __m128d
++_mm_setzero_pd (void)
++{
++  return (__m128d) __builtin_ia32_setzeropd ();
++}
++
++/* Stores the lower DPFP value.  */
++static __inline void
++_mm_store_sd (double *__P, __m128d __A)
++{
++  __builtin_ia32_storesd (__P, (__v2df)__A);
++}
++
++/* Store the lower DPFP value acrosd two words.  */
++static __inline void
++_mm_store1_pd (double *__P, __m128d __A)
++{
++  __v2df __va = (__v2df)__A;
++  __v2df __tmp = __builtin_ia32_shufpd (__va, __va, _MM_SHUFFLE2 (0,0));
++  __builtin_ia32_storeapd (__P, __tmp);
++}
++
++static __inline void
++_mm_store_pd1 (double *__P, __m128d __A)
++{
++  _mm_store1_pd (__P, __A);
++}
++
++/* Store two DPFP values.  The address must be 16-byte aligned.  */
++static __inline void
++_mm_store_pd (double *__P, __m128d __A)
++{
++  __builtin_ia32_storeapd (__P, (__v2df)__A);
++}
++
++/* Store two DPFP values.  The address need not be 16-byte aligned.  */
++static __inline void
++_mm_storeu_pd (double *__P, __m128d __A)
++{
++  __builtin_ia32_storeupd (__P, (__v2df)__A);
++}
++
++/* Store two DPFP values in reverse order.  The address must be aligned.  */
++static __inline void
++_mm_storer_pd (double *__P, __m128d __A)
++{
++  __v2df __va = (__v2df)__A;
++  __v2df __tmp = __builtin_ia32_shufpd (__va, __va, _MM_SHUFFLE2 (0,1));
++  __builtin_ia32_storeapd (__P, __tmp);
++}
++
++/* Sets the low DPFP value of A from the low value of B.  */
++static __inline __m128d
++_mm_move_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d) __builtin_ia32_movsd ((__v2df)__A, (__v2df)__B);
++}
++
++
++static __inline __m128d
++_mm_add_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_addpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_add_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_addsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_sub_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_subpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_sub_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_subsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_mul_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_mulpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_mul_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_mulsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_div_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_divpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_div_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_divsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_sqrt_pd (__m128d __A)
++{
++  return (__m128d)__builtin_ia32_sqrtpd ((__v2df)__A);
++}
++
++/* Return pair {sqrt (A[0), B[1]}.  */
++static __inline __m128d
++_mm_sqrt_sd (__m128d __A, __m128d __B)
++{
++  __v2df __tmp = __builtin_ia32_movsd ((__v2df)__A, (__v2df)__B);
++  return (__m128d)__builtin_ia32_sqrtsd ((__v2df)__tmp);
++}
++
++static __inline __m128d
++_mm_min_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_minpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_min_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_minsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_max_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_maxpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_max_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_maxsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_and_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_andpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_andnot_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_andnpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_or_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_orpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_xor_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_xorpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpeq_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpeqpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmplt_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpltpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmple_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmplepd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpgt_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpgtpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpge_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpgepd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpneq_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpneqpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpnlt_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpnltpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpnle_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpnlepd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpngt_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpngtpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpnge_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpngepd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpord_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpordpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpunord_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpunordpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpeq_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpeqsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmplt_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpltsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmple_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmplesd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpgt_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
++					 (__v2df)
++					 __builtin_ia32_cmpltsd ((__v2df) __B,
++								 (__v2df)
++								 __A));
++}
++
++static __inline __m128d
++_mm_cmpge_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
++					 (__v2df)
++					 __builtin_ia32_cmplesd ((__v2df) __B,
++								 (__v2df)
++								 __A));
++}
++
++static __inline __m128d
++_mm_cmpneq_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpneqsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpnlt_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpnltsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpnle_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpnlesd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpngt_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
++					 (__v2df)
++					 __builtin_ia32_cmpnltsd ((__v2df) __B,
++								  (__v2df)
++								  __A));
++}
++
++static __inline __m128d
++_mm_cmpnge_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
++					 (__v2df)
++					 __builtin_ia32_cmpnlesd ((__v2df) __B,
++								  (__v2df)
++								  __A));
++}
++
++static __inline __m128d
++_mm_cmpord_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpordsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_cmpunord_sd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_cmpunordsd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comieq_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdeq ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comilt_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdlt ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comile_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdle ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comigt_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdgt ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comige_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdge ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_comineq_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_comisdneq ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomieq_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdeq ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomilt_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdlt ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomile_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdle ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomigt_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdgt ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomige_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdge ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_ucomineq_sd (__m128d __A, __m128d __B)
++{
++  return __builtin_ia32_ucomisdneq ((__v2df)__A, (__v2df)__B);
++}
++
++/* Create a vector with element 0 as *P and the rest zero.  */
++
++static __inline __m128i
++_mm_load_si128 (__m128i const *__P)
++{
++  return (__m128i) __builtin_ia32_loaddqa ((char const *)__P);
++}
++
++static __inline __m128i
++_mm_loadu_si128 (__m128i const *__P)
++{
++  return (__m128i) __builtin_ia32_loaddqu ((char const *)__P);
++}
++
++static __inline __m128i
++_mm_loadl_epi64 (__m128i const *__P)
++{
++  return (__m128i) __builtin_ia32_movq2dq (*(unsigned long long *)__P);
++}
++
++static __inline void
++_mm_store_si128 (__m128i *__P, __m128i __B)
++{
++  __builtin_ia32_storedqa ((char *)__P, (__v16qi)__B);
++}
++
++static __inline void
++_mm_storeu_si128 (__m128i *__P, __m128i __B)
++{
++  __builtin_ia32_storedqu ((char *)__P, (__v16qi)__B);
++}
++
++static __inline void
++_mm_storel_epi64 (__m128i *__P, __m128i __B)
++{
++  *(long long *)__P = __builtin_ia32_movdq2q ((__v2di)__B);
++}
++
++static __inline __m64
++_mm_movepi64_pi64 (__m128i __B)
++{
++  return (__m64) __builtin_ia32_movdq2q ((__v2di)__B);
++}
++
++static __inline __m128i
++_mm_move_epi64 (__m128i __A)
++{
++  return (__m128i) __builtin_ia32_movq ((__v2di)__A);
++}
++
++/* Create a vector of zeros.  */
++static __inline __m128i
++_mm_setzero_si128 (void)
++{
++  return (__m128i) __builtin_ia32_setzero128 ();
++}
++
++static __inline __m128i
++_mm_set_epi64 (__m64 __A,  __m64 __B)
++{
++  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
++  __v2di __tmp2 = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__B);
++  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp2, __tmp);
++}
++
++/* Create the vector [Z Y X W].  */
++static __inline __m128i
++_mm_set_epi32 (int __Z, int __Y, int __X, int __W)
++{
++  union {
++    int __a[4];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __W;
++  __u.__a[1] = __X;
++  __u.__a[2] = __Y;
++  __u.__a[3] = __Z;
++
++  return __u.__v;
++}
++
++#ifdef __x86_64__
++/* Create the vector [Z Y].  */
++static __inline __m128i
++_mm_set_epi64x (long long __Z, long long __Y)
++{
++  union {
++    long __a[2];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __Y;
++  __u.__a[1] = __Z;
++
++  return __u.__v;
++}
++#endif
++
++/* Create the vector [S T U V Z Y X W].  */
++static __inline __m128i
++_mm_set_epi16 (short __Z, short __Y, short __X, short __W,
++	       short __V, short __U, short __T, short __S)
++{
++  union {
++    short __a[8];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __S;
++  __u.__a[1] = __T;
++  __u.__a[2] = __U;
++  __u.__a[3] = __V;
++  __u.__a[4] = __W;
++  __u.__a[5] = __X;
++  __u.__a[6] = __Y;
++  __u.__a[7] = __Z;
++
++  return __u.__v;
++}
++
++/* Create the vector [S T U V Z Y X W].  */
++static __inline __m128i
++_mm_set_epi8 (char __Z, char __Y, char __X, char __W,
++	      char __V, char __U, char __T, char __S,
++	      char __Z1, char __Y1, char __X1, char __W1,
++	      char __V1, char __U1, char __T1, char __S1)
++{
++  union {
++    char __a[16];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __S1;
++  __u.__a[1] = __T1;
++  __u.__a[2] = __U1;
++  __u.__a[3] = __V1;
++  __u.__a[4] = __W1;
++  __u.__a[5] = __X1;
++  __u.__a[6] = __Y1;
++  __u.__a[7] = __Z1;
++  __u.__a[8] = __S;
++  __u.__a[9] = __T;
++  __u.__a[10] = __U;
++  __u.__a[11] = __V;
++  __u.__a[12] = __W;
++  __u.__a[13] = __X;
++  __u.__a[14] = __Y;
++  __u.__a[15] = __Z;
++
++  return __u.__v;
++}
++
++static __inline __m128i
++_mm_set1_epi64 (__m64 __A)
++{
++  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
++  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp, __tmp);
++}
++
++static __inline __m128i
++_mm_set1_epi32 (int __A)
++{
++  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__A);
++  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
++}
++
++#ifdef __x86_64__
++static __inline __m128i
++_mm_set1_epi64x (long long __A)
++{
++  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
++  return (__m128i) __builtin_ia32_shufpd ((__v2df)__tmp, (__v2df)__tmp, _MM_SHUFFLE2 (0,0));
++}
++#endif
++
++static __inline __m128i
++_mm_set1_epi16 (short __A)
++{
++  int __Acopy = (unsigned short)__A;
++  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__Acopy);
++  __tmp = (__v4si)__builtin_ia32_punpcklwd128 ((__v8hi)__tmp, (__v8hi)__tmp);
++  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
++}
++
++static __inline __m128i
++_mm_set1_epi8 (char __A)
++{
++  int __Acopy = (unsigned char)__A;
++  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__Acopy);
++  __tmp = (__v4si)__builtin_ia32_punpcklbw128 ((__v16qi)__tmp, (__v16qi)__tmp);
++  __tmp = (__v4si)__builtin_ia32_punpcklbw128 ((__v16qi)__tmp, (__v16qi)__tmp);
++  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
++}
++
++static __inline __m128i
++_mm_setr_epi64 (__m64 __A,  __m64 __B)
++{
++  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
++  __v2di __tmp2 = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__B);
++  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp, __tmp2);
++}
++
++/* Create the vector [Z Y X W].  */
++static __inline __m128i
++_mm_setr_epi32 (int __W, int __X, int __Y, int __Z)
++{
++  union {
++    int __a[4];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __W;
++  __u.__a[1] = __X;
++  __u.__a[2] = __Y;
++  __u.__a[3] = __Z;
++
++  return __u.__v;
++}
++/* Create the vector [S T U V Z Y X W].  */
++static __inline __m128i
++_mm_setr_epi16 (short __S, short __T, short __U, short __V,
++	        short __W, short __X, short __Y, short __Z)
++{
++  union {
++    short __a[8];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __S;
++  __u.__a[1] = __T;
++  __u.__a[2] = __U;
++  __u.__a[3] = __V;
++  __u.__a[4] = __W;
++  __u.__a[5] = __X;
++  __u.__a[6] = __Y;
++  __u.__a[7] = __Z;
++
++  return __u.__v;
++}
++
++/* Create the vector [S T U V Z Y X W].  */
++static __inline __m128i
++_mm_setr_epi8 (char __S1, char __T1, char __U1, char __V1,
++	       char __W1, char __X1, char __Y1, char __Z1,
++	       char __S, char __T, char __U, char __V,
++	       char __W, char __X, char __Y, char __Z)
++{
++  union {
++    char __a[16];
++    __m128i __v;
++  } __u;
++
++  __u.__a[0] = __S1;
++  __u.__a[1] = __T1;
++  __u.__a[2] = __U1;
++  __u.__a[3] = __V1;
++  __u.__a[4] = __W1;
++  __u.__a[5] = __X1;
++  __u.__a[6] = __Y1;
++  __u.__a[7] = __Z1;
++  __u.__a[8] = __S;
++  __u.__a[9] = __T;
++  __u.__a[10] = __U;
++  __u.__a[11] = __V;
++  __u.__a[12] = __W;
++  __u.__a[13] = __X;
++  __u.__a[14] = __Y;
++  __u.__a[15] = __Z;
++
++  return __u.__v;
++}
++
++static __inline __m128d
++_mm_cvtepi32_pd (__m128i __A)
++{
++  return (__m128d)__builtin_ia32_cvtdq2pd ((__v4si) __A);
++}
++
++static __inline __m128
++_mm_cvtepi32_ps (__m128i __A)
++{
++  return (__m128)__builtin_ia32_cvtdq2ps ((__v4si) __A);
++}
++
++static __inline __m128i
++_mm_cvtpd_epi32 (__m128d __A)
++{
++  return (__m128i)__builtin_ia32_cvtpd2dq ((__v2df) __A);
++}
++
++static __inline __m64
++_mm_cvtpd_pi32 (__m128d __A)
++{
++  return (__m64)__builtin_ia32_cvtpd2pi ((__v2df) __A);
++}
++
++static __inline __m128
++_mm_cvtpd_ps (__m128d __A)
++{
++  return (__m128)__builtin_ia32_cvtpd2ps ((__v2df) __A);
++}
++
++static __inline __m128i
++_mm_cvttpd_epi32 (__m128d __A)
++{
++  return (__m128i)__builtin_ia32_cvttpd2dq ((__v2df) __A);
++}
++
++static __inline __m64
++_mm_cvttpd_pi32 (__m128d __A)
++{
++  return (__m64)__builtin_ia32_cvttpd2pi ((__v2df) __A);
++}
++
++static __inline __m128d
++_mm_cvtpi32_pd (__m64 __A)
++{
++  return (__m128d)__builtin_ia32_cvtpi2pd ((__v2si) __A);
++}
++
++static __inline __m128i
++_mm_cvtps_epi32 (__m128 __A)
++{
++  return (__m128i)__builtin_ia32_cvtps2dq ((__v4sf) __A);
++}
++
++static __inline __m128i
++_mm_cvttps_epi32 (__m128 __A)
++{
++  return (__m128i)__builtin_ia32_cvttps2dq ((__v4sf) __A);
++}
++
++static __inline __m128d
++_mm_cvtps_pd (__m128 __A)
++{
++  return (__m128d)__builtin_ia32_cvtps2pd ((__v4sf) __A);
++}
++
++static __inline int
++_mm_cvtsd_si32 (__m128d __A)
++{
++  return __builtin_ia32_cvtsd2si ((__v2df) __A);
++}
++
++#ifdef __x86_64__
++static __inline long long
++_mm_cvtsd_si64x (__m128d __A)
++{
++  return __builtin_ia32_cvtsd2si64 ((__v2df) __A);
++}
++#endif
++
++static __inline int
++_mm_cvttsd_si32 (__m128d __A)
++{
++  return __builtin_ia32_cvttsd2si ((__v2df) __A);
++}
++
++#ifdef __x86_64__
++static __inline long long
++_mm_cvttsd_si64x (__m128d __A)
++{
++  return __builtin_ia32_cvttsd2si64 ((__v2df) __A);
++}
++#endif
++
++static __inline __m128
++_mm_cvtsd_ss (__m128 __A, __m128d __B)
++{
++  return (__m128)__builtin_ia32_cvtsd2ss ((__v4sf) __A, (__v2df) __B);
++}
++
++static __inline __m128d
++_mm_cvtsi32_sd (__m128d __A, int __B)
++{
++  return (__m128d)__builtin_ia32_cvtsi2sd ((__v2df) __A, __B);
++}
++
++#ifdef __x86_64__
++static __inline __m128d
++_mm_cvtsi64x_sd (__m128d __A, long long __B)
++{
++  return (__m128d)__builtin_ia32_cvtsi642sd ((__v2df) __A, __B);
++}
++#endif
++
++static __inline __m128d
++_mm_cvtss_sd (__m128d __A, __m128 __B)
++{
++  return (__m128d)__builtin_ia32_cvtss2sd ((__v2df) __A, (__v4sf)__B);
++}
++
++#define _mm_shuffle_pd(__A, __B, __C) ((__m128d)__builtin_ia32_shufpd ((__v2df)__A, (__v2df)__B, (__C)))
++
++static __inline __m128d
++_mm_unpackhi_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_unpckhpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_unpacklo_pd (__m128d __A, __m128d __B)
++{
++  return (__m128d)__builtin_ia32_unpcklpd ((__v2df)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_loadh_pd (__m128d __A, double const *__B)
++{
++  return (__m128d)__builtin_ia32_loadhpd ((__v2df)__A, (__v2si *)__B);
++}
++
++static __inline void
++_mm_storeh_pd (double *__A, __m128d __B)
++{
++  __builtin_ia32_storehpd ((__v2si *)__A, (__v2df)__B);
++}
++
++static __inline __m128d
++_mm_loadl_pd (__m128d __A, double const *__B)
++{
++  return (__m128d)__builtin_ia32_loadlpd ((__v2df)__A, (__v2si *)__B);
++}
++
++static __inline void
++_mm_storel_pd (double *__A, __m128d __B)
++{
++  __builtin_ia32_storelpd ((__v2si *)__A, (__v2df)__B);
++}
++
++static __inline int
++_mm_movemask_pd (__m128d __A)
++{
++  return __builtin_ia32_movmskpd ((__v2df)__A);
++}
++
++static __inline __m128i
++_mm_packs_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_packsswb128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_packs_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_packssdw128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_packus_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_packuswb128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_unpackhi_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpckhbw128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_unpackhi_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpckhwd128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_unpackhi_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpckhdq128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_unpackhi_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpckhqdq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_unpacklo_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpcklbw128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_unpacklo_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpcklwd128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_unpacklo_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpckldq128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_unpacklo_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_punpcklqdq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_add_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_add_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_add_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddd128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_add_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_adds_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddsb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_adds_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddsw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_adds_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddusb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_adds_epu16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_paddusw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_sub_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_sub_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_sub_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubd128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_sub_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_subs_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubsb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_subs_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubsw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_subs_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubusb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_subs_epu16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psubusw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_madd_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmaddwd128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_mulhi_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmulhw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_mullo_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmullw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m64
++_mm_mul_su32 (__m64 __A, __m64 __B)
++{
++  return (__m64)__builtin_ia32_pmuludq ((__v2si)__A, (__v2si)__B);
++}
++
++static __inline __m128i
++_mm_mul_epu32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmuludq128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_sll_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psllw128 ((__v8hi)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_sll_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pslld128 ((__v4si)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_sll_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psllq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_sra_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psraw128 ((__v8hi)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_sra_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psrad128 ((__v4si)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_srl_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psrlw128 ((__v8hi)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_srl_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psrld128 ((__v4si)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_srl_epi64 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psrlq128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_slli_epi16 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psllwi128 ((__v8hi)__A, __B);
++}
++
++static __inline __m128i
++_mm_slli_epi32 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_pslldi128 ((__v4si)__A, __B);
++}
++
++static __inline __m128i
++_mm_slli_epi64 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psllqi128 ((__v2di)__A, __B);
++}
++
++static __inline __m128i
++_mm_srai_epi16 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psrawi128 ((__v8hi)__A, __B);
++}
++
++static __inline __m128i
++_mm_srai_epi32 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psradi128 ((__v4si)__A, __B);
++}
++
++#if 0
++static __m128i __attribute__((__always_inline__))
++_mm_srli_si128 (__m128i __A, const int __B)
++{
++  return ((__m128i)__builtin_ia32_psrldqi128 (__A, __B))
++}
++
++static __m128i __attribute__((__always_inline__))
++_mm_srli_si128 (__m128i __A, const int __B)
++{
++  return ((__m128i)__builtin_ia32_pslldqi128 (__A, __B))
++}
++#endif
++#define _mm_srli_si128(__A, __B) ((__m128i)__builtin_ia32_psrldqi128 (__A, __B))
++#define _mm_slli_si128(__A, __B) ((__m128i)__builtin_ia32_pslldqi128 (__A, __B))
++
++static __inline __m128i
++_mm_srli_epi16 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psrlwi128 ((__v8hi)__A, __B);
++}
++
++static __inline __m128i
++_mm_srli_epi32 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psrldi128 ((__v4si)__A, __B);
++}
++
++static __inline __m128i
++_mm_srli_epi64 (__m128i __A, int __B)
++{
++  return (__m128i)__builtin_ia32_psrlqi128 ((__v2di)__A, __B);
++}
++
++static __inline __m128i
++_mm_and_si128 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pand128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_andnot_si128 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pandn128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_or_si128 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_por128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_xor_si128 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pxor128 ((__v2di)__A, (__v2di)__B);
++}
++
++static __inline __m128i
++_mm_cmpeq_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpeqb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_cmpeq_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpeqw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_cmpeq_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpeqd128 ((__v4si)__A, (__v4si)__B);
++}
++
++static __inline __m128i
++_mm_cmplt_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtb128 ((__v16qi)__B, (__v16qi)__A);
++}
++
++static __inline __m128i
++_mm_cmplt_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtw128 ((__v8hi)__B, (__v8hi)__A);
++}
++
++static __inline __m128i
++_mm_cmplt_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtd128 ((__v4si)__B, (__v4si)__A);
++}
++
++static __inline __m128i
++_mm_cmpgt_epi8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_cmpgt_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_cmpgt_epi32 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pcmpgtd128 ((__v4si)__A, (__v4si)__B);
++}
++
++#define _mm_extract_epi16(__A, __B) __builtin_ia32_pextrw128 ((__v8hi)__A, __B)
++
++#define _mm_insert_epi16(__A, __B, __C) ((__m128i)__builtin_ia32_pinsrw128 ((__v8hi)__A, __B, __C))
++
++static __inline __m128i
++_mm_max_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmaxsw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_max_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmaxub128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_min_epi16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pminsw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_min_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pminub128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline int
++_mm_movemask_epi8 (__m128i __A)
++{
++  return __builtin_ia32_pmovmskb128 ((__v16qi)__A);
++}
++
++static __inline __m128i
++_mm_mulhi_epu16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pmulhuw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++#define _mm_shufflehi_epi16(__A, __B) ((__m128i)__builtin_ia32_pshufhw ((__v8hi)__A, __B))
++#define _mm_shufflelo_epi16(__A, __B) ((__m128i)__builtin_ia32_pshuflw ((__v8hi)__A, __B))
++#define _mm_shuffle_epi32(__A, __B) ((__m128i)__builtin_ia32_pshufd ((__v4si)__A, __B))
++
++static __inline void
++_mm_maskmoveu_si128 (__m128i __A, __m128i __B, char *__C)
++{
++  __builtin_ia32_maskmovdqu ((__v16qi)__A, (__v16qi)__B, __C);
++}
++
++static __inline __m128i
++_mm_avg_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pavgb128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline __m128i
++_mm_avg_epu16 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_pavgw128 ((__v8hi)__A, (__v8hi)__B);
++}
++
++static __inline __m128i
++_mm_sad_epu8 (__m128i __A, __m128i __B)
++{
++  return (__m128i)__builtin_ia32_psadbw128 ((__v16qi)__A, (__v16qi)__B);
++}
++
++static __inline void
++_mm_stream_si32 (int *__A, int __B)
++{
++  __builtin_ia32_movnti (__A, __B);
++}
++
++static __inline void
++_mm_stream_si128 (__m128i *__A, __m128i __B)
++{
++  __builtin_ia32_movntdq ((__v2di *)__A, (__v2di)__B);
++}
++
++static __inline void
++_mm_stream_pd (double *__A, __m128d __B)
++{
++  __builtin_ia32_movntpd (__A, (__v2df)__B);
++}
++
++static __inline __m128i
++_mm_movpi64_epi64 (__m64 __A)
++{
++  return (__m128i)__builtin_ia32_movq2dq ((unsigned long long)__A);
++}
++
++static __inline void
++_mm_clflush (void const *__A)
++{
++  return __builtin_ia32_clflush (__A);
++}
++
++static __inline void
++_mm_lfence (void)
++{
++  __builtin_ia32_lfence ();
++}
++
++static __inline void
++_mm_mfence (void)
++{
++  __builtin_ia32_mfence ();
++}
++
++static __inline __m128i
++_mm_cvtsi32_si128 (int __A)
++{
++  return (__m128i) __builtin_ia32_loadd (&__A);
++}
++
++#ifdef __x86_64__
++static __inline __m128i
++_mm_cvtsi64x_si128 (long long __A)
++{
++  return (__m128i) __builtin_ia32_movq2dq (__A);
++}
++#endif
++
++static __inline int
++_mm_cvtsi128_si32 (__m128i __A)
++{
++  int __tmp;
++  __builtin_ia32_stored (&__tmp, (__v4si)__A);
++  return __tmp;
++}
++
++#ifdef __x86_64__
++static __inline long long
++_mm_cvtsi128_si64x (__m128i __A)
++{
++  return __builtin_ia32_movdq2q ((__v2di)__A);
++}
++#endif
++
++#endif /* __SSE2__  */
++
++#endif /* _EMMINTRIN_H_INCLUDED */
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/i386.c gcc-3.3.2/gcc/config/i386/i386.c
+--- gcc-3.3.2.orig/gcc/config/i386/i386.c	2003-09-09 15:51:59.000000000 -0400
++++ gcc-3.3.2/gcc/config/i386/i386.c	2004-02-03 18:07:00.000000000 -0500
+@@ -1257,6 +1257,14 @@
+   if (x86_arch_always_fancy_math_387 & (1 << ix86_arch))
+     target_flags &= ~MASK_NO_FANCY_MATH_387;
+ 
++  /* Turn on SSE2 builtins for -msse3.  */
++  if (TARGET_SSE3)
++    target_flags |= MASK_SSE2;
++
++  /* Turn on SSE builtins for -msse2.  */
++  if (TARGET_SSE2)
++    target_flags |= MASK_SSE;
++
+   if (TARGET_64BIT)
+     {
+       if (TARGET_ALIGN_DOUBLE)
+@@ -12114,25 +12122,20 @@
+   const unsigned int flag;
+ };
+ 
+-/* Used for builtins that are enabled both by -msse and -msse2.  */
+-#define MASK_SSE1 (MASK_SSE | MASK_SSE2)
+-#define MASK_SSE164 (MASK_SSE | MASK_SSE2 | MASK_64BIT)
+-#define MASK_SSE264 (MASK_SSE2 | MASK_64BIT)
+-
+ static const struct builtin_description bdesc_comi[] =
+ {
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comieq", IX86_BUILTIN_COMIEQSS, UNEQ, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comilt", IX86_BUILTIN_COMILTSS, UNLT, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comile", IX86_BUILTIN_COMILESS, UNLE, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comigt", IX86_BUILTIN_COMIGTSS, GT, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comige", IX86_BUILTIN_COMIGESS, GE, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_comi, "__builtin_ia32_comineq", IX86_BUILTIN_COMINEQSS, LTGT, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomieq", IX86_BUILTIN_UCOMIEQSS, UNEQ, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomilt", IX86_BUILTIN_UCOMILTSS, UNLT, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomile", IX86_BUILTIN_UCOMILESS, UNLE, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomigt", IX86_BUILTIN_UCOMIGTSS, GT, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomige", IX86_BUILTIN_UCOMIGESS, GE, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomineq", IX86_BUILTIN_UCOMINEQSS, LTGT, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comieq", IX86_BUILTIN_COMIEQSS, UNEQ, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comilt", IX86_BUILTIN_COMILTSS, UNLT, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comile", IX86_BUILTIN_COMILESS, UNLE, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comigt", IX86_BUILTIN_COMIGTSS, GT, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comige", IX86_BUILTIN_COMIGESS, GE, 0 },
++  { MASK_SSE, CODE_FOR_sse_comi, "__builtin_ia32_comineq", IX86_BUILTIN_COMINEQSS, LTGT, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomieq", IX86_BUILTIN_UCOMIEQSS, UNEQ, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomilt", IX86_BUILTIN_UCOMILTSS, UNLT, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomile", IX86_BUILTIN_UCOMILESS, UNLE, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomigt", IX86_BUILTIN_UCOMIGTSS, GT, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomige", IX86_BUILTIN_UCOMIGESS, GE, 0 },
++  { MASK_SSE, CODE_FOR_sse_ucomi, "__builtin_ia32_ucomineq", IX86_BUILTIN_UCOMINEQSS, LTGT, 0 },
+   { MASK_SSE2, CODE_FOR_sse2_comi, "__builtin_ia32_comisdeq", IX86_BUILTIN_COMIEQSD, UNEQ, 0 },
+   { MASK_SSE2, CODE_FOR_sse2_comi, "__builtin_ia32_comisdlt", IX86_BUILTIN_COMILTSD, UNLT, 0 },
+   { MASK_SSE2, CODE_FOR_sse2_comi, "__builtin_ia32_comisdle", IX86_BUILTIN_COMILESD, UNLE, 0 },
+@@ -12150,51 +12153,51 @@
+ static const struct builtin_description bdesc_2arg[] =
+ {
+   /* SSE */
+-  { MASK_SSE1, CODE_FOR_addv4sf3, "__builtin_ia32_addps", IX86_BUILTIN_ADDPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_subv4sf3, "__builtin_ia32_subps", IX86_BUILTIN_SUBPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_mulv4sf3, "__builtin_ia32_mulps", IX86_BUILTIN_MULPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_divv4sf3, "__builtin_ia32_divps", IX86_BUILTIN_DIVPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmaddv4sf3,  "__builtin_ia32_addss", IX86_BUILTIN_ADDSS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmsubv4sf3,  "__builtin_ia32_subss", IX86_BUILTIN_SUBSS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmulv4sf3,  "__builtin_ia32_mulss", IX86_BUILTIN_MULSS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmdivv4sf3,  "__builtin_ia32_divss", IX86_BUILTIN_DIVSS, 0, 0 },
+-
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpeqps", IX86_BUILTIN_CMPEQPS, EQ, 0 },
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpltps", IX86_BUILTIN_CMPLTPS, LT, 0 },
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpleps", IX86_BUILTIN_CMPLEPS, LE, 0 },
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpgtps", IX86_BUILTIN_CMPGTPS, LT, 1 },
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpgeps", IX86_BUILTIN_CMPGEPS, LE, 1 },
+-  { MASK_SSE1, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpunordps", IX86_BUILTIN_CMPUNORDPS, UNORDERED, 0 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpneqps", IX86_BUILTIN_CMPNEQPS, EQ, 0 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpnltps", IX86_BUILTIN_CMPNLTPS, LT, 0 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpnleps", IX86_BUILTIN_CMPNLEPS, LE, 0 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpngtps", IX86_BUILTIN_CMPNGTPS, LT, 1 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpngeps", IX86_BUILTIN_CMPNGEPS, LE, 1 },
+-  { MASK_SSE1, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpordps", IX86_BUILTIN_CMPORDPS, UNORDERED, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpeqss", IX86_BUILTIN_CMPEQSS, EQ, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpltss", IX86_BUILTIN_CMPLTSS, LT, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpless", IX86_BUILTIN_CMPLESS, LE, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpunordss", IX86_BUILTIN_CMPUNORDSS, UNORDERED, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpneqss", IX86_BUILTIN_CMPNEQSS, EQ, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpnltss", IX86_BUILTIN_CMPNLTSS, LT, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpnless", IX86_BUILTIN_CMPNLESS, LE, 0 },
+-  { MASK_SSE1, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpordss", IX86_BUILTIN_CMPORDSS, UNORDERED, 0 },
+-
+-  { MASK_SSE1, CODE_FOR_sminv4sf3, "__builtin_ia32_minps", IX86_BUILTIN_MINPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_smaxv4sf3, "__builtin_ia32_maxps", IX86_BUILTIN_MAXPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmsminv4sf3, "__builtin_ia32_minss", IX86_BUILTIN_MINSS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_vmsmaxv4sf3, "__builtin_ia32_maxss", IX86_BUILTIN_MAXSS, 0, 0 },
+-
+-  { MASK_SSE1, CODE_FOR_sse_andv4sf3, "__builtin_ia32_andps", IX86_BUILTIN_ANDPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_nandv4sf3,  "__builtin_ia32_andnps", IX86_BUILTIN_ANDNPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_iorv4sf3, "__builtin_ia32_orps", IX86_BUILTIN_ORPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_xorv4sf3,  "__builtin_ia32_xorps", IX86_BUILTIN_XORPS, 0, 0 },
+-
+-  { MASK_SSE1, CODE_FOR_sse_movss,  "__builtin_ia32_movss", IX86_BUILTIN_MOVSS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_movhlps,  "__builtin_ia32_movhlps", IX86_BUILTIN_MOVHLPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_movlhps,  "__builtin_ia32_movlhps", IX86_BUILTIN_MOVLHPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_unpckhps, "__builtin_ia32_unpckhps", IX86_BUILTIN_UNPCKHPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_unpcklps, "__builtin_ia32_unpcklps", IX86_BUILTIN_UNPCKLPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_addv4sf3, "__builtin_ia32_addps", IX86_BUILTIN_ADDPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_subv4sf3, "__builtin_ia32_subps", IX86_BUILTIN_SUBPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_mulv4sf3, "__builtin_ia32_mulps", IX86_BUILTIN_MULPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_divv4sf3, "__builtin_ia32_divps", IX86_BUILTIN_DIVPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmaddv4sf3,  "__builtin_ia32_addss", IX86_BUILTIN_ADDSS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmsubv4sf3,  "__builtin_ia32_subss", IX86_BUILTIN_SUBSS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmmulv4sf3,  "__builtin_ia32_mulss", IX86_BUILTIN_MULSS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmdivv4sf3,  "__builtin_ia32_divss", IX86_BUILTIN_DIVSS, 0, 0 },
++
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpeqps", IX86_BUILTIN_CMPEQPS, EQ, 0 },
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpltps", IX86_BUILTIN_CMPLTPS, LT, 0 },
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpleps", IX86_BUILTIN_CMPLEPS, LE, 0 },
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpgtps", IX86_BUILTIN_CMPGTPS, LT, 1 },
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpgeps", IX86_BUILTIN_CMPGEPS, LE, 1 },
++  { MASK_SSE, CODE_FOR_maskcmpv4sf3, "__builtin_ia32_cmpunordps", IX86_BUILTIN_CMPUNORDPS, UNORDERED, 0 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpneqps", IX86_BUILTIN_CMPNEQPS, EQ, 0 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpnltps", IX86_BUILTIN_CMPNLTPS, LT, 0 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpnleps", IX86_BUILTIN_CMPNLEPS, LE, 0 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpngtps", IX86_BUILTIN_CMPNGTPS, LT, 1 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpngeps", IX86_BUILTIN_CMPNGEPS, LE, 1 },
++  { MASK_SSE, CODE_FOR_maskncmpv4sf3, "__builtin_ia32_cmpordps", IX86_BUILTIN_CMPORDPS, UNORDERED, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpeqss", IX86_BUILTIN_CMPEQSS, EQ, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpltss", IX86_BUILTIN_CMPLTSS, LT, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpless", IX86_BUILTIN_CMPLESS, LE, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskcmpv4sf3, "__builtin_ia32_cmpunordss", IX86_BUILTIN_CMPUNORDSS, UNORDERED, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpneqss", IX86_BUILTIN_CMPNEQSS, EQ, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpnltss", IX86_BUILTIN_CMPNLTSS, LT, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpnless", IX86_BUILTIN_CMPNLESS, LE, 0 },
++  { MASK_SSE, CODE_FOR_vmmaskncmpv4sf3, "__builtin_ia32_cmpordss", IX86_BUILTIN_CMPORDSS, UNORDERED, 0 },
++
++  { MASK_SSE, CODE_FOR_sminv4sf3, "__builtin_ia32_minps", IX86_BUILTIN_MINPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_smaxv4sf3, "__builtin_ia32_maxps", IX86_BUILTIN_MAXPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmsminv4sf3, "__builtin_ia32_minss", IX86_BUILTIN_MINSS, 0, 0 },
++  { MASK_SSE, CODE_FOR_vmsmaxv4sf3, "__builtin_ia32_maxss", IX86_BUILTIN_MAXSS, 0, 0 },
++
++  { MASK_SSE, CODE_FOR_sse_andv4sf3, "__builtin_ia32_andps", IX86_BUILTIN_ANDPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_nandv4sf3,  "__builtin_ia32_andnps", IX86_BUILTIN_ANDNPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_iorv4sf3, "__builtin_ia32_orps", IX86_BUILTIN_ORPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_xorv4sf3,  "__builtin_ia32_xorps", IX86_BUILTIN_XORPS, 0, 0 },
++
++  { MASK_SSE, CODE_FOR_sse_movss,  "__builtin_ia32_movss", IX86_BUILTIN_MOVSS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_movhlps,  "__builtin_ia32_movhlps", IX86_BUILTIN_MOVHLPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_movlhps,  "__builtin_ia32_movlhps", IX86_BUILTIN_MOVLHPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_unpckhps, "__builtin_ia32_unpckhps", IX86_BUILTIN_UNPCKHPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_unpcklps, "__builtin_ia32_unpcklps", IX86_BUILTIN_UNPCKLPS, 0, 0 },
+ 
+   /* MMX */
+   { MASK_MMX, CODE_FOR_addv8qi3, "__builtin_ia32_paddb", IX86_BUILTIN_PADDB, 0, 0 },
+@@ -12217,15 +12220,15 @@
+ 
+   { MASK_MMX, CODE_FOR_mulv4hi3, "__builtin_ia32_pmullw", IX86_BUILTIN_PMULLW, 0, 0 },
+   { MASK_MMX, CODE_FOR_smulv4hi3_highpart, "__builtin_ia32_pmulhw", IX86_BUILTIN_PMULHW, 0, 0 },
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_umulv4hi3_highpart, "__builtin_ia32_pmulhuw", IX86_BUILTIN_PMULHUW, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_umulv4hi3_highpart, "__builtin_ia32_pmulhuw", IX86_BUILTIN_PMULHUW, 0, 0 },
+ 
+   { MASK_MMX, CODE_FOR_mmx_anddi3, "__builtin_ia32_pand", IX86_BUILTIN_PAND, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_nanddi3, "__builtin_ia32_pandn", IX86_BUILTIN_PANDN, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_iordi3, "__builtin_ia32_por", IX86_BUILTIN_POR, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_xordi3, "__builtin_ia32_pxor", IX86_BUILTIN_PXOR, 0, 0 },
+ 
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_mmx_uavgv8qi3, "__builtin_ia32_pavgb", IX86_BUILTIN_PAVGB, 0, 0 },
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_mmx_uavgv4hi3, "__builtin_ia32_pavgw", IX86_BUILTIN_PAVGW, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_mmx_uavgv8qi3, "__builtin_ia32_pavgb", IX86_BUILTIN_PAVGB, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_mmx_uavgv4hi3, "__builtin_ia32_pavgw", IX86_BUILTIN_PAVGW, 0, 0 },
+ 
+   { MASK_MMX, CODE_FOR_eqv8qi3, "__builtin_ia32_pcmpeqb", IX86_BUILTIN_PCMPEQB, 0, 0 },
+   { MASK_MMX, CODE_FOR_eqv4hi3, "__builtin_ia32_pcmpeqw", IX86_BUILTIN_PCMPEQW, 0, 0 },
+@@ -12234,10 +12237,10 @@
+   { MASK_MMX, CODE_FOR_gtv4hi3, "__builtin_ia32_pcmpgtw", IX86_BUILTIN_PCMPGTW, 0, 0 },
+   { MASK_MMX, CODE_FOR_gtv2si3, "__builtin_ia32_pcmpgtd", IX86_BUILTIN_PCMPGTD, 0, 0 },
+ 
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_umaxv8qi3, "__builtin_ia32_pmaxub", IX86_BUILTIN_PMAXUB, 0, 0 },
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_smaxv4hi3, "__builtin_ia32_pmaxsw", IX86_BUILTIN_PMAXSW, 0, 0 },
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_uminv8qi3, "__builtin_ia32_pminub", IX86_BUILTIN_PMINUB, 0, 0 },
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_sminv4hi3, "__builtin_ia32_pminsw", IX86_BUILTIN_PMINSW, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_umaxv8qi3, "__builtin_ia32_pmaxub", IX86_BUILTIN_PMAXUB, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_smaxv4hi3, "__builtin_ia32_pmaxsw", IX86_BUILTIN_PMAXSW, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_uminv8qi3, "__builtin_ia32_pminub", IX86_BUILTIN_PMINUB, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_sminv4hi3, "__builtin_ia32_pminsw", IX86_BUILTIN_PMINSW, 0, 0 },
+ 
+   { MASK_MMX, CODE_FOR_mmx_punpckhbw, "__builtin_ia32_punpckhbw", IX86_BUILTIN_PUNPCKHBW, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_punpckhwd, "__builtin_ia32_punpckhwd", IX86_BUILTIN_PUNPCKHWD, 0, 0 },
+@@ -12251,9 +12254,9 @@
+   { MASK_MMX, CODE_FOR_mmx_packssdw, 0, IX86_BUILTIN_PACKSSDW, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_packuswb, 0, IX86_BUILTIN_PACKUSWB, 0, 0 },
+ 
+-  { MASK_SSE1, CODE_FOR_cvtpi2ps, 0, IX86_BUILTIN_CVTPI2PS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_cvtsi2ss, 0, IX86_BUILTIN_CVTSI2SS, 0, 0 },
+-  { MASK_SSE164, CODE_FOR_cvtsi2ssq, 0, IX86_BUILTIN_CVTSI642SS, 0, 0 },
++  { MASK_SSE, CODE_FOR_cvtpi2ps, 0, IX86_BUILTIN_CVTPI2PS, 0, 0 },
++  { MASK_SSE, CODE_FOR_cvtsi2ss, 0, IX86_BUILTIN_CVTSI2SS, 0, 0 },
++  { MASK_SSE | MASK_64BIT, CODE_FOR_cvtsi2ssq, 0, IX86_BUILTIN_CVTSI642SS, 0, 0 },
+ 
+   { MASK_MMX, CODE_FOR_ashlv4hi3, 0, IX86_BUILTIN_PSLLW, 0, 0 },
+   { MASK_MMX, CODE_FOR_ashlv4hi3, 0, IX86_BUILTIN_PSLLWI, 0, 0 },
+@@ -12274,7 +12277,7 @@
+   { MASK_MMX, CODE_FOR_ashrv2si3, 0, IX86_BUILTIN_PSRAD, 0, 0 },
+   { MASK_MMX, CODE_FOR_ashrv2si3, 0, IX86_BUILTIN_PSRADI, 0, 0 },
+ 
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_mmx_psadbw, 0, IX86_BUILTIN_PSADBW, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_mmx_psadbw, 0, IX86_BUILTIN_PSADBW, 0, 0 },
+   { MASK_MMX, CODE_FOR_mmx_pmaddwd, 0, IX86_BUILTIN_PMADDWD, 0, 0 },
+ 
+   /* SSE2 */
+@@ -12404,26 +12407,34 @@
+   { MASK_SSE2, CODE_FOR_sse2_pmaddwd, 0, IX86_BUILTIN_PMADDWD128, 0, 0 },
+ 
+   { MASK_SSE2, CODE_FOR_cvtsi2sd, 0, IX86_BUILTIN_CVTSI2SD, 0, 0 },
+-  { MASK_SSE264, CODE_FOR_cvtsi2sdq, 0, IX86_BUILTIN_CVTSI642SD, 0, 0 },
++  { MASK_SSE2 | MASK_64BIT, CODE_FOR_cvtsi2sdq, 0, IX86_BUILTIN_CVTSI642SD, 0, 0 },
+   { MASK_SSE2, CODE_FOR_cvtsd2ss, 0, IX86_BUILTIN_CVTSD2SS, 0, 0 },
+-  { MASK_SSE2, CODE_FOR_cvtss2sd, 0, IX86_BUILTIN_CVTSS2SD, 0, 0 }
++  { MASK_SSE2, CODE_FOR_cvtss2sd, 0, IX86_BUILTIN_CVTSS2SD, 0, 0 },
++
++  /* SSE3 MMX */
++  { MASK_SSE3, CODE_FOR_addsubv4sf3, "__builtin_ia32_addsubps", IX86_BUILTIN_ADDSUBPS, 0, 0 },
++  { MASK_SSE3, CODE_FOR_addsubv2df3, "__builtin_ia32_addsubpd", IX86_BUILTIN_ADDSUBPD, 0, 0 },
++  { MASK_SSE3, CODE_FOR_haddv4sf3, "__builtin_ia32_haddps", IX86_BUILTIN_HADDPS, 0, 0 },
++  { MASK_SSE3, CODE_FOR_haddv2df3, "__builtin_ia32_haddpd", IX86_BUILTIN_HADDPD, 0, 0 },
++  { MASK_SSE3, CODE_FOR_hsubv4sf3, "__builtin_ia32_hsubps", IX86_BUILTIN_HSUBPS, 0, 0 },
++  { MASK_SSE3, CODE_FOR_hsubv2df3, "__builtin_ia32_hsubpd", IX86_BUILTIN_HSUBPD, 0, 0 }
+ };
+ 
+ static const struct builtin_description bdesc_1arg[] =
+ {
+-  { MASK_SSE1 | MASK_3DNOW_A, CODE_FOR_mmx_pmovmskb, 0, IX86_BUILTIN_PMOVMSKB, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_sse_movmskps, 0, IX86_BUILTIN_MOVMSKPS, 0, 0 },
++  { MASK_SSE | MASK_3DNOW_A, CODE_FOR_mmx_pmovmskb, 0, IX86_BUILTIN_PMOVMSKB, 0, 0 },
++  { MASK_SSE, CODE_FOR_sse_movmskps, 0, IX86_BUILTIN_MOVMSKPS, 0, 0 },
+ 
+-  { MASK_SSE1, CODE_FOR_sqrtv4sf2, 0, IX86_BUILTIN_SQRTPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_rsqrtv4sf2, 0, IX86_BUILTIN_RSQRTPS, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_rcpv4sf2, 0, IX86_BUILTIN_RCPPS, 0, 0 },
+-
+-  { MASK_SSE1, CODE_FOR_cvtps2pi, 0, IX86_BUILTIN_CVTPS2PI, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_cvtss2si, 0, IX86_BUILTIN_CVTSS2SI, 0, 0 },
+-  { MASK_SSE164, CODE_FOR_cvtss2siq, 0, IX86_BUILTIN_CVTSS2SI64, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_cvttps2pi, 0, IX86_BUILTIN_CVTTPS2PI, 0, 0 },
+-  { MASK_SSE1, CODE_FOR_cvttss2si, 0, IX86_BUILTIN_CVTTSS2SI, 0, 0 },
+-  { MASK_SSE164, CODE_FOR_cvttss2siq, 0, IX86_BUILTIN_CVTTSS2SI64, 0, 0 },
++  { MASK_SSE, CODE_FOR_sqrtv4sf2, 0, IX86_BUILTIN_SQRTPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_rsqrtv4sf2, 0, IX86_BUILTIN_RSQRTPS, 0, 0 },
++  { MASK_SSE, CODE_FOR_rcpv4sf2, 0, IX86_BUILTIN_RCPPS, 0, 0 },
++
++  { MASK_SSE, CODE_FOR_cvtps2pi, 0, IX86_BUILTIN_CVTPS2PI, 0, 0 },
++  { MASK_SSE, CODE_FOR_cvtss2si, 0, IX86_BUILTIN_CVTSS2SI, 0, 0 },
++  { MASK_SSE | MASK_64BIT, CODE_FOR_cvtss2siq, 0, IX86_BUILTIN_CVTSS2SI64, 0, 0 },
++  { MASK_SSE, CODE_FOR_cvttps2pi, 0, IX86_BUILTIN_CVTTPS2PI, 0, 0 },
++  { MASK_SSE, CODE_FOR_cvttss2si, 0, IX86_BUILTIN_CVTTSS2SI, 0, 0 },
++  { MASK_SSE | MASK_64BIT, CODE_FOR_cvttss2siq, 0, IX86_BUILTIN_CVTTSS2SI64, 0, 0 },
+ 
+   { MASK_SSE2, CODE_FOR_sse2_pmovmskb, 0, IX86_BUILTIN_PMOVMSKB128, 0, 0 },
+   { MASK_SSE2, CODE_FOR_sse2_movmskpd, 0, IX86_BUILTIN_MOVMSKPD, 0, 0 },
+@@ -12445,14 +12456,19 @@
+ 
+   { MASK_SSE2, CODE_FOR_cvtsd2si, 0, IX86_BUILTIN_CVTSD2SI, 0, 0 },
+   { MASK_SSE2, CODE_FOR_cvttsd2si, 0, IX86_BUILTIN_CVTTSD2SI, 0, 0 },
+-  { MASK_SSE264, CODE_FOR_cvtsd2siq, 0, IX86_BUILTIN_CVTSD2SI64, 0, 0 },
+-  { MASK_SSE264, CODE_FOR_cvttsd2siq, 0, IX86_BUILTIN_CVTTSD2SI64, 0, 0 },
++  { MASK_SSE2 | MASK_64BIT, CODE_FOR_cvtsd2siq, 0, IX86_BUILTIN_CVTSD2SI64, 0, 0 },
++  { MASK_SSE2 | MASK_64BIT, CODE_FOR_cvttsd2siq, 0, IX86_BUILTIN_CVTTSD2SI64, 0, 0 },
+ 
+   { MASK_SSE2, CODE_FOR_cvtps2dq, 0, IX86_BUILTIN_CVTPS2DQ, 0, 0 },
+   { MASK_SSE2, CODE_FOR_cvtps2pd, 0, IX86_BUILTIN_CVTPS2PD, 0, 0 },
+   { MASK_SSE2, CODE_FOR_cvttps2dq, 0, IX86_BUILTIN_CVTTPS2DQ, 0, 0 },
+ 
+-  { MASK_SSE2, CODE_FOR_sse2_movq, 0, IX86_BUILTIN_MOVQ, 0, 0 }
++  { MASK_SSE2, CODE_FOR_sse2_movq, 0, IX86_BUILTIN_MOVQ, 0, 0 },
++
++  /* SSE3 */
++  { MASK_SSE3, CODE_FOR_movshdup, 0, IX86_BUILTIN_MOVSHDUP, 0, 0 },
++  { MASK_SSE3, CODE_FOR_movsldup, 0, IX86_BUILTIN_MOVSLDUP, 0, 0 },
++  { MASK_SSE3, CODE_FOR_movddup,  0, IX86_BUILTIN_MOVDDUP, 0, 0 }
+ };
+ 
+ void
+@@ -12543,6 +12559,13 @@
+     = build_function_type (void_type_node, void_list_node);
+   tree void_ftype_unsigned
+     = build_function_type_list (void_type_node, unsigned_type_node, NULL_TREE);
++  tree void_ftype_unsigned_unsigned
++    = build_function_type_list (void_type_node, unsigned_type_node,
++				unsigned_type_node, NULL_TREE);
++  tree void_ftype_pcvoid_unsigned_unsigned
++    = build_function_type_list (void_type_node, const_ptr_type_node,
++				unsigned_type_node, unsigned_type_node,
++				NULL_TREE);
+   tree unsigned_ftype_void
+     = build_function_type (unsigned_type_node, void_list_node);
+   tree di_ftype_void
+@@ -12861,52 +12884,52 @@
+   def_builtin (MASK_MMX, "__builtin_ia32_packssdw", v4hi_ftype_v2si_v2si, IX86_BUILTIN_PACKSSDW);
+   def_builtin (MASK_MMX, "__builtin_ia32_packuswb", v8qi_ftype_v4hi_v4hi, IX86_BUILTIN_PACKUSWB);
+ 
+-  def_builtin (MASK_SSE1, "__builtin_ia32_ldmxcsr", void_ftype_unsigned, IX86_BUILTIN_LDMXCSR);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_stmxcsr", unsigned_ftype_void, IX86_BUILTIN_STMXCSR);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvtpi2ps", v4sf_ftype_v4sf_v2si, IX86_BUILTIN_CVTPI2PS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvtps2pi", v2si_ftype_v4sf, IX86_BUILTIN_CVTPS2PI);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvtsi2ss", v4sf_ftype_v4sf_int, IX86_BUILTIN_CVTSI2SS);
+-  def_builtin (MASK_SSE164, "__builtin_ia32_cvtsi642ss", v4sf_ftype_v4sf_int64, IX86_BUILTIN_CVTSI642SS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvtss2si", int_ftype_v4sf, IX86_BUILTIN_CVTSS2SI);
+-  def_builtin (MASK_SSE164, "__builtin_ia32_cvtss2si64", int64_ftype_v4sf, IX86_BUILTIN_CVTSS2SI64);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvttps2pi", v2si_ftype_v4sf, IX86_BUILTIN_CVTTPS2PI);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_cvttss2si", int_ftype_v4sf, IX86_BUILTIN_CVTTSS2SI);
+-  def_builtin (MASK_SSE164, "__builtin_ia32_cvttss2si64", int64_ftype_v4sf, IX86_BUILTIN_CVTTSS2SI64);
+-
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_pextrw", int_ftype_v4hi_int, IX86_BUILTIN_PEXTRW);
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_pinsrw", v4hi_ftype_v4hi_int_int, IX86_BUILTIN_PINSRW);
+-
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_maskmovq", void_ftype_v8qi_v8qi_pchar, IX86_BUILTIN_MASKMOVQ);
+-
+-  def_builtin (MASK_SSE1, "__builtin_ia32_loadaps", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADAPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_loadups", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADUPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_loadss", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADSS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_storeaps", void_ftype_pfloat_v4sf, IX86_BUILTIN_STOREAPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_storeups", void_ftype_pfloat_v4sf, IX86_BUILTIN_STOREUPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_storess", void_ftype_pfloat_v4sf, IX86_BUILTIN_STORESS);
+-
+-  def_builtin (MASK_SSE1, "__builtin_ia32_loadhps", v4sf_ftype_v4sf_pv2si, IX86_BUILTIN_LOADHPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_loadlps", v4sf_ftype_v4sf_pv2si, IX86_BUILTIN_LOADLPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_storehps", void_ftype_pv2si_v4sf, IX86_BUILTIN_STOREHPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_storelps", void_ftype_pv2si_v4sf, IX86_BUILTIN_STORELPS);
+-
+-  def_builtin (MASK_SSE1, "__builtin_ia32_movmskps", int_ftype_v4sf, IX86_BUILTIN_MOVMSKPS);
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_pmovmskb", int_ftype_v8qi, IX86_BUILTIN_PMOVMSKB);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_movntps", void_ftype_pfloat_v4sf, IX86_BUILTIN_MOVNTPS);
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_movntq", void_ftype_pdi_di, IX86_BUILTIN_MOVNTQ);
+-
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_sfence", void_ftype_void, IX86_BUILTIN_SFENCE);
+-
+-  def_builtin (MASK_SSE1 | MASK_3DNOW_A, "__builtin_ia32_psadbw", di_ftype_v8qi_v8qi, IX86_BUILTIN_PSADBW);
+-
+-  def_builtin (MASK_SSE1, "__builtin_ia32_rcpps", v4sf_ftype_v4sf, IX86_BUILTIN_RCPPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_rcpss", v4sf_ftype_v4sf, IX86_BUILTIN_RCPSS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_rsqrtps", v4sf_ftype_v4sf, IX86_BUILTIN_RSQRTPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_rsqrtss", v4sf_ftype_v4sf, IX86_BUILTIN_RSQRTSS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_sqrtps", v4sf_ftype_v4sf, IX86_BUILTIN_SQRTPS);
+-  def_builtin (MASK_SSE1, "__builtin_ia32_sqrtss", v4sf_ftype_v4sf, IX86_BUILTIN_SQRTSS);
++  def_builtin (MASK_SSE, "__builtin_ia32_ldmxcsr", void_ftype_unsigned, IX86_BUILTIN_LDMXCSR);
++  def_builtin (MASK_SSE, "__builtin_ia32_stmxcsr", unsigned_ftype_void, IX86_BUILTIN_STMXCSR);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvtpi2ps", v4sf_ftype_v4sf_v2si, IX86_BUILTIN_CVTPI2PS);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvtps2pi", v2si_ftype_v4sf, IX86_BUILTIN_CVTPS2PI);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvtsi2ss", v4sf_ftype_v4sf_int, IX86_BUILTIN_CVTSI2SS);
++  def_builtin (MASK_SSE | MASK_64BIT, "__builtin_ia32_cvtsi642ss", v4sf_ftype_v4sf_int64, IX86_BUILTIN_CVTSI642SS);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvtss2si", int_ftype_v4sf, IX86_BUILTIN_CVTSS2SI);
++  def_builtin (MASK_SSE | MASK_64BIT, "__builtin_ia32_cvtss2si64", int64_ftype_v4sf, IX86_BUILTIN_CVTSS2SI64);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvttps2pi", v2si_ftype_v4sf, IX86_BUILTIN_CVTTPS2PI);
++  def_builtin (MASK_SSE, "__builtin_ia32_cvttss2si", int_ftype_v4sf, IX86_BUILTIN_CVTTSS2SI);
++  def_builtin (MASK_SSE | MASK_64BIT, "__builtin_ia32_cvttss2si64", int64_ftype_v4sf, IX86_BUILTIN_CVTTSS2SI64);
++
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_pextrw", int_ftype_v4hi_int, IX86_BUILTIN_PEXTRW);
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_pinsrw", v4hi_ftype_v4hi_int_int, IX86_BUILTIN_PINSRW);
++
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_maskmovq", void_ftype_v8qi_v8qi_pchar, IX86_BUILTIN_MASKMOVQ);
++
++  def_builtin (MASK_SSE, "__builtin_ia32_loadaps", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADAPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_loadups", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADUPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_loadss", v4sf_ftype_pcfloat, IX86_BUILTIN_LOADSS);
++  def_builtin (MASK_SSE, "__builtin_ia32_storeaps", void_ftype_pfloat_v4sf, IX86_BUILTIN_STOREAPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_storeups", void_ftype_pfloat_v4sf, IX86_BUILTIN_STOREUPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_storess", void_ftype_pfloat_v4sf, IX86_BUILTIN_STORESS);
++
++  def_builtin (MASK_SSE, "__builtin_ia32_loadhps", v4sf_ftype_v4sf_pv2si, IX86_BUILTIN_LOADHPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_loadlps", v4sf_ftype_v4sf_pv2si, IX86_BUILTIN_LOADLPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_storehps", void_ftype_pv2si_v4sf, IX86_BUILTIN_STOREHPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_storelps", void_ftype_pv2si_v4sf, IX86_BUILTIN_STORELPS);
++
++  def_builtin (MASK_SSE, "__builtin_ia32_movmskps", int_ftype_v4sf, IX86_BUILTIN_MOVMSKPS);
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_pmovmskb", int_ftype_v8qi, IX86_BUILTIN_PMOVMSKB);
++  def_builtin (MASK_SSE, "__builtin_ia32_movntps", void_ftype_pfloat_v4sf, IX86_BUILTIN_MOVNTPS);
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_movntq", void_ftype_pdi_di, IX86_BUILTIN_MOVNTQ);
++
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_sfence", void_ftype_void, IX86_BUILTIN_SFENCE);
++
++  def_builtin (MASK_SSE | MASK_3DNOW_A, "__builtin_ia32_psadbw", di_ftype_v8qi_v8qi, IX86_BUILTIN_PSADBW);
++
++  def_builtin (MASK_SSE, "__builtin_ia32_rcpps", v4sf_ftype_v4sf, IX86_BUILTIN_RCPPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_rcpss", v4sf_ftype_v4sf, IX86_BUILTIN_RCPSS);
++  def_builtin (MASK_SSE, "__builtin_ia32_rsqrtps", v4sf_ftype_v4sf, IX86_BUILTIN_RSQRTPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_rsqrtss", v4sf_ftype_v4sf, IX86_BUILTIN_RSQRTSS);
++  def_builtin (MASK_SSE, "__builtin_ia32_sqrtps", v4sf_ftype_v4sf, IX86_BUILTIN_SQRTPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_sqrtss", v4sf_ftype_v4sf, IX86_BUILTIN_SQRTSS);
+ 
+-  def_builtin (MASK_SSE1, "__builtin_ia32_shufps", v4sf_ftype_v4sf_v4sf_int, IX86_BUILTIN_SHUFPS);
++  def_builtin (MASK_SSE, "__builtin_ia32_shufps", v4sf_ftype_v4sf_v4sf_int, IX86_BUILTIN_SHUFPS);
+ 
+   /* Original 3DNow!  */
+   def_builtin (MASK_3DNOW, "__builtin_ia32_femms", void_ftype_void, IX86_BUILTIN_FEMMS);
+@@ -12938,7 +12961,7 @@
+   def_builtin (MASK_3DNOW_A, "__builtin_ia32_pswapdsf", v2sf_ftype_v2sf, IX86_BUILTIN_PSWAPDSF);
+   def_builtin (MASK_3DNOW_A, "__builtin_ia32_pswapdsi", v2si_ftype_v2si, IX86_BUILTIN_PSWAPDSI);
+ 
+-  def_builtin (MASK_SSE1, "__builtin_ia32_setzerops", v4sf_ftype_void, IX86_BUILTIN_SSE_ZERO);
++  def_builtin (MASK_SSE, "__builtin_ia32_setzerops", v4sf_ftype_void, IX86_BUILTIN_SSE_ZERO);
+ 
+   /* SSE2 */
+   def_builtin (MASK_SSE2, "__builtin_ia32_pextrw128", int_ftype_v8hi_int, IX86_BUILTIN_PEXTRW128);
+@@ -12989,15 +13012,15 @@
+ 
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtsd2si", int_ftype_v2df, IX86_BUILTIN_CVTSD2SI);
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvttsd2si", int_ftype_v2df, IX86_BUILTIN_CVTTSD2SI);
+-  def_builtin (MASK_SSE264, "__builtin_ia32_cvtsd2si64", int64_ftype_v2df, IX86_BUILTIN_CVTSD2SI64);
+-  def_builtin (MASK_SSE264, "__builtin_ia32_cvttsd2si64", int64_ftype_v2df, IX86_BUILTIN_CVTTSD2SI64);
++  def_builtin (MASK_SSE2 | MASK_64BIT, "__builtin_ia32_cvtsd2si64", int64_ftype_v2df, IX86_BUILTIN_CVTSD2SI64);
++  def_builtin (MASK_SSE2 | MASK_64BIT, "__builtin_ia32_cvttsd2si64", int64_ftype_v2df, IX86_BUILTIN_CVTTSD2SI64);
+ 
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtps2dq", v4si_ftype_v4sf, IX86_BUILTIN_CVTPS2DQ);
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtps2pd", v2df_ftype_v4sf, IX86_BUILTIN_CVTPS2PD);
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvttps2dq", v4si_ftype_v4sf, IX86_BUILTIN_CVTTPS2DQ);
+ 
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtsi2sd", v2df_ftype_v2df_int, IX86_BUILTIN_CVTSI2SD);
+-  def_builtin (MASK_SSE264, "__builtin_ia32_cvtsi642sd", v2df_ftype_v2df_int64, IX86_BUILTIN_CVTSI642SD);
++  def_builtin (MASK_SSE2 | MASK_64BIT, "__builtin_ia32_cvtsi642sd", v2df_ftype_v2df_int64, IX86_BUILTIN_CVTSI642SD);
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtsd2ss", v4sf_ftype_v4sf_v2df, IX86_BUILTIN_CVTSD2SS);
+   def_builtin (MASK_SSE2, "__builtin_ia32_cvtss2sd", v2df_ftype_v2df_v4sf, IX86_BUILTIN_CVTSS2SD);
+ 
+@@ -13021,7 +13044,7 @@
+   def_builtin (MASK_SSE2, "__builtin_ia32_stored", void_ftype_pcint_v4si, IX86_BUILTIN_STORED);
+   def_builtin (MASK_SSE2, "__builtin_ia32_movq", v2di_ftype_v2di, IX86_BUILTIN_MOVQ);
+ 
+-  def_builtin (MASK_SSE1, "__builtin_ia32_setzero128", v2di_ftype_void, IX86_BUILTIN_CLRTI);
++  def_builtin (MASK_SSE, "__builtin_ia32_setzero128", v2di_ftype_void, IX86_BUILTIN_CLRTI);
+ 
+   def_builtin (MASK_SSE2, "__builtin_ia32_psllw128", v8hi_ftype_v8hi_v2di, IX86_BUILTIN_PSLLW128);
+   def_builtin (MASK_SSE2, "__builtin_ia32_pslld128", v4si_ftype_v4si_v2di, IX86_BUILTIN_PSLLD128);
+@@ -13048,6 +13071,26 @@
+   def_builtin (MASK_SSE2, "__builtin_ia32_psradi128", v4si_ftype_v4si_int, IX86_BUILTIN_PSRADI128);
+ 
+   def_builtin (MASK_SSE2, "__builtin_ia32_pmaddwd128", v4si_ftype_v8hi_v8hi, IX86_BUILTIN_PMADDWD128);
++
++  /* Prescott New Instructions.  */
++  def_builtin (MASK_SSE3, "__builtin_ia32_monitor",
++	       void_ftype_pcvoid_unsigned_unsigned,
++	       IX86_BUILTIN_MONITOR);
++  def_builtin (MASK_SSE3, "__builtin_ia32_mwait",
++	       void_ftype_unsigned_unsigned,
++	       IX86_BUILTIN_MWAIT);
++  def_builtin (MASK_SSE3, "__builtin_ia32_movshdup",
++	       v4sf_ftype_v4sf,
++	       IX86_BUILTIN_MOVSHDUP);
++  def_builtin (MASK_SSE3, "__builtin_ia32_movsldup",
++	       v4sf_ftype_v4sf,
++	       IX86_BUILTIN_MOVSLDUP);
++  def_builtin (MASK_SSE3, "__builtin_ia32_lddqu",
++	       v16qi_ftype_pcchar, IX86_BUILTIN_LDDQU);
++  def_builtin (MASK_SSE3, "__builtin_ia32_loadddup",
++	       v2df_ftype_pcdouble, IX86_BUILTIN_LOADDDUP);
++  def_builtin (MASK_SSE3, "__builtin_ia32_movddup",
++	       v2df_ftype_v2df, IX86_BUILTIN_MOVDDUP);
+ }
+ 
+ /* Errors in the source file can cause expand_expr to return const0_rtx
+@@ -13856,6 +13899,41 @@
+     case IX86_BUILTIN_STORED:
+       return ix86_expand_store_builtin (CODE_FOR_sse2_stored, arglist);
+ 
++    case IX86_BUILTIN_MONITOR:
++      arg0 = TREE_VALUE (arglist);
++      arg1 = TREE_VALUE (TREE_CHAIN (arglist));
++      arg2 = TREE_VALUE (TREE_CHAIN (TREE_CHAIN (arglist)));
++      op0 = expand_expr (arg0, NULL_RTX, VOIDmode, 0);
++      op1 = expand_expr (arg1, NULL_RTX, VOIDmode, 0);
++      op2 = expand_expr (arg2, NULL_RTX, VOIDmode, 0);
++      if (!REG_P (op0))
++	op0 = copy_to_mode_reg (SImode, op0);
++      if (!REG_P (op1))
++	op1 = copy_to_mode_reg (SImode, op1);
++      if (!REG_P (op2))
++	op2 = copy_to_mode_reg (SImode, op2);
++      emit_insn (gen_monitor (op0, op1, op2));
++      return 0;
++
++    case IX86_BUILTIN_MWAIT:
++      arg0 = TREE_VALUE (arglist);
++      arg1 = TREE_VALUE (TREE_CHAIN (arglist));
++      op0 = expand_expr (arg0, NULL_RTX, VOIDmode, 0);
++      op1 = expand_expr (arg1, NULL_RTX, VOIDmode, 0);
++      if (!REG_P (op0))
++	op0 = copy_to_mode_reg (SImode, op0);
++      if (!REG_P (op1))
++	op1 = copy_to_mode_reg (SImode, op1);
++      emit_insn (gen_mwait (op0, op1));
++      return 0;
++
++    case IX86_BUILTIN_LOADDDUP:
++      return ix86_expand_unop_builtin (CODE_FOR_loadddup, arglist, target, 1);
++
++    case IX86_BUILTIN_LDDQU:
++      return ix86_expand_unop_builtin (CODE_FOR_lddqu, arglist, target,
++				       1);
++
+     default:
+       break;
+     }
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/i386.h gcc-3.3.2/gcc/config/i386/i386.h
+--- gcc-3.3.2.orig/gcc/config/i386/i386.h	2003-06-25 17:18:31.000000000 -0400
++++ gcc-3.3.2/gcc/config/i386/i386.h	2004-02-03 18:11:05.000000000 -0500
+@@ -114,10 +114,11 @@
+ #define MASK_MMX		0x00002000	/* Support MMX regs/builtins */
+ #define MASK_SSE		0x00004000	/* Support SSE regs/builtins */
+ #define MASK_SSE2		0x00008000	/* Support SSE2 regs/builtins */
+-#define MASK_3DNOW		0x00010000	/* Support 3Dnow builtins */
+-#define MASK_3DNOW_A		0x00020000	/* Support Athlon 3Dnow builtins */
+-#define MASK_128BIT_LONG_DOUBLE 0x00040000	/* long double size is 128bit */
+-#define MASK_64BIT		0x00080000	/* Produce 64bit code */
++#define MASK_SSE3		0x00010000	/* Support SSE3 regs/builtins */
++#define MASK_3DNOW		0x00020000	/* Support 3Dnow builtins */
++#define MASK_3DNOW_A		0x00040000	/* Support Athlon 3Dnow builtins */
++#define MASK_128BIT_LONG_DOUBLE 0x00080000	/* long double size is 128bit */
++#define MASK_64BIT		0x00100000	/* Produce 64bit code */
+ 
+ /* Unused:			0x03f0000	*/
+ 
+@@ -271,8 +272,9 @@
+ 
+ #define ASSEMBLER_DIALECT (ix86_asm_dialect)
+ 
+-#define TARGET_SSE ((target_flags & (MASK_SSE | MASK_SSE2)) != 0)
++#define TARGET_SSE ((target_flags & MASK_SSE) != 0)
+ #define TARGET_SSE2 ((target_flags & MASK_SSE2) != 0)
++#define TARGET_SSE3 ((target_flags & MASK_SSE3) != 0)
+ #define TARGET_SSE_MATH ((ix86_fpmath & FPMATH_SSE) != 0)
+ #define TARGET_MIX_SSE_I387 ((ix86_fpmath & FPMATH_SSE) \
+ 			     && (ix86_fpmath & FPMATH_387))
+@@ -366,6 +368,10 @@
+     N_("Support MMX, SSE and SSE2 built-in functions and code generation") }, \
+   { "no-sse2",			 -MASK_SSE2,				      \
+     N_("Do not support MMX, SSE and SSE2 built-in functions and code generation") },    \
++  { "sse3",			 MASK_SSE3,				      \
++    N_("Support MMX, SSE, SSE2 and SSE3 built-in functions and code generation") },\
++  { "no-sse3",			 -MASK_SSE3,				      \
++    N_("Do not support MMX, SSE, SSE2 and SSE3 built-in functions and code generation") },\
+   { "128bit-long-double",	 MASK_128BIT_LONG_DOUBLE,		      \
+     N_("sizeof(long double) is 16") },					      \
+   { "96bit-long-double",	-MASK_128BIT_LONG_DOUBLE,		      \
+@@ -554,6 +560,8 @@
+ 	builtin_define ("__SSE__");				\
+       if (TARGET_SSE2)						\
+ 	builtin_define ("__SSE2__");				\
++      if (TARGET_SSE3)						\
++	builtin_define ("__SSE3__");				\
+       if (TARGET_SSE_MATH && TARGET_SSE)			\
+ 	builtin_define ("__SSE_MATH__");			\
+       if (TARGET_SSE_MATH && TARGET_SSE2)			\
+@@ -2480,6 +2488,22 @@
+   IX86_BUILTIN_MFENCE,
+   IX86_BUILTIN_LFENCE,
+ 
++  /* Prescott New Instructions.  */
++  IX86_BUILTIN_ADDSUBPS,
++  IX86_BUILTIN_HADDPS,
++  IX86_BUILTIN_HSUBPS,
++  IX86_BUILTIN_MOVSHDUP,
++  IX86_BUILTIN_MOVSLDUP,
++  IX86_BUILTIN_ADDSUBPD,
++  IX86_BUILTIN_HADDPD,
++  IX86_BUILTIN_HSUBPD,
++  IX86_BUILTIN_LOADDDUP,
++  IX86_BUILTIN_MOVDDUP,
++  IX86_BUILTIN_LDDQU,
++
++  IX86_BUILTIN_MONITOR,
++  IX86_BUILTIN_MWAIT,
++
+   IX86_BUILTIN_MAX
+ };
+ 
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/i386.md gcc-3.3.2/gcc/config/i386/i386.md
+--- gcc-3.3.2.orig/gcc/config/i386/i386.md	2003-07-08 15:16:42.000000000 -0400
++++ gcc-3.3.2/gcc/config/i386/i386.md	2004-02-03 18:07:00.000000000 -0500
+@@ -110,6 +110,13 @@
+    (UNSPEC_MFENCE		59)
+    (UNSPEC_LFENCE		60)
+    (UNSPEC_PSADBW		61)
++   (UNSPEC_ADDSUB		71)
++   (UNSPEC_HADD			72)
++   (UNSPEC_HSUB			73)
++   (UNSPEC_MOVSHDUP		74)
++   (UNSPEC_MOVSLDUP		75)
++   (UNSPEC_LDQQU		76)
++   (UNSPEC_MOVDDUP		77)
+   ])
+ 
+ (define_constants
+@@ -120,6 +127,8 @@
+    (UNSPECV_STMXCSR		40)
+    (UNSPECV_FEMMS		46)
+    (UNSPECV_CLFLUSH		57)
++   (UNSPECV_MONITOR		69)
++   (UNSPECV_MWAIT		70)
+   ])
+ 
+ ;; Insns whose names begin with "x86_" are emitted by gen_FOO calls
+@@ -22072,3 +22081,129 @@
+   "lfence"
+   [(set_attr "type" "sse")
+    (set_attr "memory" "unknown")])
++
++;; SSE3
++
++(define_insn "mwait"
++  [(unspec_volatile [(match_operand:SI 0 "register_operand" "a")
++		     (match_operand:SI 1 "register_operand" "c")]
++		    UNSPECV_MWAIT)]
++  "TARGET_SSE3"
++  "mwait\t%0, %1"
++  [(set_attr "length" "3")])
++
++(define_insn "monitor"
++  [(unspec_volatile [(match_operand:SI 0 "register_operand" "a")
++		     (match_operand:SI 1 "register_operand" "c")
++		     (match_operand:SI 2 "register_operand" "d")]
++		    UNSPECV_MONITOR)]
++  "TARGET_SSE3"
++  "monitor\t%0, %1, %2"
++  [(set_attr "length" "3")])
++
++;; SSE3 arithmetic
++
++(define_insn "addsubv4sf3"
++  [(set (match_operand:V4SF 0 "register_operand" "=x")
++        (unspec:V4SF [(match_operand:V4SF 1 "register_operand" "0")
++		      (match_operand:V4SF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_ADDSUB))]
++  "TARGET_SSE3"
++  "addsubps\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V4SF")])
++
++(define_insn "addsubv2df3"
++  [(set (match_operand:V2DF 0 "register_operand" "=x")
++        (unspec:V2DF [(match_operand:V2DF 1 "register_operand" "0")
++		      (match_operand:V2DF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_ADDSUB))]
++  "TARGET_SSE3"
++  "addsubpd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V2DF")])
++
++(define_insn "haddv4sf3"
++  [(set (match_operand:V4SF 0 "register_operand" "=x")
++        (unspec:V4SF [(match_operand:V4SF 1 "register_operand" "0")
++		      (match_operand:V4SF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_HADD))]
++  "TARGET_SSE3"
++  "haddps\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V4SF")])
++
++(define_insn "haddv2df3"
++  [(set (match_operand:V2DF 0 "register_operand" "=x")
++        (unspec:V2DF [(match_operand:V2DF 1 "register_operand" "0")
++		      (match_operand:V2DF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_HADD))]
++  "TARGET_SSE3"
++  "haddpd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V2DF")])
++
++(define_insn "hsubv4sf3"
++  [(set (match_operand:V4SF 0 "register_operand" "=x")
++        (unspec:V4SF [(match_operand:V4SF 1 "register_operand" "0")
++		      (match_operand:V4SF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_HSUB))]
++  "TARGET_SSE3"
++  "hsubps\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V4SF")])
++
++(define_insn "hsubv2df3"
++  [(set (match_operand:V2DF 0 "register_operand" "=x")
++        (unspec:V2DF [(match_operand:V2DF 1 "register_operand" "0")
++		      (match_operand:V2DF 2 "nonimmediate_operand" "xm")]
++		     UNSPEC_HSUB))]
++  "TARGET_SSE3"
++  "hsubpd\t{%2, %0|%0, %2}"
++  [(set_attr "type" "sseadd")
++   (set_attr "mode" "V2DF")])
++
++(define_insn "movshdup"
++  [(set (match_operand:V4SF 0 "register_operand" "=x")
++        (unspec:V4SF
++	 [(match_operand:V4SF 1 "nonimmediate_operand" "xm")] UNSPEC_MOVSHDUP))]
++  "TARGET_SSE3"
++  "movshdup\t{%1, %0|%0, %1}"
++  [(set_attr "type" "sse")
++   (set_attr "mode" "V4SF")])
++
++(define_insn "movsldup"
++  [(set (match_operand:V4SF 0 "register_operand" "=x")
++        (unspec:V4SF
++	 [(match_operand:V4SF 1 "nonimmediate_operand" "xm")] UNSPEC_MOVSLDUP))]
++  "TARGET_SSE3"
++  "movsldup\t{%1, %0|%0, %1}"
++  [(set_attr "type" "sse")
++   (set_attr "mode" "V4SF")])
++
++(define_insn "lddqu"
++  [(set (match_operand:V16QI 0 "register_operand" "=x")
++	(unspec:V16QI [(match_operand:V16QI 1 "memory_operand" "m")]
++		       UNSPEC_LDQQU))]
++  "TARGET_SSE3"
++  "lddqu\t{%1, %0|%0, %1}"
++  [(set_attr "type" "ssecvt")
++   (set_attr "mode" "TI")])
++
++(define_insn "loadddup"
++  [(set (match_operand:V2DF 0 "register_operand" "=x")
++	(vec_duplicate:V2DF (match_operand:DF 1 "memory_operand" "m")))]
++  "TARGET_SSE3"
++  "movddup\t{%1, %0|%0, %1}"
++  [(set_attr "type" "ssecvt")
++   (set_attr "mode" "DF")])
++
++(define_insn "movddup"
++  [(set (match_operand:V2DF 0 "register_operand" "=x")
++	(vec_duplicate:V2DF
++	 (vec_select:DF (match_operand:V2DF 1 "register_operand" "x")
++			(parallel [(const_int 0)]))))]
++  "TARGET_SSE3"
++  "movddup\t{%1, %0|%0, %1}"
++  [(set_attr "type" "ssecvt")
++   (set_attr "mode" "DF")])
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/mmintrin.h gcc-3.3.2/gcc/config/i386/mmintrin.h
+--- gcc-3.3.2.orig/gcc/config/i386/mmintrin.h	2003-02-22 05:04:13.000000000 -0500
++++ gcc-3.3.2/gcc/config/i386/mmintrin.h	2004-02-03 18:06:48.000000000 -0500
+@@ -25,7 +25,7 @@
+    Public License.  */
+ 
+ /* Implemented from the specification included in the Intel C++ Compiler
+-   User Guide and Reference, version 5.0.  */
++   User Guide and Reference, version 8.0.  */
+ 
+ #ifndef _MMINTRIN_H_INCLUDED
+ #define _MMINTRIN_H_INCLUDED
+@@ -48,6 +48,12 @@
+   __builtin_ia32_emms ();
+ }
+ 
++static __inline void
++_m_empty (void)
++{
++  _mm_empty ();
++}
++
+ /* Convert I to a __m64 object.  The integer is zero-extended to 64-bits.  */
+ static __inline __m64 
+ _mm_cvtsi32_si64 (int __i)
+@@ -56,6 +62,12 @@
+   return (__m64) __tmp;
+ }
+ 
++static __inline __m64 
++_m_from_int (int __i)
++{
++  return _mm_cvtsi32_si64 (__i);
++}
++
+ #ifdef __x86_64__
+ /* Convert I to a __m64 object.  */
+ static __inline __m64 
+@@ -80,6 +92,12 @@
+   return __tmp;
+ }
+ 
++static __inline int
++_m_to_int (__m64 __i)
++{
++  return _mm_cvtsi64_si32 (__i);
++}
++
+ #ifdef __x86_64__
+ /* Convert the lower 32 bits of the __m64 object into an integer.  */
+ static __inline long long
+@@ -98,6 +116,12 @@
+   return (__m64) __builtin_ia32_packsswb ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_packsswb (__m64 __m1, __m64 __m2)
++{
++  return _mm_packs_pi16 (__m1, __m2);
++}
++
+ /* Pack the two 32-bit values from M1 in to the lower two 16-bit values of
+    the result, and the two 32-bit values from M2 into the upper two 16-bit
+    values of the result, all with signed saturation.  */
+@@ -107,6 +131,12 @@
+   return (__m64) __builtin_ia32_packssdw ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_packssdw (__m64 __m1, __m64 __m2)
++{
++  return _mm_packs_pi32 (__m1, __m2);
++}
++
+ /* Pack the four 16-bit values from M1 into the lower four 8-bit values of
+    the result, and the four 16-bit values from M2 into the upper four 8-bit
+    values of the result, all with unsigned saturation.  */
+@@ -116,6 +146,12 @@
+   return (__m64) __builtin_ia32_packuswb ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_packuswb (__m64 __m1, __m64 __m2)
++{
++  return _mm_packs_pu16 (__m1, __m2);
++}
++
+ /* Interleave the four 8-bit values from the high half of M1 with the four
+    8-bit values from the high half of M2.  */
+ static __inline __m64
+@@ -124,6 +160,12 @@
+   return (__m64) __builtin_ia32_punpckhbw ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_punpckhbw (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpackhi_pi8 (__m1, __m2);
++}
++
+ /* Interleave the two 16-bit values from the high half of M1 with the two
+    16-bit values from the high half of M2.  */
+ static __inline __m64
+@@ -132,6 +174,12 @@
+   return (__m64) __builtin_ia32_punpckhwd ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_punpckhwd (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpackhi_pi16 (__m1, __m2);
++}
++
+ /* Interleave the 32-bit value from the high half of M1 with the 32-bit
+    value from the high half of M2.  */
+ static __inline __m64
+@@ -140,6 +188,12 @@
+   return (__m64) __builtin_ia32_punpckhdq ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_punpckhdq (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpackhi_pi32 (__m1, __m2);
++}
++
+ /* Interleave the four 8-bit values from the low half of M1 with the four
+    8-bit values from the low half of M2.  */
+ static __inline __m64
+@@ -148,6 +202,12 @@
+   return (__m64) __builtin_ia32_punpcklbw ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_punpcklbw (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpacklo_pi8 (__m1, __m2);
++}
++
+ /* Interleave the two 16-bit values from the low half of M1 with the two
+    16-bit values from the low half of M2.  */
+ static __inline __m64
+@@ -156,6 +216,12 @@
+   return (__m64) __builtin_ia32_punpcklwd ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_punpcklwd (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpacklo_pi16 (__m1, __m2);
++}
++
+ /* Interleave the 32-bit value from the low half of M1 with the 32-bit
+    value from the low half of M2.  */
+ static __inline __m64
+@@ -164,6 +230,12 @@
+   return (__m64) __builtin_ia32_punpckldq ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_punpckldq (__m64 __m1, __m64 __m2)
++{
++  return _mm_unpacklo_pi32 (__m1, __m2);
++}
++
+ /* Add the 8-bit values in M1 to the 8-bit values in M2.  */
+ static __inline __m64
+ _mm_add_pi8 (__m64 __m1, __m64 __m2)
+@@ -171,6 +243,12 @@
+   return (__m64) __builtin_ia32_paddb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddb (__m64 __m1, __m64 __m2)
++{
++  return _mm_add_pi8 (__m1, __m2);
++}
++
+ /* Add the 16-bit values in M1 to the 16-bit values in M2.  */
+ static __inline __m64
+ _mm_add_pi16 (__m64 __m1, __m64 __m2)
+@@ -178,6 +256,12 @@
+   return (__m64) __builtin_ia32_paddw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddw (__m64 __m1, __m64 __m2)
++{
++  return _mm_add_pi16 (__m1, __m2);
++}
++
+ /* Add the 32-bit values in M1 to the 32-bit values in M2.  */
+ static __inline __m64
+ _mm_add_pi32 (__m64 __m1, __m64 __m2)
+@@ -185,6 +269,12 @@
+   return (__m64) __builtin_ia32_paddd ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_paddd (__m64 __m1, __m64 __m2)
++{
++  return _mm_add_pi32 (__m1, __m2);
++}
++
+ /* Add the 64-bit values in M1 to the 64-bit values in M2.  */
+ static __inline __m64
+ _mm_add_si64 (__m64 __m1, __m64 __m2)
+@@ -200,6 +290,12 @@
+   return (__m64) __builtin_ia32_paddsb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddsb (__m64 __m1, __m64 __m2)
++{
++  return _mm_adds_pi8 (__m1, __m2);
++}
++
+ /* Add the 16-bit values in M1 to the 16-bit values in M2 using signed
+    saturated arithmetic.  */
+ static __inline __m64
+@@ -208,6 +304,12 @@
+   return (__m64) __builtin_ia32_paddsw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddsw (__m64 __m1, __m64 __m2)
++{
++  return _mm_adds_pi16 (__m1, __m2);
++}
++
+ /* Add the 8-bit values in M1 to the 8-bit values in M2 using unsigned
+    saturated arithmetic.  */
+ static __inline __m64
+@@ -216,6 +318,12 @@
+   return (__m64) __builtin_ia32_paddusb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddusb (__m64 __m1, __m64 __m2)
++{
++  return _mm_adds_pu8 (__m1, __m2);
++}
++
+ /* Add the 16-bit values in M1 to the 16-bit values in M2 using unsigned
+    saturated arithmetic.  */
+ static __inline __m64
+@@ -224,6 +332,12 @@
+   return (__m64) __builtin_ia32_paddusw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_paddusw (__m64 __m1, __m64 __m2)
++{
++  return _mm_adds_pu16 (__m1, __m2);
++}
++
+ /* Subtract the 8-bit values in M2 from the 8-bit values in M1.  */
+ static __inline __m64
+ _mm_sub_pi8 (__m64 __m1, __m64 __m2)
+@@ -231,6 +345,12 @@
+   return (__m64) __builtin_ia32_psubb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubb (__m64 __m1, __m64 __m2)
++{
++  return _mm_sub_pi8 (__m1, __m2);
++}
++
+ /* Subtract the 16-bit values in M2 from the 16-bit values in M1.  */
+ static __inline __m64
+ _mm_sub_pi16 (__m64 __m1, __m64 __m2)
+@@ -238,6 +358,12 @@
+   return (__m64) __builtin_ia32_psubw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubw (__m64 __m1, __m64 __m2)
++{
++  return _mm_sub_pi16 (__m1, __m2);
++}
++
+ /* Subtract the 32-bit values in M2 from the 32-bit values in M1.  */
+ static __inline __m64
+ _mm_sub_pi32 (__m64 __m1, __m64 __m2)
+@@ -245,6 +371,12 @@
+   return (__m64) __builtin_ia32_psubd ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_psubd (__m64 __m1, __m64 __m2)
++{
++  return _mm_sub_pi32 (__m1, __m2);
++}
++
+ /* Add the 64-bit values in M1 to the 64-bit values in M2.  */
+ static __inline __m64
+ _mm_sub_si64 (__m64 __m1, __m64 __m2)
+@@ -260,6 +392,12 @@
+   return (__m64) __builtin_ia32_psubsb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubsb (__m64 __m1, __m64 __m2)
++{
++  return _mm_subs_pi8 (__m1, __m2);
++}
++
+ /* Subtract the 16-bit values in M2 from the 16-bit values in M1 using
+    signed saturating arithmetic.  */
+ static __inline __m64
+@@ -268,6 +406,12 @@
+   return (__m64) __builtin_ia32_psubsw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubsw (__m64 __m1, __m64 __m2)
++{
++  return _mm_subs_pi16 (__m1, __m2);
++}
++
+ /* Subtract the 8-bit values in M2 from the 8-bit values in M1 using
+    unsigned saturating arithmetic.  */
+ static __inline __m64
+@@ -276,6 +420,12 @@
+   return (__m64) __builtin_ia32_psubusb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubusb (__m64 __m1, __m64 __m2)
++{
++  return _mm_subs_pu8 (__m1, __m2);
++}
++
+ /* Subtract the 16-bit values in M2 from the 16-bit values in M1 using
+    unsigned saturating arithmetic.  */
+ static __inline __m64
+@@ -284,6 +434,12 @@
+   return (__m64) __builtin_ia32_psubusw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_psubusw (__m64 __m1, __m64 __m2)
++{
++  return _mm_subs_pu16 (__m1, __m2);
++}
++
+ /* Multiply four 16-bit values in M1 by four 16-bit values in M2 producing
+    four 32-bit intermediate results, which are then summed by pairs to
+    produce two 32-bit results.  */
+@@ -293,6 +449,12 @@
+   return (__m64) __builtin_ia32_pmaddwd ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_pmaddwd (__m64 __m1, __m64 __m2)
++{
++  return _mm_madd_pi16 (__m1, __m2);
++}
++
+ /* Multiply four signed 16-bit values in M1 by four signed 16-bit values in
+    M2 and produce the high 16 bits of the 32-bit results.  */
+ static __inline __m64
+@@ -301,6 +463,12 @@
+   return (__m64) __builtin_ia32_pmulhw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_pmulhw (__m64 __m1, __m64 __m2)
++{
++  return _mm_mulhi_pi16 (__m1, __m2);
++}
++
+ /* Multiply four 16-bit values in M1 by four 16-bit values in M2 and produce
+    the low 16 bits of the results.  */
+ static __inline __m64
+@@ -309,6 +477,12 @@
+   return (__m64) __builtin_ia32_pmullw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_pmullw (__m64 __m1, __m64 __m2)
++{
++  return _mm_mullo_pi16 (__m1, __m2);
++}
++
+ /* Shift four 16-bit values in M left by COUNT.  */
+ static __inline __m64
+ _mm_sll_pi16 (__m64 __m, __m64 __count)
+@@ -317,11 +491,23 @@
+ }
+ 
+ static __inline __m64
++_m_psllw (__m64 __m, __m64 __count)
++{
++  return _mm_sll_pi16 (__m, __count);
++}
++
++static __inline __m64
+ _mm_slli_pi16 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psllw ((__v4hi)__m, __count);
+ }
+ 
++static __inline __m64
++_m_psllwi (__m64 __m, int __count)
++{
++  return _mm_slli_pi16 (__m, __count);
++}
++
+ /* Shift two 32-bit values in M left by COUNT.  */
+ static __inline __m64
+ _mm_sll_pi32 (__m64 __m, __m64 __count)
+@@ -330,11 +516,23 @@
+ }
+ 
+ static __inline __m64
++_m_pslld (__m64 __m, __m64 __count)
++{
++  return _mm_sll_pi32 (__m, __count);
++}
++
++static __inline __m64
+ _mm_slli_pi32 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_pslld ((__v2si)__m, __count);
+ }
+ 
++static __inline __m64
++_m_pslldi (__m64 __m, int __count)
++{
++  return _mm_slli_pi32 (__m, __count);
++}
++
+ /* Shift the 64-bit value in M left by COUNT.  */
+ static __inline __m64
+ _mm_sll_si64 (__m64 __m, __m64 __count)
+@@ -343,11 +541,23 @@
+ }
+ 
+ static __inline __m64
++_m_psllq (__m64 __m, __m64 __count)
++{
++  return _mm_sll_si64 (__m, __count);
++}
++
++static __inline __m64
+ _mm_slli_si64 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psllq ((long long)__m, (long long)__count);
+ }
+ 
++static __inline __m64
++_m_psllqi (__m64 __m, int __count)
++{
++  return _mm_slli_si64 (__m, __count);
++}
++
+ /* Shift four 16-bit values in M right by COUNT; shift in the sign bit.  */
+ static __inline __m64
+ _mm_sra_pi16 (__m64 __m, __m64 __count)
+@@ -356,11 +566,23 @@
+ }
+ 
+ static __inline __m64
++_m_psraw (__m64 __m, __m64 __count)
++{
++  return _mm_sra_pi16 (__m, __count);
++}
++
++static __inline __m64
+ _mm_srai_pi16 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psraw ((__v4hi)__m, __count);
+ }
+ 
++static __inline __m64
++_m_psrawi (__m64 __m, int __count)
++{
++  return _mm_srai_pi16 (__m, __count);
++}
++
+ /* Shift two 32-bit values in M right by COUNT; shift in the sign bit.  */
+ static __inline __m64
+ _mm_sra_pi32 (__m64 __m, __m64 __count)
+@@ -369,11 +591,23 @@
+ }
+ 
+ static __inline __m64
++_m_psrad (__m64 __m, __m64 __count)
++{
++  return _mm_sra_pi32 (__m, __count);
++}
++
++static __inline __m64
+ _mm_srai_pi32 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psrad ((__v2si)__m, __count);
+ }
+ 
++static __inline __m64
++_m_psradi (__m64 __m, int __count)
++{
++  return _mm_srai_pi32 (__m, __count);
++}
++
+ /* Shift four 16-bit values in M right by COUNT; shift in zeros.  */
+ static __inline __m64
+ _mm_srl_pi16 (__m64 __m, __m64 __count)
+@@ -382,11 +616,23 @@
+ }
+ 
+ static __inline __m64
++_m_psrlw (__m64 __m, __m64 __count)
++{
++  return _mm_srl_pi16 (__m, __count);
++}
++
++static __inline __m64
+ _mm_srli_pi16 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psrlw ((__v4hi)__m, __count);
+ }
+ 
++static __inline __m64
++_m_psrlwi (__m64 __m, int __count)
++{
++  return _mm_srli_pi16 (__m, __count);
++}
++
+ /* Shift two 32-bit values in M right by COUNT; shift in zeros.  */
+ static __inline __m64
+ _mm_srl_pi32 (__m64 __m, __m64 __count)
+@@ -395,11 +641,23 @@
+ }
+ 
+ static __inline __m64
++_m_psrld (__m64 __m, __m64 __count)
++{
++  return _mm_srl_pi32 (__m, __count);
++}
++
++static __inline __m64
+ _mm_srli_pi32 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psrld ((__v2si)__m, __count);
+ }
+ 
++static __inline __m64
++_m_psrldi (__m64 __m, int __count)
++{
++  return _mm_srli_pi32 (__m, __count);
++}
++
+ /* Shift the 64-bit value in M left by COUNT; shift in zeros.  */
+ static __inline __m64
+ _mm_srl_si64 (__m64 __m, __m64 __count)
+@@ -408,11 +666,23 @@
+ }
+ 
+ static __inline __m64
++_m_psrlq (__m64 __m, __m64 __count)
++{
++  return _mm_srl_si64 (__m, __count);
++}
++
++static __inline __m64
+ _mm_srli_si64 (__m64 __m, int __count)
+ {
+   return (__m64) __builtin_ia32_psrlq ((long long)__m, (long long)__count);
+ }
+ 
++static __inline __m64
++_m_psrlqi (__m64 __m, int __count)
++{
++  return _mm_srli_si64 (__m, __count);
++}
++
+ /* Bit-wise AND the 64-bit values in M1 and M2.  */
+ static __inline __m64
+ _mm_and_si64 (__m64 __m1, __m64 __m2)
+@@ -420,6 +690,12 @@
+   return (__m64) __builtin_ia32_pand ((long long)__m1, (long long)__m2);
+ }
+ 
++static __inline __m64
++_m_pand (__m64 __m1, __m64 __m2)
++{
++  return _mm_and_si64 (__m1, __m2);
++}
++
+ /* Bit-wise complement the 64-bit value in M1 and bit-wise AND it with the
+    64-bit value in M2.  */
+ static __inline __m64
+@@ -428,6 +704,12 @@
+   return (__m64) __builtin_ia32_pandn ((long long)__m1, (long long)__m2);
+ }
+ 
++static __inline __m64
++_m_pandn (__m64 __m1, __m64 __m2)
++{
++  return _mm_andnot_si64 (__m1, __m2);
++}
++
+ /* Bit-wise inclusive OR the 64-bit values in M1 and M2.  */
+ static __inline __m64
+ _mm_or_si64 (__m64 __m1, __m64 __m2)
+@@ -435,6 +717,12 @@
+   return (__m64)__builtin_ia32_por ((long long)__m1, (long long)__m2);
+ }
+ 
++static __inline __m64
++_m_por (__m64 __m1, __m64 __m2)
++{
++  return _mm_or_si64 (__m1, __m2);
++}
++
+ /* Bit-wise exclusive OR the 64-bit values in M1 and M2.  */
+ static __inline __m64
+ _mm_xor_si64 (__m64 __m1, __m64 __m2)
+@@ -442,6 +730,12 @@
+   return (__m64)__builtin_ia32_pxor ((long long)__m1, (long long)__m2);
+ }
+ 
++static __inline __m64
++_m_pxor (__m64 __m1, __m64 __m2)
++{
++  return _mm_xor_si64 (__m1, __m2);
++}
++
+ /* Compare eight 8-bit values.  The result of the comparison is 0xFF if the
+    test is true and zero if false.  */
+ static __inline __m64
+@@ -451,11 +745,23 @@
+ }
+ 
+ static __inline __m64
++_m_pcmpeqb (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpeq_pi8 (__m1, __m2);
++}
++
++static __inline __m64
+ _mm_cmpgt_pi8 (__m64 __m1, __m64 __m2)
+ {
+   return (__m64) __builtin_ia32_pcmpgtb ((__v8qi)__m1, (__v8qi)__m2);
+ }
+ 
++static __inline __m64
++_m_pcmpgtb (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpgt_pi8 (__m1, __m2);
++}
++
+ /* Compare four 16-bit values.  The result of the comparison is 0xFFFF if
+    the test is true and zero if false.  */
+ static __inline __m64
+@@ -465,11 +771,23 @@
+ }
+ 
+ static __inline __m64
++_m_pcmpeqw (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpeq_pi16 (__m1, __m2);
++}
++
++static __inline __m64
+ _mm_cmpgt_pi16 (__m64 __m1, __m64 __m2)
+ {
+   return (__m64) __builtin_ia32_pcmpgtw ((__v4hi)__m1, (__v4hi)__m2);
+ }
+ 
++static __inline __m64
++_m_pcmpgtw (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpgt_pi16 (__m1, __m2);
++}
++
+ /* Compare two 32-bit values.  The result of the comparison is 0xFFFFFFFF if
+    the test is true and zero if false.  */
+ static __inline __m64
+@@ -479,11 +797,23 @@
+ }
+ 
+ static __inline __m64
++_m_pcmpeqd (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpeq_pi32 (__m1, __m2);
++}
++
++static __inline __m64
+ _mm_cmpgt_pi32 (__m64 __m1, __m64 __m2)
+ {
+   return (__m64) __builtin_ia32_pcmpgtd ((__v2si)__m1, (__v2si)__m2);
+ }
+ 
++static __inline __m64
++_m_pcmpgtd (__m64 __m1, __m64 __m2)
++{
++  return _mm_cmpgt_pi32 (__m1, __m2);
++}
++
+ /* Creates a 64-bit zero.  */
+ static __inline __m64
+ _mm_setzero_si64 (void)
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/pmmintrin.h gcc-3.3.2/gcc/config/i386/pmmintrin.h
+--- gcc-3.3.2.orig/gcc/config/i386/pmmintrin.h	1969-12-31 19:00:00.000000000 -0500
++++ gcc-3.3.2/gcc/config/i386/pmmintrin.h	2004-02-03 18:07:00.200307520 -0500
+@@ -0,0 +1,132 @@
++/* Copyright (C) 2003 Free Software Foundation, Inc.
++
++   This file is part of GNU CC.
++
++   GNU CC is free software; you can redistribute it and/or modify
++   it under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 2, or (at your option)
++   any later version.
++
++   GNU CC is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++   GNU General Public License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GNU CC; see the file COPYING.  If not, write to
++   the Free Software Foundation, 59 Temple Place - Suite 330,
++   Boston, MA 02111-1307, USA.  */
++
++/* As a special exception, if you include this header file into source
++   files compiled by GCC, this header file does not by itself cause
++   the resulting executable to be covered by the GNU General Public
++   License.  This exception does not however invalidate any other
++   reasons why the executable file might be covered by the GNU General
++   Public License.  */
++
++/* Implemented from the specification included in the Intel C++ Compiler
++   User Guide and Reference, version 8.0.  */
++
++#ifndef _PMMINTRIN_H_INCLUDED
++#define _PMMINTRIN_H_INCLUDED
++
++#ifdef __SSE3__
++#include <xmmintrin.h>
++#include <emmintrin.h>
++
++/* Additional bits in the MXCSR.  */
++#define _MM_DENORMALS_ZERO_MASK		0x0040
++#define _MM_DENORMALS_ZERO_ON		0x0040
++#define _MM_DENORMALS_ZERO_OFF		0x0000
++
++#define _MM_SET_DENORMALS_ZERO_MODE(mode) \
++  _mm_setcsr ((_mm_getcsr () & ~_MM_DENORMALS_ZERO_MASK) | (mode))
++#define _MM_GET_DENORMALS_ZERO_MODE() \
++  (_mm_getcsr() & _MM_DENORMALS_ZERO_MASK)
++
++static __inline __m128
++_mm_addsub_ps (__m128 __X, __m128 __Y)
++{
++  return (__m128) __builtin_ia32_addsubps ((__v4sf)__X, (__v4sf)__Y);
++}
++
++static __inline __m128
++_mm_hadd_ps (__m128 __X, __m128 __Y)
++{
++  return (__m128) __builtin_ia32_haddps ((__v4sf)__X, (__v4sf)__Y);
++}
++
++static __inline __m128
++_mm_hsub_ps (__m128 __X, __m128 __Y)
++{
++  return (__m128) __builtin_ia32_hsubps ((__v4sf)__X, (__v4sf)__Y);
++}
++
++static __inline __m128
++_mm_movehdup_ps (__m128 __X)
++{
++  return (__m128) __builtin_ia32_movshdup ((__v4sf)__X);
++}
++
++static __inline __m128
++_mm_moveldup_ps (__m128 __X)
++{
++  return (__m128) __builtin_ia32_movsldup ((__v4sf)__X);
++}
++
++static __inline __m128d
++_mm_addsub_pd (__m128d __X, __m128d __Y)
++{
++  return (__m128d) __builtin_ia32_addsubpd ((__v2df)__X, (__v2df)__Y);
++}
++
++static __inline __m128d
++_mm_hadd_pd (__m128d __X, __m128d __Y)
++{
++  return (__m128d) __builtin_ia32_haddpd ((__v2df)__X, (__v2df)__Y);
++}
++
++static __inline __m128d
++_mm_hsub_pd (__m128d __X, __m128d __Y)
++{
++  return (__m128d) __builtin_ia32_hsubpd ((__v2df)__X, (__v2df)__Y);
++}
++
++static __inline __m128d
++_mm_loaddup_pd (double const *__P)
++{
++  return (__m128d) __builtin_ia32_loadddup (__P);
++}
++
++static __inline __m128d
++_mm_movedup_pd (__m128d __X)
++{
++  return (__m128d) __builtin_ia32_movddup ((__v2df)__X);
++}
++
++static __inline __m128i
++_mm_lddqu_si128 (__m128i const *__P)
++{
++  return (__m128i) __builtin_ia32_lddqu ((char const *)__P);
++}
++
++#if 0
++static __inline void
++_mm_monitor (void const * __P, unsigned int __E, unsigned int __H)
++{
++  __builtin_ia32_monitor (__P, __E, __H);
++}
++
++static __inline void
++_mm_mwait (unsigned int __E, unsigned int __H)
++{
++  __builtin_ia32_mwait (__E, __H);
++}
++#else
++#define _mm_monitor(P, E, H)	__builtin_ia32_monitor ((P), (E), (H))
++#define _mm_mwait(E, H)		__builtin_ia32_mwait ((E), (H))
++#endif
++
++#endif /* __SSE3__ */
++
++#endif /* _PMMINTRIN_H_INCLUDED */
+diff -Naur gcc-3.3.2.orig/gcc/config/i386/xmmintrin.h gcc-3.3.2/gcc/config/i386/xmmintrin.h
+--- gcc-3.3.2.orig/gcc/config/i386/xmmintrin.h	2003-02-22 05:04:13.000000000 -0500
++++ gcc-3.3.2/gcc/config/i386/xmmintrin.h	2004-02-03 18:06:48.000000000 -0500
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 2002 Free Software Foundation, Inc.
++/* Copyright (C) 2002, 2003 Free Software Foundation, Inc.
+ 
+    This file is part of GNU CC.
+ 
+@@ -25,7 +25,7 @@
+    Public License.  */
+ 
+ /* Implemented from the specification included in the Intel C++ Compiler
+-   User Guide and Reference, version 5.0.  */
++   User Guide and Reference, version 8.0.  */
+ 
+ #ifndef _XMMINTRIN_H_INCLUDED
+ #define _XMMINTRIN_H_INCLUDED
+@@ -475,6 +475,12 @@
+   return __builtin_ia32_cvtss2si ((__v4sf) __A);
+ }
+ 
++static __inline int
++_mm_cvt_ss2si (__m128 __A)
++{
++  return _mm_cvtss_si32 (__A);
++}
++
+ #ifdef __x86_64__
+ /* Convert the lower SPFP value to a 32-bit integer according to the current
+    rounding mode.  */
+@@ -493,6 +499,12 @@
+   return (__m64) __builtin_ia32_cvtps2pi ((__v4sf) __A);
+ }
+ 
++static __inline __m64
++_mm_cvt_ps2pi (__m128 __A)
++{
++  return _mm_cvtps_pi32 (__A);
++}
++
+ /* Truncate the lower SPFP value to a 32-bit integer.  */
+ static __inline int
+ _mm_cvttss_si32 (__m128 __A)
+@@ -500,6 +512,12 @@
+   return __builtin_ia32_cvttss2si ((__v4sf) __A);
+ }
+ 
++static __inline int
++_mm_cvtt_ss2si (__m128 __A)
++{
++  return _mm_cvttss_si32 (__A);
++}
++
+ #ifdef __x86_64__
+ /* Truncate the lower SPFP value to a 32-bit integer.  */
+ static __inline long long
+@@ -517,6 +535,12 @@
+   return (__m64) __builtin_ia32_cvttps2pi ((__v4sf) __A);
+ }
+ 
++static __inline __m64
++_mm_cvtt_ps2pi (__m128 __A)
++{
++  return _mm_cvttps_pi32 (__A);
++}
++
+ /* Convert B to a SPFP value and insert it as element zero in A.  */
+ static __inline __m128
+ _mm_cvtsi32_ss (__m128 __A, int __B)
+@@ -524,6 +548,12 @@
+   return (__m128) __builtin_ia32_cvtsi2ss ((__v4sf) __A, __B);
+ }
+ 
++static __inline __m128
++_mm_cvt_si2ss (__m128 __A, int __B)
++{
++  return _mm_cvtsi32_ss (__A, __B);
++}
++
+ #ifdef __x86_64__
+ /* Convert B to a SPFP value and insert it as element zero in A.  */
+ static __inline __m128
+@@ -541,6 +571,12 @@
+   return (__m128) __builtin_ia32_cvtpi2ps ((__v4sf) __A, (__v2si)__B);
+ }
+ 
++static __inline __m128
++_mm_cvt_pi2ps (__m128 __A, __m64 __B)
++{
++  return _mm_cvtpi32_ps (__A, __B);
++}
++
+ /* Convert the four signed 16-bit values in A to SPFP form.  */
+ static __inline __m128
+ _mm_cvtpi16_ps (__m64 __A)
+@@ -942,9 +978,16 @@
+ {
+   return __builtin_ia32_pextrw ((__v4hi)__A, __N);
+ }
++
++static __inline int
++_m_pextrw (__m64 __A, int __N)
++{
++  return _mm_extract_pi16 (__A, __N);
++}
+ #else
+ #define _mm_extract_pi16(A, N) \
+   __builtin_ia32_pextrw ((__v4hi)(A), (N))
++#define _m_pextrw(A, N)		_mm_extract_pi16((A), (N))
+ #endif
+ 
+ /* Inserts word D into one of four words of A.  The selector N must be
+@@ -955,9 +998,16 @@
+ {
+   return (__m64)__builtin_ia32_pinsrw ((__v4hi)__A, __D, __N);
+ }
++
++static __inline __m64
++_m_pinsrw (__m64 __A, int __D, int __N)
++{
++  return _mm_insert_pi16 (__A, __D, __N);
++}
+ #else
+ #define _mm_insert_pi16(A, D, N) \
+   ((__m64) __builtin_ia32_pinsrw ((__v4hi)(A), (D), (N)))
++#define _m_pinsrw(A, D, N)	 _mm_insert_pi16((A), (D), (N))
+ #endif
+ 
+ /* Compute the element-wise maximum of signed 16-bit values.  */
+@@ -967,6 +1017,12 @@
+   return (__m64) __builtin_ia32_pmaxsw ((__v4hi)__A, (__v4hi)__B);
+ }
+ 
++static __inline __m64
++_m_pmaxsw (__m64 __A, __m64 __B)
++{
++  return _mm_max_pi16 (__A, __B);
++}
++
+ /* Compute the element-wise maximum of unsigned 8-bit values.  */
+ static __inline __m64
+ _mm_max_pu8 (__m64 __A, __m64 __B)
+@@ -974,6 +1030,12 @@
+   return (__m64) __builtin_ia32_pmaxub ((__v8qi)__A, (__v8qi)__B);
+ }
+ 
++static __inline __m64
++_m_pmaxub (__m64 __A, __m64 __B)
++{
++  return _mm_max_pu8 (__A, __B);
++}
++
+ /* Compute the element-wise minimum of signed 16-bit values.  */
+ static __inline __m64
+ _mm_min_pi16 (__m64 __A, __m64 __B)
+@@ -981,6 +1043,12 @@
+   return (__m64) __builtin_ia32_pminsw ((__v4hi)__A, (__v4hi)__B);
+ }
+ 
++static __inline __m64
++_m_pminsw (__m64 __A, __m64 __B)
++{
++  return _mm_min_pi16 (__A, __B);
++}
++
+ /* Compute the element-wise minimum of unsigned 8-bit values.  */
+ static __inline __m64
+ _mm_min_pu8 (__m64 __A, __m64 __B)
+@@ -988,6 +1056,12 @@
+   return (__m64) __builtin_ia32_pminub ((__v8qi)__A, (__v8qi)__B);
+ }
+ 
++static __inline __m64
++_m_pminub (__m64 __A, __m64 __B)
++{
++  return _mm_min_pu8 (__A, __B);
++}
++
+ /* Create an 8-bit mask of the signs of 8-bit values.  */
+ static __inline int
+ _mm_movemask_pi8 (__m64 __A)
+@@ -995,6 +1069,12 @@
+   return __builtin_ia32_pmovmskb ((__v8qi)__A);
+ }
+ 
++static __inline int
++_m_pmovmskb (__m64 __A)
++{
++  return _mm_movemask_pi8 (__A);
++}
++
+ /* Multiply four unsigned 16-bit values in A by four unsigned 16-bit values
+    in B and produce the high 16 bits of the 32-bit results.  */
+ static __inline __m64
+@@ -1003,6 +1083,12 @@
+   return (__m64) __builtin_ia32_pmulhuw ((__v4hi)__A, (__v4hi)__B);
+ }
+ 
++static __inline __m64
++_m_pmulhuw (__m64 __A, __m64 __B)
++{
++  return _mm_mulhi_pu16 (__A, __B);
++}
++
+ /* Return a combination of the four 16-bit values in A.  The selector
+    must be an immediate.  */
+ #if 0
+@@ -1011,9 +1097,16 @@
+ {
+   return (__m64) __builtin_ia32_pshufw ((__v4hi)__A, __N);
+ }
++
++static __inline __m64
++_m_pshufw (__m64 __A, int __N)
++{
++  return _mm_shuffle_pi16 (__A, __N);
++}
+ #else
+ #define _mm_shuffle_pi16(A, N) \
+   ((__m64) __builtin_ia32_pshufw ((__v4hi)(A), (N)))
++#define _m_pshufw(A, N)		_mm_shuffle_pi16 ((A), (N))
+ #endif
+ 
+ /* Conditionally store byte elements of A into P.  The high bit of each
+@@ -1025,6 +1118,12 @@
+   __builtin_ia32_maskmovq ((__v8qi)__A, (__v8qi)__N, __P);
+ }
+ 
++static __inline void
++_m_maskmovq (__m64 __A, __m64 __N, char *__P)
++{
++  _mm_maskmove_si64 (__A, __N, __P);
++}
++
+ /* Compute the rounded averages of the unsigned 8-bit values in A and B.  */
+ static __inline __m64
+ _mm_avg_pu8 (__m64 __A, __m64 __B)
+@@ -1032,6 +1131,12 @@
+   return (__m64) __builtin_ia32_pavgb ((__v8qi)__A, (__v8qi)__B);
+ }
+ 
++static __inline __m64
++_m_pavgb (__m64 __A, __m64 __B)
++{
++  return _mm_avg_pu8 (__A, __B);
++}
++
+ /* Compute the rounded averages of the unsigned 16-bit values in A and B.  */
+ static __inline __m64
+ _mm_avg_pu16 (__m64 __A, __m64 __B)
+@@ -1039,6 +1144,12 @@
+   return (__m64) __builtin_ia32_pavgw ((__v4hi)__A, (__v4hi)__B);
+ }
+ 
++static __inline __m64
++_m_pavgw (__m64 __A, __m64 __B)
++{
++  return _mm_avg_pu16 (__A, __B);
++}
++
+ /* Compute the sum of the absolute differences of the unsigned 8-bit
+    values in A and B.  Return the value in the lower 16-bit word; the
+    upper words are cleared.  */
+@@ -1048,6 +1159,12 @@
+   return (__m64) __builtin_ia32_psadbw ((__v8qi)__A, (__v8qi)__B);
+ }
+ 
++static __inline __m64
++_m_psadbw (__m64 __A, __m64 __B)
++{
++  return _mm_sad_pu8 (__A, __B);
++}
++
+ /* Loads one cache line from address P to a location "closer" to the
+    processor.  The selector I specifies the type of prefetch operation.  */
+ #if 0
+@@ -1106,1469 +1223,8 @@
+   (row3) = __builtin_ia32_shufps (__t2, __t3, 0xDD);			\
+ } while (0)
+ 
+-#ifdef __SSE2__
+-/* SSE2 */
+-typedef int __v2df __attribute__ ((mode (V2DF)));
+-typedef int __v2di __attribute__ ((mode (V2DI)));
+-typedef int __v4si __attribute__ ((mode (V4SI)));
+-typedef int __v8hi __attribute__ ((mode (V8HI)));
+-typedef int __v16qi __attribute__ ((mode (V16QI)));
+-
+-/* Create a selector for use with the SHUFPD instruction.  */
+-#define _MM_SHUFFLE2(fp1,fp0) \
+- (((fp1) << 1) | (fp0))
+-
+-#define __m128i __v2di
+-#define __m128d __v2df
+-
+-/* Create a vector with element 0 as *P and the rest zero.  */
+-static __inline __m128d
+-_mm_load_sd (double const *__P)
+-{
+-  return (__m128d) __builtin_ia32_loadsd (__P);
+-}
+-
+-/* Create a vector with all two elements equal to *P.  */
+-static __inline __m128d
+-_mm_load1_pd (double const *__P)
+-{
+-  __v2df __tmp = __builtin_ia32_loadsd (__P);
+-  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,0));
+-}
+-
+-static __inline __m128d
+-_mm_load_pd1 (double const *__P)
+-{
+-  return _mm_load1_pd (__P);
+-}
+-
+-/* Load two DPFP values from P.  The addresd must be 16-byte aligned.  */
+-static __inline __m128d
+-_mm_load_pd (double const *__P)
+-{
+-  return (__m128d) __builtin_ia32_loadapd (__P);
+-}
+-
+-/* Load two DPFP values from P.  The addresd need not be 16-byte aligned.  */
+-static __inline __m128d
+-_mm_loadu_pd (double const *__P)
+-{
+-  return (__m128d) __builtin_ia32_loadupd (__P);
+-}
+-
+-/* Load two DPFP values in reverse order.  The addresd must be aligned.  */
+-static __inline __m128d
+-_mm_loadr_pd (double const *__P)
+-{
+-  __v2df __tmp = __builtin_ia32_loadapd (__P);
+-  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,1));
+-}
+-
+-/* Create a vector with element 0 as F and the rest zero.  */
+-static __inline __m128d
+-_mm_set_sd (double __F)
+-{
+-  return (__m128d) __builtin_ia32_loadsd (&__F);
+-}
+-
+-/* Create a vector with all two elements equal to F.  */
+-static __inline __m128d
+-_mm_set1_pd (double __F)
+-{
+-  __v2df __tmp = __builtin_ia32_loadsd (&__F);
+-  return (__m128d) __builtin_ia32_shufpd (__tmp, __tmp, _MM_SHUFFLE2 (0,0));
+-}
+-
+-static __inline __m128d
+-_mm_set_pd1 (double __F)
+-{
+-  return _mm_set1_pd (__F);
+-}
+-
+-/* Create the vector [Z Y].  */
+-static __inline __m128d
+-_mm_set_pd (double __Z, double __Y)
+-{
+-  union {
+-    double __a[2];
+-    __m128d __v;
+-  } __u;
+-
+-  __u.__a[0] = __Y;
+-  __u.__a[1] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-/* Create the vector [Y Z].  */
+-static __inline __m128d
+-_mm_setr_pd (double __Z, double __Y)
+-{
+-  return _mm_set_pd (__Y, __Z);
+-}
+-
+-/* Create a vector of zeros.  */
+-static __inline __m128d
+-_mm_setzero_pd (void)
+-{
+-  return (__m128d) __builtin_ia32_setzeropd ();
+-}
+-
+-/* Stores the lower DPFP value.  */
+-static __inline void
+-_mm_store_sd (double *__P, __m128d __A)
+-{
+-  __builtin_ia32_storesd (__P, (__v2df)__A);
+-}
+-
+-/* Store the lower DPFP value acrosd two words.  */
+-static __inline void
+-_mm_store1_pd (double *__P, __m128d __A)
+-{
+-  __v2df __va = (__v2df)__A;
+-  __v2df __tmp = __builtin_ia32_shufpd (__va, __va, _MM_SHUFFLE2 (0,0));
+-  __builtin_ia32_storeapd (__P, __tmp);
+-}
+-
+-static __inline void
+-_mm_store_pd1 (double *__P, __m128d __A)
+-{
+-  _mm_store1_pd (__P, __A);
+-}
+-
+-/* Store two DPFP values.  The addresd must be 16-byte aligned.  */
+-static __inline void
+-_mm_store_pd (double *__P, __m128d __A)
+-{
+-  __builtin_ia32_storeapd (__P, (__v2df)__A);
+-}
+-
+-/* Store two DPFP values.  The addresd need not be 16-byte aligned.  */
+-static __inline void
+-_mm_storeu_pd (double *__P, __m128d __A)
+-{
+-  __builtin_ia32_storeupd (__P, (__v2df)__A);
+-}
+-
+-/* Store two DPFP values in reverse order.  The addresd must be aligned.  */
+-static __inline void
+-_mm_storer_pd (double *__P, __m128d __A)
+-{
+-  __v2df __va = (__v2df)__A;
+-  __v2df __tmp = __builtin_ia32_shufpd (__va, __va, _MM_SHUFFLE2 (0,1));
+-  __builtin_ia32_storeapd (__P, __tmp);
+-}
+-
+-/* Sets the low DPFP value of A from the low value of B.  */
+-static __inline __m128d
+-_mm_move_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d) __builtin_ia32_movsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-
+-static __inline __m128d
+-_mm_add_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_addpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_add_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_addsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_sub_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_subpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_sub_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_subsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_mul_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_mulpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_mul_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_mulsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_div_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_divpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_div_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_divsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_sqrt_pd (__m128d __A)
+-{
+-  return (__m128d)__builtin_ia32_sqrtpd ((__v2df)__A);
+-}
+-
+-/* Return pair {sqrt (A[0), B[1]}.  */
+-static __inline __m128d
+-_mm_sqrt_sd (__m128d __A, __m128d __B)
+-{
+-  __v2df __tmp = __builtin_ia32_movsd ((__v2df)__A, (__v2df)__B);
+-  return (__m128d)__builtin_ia32_sqrtsd ((__v2df)__tmp);
+-}
+-
+-static __inline __m128d
+-_mm_min_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_minpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_min_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_minsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_max_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_maxpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_max_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_maxsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_and_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_andpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_andnot_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_andnpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_or_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_orpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_xor_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_xorpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpeq_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpeqpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmplt_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpltpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmple_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmplepd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpgt_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpgtpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpge_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpgepd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpneq_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpneqpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpnlt_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpnltpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpnle_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpnlepd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpngt_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpngtpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpnge_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpngepd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpord_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpordpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpunord_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpunordpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpeq_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpeqsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmplt_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpltsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmple_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmplesd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpgt_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
+-					 (__v2df)
+-					 __builtin_ia32_cmpltsd ((__v2df) __B,
+-								 (__v2df)
+-								 __A));
+-}
+-
+-static __inline __m128d
+-_mm_cmpge_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
+-					 (__v2df)
+-					 __builtin_ia32_cmplesd ((__v2df) __B,
+-								 (__v2df)
+-								 __A));
+-}
+-
+-static __inline __m128d
+-_mm_cmpneq_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpneqsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpnlt_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpnltsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpnle_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpnlesd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpngt_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
+-					 (__v2df)
+-					 __builtin_ia32_cmpnltsd ((__v2df) __B,
+-								  (__v2df)
+-								  __A));
+-}
+-
+-static __inline __m128d
+-_mm_cmpnge_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d) __builtin_ia32_movsd ((__v2df) __A,
+-					 (__v2df)
+-					 __builtin_ia32_cmpnlesd ((__v2df) __B,
+-								  (__v2df)
+-								  __A));
+-}
+-
+-static __inline __m128d
+-_mm_cmpord_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpordsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_cmpunord_sd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_cmpunordsd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comieq_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdeq ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comilt_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdlt ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comile_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdle ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comigt_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdgt ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comige_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdge ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_comineq_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_comisdneq ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomieq_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdeq ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomilt_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdlt ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomile_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdle ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomigt_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdgt ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomige_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdge ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_ucomineq_sd (__m128d __A, __m128d __B)
+-{
+-  return __builtin_ia32_ucomisdneq ((__v2df)__A, (__v2df)__B);
+-}
+-
+-/* Create a vector with element 0 as *P and the rest zero.  */
+-
+-static __inline __m128i
+-_mm_load_si128 (__m128i const *__P)
+-{
+-  return (__m128i) __builtin_ia32_loaddqa ((char const *)__P);
+-}
+-
+-static __inline __m128i
+-_mm_loadu_si128 (__m128i const *__P)
+-{
+-  return (__m128i) __builtin_ia32_loaddqu ((char const *)__P);
+-}
+-
+-static __inline __m128i
+-_mm_loadl_epi64 (__m128i const *__P)
+-{
+-  return (__m128i) __builtin_ia32_movq2dq (*(unsigned long long *)__P);
+-}
+-
+-static __inline void
+-_mm_store_si128 (__m128i *__P, __m128i __B)
+-{
+-  __builtin_ia32_storedqa ((char *)__P, (__v16qi)__B);
+-}
+-
+-static __inline void
+-_mm_storeu_si128 (__m128i *__P, __m128i __B)
+-{
+-  __builtin_ia32_storedqu ((char *)__P, (__v16qi)__B);
+-}
+-
+-static __inline void
+-_mm_storel_epi64 (__m128i *__P, __m128i __B)
+-{
+-  *(long long *)__P = __builtin_ia32_movdq2q ((__v2di)__B);
+-}
+-
+-static __inline __m64
+-_mm_movepi64_pi64 (__m128i __B)
+-{
+-  return (__m64) __builtin_ia32_movdq2q ((__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_move_epi64 (__m128i __A)
+-{
+-  return (__m128i) __builtin_ia32_movq ((__v2di)__A);
+-}
+-
+-/* Create a vector of zeros.  */
+-static __inline __m128i
+-_mm_setzero_si128 (void)
+-{
+-  return (__m128i) __builtin_ia32_setzero128 ();
+-}
+-
+-static __inline __m128i
+-_mm_set_epi64 (__m64 __A,  __m64 __B)
+-{
+-  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
+-  __v2di __tmp2 = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__B);
+-  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp2, __tmp);
+-}
+-
+-/* Create the vector [Z Y X W].  */
+-static __inline __m128i
+-_mm_set_epi32 (int __Z, int __Y, int __X, int __W)
+-{
+-  union {
+-    int __a[4];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __W;
+-  __u.__a[1] = __X;
+-  __u.__a[2] = __Y;
+-  __u.__a[3] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-#ifdef __x86_64__
+-/* Create the vector [Z Y].  */
+-static __inline __m128i
+-_mm_set_epi64x (long long __Z, long long __Y)
+-{
+-  union {
+-    long __a[2];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __Y;
+-  __u.__a[1] = __Z;
+-
+-  return __u.__v;
+-}
+-#endif
+-
+-/* Create the vector [S T U V Z Y X W].  */
+-static __inline __m128i
+-_mm_set_epi16 (short __Z, short __Y, short __X, short __W,
+-	       short __V, short __U, short __T, short __S)
+-{
+-  union {
+-    short __a[8];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __S;
+-  __u.__a[1] = __T;
+-  __u.__a[2] = __U;
+-  __u.__a[3] = __V;
+-  __u.__a[4] = __W;
+-  __u.__a[5] = __X;
+-  __u.__a[6] = __Y;
+-  __u.__a[7] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-/* Create the vector [S T U V Z Y X W].  */
+-static __inline __m128i
+-_mm_set_epi8 (char __Z, char __Y, char __X, char __W,
+-	      char __V, char __U, char __T, char __S,
+-	      char __Z1, char __Y1, char __X1, char __W1,
+-	      char __V1, char __U1, char __T1, char __S1)
+-{
+-  union {
+-    char __a[16];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __S1;
+-  __u.__a[1] = __T1;
+-  __u.__a[2] = __U1;
+-  __u.__a[3] = __V1;
+-  __u.__a[4] = __W1;
+-  __u.__a[5] = __X1;
+-  __u.__a[6] = __Y1;
+-  __u.__a[7] = __Z1;
+-  __u.__a[8] = __S;
+-  __u.__a[9] = __T;
+-  __u.__a[10] = __U;
+-  __u.__a[11] = __V;
+-  __u.__a[12] = __W;
+-  __u.__a[13] = __X;
+-  __u.__a[14] = __Y;
+-  __u.__a[15] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-static __inline __m128i
+-_mm_set1_epi64 (__m64 __A)
+-{
+-  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
+-  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp, __tmp);
+-}
+-
+-static __inline __m128i
+-_mm_set1_epi32 (int __A)
+-{
+-  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__A);
+-  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
+-}
+-
+-#ifdef __x86_64__
+-static __inline __m128i
+-_mm_set1_epi64x (long long __A)
+-{
+-  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
+-  return (__m128i) __builtin_ia32_shufpd ((__v2df)__tmp, (__v2df)__tmp, _MM_SHUFFLE2 (0,0));
+-}
+-#endif
+-
+-static __inline __m128i
+-_mm_set1_epi16 (short __A)
+-{
+-  int __Acopy = (unsigned short)__A;
+-  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__Acopy);
+-  __tmp = (__v4si)__builtin_ia32_punpcklwd128 ((__v8hi)__tmp, (__v8hi)__tmp);
+-  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
+-}
+-
+-static __inline __m128i
+-_mm_set1_epi8 (char __A)
+-{
+-  int __Acopy = (unsigned char)__A;
+-  __v4si __tmp = (__v4si)__builtin_ia32_loadd (&__Acopy);
+-  __tmp = (__v4si)__builtin_ia32_punpcklbw128 ((__v16qi)__tmp, (__v16qi)__tmp);
+-  __tmp = (__v4si)__builtin_ia32_punpcklbw128 ((__v16qi)__tmp, (__v16qi)__tmp);
+-  return (__m128i) __builtin_ia32_pshufd ((__v4si)__tmp, _MM_SHUFFLE (0,0,0,0));
+-}
+-
+-static __inline __m128i
+-_mm_setr_epi64 (__m64 __A,  __m64 __B)
+-{
+-  __v2di __tmp = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__A);
+-  __v2di __tmp2 = (__v2di)__builtin_ia32_movq2dq ((unsigned long long)__B);
+-  return (__m128i)__builtin_ia32_punpcklqdq128 (__tmp, __tmp2);
+-}
+-
+-/* Create the vector [Z Y X W].  */
+-static __inline __m128i
+-_mm_setr_epi32 (int __W, int __X, int __Y, int __Z)
+-{
+-  union {
+-    int __a[4];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __W;
+-  __u.__a[1] = __X;
+-  __u.__a[2] = __Y;
+-  __u.__a[3] = __Z;
+-
+-  return __u.__v;
+-}
+-/* Create the vector [S T U V Z Y X W].  */
+-static __inline __m128i
+-_mm_setr_epi16 (short __S, short __T, short __U, short __V,
+-	        short __W, short __X, short __Y, short __Z)
+-{
+-  union {
+-    short __a[8];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __S;
+-  __u.__a[1] = __T;
+-  __u.__a[2] = __U;
+-  __u.__a[3] = __V;
+-  __u.__a[4] = __W;
+-  __u.__a[5] = __X;
+-  __u.__a[6] = __Y;
+-  __u.__a[7] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-/* Create the vector [S T U V Z Y X W].  */
+-static __inline __m128i
+-_mm_setr_epi8 (char __S1, char __T1, char __U1, char __V1,
+-	       char __W1, char __X1, char __Y1, char __Z1,
+-	       char __S, char __T, char __U, char __V,
+-	       char __W, char __X, char __Y, char __Z)
+-{
+-  union {
+-    char __a[16];
+-    __m128i __v;
+-  } __u;
+-
+-  __u.__a[0] = __S1;
+-  __u.__a[1] = __T1;
+-  __u.__a[2] = __U1;
+-  __u.__a[3] = __V1;
+-  __u.__a[4] = __W1;
+-  __u.__a[5] = __X1;
+-  __u.__a[6] = __Y1;
+-  __u.__a[7] = __Z1;
+-  __u.__a[8] = __S;
+-  __u.__a[9] = __T;
+-  __u.__a[10] = __U;
+-  __u.__a[11] = __V;
+-  __u.__a[12] = __W;
+-  __u.__a[13] = __X;
+-  __u.__a[14] = __Y;
+-  __u.__a[15] = __Z;
+-
+-  return __u.__v;
+-}
+-
+-static __inline __m128d
+-_mm_cvtepi32_pd (__m128i __A)
+-{
+-  return (__m128d)__builtin_ia32_cvtdq2pd ((__v4si) __A);
+-}
+-
+-static __inline __m128
+-_mm_cvtepi32_ps (__m128i __A)
+-{
+-  return (__m128)__builtin_ia32_cvtdq2ps ((__v4si) __A);
+-}
+-
+-static __inline __m128i
+-_mm_cvtpd_epi32 (__m128d __A)
+-{
+-  return (__m128i)__builtin_ia32_cvtpd2dq ((__v2df) __A);
+-}
+-
+-static __inline __m64
+-_mm_cvtpd_pi32 (__m128d __A)
+-{
+-  return (__m64)__builtin_ia32_cvtpd2pi ((__v2df) __A);
+-}
+-
+-static __inline __m128
+-_mm_cvtpd_ps (__m128d __A)
+-{
+-  return (__m128)__builtin_ia32_cvtpd2ps ((__v2df) __A);
+-}
+-
+-static __inline __m128i
+-_mm_cvttpd_epi32 (__m128d __A)
+-{
+-  return (__m128i)__builtin_ia32_cvttpd2dq ((__v2df) __A);
+-}
+-
+-static __inline __m64
+-_mm_cvttpd_pi32 (__m128d __A)
+-{
+-  return (__m64)__builtin_ia32_cvttpd2pi ((__v2df) __A);
+-}
+-
+-static __inline __m128d
+-_mm_cvtpi32_pd (__m64 __A)
+-{
+-  return (__m128d)__builtin_ia32_cvtpi2pd ((__v2si) __A);
+-}
+-
+-static __inline __m128i
+-_mm_cvtps_epi32 (__m128 __A)
+-{
+-  return (__m128i)__builtin_ia32_cvtps2dq ((__v4sf) __A);
+-}
+-
+-static __inline __m128i
+-_mm_cvttps_epi32 (__m128 __A)
+-{
+-  return (__m128i)__builtin_ia32_cvttps2dq ((__v4sf) __A);
+-}
+-
+-static __inline __m128d
+-_mm_cvtps_pd (__m128 __A)
+-{
+-  return (__m128d)__builtin_ia32_cvtps2pd ((__v4sf) __A);
+-}
+-
+-static __inline int
+-_mm_cvtsd_si32 (__m128d __A)
+-{
+-  return __builtin_ia32_cvtsd2si ((__v2df) __A);
+-}
+-
+-#ifdef __x86_64__
+-static __inline long long
+-_mm_cvtsd_si64x (__m128d __A)
+-{
+-  return __builtin_ia32_cvtsd2si64 ((__v2df) __A);
+-}
+-#endif
+-
+-static __inline int
+-_mm_cvttsd_si32 (__m128d __A)
+-{
+-  return __builtin_ia32_cvttsd2si ((__v2df) __A);
+-}
+-
+-#ifdef __x86_64__
+-static __inline long long
+-_mm_cvttsd_si64x (__m128d __A)
+-{
+-  return __builtin_ia32_cvttsd2si64 ((__v2df) __A);
+-}
+-#endif
+-
+-static __inline __m128
+-_mm_cvtsd_ss (__m128 __A, __m128d __B)
+-{
+-  return (__m128)__builtin_ia32_cvtsd2ss ((__v4sf) __A, (__v2df) __B);
+-}
+-
+-static __inline __m128d
+-_mm_cvtsi32_sd (__m128d __A, int __B)
+-{
+-  return (__m128d)__builtin_ia32_cvtsi2sd ((__v2df) __A, __B);
+-}
+-
+-#ifdef __x86_64__
+-static __inline __m128d
+-_mm_cvtsi64x_sd (__m128d __A, long long __B)
+-{
+-  return (__m128d)__builtin_ia32_cvtsi642sd ((__v2df) __A, __B);
+-}
+-#endif
+-
+-static __inline __m128d
+-_mm_cvtss_sd (__m128d __A, __m128 __B)
+-{
+-  return (__m128d)__builtin_ia32_cvtss2sd ((__v2df) __A, (__v4sf)__B);
+-}
+-
+-#define _mm_shuffle_pd(__A, __B, __C) ((__m128d)__builtin_ia32_shufpd ((__v2df)__A, (__v2df)__B, (__C)))
+-
+-static __inline __m128d
+-_mm_unpackhi_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_unpckhpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_unpacklo_pd (__m128d __A, __m128d __B)
+-{
+-  return (__m128d)__builtin_ia32_unpcklpd ((__v2df)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_loadh_pd (__m128d __A, double const *__B)
+-{
+-  return (__m128d)__builtin_ia32_loadhpd ((__v2df)__A, (__v2si *)__B);
+-}
+-
+-static __inline void
+-_mm_storeh_pd (double *__A, __m128d __B)
+-{
+-  __builtin_ia32_storehpd ((__v2si *)__A, (__v2df)__B);
+-}
+-
+-static __inline __m128d
+-_mm_loadl_pd (__m128d __A, double const *__B)
+-{
+-  return (__m128d)__builtin_ia32_loadlpd ((__v2df)__A, (__v2si *)__B);
+-}
+-
+-static __inline void
+-_mm_storel_pd (double *__A, __m128d __B)
+-{
+-  __builtin_ia32_storelpd ((__v2si *)__A, (__v2df)__B);
+-}
+-
+-static __inline int
+-_mm_movemask_pd (__m128d __A)
+-{
+-  return __builtin_ia32_movmskpd ((__v2df)__A);
+-}
+-
+-static __inline __m128i
+-_mm_packs_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_packsswb128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_packs_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_packssdw128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_packus_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_packuswb128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpackhi_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpckhbw128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpackhi_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpckhwd128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpackhi_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpckhdq128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpackhi_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpckhqdq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpacklo_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpcklbw128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpacklo_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpcklwd128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpacklo_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpckldq128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_unpacklo_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_punpcklqdq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_add_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_add_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_add_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddd128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_add_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_adds_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddsb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_adds_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddsw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_adds_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddusb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_adds_epu16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_paddusw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sub_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sub_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sub_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubd128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sub_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_subs_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubsb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_subs_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubsw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_subs_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubusb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_subs_epu16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psubusw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_madd_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmaddwd128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_mulhi_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmulhw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_mullo_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmullw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m64
+-_mm_mul_su32 (__m64 __A, __m64 __B)
+-{
+-  return (__m64)__builtin_ia32_pmuludq ((__v2si)__A, (__v2si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_mul_epu32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmuludq128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sll_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psllw128 ((__v8hi)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sll_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pslld128 ((__v4si)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sll_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psllq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sra_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psraw128 ((__v8hi)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sra_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psrad128 ((__v4si)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_srl_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psrlw128 ((__v8hi)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_srl_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psrld128 ((__v4si)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_srl_epi64 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psrlq128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_slli_epi16 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psllwi128 ((__v8hi)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_slli_epi32 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_pslldi128 ((__v4si)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_slli_epi64 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psllqi128 ((__v2di)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_srai_epi16 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psrawi128 ((__v8hi)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_srai_epi32 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psradi128 ((__v4si)__A, __B);
+-}
+-
+-#if 0
+-static __m128i __attribute__((__always_inline__))
+-_mm_srli_si128 (__m128i __A, const int __B)
+-{
+-  return ((__m128i)__builtin_ia32_psrldqi128 (__A, __B))
+-}
+-
+-static __m128i __attribute__((__always_inline__))
+-_mm_srli_si128 (__m128i __A, const int __B)
+-{
+-  return ((__m128i)__builtin_ia32_pslldqi128 (__A, __B))
+-}
+-#endif
+-#define _mm_srli_si128(__A, __B) ((__m128i)__builtin_ia32_psrldqi128 (__A, __B))
+-#define _mm_slli_si128(__A, __B) ((__m128i)__builtin_ia32_pslldqi128 (__A, __B))
+-
+-static __inline __m128i
+-_mm_srli_epi16 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psrlwi128 ((__v8hi)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_srli_epi32 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psrldi128 ((__v4si)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_srli_epi64 (__m128i __A, int __B)
+-{
+-  return (__m128i)__builtin_ia32_psrlqi128 ((__v2di)__A, __B);
+-}
+-
+-static __inline __m128i
+-_mm_and_si128 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pand128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_andnot_si128 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pandn128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_or_si128 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_por128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_xor_si128 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pxor128 ((__v2di)__A, (__v2di)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmpeq_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpeqb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmpeq_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpeqw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmpeq_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpeqd128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmplt_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtb128 ((__v16qi)__B, (__v16qi)__A);
+-}
+-
+-static __inline __m128i
+-_mm_cmplt_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtw128 ((__v8hi)__B, (__v8hi)__A);
+-}
+-
+-static __inline __m128i
+-_mm_cmplt_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtd128 ((__v4si)__B, (__v4si)__A);
+-}
+-
+-static __inline __m128i
+-_mm_cmpgt_epi8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmpgt_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_cmpgt_epi32 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pcmpgtd128 ((__v4si)__A, (__v4si)__B);
+-}
+-
+-#define _mm_extract_epi16(__A, __B) __builtin_ia32_pextrw128 ((__v8hi)__A, __B)
+-
+-#define _mm_insert_epi16(__A, __B, __C) ((__m128i)__builtin_ia32_pinsrw128 ((__v8hi)__A, __B, __C))
+-
+-static __inline __m128i
+-_mm_max_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmaxsw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_max_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmaxub128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_min_epi16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pminsw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_min_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pminub128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline int
+-_mm_movemask_epi8 (__m128i __A)
+-{
+-  return __builtin_ia32_pmovmskb128 ((__v16qi)__A);
+-}
+-
+-static __inline __m128i
+-_mm_mulhi_epu16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pmulhuw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-#define _mm_shufflehi_epi16(__A, __B) ((__m128i)__builtin_ia32_pshufhw ((__v8hi)__A, __B))
+-#define _mm_shufflelo_epi16(__A, __B) ((__m128i)__builtin_ia32_pshuflw ((__v8hi)__A, __B))
+-#define _mm_shuffle_epi32(__A, __B) ((__m128i)__builtin_ia32_pshufd ((__v4si)__A, __B))
+-
+-static __inline void
+-_mm_maskmoveu_si128 (__m128i __A, __m128i __B, char *__C)
+-{
+-  __builtin_ia32_maskmovdqu ((__v16qi)__A, (__v16qi)__B, __C);
+-}
+-
+-static __inline __m128i
+-_mm_avg_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pavgb128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_avg_epu16 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_pavgw128 ((__v8hi)__A, (__v8hi)__B);
+-}
+-
+-static __inline __m128i
+-_mm_sad_epu8 (__m128i __A, __m128i __B)
+-{
+-  return (__m128i)__builtin_ia32_psadbw128 ((__v16qi)__A, (__v16qi)__B);
+-}
+-
+-static __inline void
+-_mm_stream_si32 (int *__A, int __B)
+-{
+-  __builtin_ia32_movnti (__A, __B);
+-}
+-
+-static __inline void
+-_mm_stream_si128 (__m128i *__A, __m128i __B)
+-{
+-  __builtin_ia32_movntdq ((__v2di *)__A, (__v2di)__B);
+-}
+-
+-static __inline void
+-_mm_stream_pd (double *__A, __m128d __B)
+-{
+-  __builtin_ia32_movntpd (__A, (__v2df)__B);
+-}
+-
+-static __inline __m128i
+-_mm_movpi64_epi64 (__m64 __A)
+-{
+-  return (__m128i)__builtin_ia32_movq2dq ((unsigned long long)__A);
+-}
+-
+-static __inline void
+-_mm_clflush (void const *__A)
+-{
+-  return __builtin_ia32_clflush (__A);
+-}
+-
+-static __inline void
+-_mm_lfence (void)
+-{
+-  __builtin_ia32_lfence ();
+-}
+-
+-static __inline void
+-_mm_mfence (void)
+-{
+-  __builtin_ia32_mfence ();
+-}
+-
+-static __inline __m128i
+-_mm_cvtsi32_si128 (int __A)
+-{
+-  return (__m128i) __builtin_ia32_loadd (&__A);
+-}
+-
+-#ifdef __x86_64__
+-static __inline __m128i
+-_mm_cvtsi64x_si128 (long long __A)
+-{
+-  return (__m128i) __builtin_ia32_movq2dq (__A);
+-}
+-#endif
+-
+-static __inline int
+-_mm_cvtsi128_si32 (__m128i __A)
+-{
+-  int __tmp;
+-  __builtin_ia32_stored (&__tmp, (__v4si)__A);
+-  return __tmp;
+-}
+-
+-#ifdef __x86_64__
+-static __inline long long
+-_mm_cvtsi128_si64x (__m128i __A)
+-{
+-  return __builtin_ia32_movdq2q ((__v2di)__A);
+-}
+-#endif
+-
+-#endif /* __SSE2__  */
++/* For backward source compatibility.  */
++#include <emmintrin.h>
+ 
+ #endif /* __SSE__ */
+ #endif /* _XMMINTRIN_H_INCLUDED */
+diff -Naur gcc-3.3.2.orig/gcc/config.gcc gcc-3.3.2/gcc/config.gcc
+--- gcc-3.3.2.orig/gcc/config.gcc	2003-10-01 15:07:01.000000000 -0400
++++ gcc-3.3.2/gcc/config.gcc	2004-02-03 18:06:48.183134408 -0500
+@@ -298,11 +298,11 @@
+ 	;;
+ i[34567]86-*-*)
+ 	cpu_type=i386
+-	extra_headers="mmintrin.h xmmintrin.h"
++	extra_headers="mmintrin.h xmmintrin.h emmintrin.h pmmintrin.h"
+ 	;;
+ x86_64-*-*)
+ 	cpu_type=i386
+-	extra_headers="mmintrin.h xmmintrin.h"
++	extra_headers="mmintrin.h xmmintrin.h emmintrin.h pmmintrin.h"
+ 	;;
+ ia64-*-*)
+ 	extra_headers=ia64intrin.h
+diff -Naur gcc-3.3.2.orig/gcc/doc/extend.texi gcc-3.3.2/gcc/doc/extend.texi
+--- gcc-3.3.2.orig/gcc/doc/extend.texi	2003-10-04 07:08:27.000000000 -0400
++++ gcc-3.3.2/gcc/doc/extend.texi	2004-02-03 18:07:00.000000000 -0500
+@@ -5315,6 +5315,31 @@
+ Generates the @code{movlps} machine instruction as a store to memory.
+ @end table
+ 
++The following built-in functions are available when @option{-msse3} is used.
++All of them generate the machine instruction that is part of the name.
++
++@example
++v2df __builtin_ia32_addsubpd (v2df, v2df)
++v2df __builtin_ia32_addsubps (v2df, v2df)
++v2df __builtin_ia32_haddpd (v2df, v2df)
++v2df __builtin_ia32_haddps (v2df, v2df)
++v2df __builtin_ia32_hsubpd (v2df, v2df)
++v2df __builtin_ia32_hsubps (v2df, v2df)
++v16qi __builtin_ia32_lddqu (char const *)
++void __builtin_ia32_monitor (void *, unsigned int, unsigned int)
++v2df __builtin_ia32_movddup (v2df)
++v4sf __builtin_ia32_movshdup (v4sf)
++v4sf __builtin_ia32_movsldup (v4sf)
++void __builtin_ia32_mwait (unsigned int, unsigned int)
++@end example
++
++The following built-in functions are available when @option{-msse3} is used.
++
++@table @code
++@item v2df __builtin_ia32_loadddup (double const *)
++Generates the @code{movddup} machine instruction as a load from memory.
++@end table
++
+ The following built-in functions are available when @option{-m3dnow} is used.
+ All of them generate the machine instruction that is part of the name.
+ 
+diff -Naur gcc-3.3.2.orig/gcc/doc/invoke.texi gcc-3.3.2/gcc/doc/invoke.texi
+--- gcc-3.3.2.orig/gcc/doc/invoke.texi	2003-07-21 07:19:57.000000000 -0400
++++ gcc-3.3.2/gcc/doc/invoke.texi	2004-02-03 18:08:07.927011496 -0500
+@@ -473,7 +473,7 @@
+ -mno-fp-ret-in-387  -msoft-float  -msvr3-shlib @gol
+ -mno-wide-multiply  -mrtd  -malign-double @gol
+ -mpreferred-stack-boundary=@var{num} @gol
+--mmmx  -msse  -msse2  -m3dnow @gol
++-mmmx  -msse  -msse2 -msse3 -m3dnow @gol
+ -mthreads  -mno-align-stringops  -minline-all-stringops @gol
+ -mpush-args  -maccumulate-outgoing-args  -m128bit-long-double @gol
+ -m96bit-long-double  -mregparm=@var{num}  -momit-leaf-frame-pointer @gol
+@@ -7904,6 +7904,13 @@
+ 
+ This is the default choice for x86-64 compiler.
+ 
++@item sse3
++Use all SSE extensions enabled by @option{-msse2} as well as the new
++SSE extensions in Prescott New Instructions. @option{-msse3} also
++enables 2 builtin functions, @code{__builtin_ia32_monitor} and
++@code{__builtin_ia32_mwait}, for new intrunctions @code{monitor} and
++@code{mwait}. 
++
+ @item sse,387
+ Attempt to utilize both instruction sets at once.  This effectively double the
+ amount of available registers and on chips with separate execution units for
+@@ -8085,6 +8092,8 @@
+ @itemx -mno-sse
+ @item -msse2
+ @itemx -mno-sse2
++@item -msse3
++@itemx -mno-sse3
+ @item -m3dnow
+ @itemx -mno-3dnow
+ @opindex mmmx

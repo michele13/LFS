@@ -1,0 +1,44 @@
+Submitted By: Bill Maltby <lfsbill at wlmcs dot com>
+Date: 2003-10-18
+Initial Package Version: 2.4.22
+Origin: Patch from Erik Andersen (andersen@codepoet.org), 2003-10-01.
+    Mentioned by Chris Lingard 2003-10-06 in the "rescue floppy disk"
+    thread.
+Description: Defines run_init_process and replaces execve with
+    run_init_process in init/main.c so things like busybox can run.
+    Per various postings, this has been integrated in 2.6.
+
+diff -Naur linux-2.4.22.orig/init/main.c linux-2.4.22/init/main.c
+--- linux-2.4.22.orig/init/main.c	2003-08-25 11:44:44.000000000 +0000
++++ linux-2.4.22/init/main.c	2003-10-18 20:00:06.000000000 +0000
+@@ -544,6 +544,12 @@
+ #endif
+ }
+ 
++static void run_init_process(char *init_filename)
++{
++    argv_init[0] = init_filename;
++    execve(init_filename, argv_init, envp_init);
++}
++
+ extern void prepare_namespace(void);
+ 
+ static int init(void * unused)
+@@ -575,10 +581,12 @@
+ 	 */
+ 
+ 	if (execute_command)
+-		execve(execute_command,argv_init,envp_init);
+-	execve("/sbin/init",argv_init,envp_init);
+-	execve("/etc/init",argv_init,envp_init);
+-	execve("/bin/init",argv_init,envp_init);
+-	execve("/bin/sh",argv_init,envp_init);
++		run_init_process(execute_command);
++
++	run_init_process("/sbin/init");
++	run_init_process("/etc/init");
++	run_init_process("/bin/init");
++	run_init_process("/bin/sh");
++
+ 	panic("No init found.  Try passing init= option to kernel.");
+ }

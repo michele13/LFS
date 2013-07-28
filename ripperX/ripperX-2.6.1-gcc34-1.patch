@@ -1,0 +1,38 @@
+Submitted By:  Jeremy Utley (jeremy@linuxfromscratch.org)
+Date: 2004-10-04
+Initial Pacage Version: 2.6.1
+Upstream Status - Not Submitted - Probably a hack
+Origin: IRC development between R and myself
+Description: Fixes a syntax error causing mis-compilation with GCC 3.4.x
+
+
+diff -Naur ripperX-2.6.1/src/cddbp.c ripperX-2.6.1-new/src/cddbp.c
+--- ripperX-2.6.1/src/cddbp.c	2004-01-04 20:44:51.000000000 +0000
++++ ripperX-2.6.1-new/src/cddbp.c	2004-10-05 04:19:03.160362928 +0000
+@@ -67,7 +67,7 @@
+ 
+ 
+ int cddbp_query( FILE *socket, const char *disk_id, int tracknum,
+-                 long int offset[ tracknum ], int duration, int *matches,
++                 long int offset[], int duration, int *matches,
+                  char ***category_buffer, char ***title_buffer,
+                  char ***id_buffer )
+ {
+@@ -255,7 +255,7 @@
+ 
+ 
+ int http_query( const char *server, int port, const char *URL,
+-                const char *cd_id, int tracknum, long int offset[ tracknum ],
++                const char *cd_id, int tracknum, long int offset[],
+                 int duration, int *matches,
+                 char ***category_buffer, char ***title_buffer,
+                 char ***id_buffer, const char *client, const char *version )
+@@ -365,7 +365,7 @@
+ }
+ 
+ int http_query_proxy( const char *server, int port, const char *proxy_server, int proxy_port, const char *URL,
+-                      const char *cd_id, int tracknum, long int offset[ tracknum ],
++                      const char *cd_id, int tracknum, long int offset[],
+                       int duration, int *matches,
+                       char ***category_buffer, char ***title_buffer,
+                       char ***id_buffer, const char *client, const char *version )

@@ -1,0 +1,42 @@
+Submitted By: Kristian Rainio (krikesoft@suomi24.fi)
+Date: 2004-09-13
+Initial Package Version: 1.4.2
+Origin: NA
+Upstream Status: Not submitted
+Description: Prevents ftpd to display noisy 530 error message.
+	     Prevents talkd to log of missing ACL file in user's home 
+	     directory.
+ 
+diff -Naur inetutils-1.4.2.orig/ftpd/auth.c inetutils-1.4.2/ftpd/auth.c
+--- inetutils-1.4.2.orig/ftpd/auth.c	2000-08-23 02:52:20.000000000 +0000
++++ inetutils-1.4.2/ftpd/auth.c	2004-09-13 10:59:01.985674136 +0000
+@@ -114,7 +114,14 @@
+ 	      }
+ 	  }
+ 	else
++	{
++	  if (pcred->message != NULL)
++	  {
++	    free(pcred->message);
++	    pcred->message = NULL;
++	  }
+ 	  return 1;
++	}
+ 	pcred->dochroot = checkuser(PATH_FTPCHROOT, pcred->name);
+ 	snprintf (pcred->message, len,
+ 		  "Password required for %s.", pcred->name);
+diff -Naur inetutils-1.4.2.orig/talkd/acl.c inetutils-1.4.2/talkd/acl.c
+--- inetutils-1.4.2.orig/talkd/acl.c	2001-10-30 05:42:41.000000000 +0000
++++ inetutils-1.4.2/talkd/acl.c	2004-09-13 10:59:01.987673832 +0000
+@@ -141,10 +141,7 @@
+ 
+   fp = fopen (config_file, "r");
+   if (!fp)
+-    {
+-      syslog (LOG_ERR, "can't open config file %s: %m", config_file);
+-      return;
+-    }
++    return;
+ 
+   line = 0;
+   while ((ptr = fgets (buf, sizeof buf, fp)))

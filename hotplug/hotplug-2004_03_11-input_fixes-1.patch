@@ -1,0 +1,77 @@
+Submitted By: Zack Winkles <winkie AT linuxfromscratch DOT org>
+Date: 2004-03-20
+Initial Package Version: 2004_03_11
+Origin: Debian
+Description: The following errors may occur when using hotplug:
+
+/etc/hotplug/input.agent: line 171: 10000:0:0:0:0:0:0:0:0: syntax error in expression (error token is ":0:0:0:0:0:0:0:0")
+/etc/hotplug/input.agent: line 171: 10000:0:0:0:0:0:0:0:0: syntax error in expression (error token is ":0:0:0:0:0:0:0:0")
+/etc/hotplug/input.agent: line 171: 10000:0:0:0:0:0:0:0:0: syntax error in expression (error token is ":0:0:0:0:0:0:0:0")
+
+The cause is the difference in the way module-init-tools handles the
+creation of modules.inputmap.  Here is the fix.
+
+diff -Naur hotplug-2004_03_11.orig/etc/hotplug/input.agent hotplug-2004_03_11/etc/hotplug/input.agent
+--- hotplug-2004_03_11.orig/etc/hotplug/input.agent	2004-03-11 18:13:38.000000000 -0500
++++ hotplug-2004_03_11/etc/hotplug/input.agent	2004-03-20 15:51:59.419729592 -0500
+@@ -167,16 +167,16 @@
+ 	product=$(($5))
+ 	version=$(($6))
+ 
+-	evBits=$(($7))
+-	keyBits=$(($8))
+-	relBits=$(($9))
++	evBits="$7"
++	keyBits="$8"
++	relBits="$9"
+ 
+ 	shift 9
+-	absBits=$(($1))
+-	cbsBits=$(($2))
+-	ledBits=$(($3))
+-	sndBits=$(($4))
+-	ffBits=$(($5))
++	absBits="$1"
++	mscBits="$2"
++	ledBits="$3"
++	sndBits="$4"
++	ffBits="$5"
+ 	driverInfo=$(($6))
+ 
+ 	: checkmatch $module
+@@ -207,7 +207,7 @@
+ 
+ 	: evBits $evBits $i_evBits
+         if [ $INPUT_DEVICE_ID_MATCH_EVBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_EVBIT )) ] && 
+-	   [ $evBits -ne $(( $evBits & $i_evBits)) ]; then
++	   input_match_bits "$evBits" "$i_evBits"; then
+ 	    continue
+ 	fi
+ 	: keyBits $keyBits $i_keyBits
+@@ -217,7 +217,7 @@
+ 	fi
+ 	: relBits $relBits $i_relBits
+         if [ $INPUT_DEVICE_ID_MATCH_RELBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_RELBIT )) ] && 
+-	   [ $relBits -ne $(( $relBits & $i_relBits)) ]; then
++	   input_match_bits "$relBits" "$i_relBits"; then
+ 	    continue
+ 	fi
+ 
+@@ -229,7 +229,7 @@
+ 
+ 	: mscBits $mscBits $i_mscBits
+         if [ $INPUT_DEVICE_ID_MATCH_MSCBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_MSCBIT )) ] && 
+-	   [ $mscBits -ne $(( $mscBits & $i_mscBits)) ]; then
++	   input_match_bits "$mscBits" "$i_mscBits"; then
+ 	    continue
+ 	fi
+ 
+@@ -241,7 +241,7 @@
+ 
+ 	: sndBits $sndBits $i_sndBits
+         if [ $INPUT_DEVICE_ID_MATCH_SNDBIT -eq $(( $matchBits & $INPUT_DEVICE_ID_MATCH_SNDBIT )) ] && 
+-	   [ $sndBits -ne $(( $sndBits & $i_sndBits)) ]; then
++	   input_match_bits "$sndBits" "$i_sndBits"; then
+ 	    continue
+ 	fi
+ 

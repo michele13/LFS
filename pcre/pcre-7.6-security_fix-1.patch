@@ -1,0 +1,19 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-07-08
+Initial Package Version: 7.6, also applies to 7.7
+Upstream Status: Reviewed but not committed.
+Origin: Travis Ormandy
+Description: Patch for CVE-2008-2371.
+
+
+--- pcre-7.3/pcre_compile.c.orig	2008-07-04 16:19:28.000000000 +0200
++++ pcre-7.3/pcre_compile.c	2008-07-04 16:20:19.000000000 +0200
+@@ -4709,7 +4709,7 @@ for (;; ptr++)
+                (lengthptr == NULL || *lengthptr == 2 + 2*LINK_SIZE))
+             {
+             cd->external_options = newoptions;
+-            options = newoptions;
++            *optionsptr = options = newoptions;
+             }
+          else
+             {

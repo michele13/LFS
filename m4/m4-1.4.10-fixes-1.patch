@@ -1,0 +1,71 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-10-08
+Initial Package Version: 1.4.10
+Upstream Status: From Upstream
+Origin: http://cvs.savannah.gnu.org/viewvc/gnulib/m4/printf.m4?root=gnulib&r1=1.35&r2=1.36
+Description: Fix the configure tests so they don't cause a buffer overflow.
+
+--- m4-1.4.10.orig/configure	2007-07-09 23:15:12.000000000 -0400
++++ m4-1.4.10/configure	2007-10-08 12:27:42.000000000 -0400
+@@ -10345,7 +10345,7 @@
+ 
+ #include <stdio.h>
+ #include <string.h>
+-static char buf[100];
++static char buf[10000];
+ int main ()
+ {
+   buf[0] = '\0';
+@@ -10461,7 +10461,7 @@
+     }
+   return 0;
+ }
+-static char buf[100];
++static char buf[10000];
+ static double zero = 0.0;
+ int main ()
+ {
+@@ -10609,7 +10609,7 @@
+     }
+   return 0;
+ }
+-static char buf[100];
++static char buf[10000];
+ static long double zeroL = 0.0L;
+ int main ()
+ {
+--- m4-1.4.10.orig/m4/printf.m4	2007-07-05 07:48:43.000000000 -0400
++++ m4-1.4.10/m4/printf.m4	2007-10-08 12:27:25.000000000 -0400
+@@ -1,4 +1,4 @@
+-# printf.m4 serial 15
++# printf.m4 serial 16
+ dnl Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+ dnl This file is free software; the Free Software Foundation
+ dnl gives unlimited permission to copy and/or distribute it,
+@@ -95,7 +95,7 @@
+       AC_TRY_RUN([
+ #include <stdio.h>
+ #include <string.h>
+-static char buf[100];
++static char buf[10000];
+ int main ()
+ {
+   buf[0] = '\0';
+@@ -156,7 +156,7 @@
+     }
+   return 0;
+ }
+-static char buf[100];
++static char buf[10000];
+ static double zero = 0.0;
+ int main ()
+ {
+@@ -261,7 +261,7 @@
+     }
+   return 0;
+ }
+-static char buf[100];
++static char buf[10000];
+ static long double zeroL = 0.0L;
+ int main ()
+ {

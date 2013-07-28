@@ -1,0 +1,858 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-03-30
+Initial Package Version: 4.1.2
+Upstream Status: From Upstream
+Origin: http://cvs.archlinuxppc.org/viewcvs/base/gcc/DW_CFA_val.patch
+	Back port from gcc-4.2:
+	http://gcc.gnu.org/ml/gcc-patches/2006-03/msg00208.html
+	http://gcc.gnu.org/viewcvs?view=rev&revision=111705
+Description: This patch fixes a Glibc test 'nptl/tst-cancel1' failure. See:
+	     http://sources.redhat.com/ml/libc-alpha/2006-09/msg00039.html
+
+2006-03-03  Jakub Jelinek  <jakub@redhat.com>
+
+	* unwind-dw2.h (_Unwind_FrameState): Add REG_SAVED_VAL_OFFSET
+	and REG_SAVED_VAL_EXP constants.
+	* unwind-dw2.c (struct _Unwind_Context): Add by_value array.
+	(_Unwind_GetGR, _Unwind_SetGR, _Unwind_GetGRPtr, _Unwind_SetGRPtr):
+	Handle regs stored by value.
+	(_Unwind_SetGRValue, _Unwind_GRByValue): New functions.
+	(execute_cfa_program): Handle DW_CFA_val_offset,
+	DW_CFA_val_offset_sf and DW_CFA_val_expression.
+	(uw_update_context_1): Handle REG_SAVED_REG with regs stored by
+	value specially.  Handle REG_SAVED_VAL_OFFSET and REG_SAVED_VAL_EXP.
+	(uw_install_context_1): Handle target regs stored by value.
+
+	* gcc.target/i386/cleanup-1.c: New test.
+	* gcc.target/i386/cleanup-2.c: New test.
+
+diff -Naur gcc-4.1.2.orig/gcc/dwarf2.h gcc-4.1.2/gcc/dwarf2.h
+--- gcc-4.1.2.orig/gcc/dwarf2.h	2005-06-25 02:02:01.000000000 +0000
++++ gcc-4.1.2/gcc/dwarf2.h	2007-03-30 12:08:32.000000000 +0000
+@@ -1,7 +1,7 @@
+-/* Declarations and definitions of codes relating to the DWARF2 symbolic
+-   debugging information format.
++/* Declarations and definitions of codes relating to the DWARF2 and
++   DWARF3 symbolic debugging information formats.
+    Copyright (C) 1992, 1993, 1995, 1996, 1997, 1999, 2000, 2001, 2002,
+-   2003, 2004 Free Software Foundation, Inc.
++   2003, 2004, 2005, 2006 Free Software Foundation, Inc.
+ 
+    Written by Gary Funck (gary@intrepid.com) The Ada Joint Program
+    Office (AJPO), Florida State University and Silicon Graphics Inc.
+@@ -187,6 +187,8 @@
+     DW_TAG_unspecified_type = 0x3b,
+     DW_TAG_partial_unit = 0x3c,
+     DW_TAG_imported_unit = 0x3d,
++    DW_TAG_condition = 0x3f,
++    DW_TAG_shared_type = 0x40,
+     /* SGI/MIPS Extensions.  */
+     DW_TAG_MIPS_loop = 0x4081,
+     /* HP extensions.  See: ftp://ftp.hp.com/pub/lang/tools/WDB/wdb-4.0.tar.gz .  */
+@@ -317,6 +319,21 @@
+     DW_AT_call_column   = 0x57,
+     DW_AT_call_file     = 0x58,
+     DW_AT_call_line     = 0x59,
++    DW_AT_description   = 0x5a,
++    DW_AT_binary_scale  = 0x5b,
++    DW_AT_decimal_scale = 0x5c,
++    DW_AT_small         = 0x5d,
++    DW_AT_decimal_sign  = 0x5e,
++    DW_AT_digit_count   = 0x5f,
++    DW_AT_picture_string = 0x60,
++    DW_AT_mutable       = 0x61,
++    DW_AT_threads_scaled = 0x62,
++    DW_AT_explicit      = 0x63,
++    DW_AT_object_pointer = 0x64,
++    DW_AT_endianity     = 0x65,
++    DW_AT_elemental     = 0x66,
++    DW_AT_pure          = 0x67,
++    DW_AT_recursive     = 0x68,
+     /* SGI/MIPS extensions.  */
+     DW_AT_MIPS_fde = 0x2001,
+     DW_AT_MIPS_loop_begin = 0x2002,
+@@ -518,6 +535,9 @@
+     DW_OP_call2 = 0x98,
+     DW_OP_call4 = 0x99,
+     DW_OP_call_ref = 0x9a,
++    DW_OP_form_tls_address = 0x9b,
++    DW_OP_call_frame_cfa = 0x9c,
++    DW_OP_bit_piece = 0x9d,
+     /* GNU extensions.  */
+     DW_OP_GNU_push_tls_address = 0xe0,
+     /* HP extensions.  */
+@@ -547,6 +567,12 @@
+     DW_ATE_unsigned_char = 0x8,
+     /* DWARF 3.  */
+     DW_ATE_imaginary_float = 0x9,
++    DW_ATE_packed_decimal = 0xa,
++    DW_ATE_numeric_string = 0xb,
++    DW_ATE_edited = 0xc,
++    DW_ATE_signed_fixed = 0xd,
++    DW_ATE_unsigned_fixed = 0xe,
++    DW_ATE_decimal_float = 0xf,
+     /* HP extensions.  */
+     DW_ATE_HP_float80            = 0x80, /* Floating-point (80 bit).  */
+     DW_ATE_HP_complex_float80    = 0x81, /* Complex floating-point (80 bit).  */
+@@ -560,6 +586,29 @@
+ #define	DW_ATE_lo_user 0x80
+ #define	DW_ATE_hi_user 0xff
+ 
++/* Decimal sign encodings.  */
++enum dwarf_decimal_sign_encoding
++  {
++    /* DWARF 3.  */
++    DW_DS_unsigned = 0x01,
++    DW_DS_leading_overpunch = 0x02,
++    DW_DS_trailing_overpunch = 0x03,
++    DW_DS_leading_separate = 0x04,
++    DW_DS_trailing_separate = 0x05
++  };
++
++/* Endianity encodings.  */
++enum dwarf_endianity_encoding
++  {
++    /* DWARF 3.  */
++    DW_END_default = 0x00,
++    DW_END_big = 0x01,
++    DW_END_little = 0x02
++  };
++
++#define DW_END_lo_user 0x40
++#define DW_END_hi_user 0xff
++
+ /* Array ordering names and codes.  */
+ enum dwarf_array_dim_ordering
+   {
+@@ -666,6 +715,9 @@
+     DW_LNE_HP_define_proc              = 0x20
+   };
+ 
++#define DW_LNE_lo_user 0x80
++#define DW_LNE_hi_user 0xff
++
+ /* Call frame information.  */
+ enum dwarf_call_frame_info
+   {
+@@ -693,6 +745,9 @@
+     DW_CFA_offset_extended_sf = 0x11,
+     DW_CFA_def_cfa_sf = 0x12,
+     DW_CFA_def_cfa_offset_sf = 0x13,
++    DW_CFA_val_offset = 0x14,
++    DW_CFA_val_offset_sf = 0x15,
++    DW_CFA_val_expression = 0x16,
+     /* SGI/MIPS specific.  */
+     DW_CFA_MIPS_advance_loc8 = 0x1d,
+     /* GNU extensions.  */
+@@ -726,11 +781,16 @@
+     DW_LANG_Fortran90 = 0x0008,
+     DW_LANG_Pascal83 = 0x0009,
+     DW_LANG_Modula2 = 0x000a,
+-    DW_LANG_Java = 0x000b,
+     /* DWARF 3.  */
++    DW_LANG_Java = 0x000b,
+     DW_LANG_C99 = 0x000c,
+     DW_LANG_Ada95 = 0x000d,
+     DW_LANG_Fortran95 = 0x000e,
++    DW_LANG_PLI = 0x000f,
++    DW_LANG_ObjC = 0x0010,
++    DW_LANG_ObjC_plus_plus = 0x0011,
++    DW_LANG_UPC = 0x0012,
++    DW_LANG_D = 0x0013,
+     /* MIPS.  */
+     DW_LANG_Mips_Assembler = 0x8001,
+     /* UPC.  */
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.target/i386/cleanup-1.c gcc-4.1.2/gcc/testsuite/gcc.target/i386/cleanup-1.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.target/i386/cleanup-1.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/cleanup-1.c	2007-03-30 12:08:32.000000000 +0000
+@@ -0,0 +1,240 @@
++/* { dg-do run { target i?86-*-linux* x86_64-*-linux* } } */
++/* { dg-options "-fexceptions -fnon-call-exceptions -fasynchronous-unwind-tables -O2" } */
++/* Test complex CFA value expressions.  */
++
++#include <unwind.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdio.h>
++#include <unistd.h>
++
++static _Unwind_Reason_Code
++force_unwind_stop (int version, _Unwind_Action actions,
++		   _Unwind_Exception_Class exc_class,
++		   struct _Unwind_Exception *exc_obj,
++		   struct _Unwind_Context *context,
++		   void *stop_parameter)
++{
++  if (actions & _UA_END_OF_STACK)
++    abort ();
++  return _URC_NO_REASON;
++}
++
++static void
++force_unwind ()
++{
++  struct _Unwind_Exception *exc = malloc (sizeof (*exc));
++  memset (&exc->exception_class, 0, sizeof (exc->exception_class));
++  exc->exception_cleanup = 0;
++
++  _Unwind_ForcedUnwind (exc, force_unwind_stop, 0);
++  abort ();
++}
++
++int count;
++
++static void
++counter (void *p __attribute__((unused)))
++{
++  ++count;
++}
++
++static void
++handler (void *p __attribute__((unused)))
++{
++  if (count != 2)
++    abort ();
++  _exit (0);
++}
++
++static int __attribute__((noinline))
++fn5 (void)
++{
++  char dummy __attribute__((cleanup (counter)));
++  force_unwind ();
++  return 0;
++}
++
++void
++bar (void)
++{
++  char dummy __attribute__((cleanup (counter)));
++  fn5 ();
++}
++
++void __attribute__((noinline))
++foo (int x)
++{
++  char buf[256];
++#ifdef __i386__
++  __asm (
++	"testl	%0, %0\n\t"
++	"jnz	1f\n\t"
++	".subsection 1\n\t"
++	".type	_L_mutex_lock_%=, @function\n"
++"_L_mutex_lock_%=:\n"
++"1:\t"	"leal	%1, %%ecx\n"
++"2:\t"	"call	bar\n"
++"3:\t"	"jmp	18f\n"
++"4:\t"	".size _L_mutex_lock_%=, .-_L_mutex_lock_%=\n\t"
++	".previous\n\t"
++	".section	.eh_frame,\"a\",@progbits\n"
++"5:\t"	".long	7f-6f	# Length of Common Information Entry\n"
++"6:\t"	".long	0x0	# CIE Identifier Tag\n\t"
++	".byte	0x1	# CIE Version\n\t"
++	".ascii \"zR\\0\"	# CIE Augmentation\n\t"
++	".uleb128 0x1	# CIE Code Alignment Factor\n\t"
++	".sleb128 -4	# CIE Data Alignment Factor\n\t"
++	".byte	0x8	# CIE RA Column\n\t"
++	".uleb128 0x1	# Augmentation size\n\t"
++	".byte	0x1b	# FDE Encoding (pcrel sdata4)\n\t"
++	".byte	0xc	# DW_CFA_def_cfa\n\t"
++	".uleb128 0x4\n\t"
++	".uleb128 0x0\n\t"
++	".align 4\n"
++"7:\t"	".long	17f-8f	# FDE Length\n"
++"8:\t"	".long	8b-5b	# FDE CIE offset\n\t"
++	".long	1b-.	# FDE initial location\n\t"
++	".long	4b-1b	# FDE address range\n\t"
++	".uleb128 0x0	# Augmentation size\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x8\n\t"
++	".uleb128 10f-9f\n"
++"9:\t"	".byte	0x78	# DW_OP_breg8\n\t"
++	".sleb128 3b-1b\n"
++"10:\t"	".byte	0x40 + (2b-1b) # DW_CFA_advance_loc\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x8\n\t"
++	".uleb128 12f-11f\n"
++"11:\t"	".byte	0x78	# DW_OP_breg8\n\t"
++	".sleb128 3b-2b\n"
++"12:\t"	".byte	0x40 + (3b-2b-1) # DW_CFA_advance_loc\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x8\n\t"
++	".uleb128 16f-13f\n"
++"13:\t"	".byte	0x78	# DW_OP_breg8\n\t"
++	".sleb128 15f-14f\n\t"
++	".byte	0x0d	# DW_OP_const4s\n"
++"14:\t"	".4byte	3b-.\n\t"
++	".byte	0x1c	# DW_OP_minus\n\t"
++	".byte	0x0d	# DW_OP_const4s\n"
++"15:\t"	".4byte	18f-.\n\t"
++	".byte	0x22	# DW_OP_plus\n"
++"16:\t"	".align 4\n"
++"17:\t"	".previous\n"
++"18:"
++	: : "r" (x), "m" (x), "r" (buf)
++	: "memory", "eax", "edx", "ecx");
++#elif defined __x86_64__
++  __asm (
++	"testl	%0, %0\n\t"
++	"jnz	1f\n\t"
++	".subsection 1\n\t"
++	".type	_L_mutex_lock_%=, @function\n"
++"_L_mutex_lock_%=:\n"
++"1:\t"	"leaq	%1, %%rdi\n"
++"2:\t"	"subq	$128, %%rsp\n"
++"3:\t"	"call	bar\n"
++"4:\t"	"addq	$128, %%rsp\n"
++"5:\t"	"jmp	24f\n"
++"6:\t"	".size _L_mutex_lock_%=, .-_L_mutex_lock_%=\n\t"
++	".previous\n\t"
++	".section	.eh_frame,\"a\",@progbits\n"
++"7:\t"	".long	9f-8f	# Length of Common Information Entry\n"
++"8:\t"	".long	0x0	# CIE Identifier Tag\n\t"
++	".byte	0x1	# CIE Version\n\t"
++	".ascii \"zR\\0\"	# CIE Augmentation\n\t"
++	".uleb128 0x1	# CIE Code Alignment Factor\n\t"
++	".sleb128 -8	# CIE Data Alignment Factor\n\t"
++	".byte	0x10	# CIE RA Column\n\t"
++	".uleb128 0x1	# Augmentation size\n\t"
++	".byte	0x1b	# FDE Encoding (pcrel sdata4)\n\t"
++	".byte	0x12	# DW_CFA_def_cfa_sf\n\t"
++	".uleb128 0x7\n\t"
++	".sleb128 16\n\t"
++	".align 8\n"
++"9:\t"	".long	23f-10f	# FDE Length\n"
++"10:\t"	".long	10b-7b	# FDE CIE offset\n\t"
++	".long	1b-.	# FDE initial location\n\t"
++	".long	6b-1b	# FDE address range\n\t"
++	".uleb128 0x0	# Augmentation size\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 12f-11f\n"
++"11:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 4b-1b\n"
++"12:\t"	".byte	0x40 + (2b-1b) # DW_CFA_advance_loc\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 14f-13f\n"
++"13:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 4b-2b\n"
++"14:\t"	".byte	0x40 + (3b-2b) # DW_CFA_advance_loc\n\t"
++	".byte	0x0e	# DW_CFA_def_cfa_offset\n\t"
++	".uleb128 0\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 16f-15f\n"
++"15:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 4b-3b\n"
++"16:\t"	".byte	0x40 + (4b-3b-1) # DW_CFA_advance_loc\n\t"
++	".byte	0x0e	# DW_CFA_def_cfa_offset\n\t"
++	".uleb128 128\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 20f-17f\n"
++"17:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 19f-18f\n\t"
++	".byte	0x0d	# DW_OP_const4s\n"
++"18:\t"	".4byte	4b-.\n\t"
++	".byte	0x1c	# DW_OP_minus\n\t"
++	".byte	0x0d	# DW_OP_const4s\n"
++"19:\t"	".4byte	24f-.\n\t"
++	".byte	0x22	# DW_OP_plus\n"
++"20:\t"	".byte	0x40 + (5b-4b+1) # DW_CFA_advance_loc\n\t"
++	".byte	0x13	# DW_CFA_def_cfa_offset_sf\n\t"
++	".sleb128 16\n\t"
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 22f-21f\n"
++"21:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 4b-5b\n"
++"22:\t"	".align 8\n"
++"23:\t"	".previous\n"
++"24:"
++	: : "r" (x), "m" (x), "r" (buf)
++	: "memory", "rax", "rdx", "rcx", "rsi", "rdi",
++	  "r8", "r9", "r10", "r11");
++#else
++# error Unsupported test architecture
++#endif
++}
++
++static int __attribute__((noinline))
++fn2 (void)
++{
++  foo (3);
++  return 0;
++}
++
++static int __attribute__((noinline))
++fn1 (void)
++{
++  fn2 ();
++  return 0;
++}
++
++static void *
++fn0 (void)
++{
++  char dummy __attribute__((cleanup (handler)));
++  fn1 ();
++  return 0;
++}
++
++int
++main (void)
++{
++  fn0 ();
++  return 0;
++}
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.target/i386/cleanup-2.c gcc-4.1.2/gcc/testsuite/gcc.target/i386/cleanup-2.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.target/i386/cleanup-2.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.target/i386/cleanup-2.c	2007-03-30 12:08:32.000000000 +0000
+@@ -0,0 +1,205 @@
++/* { dg-do run { target { { i?86-*-linux* x86_64-*-linux* } && lp64 } } } */
++/* { dg-options "-fexceptions -fnon-call-exceptions -fasynchronous-unwind-tables -O2" } */
++/* Test complex CFA value expressions.  */
++
++#include <unwind.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdio.h>
++#include <unistd.h>
++
++static _Unwind_Reason_Code
++force_unwind_stop (int version, _Unwind_Action actions,
++		   _Unwind_Exception_Class exc_class,
++		   struct _Unwind_Exception *exc_obj,
++		   struct _Unwind_Context *context,
++		   void *stop_parameter)
++{
++  if (actions & _UA_END_OF_STACK)
++    abort ();
++  return _URC_NO_REASON;
++}
++
++static void
++force_unwind ()
++{
++  struct _Unwind_Exception *exc = malloc (sizeof (*exc));
++  memset (&exc->exception_class, 0, sizeof (exc->exception_class));
++  exc->exception_cleanup = 0;
++
++  _Unwind_ForcedUnwind (exc, force_unwind_stop, 0);
++  abort ();
++}
++
++int count;
++
++static void
++counter (void *p __attribute__((unused)))
++{
++  ++count;
++}
++
++static void
++handler (void *p __attribute__((unused)))
++{
++  if (count != 2)
++    abort ();
++  _exit (0);
++}
++
++static int __attribute__((noinline))
++fn5 (void)
++{
++  char dummy __attribute__((cleanup (counter)));
++  force_unwind ();
++  return 0;
++}
++
++void
++bar (void)
++{
++  char dummy __attribute__((cleanup (counter)));
++  fn5 ();
++}
++
++void __attribute__((noinline))
++foo (int x)
++{
++  char buf[256];
++#ifdef __x86_64__
++  __asm (
++	"testl	%0, %0\n\t"
++	"jnz	1f\n\t"
++	".subsection 1\n\t"
++	".type	_L_mutex_lock_%=, @function\n"
++"_L_mutex_lock_%=:\n"
++"1:\t"	"leaq	%1, %%rdi\n"
++"2:\t"	"subq	$128, %%rsp\n"
++"3:\t"	"call	bar\n"
++"4:\t"	"addq	$128, %%rsp\n"
++"5:\t"	"jmp	21f\n"
++"6:\t"	".size _L_mutex_lock_%=, .-_L_mutex_lock_%=\n\t"
++	".previous\n\t"
++	".section	.eh_frame,\"a\",@progbits\n"
++"7:\t"	".long	9f-8f	# Length of Common Information Entry\n"
++"8:\t"	".long	0x0	# CIE Identifier Tag\n\t"
++	".byte	0x1	# CIE Version\n\t"
++	".ascii \"zR\\0\"	# CIE Augmentation\n\t"
++	".uleb128 0x1	# CIE Code Alignment Factor\n\t"
++	".sleb128 -8	# CIE Data Alignment Factor\n\t"
++	".byte	0x10	# CIE RA Column\n\t"
++	".uleb128 0x1	# Augmentation size\n\t"
++	".byte	0x1b	# FDE Encoding (pcrel sdata4)\n\t"
++	".byte	0xc	# DW_CFA_def_cfa\n\t"
++	".uleb128 0x7\n\t"
++	".uleb128 0x0\n\t"
++	".align 8\n"
++"9:\t"	".long	20f-10f	# FDE Length\n"
++"10:\t"	".long	10b-7b	# FDE CIE offset\n\t"
++	".long	1b-.	# FDE initial location\n\t"
++	".long	6b-1b	# FDE address range\n\t"
++	".uleb128 0x0	# Augmentation size\n\t"
++	/* This CFA expression computes the address right
++	   past the jnz instruction above, from %rip somewhere
++	   within the _L_mutex_lock_%= subsection.  */
++	".byte	0x16	# DW_CFA_val_expression\n\t"
++	".uleb128 0x10\n\t"
++	".uleb128 19f-11f\n"
++"11:\t"	".byte	0x80	# DW_OP_breg16\n\t"
++	".sleb128 0\n"
++"12:\t"	".byte	0x12	# DW_OP_dup\n\t"
++	".byte	0x94	# DW_OP_deref_size\n\t"
++	".byte	1\n\t"
++	".byte	0x12	# DW_OP_dup\n\t"
++	".byte	0x08	# DW_OP_const1u\n\t"
++	".byte	0x48\n\t"
++	".byte	0x2e	# DW_OP_ne\n\t"
++	".byte	0x28	# DW_OP_bra\n\t"
++	".2byte	16f-13f\n"
++"13:\t"	".byte	0x13	# DW_OP_drop\n\t"
++	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 1\n\t"
++	".byte	0x12	# DW_OP_dup\n\t"
++	".byte	0x94	# DW_OP_deref_size\n\t"
++	".byte	1\n\t"
++	".byte	0x08	# DW_OP_const1u\n\t"
++	".byte	0x81\n\t"
++	".byte	0x2e	# DW_OP_ne\n\t"
++	".byte	0x28	# DW_OP_bra\n\t"
++	".2byte	15f-14f\n"
++"14:\t"	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 3b-2b-1\n\t"
++	".byte	0x2f	# DW_OP_skip\n\t"
++	".2byte	12b-15f\n"
++"15:\t"	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 2b-1b-1\n\t"
++	".byte	0x2f	# DW_OP_skip\n\t"
++	".2byte	12b-16f\n"
++"16:\t"	".byte	0x08	# DW_OP_const1u\n\t"
++	".byte	0xe8\n\t"
++	".byte	0x2e	# DW_OP_ne\n\t"
++	".byte	0x28	# DW_OP_bra\n\t"
++	".2byte	18f-17f\n"
++"17:\t"	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 4b-3b\n\t"
++	".byte	0x2f	# DW_OP_skip\n\t"
++	".2byte	12b-18f\n"
++"18:\t"	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 1\n\t"
++	".byte	0x12	# DW_OP_dup\n\t"
++	".byte	0x94	# DW_OP_deref_size\n\t"
++	".byte	4\n\t"
++	".byte	0x08	# DW_OP_const1u\n\t"
++	".byte	72 - (6b-5b) * 8 # (6b-5b) == 5 ? 32 : 56\n\t"
++	".byte	0x24	# DW_OP_shl\n\t"
++	".byte	0x08	# DW_OP_const1u\n\t"
++	".byte	72 - (6b-5b) * 8 # (6b-5b) == 5 ? 32 : 56\n\t"
++	".byte	0x26	# DW_OP_shra\n\t"
++	".byte	0x22	# DW_OP_plus\n\t"
++	".byte	0x23	# DW_OP_plus_uconst\n\t"
++	".uleb128 6b-5b-1\n"
++"19:\t"	".byte	0x40 + (3b-1b) # DW_CFA_advance_loc\n\t"
++	".byte	0xe	# DW_CFA_def_cfa_offset\n\t"
++	".uleb128 128\n\t"
++	".byte	0x40 + (5b-3b) # DW_CFA_advance_loc\n\t"
++	".byte	0xe	# DW_CFA_def_cfa_offset\n\t"
++	".uleb128 0\n\t"
++	".align 8\n"
++"20:\t"	".previous\n"
++"21:"
++	: : "r" (x), "m" (x), "r" (buf)
++	: "memory", "rax", "rdx", "rcx", "rsi", "rdi",
++	  "r8", "r9", "r10", "r11");
++#else
++# error Unsupported test architecture
++#endif
++}
++
++static int __attribute__((noinline))
++fn2 (void)
++{
++  foo (3);
++  return 0;
++}
++
++static int __attribute__((noinline))
++fn1 (void)
++{
++  fn2 ();
++  return 0;
++}
++
++static void *
++fn0 (void)
++{
++  char dummy __attribute__((cleanup (handler)));
++  fn1 ();
++  return 0;
++}
++
++int
++main (void)
++{
++  fn0 ();
++  return 0;
++}
+diff -Naur gcc-4.1.2.orig/gcc/unwind-dw2.c gcc-4.1.2/gcc/unwind-dw2.c
+--- gcc-4.1.2.orig/gcc/unwind-dw2.c	2005-11-18 01:19:10.000000000 +0000
++++ gcc-4.1.2/gcc/unwind-dw2.c	2007-03-30 12:08:32.000000000 +0000
+@@ -71,6 +71,7 @@
+   void *lsda;
+   struct dwarf_eh_bases bases;
+   _Unwind_Word args_size;
++  char by_value[DWARF_FRAME_REGISTERS+1];
+ };
+ 
+ /* Byte size of every register managed by these routines.  */
+@@ -117,7 +118,7 @@
+ static inline unsigned long
+ read_8s (const void *p) { const union unaligned *up = p; return up->s8; }
+ 
+-/* Get the value of register REG as saved in CONTEXT.  */
++/* Get the value of register INDEX as saved in CONTEXT.  */
+ 
+ inline _Unwind_Word
+ _Unwind_GetGR (struct _Unwind_Context *context, int index)
+@@ -135,6 +136,9 @@
+   size = dwarf_reg_size_table[index];
+   ptr = context->reg[index];
+ 
++  if (context->by_value[index])
++    return (_Unwind_Word) (_Unwind_Internal_Ptr) ptr;
++
+   /* This will segfault if the register hasn't been saved.  */
+   if (size == sizeof(_Unwind_Ptr))
+     return * (_Unwind_Ptr *) ptr;
+@@ -159,7 +163,7 @@
+   return (_Unwind_Ptr) context->cfa;
+ }
+ 
+-/* Overwrite the saved value for register REG in CONTEXT with VAL.  */
++/* Overwrite the saved value for register INDEX in CONTEXT with VAL.  */
+ 
+ inline void
+ _Unwind_SetGR (struct _Unwind_Context *context, int index, _Unwind_Word val)
+@@ -170,6 +174,13 @@
+   index = DWARF_REG_TO_UNWIND_COLUMN (index);
+   gcc_assert (index < (int) sizeof(dwarf_reg_size_table));
+   size = dwarf_reg_size_table[index];
++
++  if (context->by_value[index])
++    {
++      context->reg[index] = (void *) (_Unwind_Internal_Ptr) val;
++      return;
++    }
++
+   ptr = context->reg[index];
+ 
+   if (size == sizeof(_Unwind_Ptr))
+@@ -187,6 +198,8 @@
+ _Unwind_GetGRPtr (struct _Unwind_Context *context, int index)
+ {
+   index = DWARF_REG_TO_UNWIND_COLUMN (index);
++  if (context->by_value[index])
++    return &context->reg[index];
+   return context->reg[index];
+ }
+ 
+@@ -196,9 +209,34 @@
+ _Unwind_SetGRPtr (struct _Unwind_Context *context, int index, void *p)
+ {
+   index = DWARF_REG_TO_UNWIND_COLUMN (index);
++  context->by_value[index] = 0;
+   context->reg[index] = p;
+ }
+ 
++/* Overwrite the saved value for register INDEX in CONTEXT with VAL.  */
++
++static inline void
++_Unwind_SetGRValue (struct _Unwind_Context *context, int index,
++		    _Unwind_Word val)
++{
++  index = DWARF_REG_TO_UNWIND_COLUMN (index);
++  gcc_assert (index < (int) sizeof(dwarf_reg_size_table));
++  gcc_assert (dwarf_reg_size_table[index] == sizeof (_Unwind_Ptr));
++
++  context->by_value[index] = 1;
++  context->reg[index] = (void *) (_Unwind_Internal_Ptr) val;
++}
++
++/* Return non-zero if register INDEX is stored by value rather than
++   by reference.  */
++
++static inline int
++_Unwind_GRByValue (struct _Unwind_Context *context, int index)
++{
++  index = DWARF_REG_TO_UNWIND_COLUMN (index);
++  return context->by_value[index];
++}
++
+ /* Retrieve the return address for CONTEXT.  */
+ 
+ inline _Unwind_Ptr
+@@ -902,7 +940,7 @@
+ 	  insn_ptr += utmp;
+ 	  break;
+ 
+-	  /* From the dwarf3 draft.  */
++	  /* Dwarf3.  */
+ 	case DW_CFA_offset_extended_sf:
+ 	  insn_ptr = read_uleb128 (insn_ptr, &reg);
+ 	  insn_ptr = read_sleb128 (insn_ptr, &stmp);
+@@ -925,6 +963,33 @@
+ 	  /* cfa_how deliberately not set.  */
+ 	  break;
+ 
++	case DW_CFA_val_offset:
++	  insn_ptr = read_uleb128 (insn_ptr, &reg);
++	  insn_ptr = read_uleb128 (insn_ptr, &utmp);
++	  offset = (_Unwind_Sword) utmp * fs->data_align;
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].how
++	    = REG_SAVED_VAL_OFFSET;
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].loc.offset = offset;
++	  break;
++
++	case DW_CFA_val_offset_sf:
++	  insn_ptr = read_uleb128 (insn_ptr, &reg);
++	  insn_ptr = read_sleb128 (insn_ptr, &stmp);
++	  offset = stmp * fs->data_align;
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].how
++	    = REG_SAVED_VAL_OFFSET;
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].loc.offset = offset;
++	  break;
++
++	case DW_CFA_val_expression:
++	  insn_ptr = read_uleb128 (insn_ptr, &reg);
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].how
++	    = REG_SAVED_VAL_EXP;
++	  fs->regs.reg[DWARF_REG_TO_UNWIND_COLUMN (reg)].loc.exp = insn_ptr;
++	  insn_ptr = read_uleb128 (insn_ptr, &utmp);
++	  insn_ptr += utmp;
++	  break;
++
+ 	case DW_CFA_GNU_window_save:
+ 	  /* ??? Hardcoded for SPARC register window configuration.  */
+ 	  for (reg = 16; reg < 32; ++reg)
+@@ -1092,7 +1157,7 @@
+ 
+ static inline void
+ _Unwind_SetSpColumn (struct _Unwind_Context *context, void *cfa,
+-                     _Unwind_SpTmp *tmp_sp)
++		     _Unwind_SpTmp *tmp_sp)
+ {
+   int size = dwarf_reg_size_table[__builtin_dwarf_sp_column ()];
+   
+@@ -1173,9 +1238,14 @@
+ 	break;
+ 
+       case REG_SAVED_REG:
+-	_Unwind_SetGRPtr
+-	  (context, i,
+-	   _Unwind_GetGRPtr (&orig_context, fs->regs.reg[i].loc.reg));
++	if (_Unwind_GRByValue (&orig_context, fs->regs.reg[i].loc.reg))
++	  _Unwind_SetGRValue (context, i,
++			      _Unwind_GetGR (&orig_context,
++					     fs->regs.reg[i].loc.reg));
++	else
++	  _Unwind_SetGRPtr (context, i,
++			    _Unwind_GetGRPtr (&orig_context,
++					      fs->regs.reg[i].loc.reg));
+ 	break;
+ 
+       case REG_SAVED_EXP:
+@@ -1190,6 +1260,25 @@
+ 	  _Unwind_SetGRPtr (context, i, (void *) val);
+ 	}
+ 	break;
++
++      case REG_SAVED_VAL_OFFSET:
++	_Unwind_SetGRValue (context, i,
++			    (_Unwind_Internal_Ptr)
++			    (cfa + fs->regs.reg[i].loc.offset));
++	break;
++
++      case REG_SAVED_VAL_EXP:
++	{
++	  const unsigned char *exp = fs->regs.reg[i].loc.exp;
++	  _Unwind_Word len;
++	  _Unwind_Ptr val;
++
++	  exp = read_uleb128 (exp, &len);
++	  val = execute_stack_op (exp, exp + len, &orig_context,
++				  (_Unwind_Ptr) cfa);
++	  _Unwind_SetGRValue (context, i, val);
++	}
++	break;
+       }
+ 
+ #ifdef MD_FROB_UPDATE_CONTEXT
+@@ -1304,14 +1393,31 @@
+   /* If the target frame does not have a saved stack pointer,
+      then set up the target's CFA.  */
+   if (!_Unwind_GetGRPtr (target, __builtin_dwarf_sp_column ()))
+-	_Unwind_SetSpColumn (target, target->cfa, &sp_slot);
++    _Unwind_SetSpColumn (target, target->cfa, &sp_slot);
+ 
+   for (i = 0; i < DWARF_FRAME_REGISTERS; ++i)
+     {
+       void *c = current->reg[i];
+       void *t = target->reg[i];
+ 
+-      if (t && c && t != c)
++      gcc_assert (current->by_value[i] == 0);
++      if (target->by_value[i] && c)
++	{
++	  _Unwind_Word w;
++	  _Unwind_Ptr p;
++	  if (dwarf_reg_size_table[i] == sizeof (_Unwind_Word))
++	    {
++	      w = (_Unwind_Internal_Ptr) t;
++	      memcpy (c, &w, sizeof (_Unwind_Word));
++	    }
++	  else
++	    {
++	      gcc_assert (dwarf_reg_size_table[i] == sizeof (_Unwind_Ptr));
++	      p = (_Unwind_Internal_Ptr) t;
++	      memcpy (c, &p, sizeof (_Unwind_Ptr));
++	    }
++	}
++      else if (t && c && t != c)
+ 	memcpy (c, t, dwarf_reg_size_table[i]);
+     }
+ 
+diff -Naur gcc-4.1.2.orig/gcc/unwind-dw2.h gcc-4.1.2/gcc/unwind-dw2.h
+--- gcc-4.1.2.orig/gcc/unwind-dw2.h	2005-06-25 02:02:01.000000000 +0000
++++ gcc-4.1.2/gcc/unwind-dw2.h	2007-03-30 12:08:32.000000000 +0000
+@@ -53,7 +53,9 @@
+ 	REG_UNSAVED,
+ 	REG_SAVED_OFFSET,
+ 	REG_SAVED_REG,
+-	REG_SAVED_EXP
++	REG_SAVED_EXP,
++	REG_SAVED_VAL_OFFSET,
++	REG_SAVED_VAL_EXP
+       } how;
+     } reg[DWARF_FRAME_REGISTERS+1];
+ 

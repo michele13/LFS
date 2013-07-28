@@ -1,0 +1,42 @@
+Submitted By: Jim Gifford <jim at linuxfromscratch dot org>
+Date: 2006-07-04
+Initial Package Version: 2.6.16
+Origin: Various
+Description: Make xml2-config Multilib Friendly
+
+diff -Naur libxml2-2.6.26.orig/xml2-config.in libxml2-2.6.26/xml2-config.in
+--- libxml2-2.6.26.orig/xml2-config.in	2006-06-06 08:28:51.000000000 -0700
++++ libxml2-2.6.26/xml2-config.in	2006-07-04 13:07:16.153775484 -0700
+@@ -3,7 +3,17 @@
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+ includedir=@includedir@
+-libdir=@libdir@
++if [ "`ldd /bin/sh | grep lib64`" = "" ]
++then
++	if [ "`ldd /bin/sh | grep lib32`" = "" ]
++	then
++	    libdir=${exec_prefix}/lib
++	else
++	libdir=${exec_prefix}/lib32
++	fi
++else
++    libdir=${exec_prefix}/lib64
++fi
+ 
+ usage()
+ {
+@@ -88,7 +98,12 @@
+ 	    then
+ 		echo @XML_LIBS@ 
+ 	    else
+-		echo @XML_LIBDIR@ @XML_LIBS@ 
++		    if [ "@XML_LIBDIR@" = "-L/usr/lib32" ]
++		    then
++			echo @XML_LIBS@ 
++		    else
++			echo @XML_LIBDIR@ @XML_LIBS@ 
++		    fi
+ 	    fi
+ 	else
+ 	    echo @XML_LIBDIR@ @XML_LIBS@ @WIN32_EXTRA_LIBADD@

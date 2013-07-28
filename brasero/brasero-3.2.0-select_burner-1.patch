@@ -1,0 +1,25 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2012-03-17
+Initial Package Version: 3.2.0
+Upstream Status: Applied
+Origin: Upstream
+Description: In some circumstances (or maybe always, who knows?)
+brasero will neither select the optical drive, nor allow it to be selected,
+although it does list it.  Compile tested, this allows me to procede to the
+stage where brasero demands that I install cdrecord.  Neither xorriso (with
+a minimal cdrecord wrapper), nor dvdrtools with a cdrecord symlink are
+acceptable to brasero.
+
+http://git.gnome.org/browse/brasero/diff/?id=f9d1053a648110efbeb02bee6ee162eaaa809306
+
+--- brasero-3.2.0/libbrasero-media/brasero-medium-selection.c	2011-09-27 10:19:01.000000000 +0100
++++ brasero-3.2.0/libbrasero-media/brasero-medium-selection.c.patched	2012-03-17 00:28:27.000000000 +0000
+@@ -562,6 +562,8 @@
+ 			                                   MEDIUM_COL, medium,
+ 			                                   -1);
+ 
++			gtk_combo_box_set_active_iter (GTK_COMBO_BOX (selector), &iter);
++
+ 			medium_name = brasero_medium_selection_get_medium_string (selector, medium);
+ 			medium_icon = brasero_volume_get_icon (BRASERO_VOLUME (medium));
+ 			gtk_list_store_set (GTK_LIST_STORE (model), &iter,

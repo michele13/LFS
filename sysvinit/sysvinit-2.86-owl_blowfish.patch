@@ -1,0 +1,59 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-12-10
+Initial Package Version: 2.86
+Upstream Status: Not Submitted
+Origin: http://www.mail-archive.com/hlfs-dev%40linuxfromscratch.org/msg01100.html
+Description: Use this patch with the Glibc blowfish patch.
+
+diff -ru sysvinit-2.86.old/src/sulogin.c sysvinit-2.86/src/sulogin.c
+--- sysvinit-2.86.old/src/sulogin.c	2004-07-30 12:40:28.000000000 +0100
++++ sysvinit-2.86/src/sulogin.c	2006-08-03 22:37:46.000000000 +0100
+@@ -29,7 +29,9 @@
+ #endif
+ 
+ #define CHECK_DES	1
++#define CHECK_BDES	1
+ #define CHECK_MD5	1
++#define CHECK_BLOWFISH	1
+ 
+ #define F_PASSWD	"/etc/passwd"
+ #define F_SHADOW	"/etc/shadow"
+@@ -119,8 +121,36 @@
+ 		return 1;
+ 	}
+ #endif
+-#if CHECK_DES
+-	if (strlen(pass) != 13) return 0;
++#if CHECK_BLOWFISH
++	/*
++	 *	4 bytes for the signature $1$
++	 *	2 bytes for base 2 log of iter count (must be >4)
++	 *	$
++	 *	the MD5 hash (128 bits or 16 bytes) encoded in base64 = 22 bytes
++	 */
++	if (strncmp(pass, "$2a$", 4) == 0) {
++		s = pass + 4;
++		if (*s < '0' || *s > '9') return 0;
++		if (*(s+1) < '0' || *(s+1) > '9') return 0;
++		if (*s == '0' && *(s+1) < '4') return 0;
++
++		s = s + 2;
++		if (*s++ != '$') return 0;
++
++		if (strlen(s) != 53) return 0;
++
++		return 1;
++	}
++#endif
++#if CHECK_BDES || CHECK_DES
++	len = strlen(pass);
++#if ! CHECK_DES
++	if (len != 19) return 0;
++#elif ! CHECK_BDES
++	if (len != 13) return 0;
++#else
++	if (len != 13 && len != 19) return 0;
++#endif
+ 	for (s = pass; *s; s++) {
+ 		if ((*s < '0' || *s > '9') &&
+ 		    (*s < 'a' || *s > 'z') &&

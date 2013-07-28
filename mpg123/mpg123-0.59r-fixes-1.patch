@@ -1,0 +1,101 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-23
+Initial Package Version: 0.59r
+Origin: Mandrake CVS
+Description: Fixes for Bit rate and missing includes
+ 
+diff -Naur mpg123-0.59r.orig/audio.c mpg123-0.59r/audio.c
+--- mpg123-0.59r.orig/audio.c	1999-04-06 15:53:05.000000000 +0000
++++ mpg123-0.59r/audio.c	2003-09-24 04:52:46.000000000 +0000
+@@ -1,4 +1,4 @@
+-
++#include <stdlib.h>
+ #include "mpg123.h"
+ 
+ void audio_info_struct_init(struct audio_info_struct *ai)
+diff -Naur mpg123-0.59r.orig/audio_esd.c mpg123-0.59r/audio_esd.c
+--- mpg123-0.59r.orig/audio_esd.c	1999-05-28 15:06:29.000000000 +0000
++++ mpg123-0.59r/audio_esd.c	2003-09-24 04:52:46.000000000 +0000
+@@ -75,7 +75,21 @@
+   else if (ai->rate > esd_rate)
+     return -1;
+ 
+-  ai->fn = esd_play_stream_fallback(format, ai->rate, esdserver, "mpg123");
++  ai->fn = esd_play_stream_fallback(format, ai->rate, NULL, "mpg123");
++  
++  if (ai->fn < 0) {
++      ai->rate = 44100;
++      ai->fn = esd_play_stream_fallback(format, ai->rate, NULL, "mpg123");
++      
++      if (ai->fn < 0) {
++	  format = ESD_BITS8 | ESD_STREAM | ESD_PLAY;
++	  format |= ESD_MONO;
++	  ai->rate = 22050;
++	  ai->format = AUDIO_FORMAT_UNSIGNED_8;
++	  ai->channels = 1;
++	  ai->fn = esd_play_stream_fallback(format, ai->rate, NULL, "mpg123");
++      }
++  }
+   return (ai->fn);
+ }
+ 
+diff -Naur mpg123-0.59r.orig/audio_oss.c mpg123-0.59r/audio_oss.c
+--- mpg123-0.59r.orig/audio_oss.c	1998-01-31 14:14:08.000000000 +0000
++++ mpg123-0.59r/audio_oss.c	2003-09-24 04:52:46.000000000 +0000
+@@ -50,15 +50,15 @@
+     exit(1);
+   }
+ 
+-  ioctl(ai->fn, SNDCTL_DSP_GETBLKSIZE, &outburst);
+-  if(outburst > MAXOUTBURST)
+-    outburst = MAXOUTBURST;
+-
+   if(audio_reset_parameters(ai) < 0) {
+     close(ai->fn);
+     return -1;
+   }
+ 
++  ioctl(ai->fn, SNDCTL_DSP_GETBLKSIZE, &outburst);
++  if(outburst > MAXOUTBURST)
++    outburst = MAXOUTBURST;
++
+   if(ai->gain >= 0) {
+     int e,mask;
+     e = ioctl(ai->fn , SOUND_MIXER_READ_DEVMASK ,&mask);
+diff -Naur mpg123-0.59r.orig/audio_sun.c mpg123-0.59r/audio_sun.c
+--- mpg123-0.59r.orig/audio_sun.c	1999-02-04 13:22:34.000000000 +0000
++++ mpg123-0.59r/audio_sun.c	2003-09-24 04:50:56.000000000 +0000
+@@ -4,6 +4,10 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ 
++/* for Ultrapenguin... */
++#include <audiofile.h>
++#include <linux/soundcard.h>
++
+ #ifdef SOLARIS
+ #include <stropts.h>
+ #include <sys/conf.h>
+diff -Naur mpg123-0.59r.orig/common.c mpg123-0.59r/common.c
+--- mpg123-0.59r.orig/common.c	1999-06-15 21:24:19.000000000 +0000
++++ mpg123-0.59r/common.c	2003-09-24 04:52:46.000000000 +0000
+@@ -123,7 +123,7 @@
+ 	return FALSE;
+     if(!((head>>17)&3))
+ 	return FALSE;
+-    if( ((head>>12)&0xf) == 0xf)
++    if(((head>>12)&0xf) == 0xf || ((head>>12)&0xf) == 0)
+ 	return FALSE;
+     if( ((head>>10)&0x3) == 0x3 )
+ 	return FALSE;
+diff -Naur mpg123-0.59r.orig/mpg123.c mpg123-0.59r/mpg123.c
+--- mpg123-0.59r.orig/mpg123.c	1999-06-15 20:21:36.000000000 +0000
++++ mpg123-0.59r/mpg123.c	2003-09-24 04:52:46.000000000 +0000
+@@ -17,6 +17,7 @@
+ #include <errno.h>
+ #include <string.h>
+ #include <fcntl.h>
++#include <time.h>
+ 
+ #if 0
+ #define SET_RT 

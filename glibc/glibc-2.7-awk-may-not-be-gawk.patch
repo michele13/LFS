@@ -1,0 +1,21 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2008-04-18
+Initial Package Version: 2.7
+Upstream Status: Fixed
+Origin: glibc cvs
+Description: On some systems, awk may not be linked to gawk. glibc checks
+             specifically for gawk and sets the var AWK to gawk. One of the
+             instance for invoking awk did not use the var.
+
+diff -aur glibc-2.7.orig/elf/Makefile glibc-2.7/elf/Makefile
+--- glibc-2.7.orig/elf/Makefile	2008-04-18 17:30:46.000000000 -0500
++++ glibc-2.7/elf/Makefile	2008-04-18 17:31:24.000000000 -0500
+@@ -308,7 +308,7 @@
+ 		  -Wl,-soname=$(rtld-installed-name) -T $@.lds
+ 	rm -f $@.lds
+ 	readelf -s $@ \
+-	  | awk '($$7 ~ /^UND(|EF)$$/ && $$1 != "0:" && $$4 != "REGISTER") { print; p=1 } END { exit p != 0 }'
++	  | $(AWK) '($$7 ~ /^UND(|EF)$$/ && $$1 != "0:" && $$4 != "REGISTER") { print; p=1 } END { exit p != 0 }'
+ 
+ # interp.c exists just to get this string into the libraries.
+ CFLAGS-interp.c = -D'RUNTIME_LINKER="$(slibdir)/$(rtld-installed-name)"' \

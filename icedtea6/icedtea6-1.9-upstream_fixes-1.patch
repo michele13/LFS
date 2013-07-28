@@ -1,0 +1,3687 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2010-09-08
+Initial Package Version: 1.9
+Upstream Status: comitted
+Origin: http://icedtea.classpath.org/hg/icedtea6/
+Description: Includes various fixes from upstream to allow a for a proper
+             bootstrap build.
+
+diff -Naurp icedtea6-1.9-orig/acinclude.m4 icedtea6-1.9/acinclude.m4
+--- icedtea6-1.9-orig/acinclude.m4	2010-08-06 06:04:38.000000000 -0500
++++ icedtea6-1.9/acinclude.m4	2010-09-07 18:22:03.000000000 -0500
+@@ -131,42 +131,46 @@ AC_DEFUN([SET_OS_DIRS],
+ 
+ AC_DEFUN([FIND_JAVAC],
+ [
+-  user_specified_javac=
++  JAVAC=${SYSTEM_JDK_DIR}/bin/javac
++  IT_FIND_JAVAC
++  IT_FIND_ECJ
+ 
+-  CLASSPATH_WITH_ECJ
+-  CLASSPATH_WITH_JAVAC
+-
+-  if test "x${ECJ}" = x && test "x${JAVAC}" = x && test "x${user_specified_javac}" != xecj; then
+-      AC_MSG_ERROR([cannot find javac, try --with-ecj])
++  if test "x${JAVAC}" = x; then
++      AC_MSG_ERROR([cannot find a Java compiler, try --with-javac or --with-ecj])
+   fi
++  AC_SUBST(JAVAC)
+ ])
+ 
+-AC_DEFUN([CLASSPATH_WITH_ECJ],
++AC_DEFUN([IT_FIND_ECJ],
+ [
+   AC_ARG_WITH([ecj],
+ 	      [AS_HELP_STRING(--with-ecj,bytecode compilation with ecj)],
+   [
+     if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+-      CLASSPATH_CHECK_ECJ(${withval})
++      IT_CHECK_ECJ(${withval})
+     else
+       if test "x${withval}" != xno; then
+-        CLASSPATH_CHECK_ECJ
++        IT_CHECK_ECJ
+       fi
+     fi
+-    user_specified_javac=ecj
+   ],
+   [ 
+-    CLASSPATH_CHECK_ECJ
++    IT_CHECK_ECJ
+   ])
+-  JAVAC="${ECJ} -nowarn"
+-  AC_SUBST(JAVAC)
++  if test "x${JAVAC}" = "x"; then
++    if test "x{ECJ}" != "x"; then
++      JAVAC="${ECJ} -nowarn"
++    fi
++  fi
+ ])
+ 
+-AC_DEFUN([CLASSPATH_CHECK_ECJ],
++AC_DEFUN([IT_CHECK_ECJ],
+ [
+   if test "x$1" != x; then
+     if test -f "$1"; then
++      AC_MSG_CHECKING(for ecj)
+       ECJ="$1"
++      AC_MSG_RESULT(${ECJ})
+     else
+       AC_PATH_PROG(ECJ, "$1")
+     fi
+@@ -184,31 +188,31 @@ AC_DEFUN([CLASSPATH_CHECK_ECJ],
+   fi
+ ])
+ 
+-AC_DEFUN([CLASSPATH_WITH_JAVAC],
++AC_DEFUN([IT_FIND_JAVAC],
+ [
+   AC_ARG_WITH([javac],
+ 	      [AS_HELP_STRING(--with-javac,bytecode compilation with javac)],
+   [
+     if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+-      CLASSPATH_CHECK_JAVAC(${withval})
++      IT_CHECK_JAVAC(${withval})
+     else
+       if test "x${withval}" != xno; then
+-        CLASSPATH_CHECK_JAVAC
++        IT_CHECK_JAVAC
+       fi
+     fi
+-    user_specified_javac=javac
+   ],
+   [ 
+-    CLASSPATH_CHECK_JAVAC
++    IT_CHECK_JAVAC
+   ])
+-  AC_SUBST(JAVAC)
+ ])
+ 
+-AC_DEFUN([CLASSPATH_CHECK_JAVAC],
++AC_DEFUN([IT_CHECK_JAVAC],
+ [
+   if test "x$1" != x; then
+     if test -f "$1"; then
++      AC_MSG_CHECKING(for javac)
+       JAVAC="$1"
++      AC_MSG_RESULT(${JAVAC})
+     else
+       AC_PATH_PROG(JAVAC, "$1")
+     fi
+@@ -219,20 +223,18 @@ AC_DEFUN([CLASSPATH_CHECK_JAVAC],
+ 
+ AC_DEFUN([FIND_JAVA],
+ [
++  AC_MSG_CHECKING(for java)
+   AC_ARG_WITH([java],
+               [AS_HELP_STRING(--with-java,specify location of the 1.5 java vm)],
+   [
+-    if test -f "${withval}"; then
+-      AC_MSG_CHECKING(java)
+-      JAVA="${withval}"
+-      AC_MSG_RESULT(${withval})
+-    else
+-      AC_PATH_PROG(JAVA, "${withval}")
+-    fi
++    JAVA="${withval}"
+   ],
+   [
+-    JAVA=
++    JAVA=${SYSTEM_JDK_DIR}/bin/java
+   ])
++  if ! test -f "${JAVA}"; then
++    AC_PATH_PROG(JAVA, "${JAVA}")
++  fi
+   if test -z "${JAVA}"; then
+     AC_PATH_PROG(JAVA, "gij")
+   fi
+@@ -242,6 +244,7 @@ AC_DEFUN([FIND_JAVA],
+   if test -z "${JAVA}"; then
+     AC_MSG_ERROR("A 1.5-compatible Java VM is required.")
+   fi
++  AC_MSG_RESULT(${JAVA})
+   AC_SUBST(JAVA)
+ ])
+ 
+@@ -358,26 +361,17 @@ AC_DEFUN([AC_CHECK_GCC_VERSION],
+ 
+ AC_DEFUN([FIND_JAVAH],
+ [
+-  AC_MSG_CHECKING([if a javah executable is specified])
++  AC_MSG_CHECKING([for javah])
+   AC_ARG_WITH([javah],
+-              [AS_HELP_STRING(--with-javah,specify location of javah)],
++              [AS_HELP_STRING(--with-javah,specify location of the Java header generator)],
+   [
+-    if test "x${withval}" = "xyes"; then
+-      JAVAH=no
+-    else
+-      JAVAH="${withval}"
+-    fi
++    JAVAH="${withval}"
+   ],
+   [
+-    JAVAH=no
++    JAVAH=${SYSTEM_JDK_DIR}/bin/javah
+   ])
+-  AC_MSG_RESULT(${JAVAH})
+   if ! test -f "${JAVAH}"; then
+-    if test "x${JAVAH}" = "xno"; then
+-      JAVAH=
+-    else
+-      AC_PATH_PROG(JAVAH, "${JAVAH}")
+-    fi
++    AC_PATH_PROG(JAVAH, "${JAVAH}")
+   fi
+   if test -z "${JAVAH}"; then
+     AC_PATH_PROG(JAVAH, "gjavah")
+@@ -388,31 +382,23 @@ AC_DEFUN([FIND_JAVAH],
+   if test -z "${JAVAH}"; then
+     AC_MSG_ERROR("A Java header generator was not found.")
+   fi
++  AC_MSG_RESULT(${JAVAH})
+   AC_SUBST(JAVAH)
+ ])
+ 
+ AC_DEFUN([FIND_JAR],
+ [
+-  AC_MSG_CHECKING([if a jar executable is specified])
++  AC_MSG_CHECKING([for jar])
+   AC_ARG_WITH([jar],
+-              [AS_HELP_STRING(--with-jar,specify location of jar)],
++              [AS_HELP_STRING(--with-jar,specify location of Java archive tool (jar))],
+   [
+-    if test "x${withval}" = "xyes"; then
+-      JAR=no
+-    else
+-      JAR="${withval}"
+-    fi
++    JAR="${withval}"
+   ],
+   [
+-    JAR=no
++    JAR=${SYSTEM_JDK_DIR}/bin/jar
+   ])
+-  AC_MSG_RESULT(${JAR})
+   if ! test -f "${JAR}"; then
+-    if test "x${JAR}" = "xno"; then
+-      JAR=
+-    else
+-      AC_PATH_PROG(JAR, "${JAR}")
+-    fi
++    AC_PATH_PROG(JAR, "${JAR}")
+   fi
+   if test -z "${JAR}"; then
+     AC_PATH_PROG(JAR, "gjar")
+@@ -421,8 +407,9 @@ AC_DEFUN([FIND_JAR],
+     AC_PATH_PROG(JAR, "jar")
+   fi
+   if test -z "${JAR}"; then
+-    AC_MSG_ERROR("A jar tool was not found.")
++    AC_MSG_ERROR("No Java archive tool was found.")
+   fi
++  AC_MSG_RESULT(${JAR})
+   AC_MSG_CHECKING([whether jar supports @<file> argument])
+   touch _config.txt
+   cat >_config.list <<EOF
+@@ -461,26 +448,17 @@ EOF
+ 
+ AC_DEFUN([FIND_RMIC],
+ [
+-  AC_MSG_CHECKING(if an rmic executable is specified)
++  AC_MSG_CHECKING(for rmic)
+   AC_ARG_WITH([rmic],
+-              [AS_HELP_STRING(--with-rmic,specify location of rmic)],
++              [AS_HELP_STRING(--with-rmic,specify location of the RMI compiler)],
+   [
+-    if test "x${withval}" = "xyes"; then
+-      RMIC=no
+-    else
+-      RMIC="${withval}"
+-    fi
++    RMIC="${withval}"
+   ],
+   [
+-    RMIC=no
++    RMIC=${SYSTEM_JDK_DIR}/bin/rmic
+   ])
+-  AC_MSG_RESULT(${RMIC})
+   if ! test -f "${RMIC}"; then
+-    if test "x${RMIC}" = "xno"; then
+-      RMIC=
+-    else
+-      AC_PATH_PROG(RMIC, "${RMIC}")
+-    fi
++    AC_PATH_PROG(RMIC, "${RMIC}")
+   fi
+   if test -z "${RMIC}"; then
+     AC_PATH_PROG(RMIC, "grmic")
+@@ -491,6 +469,7 @@ AC_DEFUN([FIND_RMIC],
+   if test -z "${RMIC}"; then
+     AC_MSG_ERROR("An RMI compiler was not found.")
+   fi
++  AC_MSG_RESULT(${RMIC})
+   AC_SUBST(RMIC)
+ ])
+ 
+@@ -1065,86 +1044,67 @@ AC_DEFUN([AC_CHECK_WITH_HG_REVISION],
+   AM_CONDITIONAL(WITH_HGREV, test "x${HGREV}" != "x")
+ ])
+ 
+-AC_DEFUN([AC_CHECK_FOR_GCJ_JDK],
++AC_DEFUN([IT_CHECK_IF_BOOTSTRAPPING],
+ [
+-  AC_MSG_CHECKING([for a GCJ JDK home directory])
+-  AC_ARG_WITH([gcj-home],
+-	      [AS_HELP_STRING([--with-gcj-home],
+-                              [gcj home directory \
+-                               (default is /usr/lib/jvm/java-gcj or /usr/lib/jvm/gcj-jdk)])],
+-              [
++  AC_MSG_CHECKING([whether to build a bootstrap version first])
++  AC_ARG_ENABLE([bootstrap],
++                [AS_HELP_STRING(--disable-bootstrap, don't build a bootstrap version [[default=no]])],
++  [
++    case "${enableval}" in
++      no)
++       enable_bootstrap=no
++        ;;
++      *)
++        enable_bootstrap=yes
++        ;;
++    esac
++  ],
++  [
++        enable_bootstrap=yes
++  ])
++  AC_MSG_RESULT([${enable_bootstrap}])
++  AM_CONDITIONAL([BOOTSTRAPPING], test x"${enable_bootstrap}" = "xyes")
++])
++
++AC_DEFUN([IT_CHECK_FOR_JDK],
++[
++  AC_MSG_CHECKING([for a JDK home directory])
++  AC_ARG_WITH([jdk-home],
++             [AS_HELP_STRING([--with-jdk-home],
++                              [jdk home directory \
++                               (default is first predefined JDK found)])],
++             [
+                 if test "x${withval}" = xyes
+                 then
+-                  SYSTEM_GCJ_DIR=
++                  SYSTEM_JDK_DIR=
+                 elif test "x${withval}" = xno
+                 then
+-	          SYSTEM_GCJ_DIR=
++	          SYSTEM_JDK_DIR=
+ 	        else
+-                  SYSTEM_GCJ_DIR=${withval}
++                  SYSTEM_JDK_DIR=${withval}
+                 fi
+               ],
+               [
+-	        SYSTEM_GCJ_DIR=
++	        SYSTEM_JDK_DIR=
+               ])
+-  if test -z "${SYSTEM_GCJ_DIR}"; then
+-    for dir in /usr/lib/jvm/java-gcj /usr/lib/jvm/gcj-jdk /usr/lib/jvm/cacao ; do
++  if test -z "${SYSTEM_JDK_DIR}"; then
++    if test "x${enable_bootstrap}" = "xyes"; then
++      BOOTSTRAP_VMS="/usr/lib/jvm/java-gcj /usr/lib/jvm/gcj-jdk /usr/lib/jvm/cacao";
++    fi
++    for dir in ${BOOTSTRAP_VMS} /usr/lib/jvm/java-openjdk \
++              /usr/lib/jvm/icedtea6 /usr/lib/jvm/java-6-openjdk \
++              /usr/lib/jvm/openjdk /usr/lib/jvm/java-icedtea ; do
+        if test -d $dir; then
+-         SYSTEM_GCJ_DIR=$dir
++         SYSTEM_JDK_DIR=$dir
+ 	 break
+        fi
+     done
+   fi
+-  AC_MSG_RESULT(${SYSTEM_GCJ_DIR})
+-  if ! test -d "${SYSTEM_GCJ_DIR}"; then
+-    AC_MSG_ERROR("A GCJ JDK home directory could not be found.")
+-  fi
+-  AC_SUBST(SYSTEM_GCJ_DIR)
+-])
+-
+-dnl This option allows the initial build to be skipped, and a single build
+-dnl to be completed using an existing OpenJDK installation.  It can be used
+-dnl in three ways:
+-dnl   * --with-openjdk: look for OpenJDK in one of a series of predefined dirs
+-dnl   * --without-openjdk (default): do a full bootstrap, no OpenJDK required
+-dnl   * --with-openjdk=${path}: use the OpenJDK installed in the specified location
+-AC_DEFUN([AC_CHECK_FOR_OPENJDK],
+-[
+-  AC_MSG_CHECKING([for an existing OpenJDK installation])
+-  AC_ARG_WITH([openjdk],
+-              [AS_HELP_STRING([--with-openjdk[=DIR]],
+-                              [perform a quick build with an installed copy of OpenJDK])],
+-              [
+-                if test "x${withval}" = xno
+-                then
+-	          SYSTEM_OPENJDK_DIR=no
+-		  with_openjdk=false
+-	        else
+-                  SYSTEM_OPENJDK_DIR=${withval}
+-		  with_openjdk=true
+-                fi
+-              ],
+-              [
+-                SYSTEM_OPENJDK_DIR=no
+-		with_openjdk=false
+-              ])
+-  if test "x${SYSTEM_OPENJDK_DIR}" = xyes; then
+-    for dir in /usr/lib/jvm/java-openjdk /usr/lib/jvm/openjdk \
+-    	       /usr/lib/jvm/icedtea6 /usr/lib/jvm/java-6-openjdk \
+-	       /usr/lib/jvm/java-icedtea ; do
+-       if test -d $dir; then
+-         SYSTEM_OPENJDK_DIR=$dir
+-	 break
+-       fi
+-    done
+-  elif ! test x"${SYSTEM_OPENJDK_DIR}" = xno; then
+-    if ! test -d "${SYSTEM_OPENJDK_DIR}"; then
+-      AC_MSG_ERROR("An OpenJDK home directory could not be found.")
+-    fi
++  AC_MSG_RESULT(${SYSTEM_JDK_DIR})
++  if ! test -d "${SYSTEM_JDK_DIR}"; then
++    AC_MSG_ERROR("A JDK home directory could not be found.")
+   fi
+-  AM_CONDITIONAL(WITH_OPENJDK, test "x${SYSTEM_OPENJDK_DIR}" != xno)
+-  AC_MSG_RESULT(${SYSTEM_OPENJDK_DIR})
+-  AC_SUBST(SYSTEM_OPENJDK_DIR)
+-  AC_SUBST(with_openjdk)
++  AC_SUBST(SYSTEM_JDK_DIR)
+ ])
+ 
+ AC_DEFUN([AC_CHECK_WITH_TZDATA_DIR],
+@@ -1555,3 +1515,62 @@ fi
+ AM_CONDITIONAL([HAS_PAX], test x"${it_cv_pax}" = "xyes")
+ AC_PROVIDE([$0])dnl
+ ])
++
++AC_DEFUN([IT_JAVAH],[
++AC_CACHE_CHECK([if $JAVAH exhibits Classpath bug 39408], it_cv_cp39408_javah, [
++SUPERCLASS=Test.java
++SUBCLASS=TestImpl.java
++SUB=$(echo $SUBCLASS|sed 's#\.java##')
++SUBHEADER=$(echo $SUBCLASS|sed 's#\.java#.h#')
++mkdir tmp.$$
++cd tmp.$$
++cat << \EOF > $SUPERCLASS
++/* [#]line __oline__ "configure" */
++public class Test 
++{
++  public static final int POTATO = 0;
++  public static final int CABBAGE = 1;
++}
++EOF
++cat << \EOF > $SUBCLASS
++/* [#]line __oline__ "configure" */
++public class TestImpl
++  extends Test
++{
++  public native void doStuff();
++}
++EOF
++if $JAVAC -cp . $JAVACFLAGS $SUBCLASS >&AS_MESSAGE_LOG_FD 2>&1; then
++  if $JAVAH -classpath . $SUB >&AS_MESSAGE_LOG_FD 2>&1; then
++    if cat $SUBHEADER | grep POTATO >&AS_MESSAGE_LOG_FD 2>&1; then
++      it_cv_cp39408_javah=no;
++    else
++      it_cv_cp39408_javah=yes;
++    fi
++  else
++    AC_MSG_ERROR([The Java header generator $JAVAH failed])
++    echo "configure: failed program was:" >&AC_FD_CC
++    cat $SUBCLASS >&AC_FD_CC
++  fi
++else
++  AC_MSG_ERROR([The Java compiler $JAVAC failed])
++  echo "configure: failed program was:" >&AC_FD_CC
++  cat $SUBCLASS >&AC_FD_CC
++fi
++])
++AC_CACHE_CHECK([if $JAVAH exhibits Classpath bug 40188], it_cv_cp40188_javah, [
++  if test -e $SUBHEADER ; then
++    if cat $SUBHEADER | grep TestImpl_POTATO >&AS_MESSAGE_LOG_FD 2>&1; then
++      it_cv_cp40188_javah=no;
++    else
++      it_cv_cp40188_javah=yes;
++    fi
++  fi
++])
++rm -f $SUBCLASS $SUPERCLASS $SUBHEADER *.class
++cd ..
++rmdir tmp.$$
++AM_CONDITIONAL([CP39408_JAVAH], test x"${it_cv_cp39408_javah}" = "xyes")
++AM_CONDITIONAL([CP40188_JAVAH], test x"${it_cv_cp40188_javah}" = "xyes")
++AC_PROVIDE([$0])dnl
++])
+diff -Naurp icedtea6-1.9-orig/aclocal.m4 icedtea6-1.9/aclocal.m4
+--- icedtea6-1.9-orig/aclocal.m4	2010-09-07 07:47:17.000000000 -0500
++++ icedtea6-1.9/aclocal.m4	2010-09-07 18:22:39.000000000 -0500
+@@ -20,7 +20,6 @@ If you have problems, you may need to re
+ To do so, use the procedure documented by the package, typically `autoreconf'.])])
+ 
+ # pkg.m4 - Macros to locate and utilise pkg-config.            -*- Autoconf -*-
+-# serial 1 (pkg-config-0.24)
+ # 
+ # Copyright © 2004 Scott James Remnant <scott@netsplit.com>.
+ #
+@@ -48,10 +47,7 @@ To do so, use the procedure documented b
+ AC_DEFUN([PKG_PROG_PKG_CONFIG],
+ [m4_pattern_forbid([^_?PKG_[A-Z_]+$])
+ m4_pattern_allow([^PKG_CONFIG(_PATH)?$])
+-AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])
+-AC_ARG_VAR([PKG_CONFIG_PATH], [directories to add to pkg-config's search path])
+-AC_ARG_VAR([PKG_CONFIG_LIBDIR], [path overriding pkg-config's built-in search path])
+-
++AC_ARG_VAR([PKG_CONFIG], [path to pkg-config utility])dnl
+ if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+ 	AC_PATH_TOOL([PKG_CONFIG], [pkg-config])
+ fi
+@@ -64,6 +60,7 @@ if test -n "$PKG_CONFIG"; then
+ 		AC_MSG_RESULT([no])
+ 		PKG_CONFIG=""
+ 	fi
++		
+ fi[]dnl
+ ])# PKG_PROG_PKG_CONFIG
+ 
+@@ -72,20 +69,21 @@ fi[]dnl
+ # Check to see whether a particular set of modules exists.  Similar
+ # to PKG_CHECK_MODULES(), but does not set variables or print errors.
+ #
+-# Please remember that m4 expands AC_REQUIRE([PKG_PROG_PKG_CONFIG])
+-# only at the first occurence in configure.ac, so if the first place
+-# it's called might be skipped (such as if it is within an "if", you
+-# have to call PKG_CHECK_EXISTS manually
++#
++# Similar to PKG_CHECK_MODULES, make sure that the first instance of
++# this or PKG_CHECK_MODULES is called, or make sure to call
++# PKG_CHECK_EXISTS manually
+ # --------------------------------------------------------------
+ AC_DEFUN([PKG_CHECK_EXISTS],
+ [AC_REQUIRE([PKG_PROG_PKG_CONFIG])dnl
+ if test -n "$PKG_CONFIG" && \
+     AC_RUN_LOG([$PKG_CONFIG --exists --print-errors "$1"]); then
+-  m4_default([$2], [:])
++  m4_ifval([$2], [$2], [:])
+ m4_ifvaln([$3], [else
+   $3])dnl
+ fi])
+ 
++
+ # _PKG_CONFIG([VARIABLE], [COMMAND], [MODULES])
+ # ---------------------------------------------
+ m4_define([_PKG_CONFIG],
+@@ -138,7 +136,6 @@ and $1[]_LIBS to avoid the need to call 
+ See the pkg-config man page for more details.])
+ 
+ if test $pkg_failed = yes; then
+-   	AC_MSG_RESULT([no])
+         _PKG_SHORT_ERRORS_SUPPORTED
+         if test $_pkg_short_errors_supported = yes; then
+ 	        $1[]_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors "$2" 2>&1`
+@@ -148,7 +145,7 @@ if test $pkg_failed = yes; then
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$$1[]_PKG_ERRORS" >&AS_MESSAGE_LOG_FD
+ 
+-	m4_default([$4], [AC_MSG_ERROR(
++	ifelse([$4], , [AC_MSG_ERROR(dnl
+ [Package requirements ($2) were not met:
+ 
+ $$1_PKG_ERRORS
+@@ -156,24 +153,25 @@ $$1_PKG_ERRORS
+ Consider adjusting the PKG_CONFIG_PATH environment variable if you
+ installed software in a non-standard prefix.
+ 
+-_PKG_TEXT])[]dnl
+-        ])
++_PKG_TEXT
++])],
++		[AC_MSG_RESULT([no])
++                $4])
+ elif test $pkg_failed = untried; then
+-     	AC_MSG_RESULT([no])
+-	m4_default([$4], [AC_MSG_FAILURE(
++	ifelse([$4], , [AC_MSG_FAILURE(dnl
+ [The pkg-config script could not be found or is too old.  Make sure it
+ is in your PATH or set the PKG_CONFIG environment variable to the full
+ path to pkg-config.
+ 
+ _PKG_TEXT
+ 
+-To get pkg-config, see <http://pkg-config.freedesktop.org/>.])dnl
+-        ])
++To get pkg-config, see <http://pkg-config.freedesktop.org/>.])],
++		[$4])
+ else
+ 	$1[]_CFLAGS=$pkg_cv_[]$1[]_CFLAGS
+ 	$1[]_LIBS=$pkg_cv_[]$1[]_LIBS
+         AC_MSG_RESULT([yes])
+-	$3
++	ifelse([$3], , :, [$3])
+ fi[]dnl
+ ])# PKG_CHECK_MODULES
+ 
+diff -Naurp icedtea6-1.9-orig/ChangeLog icedtea6-1.9/ChangeLog
+--- icedtea6-1.9-orig/ChangeLog	2010-09-07 09:15:51.000000000 -0500
++++ icedtea6-1.9/ChangeLog	2010-09-07 18:22:17.000000000 -0500
+@@ -78,11 +78,87 @@
+ 	* netx/net/sourceforge/jnlp/JNLPSplashScreen.java
+ 	(setSplashImageURL): Check for possible null.
+ 
++2010-08-24  Andrew John Hughes  <ahughes@redhat.com>
++
++	* Makefile.am: Compile NimbusLookAndFeel as a
++	bootstrap class so the older version from
++	IcedTea6 1.8 is not used when bootstrapping
++	with it.
++
+ 2010-08-23  Andrew Su  <asu@redhat.com>
+ 
+ 	* plugin/icedteanp/java/sun/applet/PluginAppletViewer.java
+ 	    (parse): Removed parsing for unknown <app> tag.
+ 
++2010-08-13  Andrew John Hughes  <ahughes@redhat.com>
++
++	* patches/ecj/javah.patch: Moved to...
++	* Makefile.am: Apply patch to OpenGL headers
++	only if javah exhibits Classpath bug 40188.
++	http://gcc.gnu.org/bugzilla/show_bug.cgi?id=40188
++	* patches/ecj/cp40188-opengl.patch: here.
++
++2010-08-13  Andrew John Hughes  <ahughes@redhat.com>
++
++	* acinclude.m4:
++	(IT_JAVAH): Renamed from IT_CP39408_JAVAH.
++	Add test for PR40188.
++	* configure.ac:
++	Make full bootstrap the default again.  Rename
++	IT_CP39408_JAVAH to IT_JAVAH.
++
++2010-08-13  Andrew John Hughes  <ahughes@redhat.com>
++
++	* acinclude.m4:
++	(IT_CP39408_JAVAH): Add classpath specification
++	to JAVAC invocation to handle buggy ecjs.
++
++2010-08-13  Andrew John Hughes  <ahughes@redhat.com>
++
++	* acinclude.m4:
++	(IT_CP39408_JAVAH): New test for Classpath
++	bug 39408.
++	* configure.ac: Enable new test.  Result
++	as yet unused.
++
++2010-08-13  Andrew John Hughes  <ahughes@redhat.com>
++
++	* Makefile.am:
++	Replace conditionals on LACKS_SUN_AWT_TOOLKIT
++	with ones on BOOTSTRAPPING.  If we are bootstrapping,
++	we don't trust the system JDK and update rt.jar
++	with newly built classes, regardless of whether it's
++	an Oracle-based JDK or not.
++	* configure.ac:
++	Remove check for sun.awt.Toolkit.
++
++2010-08-10  Andrew John Hughes  <ahughes@redhat.com>
++
++	* Makefile.am:
++	Remove use of WITH_OPENJDK and SYSTEM_GCJ_DIR
++	replacing with BOOTSTRAPPING and SYSTEM_JDK_DIR
++	as appropriate.
++	* acinclude.m4:
++	(FIND_JAVAC): Search for generic 'javac' first.
++	(IT_FIND_ECJ): Only use ecj as javac if JAVA is unset.
++	(IT_CHECK_ECJ): Add configure output.
++	(IT_FIND_JAVAC): Likewise.
++	(IT_CHECK_JAVAC): Likewise.
++	(FIND_JAVA): Try java in SYSTEM_JDK_DIR before searching.
++	(FIND_JAVAH): Likewise for javah.
++	(FIND_JAR): Likewise for jar.
++	(FIND_RMIC): Likewise for rmic.
++	(IT_CHECK_IF_BOOTSTRAPPING): Allow bootstrapping to be disabled.
++	Makes explicit the side-effect of --with-openjdk.
++	(IT_CHECK_FOR_JDK): Find JDK to use.  Replaces --with-gcj-jdk,
++	and --with-openjdk.  At present, only checks for gcj jdks if
++	not bootstrapping.
++	(AC_CHECK_FOR_OPENJDK): Removed.
++	(AC_CHECK_FOR_GCJ_JDK): Removed.
++	* configure.ac:
++	Remove --with-openjdk.  Always check for a JDK and then allow
++	individual binaries to be overridden by --with-x.
++
+ 2010-08-09  Deepak Bhole <dbhole@redhat.com>
+ 
+ 	* Makefile.am:
+diff -Naurp icedtea6-1.9-orig/config.guess icedtea6-1.9/config.guess
+--- icedtea6-1.9-orig/config.guess	2010-09-07 07:47:19.000000000 -0500
++++ icedtea6-1.9/config.guess	2010-09-07 18:22:40.000000000 -0500
+@@ -1,10 +1,10 @@
+ #! /bin/sh
+ # Attempt to guess a canonical system name.
+ #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+-#   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
++#   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ #   Free Software Foundation, Inc.
+ 
+-timestamp='2010-04-03'
++timestamp='2009-11-20'
+ 
+ # This file is free software; you can redistribute it and/or modify it
+ # under the terms of the GNU General Public License as published by
+@@ -56,9 +56,8 @@ version="\
+ GNU config.guess ($timestamp)
+ 
+ Originally written by Per Bothner.
+-Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free
+-Software Foundation, Inc.
++Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
++2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -92,7 +91,7 @@ if test $# != 0; then
+   exit 1
+ fi
+ 
+-trap 'exit 1' HUP INT TERM
++trap 'exit 1' 1 2 15
+ 
+ # CC_FOR_BUILD -- compiler used by this script. Note that the use of a
+ # compiler to aid in system detection is discouraged as it requires
+@@ -106,7 +105,7 @@ trap 'exit 1' HUP INT TERM
+ 
+ set_cc_for_build='
+ trap "exitcode=\$?; (rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null) && exit \$exitcode" 0 ;
+-trap "rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null; exit 1" HUP INT PIPE TERM ;
++trap "rm -f \$tmpfiles 2>/dev/null; rmdir \$tmp 2>/dev/null; exit 1" 1 2 13 15 ;
+ : ${TMPDIR=/tmp} ;
+  { tmp=`(umask 077 && mktemp -d "$TMPDIR/cgXXXXXX") 2>/dev/null` && test -n "$tmp" && test -d "$tmp" ; } ||
+  { test -n "$RANDOM" && tmp=$TMPDIR/cg$$-$RANDOM && (umask 077 && mkdir $tmp) ; } ||
+@@ -140,29 +139,6 @@ UNAME_RELEASE=`(uname -r) 2>/dev/null` |
+ UNAME_SYSTEM=`(uname -s) 2>/dev/null`  || UNAME_SYSTEM=unknown
+ UNAME_VERSION=`(uname -v) 2>/dev/null` || UNAME_VERSION=unknown
+ 
+-case "${UNAME_SYSTEM}" in
+-Linux|GNU/*)
+-	eval $set_cc_for_build
+-	cat <<-EOF > $dummy.c
+-	#include <features.h>
+-	#ifdef __UCLIBC__
+-	# ifdef __UCLIBC_CONFIG_VERSION__
+-	LIBC=uclibc __UCLIBC_CONFIG_VERSION__
+-	# else
+-	LIBC=uclibc
+-	# endif
+-	#else
+-	# ifdef __dietlibc__
+-	LIBC=dietlibc
+-	# else
+-	LIBC=gnu
+-	# endif
+-	#endif
+-	EOF
+-	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC'`
+-	;;
+-esac
+-
+ # Note: order is significant - the case branches are not exclusive.
+ 
+ case "${UNAME_MACHINE}:${UNAME_SYSTEM}:${UNAME_RELEASE}:${UNAME_VERSION}" in
+@@ -872,11 +848,11 @@ EOF
+ 	exit ;;
+     *:GNU:*:*)
+ 	# the GNU system
+-	echo `echo ${UNAME_MACHINE}|sed -e 's,[-/].*$,,'`-unknown-${LIBC}`echo ${UNAME_RELEASE}|sed -e 's,/.*$,,'`
++	echo `echo ${UNAME_MACHINE}|sed -e 's,[-/].*$,,'`-unknown-gnu`echo ${UNAME_RELEASE}|sed -e 's,/.*$,,'`
+ 	exit ;;
+     *:GNU/*:*:*)
+ 	# other systems with GNU libc and userland
+-	echo ${UNAME_MACHINE}-unknown-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr '[A-Z]' '[a-z]'``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-`echo ${UNAME_SYSTEM} | sed 's,^[^/]*/,,' | tr '[A-Z]' '[a-z]'``echo ${UNAME_RELEASE}|sed -e 's/[-(].*//'`-gnu
+ 	exit ;;
+     i*86:Minix:*:*)
+ 	echo ${UNAME_MACHINE}-pc-minix
+@@ -892,42 +868,50 @@ EOF
+ 	  EV68*) UNAME_MACHINE=alphaev68 ;;
+         esac
+ 	objdump --private-headers /bin/sh | grep -q ld.so.1
+-	if test "$?" = 0 ; then LIBC="gnulibc1" ; fi
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	if test "$?" = 0 ; then LIBC="libc1" ; else LIBC="" ; fi
++	echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC}
+ 	exit ;;
+     arm*:Linux:*:*)
+ 	eval $set_cc_for_build
+ 	if echo __ARM_EABI__ | $CC_FOR_BUILD -E - 2>/dev/null \
+ 	    | grep -q __ARM_EABI__
+ 	then
+-	    echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	    echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	else
+-	    echo ${UNAME_MACHINE}-unknown-linux-${LIBC}eabi
++	    echo ${UNAME_MACHINE}-unknown-linux-gnueabi
+ 	fi
+ 	exit ;;
+     avr32*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     cris:Linux:*:*)
+-	echo cris-axis-linux-${LIBC}
++	echo cris-axis-linux-gnu
+ 	exit ;;
+     crisv32:Linux:*:*)
+-	echo crisv32-axis-linux-${LIBC}
++	echo crisv32-axis-linux-gnu
+ 	exit ;;
+     frv:Linux:*:*)
+-    	echo frv-unknown-linux-${LIBC}
++    	echo frv-unknown-linux-gnu
+ 	exit ;;
+     i*86:Linux:*:*)
+-	echo ${UNAME_MACHINE}-pc-linux-${LIBC}
++	LIBC=gnu
++	eval $set_cc_for_build
++	sed 's/^	//' << EOF >$dummy.c
++	#ifdef __dietlibc__
++	LIBC=dietlibc
++	#endif
++EOF
++	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^LIBC'`
++	echo "${UNAME_MACHINE}-pc-linux-${LIBC}"
+ 	exit ;;
+     ia64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     m32r*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     m68*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     mips:Linux:*:* | mips64:Linux:*:*)
+ 	eval $set_cc_for_build
+@@ -946,51 +930,51 @@ EOF
+ 	#endif
+ EOF
+ 	eval `$CC_FOR_BUILD -E $dummy.c 2>/dev/null | grep '^CPU'`
+-	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-${LIBC}"; exit; }
++	test x"${CPU}" != x && { echo "${CPU}-unknown-linux-gnu"; exit; }
+ 	;;
+     or32:Linux:*:*)
+-	echo or32-unknown-linux-${LIBC}
++	echo or32-unknown-linux-gnu
+ 	exit ;;
+     padre:Linux:*:*)
+-	echo sparc-unknown-linux-${LIBC}
++	echo sparc-unknown-linux-gnu
+ 	exit ;;
+     parisc64:Linux:*:* | hppa64:Linux:*:*)
+-	echo hppa64-unknown-linux-${LIBC}
++	echo hppa64-unknown-linux-gnu
+ 	exit ;;
+     parisc:Linux:*:* | hppa:Linux:*:*)
+ 	# Look for CPU level
+ 	case `grep '^cpu[^a-z]*:' /proc/cpuinfo 2>/dev/null | cut -d' ' -f2` in
+-	  PA7*) echo hppa1.1-unknown-linux-${LIBC} ;;
+-	  PA8*) echo hppa2.0-unknown-linux-${LIBC} ;;
+-	  *)    echo hppa-unknown-linux-${LIBC} ;;
++	  PA7*) echo hppa1.1-unknown-linux-gnu ;;
++	  PA8*) echo hppa2.0-unknown-linux-gnu ;;
++	  *)    echo hppa-unknown-linux-gnu ;;
+ 	esac
+ 	exit ;;
+     ppc64:Linux:*:*)
+-	echo powerpc64-unknown-linux-${LIBC}
++	echo powerpc64-unknown-linux-gnu
+ 	exit ;;
+     ppc:Linux:*:*)
+-	echo powerpc-unknown-linux-${LIBC}
++	echo powerpc-unknown-linux-gnu
+ 	exit ;;
+     s390:Linux:*:* | s390x:Linux:*:*)
+ 	echo ${UNAME_MACHINE}-ibm-linux
+ 	exit ;;
+     sh64*:Linux:*:*)
+-    	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++    	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     sh*:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     sparc:Linux:*:* | sparc64:Linux:*:*)
+-	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     vax:Linux:*:*)
+-	echo ${UNAME_MACHINE}-dec-linux-${LIBC}
++	echo ${UNAME_MACHINE}-dec-linux-gnu
+ 	exit ;;
+     x86_64:Linux:*:*)
+-	echo x86_64-unknown-linux-${LIBC}
++	echo x86_64-unknown-linux-gnu
+ 	exit ;;
+     xtensa*:Linux:*:*)
+-    	echo ${UNAME_MACHINE}-unknown-linux-${LIBC}
++    	echo ${UNAME_MACHINE}-unknown-linux-gnu
+ 	exit ;;
+     i*86:DYNIX/ptx:4*:*)
+ 	# ptx 4.0 does uname -s correctly, with DYNIX/ptx in there.
+diff -Naurp icedtea6-1.9-orig/config.sub icedtea6-1.9/config.sub
+--- icedtea6-1.9-orig/config.sub	2010-09-07 07:47:20.000000000 -0500
++++ icedtea6-1.9/config.sub	2010-09-07 18:22:40.000000000 -0500
+@@ -1,10 +1,10 @@
+ #! /bin/sh
+ # Configuration validation subroutine script.
+ #   Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999,
+-#   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010
++#   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009
+ #   Free Software Foundation, Inc.
+ 
+-timestamp='2010-03-22'
++timestamp='2009-11-20'
+ 
+ # This file is (in principle) common to ALL GNU software.
+ # The presence of a machine in this file suggests that SOME GNU software
+@@ -75,9 +75,8 @@ Report bugs and patches to <config-patch
+ version="\
+ GNU config.sub ($timestamp)
+ 
+-Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Free
+-Software Foundation, Inc.
++Copyright (C) 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001,
++2002, 2003, 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ This is free software; see the source for copying conditions.  There is NO
+ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+@@ -252,7 +251,7 @@ case $basic_machine in
+ 	| arc | arm | arm[bl]e | arme[lb] | armv[2345] | armv[345][lb] | avr | avr32 \
+ 	| bfin \
+ 	| c4x | clipper \
+-	| d10v | d30v | dlx | dsp16xx | dvp \
++	| d10v | d30v | dlx | dsp16xx \
+ 	| fido | fr30 | frv \
+ 	| h8300 | h8500 | hppa | hppa1.[01] | hppa2.0 | hppa2.0[nw] | hppa64 \
+ 	| i370 | i860 | i960 | ia64 \
+@@ -295,7 +294,7 @@ case $basic_machine in
+ 	| sparc | sparc64 | sparc64b | sparc64v | sparc86x | sparclet | sparclite \
+ 	| sparcv8 | sparcv9 | sparcv9b | sparcv9v \
+ 	| spu | strongarm \
+-	| tahoe | thumb | tic4x | tic54x | tic55x | tic6x | tic80 | tron \
++	| tahoe | thumb | tic4x | tic80 | tron \
+ 	| ubicom32 \
+ 	| v850 | v850e \
+ 	| we32k \
+@@ -303,15 +302,6 @@ case $basic_machine in
+ 	| z8k | z80)
+ 		basic_machine=$basic_machine-unknown
+ 		;;
+-	c54x)
+-		basic_machine=tic54x-unknown
+-		;;
+-	c55x)
+-		basic_machine=tic55x-unknown
+-		;;
+-	c6x)
+-		basic_machine=tic6x-unknown
+-		;;
+ 	m6811 | m68hc11 | m6812 | m68hc12 | picochip)
+ 		# Motorola 68HC11/12.
+ 		basic_machine=$basic_machine-unknown
+@@ -343,7 +333,7 @@ case $basic_machine in
+ 	| arm-*  | armbe-* | armle-* | armeb-* | armv*-* \
+ 	| avr-* | avr32-* \
+ 	| bfin-* | bs2000-* \
+-	| c[123]* | c30-* | [cjt]90-* | c4x-* \
++	| c[123]* | c30-* | [cjt]90-* | c4x-* | c54x-* | c55x-* | c6x-* \
+ 	| clipper-* | craynv-* | cydra-* \
+ 	| d10v-* | d30v-* | dlx-* \
+ 	| elxsi-* \
+@@ -390,8 +380,7 @@ case $basic_machine in
+ 	| sparclite-* \
+ 	| sparcv8-* | sparcv9-* | sparcv9b-* | sparcv9v-* | strongarm-* | sv1-* | sx?-* \
+ 	| tahoe-* | thumb-* \
+-	| tic30-* | tic4x-* | tic54x-* | tic55x-* | tic6x-* | tic80-* \
+-	| tile-* | tilegx-* \
++	| tic30-* | tic4x-* | tic54x-* | tic55x-* | tic6x-* | tic80-* | tile-* \
+ 	| tron-* \
+ 	| ubicom32-* \
+ 	| v850-* | v850e-* | vax-* \
+@@ -491,15 +480,6 @@ case $basic_machine in
+ 		basic_machine=powerpc-ibm
+ 		os=-cnk
+ 		;;
+-	c54x-*)
+-		basic_machine=tic54x-`echo $basic_machine | sed 's/^[^-]*-//'`
+-		;;
+-	c55x-*)
+-		basic_machine=tic55x-`echo $basic_machine | sed 's/^[^-]*-//'`
+-		;;
+-	c6x-*)
+-		basic_machine=tic6x-`echo $basic_machine | sed 's/^[^-]*-//'`
+-		;;
+ 	c90)
+ 		basic_machine=c90-cray
+ 		os=-unicos
+@@ -770,24 +750,6 @@ case $basic_machine in
+ 		basic_machine=m68k-atari
+ 		os=-mint
+ 		;;
+-	mipsEE* | ee | ps2)
+-		basic_machine=mips64r5900el-scei
+-		case $os in
+-		    -linux*)
+-			;;
+-		    *)
+-			os=-elf
+-			;;
+-		esac
+-		;;
+-	iop)
+-		basic_machine=mipsel-scei
+-		os=-irx
+-		;;
+-	dvp)
+-		basic_machine=dvp-scei
+-		os=-elf
+-		;;
+ 	mips3*-*)
+ 		basic_machine=`echo $basic_machine | sed -e 's/mips3/mips64/'`
+ 		;;
+@@ -1111,10 +1073,17 @@ case $basic_machine in
+ 		basic_machine=t90-cray
+ 		os=-unicos
+ 		;;
+-        # This must be matched before tile*.
+-        tilegx*)
+-		basic_machine=tilegx-unknown
+-		os=-linux-gnu
++	tic54x | c54x*)
++		basic_machine=tic54x-unknown
++		os=-coff
++		;;
++	tic55x | c55x*)
++		basic_machine=tic55x-unknown
++		os=-coff
++		;;
++	tic6x | c6x*)
++		basic_machine=tic6x-unknown
++		os=-coff
+ 		;;
+ 	tile*)
+ 		basic_machine=tile-unknown
+@@ -1329,7 +1298,7 @@ case $os in
+ 	      | -uxpv* | -beos* | -mpeix* | -udk* \
+ 	      | -interix* | -uwin* | -mks* | -rhapsody* | -darwin* | -opened* \
+ 	      | -openstep* | -oskit* | -conix* | -pw32* | -nonstopux* \
+-	      | -storm-chaos* | -tops10* | -tenex* | -tops20* | -its* | -irx* \
++	      | -storm-chaos* | -tops10* | -tenex* | -tops20* | -its* \
+ 	      | -os2* | -vos* | -palmos* | -uclinux* | -nucleus* \
+ 	      | -morphos* | -superux* | -rtmk* | -rtmk-nova* | -windiss* \
+ 	      | -powermax* | -dnix* | -nx6 | -nx7 | -sei* | -dragonfly* \
+@@ -1466,8 +1435,6 @@ case $os in
+ 	-dicos*)
+ 		os=-dicos
+ 		;;
+-        -nacl*)
+-	        ;;
+ 	-none)
+ 		;;
+ 	*)
+@@ -1508,15 +1475,6 @@ case $basic_machine in
+         c4x-* | tic4x-*)
+         	os=-coff
+ 		;;
+-	tic54x-*)
+-		os=-coff
+-		;;
+-	tic55x-*)
+-		os=-coff
+-		;;
+-	tic6x-*)
+-		os=-coff
+-		;;
+ 	# This must come before the *-dec entry.
+ 	pdp10-*)
+ 		os=-tops20
+diff -Naurp icedtea6-1.9-orig/configure icedtea6-1.9/configure
+--- icedtea6-1.9-orig/configure	2010-09-07 07:47:19.000000000 -0500
++++ icedtea6-1.9/configure	2010-09-07 18:22:40.000000000 -0500
+@@ -630,6 +630,10 @@ XT_LIBS
+ XT_CFLAGS
+ XPROTO_LIBS
+ XPROTO_CFLAGS
++CP40188_JAVAH_FALSE
++CP40188_JAVAH_TRUE
++CP39408_JAVAH_FALSE
++CP39408_JAVAH_TRUE
+ MOZILLA_VERSION_COLLAPSED
+ ENABLE_PLUGIN_FALSE
+ ENABLE_PLUGIN_TRUE
+@@ -641,8 +645,6 @@ GTK_LIBS
+ GTK_CFLAGS
+ DTDTYPE_QNAME_FALSE
+ DTDTYPE_QNAME_TRUE
+-LACKS_SUN_AWT_TOOLKIT_FALSE
+-LACKS_SUN_AWT_TOOLKIT_TRUE
+ WITH_TZDATA_DIR_FALSE
+ WITH_TZDATA_DIR_TRUE
+ TZDATA_DIR
+@@ -709,16 +711,18 @@ XERCES2_JAR
+ XALAN2_SERIALIZER_JAR
+ XALAN2_JAR
+ ECJ_JAR
++RMIC
+ JAR_KNOWS_J_OPTIONS
+ JAR_ACCEPTS_STDIN_LIST
+ JAR_KNOWS_ATFILE
+-ECJ
+-SYSTEM_GCJ_DIR
+-RMIC
+ JAR
+ JAVAH
++ECJ
+ JAVAC
+ JAVA
++SYSTEM_JDK_DIR
++BOOTSTRAPPING_FALSE
++BOOTSTRAPPING_TRUE
+ OPENJDK_BUILD_DIR
+ OS_PATH
+ BUILD_OS_DIR
+@@ -738,8 +742,6 @@ ENABLE_NSS_TRUE
+ NSS_LIBDIR
+ NSS_LIBS
+ NSS_CFLAGS
+-PKG_CONFIG_LIBDIR
+-PKG_CONFIG_PATH
+ PKG_CONFIG
+ DEFAULT_LIBDIR
+ ENABLE_SYSTEMTAP_FALSE
+@@ -763,10 +765,6 @@ CP_SUPPORTS_REFLINK_FALSE
+ CP_SUPPORTS_REFLINK_TRUE
+ PARALLEL_JOBS
+ GETCONF
+-with_openjdk
+-SYSTEM_OPENJDK_DIR
+-WITH_OPENJDK_FALSE
+-WITH_OPENJDK_TRUE
+ GCC_OLD_FALSE
+ GCC_OLD_TRUE
+ LINUX32
+@@ -908,7 +906,6 @@ enable_dependency_tracking
+ with_openjdk_src_dir
+ with_gcj
+ with_hotspot_build
+-with_openjdk
+ with_parallel_jobs
+ with_ant_home
+ enable_pulse_java
+@@ -919,10 +916,11 @@ enable_nio2
+ enable_systemtap
+ enable_nss
+ with_pkgversion
+-with_gcj_home
++enable_bootstrap
++with_jdk_home
+ with_java
+-with_ecj
+ with_javac
++with_ecj
+ with_javah
+ with_jar
+ with_rmic
+@@ -963,8 +961,6 @@ CXX
+ CXXFLAGS
+ CCC
+ PKG_CONFIG
+-PKG_CONFIG_PATH
+-PKG_CONFIG_LIBDIR
+ NSS_CFLAGS
+ NSS_LIBS
+ CPP
+@@ -1629,6 +1625,7 @@ Optional Features:
+   --enable-nio2           Enable inclusion of backported NIO2
+   --enable-systemtap      Enable inclusion of SystemTap trace support
+   --enable-nss            Enable inclusion of NSS security provider
++  --disable-bootstrap     don't build a bootstrap version [default=no]
+   --enable-cacao          use CACAO as VM [default=no]
+   --disable-optimizations build with -O0 -g [default=no]
+   --enable-shark          use Shark JIT
+@@ -1643,21 +1640,19 @@ Optional Packages:
+                           specify the location of the openjdk sources
+   --with-gcj              location of gcj for natively compiling ecj
+   --with-hotspot-build    the HotSpot build to use (see hotspot.map)
+-  --with-openjdk=DIR      perform a quick build with an installed copy of
+-                          OpenJDK
+   --with-parallel-jobs    build IcedTea using the specified number of parallel
+                           jobs
+   --with-ant-home         Ant home directory (default is /usr/share/ant)
+   --with-pkgversion=PKG   Use PKG in the version string in addition to
+                           "IcedTea"
+-  --with-gcj-home         gcj home directory (default is /usr/lib/jvm/java-gcj
+-                          or /usr/lib/jvm/gcj-jdk)
++  --with-jdk-home         jdk home directory (default is first predefined JDK
++                          found)
+   --with-java             specify location of the 1.5 java vm
+-  --with-ecj              bytecode compilation with ecj
+   --with-javac            bytecode compilation with javac
+-  --with-javah            specify location of javah
+-  --with-jar              specify location of jar
+-  --with-rmic             specify location of rmic
++  --with-ecj              bytecode compilation with ecj
++  --with-javah            specify location of the Java header generator
++  --with-jar              specify location of Java archive tool (jar)
++  --with-rmic             specify location of the RMI compiler
+   --with-ecj-jar          specify location of the ECJ jar
+   --with-xalan2-jar       specify location of the xalan2 jar
+   --with-xalan2-serializer-jar
+@@ -1695,10 +1690,6 @@ Some influential environment variables:
+   CXX         C++ compiler command
+   CXXFLAGS    C++ compiler flags
+   PKG_CONFIG  path to pkg-config utility
+-  PKG_CONFIG_PATH
+-              directories to add to pkg-config's search path
+-  PKG_CONFIG_LIBDIR
+-              path overriding pkg-config's built-in search path
+   NSS_CFLAGS  C compiler flags for NSS, overriding pkg-config
+   NSS_LIBS    linker flags for NSS, overriding pkg-config
+   CPP         C preprocessor
+@@ -7086,56 +7077,6 @@ fi
+ $as_echo "${gcc_ver} (major version ${gcc_major_ver}, minor version ${gcc_minor_ver})" >&6; }
+ 
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for an existing OpenJDK installation" >&5
+-$as_echo_n "checking for an existing OpenJDK installation... " >&6; }
+-
+-# Check whether --with-openjdk was given.
+-if test "${with_openjdk+set}" = set; then :
+-  withval=$with_openjdk;
+-                if test "x${withval}" = xno
+-                then
+-	          SYSTEM_OPENJDK_DIR=no
+-		  with_openjdk=false
+-	        else
+-                  SYSTEM_OPENJDK_DIR=${withval}
+-		  with_openjdk=true
+-                fi
+-
+-else
+-
+-                SYSTEM_OPENJDK_DIR=no
+-		with_openjdk=false
+-
+-fi
+-
+-  if test "x${SYSTEM_OPENJDK_DIR}" = xyes; then
+-    for dir in /usr/lib/jvm/java-openjdk /usr/lib/jvm/openjdk \
+-    	       /usr/lib/jvm/icedtea6 /usr/lib/jvm/java-6-openjdk \
+-	       /usr/lib/jvm/java-icedtea ; do
+-       if test -d $dir; then
+-         SYSTEM_OPENJDK_DIR=$dir
+-	 break
+-       fi
+-    done
+-  elif ! test x"${SYSTEM_OPENJDK_DIR}" = xno; then
+-    if ! test -d "${SYSTEM_OPENJDK_DIR}"; then
+-      as_fn_error "\"An OpenJDK home directory could not be found.\"" "$LINENO" 5
+-    fi
+-  fi
+-   if test "x${SYSTEM_OPENJDK_DIR}" != xno; then
+-  WITH_OPENJDK_TRUE=
+-  WITH_OPENJDK_FALSE='#'
+-else
+-  WITH_OPENJDK_TRUE='#'
+-  WITH_OPENJDK_FALSE=
+-fi
+-
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${SYSTEM_OPENJDK_DIR}" >&5
+-$as_echo "${SYSTEM_OPENJDK_DIR}" >&6; }
+-
+-
+-
+-
+   if test -n "$ac_tool_prefix"; then
+   # Extract the first word of "${ac_tool_prefix}getconf", so it can be a program name with args.
+ set dummy ${ac_tool_prefix}getconf; ac_word=$2
+@@ -7543,10 +7484,6 @@ DEFAULT_LIBDIR=$it_cv_default_libdir
+ 
+ 
+ 
+-
+-
+-
+-
+ if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+ 	if test -n "$ac_tool_prefix"; then
+   # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+@@ -7659,6 +7596,7 @@ $as_echo "yes" >&6; }
+ $as_echo "no" >&6; }
+ 		PKG_CONFIG=""
+ 	fi
++
+ fi
+ 
+ 
+@@ -7703,8 +7641,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -7719,10 +7655,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$NSS_PKG_ERRORS" >&5
+ 
+-	NSS_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                NSS_FOUND=no
++elif test $pkg_failed = untried; then
+ 	NSS_FOUND=no
+ else
+ 	NSS_CFLAGS=$pkg_cv_NSS_CFLAGS
+@@ -7954,71 +7890,99 @@ $as_echo "${DIST_ID}" >&6; }
+ OPENJDK_BUILD_DIR=openjdk.build
+ 
+ 
+-if test "${with_openjdk}" = true
+-then
+-  JAVA=$SYSTEM_OPENJDK_DIR/bin/java
+ 
+-  JAVAC=${SYSTEM_OPENJDK_DIR}/bin/javac
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to build a bootstrap version first" >&5
++$as_echo_n "checking whether to build a bootstrap version first... " >&6; }
++  # Check whether --enable-bootstrap was given.
++if test "${enable_bootstrap+set}" = set; then :
++  enableval=$enable_bootstrap;
++    case "${enableval}" in
++      no)
++       enable_bootstrap=no
++        ;;
++      *)
++        enable_bootstrap=yes
++        ;;
++    esac
+ 
+-  JAVAH=${SYSTEM_OPENJDK_DIR}/bin/javah
++else
+ 
+-  JAR=${SYSTEM_OPENJDK_DIR}/bin/jar
++        enable_bootstrap=yes
+ 
+-  RMIC=${SYSTEM_OPENJDK_DIR}/bin/rmic
++fi
+ 
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${enable_bootstrap}" >&5
++$as_echo "${enable_bootstrap}" >&6; }
++   if test x"${enable_bootstrap}" = "xyes"; then
++  BOOTSTRAPPING_TRUE=
++  BOOTSTRAPPING_FALSE='#'
+ else
++  BOOTSTRAPPING_TRUE='#'
++  BOOTSTRAPPING_FALSE=
++fi
++
++
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a GCJ JDK home directory" >&5
+-$as_echo_n "checking for a GCJ JDK home directory... " >&6; }
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for a JDK home directory" >&5
++$as_echo_n "checking for a JDK home directory... " >&6; }
+ 
+-# Check whether --with-gcj-home was given.
+-if test "${with_gcj_home+set}" = set; then :
+-  withval=$with_gcj_home;
++# Check whether --with-jdk-home was given.
++if test "${with_jdk_home+set}" = set; then :
++  withval=$with_jdk_home;
+                 if test "x${withval}" = xyes
+                 then
+-                  SYSTEM_GCJ_DIR=
++                  SYSTEM_JDK_DIR=
+                 elif test "x${withval}" = xno
+                 then
+-	          SYSTEM_GCJ_DIR=
++	          SYSTEM_JDK_DIR=
+ 	        else
+-                  SYSTEM_GCJ_DIR=${withval}
++                  SYSTEM_JDK_DIR=${withval}
+                 fi
+ 
+ else
+ 
+-	        SYSTEM_GCJ_DIR=
++	        SYSTEM_JDK_DIR=
+ 
+ fi
+ 
+-  if test -z "${SYSTEM_GCJ_DIR}"; then
+-    for dir in /usr/lib/jvm/java-gcj /usr/lib/jvm/gcj-jdk /usr/lib/jvm/cacao ; do
++  if test -z "${SYSTEM_JDK_DIR}"; then
++    if test "x${enable_bootstrap}" = "xyes"; then
++      BOOTSTRAP_VMS="/usr/lib/jvm/java-gcj /usr/lib/jvm/gcj-jdk /usr/lib/jvm/cacao";
++    fi
++    for dir in ${BOOTSTRAP_VMS} /usr/lib/jvm/java-openjdk \
++              /usr/lib/jvm/icedtea6 /usr/lib/jvm/java-6-openjdk \
++              /usr/lib/jvm/openjdk /usr/lib/jvm/java-icedtea ; do
+        if test -d $dir; then
+-         SYSTEM_GCJ_DIR=$dir
++         SYSTEM_JDK_DIR=$dir
+ 	 break
+        fi
+     done
+   fi
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${SYSTEM_GCJ_DIR}" >&5
+-$as_echo "${SYSTEM_GCJ_DIR}" >&6; }
+-  if ! test -d "${SYSTEM_GCJ_DIR}"; then
+-    as_fn_error "\"A GCJ JDK home directory could not be found.\"" "$LINENO" 5
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${SYSTEM_JDK_DIR}" >&5
++$as_echo "${SYSTEM_JDK_DIR}" >&6; }
++  if ! test -d "${SYSTEM_JDK_DIR}"; then
++    as_fn_error "\"A JDK home directory could not be found.\"" "$LINENO" 5
+   fi
+ 
+ 
+ 
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for java" >&5
++$as_echo_n "checking for java... " >&6; }
+ 
+ # Check whether --with-java was given.
+ if test "${with_java+set}" = set; then :
+   withval=$with_java;
+-    if test -f "${withval}"; then
+-      { $as_echo "$as_me:${as_lineno-$LINENO}: checking java" >&5
+-$as_echo_n "checking java... " >&6; }
+-      JAVA="${withval}"
+-      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${withval}" >&5
+-$as_echo "${withval}" >&6; }
+-    else
+-      # Extract the first word of ""${withval}"", so it can be a program name with args.
+-set dummy "${withval}"; ac_word=$2
++    JAVA="${withval}"
++
++else
++
++    JAVA=${SYSTEM_JDK_DIR}/bin/java
++
++fi
++
++  if ! test -f "${JAVA}"; then
++    # Extract the first word of ""${JAVA}"", so it can be a program name with args.
++set dummy "${JAVA}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+ if test "${ac_cv_path_JAVA+set}" = set; then :
+@@ -8057,14 +8021,7 @@ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    fi
+-
+-else
+-
+-    JAVA=
+-
+-fi
+-
++  fi
+   if test -z "${JAVA}"; then
+     # Extract the first word of ""gij"", so it can be a program name with args.
+ set dummy "gij"; ac_word=$2
+@@ -8152,32 +8109,37 @@ fi
+   if test -z "${JAVA}"; then
+     as_fn_error "\"A 1.5-compatible Java VM is required.\"" "$LINENO" 5
+   fi
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVA}" >&5
++$as_echo "${JAVA}" >&6; }
+ 
+ 
+ 
+-  user_specified_javac=
+-
++  JAVAC=${SYSTEM_JDK_DIR}/bin/javac
+ 
+ 
+-# Check whether --with-ecj was given.
+-if test "${with_ecj+set}" = set; then :
+-  withval=$with_ecj;
++# Check whether --with-javac was given.
++if test "${with_javac+set}" = set; then :
++  withval=$with_javac;
+     if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+ 
+   if test "x${withval}" != x; then
+     if test -f "${withval}"; then
+-      ECJ="${withval}"
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for javac" >&5
++$as_echo_n "checking for javac... " >&6; }
++      JAVAC="${withval}"
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVAC}" >&5
++$as_echo "${JAVAC}" >&6; }
+     else
+       # Extract the first word of ""${withval}"", so it can be a program name with args.
+ set dummy "${withval}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8187,7 +8149,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8198,10 +8160,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -8210,16 +8172,16 @@ fi
+ 
+     fi
+   else
+-    # Extract the first word of ""ecj"", so it can be a program name with args.
+-set dummy "ecj"; ac_word=$2
++    # Extract the first word of ""javac"", so it can be a program name with args.
++set dummy "javac"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8229,7 +8191,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8240,27 +8202,39 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    if test -z "${ECJ}"; then
+-      # Extract the first word of ""ecj-3.1"", so it can be a program name with args.
+-set dummy "ecj-3.1"; ac_word=$2
++  fi
++
++    else
++      if test "x${withval}" != xno; then
++
++  if test "x" != x; then
++    if test -f ""; then
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for javac" >&5
++$as_echo_n "checking for javac... " >&6; }
++      JAVAC=""
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVAC}" >&5
++$as_echo "${JAVAC}" >&6; }
++    else
++      # Extract the first word of """", so it can be a program name with args.
++set dummy ""; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8270,7 +8244,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8281,10 +8255,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -8292,17 +8266,17 @@ fi
+ 
+ 
+     fi
+-    if test -z "${ECJ}"; then
+-      # Extract the first word of ""ecj-3.2"", so it can be a program name with args.
+-set dummy "ecj-3.2"; ac_word=$2
++  else
++    # Extract the first word of ""javac"", so it can be a program name with args.
++set dummy "javac"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8312,7 +8286,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8323,28 +8297,42 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+ fi
+ 
+ 
++  fi
++
++      fi
+     fi
+-    if test -z "${ECJ}"; then
+-      # Extract the first word of ""ecj-3.3"", so it can be a program name with args.
+-set dummy "ecj-3.3"; ac_word=$2
++
++else
++
++
++  if test "x" != x; then
++    if test -f ""; then
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for javac" >&5
++$as_echo_n "checking for javac... " >&6; }
++      JAVAC=""
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVAC}" >&5
++$as_echo "${JAVAC}" >&6; }
++    else
++      # Extract the first word of """", so it can be a program name with args.
++set dummy ""; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8354,7 +8342,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8365,10 +8353,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -8376,25 +8364,17 @@ fi
+ 
+ 
+     fi
+-  fi
+-
+-    else
+-      if test "x${withval}" != xno; then
+-
+-  if test "x" != x; then
+-    if test -f ""; then
+-      ECJ=""
+-    else
+-      # Extract the first word of """", so it can be a program name with args.
+-set dummy ""; ac_word=$2
++  else
++    # Extract the first word of ""javac"", so it can be a program name with args.
++set dummy "javac"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_ECJ+set}" = set; then :
++if test "${ac_cv_path_JAVAC+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $ECJ in
++  case $JAVAC in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8404,7 +8384,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8415,20 +8395,39 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-ECJ=$ac_cv_path_ECJ
+-if test -n "$ECJ"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
+-$as_echo "$ECJ" >&6; }
++JAVAC=$ac_cv_path_JAVAC
++if test -n "$JAVAC"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
++$as_echo "$JAVAC" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    fi
+-  else
+-    # Extract the first word of ""ecj"", so it can be a program name with args.
+-set dummy "ecj"; ac_word=$2
++  fi
++
++
++fi
++
++
++
++
++# Check whether --with-ecj was given.
++if test "${with_ecj+set}" = set; then :
++  withval=$with_ecj;
++    if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
++
++  if test "x${withval}" != x; then
++    if test -f "${withval}"; then
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ecj" >&5
++$as_echo_n "checking for ecj... " >&6; }
++      ECJ="${withval}"
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ECJ}" >&5
++$as_echo "${ECJ}" >&6; }
++    else
++      # Extract the first word of ""${withval}"", so it can be a program name with args.
++set dummy "${withval}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+ if test "${ac_cv_path_ECJ+set}" = set; then :
+@@ -8467,9 +8466,51 @@ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    if test -z "${ECJ}"; then
+-      # Extract the first word of ""ecj-3.1"", so it can be a program name with args.
+-set dummy "ecj-3.1"; ac_word=$2
++    fi
++  else
++    # Extract the first word of ""ecj"", so it can be a program name with args.
++set dummy "ecj"; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if test "${ac_cv_path_ECJ+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++  case $ECJ in
++  [\\/]* | ?:[\\/]*)
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
++  ;;
++  *)
++  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++  ;;
++esac
++fi
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++    if test -z "${ECJ}"; then
++      # Extract the first word of ""ecj-3.1"", so it can be a program name with args.
++set dummy "ecj-3.1"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+ if test "${ac_cv_path_ECJ+set}" = set; then :
+@@ -8595,16 +8636,16 @@ fi
+     fi
+   fi
+ 
+-      fi
+-    fi
+-    user_specified_javac=ecj
+-
+-else
+-
++    else
++      if test "x${withval}" != xno; then
+ 
+   if test "x" != x; then
+     if test -f ""; then
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ecj" >&5
++$as_echo_n "checking for ecj... " >&6; }
+       ECJ=""
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ECJ}" >&5
++$as_echo "${ECJ}" >&6; }
+     else
+       # Extract the first word of """", so it can be a program name with args.
+ set dummy ""; ac_word=$2
+@@ -8816,33 +8857,30 @@ fi
+     fi
+   fi
+ 
++      fi
++    fi
+ 
+-fi
+-
+-  JAVAC="${ECJ} -nowarn"
+-
+-
++else
+ 
+ 
+-# Check whether --with-javac was given.
+-if test "${with_javac+set}" = set; then :
+-  withval=$with_javac;
+-    if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+-
+-  if test "x${withval}" != x; then
+-    if test -f "${withval}"; then
+-      JAVAC="${withval}"
++  if test "x" != x; then
++    if test -f ""; then
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ecj" >&5
++$as_echo_n "checking for ecj... " >&6; }
++      ECJ=""
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${ECJ}" >&5
++$as_echo "${ECJ}" >&6; }
+     else
+-      # Extract the first word of ""${withval}"", so it can be a program name with args.
+-set dummy "${withval}"; ac_word=$2
++      # Extract the first word of """", so it can be a program name with args.
++set dummy ""; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
++if test "${ac_cv_path_ECJ+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $JAVAC in
++  case $ECJ in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8852,7 +8890,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8863,10 +8901,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -8875,16 +8913,16 @@ fi
+ 
+     fi
+   else
+-    # Extract the first word of ""javac"", so it can be a program name with args.
+-set dummy "javac"; ac_word=$2
++    # Extract the first word of ""ecj"", so it can be a program name with args.
++set dummy "ecj"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
++if test "${ac_cv_path_ECJ+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $JAVAC in
++  case $ECJ in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8894,7 +8932,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8905,35 +8943,27 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-  fi
+-
+-    else
+-      if test "x${withval}" != xno; then
+-
+-  if test "x" != x; then
+-    if test -f ""; then
+-      JAVAC=""
+-    else
+-      # Extract the first word of """", so it can be a program name with args.
+-set dummy ""; ac_word=$2
++    if test -z "${ECJ}"; then
++      # Extract the first word of ""ecj-3.1"", so it can be a program name with args.
++set dummy "ecj-3.1"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
++if test "${ac_cv_path_ECJ+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $JAVAC in
++  case $ECJ in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8943,7 +8973,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8954,10 +8984,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -8965,17 +8995,17 @@ fi
+ 
+ 
+     fi
+-  else
+-    # Extract the first word of ""javac"", so it can be a program name with args.
+-set dummy "javac"; ac_word=$2
++    if test -z "${ECJ}"; then
++      # Extract the first word of ""ecj-3.2"", so it can be a program name with args.
++set dummy "ecj-3.2"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
++if test "${ac_cv_path_ECJ+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $JAVAC in
++  case $ECJ in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -8985,7 +9015,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -8996,39 +9026,28 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-  fi
+-
+-      fi
+     fi
+-    user_specified_javac=javac
+-
+-else
+-
+-
+-  if test "x" != x; then
+-    if test -f ""; then
+-      JAVAC=""
+-    else
+-      # Extract the first word of """", so it can be a program name with args.
+-set dummy ""; ac_word=$2
++    if test -z "${ECJ}"; then
++      # Extract the first word of ""ecj-3.3"", so it can be a program name with args.
++set dummy "ecj-3.3"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
++if test "${ac_cv_path_ECJ+set}" = set; then :
+   $as_echo_n "(cached) " >&6
+ else
+-  case $JAVAC in
++  case $ECJ in
+   [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
++  ac_cv_path_ECJ="$ECJ" # Let the user override the test with a path.
+   ;;
+   *)
+   as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+@@ -9038,7 +9057,7 @@ do
+   test -z "$as_dir" && as_dir=.
+     for ac_exec_ext in '' $ac_executable_extensions; do
+   if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
++    ac_cv_path_ECJ="$as_dir/$ac_word$ac_exec_ext"
+     $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+     break 2
+   fi
+@@ -9049,10 +9068,10 @@ IFS=$as_save_IFS
+   ;;
+ esac
+ fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
++ECJ=$ac_cv_path_ECJ
++if test -n "$ECJ"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ECJ" >&5
++$as_echo "$ECJ" >&6; }
+ else
+   { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
+@@ -9060,85 +9079,40 @@ fi
+ 
+ 
+     fi
+-  else
+-    # Extract the first word of ""javac"", so it can be a program name with args.
+-set dummy "javac"; ac_word=$2
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+-$as_echo_n "checking for $ac_word... " >&6; }
+-if test "${ac_cv_path_JAVAC+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-  case $JAVAC in
+-  [\\/]* | ?:[\\/]*)
+-  ac_cv_path_JAVAC="$JAVAC" # Let the user override the test with a path.
+-  ;;
+-  *)
+-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+-for as_dir in $PATH
+-do
+-  IFS=$as_save_IFS
+-  test -z "$as_dir" && as_dir=.
+-    for ac_exec_ext in '' $ac_executable_extensions; do
+-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+-    ac_cv_path_JAVAC="$as_dir/$ac_word$ac_exec_ext"
+-    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+-    break 2
+-  fi
+-done
+-  done
+-IFS=$as_save_IFS
+-
+-  ;;
+-esac
+-fi
+-JAVAC=$ac_cv_path_JAVAC
+-if test -n "$JAVAC"; then
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVAC" >&5
+-$as_echo "$JAVAC" >&6; }
+-else
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-fi
+-
+-
+   fi
+ 
+ 
+ fi
+ 
++  if test "x${JAVAC}" = "x"; then
++    if test "x{ECJ}" != "x"; then
++      JAVAC="${ECJ} -nowarn"
++    fi
++  fi
+ 
+ 
+-
+-  if test "x${ECJ}" = x && test "x${JAVAC}" = x && test "x${user_specified_javac}" != xecj; then
+-      as_fn_error "cannot find javac, try --with-ecj" "$LINENO" 5
++  if test "x${JAVAC}" = x; then
++      as_fn_error "cannot find a Java compiler, try --with-javac or --with-ecj" "$LINENO" 5
+   fi
+ 
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if a javah executable is specified" >&5
+-$as_echo_n "checking if a javah executable is specified... " >&6; }
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for javah" >&5
++$as_echo_n "checking for javah... " >&6; }
+ 
+ # Check whether --with-javah was given.
+ if test "${with_javah+set}" = set; then :
+   withval=$with_javah;
+-    if test "x${withval}" = "xyes"; then
+-      JAVAH=no
+-    else
+-      JAVAH="${withval}"
+-    fi
++    JAVAH="${withval}"
+ 
+ else
+ 
+-    JAVAH=no
++    JAVAH=${SYSTEM_JDK_DIR}/bin/javah
+ 
+ fi
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVAH}" >&5
+-$as_echo "${JAVAH}" >&6; }
+   if ! test -f "${JAVAH}"; then
+-    if test "x${JAVAH}" = "xno"; then
+-      JAVAH=
+-    else
+-      # Extract the first word of ""${JAVAH}"", so it can be a program name with args.
++    # Extract the first word of ""${JAVAH}"", so it can be a program name with args.
+ set dummy "${JAVAH}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+@@ -9178,7 +9152,6 @@ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    fi
+   fi
+   if test -z "${JAVAH}"; then
+     # Extract the first word of ""gjavah"", so it can be a program name with args.
+@@ -9267,34 +9240,27 @@ fi
+   if test -z "${JAVAH}"; then
+     as_fn_error "\"A Java header generator was not found.\"" "$LINENO" 5
+   fi
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAVAH}" >&5
++$as_echo "${JAVAH}" >&6; }
+ 
+ 
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if a jar executable is specified" >&5
+-$as_echo_n "checking if a jar executable is specified... " >&6; }
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for jar" >&5
++$as_echo_n "checking for jar... " >&6; }
+ 
+ # Check whether --with-jar was given.
+ if test "${with_jar+set}" = set; then :
+   withval=$with_jar;
+-    if test "x${withval}" = "xyes"; then
+-      JAR=no
+-    else
+-      JAR="${withval}"
+-    fi
++    JAR="${withval}"
+ 
+ else
+ 
+-    JAR=no
++    JAR=${SYSTEM_JDK_DIR}/bin/jar
+ 
+ fi
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAR}" >&5
+-$as_echo "${JAR}" >&6; }
+   if ! test -f "${JAR}"; then
+-    if test "x${JAR}" = "xno"; then
+-      JAR=
+-    else
+-      # Extract the first word of ""${JAR}"", so it can be a program name with args.
++    # Extract the first word of ""${JAR}"", so it can be a program name with args.
+ set dummy "${JAR}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+@@ -9334,7 +9300,6 @@ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    fi
+   fi
+   if test -z "${JAR}"; then
+     # Extract the first word of ""gjar"", so it can be a program name with args.
+@@ -9421,8 +9386,10 @@ fi
+ 
+   fi
+   if test -z "${JAR}"; then
+-    as_fn_error "\"A jar tool was not found.\"" "$LINENO" 5
++    as_fn_error "\"No Java archive tool was found.\"" "$LINENO" 5
+   fi
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${JAR}" >&5
++$as_echo "${JAR}" >&6; }
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether jar supports @<file> argument" >&5
+ $as_echo_n "checking whether jar supports @<file> argument... " >&6; }
+   touch _config.txt
+@@ -9468,31 +9435,22 @@ $as_echo "no" >&6; }
+ 
+ 
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: checking if an rmic executable is specified" >&5
+-$as_echo_n "checking if an rmic executable is specified... " >&6; }
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for rmic" >&5
++$as_echo_n "checking for rmic... " >&6; }
+ 
+ # Check whether --with-rmic was given.
+ if test "${with_rmic+set}" = set; then :
+   withval=$with_rmic;
+-    if test "x${withval}" = "xyes"; then
+-      RMIC=no
+-    else
+-      RMIC="${withval}"
+-    fi
++    RMIC="${withval}"
+ 
+ else
+ 
+-    RMIC=no
++    RMIC=${SYSTEM_JDK_DIR}/bin/rmic
+ 
+ fi
+ 
+-  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${RMIC}" >&5
+-$as_echo "${RMIC}" >&6; }
+   if ! test -f "${RMIC}"; then
+-    if test "x${RMIC}" = "xno"; then
+-      RMIC=
+-    else
+-      # Extract the first word of ""${RMIC}"", so it can be a program name with args.
++    # Extract the first word of ""${RMIC}"", so it can be a program name with args.
+ set dummy "${RMIC}"; ac_word=$2
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+ $as_echo_n "checking for $ac_word... " >&6; }
+@@ -9532,7 +9490,6 @@ $as_echo "no" >&6; }
+ fi
+ 
+ 
+-    fi
+   fi
+   if test -z "${RMIC}"; then
+     # Extract the first word of ""grmic"", so it can be a program name with args.
+@@ -9621,8 +9578,11 @@ fi
+   if test -z "${RMIC}"; then
+     as_fn_error "\"An RMI compiler was not found.\"" "$LINENO" 5
+   fi
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: ${RMIC}" >&5
++$as_echo "${RMIC}" >&6; }
+ 
+ 
++if test "x$enable_bootstrap" = "xyes"; then
+ 
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for an ecj JAR file" >&5
+ $as_echo_n "checking for an ecj JAR file... " >&6; }
+@@ -9770,11 +9730,11 @@ $as_echo "no" >&6; }
+ $as_echo "${XERCES2_JAR}" >&6; }
+ 
+ 
+-  ac_config_files="$ac_config_files javac"
++fi
++ac_config_files="$ac_config_files javac"
+ 
+-  ac_config_files="$ac_config_files javap"
++ac_config_files="$ac_config_files javap"
+ 
+-fi
+ 
+ 
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to include Javascript support via Rhino" >&5
+@@ -11175,53 +11135,6 @@ fi
+ 
+ 
+ 
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if sun.awt.SunToolkit is missing" >&5
+-$as_echo_n "checking if sun.awt.SunToolkit is missing... " >&6; }
+-if test "${it_cv_SUN_AWT_TOOLKIT+set}" = set; then :
+-  $as_echo_n "(cached) " >&6
+-else
+-
+-CLASS=Test.java
+-BYTECODE=$(echo $CLASS|sed 's#\.java##')
+-mkdir tmp.$$
+-cd tmp.$$
+-cat << \EOF > $CLASS
+-/* [#]line 11189 "configure" */
+-public class Test
+-{
+-  public static void main(String[] args)
+-  {
+-    sun.awt.SunToolkit.class.toString();
+-  }
+-}
+-
+-EOF
+-if $JAVAC -cp . $JAVACFLAGS -nowarn $CLASS >&5 2>&1; then
+-  if $JAVA -classpath . $BYTECODE >&5 2>&1; then
+-      it_cv_SUN_AWT_TOOLKIT=no;
+-  else
+-      it_cv_SUN_AWT_TOOLKIT=yes;
+-  fi
+-else
+-  it_cv_SUN_AWT_TOOLKIT=yes;
+-fi
+-
+-fi
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $it_cv_SUN_AWT_TOOLKIT" >&5
+-$as_echo "$it_cv_SUN_AWT_TOOLKIT" >&6; }
+-rm -f $CLASS *.class
+-cd ..
+-rmdir tmp.$$
+- if test x"${it_cv_SUN_AWT_TOOLKIT}" = "xyes"; then
+-  LACKS_SUN_AWT_TOOLKIT_TRUE=
+-  LACKS_SUN_AWT_TOOLKIT_FALSE='#'
+-else
+-  LACKS_SUN_AWT_TOOLKIT_TRUE='#'
+-  LACKS_SUN_AWT_TOOLKIT_FALSE=
+-fi
+-
+-
+-
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking if javax.xml.stream.events.Attribute.getDTDType() wrongly returns a QName" >&5
+ $as_echo_n "checking if javax.xml.stream.events.Attribute.getDTDType() wrongly returns a QName... " >&6; }
+ if test "${it_cv_dtdtype+set}" = set; then :
+@@ -11233,7 +11146,7 @@ else
+   mkdir tmp.$$
+   cd tmp.$$
+   cat << \EOF > $CLASS
+-/* [#]line 11236 "configure" */
++/* [#]line 11149 "configure" */
+ import javax.xml.namespace.QName;
+ import javax.xml.stream.Location;
+ import javax.xml.stream.events.Attribute;
+@@ -11365,8 +11278,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -11390,10 +11301,9 @@ installed software in a non-standard pre
+ 
+ Alternatively, you may set the environment variables GTK_CFLAGS
+ and GTK_LIBS to avoid the need to call pkg-config.
+-See the pkg-config man page for more details." "$LINENO" 5
++See the pkg-config man page for more details.
++" "$LINENO" 5
+ elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+ as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
+@@ -11411,7 +11321,7 @@ else
+ 	GTK_LIBS=$pkg_cv_GTK_LIBS
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-
++	:
+ fi
+ 
+ pkg_failed=no
+@@ -11454,8 +11364,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -11479,10 +11387,9 @@ installed software in a non-standard pre
+ 
+ Alternatively, you may set the environment variables GLIB_CFLAGS
+ and GLIB_LIBS to avoid the need to call pkg-config.
+-See the pkg-config man page for more details." "$LINENO" 5
++See the pkg-config man page for more details.
++" "$LINENO" 5
+ elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+ as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
+@@ -11500,7 +11407,7 @@ else
+ 	GLIB_LIBS=$pkg_cv_GLIB_LIBS
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-
++	:
+ fi
+ 
+ 
+@@ -11548,8 +11455,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -11573,10 +11478,9 @@ installed software in a non-standard pre
+ 
+ Alternatively, you may set the environment variables MOZILLA_CFLAGS
+ and MOZILLA_LIBS to avoid the need to call pkg-config.
+-See the pkg-config man page for more details." "$LINENO" 5
++See the pkg-config man page for more details.
++" "$LINENO" 5
+ elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+ $as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+ as_fn_error "The pkg-config script could not be found or is too old.  Make sure it
+@@ -11594,7 +11498,7 @@ else
+ 	MOZILLA_LIBS=$pkg_cv_MOZILLA_LIBS
+         { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+ $as_echo "yes" >&6; }
+-
++	:
+ fi
+ 
+ 
+@@ -11636,6 +11540,93 @@ $as_echo "$xulrunner_cv_collapsed_versio
+ fi
+ 
+ 
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $JAVAH exhibits Classpath bug 39408" >&5
++$as_echo_n "checking if $JAVAH exhibits Classpath bug 39408... " >&6; }
++if test "${it_cv_cp39408_javah+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++
++SUPERCLASS=Test.java
++SUBCLASS=TestImpl.java
++SUB=$(echo $SUBCLASS|sed 's#\.java##')
++SUBHEADER=$(echo $SUBCLASS|sed 's#\.java#.h#')
++mkdir tmp.$$
++cd tmp.$$
++cat << \EOF > $SUPERCLASS
++/* #line 11556 "configure" */
++public class Test
++{
++  public static final int POTATO = 0;
++  public static final int CABBAGE = 1;
++}
++EOF
++cat << \EOF > $SUBCLASS
++/* #line 11564 "configure" */
++public class TestImpl
++  extends Test
++{
++  public native void doStuff();
++}
++EOF
++if $JAVAC -cp . $JAVACFLAGS $SUBCLASS >&5 2>&1; then
++  if $JAVAH -classpath . $SUB >&5 2>&1; then
++    if cat $SUBHEADER | grep POTATO >&5 2>&1; then
++      it_cv_cp39408_javah=no;
++    else
++      it_cv_cp39408_javah=yes;
++    fi
++  else
++    as_fn_error "The Java header generator $JAVAH failed" "$LINENO" 5
++    echo "configure: failed program was:" >&5
++    cat $SUBCLASS >&5
++  fi
++else
++  as_fn_error "The Java compiler $JAVAC failed" "$LINENO" 5
++  echo "configure: failed program was:" >&5
++  cat $SUBCLASS >&5
++fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $it_cv_cp39408_javah" >&5
++$as_echo "$it_cv_cp39408_javah" >&6; }
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking if $JAVAH exhibits Classpath bug 40188" >&5
++$as_echo_n "checking if $JAVAH exhibits Classpath bug 40188... " >&6; }
++if test "${it_cv_cp40188_javah+set}" = set; then :
++  $as_echo_n "(cached) " >&6
++else
++
++  if test -e $SUBHEADER ; then
++    if cat $SUBHEADER | grep TestImpl_POTATO >&5 2>&1; then
++      it_cv_cp40188_javah=no;
++    else
++      it_cv_cp40188_javah=yes;
++    fi
++  fi
++
++fi
++{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $it_cv_cp40188_javah" >&5
++$as_echo "$it_cv_cp40188_javah" >&6; }
++rm -f $SUBCLASS $SUPERCLASS $SUBHEADER *.class
++cd ..
++rmdir tmp.$$
++ if test x"${it_cv_cp39408_javah}" = "xyes"; then
++  CP39408_JAVAH_TRUE=
++  CP39408_JAVAH_FALSE='#'
++else
++  CP39408_JAVAH_TRUE='#'
++  CP39408_JAVAH_FALSE=
++fi
++
++ if test x"${it_cv_cp40188_javah}" = "xyes"; then
++  CP40188_JAVAH_TRUE=
++  CP40188_JAVAH_FALSE='#'
++else
++  CP40188_JAVAH_TRUE='#'
++  CP40188_JAVAH_FALSE=
++fi
++
++
++
+ for ac_header in cups/cups.h cups/ppd.h
+ do :
+   as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
+@@ -11835,8 +11826,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -11851,10 +11840,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XPROTO_PKG_ERRORS" >&5
+ 
+-	XPROTO_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XPROTO_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XPROTO_FOUND=no
+ else
+ 	XPROTO_CFLAGS=$pkg_cv_XPROTO_CFLAGS
+@@ -11912,8 +11901,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -11928,10 +11915,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XT_PKG_ERRORS" >&5
+ 
+-	XT_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XT_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XT_FOUND=no
+ else
+ 	XT_CFLAGS=$pkg_cv_XT_CFLAGS
+@@ -11989,8 +11976,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12005,10 +11990,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XP_PKG_ERRORS" >&5
+ 
+-	XP_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XP_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XP_FOUND=no
+ else
+ 	XP_CFLAGS=$pkg_cv_XP_CFLAGS
+@@ -12066,8 +12051,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12082,10 +12065,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$X11_PKG_ERRORS" >&5
+ 
+-	X11_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                X11_FOUND=no
++elif test $pkg_failed = untried; then
+ 	X11_FOUND=no
+ else
+ 	X11_CFLAGS=$pkg_cv_X11_CFLAGS
+@@ -12143,8 +12126,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12159,10 +12140,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XINERAMA_PKG_ERRORS" >&5
+ 
+-	XINERAMA_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XINERAMA_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XINERAMA_FOUND=no
+ else
+ 	XINERAMA_CFLAGS=$pkg_cv_XINERAMA_CFLAGS
+@@ -12223,8 +12204,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12239,10 +12218,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XRENDER_PKG_ERRORS" >&5
+ 
+-	XRENDER_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XRENDER_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XRENDER_FOUND=no
+ else
+ 	XRENDER_CFLAGS=$pkg_cv_XRENDER_CFLAGS
+@@ -12404,8 +12383,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12420,10 +12397,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$LIBPNG_PKG_ERRORS" >&5
+ 
+-	LIBPNG_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                LIBPNG_FOUND=no
++elif test $pkg_failed = untried; then
+ 	LIBPNG_FOUND=no
+ else
+ 	LIBPNG_CFLAGS=$pkg_cv_LIBPNG_CFLAGS
+@@ -12482,8 +12459,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12498,10 +12473,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$XTST_PKG_ERRORS" >&5
+ 
+-	XTST_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                XTST_FOUND=no
++elif test $pkg_failed = untried; then
+ 	XTST_FOUND=no
+ else
+ 	XTST_CFLAGS=$pkg_cv_XTST_CFLAGS
+@@ -12559,8 +12534,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12575,10 +12548,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$FREETYPE2_PKG_ERRORS" >&5
+ 
+-	FREETYPE2_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                FREETYPE2_FOUND=no
++elif test $pkg_failed = untried; then
+ 	FREETYPE2_FOUND=no
+ else
+ 	FREETYPE2_CFLAGS=$pkg_cv_FREETYPE2_CFLAGS
+@@ -12639,8 +12612,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12655,10 +12626,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$ALSA_PKG_ERRORS" >&5
+ 
+-	ALSA_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                ALSA_FOUND=no
++elif test $pkg_failed = untried; then
+ 	ALSA_FOUND=no
+ else
+ 	ALSA_CFLAGS=$pkg_cv_ALSA_CFLAGS
+@@ -12719,8 +12690,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12735,10 +12704,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$LIBPULSE_PKG_ERRORS" >&5
+ 
+-	LIBPULSE_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                LIBPULSE_FOUND=no
++elif test $pkg_failed = untried; then
+ 	LIBPULSE_FOUND=no
+ else
+ 	LIBPULSE_CFLAGS=$pkg_cv_LIBPULSE_CFLAGS
+@@ -12799,8 +12768,6 @@ fi
+ 
+ 
+ if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+ 
+ if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+         _pkg_short_errors_supported=yes
+@@ -12815,10 +12782,10 @@ fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$LIBFFI_PKG_ERRORS" >&5
+ 
+-	LIBFFI_FOUND=no
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+ $as_echo "no" >&6; }
++                LIBFFI_FOUND=no
++elif test $pkg_failed = untried; then
+ 	LIBFFI_FOUND=no
+ else
+ 	LIBFFI_CFLAGS=$pkg_cv_LIBFFI_CFLAGS
+@@ -13284,10 +13251,6 @@ if test -z "${GCC_OLD_TRUE}" && test -z 
+   as_fn_error "conditional \"GCC_OLD\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
+-if test -z "${WITH_OPENJDK_TRUE}" && test -z "${WITH_OPENJDK_FALSE}"; then
+-  as_fn_error "conditional \"WITH_OPENJDK\" was never defined.
+-Usually this means the macro was only invoked conditionally." "$LINENO" 5
+-fi
+ if test -z "${CP_SUPPORTS_REFLINK_TRUE}" && test -z "${CP_SUPPORTS_REFLINK_FALSE}"; then
+   as_fn_error "conditional \"CP_SUPPORTS_REFLINK\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+@@ -13332,6 +13295,10 @@ if test -z "${HAS_PKGVERSION_TRUE}" && t
+   as_fn_error "conditional \"HAS_PKGVERSION\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${BOOTSTRAPPING_TRUE}" && test -z "${BOOTSTRAPPING_FALSE}"; then
++  as_fn_error "conditional \"BOOTSTRAPPING\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ if test -z "${WITH_RHINO_TRUE}" && test -z "${WITH_RHINO_FALSE}"; then
+   as_fn_error "conditional \"WITH_RHINO\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+@@ -13453,10 +13420,6 @@ if test -z "${WITH_TZDATA_DIR_TRUE}" && 
+   as_fn_error "conditional \"WITH_TZDATA_DIR\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
+-if test -z "${LACKS_SUN_AWT_TOOLKIT_TRUE}" && test -z "${LACKS_SUN_AWT_TOOLKIT_FALSE}"; then
+-  as_fn_error "conditional \"LACKS_SUN_AWT_TOOLKIT\" was never defined.
+-Usually this means the macro was only invoked conditionally." "$LINENO" 5
+-fi
+ if test -z "${DTDTYPE_QNAME_TRUE}" && test -z "${DTDTYPE_QNAME_FALSE}"; then
+   as_fn_error "conditional \"DTDTYPE_QNAME\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+@@ -13465,6 +13428,14 @@ if test -z "${ENABLE_PLUGIN_TRUE}" && te
+   as_fn_error "conditional \"ENABLE_PLUGIN\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${CP39408_JAVAH_TRUE}" && test -z "${CP39408_JAVAH_FALSE}"; then
++  as_fn_error "conditional \"CP39408_JAVAH\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
++if test -z "${CP40188_JAVAH_TRUE}" && test -z "${CP40188_JAVAH_FALSE}"; then
++  as_fn_error "conditional \"CP40188_JAVAH\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ 
+ : ${CONFIG_STATUS=./config.status}
+ ac_write_fail=0
+diff -Naurp icedtea6-1.9-orig/configure.ac icedtea6-1.9/configure.ac
+--- icedtea6-1.9-orig/configure.ac	2010-09-07 07:45:42.000000000 -0500
++++ icedtea6-1.9/configure.ac	2010-09-07 18:22:03.000000000 -0500
+@@ -48,7 +48,6 @@ AC_CHECK_WITH_GCJ
+ AC_CHECK_WITH_HOTSPOT_BUILD
+ AC_PATH_TOOL([LINUX32],[linux32])
+ AC_CHECK_GCC_VERSION
+-AC_CHECK_FOR_OPENJDK
+ IT_CHECK_NUMBER_OF_PARALLEL_JOBS
+ IT_CP_SUPPORTS_REFLINK
+ IT_CAN_HARDLINK_TO_SOURCE_TREE
+@@ -144,32 +143,21 @@ SET_OS_DIRS
+ OPENJDK_BUILD_DIR=openjdk.build
+ AC_SUBST(OPENJDK_BUILD_DIR)
+ 
+-if test "${with_openjdk}" = true
+-then
+-  JAVA=$SYSTEM_OPENJDK_DIR/bin/java
+-  AC_SUBST(JAVA)
+-  JAVAC=${SYSTEM_OPENJDK_DIR}/bin/javac
+-  AC_SUBST(JAVAC)
+-  JAVAH=${SYSTEM_OPENJDK_DIR}/bin/javah
+-  AC_SUBST(JAVAH)
+-  JAR=${SYSTEM_OPENJDK_DIR}/bin/jar
+-  AC_SUBST(JAR)
+-  RMIC=${SYSTEM_OPENJDK_DIR}/bin/rmic
+-  AC_SUBST(RMIC)
+-else
+-  AC_CHECK_FOR_GCJ_JDK
+-  FIND_JAVA
+-  FIND_JAVAC
+-  FIND_JAVAH
+-  FIND_JAR
+-  FIND_RMIC
++IT_CHECK_IF_BOOTSTRAPPING
++IT_CHECK_FOR_JDK
++FIND_JAVA
++FIND_JAVAC
++FIND_JAVAH
++FIND_JAR
++FIND_RMIC
++if test "x$enable_bootstrap" = "xyes"; then
+   FIND_ECJ_JAR
+   FIND_XALAN2_JAR
+   FIND_XALAN2_SERIALIZER_JAR
+   FIND_XERCES2_JAR
+-  AC_CONFIG_FILES([javac], [chmod +x javac])
+-  AC_CONFIG_FILES([javap], [chmod +x javap])
+ fi
++AC_CONFIG_FILES([javac], [chmod +x javac])
++AC_CONFIG_FILES([javap], [chmod +x javap])
+ 
+ FIND_RHINO_JAR
+ WITH_OPENJDK_SRC_ZIP
+@@ -190,9 +178,9 @@ IT_CHECK_ADDITIONAL_VMS
+ ENABLE_HG
+ AC_CHECK_WITH_HG_REVISION
+ AC_CHECK_WITH_TZDATA_DIR
+-IT_CHECK_FOR_CLASS([SUN_AWT_TOOLKIT], [sun.awt.SunToolkit])
+ IT_GETDTDTYPE_CHECK
+ IT_CHECK_XULRUNNER_VERSION
++IT_JAVAH
+ 
+ dnl pkgconfig cannot be used to find these headers and libraries.
+ AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
+diff -Naurp icedtea6-1.9-orig/Makefile.am icedtea6-1.9/Makefile.am
+--- icedtea6-1.9-orig/Makefile.am	2010-09-07 06:40:19.000000000 -0500
++++ icedtea6-1.9/Makefile.am	2010-09-07 18:22:17.000000000 -0500
+@@ -91,6 +91,7 @@ NETX_BOOTSTRAP_CLASSES = \
+ ICEDTEA_BOOTSTRAP_CLASSES = \
+ 	$(SHARE)/javax/swing/plaf/basic/BasicDirectoryModel.java \
+ 	$(SHARE)/javax/management/StandardMBean.java \
++	$(SHARE)/com/sun/java/swing/plaf/nimbus/NimbusLookAndFeel.java \
+ 	$(NETX_BOOTSTRAP_CLASSES)
+ 
+ # Flags
+@@ -138,10 +139,10 @@ endif
+ # FIXME: This should not depend on bootstrapping
+ # but on whether MEMORY_LIMIT is accepted
+ # as an argument to javac
+-if WITH_OPENJDK
+-  MEMORY_LIMIT = -J-Xmx1024m
+-else
++if BOOTSTRAPPING
+   MEMORY_LIMIT =
++else
++  MEMORY_LIMIT = -J-Xmx1024m
+ endif
+ 
+ if WITH_CACAO
+@@ -151,17 +152,14 @@ else
+   ICEDTEA_DEBUG_BUILD_TARGET = debug_build
+ endif
+ 
+-# FIXME (bootstrap): Assumption is WITH_OPENJDK == no bootstrap
+-if WITH_OPENJDK
+-  BOOTSTRAP_DIRECTORY_STAMP =
+-  SYSTEM_JDK_DIR = $(SYSTEM_OPENJDK_DIR)
+-  ICEDTEA_HOME = $(SYSTEM_JDK_DIR)
+-  INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink.stamp
+-else
++if BOOTSTRAPPING
+   BOOTSTRAP_DIRECTORY_STAMP = stamps/bootstrap-directory.stamp
+-  SYSTEM_JDK_DIR = $(SYSTEM_GCJ_DIR)
+   ICEDTEA_HOME = $(ICEDTEA_BOOT_DIR)
+   INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink-ecj.stamp
++else
++  BOOTSTRAP_DIRECTORY_STAMP =
++  ICEDTEA_HOME = $(SYSTEM_JDK_DIR)
++  INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink.stamp
+ endif
+ 
+ if CP_SUPPORTS_REFLINK
+@@ -372,9 +370,10 @@ ICEDTEA_ECJ_PATCHES += \
+ endif
+ 
+ if ENABLE_XRENDER
+-ICEDTEA_ECJ_PATCHES += \
+-	patches/ecj/needs-6.patch \
+-	patches/ecj/javah.patch
++ICEDTEA_ECJ_PATCHES += patches/ecj/needs-6.patch
++if CP40188_JAVAH
++ICEDTEA_ECJ_PATCHES += patches/ecj/cp40188-opengl.patch
++endif
+ endif
+ 
+ if !HAS_PAX
+@@ -497,6 +496,8 @@ ICEDTEA_ENV_ECJ = $(ICEDTEA_ENV) \
+ 	BOOTCLASSPATH_CLS_RT="-bootclasspath $(ICEDTEA_CLS_DIR_ECJ):$(RUNTIME)" \
+ 	BOOTCLASSPATH_CLS="-bootclasspath $(ICEDTEA_CLS_DIR_ECJ)" \
+ 	BOOTCLASSPATH_RT_LIBGCJ="-bootclasspath $(RUNTIME)" \
++	CLASSPATH="" \
++	LD_LIBRARY_PATH="" \
+ 	GENSRCDIR="$(abs_top_builddir)/generated" \
+ 	JAR_KNOWS_ATFILE="$(JAR_KNOWS_ATFILE)" \
+ 	JAR_KNOWS_J_OPTIONS="$(JAR_KNOWS_J_OPTIONS)" \
+@@ -1470,29 +1471,20 @@ clean-icedtea-ecj:
+ # Rebuild targets
+ 
+ rebuild:
+-if WITH_OPENJDK
+-	rm -f stamps/icedtea.stamp
+-	rm -f stamps/icedtea-against-icedtea.stamp
+-	$(ARCH_PREFIX) $(MAKE) icedtea-against-icedtea
+-	@echo "IcedTea is served (again):" $(BUILD_OUTPUT_DIR)/j2sdk-image
+-else
++if BOOTSTRAPPING
+ 	rm -f stamps/icedtea-ecj.stamp
+ 	rm -f stamps/icedtea-against-ecj.stamp
+ 	$(ARCH_PREFIX) $(MAKE) icedtea-against-ecj
+ 	@echo "ecj-poured IcedTea is served (again):" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++else
++	rm -f stamps/icedtea.stamp
++	rm -f stamps/icedtea-against-icedtea.stamp
++	$(ARCH_PREFIX) $(MAKE) icedtea-against-icedtea
++	@echo "IcedTea is served (again):" $(BUILD_OUTPUT_DIR)/j2sdk-image
+ endif
+ 
+ hotspot:
+-if WITH_OPENJDK
+-	rm -f stamps/icedtea.stamp
+-	rm -f stamps/icedtea-against-icedtea.stamp
+-	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-icedtea
+-	mkdir -p \
+-	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-	cp $(BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
+-	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-	@echo "Hotspot is served:" $(BUILD_OUTPUT_DIR)/j2sdk-image
+-else
++if BOOTSTRAPPING
+ 	rm -f stamps/icedtea-ecj.stamp
+ 	rm -f stamps/icedtea-against-ecj.stamp
+ 	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-ecj
+@@ -1501,6 +1493,15 @@ else
+ 	cp $(ECJ_BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
+ 	   $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+ 	@echo "Hotspot is served:" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++else
++	rm -f stamps/icedtea.stamp
++	rm -f stamps/icedtea-against-icedtea.stamp
++	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-icedtea
++	mkdir -p \
++	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++	cp $(BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
++	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++	@echo "Hotspot is served:" $(BUILD_OUTPUT_DIR)/j2sdk-image
+ endif
+ 
+ stamps/icedtea-against-ecj.stamp: \
+@@ -1846,7 +1847,7 @@ clean-add-cacao-debug:
+ # configure script arguments, quoted in single quotes
+ CONFIGURE_ARGS = @CONFIGURE_ARGS@
+ ADD_ZERO_CONFIGURE_ARGS = \
+-	--with-openjdk=$(BUILD_OUTPUT_DIR)/j2sdk-image \
++	--with-jdk-home=$(BUILD_OUTPUT_DIR)/j2sdk-image \
+ 	--enable-zero
+ if ADD_SHARK_BUILD
+ ADD_ZERO_CONFIGURE_ARGS += \
+@@ -2073,7 +2074,7 @@ rt-source-files.txt: $(OPENJDK_ECJ_TREE)
+ 	done
+ 
+ stamps/rt-class-files.stamp: $(INITIAL_BOOTSTRAP_LINK_STAMP) rt-source-files.txt
+-if LACKS_SUN_AWT_TOOLKIT
++if BOOTSTRAPPING
+ 	mkdir -p lib/rt
+ 	$(BOOT_DIR)/bin/javac $(IT_JAVACFLAGS) -d lib/rt \
+           -sourcepath $(SOURCEPATH_DIRS) -bootclasspath \'\' \
+@@ -2088,7 +2089,7 @@ clean-rt:
+ 	rm -f stamps/rt-class-files.stamp
+ 	rm -f stamps/rt.stamp
+ 	rm -f rt-source-files.txt
+-if LACKS_SUN_AWT_TOOLKIT
++if BOOTSTRAPPING
+ 	if [ -e $(ECJ_BOOT_DIR) ] ; then \
+ 	  cp $(SYSTEM_JDK_DIR)/jre/lib/rt.jar $(ECJ_BOOT_DIR)/jre/lib/rt.jar ; \
+ 	fi
+@@ -2096,7 +2097,7 @@ endif
+ 
+ stamps/rt.stamp: stamps/rt-class-files.stamp
+ 	mkdir -p stamps
+-if LACKS_SUN_AWT_TOOLKIT
++if BOOTSTRAPPING
+ 	$(BOOT_DIR)/bin/jar uf $(RUNTIME) -C lib/rt com -C lib/rt java \
+ 	  -C lib/rt javax -C lib/rt sun 
+ if ENABLE_NIO2
+diff -Naurp icedtea6-1.9-orig/Makefile.in icedtea6-1.9/Makefile.in
+--- icedtea6-1.9-orig/Makefile.in	2010-09-07 07:47:20.000000000 -0500
++++ icedtea6-1.9/Makefile.in	2010-09-07 18:22:41.000000000 -0500
+@@ -71,38 +71,36 @@ host_triplet = @host@
+ @DTDTYPE_QNAME_TRUE@am__append_12 = \
+ @DTDTYPE_QNAME_TRUE@	patches/ecj/icedtea-jaxws-getdtdtype.patch
+ 
+-@ENABLE_XRENDER_TRUE@am__append_13 = \
+-@ENABLE_XRENDER_TRUE@	patches/ecj/needs-6.patch \
+-@ENABLE_XRENDER_TRUE@	patches/ecj/javah.patch
+-
+-@HAS_PAX_FALSE@am__append_14 = patches/ecj/no-test_gamma.patch
+-@WITH_CACAO_TRUE@am__append_15 = \
++@ENABLE_XRENDER_TRUE@am__append_13 = patches/ecj/needs-6.patch
++@CP40188_JAVAH_TRUE@@ENABLE_XRENDER_TRUE@am__append_14 = patches/ecj/cp40188-opengl.patch
++@HAS_PAX_FALSE@am__append_15 = patches/ecj/no-test_gamma.patch
++@WITH_CACAO_TRUE@am__append_16 = \
+ @WITH_CACAO_TRUE@	ALT_HOTSPOT_IMPORT_PATH="$(CACAO_IMPORT_PATH)"
+ 
+-@DISABLE_OPTIMIZATIONS_TRUE@am__append_16 = \
++@DISABLE_OPTIMIZATIONS_TRUE@am__append_17 = \
+ @DISABLE_OPTIMIZATIONS_TRUE@	NO_OPTIMIZATIONS="true" \
+ @DISABLE_OPTIMIZATIONS_TRUE@	CC_NO_OPT="-O0 -g"
+ 
+-@ENABLE_DOCS_FALSE@am__append_17 = \
++@ENABLE_DOCS_FALSE@am__append_18 = \
+ @ENABLE_DOCS_FALSE@	NO_DOCS="true"
+ 
+-@ENABLE_CROSS_COMPILATION_TRUE@am__append_18 = \
++@ENABLE_CROSS_COMPILATION_TRUE@am__append_19 = \
+ @ENABLE_CROSS_COMPILATION_TRUE@	CROSS_COMPILATION="true" \
+ @ENABLE_CROSS_COMPILATION_TRUE@	CROSS_TARGET_ARCH="$(CROSS_TARGET_ARCH)"
+ 
+-@USE_ALT_JAR_TRUE@am__append_19 = \
++@USE_ALT_JAR_TRUE@am__append_20 = \
+ @USE_ALT_JAR_TRUE@	ALT_JAR_CMD="$(ALT_JAR_CMD)"
+ 
+-@HAS_HOTSPOT_REVISION_TRUE@am__append_20 = \
++@HAS_HOTSPOT_REVISION_TRUE@am__append_21 = \
+ @HAS_HOTSPOT_REVISION_TRUE@	HOTSPOT_BUILD_VERSION="$(HOTSPOT_REVISION)" 
+ 
+-@WITH_RHINO_TRUE@am__append_21 = \
++@WITH_RHINO_TRUE@am__append_22 = \
+ @WITH_RHINO_TRUE@	RHINO_JAR="$(abs_top_builddir)/rhino/rhino.jar"
+ 
+-@ADD_SHARK_BUILD_TRUE@am__append_22 = \
++@ADD_SHARK_BUILD_TRUE@am__append_23 = \
+ @ADD_SHARK_BUILD_TRUE@	--enable-shark
+ 
+-@WITH_ALT_HSBUILD_TRUE@am__append_23 = \
++@WITH_ALT_HSBUILD_TRUE@am__append_24 = \
+ @WITH_ALT_HSBUILD_TRUE@	$(if $(findstring --with-hotspot-src-zip=, $(CONFIGURE_ARGS)),, \
+ @WITH_ALT_HSBUILD_TRUE@	  --with-hotspot-src-zip=$(abs_top_builddir)/$(HOTSPOT_SRC_ZIP))
+ 
+@@ -268,8 +266,6 @@ PATCH = @PATCH@
+ PATH_SEPARATOR = @PATH_SEPARATOR@
+ PKGVERSION = @PKGVERSION@
+ PKG_CONFIG = @PKG_CONFIG@
+-PKG_CONFIG_LIBDIR = @PKG_CONFIG_LIBDIR@
+-PKG_CONFIG_PATH = @PKG_CONFIG_PATH@
+ RHINO_JAR = @RHINO_JAR@
+ RMIC = @RMIC@
+ SET_MAKE = @SET_MAKE@
+@@ -277,8 +273,7 @@ SHA256SUM = @SHA256SUM@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
+ SYSTEM_ANT_DIR = @SYSTEM_ANT_DIR@
+-SYSTEM_GCJ_DIR = @SYSTEM_GCJ_DIR@
+-SYSTEM_OPENJDK_DIR = @SYSTEM_OPENJDK_DIR@
++SYSTEM_JDK_DIR = @SYSTEM_JDK_DIR@
+ TAR = @TAR@
+ TZDATA_DIR = @TZDATA_DIR@
+ UNZIP = @UNZIP@
+@@ -359,7 +354,6 @@ target_alias = @target_alias@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-with_openjdk = @with_openjdk@
+ OPENJDK_DATE = 21_jun_2010
+ OPENJDK_MD5SUM = 0b36adbf67e4f261e1b827ed4be4f447
+ OPENJDK_VERSION = b20
+@@ -445,6 +439,7 @@ NETX_BOOTSTRAP_CLASSES = \
+ ICEDTEA_BOOTSTRAP_CLASSES = \
+ 	$(SHARE)/javax/swing/plaf/basic/BasicDirectoryModel.java \
+ 	$(SHARE)/javax/management/StandardMBean.java \
++	$(SHARE)/com/sun/java/swing/plaf/nimbus/NimbusLookAndFeel.java \
+ 	$(NETX_BOOTSTRAP_CLASSES)
+ 
+ 
+@@ -482,25 +477,21 @@ IT_JAVACFLAGS = $(IT_JAVAC_SETTINGS) -so
+ @ENABLE_PULSE_JAVA_TRUE@PULSE_JAVA_CLASS_DIR = $(PULSE_JAVA_BUILDDIR)/classes
+ @ENABLE_PULSE_JAVA_TRUE@PULSE_JAVA_TARGET = stamps/pulse-java.stamp
+ @ENABLE_PULSE_JAVA_TRUE@PULSE_JAVA_CLEAN_TARGET = clean-pulse-java
+-@WITH_OPENJDK_FALSE@MEMORY_LIMIT = 
++@BOOTSTRAPPING_FALSE@MEMORY_LIMIT = -J-Xmx1024m
+ 
+ # FIXME: This should not depend on bootstrapping
+ # but on whether MEMORY_LIMIT is accepted
+ # as an argument to javac
+-@WITH_OPENJDK_TRUE@MEMORY_LIMIT = -J-Xmx1024m
++@BOOTSTRAPPING_TRUE@MEMORY_LIMIT = 
+ @WITH_CACAO_TRUE@ICEDTEA_BUILD_TARGET = jdk_only
+ @WITH_CACAO_FALSE@ICEDTEA_DEBUG_BUILD_TARGET = debug_build
+ @WITH_CACAO_TRUE@ICEDTEA_DEBUG_BUILD_TARGET = jdk_fastdebug_only
+-@WITH_OPENJDK_FALSE@BOOTSTRAP_DIRECTORY_STAMP = stamps/bootstrap-directory.stamp
+-
+-# FIXME (bootstrap): Assumption is WITH_OPENJDK == no bootstrap
+-@WITH_OPENJDK_TRUE@BOOTSTRAP_DIRECTORY_STAMP = 
+-@WITH_OPENJDK_FALSE@SYSTEM_JDK_DIR = $(SYSTEM_GCJ_DIR)
+-@WITH_OPENJDK_TRUE@SYSTEM_JDK_DIR = $(SYSTEM_OPENJDK_DIR)
+-@WITH_OPENJDK_FALSE@ICEDTEA_HOME = $(ICEDTEA_BOOT_DIR)
+-@WITH_OPENJDK_TRUE@ICEDTEA_HOME = $(SYSTEM_JDK_DIR)
+-@WITH_OPENJDK_FALSE@INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink-ecj.stamp
+-@WITH_OPENJDK_TRUE@INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink.stamp
++@BOOTSTRAPPING_FALSE@BOOTSTRAP_DIRECTORY_STAMP = 
++@BOOTSTRAPPING_TRUE@BOOTSTRAP_DIRECTORY_STAMP = stamps/bootstrap-directory.stamp
++@BOOTSTRAPPING_FALSE@ICEDTEA_HOME = $(SYSTEM_JDK_DIR)
++@BOOTSTRAPPING_TRUE@ICEDTEA_HOME = $(ICEDTEA_BOOT_DIR)
++@BOOTSTRAPPING_FALSE@INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink.stamp
++@BOOTSTRAPPING_TRUE@INITIAL_BOOTSTRAP_LINK_STAMP = stamps/bootstrap-directory-symlink-ecj.stamp
+ @CP_SUPPORTS_REFLINK_TRUE@REFLINK = --reflink=auto
+ @OPENJDK_SRC_DIR_HARDLINKABLE_FALSE@OPENJDK_SRC_DIR_LINK = $(REFLINK)
+ @OPENJDK_SRC_DIR_HARDLINKABLE_TRUE@OPENJDK_SRC_DIR_LINK = -l
+@@ -615,7 +606,7 @@ ICEDTEA_ECJ_PATCHES = patches/ecj/icedte
+ 	patches/ecj/icedtea-jaxp-dependency.patch \
+ 	patches/ecj/bootver.patch patches/ecj/getannotation-cast.patch \
+ 	patches/ecj/override.patch $(am__append_12) $(am__append_13) \
+-	$(am__append_14) $(DISTRIBUTION_ECJ_PATCHES)
++	$(am__append_14) $(am__append_15) $(DISTRIBUTION_ECJ_PATCHES)
+ @ZERO_BUILD_FALSE@ICEDTEA_ZERO_BUILD = 
+ 
+ # OpenJDK build environment.
+@@ -656,9 +647,9 @@ ICEDTEA_ENV = ALT_JDK_IMPORT_PATH="$(BOO
+ 	$(PACKAGE_VERSION)$(ICEDTEA_REV)" DEBUG_CLASSFILES="true" \
+ 	DEBUG_BINARIES="true" \
+ 	ALT_DROPS_DIR="$(abs_top_builddir)/drops" VERBOSE="$(VERBOSE)" \
+-	ALT_OUTPUTDIR="$(BUILD_OUTPUT_DIR)" $(am__append_15) \
+-	$(am__append_16) $(am__append_17) $(am__append_18) \
+-	$(am__append_19) $(am__append_20) $(am__append_21)
++	ALT_OUTPUTDIR="$(BUILD_OUTPUT_DIR)" $(am__append_16) \
++	$(am__append_17) $(am__append_18) $(am__append_19) \
++	$(am__append_20) $(am__append_21) $(am__append_22)
+ 
+ # OpenJDK ecj build environment.
+ ICEDTEA_ENV_ECJ = $(ICEDTEA_ENV) \
+@@ -669,6 +660,8 @@ ICEDTEA_ENV_ECJ = $(ICEDTEA_ENV) \
+ 	BOOTCLASSPATH_CLS_RT="-bootclasspath $(ICEDTEA_CLS_DIR_ECJ):$(RUNTIME)" \
+ 	BOOTCLASSPATH_CLS="-bootclasspath $(ICEDTEA_CLS_DIR_ECJ)" \
+ 	BOOTCLASSPATH_RT_LIBGCJ="-bootclasspath $(RUNTIME)" \
++	CLASSPATH="" \
++	LD_LIBRARY_PATH="" \
+ 	GENSRCDIR="$(abs_top_builddir)/generated" \
+ 	JAR_KNOWS_ATFILE="$(JAR_KNOWS_ATFILE)" \
+ 	JAR_KNOWS_J_OPTIONS="$(JAR_KNOWS_J_OPTIONS)" \
+@@ -716,14 +709,14 @@ EXTRA_DIST = generated $(NETX_SRCDIR) \
+ @ENABLE_PLUGIN_TRUE@		IcedTeaPluginUtils.o
+ 
+ ADD_ZERO_CONFIGURE_ARGS =  \
+-	--with-openjdk=$(BUILD_OUTPUT_DIR)/j2sdk-image --enable-zero \
+-	$(am__append_22) --disable-docs $(filter-out \
++	--with-jdk-home=$(BUILD_OUTPUT_DIR)/j2sdk-image --enable-zero \
++	$(am__append_23) --disable-docs $(filter-out \
+ 	'--with-gcj-home=% '--with-ecj=% '--with-java=% \
+ 	'--with-javah=% '--with-rmic=% '--with-additional-vms=% \
+ 	'--with-openjdk '--with-openjdk=% , $(CONFIGURE_ARGS)) $(if \
+ 	$(findstring --with-openjdk-src-zip=, $(CONFIGURE_ARGS)),, \
+ 	--with-openjdk-src-zip=$(abs_top_builddir)/$(OPENJDK_SRC_ZIP)) \
+-	$(am__append_23)
++	$(am__append_24)
+ ADD_ZERO_EXTRA_BUILD_ENV = \
+ 	BUILD_LANGTOOLS=false ALT_LANGTOOLS_DIST=$(BUILD_OUTPUT_DIR)/langtools/dist \
+ 	BUILD_JAXP=false      ALT_JAXP_DIST=$(BUILD_OUTPUT_DIR)/jaxp/dist \
+@@ -1927,32 +1920,32 @@ clean-icedtea-ecj:
+ # Rebuild targets
+ 
+ rebuild:
+-@WITH_OPENJDK_TRUE@	rm -f stamps/icedtea.stamp
+-@WITH_OPENJDK_TRUE@	rm -f stamps/icedtea-against-icedtea.stamp
+-@WITH_OPENJDK_TRUE@	$(ARCH_PREFIX) $(MAKE) icedtea-against-icedtea
+-@WITH_OPENJDK_TRUE@	@echo "IcedTea is served (again):" $(BUILD_OUTPUT_DIR)/j2sdk-image
+-@WITH_OPENJDK_FALSE@	rm -f stamps/icedtea-ecj.stamp
+-@WITH_OPENJDK_FALSE@	rm -f stamps/icedtea-against-ecj.stamp
+-@WITH_OPENJDK_FALSE@	$(ARCH_PREFIX) $(MAKE) icedtea-against-ecj
+-@WITH_OPENJDK_FALSE@	@echo "ecj-poured IcedTea is served (again):" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++@BOOTSTRAPPING_TRUE@	rm -f stamps/icedtea-ecj.stamp
++@BOOTSTRAPPING_TRUE@	rm -f stamps/icedtea-against-ecj.stamp
++@BOOTSTRAPPING_TRUE@	$(ARCH_PREFIX) $(MAKE) icedtea-against-ecj
++@BOOTSTRAPPING_TRUE@	@echo "ecj-poured IcedTea is served (again):" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++@BOOTSTRAPPING_FALSE@	rm -f stamps/icedtea.stamp
++@BOOTSTRAPPING_FALSE@	rm -f stamps/icedtea-against-icedtea.stamp
++@BOOTSTRAPPING_FALSE@	$(ARCH_PREFIX) $(MAKE) icedtea-against-icedtea
++@BOOTSTRAPPING_FALSE@	@echo "IcedTea is served (again):" $(BUILD_OUTPUT_DIR)/j2sdk-image
+ 
+ hotspot:
+-@WITH_OPENJDK_TRUE@	rm -f stamps/icedtea.stamp
+-@WITH_OPENJDK_TRUE@	rm -f stamps/icedtea-against-icedtea.stamp
+-@WITH_OPENJDK_TRUE@	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-icedtea
+-@WITH_OPENJDK_TRUE@	mkdir -p \
+-@WITH_OPENJDK_TRUE@	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-@WITH_OPENJDK_TRUE@	cp $(BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
+-@WITH_OPENJDK_TRUE@	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-@WITH_OPENJDK_TRUE@	@echo "Hotspot is served:" $(BUILD_OUTPUT_DIR)/j2sdk-image
+-@WITH_OPENJDK_FALSE@	rm -f stamps/icedtea-ecj.stamp
+-@WITH_OPENJDK_FALSE@	rm -f stamps/icedtea-against-ecj.stamp
+-@WITH_OPENJDK_FALSE@	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-ecj
+-@WITH_OPENJDK_FALSE@	mkdir -p \
+-@WITH_OPENJDK_FALSE@	   $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-@WITH_OPENJDK_FALSE@	cp $(ECJ_BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
+-@WITH_OPENJDK_FALSE@	   $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
+-@WITH_OPENJDK_FALSE@	@echo "Hotspot is served:" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++@BOOTSTRAPPING_TRUE@	rm -f stamps/icedtea-ecj.stamp
++@BOOTSTRAPPING_TRUE@	rm -f stamps/icedtea-against-ecj.stamp
++@BOOTSTRAPPING_TRUE@	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-ecj
++@BOOTSTRAPPING_TRUE@	mkdir -p \
++@BOOTSTRAPPING_TRUE@	   $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++@BOOTSTRAPPING_TRUE@	cp $(ECJ_BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
++@BOOTSTRAPPING_TRUE@	   $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++@BOOTSTRAPPING_TRUE@	@echo "Hotspot is served:" $(ECJ_BUILD_OUTPUT_DIR)/j2sdk-image
++@BOOTSTRAPPING_FALSE@	rm -f stamps/icedtea.stamp
++@BOOTSTRAPPING_FALSE@	rm -f stamps/icedtea-against-icedtea.stamp
++@BOOTSTRAPPING_FALSE@	$(ARCH_PREFIX) $(MAKE) ICEDTEA_BUILD_TARGET=hotspot icedtea-against-icedtea
++@BOOTSTRAPPING_FALSE@	mkdir -p \
++@BOOTSTRAPPING_FALSE@	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++@BOOTSTRAPPING_FALSE@	cp $(BUILD_OUTPUT_DIR)/$(SERVER_DIR)/libjvm.so \
++@BOOTSTRAPPING_FALSE@	   $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)/server
++@BOOTSTRAPPING_FALSE@	@echo "Hotspot is served:" $(BUILD_OUTPUT_DIR)/j2sdk-image
+ 
+ stamps/icedtea-against-ecj.stamp: \
+ 	stamps/bootstrap-directory-symlink-ecj.stamp \
+@@ -2438,11 +2431,11 @@ rt-source-files.txt: $(OPENJDK_ECJ_TREE)
+ 	done
+ 
+ stamps/rt-class-files.stamp: $(INITIAL_BOOTSTRAP_LINK_STAMP) rt-source-files.txt
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	mkdir -p lib/rt
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	$(BOOT_DIR)/bin/javac $(IT_JAVACFLAGS) -d lib/rt \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@          -sourcepath $(SOURCEPATH_DIRS) -bootclasspath \'\' \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@          -classpath $(SYSTEM_JDK_DIR)/jre/lib/rt.jar \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	  @rt-source-files.txt ;
++@BOOTSTRAPPING_TRUE@	mkdir -p lib/rt
++@BOOTSTRAPPING_TRUE@	$(BOOT_DIR)/bin/javac $(IT_JAVACFLAGS) -d lib/rt \
++@BOOTSTRAPPING_TRUE@          -sourcepath $(SOURCEPATH_DIRS) -bootclasspath \'\' \
++@BOOTSTRAPPING_TRUE@          -classpath $(SYSTEM_JDK_DIR)/jre/lib/rt.jar \
++@BOOTSTRAPPING_TRUE@	  @rt-source-files.txt ;
+ 	mkdir -p stamps
+ 	touch stamps/rt-class-files.stamp
+ 
+@@ -2451,17 +2444,17 @@ clean-rt:
+ 	rm -f stamps/rt-class-files.stamp
+ 	rm -f stamps/rt.stamp
+ 	rm -f rt-source-files.txt
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	if [ -e $(ECJ_BOOT_DIR) ] ; then \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	  cp $(SYSTEM_JDK_DIR)/jre/lib/rt.jar $(ECJ_BOOT_DIR)/jre/lib/rt.jar ; \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	fi
++@BOOTSTRAPPING_TRUE@	if [ -e $(ECJ_BOOT_DIR) ] ; then \
++@BOOTSTRAPPING_TRUE@	  cp $(SYSTEM_JDK_DIR)/jre/lib/rt.jar $(ECJ_BOOT_DIR)/jre/lib/rt.jar ; \
++@BOOTSTRAPPING_TRUE@	fi
+ 
+ stamps/rt.stamp: stamps/rt-class-files.stamp
+ 	mkdir -p stamps
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	$(BOOT_DIR)/bin/jar uf $(RUNTIME) -C lib/rt com -C lib/rt java \
+-@LACKS_SUN_AWT_TOOLKIT_TRUE@	  -C lib/rt javax -C lib/rt sun 
+-@ENABLE_NIO2_TRUE@@LACKS_SUN_AWT_TOOLKIT_TRUE@	if [ -e lib/rt/org/classpath ] ; then \
+-@ENABLE_NIO2_TRUE@@LACKS_SUN_AWT_TOOLKIT_TRUE@	    $(BOOT_DIR)/bin/jar uf $(RUNTIME) -C lib/rt org/classpath ; \
+-@ENABLE_NIO2_TRUE@@LACKS_SUN_AWT_TOOLKIT_TRUE@	fi
++@BOOTSTRAPPING_TRUE@	$(BOOT_DIR)/bin/jar uf $(RUNTIME) -C lib/rt com -C lib/rt java \
++@BOOTSTRAPPING_TRUE@	  -C lib/rt javax -C lib/rt sun 
++@BOOTSTRAPPING_TRUE@@ENABLE_NIO2_TRUE@	if [ -e lib/rt/org/classpath ] ; then \
++@BOOTSTRAPPING_TRUE@@ENABLE_NIO2_TRUE@	    $(BOOT_DIR)/bin/jar uf $(RUNTIME) -C lib/rt org/classpath ; \
++@BOOTSTRAPPING_TRUE@@ENABLE_NIO2_TRUE@	fi
+ 	touch stamps/rt.stamp
+ 
+ # Target Aliases
+diff -Naurp icedtea6-1.9-orig/patches/ecj/cp40188-opengl.patch icedtea6-1.9/patches/ecj/cp40188-opengl.patch
+--- icedtea6-1.9-orig/patches/ecj/cp40188-opengl.patch	1969-12-31 18:00:00.000000000 -0600
++++ icedtea6-1.9/patches/ecj/cp40188-opengl.patch	2010-09-07 18:22:03.000000000 -0500
+@@ -0,0 +1,92 @@
++diff -Nru openjdk-boot.orig/jdk/make/common/Rules.gmk openjdk-boot/jdk/make/common/Rules.gmk
++--- openjdk-ecj.orig/jdk/make/common/Rules.gmk	2009-12-13 20:37:41.000000000 +0000
+++++ openjdk-ecj/jdk/make/common/Rules.gmk	2009-12-13 21:11:04.000000000 +0000
++@@ -303,7 +303,11 @@
++ 	$(prep-target)
++ 	@$(ECHO) "# Running javah:"
++ 	$(JAVAH_CMD) -d $(CLASSHDRDIR)/ \
++-		$(CLASSES.export) $(subst $$,\$$,$(EXPORTED_inner))
+++		$(CLASSES.export) 
+++	$(foreach innerclass,$(subst $$,\$$,$(EXPORTED_inner)), \
+++	  $(JAVAH_CMD) \
+++	    -o $(CLASSHDRDIR)/$(subst .,_,$(subst \$$,_,$(innerclass))).h \
+++	    $(innerclass))
++ 	@$(java-vm-cleanup)
++ 	@$(TOUCH) $@
++ 
++diff -Nru openjdk-boot.orig/jdk/make/sun/awt/FILES_export_unix.gmk openjdk-boot/jdk/make/sun/awt/FILES_export_unix.gmk
++--- openjdk-ecj.orig/jdk/make/sun/awt/FILES_export_unix.gmk	2009-12-04 23:26:35.000000000 +0000
+++++ openjdk-ecj/jdk/make/sun/awt/FILES_export_unix.gmk	2009-12-13 21:11:04.000000000 +0000
++@@ -189,3 +189,5 @@
++ 	java/awt/dnd/DnDConstants.java \
++ 	sun/awt/CausedFocusEvent.java
++ 
+++EXPORTED_inner = \
+++    sun.java2d.opengl.OGLContext$$OGLContextCaps
++diff -Nru openjdk-boot.orig/jdk/src/share/native/sun/java2d/opengl/OGLContext.h openjdk-boot/jdk/src/share/native/sun/java2d/opengl/OGLContext.h
++--- openjdk-ecj.orig/jdk/src/share/native/sun/java2d/opengl/OGLContext.h	2009-12-04 23:33:16.000000000 +0000
+++++ openjdk-ecj/jdk/src/share/native/sun/java2d/opengl/OGLContext.h	2009-12-13 21:11:04.000000000 +0000
++@@ -27,6 +27,7 @@
++ #define OGLContext_h_Included
++ 
++ #include "sun_java2d_pipe_BufferedContext.h"
+++#include "sun_java2d_pipe_hw_ContextCapabilities.h"
++ #include "sun_java2d_opengl_OGLContext.h"
++ #include "sun_java2d_opengl_OGLContext_OGLContextCaps.h"
++ 
++@@ -100,39 +101,39 @@
++  * See OGLContext.java for more on these flags.
++  */
++ #define CAPS_EMPTY           \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EMPTY
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_EMPTY
++ #define CAPS_RT_PLAIN_ALPHA  \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_PLAIN_ALPHA
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_PLAIN_ALPHA
++ #define CAPS_RT_TEXTURE_ALPHA       \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_TEXTURE_ALPHA
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_TEXTURE_ALPHA
++ #define CAPS_RT_TEXTURE_OPAQUE      \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_TEXTURE_OPAQUE
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_TEXTURE_OPAQUE
++ #define CAPS_MULTITEXTURE    \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_MULTITEXTURE
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_MULTITEXTURE
++ #define CAPS_TEXNONPOW2      \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_TEXNONPOW2
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_TEXNONPOW2
++ #define CAPS_TEXNONSQUARE    \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_TEXNONSQUARE
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_TEXNONSQUARE
++ #define CAPS_PS20            \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_PS20
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_PS20
++ #define CAPS_PS30            \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_PS30
+++    sun_java2d_pipe_hw_ContextCapabilities_CAPS_PS30
++ #define LAST_SHARED_CAP      \
++     sun_java2d_opengl_OGLContext_OGLContextCaps_LAST_SHARED_CAP
++ #define CAPS_EXT_FBOBJECT    \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_FBOBJECT
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_FBOBJECT
++ #define CAPS_STORED_ALPHA    \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_STORED_ALPHA
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_STORED_ALPHA
++ #define CAPS_DOUBLEBUFFERED  \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_DOUBLEBUFFERED
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_DOUBLEBUFFERED
++ #define CAPS_EXT_LCD_SHADER  \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_LCD_SHADER
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_LCD_SHADER
++ #define CAPS_EXT_BIOP_SHADER \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_BIOP_SHADER
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_BIOP_SHADER
++ #define CAPS_EXT_GRAD_SHADER \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_GRAD_SHADER
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_GRAD_SHADER
++ #define CAPS_EXT_TEXRECT     \
++-    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_TEXRECT
+++    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_TEXRECT
++ 
++ /**
++  * Evaluates to true if the given capability bitmask is present for the
+diff -Naurp icedtea6-1.9-orig/patches/ecj/javah.patch icedtea6-1.9/patches/ecj/javah.patch
+--- icedtea6-1.9-orig/patches/ecj/javah.patch	2010-08-06 06:05:19.000000000 -0500
++++ icedtea6-1.9/patches/ecj/javah.patch	1969-12-31 18:00:00.000000000 -0600
+@@ -1,92 +0,0 @@
+-diff -Nru openjdk-boot.orig/jdk/make/common/Rules.gmk openjdk-boot/jdk/make/common/Rules.gmk
+---- openjdk-ecj.orig/jdk/make/common/Rules.gmk	2009-12-13 20:37:41.000000000 +0000
+-+++ openjdk-ecj/jdk/make/common/Rules.gmk	2009-12-13 21:11:04.000000000 +0000
+-@@ -303,7 +303,11 @@
+- 	$(prep-target)
+- 	@$(ECHO) "# Running javah:"
+- 	$(JAVAH_CMD) -d $(CLASSHDRDIR)/ \
+--		$(CLASSES.export) $(subst $$,\$$,$(EXPORTED_inner))
+-+		$(CLASSES.export) 
+-+	$(foreach innerclass,$(subst $$,\$$,$(EXPORTED_inner)), \
+-+	  $(JAVAH_CMD) \
+-+	    -o $(CLASSHDRDIR)/$(subst .,_,$(subst \$$,_,$(innerclass))).h \
+-+	    $(innerclass))
+- 	@$(java-vm-cleanup)
+- 	@$(TOUCH) $@
+- 
+-diff -Nru openjdk-boot.orig/jdk/make/sun/awt/FILES_export_unix.gmk openjdk-boot/jdk/make/sun/awt/FILES_export_unix.gmk
+---- openjdk-ecj.orig/jdk/make/sun/awt/FILES_export_unix.gmk	2009-12-04 23:26:35.000000000 +0000
+-+++ openjdk-ecj/jdk/make/sun/awt/FILES_export_unix.gmk	2009-12-13 21:11:04.000000000 +0000
+-@@ -189,3 +189,5 @@
+- 	java/awt/dnd/DnDConstants.java \
+- 	sun/awt/CausedFocusEvent.java
+- 
+-+EXPORTED_inner = \
+-+    sun.java2d.opengl.OGLContext$$OGLContextCaps
+-diff -Nru openjdk-boot.orig/jdk/src/share/native/sun/java2d/opengl/OGLContext.h openjdk-boot/jdk/src/share/native/sun/java2d/opengl/OGLContext.h
+---- openjdk-ecj.orig/jdk/src/share/native/sun/java2d/opengl/OGLContext.h	2009-12-04 23:33:16.000000000 +0000
+-+++ openjdk-ecj/jdk/src/share/native/sun/java2d/opengl/OGLContext.h	2009-12-13 21:11:04.000000000 +0000
+-@@ -27,6 +27,7 @@
+- #define OGLContext_h_Included
+- 
+- #include "sun_java2d_pipe_BufferedContext.h"
+-+#include "sun_java2d_pipe_hw_ContextCapabilities.h"
+- #include "sun_java2d_opengl_OGLContext.h"
+- #include "sun_java2d_opengl_OGLContext_OGLContextCaps.h"
+- 
+-@@ -100,39 +101,39 @@
+-  * See OGLContext.java for more on these flags.
+-  */
+- #define CAPS_EMPTY           \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EMPTY
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_EMPTY
+- #define CAPS_RT_PLAIN_ALPHA  \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_PLAIN_ALPHA
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_PLAIN_ALPHA
+- #define CAPS_RT_TEXTURE_ALPHA       \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_TEXTURE_ALPHA
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_TEXTURE_ALPHA
+- #define CAPS_RT_TEXTURE_OPAQUE      \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_RT_TEXTURE_OPAQUE
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_RT_TEXTURE_OPAQUE
+- #define CAPS_MULTITEXTURE    \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_MULTITEXTURE
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_MULTITEXTURE
+- #define CAPS_TEXNONPOW2      \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_TEXNONPOW2
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_TEXNONPOW2
+- #define CAPS_TEXNONSQUARE    \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_TEXNONSQUARE
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_TEXNONSQUARE
+- #define CAPS_PS20            \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_PS20
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_PS20
+- #define CAPS_PS30            \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_PS30
+-+    sun_java2d_pipe_hw_ContextCapabilities_CAPS_PS30
+- #define LAST_SHARED_CAP      \
+-     sun_java2d_opengl_OGLContext_OGLContextCaps_LAST_SHARED_CAP
+- #define CAPS_EXT_FBOBJECT    \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_FBOBJECT
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_FBOBJECT
+- #define CAPS_STORED_ALPHA    \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_STORED_ALPHA
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_STORED_ALPHA
+- #define CAPS_DOUBLEBUFFERED  \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_DOUBLEBUFFERED
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_DOUBLEBUFFERED
+- #define CAPS_EXT_LCD_SHADER  \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_LCD_SHADER
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_LCD_SHADER
+- #define CAPS_EXT_BIOP_SHADER \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_BIOP_SHADER
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_BIOP_SHADER
+- #define CAPS_EXT_GRAD_SHADER \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_GRAD_SHADER
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_GRAD_SHADER
+- #define CAPS_EXT_TEXRECT     \
+--    sun_java2d_opengl_OGLContext_OGLContextCaps_CAPS_EXT_TEXRECT
+-+    sun_java2d_opengl_OGLContext_00024OGLContextCaps_CAPS_EXT_TEXRECT
+- 
+- /**
+-  * Evaluates to true if the given capability bitmask is present for the

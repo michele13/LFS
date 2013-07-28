@@ -1,0 +1,52 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2004-11-16
+Initial Package Version: 0.6.3
+Upstream Status:         Not submitted (LFS specific)
+Origin:                  Self created
+Description:             Modifies the Imakefile to include the devtools and 
+                         control-apps packages. Also modifies the site.def
+                         file to install everything under /usr
+Instructions:            Unpack the mas, mas-devtools and mas-control-apps
+                         tarballs into mas-0.6.3 and run this patch, then:
+                         imake -I./config &&
+                         make Makefile &&
+                         make World &&
+                         make install
+Additional Information:  After the above is installed, install the 
+                         mas-codec_mp1a_mad CODEC, if desired (requires the 
+                         MAD libraries)
+
+diff -Naur mas-0.6.3-orig/Imakefile mas-0.6.3/Imakefile
+--- mas-0.6.3-orig/Imakefile	2004-06-14 22:42:49.000000000 +0000
++++ mas-0.6.3/Imakefile	2004-11-16 15:42:57.143605672 +0000
+@@ -2,7 +2,7 @@
+ #define PassCDebugFlags 'CDEBUGFLAGS=$(CDEBUGFLAGS)'
+ 
+ # The build order is important.  
+-SUBDIRS = config share common jrtplib mas devices maslib miscgtk clients 
++SUBDIRS = config share common jrtplib mas devices maslib miscgtk clients devtools control-apps
+ 
+ #ifndef OSName
+ #define OSName Unknown Operating System!
+
+diff -Naur mas-0.6.3-orig/config/site.def mas-0.6.3/config/site.def
+--- mas-0.6.3-orig/config/site.def	2004-04-30 23:46:40.000000000 +0000
++++ mas-0.6.3/config/site.def	2004-11-16 16:04:36.420085624 +0000
+@@ -78,7 +78,7 @@
+ #ifdef AfterVendorCF
+ 
+ #ifndef ProjectRoot
+-#define ProjectRoot /usr/local/mas
++#define ProjectRoot /usr
+ #endif
+ 
+ /* UsesSeparateInstallHierarchy: 
+@@ -92,7 +92,7 @@
+    /usr/share/mas/pixmaps  instead of  /usr/share/pixmaps
+ */
+ #ifndef UsesSeparateInstallHierarchy
+-#define UsesSeparateInstallHierarchy YES
++#define UsesSeparateInstallHierarchy NO
+ #endif 
+ 
+ /* Only set HasXdmAuth to YES if you have a Wraphelp.c file. */

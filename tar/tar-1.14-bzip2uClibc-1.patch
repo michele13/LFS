@@ -1,0 +1,148 @@
+Submitted By: Bennett Todd <bet@rahul.net>
+Date: 2004-11-26
+Initial Package Version: 1.14
+Upstream Status: From Upstream
+Origin: Bennett Todd
+Description: The maintainer of GNU tar, Sergey Poznyakoff, emailed
+	     me something almost identical to this patch, only
+	     against his CVS tree, in response to my bugreport that
+	     tar-1.14 "tjf" and "xjf" does not work with bzip2
+	     linked against uClibc. I hand-fitted the patch against
+	     1.14, this is the result.
+
+diff -ru tar-1.14.orig/src/buffer.c tar-1.14/src/buffer.c
+--- tar-1.14.orig/src/buffer.c	2004-04-05 03:23:51.000000000 -0400
++++ tar-1.14/src/buffer.c	2004-11-26 12:18:02.000000000 -0500
+@@ -66,11 +66,14 @@
+ static int read_error_count;
+ 
+ /* Have we hit EOF yet?  */
+-static int hit_eof;
++static bool hit_eof;
+ 
+ /* Checkpointing counter */
+ static int checkpoint;
+ 
++static bool read_full_records = false;
++static bool reading_from_pipe = false;
++
+ /* We're reading, but we just read the last block and it's time to update.
+    Declared in update.c
+ 
+@@ -156,7 +159,7 @@
+ {
+   if (hit_eof)
+     {
+-      hit_eof = 0;
++      hit_eof = false;
+       current_block = record_start;
+       record_end = record_start + blocking_factor;
+       access_mode = ACCESS_WRITE;
+@@ -176,7 +179,7 @@
+       flush_archive ();
+       if (current_block == record_end)
+ 	{
+-	  hit_eof = 1;
++	  hit_eof = true;
+ 	  return 0;
+ 	}
+     }
+@@ -287,13 +290,16 @@
+   /* When updating the archive, we start with reading.  */
+   access_mode = wanted_access == ACCESS_UPDATE ? ACCESS_READ : wanted_access;
+ 
++  read_full_records = read_full_records_option;
++  reading_from_pipe = false;
++  
+   if (use_compress_program_option)
+     {
+       switch (wanted_access)
+ 	{
+ 	case ACCESS_READ:
+ 	  child_pid = sys_child_open_for_uncompress ();
+-	  read_full_records_option = false;
++	  read_full_records = reading_from_pipe = true;
+ 	  break;
+ 
+ 	case ACCESS_WRITE:
+@@ -311,7 +317,7 @@
+     }
+   else if (strcmp (archive_name_array[0], "-") == 0)
+     {
+-      read_full_records_option = true; /* could be a pipe, be safe */
++      read_full_records = true; /* could be a pipe, be safe */
+       if (verify_option)
+ 	FATAL_ERROR ((0, 0, _("Cannot verify stdin/stdout archive")));
+ 
+@@ -523,9 +529,11 @@
+ 
+       strcpy (record_start->header.name, real_s_name);
+       record_start->header.typeflag = GNUTYPE_MULTIVOL;
++
+       OFF_TO_CHARS (real_s_sizeleft, record_start->header.size);
+       OFF_TO_CHARS (real_s_totsize - real_s_sizeleft,
+ 		    record_start->oldgnu_header.offset);
++      
+       tmp = verbose_option;
+       verbose_option = 0;
+       finish_header (&current_stat_info, record_start, -1);
+@@ -609,7 +617,7 @@
+   left = record_size - status;
+ 
+   while (left % BLOCKSIZE != 0
+-	 || (left && status && read_full_records_option))
++	 || (left && status && read_full_records))
+     {
+       if (status)
+ 	while ((status = rmtread (archive, more, left)) == SAFE_READ_ERROR)
+@@ -617,15 +625,18 @@
+ 
+       if (status == 0)
+ 	{
+-	  char buf[UINTMAX_STRSIZE_BOUND];
++	  if (!reading_from_pipe)
++	    {
++	      char buf[UINTMAX_STRSIZE_BOUND];
+ 
+-	  WARN((0, 0, _("Read %s bytes from %s"),
+-		STRINGIFY_BIGINT (record_size - left, buf),
+-		*archive_name_cursor));
++	      WARN((0, 0, _("Read %s bytes from %s"),
++		    STRINGIFY_BIGINT (record_size - left, buf),
++		    *archive_name_cursor));
++	    }
+ 	  break;
+ 	}
+ 
+-      if (! read_full_records_option)
++      if (! read_full_records)
+ 	{
+ 	  unsigned long rest = record_size - left;
+ 
+@@ -645,7 +656,7 @@
+   /* FIXME: for size=0, multi-volume support.  On the first record, warn
+      about the problem.  */
+ 
+-  if (!read_full_records_option && verbose_option > 1
++  if (!read_full_records && verbose_option > 1
+       && record_start_block == 0 && status != 0)
+     {
+       unsigned long rsize = (record_size - left) / BLOCKSIZE;
+@@ -707,7 +718,7 @@
+     }
+ 
+   /* The condition below used to include
+-	      || (status > 0 && !read_full_records_option)
++	      || (status > 0 && !read_full_records)
+      This is incorrect since even if new_volume() succeeds, the
+      subsequent call to rmtread will overwrite the chunk of data
+      already read in the buffer, so the processing will fail */
+@@ -1079,7 +1090,7 @@
+ 
+   if (strcmp (archive_name_cursor[0], "-") == 0)
+     {
+-      read_full_records_option = true;
++      read_full_records = true;
+       archive = STDIN_FILENO;
+     }
+   else if (verify_option)

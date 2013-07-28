@@ -1,0 +1,29 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2006-08-22
+Initial Package Version: 3.11
+Upstream Status: unknown
+Origin: found in fedora, originator uncertain.
+Description: Allows nss to build on ppc64 (possibly also on some other
+multilibs) when CC and CXX are overridden, e.g. to "gcc -m32".  Without
+this, ld barfs on -z defs.  Rediffed to apply with -p1.
+
+ I also had to pass a value for LDEMULATION to prevent the use of 64-bit
+system libs, so the full command was
+
+ make CC="gcc ${BUILD32}" CXX="g++ ${BUILD32}" \
+          LDEMULATION='elf32ppc' nss_build_all 
+
+ This builds, as does firefox, but I don't yet have firefox _working_.
+
+diff -Naur nss-3.11.orig/mozilla/security/coreconf/Linux.mk nss-3.11/mozilla/security/coreconf/Linux.mk
+--- nss-3.11.orig/mozilla/security/coreconf/Linux.mk	2005-09-16 18:09:23.000000000 +0100
++++ nss-3.11/mozilla/security/coreconf/Linux.mk	2006-08-10 01:47:48.000000000 +0100
+@@ -165,7 +165,7 @@
+ ARCH			= linux
+ 
+ DSO_CFLAGS		= -fPIC
+-DSO_LDOPTS		= -shared $(ARCHFLAG) -z defs
++DSO_LDOPTS		= -shared $(ARCHFLAG) -Wl,-z,defs
+ DSO_LDFLAGS		=
+ LDFLAGS			+= $(ARCHFLAG)
+ 

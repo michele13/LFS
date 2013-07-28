@@ -1,0 +1,19 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-08-27
+Initial Package Version: 2.3.5
+Origin: Debian
+Upstream Status: Unknown
+Description: Fixes Build issues on Sparc with GCC 4.x
+ 
+diff -Naur glibc-2.3.5.orig/sysdeps/unix/sysv/linux/sparc/sparc32/Makefile glibc-2.3.5/sysdeps/unix/sysv/linux/sparc/sparc32/Makefile
+--- glibc-2.3.5.orig/sysdeps/unix/sysv/linux/sparc/sparc32/Makefile	2003-08-31 17:22:46.000000000 +0000
++++ glibc-2.3.5/sysdeps/unix/sysv/linux/sparc/sparc32/Makefile	2005-08-28 03:22:13.000000000 +0000
+@@ -4,7 +4,7 @@
+ 
+ # When I get this to work, this is the right thing
+ ifeq ($(subdir),elf)
+-CFLAGS-rtld.c += -mv8
++CFLAGS-rtld.c += -mcpu=v8
+ #rtld-routines += dl-sysdepsparc
+ sysdep-others += lddlibc4
+ install-bin += lddlibc4

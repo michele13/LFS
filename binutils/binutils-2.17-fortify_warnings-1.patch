@@ -1,0 +1,575 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-30
+Initial Package Version: 2.17
+Upstream Status: From Upstream
+Origin: Binutils-cvs (see below)
+Description: These are hand picked differences from binutils-cvs to fix
+warnings from '-D_FORTIFY_SOURCE -Werror'.
+
+The ar.c and bucomm.c diffs depends on binutils-2.17-hardened_tmp-3.patch
+
+ar.c rev=1.49 includes replacing 'strncmp' with 'CONST_STRNEQ'.
+I removed that because 'CONST_STRNEQ' is not defined in Binutils-2.17.
+
+bucomm.c?rev=1.30
+I reversed all the #include differences, because they don't work in
+Binutils-2.17.
+
+binutils/readelf.c and binutils/configure.in:
+http://sourceware.org/ml/binutils/2006-10/msg00256.html for binutils/3384
+
+binutils/readelf.c:
+http://sourceware.org/cgi-bin/cvsweb.cgi/src/binutils/readelf.c.diff?r1=
+	1.356&r2=1.357&cvsroot=src&f=h
+
+gas/input-file.c:
+http://sourceware.org/cgi-bin/cvsweb.cgi/src/gas/input-file.c.diff?r1=
+	1.23&r2=1.24&cvsroot=src&f=h
+
+gprof/corefile.c:
+http://sourceware.org/cgi-bin/cvsweb.cgi/src/gprof/corefile.c.diff?r1=
+	1.24&r2=1.25&cvsroot=src&f=h
+
+diff -Naur binutils-2.17.orig/binutils/ar.c binutils-2.17/binutils/ar.c
+--- binutils-2.17.orig/binutils/ar.c	2007-05-31 00:12:10.000000000 +0000
++++ binutils-2.17/binutils/ar.c	2007-05-31 00:31:16.000000000 +0000
+@@ -1,6 +1,6 @@
+ /* ar.c - Archive modify and extract.
+    Copyright 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 2000,
+-   2001, 2002, 2003, 2004, 2005
++   2001, 2002, 2003, 2004, 2005, 2006
+    Free Software Foundation, Inc.
+ 
+    This file is part of GNU Binutils.
+@@ -68,8 +68,8 @@
+   (bfd *, char **files_to_replace, bfd_boolean quick);
+ static void print_descr (bfd * abfd);
+ static void write_archive (bfd *);
+-static void ranlib_only (const char *archname);
+-static void ranlib_touch (const char *archname);
++static int  ranlib_only (const char *archname);
++static int  ranlib_touch (const char *archname);
+ static void usage (int);
+ 
+ /** Globals and flags */
+@@ -420,6 +420,7 @@
+ 
+   if (is_ranlib)
+     {
++      int status = 0;
+       bfd_boolean touch = FALSE;
+ 
+       if (argc < 2
+@@ -440,12 +441,12 @@
+       while (arg_index < argc)
+ 	{
+ 	  if (! touch)
+-	    ranlib_only (argv[arg_index]);
++	    status |= ranlib_only (argv[arg_index]);
+ 	  else
+-	    ranlib_touch (argv[arg_index]);
++	    status |= ranlib_touch (argv[arg_index]);
+ 	  ++arg_index;
+ 	}
+-      xexit (0);
++      xexit (status);
+     }
+ 
+   if (argc == 2 && strcmp (argv[1], "-M") == 0)
+@@ -597,10 +598,7 @@
+ 
+       if ((operation == none || operation == print_table)
+ 	  && write_armap == 1)
+-	{
+-	  ranlib_only (argv[arg_index]);
+-	  xexit (0);
+-	}
++	xexit (ranlib_only (argv[arg_index]));
+ 
+       if (operation == none)
+ 	fatal (_("no operation specified"));
+@@ -779,10 +777,10 @@
+ static void
+ print_contents (bfd *abfd)
+ {
+-  int ncopied = 0;
++  size_t ncopied = 0;
+   char *cbuf = xmalloc (BUFSIZE);
+   struct stat buf;
+-  long size;
++  size_t size;
+   if (bfd_stat_arch_elt (abfd, &buf) != 0)
+     /* xgettext:c-format */
+     fatal (_("internal stat error on %s"), bfd_get_filename (abfd));
+@@ -797,8 +795,8 @@
+   while (ncopied < size)
+     {
+ 
+-      int nread;
+-      int tocopy = size - ncopied;
++      size_t nread;
++      size_t tocopy = size - ncopied;
+       if (tocopy > BUFSIZE)
+ 	tocopy = BUFSIZE;
+ 
+@@ -807,7 +805,12 @@
+ 	/* xgettext:c-format */
+ 	fatal (_("%s is not a valid archive"),
+ 	       bfd_get_filename (bfd_my_archive (abfd)));
+-      fwrite (cbuf, 1, nread, stdout);
++
++      /* fwrite in mingw32 may return int instead of size_t. Cast the
++	 return value to size_t to avoid comparison between signed and
++	 unsigned values.  */
++      if ((size_t) fwrite (cbuf, 1, nread, stdout) != nread)
++	fatal ("stdout: %s", strerror (errno));
+       ncopied += tocopy;
+     }
+   free (cbuf);
+@@ -828,9 +831,9 @@
+ {
+   FILE *ostream;
+   char *cbuf = xmalloc (BUFSIZE);
+-  int nread, tocopy;
+-  long ncopied = 0;
+-  long size;
++  size_t nread, tocopy;
++  size_t ncopied = 0;
++  size_t size;
+   struct stat buf;
+ 
+   if (bfd_stat_arch_elt (abfd, &buf) != 0)
+@@ -838,10 +841,6 @@
+     fatal (_("internal stat error on %s"), bfd_get_filename (abfd));
+   size = buf.st_size;
+ 
+-  if (size < 0)
+-    /* xgettext:c-format */
+-    fatal (_("stat returns negative size for %s"), bfd_get_filename (abfd));
+-
+   if (verbose)
+     printf ("x - %s\n", bfd_get_filename (abfd));
+ 
+@@ -890,7 +889,12 @@
+ 
+ 	    output_file = ostream;
+ 	  }
+-	fwrite (cbuf, 1, nread, ostream);
++
++	/* fwrite in mingw32 may return int instead of size_t. Cast
++	   the return value to size_t to avoid comparison between
++	   signed and unsigned values.  */
++	if ((size_t) fwrite (cbuf, 1, nread, ostream) != nread)
++	  fatal ("%s: %s", output_filename, strerror (errno));
+ 	ncopied += tocopy;
+       }
+ 
+@@ -1196,23 +1200,24 @@
+     output_filename = NULL;
+ }
+ 
+-static void
++static int
+ ranlib_only (const char *archname)
+ {
+   bfd *arch;
+ 
+   if (get_file_size (archname) < 1)
+-    return;
++    return 1;
+   write_armap = 1;
+   arch = open_inarch (archname, (char *) NULL);
+   if (arch == NULL)
+     xexit (1);
+   write_archive (arch);
++  return 0;
+ }
+ 
+ /* Update the timestamp of the symbol map of an archive.  */
+ 
+-static void
++static int
+ ranlib_touch (const char *archname)
+ {
+ #ifdef __GO32__
+@@ -1224,7 +1229,7 @@
+   char **matching;
+ 
+   if (get_file_size (archname) < 1)
+-    return;
++    return 1;
+   f = open (archname, O_RDWR | O_BINARY, 0);
+   if (f < 0)
+     {
+@@ -1255,6 +1260,7 @@
+   if (! bfd_close (arch))
+     bfd_fatal (archname);
+ #endif
++  return 0;
+ }
+ 
+ /* Things which are interesting to map over all or some of the files: */
+diff -Naur binutils-2.17.orig/binutils/bucomm.c binutils-2.17/binutils/bucomm.c
+--- binutils-2.17.orig/binutils/bucomm.c	2007-05-31 00:12:10.000000000 +0000
++++ binutils-2.17/binutils/bucomm.c	2007-05-31 00:42:06.000000000 +0000
+@@ -1,5 +1,6 @@
+ /* bucomm.c -- Bin Utils COMmon code.
+-   Copyright 1991, 1992, 1993, 1994, 1995, 1997, 1998, 2000, 2001, 2002, 2003, 2006
++   Copyright 1991, 1992, 1993, 1994, 1995, 1997, 1998, 2000, 2001, 2002,
++   2003, 2006, 2007
+    Free Software Foundation, Inc.
+ 
+    This file is part of GNU Binutils.
+@@ -386,111 +387,102 @@
+   fprintf (file, "%s\n", bfd_get_filename (abfd));
+ }
+ 
+-/* Return the name of a created temporary file in the same directory as FILENAME.  */
++/* Return a path for a new temporary file in the same directory
++   as file PATH.  */
+ 
+-char *
+-make_tempname (char *filename)
++static char *
++template_in_dir (const char *path)
+ {
+-#if defined(HAVE_MKSTEMP)
+-  static char template[] = "stXXXXXXXXXX";
+-  int fd;
+-#else
+-  static char template[] = "stXXXXXX";
+-#endif
++#define template "stXXXXXX"
++  const char *slash = strrchr (path, '/');
+   char *tmpname;
+-  char *slash = strrchr (filename, '/');
++  size_t len;
+ 
+ #ifdef HAVE_DOS_BASED_FILE_SYSTEM
+   {
+     /* We could have foo/bar\\baz, or foo\\bar, or d:bar.  */
+-    char *bslash = strrchr (filename, '\\');
++    char *bslash = strrchr (path, '\\');
+ 
+     if (slash == NULL || (bslash != NULL && bslash > slash))
+       slash = bslash;
+-    if (slash == NULL && filename[0] != '\0' && filename[1] == ':')
+-      slash = filename + 1;
++    if (slash == NULL && path[0] != '\0' && path[1] == ':')
++      slash = path + 1;
+   }
+ #endif
+ 
+   if (slash != (char *) NULL)
+     {
+-      char c;
++      len = slash - path;
++      tmpname = xmalloc (len + sizeof (template) + 2);
++      memcpy (tmpname, path, len);
+ 
+-      c = *slash;
+-      *slash = 0;
+-      tmpname = xmalloc (strlen (filename) + sizeof (template) + 2);
+-      strcpy (tmpname, filename);
+ #ifdef HAVE_DOS_BASED_FILE_SYSTEM
+       /* If tmpname is "X:", appending a slash will make it a root
+ 	 directory on drive X, which is NOT the same as the current
+ 	 directory on drive X.  */
+-      if (tmpname[1] == ':' && tmpname[2] == '\0')
+-	strcat (tmpname, ".");
++      if (len == 2 && tmpname[1] == ':')
++	tmpname[len++] = '.';
+ #endif
+-      strcat (tmpname, "/");
+-      strcat (tmpname, template);
+-#if defined(HAVE_MKSTEMP)
+-      fd = mkstemp (tmpname);
+-#else
+-      mktemp (tmpname);
+-#endif
+-      *slash = c;
++      tmpname[len++] = '/';
+     }
+   else
+     {
+       tmpname = xmalloc (sizeof (template));
+-      strcpy (tmpname, template);
+-#if defined(HAVE_MKSTEMP)
+-      fd = mkstemp (tmpname);
+-#endif
++      len = 0;
+     }
+-#if defined(HAVE_MKSTEMP)
+-  if (fd == -1)
++
++  memcpy (tmpname + len, template, sizeof (template));
++  return tmpname;
++#undef template
++}
++
++/* Return the name of a created temporary file in the same directory
++   as FILENAME.  */
++
++char *
++make_tempname (char *filename)
++{
++  char *tmpname = template_in_dir (filename);
++  int fd;
++
++#ifdef HAVE_MKSTEMP
++  fd = mkstemp (tmpname);
++#else
++  tmpname = mktemp (tmpname);
++  if (tmpname == NULL)
+     return NULL;
+-  close(fd);
++  fd = open (tmpname, O_RDWR | O_CREAT | O_EXCL, 0600);
+ #endif
++  if (fd == -1)
++    return NULL;
++  close (fd);
+   return tmpname;
+ }
+ 
+-#if defined(HAVE_MKDTEMP)
+-/* Return the name of a created temporary directory inside the directory containing FILENAME.  */
++/* Return the name of a created temporary directory inside the
++   directory containing FILENAME.  */
+ 
+ char *
+ make_tempdir (char *filename)
+ {
+-  static char template[] = "stXXXXXXXXXX";
+-  char *tmpname;
+-  char *slash = strrchr (filename, '/');
+-
+-  if (slash != (char *) NULL)
+-    {
+-      char c;
++  char *tmpname = template_in_dir (filename);
+ 
+-      c = *slash;
+-      *slash = 0;
+-      tmpname = xmalloc (strlen (filename) + sizeof (template) + 1);
+-      strcpy (tmpname, filename);
+-#ifdef HAVE_DOS_BASED_FILE_SYSTEM
+-      /* If tmpname is "X:", appending a slash will make it a root
+-         directory on drive X, which is NOT the same as the current
+-         directory on drive X.  */
+-      if (tmpname[1] == ':' && tmpname[2] == '\0')
+-        strcat (tmpname, ".");
++#ifdef HAVE_MKDTEMP
++  return mkdtemp (tmpname);
++#else
++  tmpname = mktemp (tmpname);
++  if (tmpname == NULL)
++    return NULL;
++#if defined (_WIN32) && !defined (__CYGWIN32__)
++  if (mkdir (tmpname) != 0)
++    return NULL;
++#else
++  if (mkdir (tmpname, 0700) != 0)
++    return NULL;
+ #endif
+-      strcat (tmpname, "/");
+-      strcat (tmpname, template);
+-      mkdtemp (tmpname);
+-      *slash = c;
+-   }
+-  else
+-    {
+-      tmpname = xmalloc (sizeof (template));
+-      strcpy (tmpname, template);
+-      mkdtemp (tmpname);
+-    }
+   return tmpname;
++#endif
+ }
+-#endif /* HAVE_MKDTEMP */
+ 
+ /* Parse a string into a VMA, with a fatal error if it can't be
+    parsed.  */
+diff -Naur binutils-2.17.orig/binutils/configure binutils-2.17/binutils/configure
+--- binutils-2.17.orig/binutils/configure	2007-05-31 00:12:10.000000000 +0000
++++ binutils-2.17/binutils/configure	2007-05-31 01:03:08.000000000 +0000
+@@ -8701,7 +8701,9 @@
+ 
+ 
+ 
+-for ac_header in string.h strings.h stdlib.h unistd.h fcntl.h sys/file.h
++
++
++for ac_header in string.h strings.h stdlib.h unistd.h fcntl.h sys/file.h limits.h sys/param.h
+ do
+ as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+ if eval "test \"\${$as_ac_Header+set}\" = set"; then
+diff -Naur binutils-2.17.orig/binutils/configure.in binutils-2.17/binutils/configure.in
+--- binutils-2.17.orig/binutils/configure.in	2007-05-31 00:12:10.000000000 +0000
++++ binutils-2.17/binutils/configure.in	2007-05-31 00:55:42.000000000 +0000
+@@ -79,7 +79,7 @@
+ esac
+ AC_SUBST(DEMANGLER_NAME)
+ 
+-AC_CHECK_HEADERS(string.h strings.h stdlib.h unistd.h fcntl.h sys/file.h)
++AC_CHECK_HEADERS(string.h strings.h stdlib.h unistd.h fcntl.h sys/file.h limits.h sys/param.h)
+ AC_HEADER_SYS_WAIT
+ AC_FUNC_ALLOCA
+ AC_CHECK_FUNCS(sbrk utimes setmode getc_unlocked strcoll)
+diff -Naur binutils-2.17.orig/binutils/readelf.c binutils-2.17/binutils/readelf.c
+--- binutils-2.17.orig/binutils/readelf.c	2006-03-10 17:20:28.000000000 +0000
++++ binutils-2.17/binutils/readelf.c	2007-05-31 01:00:56.000000000 +0000
+@@ -47,6 +47,25 @@
+ #include <stdio.h>
+ #include <time.h>
+ 
++/* for PATH_MAX */
++#ifdef HAVE_LIMITS_H
++#include <limits.h>
++#endif
++
++#ifndef PATH_MAX
++/* for MAXPATHLEN */
++# ifdef HAVE_SYS_PARAM_H
++#  include <sys/param.h>
++# endif
++# ifndef PATH_MAX
++#  ifdef MAXPATHLEN
++#   define PATH_MAX MAXPATHLEN
++#  else
++#   define PATH_MAX 1024
++#  endif
++# endif
++#endif
++
+ #if __GNUC__ >= 2
+ /* Define BFD64 here, even if our default architecture is 32 bit ELF
+    as this will allow us to read in and parse 64bit and 32bit ELF files.
+@@ -133,7 +152,7 @@
+ static Elf_Internal_Syminfo *dynamic_syminfo;
+ static unsigned long dynamic_syminfo_offset;
+ static unsigned int dynamic_syminfo_nent;
+-static char program_interpreter[64];
++static char program_interpreter[PATH_MAX];
+ static bfd_vma dynamic_info[DT_JMPREL + 1];
+ static bfd_vma version_info[16];
+ static Elf_Internal_Ehdr elf_header;
+@@ -3435,8 +3454,15 @@
+ 	    error (_("Unable to find program interpreter name\n"));
+ 	  else
+ 	    {
++	      char fmt [32];
++	      int ret = snprintf (fmt, sizeof (fmt), "%%%ds", PATH_MAX);
++
++	      if (ret >= (int) sizeof (fmt) || ret < 0)
++		error (_("Failed to print program interpreter name\n"));
++
+ 	      program_interpreter[0] = 0;
+-	      fscanf (file, "%63s", program_interpreter);
++	      if (fscanf (file, fmt, program_interpreter) <= 0)
++		error (_("Unable to read program interpreter name\n"));
+ 
+ 	      if (do_segments)
+ 		printf (_("\n      [Requesting program interpreter: %s]"),
+diff -Naur binutils-2.17.orig/gas/input-file.c binutils-2.17/gas/input-file.c
+--- binutils-2.17.orig/gas/input-file.c	2005-08-11 01:25:20.000000000 +0000
++++ binutils-2.17/gas/input-file.c	2007-05-31 01:14:42.000000000 +0000
+@@ -166,8 +166,8 @@
+       c = getc (f_in);
+       if (c == 'N')
+ 	{
+-	  fgets (buf, 80, f_in);
+-	  if (!strncmp (buf, "O_APP", 5) && ISSPACE (buf[5]))
++	  if (fgets (buf, sizeof (buf), f_in)
++	    && !strncmp (buf, "O_APP", 5) && ISSPACE (buf[5]))
+ 	    preprocess = 0;
+ 	  if (!strchr (buf, '\n'))
+ 	    ungetc ('#', f_in);	/* It was longer.  */
+@@ -176,8 +176,8 @@
+ 	}
+       else if (c == 'A')
+ 	{
+-	  fgets (buf, 80, f_in);
+-	  if (!strncmp (buf, "PP", 2) && ISSPACE (buf[2]))
++	  if (fgets (buf, sizeof (buf), f_in)
++	    && !strncmp (buf, "PP", 2) && ISSPACE (buf[2]))
+ 	    preprocess = 1;
+ 	  if (!strchr (buf, '\n'))
+ 	    ungetc ('#', f_in);
+diff -Naur binutils-2.17.orig/gprof/corefile.c binutils-2.17/gprof/corefile.c
+--- binutils-2.17.orig/gprof/corefile.c	2006-03-22 03:51:02.000000000 +0000
++++ binutils-2.17/gprof/corefile.c	2007-05-31 01:35:52.000000000 +0000
+@@ -53,6 +53,13 @@
+ extern void mips_find_call  (Sym *, bfd_vma, bfd_vma);
+ 
+ static void
++parse_error (const char *filename)
++{
++  fprintf (stderr, _("%s: unable to parse mapping file %s.\n"), whoami, filename);
++  done (1);
++}
++
++static void
+ read_function_mappings (const char *filename)
+ {
+   FILE *file = fopen (filename, "r");
+@@ -74,21 +81,21 @@
+ 
+       matches = fscanf (file, "%[^\n:]", dummy);
+       if (!matches)
+-	{
+-	  fprintf (stderr, _("%s: unable to parse mapping file %s.\n"),
+-		   whoami, filename);
+-	  done (1);
+-	}
++	parse_error (filename);
+ 
+       /* Just skip messages about files with no symbols.  */
+       if (!strncmp (dummy, "No symbols in ", 14))
+ 	{
+-	  fscanf (file, "\n");
++	  matches = fscanf (file, "\n");
++	  if (matches == EOF)
++	    parse_error (filename);
+ 	  continue;
+ 	}
+ 
+       /* Don't care what else is on this line at this point.  */
+-      fscanf (file, "%[^\n]\n", dummy);
++      matches = fscanf (file, "%[^\n]\n", dummy);
++      if (!matches)
++	parse_error (filename);
+       count++;
+     }
+ 
+@@ -108,16 +115,14 @@
+ 
+       matches = fscanf (file, "%[^\n:]", dummy);
+       if (!matches)
+-	{
+-	  fprintf (stderr, _("%s: unable to parse mapping file %s.\n"),
+-		   whoami, filename);
+-	  done (1);
+-	}
++	parse_error (filename);
+ 
+       /* Just skip messages about files with no symbols.  */
+       if (!strncmp (dummy, "No symbols in ", 14))
+ 	{
+-	  fscanf (file, "\n");
++	  matches = fscanf (file, "\n");
++	  if (matches == EOF)
++	    parse_error (filename);
+ 	  continue;
+ 	}
+ 
+@@ -126,7 +131,9 @@
+       strcpy (symbol_map[count].file_name, dummy);
+ 
+       /* Now we need the function name.  */
+-      fscanf (file, "%[^\n]\n", dummy);
++      matches = fscanf (file, "%[^\n]\n", dummy);
++      if (!matches)
++	parse_error (filename);
+       tmp = strrchr (dummy, ' ') + 1;
+       symbol_map[count].function_name = xmalloc (strlen (tmp) + 1);
+       strcpy (symbol_map[count].function_name, tmp);

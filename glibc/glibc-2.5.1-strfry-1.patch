@@ -1,0 +1,55 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2008-05-31
+Initial Package Version: 2.5.1
+Upstream Status: From Upstream
+Origin: CVS
+Description: Bug fixes to handle empty string and make results more random.
+
+--- glibc-2.5.1/string/strfry.c	2002-03-11 23:47:45.000000000 +0000
++++ libc/string/strfry.c	2008-03-31 18:30:11.000000000 +0000
+@@ -1,4 +1,4 @@
+-/* Copyright (C) 1992, 1996, 1999, 2002 Free Software Foundation, Inc.
++/* Copyright (C) 1992, 1996, 1999, 2002, 2007 Free Software Foundation, Inc.
+    This file is part of the GNU C Library.
+ 
+    The GNU C Library is free software; you can redistribute it and/or
+@@ -26,7 +26,6 @@
+ {
+   static int init;
+   static struct random_data rdata;
+-  size_t len, i;
+ 
+   if (!init)
+     {
+@@ -37,19 +36,18 @@
+       init = 1;
+     }
+ 
+-  len = strlen (string);
+-  for (i = 0; i < len; ++i)
+-    {
+-      int32_t j;
+-      char c;
+-
+-      __random_r (&rdata, &j);
+-      j %= len;
+-
+-      c = string[i];
+-      string[i] = string[j];
+-      string[j] = c;
+-    }
++  size_t len = strlen (string);
++  if (len > 0)
++    for (size_t i = 0; i < len - 1; ++i)
++      {
++	int32_t j;
++	__random_r (&rdata, &j);
++	j = j % (len - i) + i;
++
++	char c = string[i];
++	string[i] = string[j];
++	string[j] = c;
++      }
+ 
+   return string;
+ }

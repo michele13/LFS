@@ -1,0 +1,103 @@
+Submitted By: Zack Winkles <winkie AT linuxfromscratch DOT org>
+Date: 2004-04-06
+Initial Package Version: 1.3.22-pl4
+Upstream Status: Not submitted
+Origin: N/A
+Description: Add flag to permit starting of dhcpcd(8) in the foreground.
+
+diff -Naur dhcpcd-1.3.22-pl4.orig/dhcpcd.8 dhcpcd-1.3.22-pl4/dhcpcd.8
+--- dhcpcd-1.3.22-pl4.orig/dhcpcd.8	2002-12-31 20:31:31.000000000 -0500
++++ dhcpcd-1.3.22-pl4/dhcpcd.8	2004-04-05 20:19:58.971910368 -0400
+@@ -9,7 +9,7 @@
+ .in +.5i
+ .ti -.5i
+ dhcpcd
+-\%[\-dknrBCDHNRSTY]
++\%[\-dfknrBCDHNRSTY]
+ \%[\-t\ <timeout>]
+ \%[\-c\ <ExecFilePath>]
+ \%[-h\ <hostname>]
+@@ -66,6 +66,11 @@
+ kill -1 `cat /var/run/syslogd.pid`
+ 
+ .TP
++.BI \-f
++Tells
++.B dhcpcd
++not to fork into the background.
++.TP
+ .BI \-k
+ Sends
+ .B SIGHUP
+diff -Naur dhcpcd-1.3.22-pl4.orig/dhcpcd.c dhcpcd-1.3.22-pl4/dhcpcd.c
+--- dhcpcd-1.3.22-pl4.orig/dhcpcd.c	2002-12-31 20:26:32.000000000 -0500
++++ dhcpcd-1.3.22-pl4/dhcpcd.c	2004-04-05 20:20:16.287278032 -0400
+@@ -104,6 +104,7 @@
+ {
+   int killFlag		=	0;
+   int versionFlag	=	0;
++  int foreground	=	0;
+   int s			=	1;
+   int k			=	1;
+   int i			=	1;
+@@ -145,6 +146,10 @@
+ 	    s++;
+ 	    DebugFlag=1;
+ 	    goto prgs;
++	  case 'f':
++	    s++;
++	    foreground=1;
++	    goto prgs;
+ 	  case 'r':
+ 	    s++;
+ 	    BeRFC1541=1;
+@@ -325,7 +330,7 @@
+           default:
+ usage:	    print_version();
+ 	    fprintf(stderr,
+-"Usage: dhcpcd [-dknrBCDHNRSTY] [-l leasetime] [-h hostname] [-t timeout]\n\
++"Usage: dhcpcd [-dfknrBCDHNRSTY] [-l leasetime] [-h hostname] [-t timeout]\n\
+        [-i vendorClassID] [-I ClientID] [-c filename] [-s [ipaddr]]\n\
+        [-w windowsize] [-L ConfigDir] [-G [gateway]] [interface]\n");
+ 	    exit(1);
+@@ -375,19 +380,22 @@
+   if ( TestCase ) exit(0);
+ #endif
+   alarm(0);
+-#ifdef DEBUG
+-  writePidFile(getpid());
+-#else
++
++  if (foreground)
++    writePidFile(getpid());
++  else {
+ #ifdef EMBED
+-  s=vfork();
++    s=vfork();
+ #else
+-  s=fork();
++    s=fork();
+ #endif
+-  if ( s )
+-    {
+-      writePidFile(s);
+-      exit(0); /* got into bound state. */
+-    }
++    if ( s )
++      {
++	writePidFile(s);
++	exit(0); /* got into bound state. */
++      }
++  }
++
+   setsid();
+   if ( (i=open("/dev/null",O_RDWR,0)) >= 0 )
+     {
+@@ -396,7 +404,6 @@
+       (void)dup2(i,STDERR_FILENO);
+       if ( i > 2 ) (void)close(i);
+     }
+-#endif
+   chdir("/");
+   do currState=(void *(*)())currState(); while ( currState );
+   deletePidFile();

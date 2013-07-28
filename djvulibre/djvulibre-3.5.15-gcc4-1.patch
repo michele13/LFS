@@ -1,0 +1,33 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-10-11
+Initial Package Version: 3.5.15
+Upstream Status:         Committed in upstream CVS
+Origin:                  Upstream CVS
+         http://cvs.sourceforge.net/viewcvs.py/djvu/djvulibre-3.5/libdjvu/GString.h?r1=1.19&r2=1.20
+Description:             Fixes GCC-4.0.x build problem
+
+
+diff -Naur djvulibre-3.5.15-orig/libdjvu/GString.h djvulibre-3.5.15/libdjvu/GString.h
+--- djvulibre-3.5.15-orig/libdjvu/GString.h	2004-08-06 15:11:29.000000000 +0000
++++ djvulibre-3.5.15/libdjvu/GString.h	2005-10-12 00:55:01.000000000 +0000
+@@ -138,6 +138,10 @@
+ # endif
+ #endif
+ 
++class GBaseString; 
++class GUTF8String; 
++class GNativeString; 
++
+ // Internal string representation.
+ class GStringRep : public GPEnabled
+ {
+@@ -433,9 +437,6 @@
+   virtual unsigned long getValidUCS4(const char *&source) const;
+ };
+ 
+-class GUTF8String;
+-class GNativeString;
+-
+ /** General purpose character string.
+     Each dirivied instance of class #GBaseString# represents a
+     character string.  Overloaded operators provide a value semantic

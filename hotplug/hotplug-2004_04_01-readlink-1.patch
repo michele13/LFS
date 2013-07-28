@@ -1,0 +1,25 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-15
+Initial Package Version: 2004_04_01
+Upstream Status: Hack
+Origin: Alexander E. Patrakov
+Description: Readlink accepts only one argument but is called with two
+
+--- hotplug-2004_04_01/etc/hotplug/usb.agent	2004-05-15 21:50:59.000000000 +0600
++++ hotplug-2004_04_01/etc/hotplug/usb.agent	2004-05-15 21:53:10.000000000 +0600
+@@ -342,14 +342,11 @@
+ # declare a REMOVER name that the add action can use to create a
+ # remover, or that the remove action can use to execute a remover.
+ #
+-if [ "$DEVPATH" != "" ]; then
+-  # probably, 2.6.x
+-  REMOVER=/var/run/usb/$(readlink -f $SYSFS/$DEVPATH | sed -e 's;/;%;g')
+-elif [ "$DEVICE" != "" ]; then
++if [ "$DEVICE" != "" ]; then
+   # 2.4.x?
+   REMOVER=/var/run/usb/$(echo $DEVICE | sed -e 's;/;%;g')
+ else
+   # should not happen?
+   REMOVER=/var/run/usb/$(echo "$INTERFACE/$PRODUCT/$TYPE" | sed -e 's;/;%;g')
+ fi
+ export REMOVER

@@ -1,0 +1,61 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-07-09
+Initial Package Version: 1.2.0
+Upstream Status: From upstream, not yet in a release.
+Origin: Extracted from upstream revisions r14598 and r14602 by fedora, rediffed to apply with -p1.
+Description: Fixes for CVE-2008-{1419,1420,1423}
+
+diff -Naur libvorbis-1.2.0.orig/lib/codebook.c libvorbis-1.2.0/lib/codebook.c
+--- libvorbis-1.2.0.orig/lib/codebook.c	2007-07-24 01:09:47.000000000 +0100
++++ libvorbis-1.2.0/lib/codebook.c	2008-07-09 19:11:21.000000000 +0100
+@@ -159,6 +159,8 @@
+   s->entries=oggpack_read(opb,24);
+   if(s->entries==-1)goto _eofout;
+ 
++  if(_ilog(s->dim)+_ilog(s->entries)>24)goto _eofout;
++
+   /* codeword ordering.... length ordered or unordered? */
+   switch((int)oggpack_read(opb,1)){
+   case 0:
+@@ -225,7 +227,7 @@
+       int quantvals=0;
+       switch(s->maptype){
+       case 1:
+-	quantvals=_book_maptype1_quantvals(s);
++	quantvals=(s->dim==0?0:_book_maptype1_quantvals(s));
+ 	break;
+       case 2:
+ 	quantvals=s->entries*s->dim;
+diff -Naur libvorbis-1.2.0.orig/lib/res0.c libvorbis-1.2.0/lib/res0.c
+--- libvorbis-1.2.0.orig/lib/res0.c	2007-07-24 01:09:47.000000000 +0100
++++ libvorbis-1.2.0/lib/res0.c	2008-07-09 19:10:59.000000000 +0100
+@@ -223,6 +223,20 @@
+   for(j=0;j<acc;j++)
+     if(info->booklist[j]>=ci->books)goto errout;
+ 
++  /* verify the phrasebook is not specifying an impossible or
++     inconsistent partitioning scheme. */
++  {
++    int entries = ci->book_param[info->groupbook]->entries;
++    int dim = ci->book_param[info->groupbook]->dim;
++    int partvals = 1;
++    while(dim>0){
++      partvals *= info->partitions;
++      if(partvals > entries) goto errout;
++      dim--;
++    }
++    if(partvals != entries) goto errout;
++  }
++
+   return(info);
+  errout:
+   res0_free_info(info);
+@@ -263,7 +277,7 @@
+     }
+   }
+ 
+-  look->partvals=rint(pow((float)look->parts,(float)dim));
++  look->partvals=look->phrasebook->entries;
+   look->stages=maxstage;
+   look->decodemap=_ogg_malloc(look->partvals*sizeof(*look->decodemap));
+   for(j=0;j<look->partvals;j++){

@@ -1,0 +1,311 @@
+Submitted By: Bruce Dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2009-01-03
+Initial Package Version: 3.1.3
+Origin: Upstream via Thomas ???
+Description: Fix https://bugs.kde.org/show_bug.cgi?id=159795
+
+diff -Naur kdepim-3.5.10-orig/kaddressbook/interfaces/core.h kdepim-3.5.10/kaddressbook/interfaces/core.h
+--- kdepim-3.5.10-orig/kaddressbook/interfaces/core.h	2008-02-13 10:39:42.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/interfaces/core.h	2008-12-29 23:19:28.000000000 +0100
+@@ -166,7 +166,7 @@
+     /**
+       DCOP METHOD: Imports the given vCard.
+      */
+-    virtual void importVCardFromData( const QString& vCard ) = 0;
++    virtual void importVCardFromData( const QCString& vCard ) = 0;
+ 
+     /**
+       DCOP METHOD: Opens contact editor to input a new contact.
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kabcore.cpp kdepim-3.5.10/kaddressbook/kabcore.cpp
+--- kdepim-3.5.10-orig/kaddressbook/kabcore.cpp	2008-08-19 20:15:52.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/kabcore.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -747,7 +747,7 @@
+   mXXPortManager->importVCard( url );
+ }
+ 
+-void KABCore::importVCardFromData( const QString &vCard )
++void KABCore::importVCardFromData( const QCString &vCard )
+ {
+   mXXPortManager->importVCardFromData( vCard );
+ }
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kabcore.h kdepim-3.5.10/kaddressbook/kabcore.h
+--- kdepim-3.5.10-orig/kaddressbook/kabcore.h	2008-08-19 20:15:52.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/kabcore.h	2008-12-29 23:19:28.000000000 +0100
+@@ -301,7 +301,7 @@
+     /**
+       DCOP METHOD: Imports the given vCard.
+      */
+-    virtual void importVCardFromData( const QString& vCard );
++    virtual void importVCardFromData( const QCString& vCard );
+ 
+     /**
+       DCOP METHOD: Opens contact editor to input a new contact.
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbookiface.h kdepim-3.5.10/kaddressbook/kaddressbookiface.h
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbookiface.h	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/kaddressbookiface.h	2008-12-29 23:19:28.000000000 +0100
+@@ -36,7 +36,7 @@
+   k_dcop:
+     virtual void addEmail( QString addr ) = 0;
+     virtual void importVCard( const KURL& url ) = 0;
+-    virtual void importVCardFromData( const QString& vCard ) = 0;
++    virtual void importVCardFromData( const QCString& vCard ) = 0;
+ 
+     virtual ASYNC showContactEditor( QString uid ) = 0;
+ 
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbookmain.cpp kdepim-3.5.10/kaddressbook/kaddressbookmain.cpp
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbookmain.cpp	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/kaddressbookmain.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -89,7 +89,7 @@
+   mCore->importVCard( url );
+ }
+ 
+-void KAddressBookMain::importVCardFromData( const QString& vCard )
++void KAddressBookMain::importVCardFromData( const QCString& vCard )
+ {
+   mCore->importVCardFromData( vCard );
+ }
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbookmain.h kdepim-3.5.10/kaddressbook/kaddressbookmain.h
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbookmain.h	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/kaddressbookmain.h	2008-12-29 23:19:28.000000000 +0100
+@@ -53,7 +53,7 @@
+   public slots:
+     virtual void addEmail( QString addr );
+     virtual void importVCard( const KURL& url );
+-    virtual void importVCardFromData( const QString& vCard );
++    virtual void importVCardFromData( const QCString& vCard );
+     virtual ASYNC showContactEditor( QString uid );
+     virtual void newContact();
+     virtual void newDistributionList();
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbook_part.cpp kdepim-3.5.10/kaddressbook/kaddressbook_part.cpp
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbook_part.cpp	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/kaddressbook_part.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -92,7 +92,7 @@
+   mCore->importVCard( url );
+ }
+ 
+-void KAddressbookPart::importVCardFromData( const QString& vCard )
++void KAddressbookPart::importVCardFromData( const QCString& vCard )
+ {
+   mCore->importVCardFromData( vCard );
+ }
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbook_part.h kdepim-3.5.10/kaddressbook/kaddressbook_part.h
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbook_part.h	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/kaddressbook_part.h	2008-12-29 23:19:28.000000000 +0100
+@@ -50,7 +50,7 @@
+   public slots:
+     virtual void addEmail( QString addr );
+     virtual void importVCard( const KURL& url );
+-    virtual void importVCardFromData( const QString& vCard );
++    virtual void importVCardFromData( const QCString& vCard );
+     virtual ASYNC showContactEditor( QString uid );
+     virtual void newContact();
+     virtual void newDistributionList();
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbookservice.cpp kdepim-3.5.10/kaddressbook/kaddressbookservice.cpp
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbookservice.cpp	2007-10-08 11:50:46.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/kaddressbookservice.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -30,7 +30,7 @@
+ {
+ }
+ 
+-void KAddressBookService::importVCardFromData( const QString& vCard )
++void KAddressBookService::importVCardFromData( const QCString& vCard )
+ {
+   mCore->importVCardFromData( vCard );
+ }
+diff -Naur kdepim-3.5.10-orig/kaddressbook/kaddressbookservice.h kdepim-3.5.10/kaddressbook/kaddressbookservice.h
+--- kdepim-3.5.10-orig/kaddressbook/kaddressbookservice.h	2007-10-08 11:50:46.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/kaddressbookservice.h	2008-12-29 23:19:28.000000000 +0100
+@@ -40,7 +40,7 @@
+ 
+       @param vCard The vCard in string representation.
+      */
+-    void importVCardFromData( const QString& vCard );
++    void importVCardFromData( const QCString& vCard );
+ 
+     /**
+       This method will add a vcard to the address book.
+diff -Naur kdepim-3.5.10-orig/kaddressbook/thumbnailcreator/ldifvcardcreator.cpp kdepim-3.5.10/kaddressbook/thumbnailcreator/ldifvcardcreator.cpp
+--- kdepim-3.5.10-orig/kaddressbook/thumbnailcreator/ldifvcardcreator.cpp	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/thumbnailcreator/ldifvcardcreator.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -75,7 +75,9 @@
+   text.truncate(0);
+ 
+   // read the file
+-  QString contents = file.readAll();
++  const QByteArray data = file.readAll();
++  const QString contents( data );
++  const QCString contentsRaw( data.data(), data.size() );
+   file.close();
+ 
+   // convert the file contents to a KABC::Addressee address
+@@ -83,7 +85,7 @@
+   KABC::Addressee addr;
+   KABC::VCardConverter converter;
+ 
+-  addrList = converter.parseVCards( contents );
++  addrList = converter.parseVCardsRaw( contentsRaw );
+   if ( addrList.count() == 0 )
+     if ( !KABC::LDIFConverter::LDIFToAddressee( contents, addrList ) )
+ 	return false;
+diff -Naur kdepim-3.5.10-orig/kaddressbook/xxport/vcard_xxport.cpp kdepim-3.5.10/kaddressbook/xxport/vcard_xxport.cpp
+--- kdepim-3.5.10-orig/kaddressbook/xxport/vcard_xxport.cpp	2008-02-13 10:39:43.000000000 +0100
++++ kdepim-3.5.10/kaddressbook/xxport/vcard_xxport.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -118,9 +118,9 @@
+       return true;
+ 
+     if ( data == "v21" )
+-      ok = doExport( url, converter.createVCards( list, KABC::VCardConverter::v2_1 ) );
++      ok = doExport( url, converter.createVCardsRaw( list, KABC::VCardConverter::v2_1 ) );
+     else
+-      ok = doExport( url, converter.createVCards( list, KABC::VCardConverter::v3_0 ) );
++      ok = doExport( url, converter.createVCardsRaw( list, KABC::VCardConverter::v3_0 ) );
+   } else {
+     QString msg = i18n( "You have selected a list of contacts, shall they be "
+                         "exported to several files?" );
+@@ -151,9 +151,9 @@
+           tmpList.append( *it );
+ 
+           if ( data == "v21" )
+-            tmpOk = doExport( url, converter.createVCards( tmpList, KABC::VCardConverter::v2_1 ) );
++            tmpOk = doExport( url, converter.createVCardsRaw( tmpList, KABC::VCardConverter::v2_1 ) );
+           else
+-            tmpOk = doExport( url, converter.createVCards( tmpList, KABC::VCardConverter::v3_0 ) );
++            tmpOk = doExport( url, converter.createVCardsRaw( tmpList, KABC::VCardConverter::v3_0 ) );
+ 
+           ok = ok && tmpOk;
+         }
+@@ -166,9 +166,9 @@
+           return true;
+ 
+         if ( data == "v21" )
+-          ok = doExport( url, converter.createVCards( list, KABC::VCardConverter::v2_1 ) );
++          ok = doExport( url, converter.createVCardsRaw( list, KABC::VCardConverter::v2_1 ) );
+         else
+-          ok = doExport( url, converter.createVCards( list, KABC::VCardConverter::v3_0 ) );
++          ok = doExport( url, converter.createVCardsRaw( list, KABC::VCardConverter::v3_0 ) );
+       }
+     }
+   }
+@@ -206,7 +206,7 @@
+           QByteArray rawData = file.readAll();
+           file.close();
+           if ( rawData.size() > 0 )
+-            addrList += parseVCard( rawData );
++            addrList += parseVCard( QCString( rawData.data(), rawData.size() ) );
+ 
+           KIO::NetAccess::removeTempFile( fileName );
+         } else {
+@@ -243,22 +243,19 @@
+   return addrList;
+ }
+ 
+-KABC::AddresseeList VCardXXPort::parseVCard( const QString &data ) const
++KABC::AddresseeList VCardXXPort::parseVCard( const QCString &data ) const
+ {
+   KABC::VCardConverter converter;
+ 
+-  return converter.parseVCards( data );
++  return converter.parseVCardsRaw( data );
+ }
+ 
+-bool VCardXXPort::doExport( const KURL &url, const QString &data )
++bool VCardXXPort::doExport( const KURL &url, const QCString &data )
+ {
+   KTempFile tmpFile;
+   tmpFile.setAutoDelete( true );
+ 
+-  QTextStream stream( tmpFile.file() );
+-  stream.setEncoding( QTextStream::UnicodeUTF8 );
+-
+-  stream << data;
++  tmpFile.file()->writeBlock( data, data.length() );
+   tmpFile.close();
+ 
+   return KIO::NetAccess::upload( tmpFile.name(), url, parentWidget() );
+diff -Naur kdepim-3.5.10-orig/kaddressbook/xxport/vcard_xxport.h kdepim-3.5.10/kaddressbook/xxport/vcard_xxport.h
+--- kdepim-3.5.10-orig/kaddressbook/xxport/vcard_xxport.h	2005-09-10 10:24:17.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/xxport/vcard_xxport.h	2008-12-29 23:19:28.000000000 +0100
+@@ -40,8 +40,8 @@
+     KABC::AddresseeList importContacts( const QString &data ) const;
+ 
+   private:
+-    KABC::AddresseeList parseVCard( const QString &data ) const;
+-    bool doExport( const KURL &url, const QString &data );
++    KABC::AddresseeList parseVCard( const QCString &data ) const;
++    bool doExport( const KURL &url, const QCString &data );
+     void addKey( KABC::Addressee &addr, KABC::Key::Types type );
+ 
+     KABC::AddresseeList filterContacts( const KABC::AddresseeList& );
+diff -Naur kdepim-3.5.10-orig/kaddressbook/xxportmanager.cpp kdepim-3.5.10/kaddressbook/xxportmanager.cpp
+--- kdepim-3.5.10-orig/kaddressbook/xxportmanager.cpp	2007-10-08 11:50:46.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/xxportmanager.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -39,7 +39,7 @@
+ #include "xxportmanager.h"
+ 
+ KURL XXPortManager::importURL = KURL();
+-QString XXPortManager::importData = QString::null;
++QCString XXPortManager::importData = QCString();
+ 
+ XXPortManager::XXPortManager( KAB::Core *core, QObject *parent, const char *name )
+   : QObject( parent, name ), mCore( core )
+@@ -66,11 +66,11 @@
+   importURL = KURL();
+ }
+ 
+-void XXPortManager::importVCardFromData( const QString &vCard )
++void XXPortManager::importVCardFromData( const QCString &vCard )
+ {
+   importData = vCard;
+   slotImport( "vcard", "<empty>" );
+-  importData = "";
++  importData = QCString();
+ }
+ 
+ void XXPortManager::slotImport( const QString &identifier, const QString &data )
+diff -Naur kdepim-3.5.10-orig/kaddressbook/xxportmanager.h kdepim-3.5.10/kaddressbook/xxportmanager.h
+--- kdepim-3.5.10-orig/kaddressbook/xxportmanager.h	2007-10-08 11:50:46.000000000 +0200
++++ kdepim-3.5.10/kaddressbook/xxportmanager.h	2008-12-29 23:19:28.000000000 +0100
+@@ -49,11 +49,11 @@
+     void saveSettings();
+ 
+     static KURL importURL;
+-    static QString importData;
++    static QCString importData;
+ 
+   public slots:
+     void importVCard( const KURL &url );
+-    void importVCardFromData( const QString &vCard );
++    void importVCardFromData( const QCString &vCard );
+ 
+   signals:
+     void modified();
+diff -Naur kdepim-3.5.10-orig/kfile-plugins/vcf/kfile_vcf.cpp kdepim-3.5.10/kfile-plugins/vcf/kfile_vcf.cpp
+--- kdepim-3.5.10-orig/kfile-plugins/vcf/kfile_vcf.cpp	2008-02-13 10:39:52.000000000 +0100
++++ kdepim-3.5.10/kfile-plugins/vcf/kfile_vcf.cpp	2008-12-29 23:19:28.000000000 +0100
+@@ -64,11 +64,12 @@
+ 
+     // even the vcard thumbnail QString::fromUtf8(buf_name));creator reads the full file ...
+     // The following is partly copied from there
+-    QString contents = file.readAll();
++    const QByteArray contents = file.readAll();
++    const QCString data( contents.data(), contents.size() );
+     file.close();
+ 
+     KABC::VCardConverter converter;
+-    KABC::Addressee addr = converter.parseVCard(contents);
++    KABC::Addressee addr = converter.parseVCard( data );
+ 
+     KFileMetaInfoGroup group = appendGroup(info, "Technical");
+ 
+diff -Naur kdepim-3.5.10-orig/libkdepim/interfaces/AddressBookServiceIface.h kdepim-3.5.10/libkdepim/interfaces/AddressBookServiceIface.h
+--- kdepim-3.5.10-orig/libkdepim/interfaces/AddressBookServiceIface.h	2007-10-08 11:50:47.000000000 +0200
++++ kdepim-3.5.10/libkdepim/interfaces/AddressBookServiceIface.h	2008-12-29 23:19:28.000000000 +0100
+@@ -43,7 +43,7 @@
+ 
+         @param vCard The vCard in string representation.
+        */
+-      virtual void importVCardFromData( const QString& vCard ) = 0;
++      virtual void importVCardFromData( const QCString& vCard ) = 0;
+ 
+       /**
+         This method will add a vcard to the address book.

@@ -1,0 +1,36 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-06-02
+Initial Package Version: 2.10
+Origin: Jim Gifford
+Description: Adds Missing Files
+
+diff -Naur zoo-2.10.orig/makefile zoo-2.10/makefile
+--- zoo-2.10.orig/makefile	2003-06-02 14:07:51.000000000 -0000
++++ zoo-2.10/makefile	2003-06-02 14:11:20.000000000 -0000
+@@ -70,14 +70,17 @@
+ # install alpha zoo as "tzoo"
+ install:
+ 	mv zoo $(DESTDIR)/tzoo
++	mv fiz $(DESTDIR)/tfiz
+ 
+ # install beta zoo as "bzoo"
+ inst_beta:
+ 	mv zoo $(DESTDIR)/bzoo
++	mv fiz $(DESTDIR)/bfiz
+ 
+ # install production zoo as "zoo"
+ inst_prod:
+ 	mv zoo $(DESTDIR)/zoo
++	mv fiz $(DESTDIR)/fiz
+ 
+ # executable targets
+ TARGETS = zoo fiz
+@@ -144,7 +147,7 @@
+ 
+ # standard clean -- remove all transient files
+ clean :
+-	rm -f core a.out $(ZOOOBJS) $(FIZOBJS)
++	rm -f core a.out $(ZOOOBJS) $(FIZOBJS) fiz zoo
+ 
+ # object clean only -- just remove object files
+ objclean:

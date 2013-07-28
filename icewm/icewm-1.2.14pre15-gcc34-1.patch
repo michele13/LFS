@@ -1,0 +1,31 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-16
+Initial Package Version: 1.2.14pre15
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/icewm-1.2.14pre15-gcc34-1.patch
+Upstream Status: not reported
+Description: fix compilation (template syntax)
+ 
+diff -Naur icewm-1.2.14pre15.orig/src/icesh.cc icewm-1.2.14pre15/src/icesh.cc
+--- icewm-1.2.14pre15.orig/src/icesh.cc	2004-05-15 22:14:58.300377760 +0000
++++ icewm-1.2.14pre15/src/icesh.cc	2004-05-15 22:06:00.688107248 +0000
+@@ -300,9 +300,9 @@
+ 
+     if (Success == winState && XA_CARDINAL == winState.type() &&
+         32 == winState.format() && 1U <= winState.count()) {
+-	state = winState.template data<long>(0);
++	state = winState.data<long>(0);
+ 	mask = winState.count() >= 2U
+-             ? winState.template data<long>(1)
++             ? winState.data<long>(1)
+              : WIN_STATE_ALL;
+ 
+         return winState;
+@@ -381,7 +381,7 @@
+ };
+ 
+ unsigned WorkspaceInfo::count() {
+-    return (Success == fCount ? fCount.template data<long>(0) : 0);
++    return (Success == fCount ? fCount.data<long>(0) : 0);
+ }
+ 
+ int WorkspaceInfo::parseWorkspaceName(char const * name) {

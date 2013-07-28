@@ -1,0 +1,173 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-12-26
+Initial Package Version: 0.1.7
+Upstream Status: Applied
+Origin: Upstream, via debian
+Description: Various fixes (crashes with certain inputs, fatal error in testsuite)
+
+diff -Naur libsamplerate-0.1.7.orig/src/src_linear.c libsamplerate-0.1.7/src/src_linear.c
+--- libsamplerate-0.1.7.orig/src/src_linear.c	2008-12-12 08:59:57.000000000 +0000
++++ libsamplerate-0.1.7/src/src_linear.c	2009-12-26 20:15:12.000000000 +0000
+@@ -58,6 +58,9 @@
+ 	double		src_ratio, input_index, rem ;
+ 	int			ch ;
+ 
++	if (data->input_frames <= 0)
++		return SRC_ERR_NO_ERROR ;
++
+ 	if (psrc->private_data == NULL)
+ 		return SRC_ERR_NO_PRIVATE ;
+ 
+diff -Naur libsamplerate-0.1.7.orig/src/src_sinc.c libsamplerate-0.1.7/src/src_sinc.c
+--- libsamplerate-0.1.7.orig/src/src_sinc.c	2009-02-14 09:35:20.000000000 +0000
++++ libsamplerate-0.1.7/src/src_sinc.c	2009-12-26 20:15:12.000000000 +0000
+@@ -1194,6 +1194,9 @@
+ 		filter->b_real_end = filter->b_end ;
+ 		len = half_filter_chan_len + 5 ;
+ 
++		if (len < 0 || filter->b_end + len > filter->b_len)
++			len = filter->b_len - filter->b_end ;
++
+ 		memset (filter->buffer + filter->b_end, 0, len * sizeof (filter->buffer [0])) ;
+ 		filter->b_end += len ;
+ 		} ;
+diff -Naur libsamplerate-0.1.7.orig/src/src_zoh.c libsamplerate-0.1.7/src/src_zoh.c
+--- libsamplerate-0.1.7.orig/src/src_zoh.c	2008-12-12 09:00:25.000000000 +0000
++++ libsamplerate-0.1.7/src/src_zoh.c	2009-12-26 20:15:12.000000000 +0000
+@@ -56,6 +56,9 @@
+ 	double		src_ratio, input_index, rem ;
+ 	int			ch ;
+ 
++	if (data->input_frames <= 0)
++		return SRC_ERR_NO_ERROR ;
++
+ 	if (psrc->private_data == NULL)
+ 		return SRC_ERR_NO_PRIVATE ;
+ 
+diff -Naur libsamplerate-0.1.7.orig/tests/callback_test.c libsamplerate-0.1.7/tests/callback_test.c
+--- libsamplerate-0.1.7.orig/tests/callback_test.c	2008-07-10 00:52:31.000000000 +0100
++++ libsamplerate-0.1.7/tests/callback_test.c	2009-12-26 20:15:12.000000000 +0000
+@@ -137,11 +137,11 @@
+ 
+ 	src_state = src_delete (src_state) ;
+ 
+-	if (fabs (read_total - src_ratio * ARRAY_LEN (test_callback_data.data)) > src_ratio)
++	if (fabs (read_total / src_ratio - ARRAY_LEN (test_callback_data.data)) > 2.0)
+ 	{	printf ("\n\nLine %d : input / output length mismatch.\n\n", __LINE__) ;
+ 		printf ("    input len  : %d\n", ARRAY_LEN (test_callback_data.data)) ;
+-		printf ("    output len : %ld (should be %g +/- %g)\n\n", read_total,
+-					floor (0.5 + src_ratio * ARRAY_LEN (test_callback_data.data)), ceil (src_ratio)) ;
++		printf ("    output len : %ld (should be %g +/- 2)\n\n", read_total,
++					floor (0.5 + src_ratio * ARRAY_LEN (test_callback_data.data))) ;
+ 		exit (1) ;
+ 		} ;
+ 
+diff -Naur libsamplerate-0.1.7.orig/tests/misc_test.c libsamplerate-0.1.7/tests/misc_test.c
+--- libsamplerate-0.1.7.orig/tests/misc_test.c	2008-07-02 02:09:46.000000000 +0100
++++ libsamplerate-0.1.7/tests/misc_test.c	2009-12-26 20:15:12.000000000 +0000
+@@ -27,6 +27,7 @@
+ static void name_test (void) ;
+ static void error_test (void) ;
+ static void src_ratio_test (void) ;
++static void zero_input_test (int converter) ;
+ 
+ int
+ main (void)
+@@ -42,6 +43,11 @@
+ 
+ 	src_ratio_test () ;
+ 
++	zero_input_test (SRC_ZERO_ORDER_HOLD) ;
++	zero_input_test (SRC_LINEAR) ;
++	zero_input_test (SRC_SINC_FASTEST) ;
++
++	puts ("") ;
+ 	return 0 ;
+ } /* main */
+ 
+@@ -135,3 +141,35 @@
+ 
+ 	return ;
+ } /* error_test */
++
++static void
++zero_input_test (int converter)
++{	SRC_DATA data ;
++	SRC_STATE *state ;
++	float out [100] ;
++	int error ;
++
++	printf ("    %s (%-26s) ........ ", __func__, src_get_name (converter)) ;
++	fflush (stdout) ;
++
++	if ((state = src_new (converter, 1, &error)) == NULL)
++	{	printf ("\n\nLine %d : src_new failed : %s.\n\n", __LINE__, src_strerror (error)) ;
++		exit (1) ;
++		} ;
++
++	data.data_in = (float *) 0xdeadbeef ;
++	data.input_frames = 0 ;
++	data.data_out = out ;
++	data.output_frames = ARRAY_LEN (out) ;
++	data.end_of_input = 0 ;
++	data.src_ratio = 1.0 ;
++
++	if ((error = src_process (state, &data)))
++	{	printf ("\n\nLine %d : src_new failed : %s.\n\n", __LINE__, src_strerror (error)) ;
++		exit (1) ;
++		} ;
++
++	state = src_delete (state) ;
++
++	puts ("ok") ;
++} /* zero_input_test */
+diff -Naur libsamplerate-0.1.7.orig/tests/termination_test.c libsamplerate-0.1.7/tests/termination_test.c
+--- libsamplerate-0.1.7.orig/tests/termination_test.c	2009-01-12 09:16:20.000000000 +0000
++++ libsamplerate-0.1.7/tests/termination_test.c	2009-12-26 20:15:12.000000000 +0000
+@@ -27,6 +27,7 @@
+ #define	SHORT_BUFFER_LEN	2048
+ #define	LONG_BUFFER_LEN		((1 << 16) - 20)
+ 
++static void simple_test (int converter) ;
+ static void stream_test (int converter, double ratio) ;
+ static void init_term_test (int converter, double ratio) ;
+ 
+@@ -67,10 +68,38 @@
+ 
+ 	puts ("") ;
+ 
++	simple_test (SRC_SINC_FASTEST) ;
++
+ 	return 0 ;
+ } /* main */
+ 
+ static void
++simple_test (int converter)
++{
++	int ilen = 199030, olen = 1000, error ;
++
++	{
++		float in [ilen] ;
++		float out [olen] ;
++		double ratio = (1.0 * olen) / ilen ;
++		SRC_DATA src_data =
++		{	in, out,
++			ilen, olen,
++			0, 0, 0,
++			ratio
++		} ;
++
++		error = src_simple (&src_data, converter, 1) ;
++		if (error)
++		{	printf ("\n\nLine %d : %s\n\n", __LINE__, src_strerror (error)) ;
++			exit (1) ;
++			} ;
++	} ;
++
++    return ;
++} /* simple_test */
++
++static void
+ init_term_test (int converter, double src_ratio)
+ {	static float input [SHORT_BUFFER_LEN], output [SHORT_BUFFER_LEN] ;
+ 

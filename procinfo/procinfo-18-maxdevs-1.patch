@@ -1,0 +1,37 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-03-21
+Initial Package Version: 18
+Origin: Fedora
+Upstream Status: Unknown
+Description: Fixes the maximum # of devices
+ 
+diff -Naur procinfo-18.orig/procinfo.c procinfo-18/procinfo.c
+--- procinfo-18.orig/procinfo.c	2005-03-22 00:22:46.000000000 +0000
++++ procinfo-18/procinfo.c	2005-03-22 00:23:45.000000000 +0000
+@@ -613,7 +613,9 @@
+ 	printf ("%s\nCharacter Devices:                      "
+ 		"Block Devices:\n",
+ 		fs ? ce : "");
+-	while (fgets (line, sizeof (line), devicesfp)) {
++	while (fgets (line, sizeof (line), devicesfp) && 
++			count[CDRV] < MAX_DEV &&
++			count[BDRV] < MAX_DEV) {
+ 	    switch (line[0]) {
+ 	    case 'C':
+ 		which = CDRV;
+diff -Naur procinfo-18.orig/procinfo.h procinfo-18/procinfo.h
+--- procinfo-18.orig/procinfo.h	2005-03-22 00:22:46.000000000 +0000
++++ procinfo-18/procinfo.h	2005-03-22 00:23:45.000000000 +0000
+@@ -69,10 +69,10 @@
+ #define CDRV		0
+ #define BDRV		1
+ #ifndef MAX_CHRDEV
+-#define MAX_CHRDEV	32
++#define MAX_CHRDEV	512
+ #endif
+ #ifndef MAX_BLKDEV
+-#define MAX_BLKDEV	32
++#define MAX_BLKDEV	512
+ #endif
+ #define MAX_DEV		MAX(MAX_CHRDEV, MAX_BLKDEV)
+ 

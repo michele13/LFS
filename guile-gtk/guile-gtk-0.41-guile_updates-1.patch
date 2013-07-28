@@ -1,0 +1,116 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2006-04-15
+Initial Package Version: 0.41
+Upstream Status:         In CVS
+Origin:                  Randy McMurchy applying upstream fixes from
+                         http://cvs.savannah.gnu.org/viewcvs/guile-gtk/guile-gtk-1.2/
+Description:             Fixes build issues when using Guile >= 1.6.x
+
+
+diff -Naur guile-gtk-0.41-orig/gtk-threads.c guile-gtk-0.41/gtk-threads.c
+--- guile-gtk-0.41-orig/gtk-threads.c	2005-03-28 18:27:28.000000000 -0600
++++ guile-gtk-0.41/gtk-threads.c	2006-04-15 09:59:48.000000000 -0500
+@@ -48,7 +48,7 @@
+ #endif
+ #endif
+ 
+-#ifndef SCM_USE_PTHREAD_THREADS
++/* #ifndef SCM_USE_PTHREAD_THREADS
+ #ifdef USE_PTHREAD_THREADS
+ #define SCM_USE_PTHREAD_THREADS 1
+ #else
+@@ -58,7 +58,14 @@
+ 
+ #if SCM_USE_COOP_THREADS || SCM_USE_COPT_THREADS || SCM_USE_PTHREAD_THREADS
+ 
+-extern int errno;
++extern int errno; */
++
++/*---------------------------------------------------------------------------*/ 
++/* Guile 1.6 cooperative threads, ie ./configure --with-threads=coop 
++*/ 
++    
++#if SCM_USE_COOP_THREADS || SCM_USE_COPT_THREADS 
++#define FOUND 1 
+ 
+ #ifdef FD_SET
+ #  define SELECT_MASK fd_set
+@@ -429,11 +436,46 @@
+ #endif
+ }
+ 
+-#else /* !USE_THREADS */
++/* #else  !USE_THREADS */
++
++#endif /* coop threads */ 
++    
++    
++/*---------------------------------------------------------------------------*/ 
++/* Guile 1.8 posix pthread threads, ie ./configure --with-threads=pthreads 
++*/ 
++    
++#if SCM_USE_PTHREAD_THREADS 
++#define FOUND 1 
++
++SCM 
++sgtk_threads_update () 
++{ 
++  return SCM_UNSPECIFIED; 
++} 
++ 
++void 
++sgtk_init_threads () 
++{ 
++  /* NULL here asks for the default threading, which is posix pthreads on a 
++     GNU/Linux system */ 
++  g_thread_init (NULL); 
++} 
++ 
++#endif /* USE_PTHREAD_THREADS */ 
++
+ 
+-#ifdef USE_THREADS
++/* #ifdef USE_THREADS
+ #error No thread package supported by Guile
+-#endif
++#endif */
++
++/*---------------------------------------------------------------------------*/ 
++/* Guile 1.6 or 1.8 null threads, ie ./configure --with-threads=no (or null) 
++*/ 
++ 
++#if ! USE_THREADS || SCM_USE_NULL_THREADS 
++#define FOUND 1 
++
+ 
+ SCM
+ sgtk_threads_update ()
+@@ -446,4 +488,14 @@
+ {
+ }
+ 
+-#endif /* !USE_THREADS */
++/* #endif  !USE_THREADS */
++
++#endif /* USE_NULL_THREADS */
++ 
++ 
++ 
++/*---------------------------------------------------------------------------*/
++#if ! FOUND
++#error "Oops, Guile threading system recognised
++#endif
++
+
+diff -Naur guile-gtk-0.41-orig/guile-gtk.c guile-gtk-0.41/guile-gtk.c
+--- guile-gtk-0.41-orig/guile-gtk.c	2005-03-16 17:36:15.000000000 -0600
++++ guile-gtk-0.41/guile-gtk.c	2006-04-15 09:59:48.000000000 -0500
+@@ -2133,7 +2133,7 @@
+ 
+ /* Be carefull when this macro is true.
+    scm_gc_heap_lock is set during gc.  */
+-#define SCM_GC_P (scm_gc_heap_lock)
++#define SCM_GC_P (scm_gc_running_p)
+ 
+ void
+ sgtk_callback_marshal (GtkObject *obj,

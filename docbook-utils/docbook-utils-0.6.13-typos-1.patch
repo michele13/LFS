@@ -1,0 +1,44 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-22
+Initial Package Version: 0.6.13
+Origin: RAWHIDE
+Description: Fixes a few typos
+ 
+diff -Naur docbook-utils-0.6.13.orig/bin/jw.in docbook-utils-0.6.13/bin/jw.in
+--- docbook-utils-0.6.13.orig/bin/jw.in	2003-03-17 17:24:16.000000000 +0000
++++ docbook-utils-0.6.13/bin/jw.in	2003-09-22 15:38:03.000000000 +0000
+@@ -360,7 +360,7 @@
+ 	papersize=
+ 	if [ -x /usr/bin/locale ]
+ 	then
+-	  h=$(/usr/bin/locale LC_PAPER 2>/dev/null | head -1)
++	  h=$(/usr/bin/locale LC_PAPER 2>/dev/null | head -n 1)
+ 	  if [ "$h" = 297 ]
+ 	  then
+ 	    papersize=A4
+diff -Naur docbook-utils-0.6.13.orig/helpers/docbook2man-spec.pl docbook-utils-0.6.13/helpers/docbook2man-spec.pl
+--- docbook-utils-0.6.13.orig/helpers/docbook2man-spec.pl	2002-10-14 14:26:35.000000000 +0000
++++ docbook-utils-0.6.13/helpers/docbook2man-spec.pl	2003-09-22 15:37:59.000000000 +0000
+@@ -1198,6 +1198,10 @@
+ 	# Escape backslashes
+ 	$_[0] =~ s/\\/\\\\/g;
+ 
++	# Escape dots and single quotes in column 1
++	$_[0] =~ s/^\./\\\&\./;
++	$_[0] =~ s/^\'/\\\&\'/;
++
+ 	# In non-'pre'-type elements:
+ 	if(!$nocollapse_whitespace) {
+ 		# Change tabs to spaces
+@@ -1210,11 +1214,6 @@
+ 
+ 			# If the line is all blank, don't do anything.
+ 			if($_[0] eq '') { return; }
+-			
+-			$_[0] =~ s/^\./\\\&\./;
+-
+-			# Argh... roff doesn't like ' either...
+-			$_[0] =~ s/^\'/\\\&\'/;
+ 		}
+ 	}
+ 

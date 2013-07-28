@@ -1,0 +1,26 @@
+Submitted By: Andrew Benton <b3nton@gmail.com>
+Date: 2012-02-09
+Initial Package Version: httpd-2.2.22
+Origin: from https://issues.apache.org/bugzilla/show_bug.cgi?id=52623
+Description: Fix compiling Apache --with-pcre with pcre-8.30 installed
+
+--- httpd-2.2.22/server/util_pcre.c~	2005-11-10 15:20:05.000000000 +0000
++++ httpd-2.2.22/server/util_pcre.c	2012-02-09 18:31:20.234497613 +0000
+@@ -128,6 +128,7 @@
+ const char *errorptr;
+ int erroffset;
+ int options = 0;
++int nsub;
+ 
+ if ((cflags & AP_REG_ICASE) != 0) options |= PCRE_CASELESS;
+ if ((cflags & AP_REG_NEWLINE) != 0) options |= PCRE_MULTILINE;
+@@ -137,7 +138,8 @@
+ 
+ if (preg->re_pcre == NULL) return AP_REG_INVARG;
+ 
+-preg->re_nsub = pcre_info((const pcre *)preg->re_pcre, NULL, NULL);
++pcre_fullinfo((const pcre *)preg->re_pcre, NULL, PCRE_INFO_CAPTURECOUNT, &nsub);
++preg->re_nsub = nsub;
+ return 0;
+ }
+ 

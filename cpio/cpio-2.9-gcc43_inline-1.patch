@@ -1,0 +1,39 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-11-19
+Initial Package Version: 2.9
+Upstream Status: unknown
+Origin: Ryan Hill, http://bugs.gentoo.org/show_bug.cgi?id=198817
+Description: Allows it to compile with gcc-4.3.  Rediffed to apply with -p1.
+
+diff -Naur cpio-2.9.orig/lib/argp-fmtstream.h cpio-2.9/lib/argp-fmtstream.h
+--- cpio-2.9.orig/lib/argp-fmtstream.h	2006-01-21 10:37:18.000000000 +0000
++++ cpio-2.9/lib/argp-fmtstream.h	2008-11-19 15:51:57.000000000 +0000
+@@ -198,8 +198,12 @@
+ #endif
+ 
+ #ifndef ARGP_FS_EI
++#ifdef __GNUC_STDC_INLINE__
++#define ARGP_FS_EI extern inline __attribute__((__gnu_inline__))
++#else
+ #define ARGP_FS_EI extern inline
+ #endif
++#endif
+ 
+ ARGP_FS_EI size_t
+ __argp_fmtstream_write (argp_fmtstream_t __fs,
+diff -Naur cpio-2.9.orig/lib/argp.h cpio-2.9/lib/argp.h
+--- cpio-2.9.orig/lib/argp.h	2007-03-30 17:20:19.000000000 +0100
++++ cpio-2.9/lib/argp.h	2008-11-19 15:51:57.000000000 +0000
+@@ -580,7 +580,11 @@
+ # endif
+ 
+ # ifndef ARGP_EI
+-#  define ARGP_EI extern __inline__
++#  if defined __GNUC_STDC_INLINE__
++#    define ARGP_EI extern __inline__ __attribute__((__gnu_inline__))
++#  else
++#    define ARGP_EI extern __inline__
++#  endif
+ # endif
+ 
+ ARGP_EI void

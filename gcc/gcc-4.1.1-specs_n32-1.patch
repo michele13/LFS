@@ -1,0 +1,61 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-08-14
+Initial Package Version: 4.1.1
+Upstream Status: Not Sent - LFS Specific
+Origin: Idea originally developed by Ryan Oliver and Greg Schafer for
+        the Pure LFS project.
+        More architectures added by Zack Winkles.
+        Further fine tunings by Greg Schafer.
+        Modified for gcc 3.3.2 by Oliver Brakmann.
+        Rediffed against gcc 3.4.0 by Zack Winkles.
+        Rediffed against gcc 3.4.3 by Jim Gifford.
+        Rediffed against gcc 4.0.0 by Robert Connolly.
+        Rediffed against gcc 4.1.0 by Chris Staub
+Description: This patch modifies the location of the dynamic linker for
+        the GCC Pass 2 build in LFS Chapter 5.
+	Modified to Support a N32 only build on MIPS
+
+diff -Naur gcc-4.1.1.orig/gcc/config/linux.h gcc-4.1.1/gcc/config/linux.h
+--- gcc-4.1.1.orig/gcc/config/linux.h	2005-08-06 06:26:35.000000000 -0700
++++ gcc-4.1.1/gcc/config/linux.h	2006-08-14 10:59:09.802529231 -0700
+@@ -104,3 +104,7 @@
+ #define TARGET_C99_FUNCTIONS 1
+ 
+ #define TARGET_POSIX_IO
++
++/* Remove /usr/include from the end of the include search path.  */
++#undef STANDARD_INCLUDE_DIR
++#define STANDARD_INCLUDE_DIR 0
+diff -Naur gcc-4.1.1.orig/gcc/config/mips/linux64.h gcc-4.1.1/gcc/config/mips/linux64.h
+--- gcc-4.1.1.orig/gcc/config/mips/linux64.h	2005-06-24 18:22:41.000000000 -0700
++++ gcc-4.1.1/gcc/config/mips/linux64.h	2006-08-14 11:00:27.920603309 -0700
+@@ -47,13 +47,11 @@
+       %{!static: \
+         %{rdynamic:-export-dynamic} \
+         %{!dynamic-linker: \
+-	  %{mabi=n32: -dynamic-linker /lib32/ld.so.1} \
+-	  %{mabi=64: -dynamic-linker /lib64/ld.so.1} \
+-	  %{mabi=32: -dynamic-linker /lib/ld.so.1}}} \
++	  %{mabi=n32: -dynamic-linker /tools/lib/ld.so.1} \
++	  %{mabi=64: -dynamic-linker /tools/lib64/ld.so.1}}} \
+       %{static:-static}}} \
+ %{mabi=n32:-melf32%{EB:b}%{EL:l}tsmipn32} \
+-%{mabi=64:-melf64%{EB:b}%{EL:l}tsmip} \
+-%{mabi=32:-melf32%{EB:b}%{EL:l}tsmip}"
++%{mabi=64:-melf64%{EB:b}%{EL:l}tsmip}"
+ 
+ #undef LOCAL_LABEL_PREFIX
+ #define LOCAL_LABEL_PREFIX (TARGET_OLDABI ? "$" : ".")
+diff -Naur gcc-4.1.1.orig/gcc/config/mips/t-linux64 gcc-4.1.1/gcc/config/mips/t-linux64
+--- gcc-4.1.1.orig/gcc/config/mips/t-linux64	2006-02-17 13:38:59.000000000 -0800
++++ gcc-4.1.1/gcc/config/mips/t-linux64	2006-08-14 11:12:08.387142697 -0700
+@@ -1,6 +1,6 @@
+-MULTILIB_OPTIONS = mabi=n32/mabi=32/mabi=64
+-MULTILIB_DIRNAMES = n32 32 64
+-MULTILIB_OSDIRNAMES = ../lib32 ../lib ../lib64
++MULTILIB_OPTIONS = mabi=n32/mabi=64
++MULTILIB_DIRNAMES = n32 64
++MULTILIB_OSDIRNAMES = ../lib ../lib64
+ 
+ EXTRA_MULTILIB_PARTS=crtbegin.o crtend.o crtbeginS.o crtendS.o crtbeginT.o
+ 

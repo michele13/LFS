@@ -1,0 +1,266 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2006-01-17
+Initial Package Version: 1.5
+Origin: Fedora
+Upstream Status: Not submitted, old version.
+Description: Misc fixes from Fedora
+diff -Naur automake-1.5.orig/aclocal.in automake-1.5/aclocal.in
+--- automake-1.5.orig/aclocal.in	2001-07-17 00:36:23.000000000 -0500
++++ automake-1.5/aclocal.in	2005-11-08 21:45:36.191618728 -0600
+@@ -20,7 +20,7 @@
+ # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ # 02111-1307, USA.
+ 
+-# Written by Tom Tromey <tromey@cygnus.com>.
++# Written by Tom Tromey <tromey@redhat.com>.
+ 
+ eval 'exec @PERL@ -S $0 ${1+"$@"}'
+     if 0;
+@@ -29,10 +29,13 @@
+ 
+ # Some constants.
+ $VERSION = "@VERSION@";
++$APIVERSION = "@APIVERSION@";
+ $PACKAGE = "@PACKAGE@";
+ $prefix = "@prefix@";
+ # Note that this isn't pkgdatadir, but a separate directory.
++# Note also that the versioned directory is handled later.
+ $acdir = "@datadir@/aclocal";
++$default_acdir = $acdir;
+ 
+ # Some globals.
+ 
+@@ -185,7 +188,7 @@
+ 	    print "Copyright 1996, 1997, 1998, 1999, 2000, 2001 Free Software Foundation, Inc.\n";
+ 	    print "This is free software; see the source for copying conditions.  There is NO\n";
+ 	    print "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n";
+-	    print "Written by Tom Tromey <tromey\@cygnus.com>\n";
++	    print "Written by Tom Tromey <tromey\@redhat.com>\n";
+ 	    exit 0;
+ 	}
+ 	elsif ($arglist[0] eq '--help')
+@@ -206,8 +209,17 @@
+ 	exit 0;
+     }
+ 
+-    # Search our install directory last.
+-    push (@dirlist, $acdir);
++    # Search the versioned directory near the end, and then the
++    # unversioned directory last.  Only do this if the user didn't
++    # override acdir.
++    push (@dirlist, "$acdir-$APIVERSION")
++	if $acdir eq $default_acdir;
++
++    # By default $(datadir)/aclocal doesn't exist.  We don't want to
++    # get an error in the case where we are searching the default
++    # directory and it hasn't been created.
++    push (@dirlist, $acdir)
++	unless $acdir eq $default_acdir && ! -d $acdir;
+ 
+     return @dirlist;
+ }
+diff -Naur automake-1.5.orig/configure automake-1.5/configure
+--- automake-1.5.orig/configure	2001-08-23 00:49:52.000000000 -0500
++++ automake-1.5/configure	2005-11-08 21:44:07.329127880 -0600
+@@ -793,7 +793,7 @@
+ fi
+ 
+ # Define the identity of the package.
+-PACKAGE=automake
++PACKAGE=automake-1.5
+ VERSION=1.5
+ cat >> confdefs.h <<EOF
+ #define PACKAGE "$PACKAGE"
+@@ -843,6 +843,16 @@
+ # some platforms.
+ 
+ 
++# The API version is the base version.  We must guarantee
++# compatibility for all releases with the same API version.
++# Our current rule is that:
++# * All releases, including the prereleases, in an X.Y series
++#   are compatible.  So 1.5.1c is compatible with 1.5.
++# * Prereleases on the trunk are all incompatible -- 1.5b and 1.5c
++#   aren't the same.
++APIVERSION=`echo "$VERSION" | sed -e 's/^\([0-9]*\.[0-9]*[a-z]?\).*$/\1/'`
++
++
+ ACLOCAL="`pwd`/aclocal --acdir=m4"
+ # $AUTOMAKE is always run after a `cd $top_srcdir', hence `.' is really
+ # what we want for perllibdir and libdir.
+@@ -1063,6 +1073,7 @@
+ s%@AMDEP_FALSE@%$AMDEP_FALSE%g
+ s%@AMDEPBACKSLASH@%$AMDEPBACKSLASH%g
+ s%@DEPDIR@%$DEPDIR%g
++s%@APIVERSION@%$APIVERSION%g
+ s%@PERL@%$PERL%g
+ 
+ CEOF
+diff -Naur automake-1.5.orig/lib/am/subdirs.am automake-1.5/lib/am/subdirs.am
+--- automake-1.5.orig/lib/am/subdirs.am	2001-04-09 09:44:04.000000000 -0500
++++ automake-1.5/lib/am/subdirs.am	2005-11-08 21:45:36.193618424 -0600
+@@ -32,7 +32,7 @@
+ # (2) otherwise, pass the desired values on the `make' command line.
+ 
+ $(RECURSIVE_TARGETS):
+-	@set fnord $(MAKEFLAGS); amf=$$2; \
++	@set fnord $$MAKEFLAGS; amf=$$2; \
+ 	dot_seen=no; \
+ 	target=`echo $@ | sed s/-recursive//`; \
+ 	list='$(SUBDIRS)'; for subdir in $$list; do \
+@@ -69,7 +69,7 @@
+ ## bombs.
+ mostlyclean-recursive clean-recursive distclean-recursive \
+ maintainer-clean-recursive:
+-	@set fnord $(MAKEFLAGS); amf=$$2; \
++	@set fnord $$MAKEFLAGS; amf=$$2; \
+ 	dot_seen=no; \
+ ## For distclean and maintainer-clean we make sure to use the full
+ ## list of subdirectories.  We do this so that `configure; make
+diff -Naur automake-1.5.orig/lib/missing automake-1.5/lib/missing
+--- automake-1.5.orig/lib/missing	2001-07-14 14:30:42.000000000 -0500
++++ automake-1.5/lib/missing	2005-11-08 21:45:36.195618120 -0600
+@@ -43,7 +43,24 @@
+   # Try to run requested program, and just exit if it succeeds.
+   run=
+   shift
+-  "$@" && exit 0
++  prog="$1"
++  shift
++  case "$prog" in
++    aclocal)
++      for suffix in "-1.5" ""; do
++	if "$prog$suffix" "--version" >/dev/null 2>&1; then
++	  "$prog$suffix" "$@" && exit 0
++	fi
++      done;;
++    automake)
++      for suffix in "-1.5" ""; do
++	if "$prog$suffix" "--version" >/dev/null 2>&1; then
++	  "$prog$suffix" "$@" && exit 0
++	fi
++      done;;
++    *) "$prog" "$@" && exit 0;;
++  esac
++  set -- "$prog" "$@"
+   ;;
+ esac
+ 
+@@ -87,7 +104,7 @@
+     exit 1
+     ;;
+ 
+-  aclocal)
++  aclocal*)
+     echo 1>&2 "\
+ WARNING: \`$1' is missing on your system.  You should only need it if
+          you modified \`acinclude.m4' or \`${configure_ac}'.  You might want
+@@ -96,7 +113,7 @@
+     touch aclocal.m4
+     ;;
+ 
+-  autoconf)
++  autoconf*)
+     echo 1>&2 "\
+ WARNING: \`$1' is missing on your system.  You should only need it if
+          you modified \`${configure_ac}'.  You might want to install the
+@@ -105,7 +122,7 @@
+     touch configure
+     ;;
+ 
+-  autoheader)
++  autoheader*)
+     echo 1>&2 "\
+ WARNING: \`$1' is missing on your system.  You should only need it if
+          you modified \`acconfig.h' or \`${configure_ac}'.  You might want
+@@ -124,7 +141,7 @@
+     touch $touch_files
+     ;;
+ 
+-  automake)
++  automake*)
+     echo 1>&2 "\
+ WARNING: \`$1' is missing on your system.  You should only need it if
+          you modified \`Makefile.am', \`acinclude.m4' or \`${configure_ac}'.
+diff -Naur automake-1.5.orig/m4/Makefile.in automake-1.5/m4/Makefile.in
+--- automake-1.5.orig/m4/Makefile.in	2001-08-23 00:49:56.000000000 -0500
++++ automake-1.5/m4/Makefile.in	2005-11-08 21:45:36.196617968 -0600
+@@ -56,6 +56,7 @@
+ PRE_UNINSTALL = :
+ POST_UNINSTALL = :
+ AMTAR = @AMTAR@
++APIVERSION = @APIVERSION@
+ AWK = @AWK@
+ DEPDIR = @DEPDIR@
+ EXEEXT = @EXEEXT@
+@@ -68,7 +69,7 @@
+ am__quote = @am__quote@
+ install_sh = @install_sh@
+ 
+-m4datadir = $(datadir)/aclocal
++m4datadir = $(datadir)/aclocal-@APIVERSION@
+ m4data_DATA = as.m4 auxdir.m4 ccstdc.m4 cond.m4 depend.m4 depout.m4 \
+ dmalloc.m4 error.m4 gcj.m4 header.m4 init.m4 install-sh.m4 lex.m4 \
+ lispdir.m4 make.m4 maintainer.m4 minuso.m4 missing.m4 multi.m4 \
+diff -Naur automake-1.5.orig/m4/depout.m4 automake-1.5/m4/depout.m4
+--- automake-1.5.orig/m4/depout.m4	2001-05-13 19:01:09.000000000 -0500
++++ automake-1.5/m4/depout.m4	2005-11-08 21:45:36.198617664 -0600
+@@ -11,11 +11,13 @@
+ AC_OUTPUT_COMMANDS([
+ test x"$AMDEP_TRUE" != x"" ||
+ for mf in $CONFIG_FILES; do
+-  case "$mf" in
+-  Makefile) dirpart=.;;
+-  */Makefile) dirpart=`echo "$mf" | sed -e 's|/[^/]*$||'`;;
+-  *) continue;;
+-  esac
++  # Strip MF so we end up with the name of the file.
++  mf=`echo "$mf" | sed -e 's/:.*$//'`
++  if (head -1 $mf | fgrep 'generated by automake') > /dev/null 2>&1; then
++    dirpart=`dirname "$mf"`
++  else
++    dirpart=
++  fi
+   grep '^DEP_FILES *= *[^ #]' < "$mf" > /dev/null || continue
+   # Extract the definition of DEP_FILES from the Makefile without
+   # running `make'.
+diff -Naur automake-1.5.orig/tests/dirname.test automake-1.5/tests/dirname.test
+--- automake-1.5.orig/tests/dirname.test	2001-07-25 10:27:36.000000000 -0500
++++ automake-1.5/tests/dirname.test	2005-11-08 21:45:36.199617512 -0600
+@@ -5,7 +5,7 @@
+ . $srcdir/defs || exit 1
+ 
+ cat > configure.in << 'END'
+-AC_PLAIN_SCRIPT
++AC_INIT
+ echo "1 /a/path/to/a/file      = _AM_DIRNAME([/a/path/to/a/file])"
+ echo "2 another/path/to/a/file = _AM_DIRNAME([another/path/to/a/file])"
+ echo "3 file                   = _AM_DIRNAME([file])"
+@@ -15,17 +15,13 @@
+ echo "7 /file                  = _AM_DIRNAME([/file])"
+ END
+ 
+-# Fail gracefully if no autoconf.
+-$needs_autoconf
+-
+ $ACLOCAL || exit 1
+-$AUTOCONF || exit 1
+-
+-# fail gracefully if autoconf didn't support AC_PLAIN_SCRIPT, because it won't
+-# support our regexps anyhow
+-test -s configure || exit 77
++# fail gracefully if autoconf didn't support support our regexps anyhow
++$AUTOCONF || exit 77
+ 
+-$SHELL ./configure >got || exit 1
++# Use --quiet otherwise unwelcome messages like "loading site script"
++# would cause a failure.
++./configure --quiet >got || exit 1
+ 
+ cat >wanted <<EOF
+ 1 /a/path/to/a/file      = /a/path/to/a
+@@ -40,4 +36,3 @@
+ diff wanted got || exit 1
+ 
+ exit 0
+-

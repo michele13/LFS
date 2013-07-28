@@ -1,0 +1,477 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-25
+Initial Package Version: 1.4.1
+Upstream Status: Submitted - Partially.. the Owl patches were submitted
+                 http://www.infodrom.org/projects/sysklogd/download/patches/
+Origin: http://cvsweb.openwall.com/cgi/cvsweb.cgi/Owl/packages/sysklogd/
+        sysklogd-1.4.2-caen-owl-klogd-drop-root.diff    v1.2
+        sysklogd-1.4.2-caen-owl-syslogd-drop-root.diff  v1.1
+        sysklogd-1.4.2-alt-syslogd-chroot.diff          v1.2
+        and the '-P' option from sysklogd_1.4.1-16ubuntu6.diff
+Description: This patch adds the '-j' option to syslogd and klogd, so they
+can chroot into a jail. This patch also adds the '-u' option to syslogd and
+klogd, so they can change to the specified username before entering the jail.
+This patch also adds '-P' to klogd so it can use an alternative /proc/kmsg
+file, which is nescessary with Linux-2.6 and also works with Linux-2.4.
+
+This patch depends on the 'sysklogd-1.4.1-community_fixes.patch'.
+
+Read the 'README.priv_sep' file for setup tips.
+
+diff -Naur sysklogd-1.4.1.community_fixes/README.priv_sep sysklogd-1.4.1/README.priv_sep
+--- sysklogd-1.4.1.community_fixes/README.priv_sep	1970-01-01 00:00:00.000000000 +0000
++++ sysklogd-1.4.1/README.priv_sep	2007-05-25 07:01:05.000000000 +0000
+@@ -0,0 +1,74 @@
++# May 25th, 2007 - Robert Connolly
++
++# To get klogd to drop privileges and work with Linux-2.6, root must make a
++# second copy of /proc/kmsg because the kernel checks for the CAP_SYS_ADMIN
++# capability before every read to /proc/kmsg. In Linux-2.4 the capability is
++# only checked when /proc/kmsg is first opened. The following setup will work
++# with both Linux-2.6 and Linux-2.4.
++
++# Set up syslogd and klogd as regular users in a chroot jail like this:
++
++groupadd syslogd
++groupadd klogd
++useradd -d /var/lib/syslogd -s /bin/false -g syslogd syslogd
++useradd -d /var/lib/klogd -s /bin/false -g klogd klogd
++
++install -d -m0000 /var/lib/syslogd
++install -d -m0000 /var/lib/klogd
++
++# This is a snippet of my /etc/rc.d/init.d/sysklogd file:
++
++	start)
++		boot_mesg "Starting system log daemon..."
++		loadproc /usr/sbin/syslogd -m 0 -u syslogd -j /var/lib/syslogd
++
++		boot_mesg "Starting kernel log daemon..."
++		/usr/bin/mkfifo -m 700 /var/tmp/kmsg
++		/bin/chown klogd:klogd /var/tmp/kmsg
++		env -i /bin/sh -c -- \
++			'/bin/dd bs=1 if=/proc/kmsg of=/var/tmp/kmsg &'
++		loadproc /usr/sbin/klogd -x -u klogd -j /var/lib/klogd \
++			-P /var/tmp/kmsg
++	;;
++
++	stop)
++		boot_mesg "Stopping kernel log daemon..."
++		killproc /usr/sbin/klogd
++		/bin/fuser -s -k /var/tmp/kmsg
++		/bin/rm -f /var/tmp/kmsg
++
++		boot_mesg "Stopping system log daemon..."
++		killproc /usr/sbin/syslogd
++	;;
++
++# Remove the 'reload)' function, it will not work correctly after the daemons
++# have dropped to regular users. For the same reason, do not use 'kill -HUP'
++# with syslogd or klogd.
++
++# The klogd daemon does not need to every be root, but root privileges are
++# needed to chroot the klogd daemon. If you prefer klogd can be started with
++# '/bin/su', or the 'runas' program:
++# http://www.ibiblio.org/pub/Linux/system/security/runas-1.01.tar.gz
++# Also make sure the klogd user is able to read and execute /usr/sbin/klogd.
++
++# The 'dd' program will be running constantly. There is nothing necessarily
++# wrong with this, but you may want to install a miniature 'dd', such as the
++# one included in embutils: http://www.fefe.de/embutils/
++# The 'dd.c' file will need:
++
++#include <asm/page.h>
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++
++# to build with Glibc without warnings. Furthermore, the write(2) function at
++# the end of the file could be replaced from this:
++
++# if (obn) write(out,obuf,obn);
++
++# To this:
++
++# if ((obn) && (write(out,obuf,obn)))
++
++# To supress -D_FORTIFY_SOURCE=2 warnings. This 'dd' is over 6 times smaller
++# GNU's 'dd', if compiled with -Os.
+diff -Naur sysklogd-1.4.1.community_fixes/klogd.8 sysklogd-1.4.1/klogd.8
+--- sysklogd-1.4.1.community_fixes/klogd.8	2001-03-11 19:35:51.000000000 +0000
++++ sysklogd-1.4.1/klogd.8	2007-05-25 06:38:02.000000000 +0000
+@@ -17,10 +17,19 @@
+ .RB [ " \-f "
+ .I fname
+ ]
++.RB [ " \-u "
++.I username
++]
++.RB [ " \-j "
++.I chroot_dir
++]
+ .RB [ " \-iI " ]
+ .RB [ " \-n " ]
+ .RB [ " \-o " ]
+ .RB [ " \-p " ]
++.RB [ " \-P "
++.I named_pipe
++]
+ .RB [ " \-s " ]
+ .RB [ " \-k "
+ .I fname
+@@ -46,6 +55,20 @@
+ .BI "\-f " file
+ Log messages to the specified filename rather than to the syslog facility.
+ .TP
++.BI "\-u " username
++Tells klogd to become the specified user and drop root privileges before
++starting logging.
++.TP
++.BI "\-j " chroot_dir
++Tells klogd to
++.BR chroot (2)
++into this directory after initializing.
++This option is only valid if the \-u option is also used to run klogd
++without root privileges.
++Note that the use of this option will prevent \-i and \-I from working
++unless you set up the chroot directory in such a way that klogd can still
++read the kernel module symbols.
++.TP
+ .BI "\-i \-I"
+ Signal the currently executing klogd daemon.  Both of these switches control
+ the loading/reloading of symbol information.  The \-i switch signals the
+@@ -69,6 +92,13 @@
+ symbol information whenever an Oops string is detected in the kernel message
+ stream.
+ .TP
++.B "-P"
++Read kernel messages from an alternative location, instead of from
++.IR /proc/kmsg .
++If \- is the argument then messages will be read from \fBstdin\fP, otherwise
++the argument must be the path of a FIFO named pipe created with
++.BR mkfifo (1) .
++.TP
+ .B "-s"
+ Force \fBklogd\fP to use the system call interface to the kernel message
+ buffers.
+diff -Naur sysklogd-1.4.1.community_fixes/klogd.c sysklogd-1.4.1/klogd.c
+--- sysklogd-1.4.1.community_fixes/klogd.c	2007-05-25 06:37:56.000000000 +0000
++++ sysklogd-1.4.1/klogd.c	2007-05-25 06:38:02.000000000 +0000
+@@ -258,6 +258,8 @@
+ #include <stdarg.h>
+ #include <paths.h>
+ #include <stdlib.h>
++#include <pwd.h>
++#include <grp.h>
+ #include "klogd.h"
+ #include "ksyms.h"
+ #ifndef TESTING
+@@ -307,11 +309,16 @@
+ 
+ static FILE *output_file = (FILE *) 0;
+ 
++static char *kmsg_file = NULL;	/* NULL means default /proc/kmsg */
++
+ static enum LOGSRC {none, proc, kernel} logsrc;
+ 
+ int debugging = 0;
+ int symbols_twice = 0;
+ 
++char *server_user = NULL;
++char *chroot_dir = NULL;
++int log_flags = 0;
+ 
+ /* Function prototypes. */
+ extern int ksyslog(int type, char *buf, int len);
+@@ -527,12 +534,29 @@
+ 		ksyslog(6, NULL, 0);
+ 	}
+ 
++	/* Do we read kernel messages from a pipe? */
++	if ( kmsg_file ) {
++		if ( !strcmp(kmsg_file, "-") )
++			kmsg = fileno(stdin);
++		else {
++			if ( (kmsg = open(kmsg_file, O_RDONLY)) < 0 )
++			{
++				fprintf(stderr, "klogd: Cannot open kmsg file, " \
++					"%d - %s.\n", errno, strerror(errno));
++				ksyslog(7, NULL, 0);
++				exit(1);
++			}
++		}
++		return proc;
++	}
++
+ 	/*
+ 	 * First do a stat to determine whether or not the proc based
+ 	 * file system is available to get kernel messages from.
+ 	 */
+-	if ( use_syscall ||
+-	    ((stat(_PATH_KLOG, &sb) < 0) && (errno == ENOENT)) )
++	if (!server_user &&
++	    (use_syscall ||
++	    ((stat(_PATH_KLOG, &sb) < 0) && (errno == ENOENT))))
+ 	{
+ 	  	/* Initialize kernel logging. */
+ 	  	ksyslog(1, NULL, 0);
+@@ -962,6 +986,27 @@
+ }
+ 
+ 
++static int drop_root(void)
++{
++	struct passwd *pw;
++
++	if (!(pw = getpwnam(server_user))) return -1;
++
++	if (!pw->pw_uid) return -1;
++
++	if (chroot_dir) {
++		if (chdir(chroot_dir)) return -1;
++		if (chroot(".")) return -1;
++	}
++
++	if (setgroups(0, NULL)) return -1;
++	if (setgid(pw->pw_gid)) return -1;
++	if (setuid(pw->pw_uid)) return -1;
++
++	return 0;
++}
++
++
+ int main(argc, argv)
+ 
+ 	int argc;
+@@ -982,7 +1027,7 @@
+ 	}
+ #endif
+ 	/* Parse the command-line. */
+-	while ((ch = getopt(argc, argv, "c:df:iIk:nopsvx2")) != EOF)
++	while ((ch = getopt(argc, argv, "c:df:u:j:iIk:nopP:svx2")) != EOF)
+ 		switch((char)ch)
+ 		{
+ 		    case '2':		/* Print lines with symbols twice. */
+@@ -1004,6 +1049,10 @@
+ 		    case 'I':
+ 			SignalDaemon(SIGUSR2);
+ 			return(0);
++		    case 'j':		/* chroot 'j'ail */
++			chroot_dir = optarg;
++			log_flags |= LOG_NDELAY;
++			break;
+ 		    case 'k':		/* Kernel symbol file. */
+ 			symfile = optarg;
+ 			break;
+@@ -1016,9 +1065,15 @@
+ 		    case 'p':
+ 			SetParanoiaLevel(1);	/* Load symbols on oops. */
+ 			break;	
++		    case 'P':		/* Alternative kmsg file path */
++			 kmsg_file = strdup(optarg);
++			 break;
+ 		    case 's':		/* Use syscall interface. */
+ 			use_syscall = 1;
+ 			break;
++		    case 'u':		/* Run as this user */
++			server_user = optarg;
++			break;
+ 		    case 'v':
+ 			printf("klogd %s.%s\n", VERSION, PATCHLEVEL);
+ 			exit (1);
+@@ -1027,6 +1082,10 @@
+ 			break;
+ 		}
+ 
++	if (chroot_dir && !server_user) {
++		fputs("'-j' is only valid with '-u'\n", stderr);
++		exit(1);
++	}
+ 
+ 	/* Set console logging level. */
+ 	if ( log_level != (char *) 0 )
+@@ -1124,7 +1183,7 @@
+ 		}
+ 	}
+ 	else
+-		openlog("kernel", 0, LOG_KERN);
++		openlog("kernel", log_flags, LOG_KERN);
+ 
+ 
+ 	/* Handle one-shot logging. */
+@@ -1157,6 +1216,11 @@
+ 		}
+ 	}
+ 
++	if (server_user && drop_root()) {
++		syslog(LOG_ALERT, "klogd: failed to drop root");
++		Terminate();
++	}
++
+         /* The main loop. */
+ 	while (1)
+ 	{
+diff -Naur sysklogd-1.4.1.community_fixes/sysklogd.8 sysklogd-1.4.1/sysklogd.8
+--- sysklogd-1.4.1.community_fixes/sysklogd.8	2007-05-25 06:37:56.000000000 +0000
++++ sysklogd-1.4.1/sysklogd.8	2007-05-25 06:38:02.000000000 +0000
+@@ -30,6 +30,12 @@
+ .RB [ " \-s "
+ .I domainlist
+ ]
++.RB [ " \-u"
++.IB username
++]
++.RB [ " \-j "
++.I chroot_dir
++]
+ .RB [ " \-v " ]
+ .RB [ " \-x " ]
+ .LP
+@@ -172,6 +178,32 @@
+ no domain would be cut, you will have to specify two domains like:
+ .BR "\-s north.de:infodrom.north.de" .
+ .TP
++.BI "\-u " "username"
++This causes the
++.B syslogd
++daemon to become the named user before starting up logging.
++
++Note that when this option is in use,
++.B syslogd
++will open all log files as root when the daemon is first started;
++however, after a
++.B SIGHUP
++the files will be reopened as the non-privileged user.  You should
++take this into account when deciding the ownership of the log files.
++.TP
++.BI "\-j " chroot_dir
++Tells
++.B syslogd
++daemon to
++.BR chroot (2)
++into this directory after initializing.
++This option is only valid if the \-u option is also used to run
++.B syslogd
++without root privileges.
++Note that the use of this option will prevent
++.B SIGHUP
++from working which makes daemon reload practically impossible.
++.TP
+ .B "\-v"
+ Print version and exit.
+ .TP
+diff -Naur sysklogd-1.4.1.community_fixes/syslogd.c sysklogd-1.4.1/syslogd.c
+--- sysklogd-1.4.1.community_fixes/syslogd.c	2007-05-25 06:37:56.000000000 +0000
++++ sysklogd-1.4.1/syslogd.c	2007-05-25 06:38:02.000000000 +0000
+@@ -494,6 +494,9 @@
+ #include <sys/resource.h>
+ #include <signal.h>
+ 
++#include <pwd.h>
++#include <grp.h>
++
+ #include <netinet/in.h>
+ #include <netdb.h>
+ #include <syscall.h>
+@@ -756,6 +759,9 @@
+ int	NoHops = 1;		/* Can we bounce syslog messages through an
+ 				   intermediate host. */
+ 
++char	*server_user = NULL;	/* user name to run server as */
++char	*chroot_dir = NULL;	/* user name to run server as */
++
+ extern	int errno;
+ 
+ /* Function prototypes. */
+@@ -803,6 +809,26 @@
+ static int    hosts_equal(struct addrinfo *ai1, struct addrinfo *ai2);
+ static struct addrinfo *not_local_address( char *host );
+ 
++static int drop_root(void)
++{
++	struct passwd *pw;
++
++	if (!(pw = getpwnam(server_user))) return -1;
++
++	if (!pw->pw_uid) return -1;
++
++	if (chroot_dir) {
++		if (chdir(chroot_dir)) return -1;
++		if (chroot(".")) return -1;
++	}
++
++	if (initgroups(server_user, pw->pw_gid)) return -1;
++	if (setgid(pw->pw_gid)) return -1;
++	if (setuid(pw->pw_uid)) return -1;
++
++	return 0;
++}
++
+ int main(argc, argv)
+ 	int argc;
+ 	char **argv;
+@@ -860,7 +886,7 @@
+ 		funix[i]  = -1;
+ 	}
+ 
+-	while ((ch = getopt(argc, argv, "46Aa:dhf:l:m:np:rs:vx")) != EOF)
++	while ((ch = getopt(argc, argv, "46Aa:dhf:j:l:m:np:rs:u:vx")) != EOF)
+ 		switch((char)ch) {
+                 case '4':
+                               family = PF_INET;
+@@ -888,9 +914,12 @@
+ 		case 'h':
+ 			NoHops = 0;
+ 			break;
++		case 'j':
++			chroot_dir = optarg;
++			break;
+ 		case 'l':
+ 			if (LocalHosts) {
+-				fprintf (stderr, "Only one -l argument allowed," \
++				fprintf(stderr, "Only one -l argument allowed, "
+ 					"the first one is taken.\n");
+ 				break;
+ 			}
+@@ -916,6 +945,9 @@
+ 			}
+ 			StripDomains = crunch_list(optarg);
+ 			break;
++		case 'u':
++			server_user = optarg;
++			break;
+ 		case 'v':
+ 			printf("syslogd %s.%s\n", VERSION, PATCHLEVEL);
+ 			exit (0);
+@@ -929,6 +961,10 @@
+ 	if ((argc -= optind))
+ 		usage();
+ 
++	if (chroot_dir && !server_user) {
++		fputs("'-j' is only valid with '-u'\n", stderr);
++		exit(1);
++	}
+ #ifndef TESTING
+ 	if ( !(Debug || NoFork) )
+ 	{
+@@ -1079,6 +1115,11 @@
+ 		kill (ppid, SIGTERM);
+ #endif
+ 
++	if (server_user && drop_root()) {
++		dprintf("syslogd: failed to drop root\n");
++		exit(1);
++	}
++
+ 	/* Main loop begins here. */
+ 	for (;;) {
+ 		int nfds;
+@@ -1247,7 +1288,7 @@
+ int usage()
+ {
+ 	fprintf(stderr, "usage: syslogd [-46Adrvxh] [-l hostlist] [-m markinterval] [-n] [-p path]\n" \
+-		" [-s domainlist] [-f conffile]\n");
++		" [-s domainlist] [-f conffile] [-j chrootjail] [-u username]\n");
+ 	exit(1);
+ }
+ 

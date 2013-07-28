@@ -1,0 +1,49 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2006-01-22
+Initial Package Version: 1.7.12
+Upstream Status:         Fixed in Mozilla-1.8 code
+Origin:                  gfxshared_s stuff is straight out of Fedora CFS
+                         xprintutil addition by Randy McMurchy
+Description:             Fixes linking issues which if unpatched causes the
+                         build to fail
+
+
+diff -Naur mozilla-orig/gfx/src/gtk/Makefile.in mozilla/gfx/src/gtk/Makefile.in
+--- mozilla-orig/gfx/src/gtk/Makefile.in	2003-11-10 12:24:51.000000000 +0000
++++ mozilla/gfx/src/gtk/Makefile.in	2006-01-22 01:26:14.000000000 +0000
+@@ -135,6 +135,8 @@
+ SHARED_LIBRARY_LIBS += $(DIST)/lib/$(LIB_PREFIX)gfxft2_s.$(LIB_SUFFIX)
+ endif
+ 
++EXTRA_DSO_LDOPTS = $(DIST)/lib/$(LIB_PREFIX)gfxshared_s.$(LIB_SUFFIX)
++
+ include $(topsrcdir)/config/rules.mk
+ 
+ ifdef MOZ_ENABLE_XINERAMA
+@@ -145,7 +147,6 @@
+ EXTRA_DSO_LDOPTS += \
+ 		$(LIBS_DIR) \
+ 		-lgkgfx \
+-		-lgfxshared_s \
+ 		$(GFX_XINERAMA_LIBS) \
+ 		-lgtksuperwin \
+ 		$(MOZ_COMPONENT_LIBS) \
+@@ -165,7 +166,6 @@
+ ifdef MOZ_ENABLE_GTK2
+ EXTRA_DSO_LDOPTS += $(MOZ_COMPONENT_LIBS) \
+ 		-lgkgfx \
+-		-lgfxshared_s \
+ 		$(GFX_XINERAMA_LIBS) \
+ 		$(MOZ_JS_LIBS) \
+ 		$(MOZ_UNICHARUTIL_LIBS) \
+@@ -197,9 +197,9 @@
+ endif
+ 
+ ifdef MOZ_ENABLE_XPRINT
++EXTRA_DSO_LDOPTS += $(DIST)/lib/$(LIB_PREFIX)xprintutil.$(LIB_SUFFIX)
+ DEFINES         += -DUSE_XPRINT -DUSE_MOZILLA_TYPES
+ EXTRA_DSO_LDOPTS += \
+-		-lxprintutil \
+ 		$(MOZ_XPRINT_LDFLAGS)
+ endif
+ 

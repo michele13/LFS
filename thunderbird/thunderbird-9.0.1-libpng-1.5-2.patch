@@ -1,0 +1,48 @@
+Submitted By: Andrew Benton <b3nton@gmail.com>
+Date: 2012-01-12
+Initial Package Version: 9.0.1
+Upstream Status: From Mozilla Bugzilla bug #682677
+Origin: https://bug682677.bugzilla.mozilla.org/attachment.cgi?id=558454
+Description: Fixes compiling thunderbird-9.0.1 with libpng-1.5.6 installed
+
+diff -Naur comm-release~/mozilla/modules/libpr0n/decoders/nsICODecoder.cpp comm-release/mozilla/modules/libpr0n/decoders/nsICODecoder.cpp
+--- comm-release~/mozilla/modules/libpr0n/decoders/nsICODecoder.cpp	2011-12-22 22:28:19.000000000 +0000
++++ comm-release/mozilla/modules/libpr0n/decoders/nsICODecoder.cpp	2012-01-26 01:21:23.934339801 +0000
+@@ -385,8 +385,7 @@
+ 
+     // Raymond Chen says that 32bpp only are valid PNG ICOs
+     // http://blogs.msdn.com/b/oldnewthing/archive/2010/10/22/10079192.aspx
+-    if (static_cast<nsPNGDecoder*>(mContainedDecoder.get())->HasValidInfo() && 
+-        static_cast<nsPNGDecoder*>(mContainedDecoder.get())->GetPixelDepth() != 32) {
++    if (!static_cast<nsPNGDecoder*>(mContainedDecoder.get())->IsValidICO()) {
+       PostDataError();
+     }
+     return;
+diff -Naur comm-release~/mozilla/modules/libpr0n/decoders/nsPNGDecoder.h comm-release/mozilla/modules/libpr0n/decoders/nsPNGDecoder.h
+--- comm-release~/mozilla/modules/libpr0n/decoders/nsPNGDecoder.h	2011-12-22 22:28:19.000000000 +0000
++++ comm-release/mozilla/modules/libpr0n/decoders/nsPNGDecoder.h	2012-01-26 01:21:23.934339801 +0000
+@@ -73,19 +73,12 @@
+ 
+   void EndImageFrame();
+ 
+-  // Checks if the info header contains valid information
+-  bool HasValidInfo() const 
++  // Check if PNG is valid ICO (32bpp RGBA)
++  // http://blogs.msdn.com/b/oldnewthing/archive/2010/10/22/10079192.aspx
++  bool IsValidICO() const
+   {
+-    return mInfo && mInfo->valid;
+-  }
+-
+-  // Obtain the pixel depth if available or 0 otherwise
+-  PRInt32 GetPixelDepth() const
+-  {
+-    if (!mInfo) {
+-      return 0;
+-    }
+-    return mInfo->pixel_depth;
++    return (png_get_color_type(mPNG, mInfo) == PNG_COLOR_TYPE_RGB_ALPHA &&
++            png_get_bit_depth(mPNG, mInfo) == 8);
+   }
+ 
+ public:

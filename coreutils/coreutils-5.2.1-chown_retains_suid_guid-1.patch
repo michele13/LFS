@@ -1,0 +1,59 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2004-03-13
+Initial Package Version: 5.2.1
+Origin: coreutils-5.0 source
+Upstream Status: Will never be accepted, see description below.
+Description: All versions of chown above 5.2.0 do not reset the suid and guid bits
+after the chown operation is performed. So an operation such as
+     chmod 4750 special_executable
+     chown root:special special_executable
+will result in the removal of the suid bit.
+
+The reason why the functionality was changed (from src/chown-core.c):
+     On some systems (e.g., Linux-2.4.x), the chown function resets the `special'
+     permission bits.  Do *not* restore those bits;  doing so would open a window
+     in which a malicious user, M, could subvert a chown command run by some other
+     user and operating on files in a directory where M has write access.
+
+If you think that it is an acceptable risk, apply this patch to revert to the old
+behavior.
+
+--- coreutils-5.2.1/src/chown-core.c	2003-11-09 01:34:21.000000000 -0600
++++ coreutils-5.2.1.patched/src/chown-core.c	2004-03-13 14:21:14.000000000 -0600
+@@ -219,6 +219,7 @@
+ 	  int fail;
+ 	  int symlink_changed = 1;
+ 	  int saved_errno;
++	  int called_lchown = 0;
+ 
+ 	  if (S_ISLNK (file_stats->st_mode))
+ 	    {
+@@ -235,6 +236,7 @@
+ 	      else
+ 		{
+ 		  bool is_command_line_argument = (ent->fts_level == 1);
++	      called_lchown = 1;
+ 		  fail = lchown (file, new_uid, new_gid);
+ 
+ 		  /* Ignore the failure if it's due to lack of support (ENOSYS)
+@@ -280,6 +282,20 @@
+ 		 which a malicious user, M, could subvert a chown command run
+ 		 by some other user and operating on files in a directory
+ 		 where M has write access.  */
++	     /* WARNING: Reverted to old behaviour for compatibility. */
++	     if (file_stats->st_mode & ~(S_IFMT | S_IRWXUGO)
++	     /* If we called lchown above (which means this is a symlink),
++	     then skip it.  */
++	     && ! called_lchown)
++	       {
++	         if (chmod (file, file_stats->st_mode))
++	           {
++	             error (0, saved_errno,
++	             _("unable to restore permissions of %s"),
++	             quote (file));
++	             fail = 1;
++	           }
++	       }
+ 	    }
+ 	}
+       else if (chopt->verbosity == V_high)

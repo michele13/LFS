@@ -1,0 +1,116 @@
+Submitted By: Matt Burgess <matthew at linuxfromscratch dot org>
+Date: 2009-01-25
+Initial Package Version: 1.6
+Origin: Greg Schafer
+Description: Prevent installation of unwanted server man pages.
+
+diff -Naur inetutils-1.6.orig/ftpd/Makefile.in inetutils-1.6/ftpd/Makefile.in
+--- inetutils-1.6.orig/ftpd/Makefile.in	2008-12-27 20:52:21.000000000 +0000
++++ inetutils-1.6/ftpd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -648,7 +648,6 @@
+                conf.c server_mode.c
+ 
+ noinst_HEADERS = extern.h
+-man_MANS = ftpd.8
+ INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils 
+ AM_CPPFLAGS = $(PATHDEF_FTPWELCOME) $(PATHDEF_FTPUSERS) \
+            $(PATHDEF_FTPLOGINMESG) $(PATHDEF_FTPCHROOT) $(PATHDEF_FTPDPID) \
+diff -Naur inetutils-1.6.orig/inetd/Makefile.in inetutils-1.6/inetd/Makefile.in
+--- inetutils-1.6.orig/inetd/Makefile.in	2008-12-27 20:52:23.000000000 +0000
++++ inetutils-1.6/inetd/Makefile.in	2009-01-03 20:16:09.000000000 +0000
+@@ -636,7 +636,6 @@
+ whois_INSTALL_HOOK = @whois_INSTALL_HOOK@
+ inetdaemon_PROGRAMS = @inetd_BUILD@
+ inetd_SOURCES = inetd.c
+-man_MANS = inetd.8
+ INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
+ AM_CPPFLAGS = $(PATHDEF_INETDCONF) $(PATHDEF_INETDDIR) \
+            $(PATHDEF_INETDPID)
+diff -Naur inetutils-1.6.orig/logger/Makefile.in inetutils-1.6/logger/Makefile.in
+--- inetutils-1.6.orig/logger/Makefile.in	2008-12-27 20:52:25.000000000 +0000
++++ inetutils-1.6/logger/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -638,7 +638,6 @@
+ INCLUDES = -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils
+ LDADD = -L../libinetutils -linetutils ../lib/libgnu.a
+ logger_SOURCES = logger.c
+-man_MANS = logger.1
+ EXTRA_DIST = $(man_MANS)
+ all: all-am
+ 
+diff -Naur inetutils-1.6.orig/rexecd/Makefile.in inetutils-1.6/rexecd/Makefile.in
+--- inetutils-1.6.orig/rexecd/Makefile.in	2008-12-27 20:52:26.000000000 +0000
++++ inetutils-1.6/rexecd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -637,7 +637,6 @@
+ whois_INSTALL_HOOK = @whois_INSTALL_HOOK@
+ inetdaemon_PROGRAMS = @rexecd_BUILD@
+ rexecd_SOURCES = rexecd.c
+-man_MANS = rexecd.8
+ AM_CPPFLAGS = $(PATHDEF_DEFPATH) $(PATHDEF_BSHELL)
+ INCLUDES = -I$(top_srcdir)/lib -I../lib 
+ LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBCRYPT)
+diff -Naur inetutils-1.6.orig/rlogind/Makefile.in inetutils-1.6/rlogind/Makefile.in
+--- inetutils-1.6.orig/rlogind/Makefile.in	2008-12-27 20:52:27.000000000 +0000
++++ inetutils-1.6/rlogind/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -637,7 +637,6 @@
+ whois_INSTALL_HOOK = @whois_INSTALL_HOOK@
+ inetdaemon_PROGRAMS = @rlogind_BUILD@
+ rlogind_SOURCES = rlogind.c
+-man_MANS = rlogind.8
+ INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
+ AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_LOGIN)
+ LDADD = -L../libinetutils -linetutils -L../lib -lgnu $(LIBUTIL) @LIBCRYPT@ @LIBAUTH@
+diff -Naur inetutils-1.6.orig/rshd/Makefile.in inetutils-1.6/rshd/Makefile.in
+--- inetutils-1.6.orig/rshd/Makefile.in	2008-12-27 20:52:28.000000000 +0000
++++ inetutils-1.6/rshd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -637,7 +637,6 @@
+ whois_INSTALL_HOOK = @whois_INSTALL_HOOK@
+ inetdaemon_PROGRAMS = @rshd_BUILD@
+ rshd_SOURCES = rshd.c
+-man_MANS = rshd.8
+ AM_CPPFLAGS = $(PATHDEF_BSHELL) $(PATHDEF_NOLOGIN) $(PATHDEF_DEFPATH)
+ INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/libinetutils -I$(top_srcdir)/lib -I../lib 
+ LDADD = -L../libinetutils -linetutils  -L../lib -lgnu \
+diff -Naur inetutils-1.6.orig/syslogd/Makefile.in inetutils-1.6/syslogd/Makefile.in
+--- inetutils-1.6.orig/syslogd/Makefile.in	2008-12-27 20:52:28.000000000 +0000
++++ inetutils-1.6/syslogd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -638,7 +638,6 @@
+ whois_INSTALL_HOOK = @whois_INSTALL_HOOK@
+ inetdaemon_PROGRAMS = @syslogd_BUILD@
+ syslogd_SOURCES = syslogd.c
+-man_MANS = syslog.conf.5 syslogd.8
+ AM_CPPFLAGS = $(PATHDEF_LOG) $(PATHDEF_KLOG) $(PATHDEF_LOGCONF) \
+               $(PATHDEF_LOGPID) $(PATHDEF_CONSOLE) $(PATHDEF_UTMP)
+ 
+diff -Naur inetutils-1.6.orig/talkd/Makefile.in inetutils-1.6/talkd/Makefile.in
+--- inetutils-1.6.orig/talkd/Makefile.in	2008-12-27 20:52:29.000000000 +0000
++++ inetutils-1.6/talkd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -645,7 +645,6 @@
+  talkd.c\
+  intalkd.h
+ 
+-man_MANS = talkd.8
+ AM_CPPFLAGS = $(PATHDEF_DEV) 
+ INCLUDES = -I$(top_srcdir)/lib -I../lib -I${top_srcdir}/libinetutils
+ LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+diff -Naur inetutils-1.6.orig/telnetd/Makefile.in inetutils-1.6/telnetd/Makefile.in
+--- inetutils-1.6.orig/telnetd/Makefile.in	2008-12-27 20:52:29.000000000 +0000
++++ inetutils-1.6/telnetd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -644,7 +644,6 @@
+ inetdaemon_PROGRAMS = @telnetd_BUILD@
+ telnetd_SOURCES = telnetd.c pty.c term.c utility.c state.c termstat.c slc.c
+ noinst_HEADERS = telnetd.h
+-man_MANS = telnetd.8
+ AM_CPPFLAGS = $(PATHDEF_DEV) $(PATHDEF_TTY) $(PATHDEF_LOGIN) 
+ INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib -I../lib -I$(top_srcdir)/libinetutils\
+            @INCAUTH@
+diff -Naur inetutils-1.6.orig/tftpd/Makefile.in inetutils-1.6/tftpd/Makefile.in
+--- inetutils-1.6.orig/tftpd/Makefile.in	2008-12-27 20:52:30.000000000 +0000
++++ inetutils-1.6/tftpd/Makefile.in	2009-01-03 20:14:51.000000000 +0000
+@@ -637,7 +637,6 @@
+ inetdaemon_PROGRAMS = @tftpd_BUILD@
+ INCLUDES = -I$(top_srcdir)/headers -I$(top_srcdir)/lib -I../lib 
+ tftpd_SOURCES = tftpd.c
+-man_MANS = tftpd.8
+ LDADD = -L../libinetutils -linetutils -L../lib -lgnu
+ EXTRA_DIST = $(man_MANS)
+ all: all-am

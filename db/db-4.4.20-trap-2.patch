@@ -1,0 +1,56 @@
+Submitted By: Bruce Dubbs <bdubbs AT linuxfromscratch DOT org>
+Date: 2006-09-02
+Initial Package Version: 4.4.20
+Origin: Upstream - http://www.sleepycat.com/update/4.4.20/patch.4.4.20.html
+Description: Fix bugs that could cause traps or hangs.
+
+diff -pNur db-4.4.20.orig/qam/qam_files.c db-4.4.20/qam/qam_files.c
+--- db-4.4.20.orig/qam/qam_files.c	2005-10-20 18:57:12.000000000 +0000
++++ db-4.4.20/qam/qam_files.c	2006-08-02 13:12:41.630687746 +0000
+@@ -411,6 +411,12 @@ __qam_fremove(dbp, pgnoaddr)
+ 	    DB_APP_DATA, buf, 0, NULL, &real_name)) != 0)
+ 		goto err;
+ #endif
++
++	mpf = array->mpfarray[offset].mpf;
++	/* This extent my already be marked for delete and closed. */
++	if (mpf == NULL)
++		goto err;
++
+ 	/*
+ 	 * The log must be flushed before the file is deleted.  We depend on
+ 	 * the log record of the last delete to recreate the file if we crash.
+@@ -418,7 +424,6 @@ __qam_fremove(dbp, pgnoaddr)
+ 	if (LOGGING_ON(dbenv) && (ret = __log_flush(dbenv, NULL)) != 0)
+ 		goto err;
+ 
+-	mpf = array->mpfarray[offset].mpf;
+ 	(void)__memp_set_flags(mpf, DB_MPOOL_UNLINK, 1);
+ 	/* Someone could be real slow, let them close it down. */
+ 	if (array->mpfarray[offset].pinref != 0)
+diff -pNur db-4.4.20.orig/txn/txn.c db-4.4.20/txn/txn.c
+--- db-4.4.20.orig/txn/txn.c	2005-11-01 14:50:03.000000000 +0000
++++ db-4.4.20/txn/txn.c	2006-08-02 13:12:41.632686947 +0000
+@@ -1049,12 +1049,14 @@ __txn_set_name(txn, name)
+ 		return (ret);
+ 	memcpy(txn->name, name, len);
+ 
++	TXN_SYSTEM_LOCK(dbenv);
+ 	if (td->name != INVALID_ROFF) {
+ 		__db_shalloc_free(
+ 		    &mgr->reginfo, R_ADDR(&mgr->reginfo, td->name));
+ 		td->name = INVALID_ROFF;
+ 	}
+ 	if ((ret = __db_shalloc(&mgr->reginfo, len, 0, &p)) != 0) {
++		TXN_SYSTEM_UNLOCK(dbenv);
+ 		__db_err(dbenv,
+ 		    "Unable to allocate memory for transaction name");
+ 
+@@ -1063,6 +1065,7 @@ __txn_set_name(txn, name)
+ 
+ 		return (ret);
+ 	}
++	TXN_SYSTEM_UNLOCK(dbenv);
+ 	td->name = R_OFFSET(&mgr->reginfo, p);
+ 	memcpy(p, name, len);
+ 

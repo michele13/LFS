@@ -1,0 +1,111 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2003-11-22
+Initial Package Version: 0.5.1
+Origin: http://groups.google.com/groups?selm=slrnb3l95t.pf.Bernhard.Walle%40news.bwalle.de
+Description: I found this patch for 0.4.17 on Usenet a few months ago. When
+             0.5.1 came out, I made the patch work with that version.
+             The patch does several things:
+             1) adds a birthday and instant messenger field
+             2) adjusts the address tab for the german address layout
+             3) modifies the text export filter to look nicer
+
+diff -Naur abook-0.5.1/database.c abook-0.5.1-patched/database.c
+--- abook-0.5.1/database.c	2003-09-29 13:08:27.000000000 +0000
++++ abook-0.5.1-patched/database.c	2003-11-22 14:44:28.000000000 +0000
+@@ -60,9 +60,9 @@
+ 	{"E-mails",	"email",	TAB_CONTACT},/* EMAIL */
+ 	{"Address",	"address",	TAB_ADDRESS},/* ADDRESS */
+ 	{"Address2",	"address2",	TAB_ADDRESS},/* ADDRESS2 */   
++	{"PLZ","zip",			TAB_ADDRESS},/* ZIP */
+ 	{"City",	"city",		TAB_ADDRESS},/* CITY */
+ 	{"State/Province","state",	TAB_ADDRESS},/* STATE */
+-	{"ZIP/Postal Code","zip",	TAB_ADDRESS},/* ZIP */
+ 	{"Country",	"country",	TAB_ADDRESS},/* COUNTRY */
+ 	{"Home Phone",	"phone",	TAB_PHONE},/* PHONE */
+ 	{"Work Phone",	"workphone",	TAB_PHONE},/* WORKPHONE */
+@@ -70,7 +70,9 @@
+ 	{"Mobile",	"mobile",	TAB_PHONE},/* MOBILEPHONE */
+ 	{"Nickname/Alias", "nick",      TAB_OTHER},/* NICK */
+ 	{"URL",		"url",		TAB_OTHER},/* URL */
++	{"Instant Messenger", "instant",TAB_OTHER},/* INSTANT */
+ 	{"Notes",	"notes",	TAB_OTHER},/* NOTES */
++	{"Birthday", 	"birthday",	TAB_OTHER},/* BIRTHDAY */
+ };
+ 
+ 
+diff -Naur abook-0.5.1/database.h abook-0.5.1-patched/database.h
+--- abook-0.5.1/database.h	2003-09-18 14:08:22.000000000 +0000
++++ abook-0.5.1-patched/database.h	2003-11-22 14:46:00.000000000 +0000
+@@ -12,9 +12,9 @@
+ 	EMAIL,
+ 	ADDRESS,
+         ADDRESS2,
++	ZIP,
+ 	CITY,
+ 	STATE,
+-	ZIP,
+ 	COUNTRY,
+ 	PHONE,
+ 	WORKPHONE,
+@@ -22,7 +22,9 @@
+ 	MOBILEPHONE,
+ 	NICK,
+ 	URL,
++	INSTANT,
+ 	NOTES,
++	BIRTHDAY,
+ 	ITEM_FIELDS /* this is the last */
+ };
+ 
+diff -Naur abook-0.5.1/filter.c abook-0.5.1-patched/filter.c
+--- abook-0.5.1/filter.c	2003-11-20 12:58:34.000000000 +0000
++++ abook-0.5.1-patched/filter.c	2003-11-22 15:01:38.000000000 +0000
+@@ -1509,6 +1509,7 @@
+ 
+ 		if(database[i][ZIP]) {
+ 			fprintf(out, "%s", database[i][ZIP]);
++			
+ 			if(database[i][CITY])
+ 				fputc(' ', out);
+ 		}
+@@ -1541,9 +1542,16 @@
+ 	db_enumerate_items(e) {
+ 		fprintf(out,
+ 			"-----------------------------------------\n\n");
+-		fprintf(out, "%s", database[e.item][NAME]);
++		fprintf(out, "%s\n", database[e.item][NAME]);
++
++
++		for (j = 0; j < strlen(database[e.item][NAME]); j++)
++			fprintf(out, "~");
++
++
++		/*
+ 		if (database[e.item][NICK] && *database[e.item][NICK])
+-			fprintf(out, "\n(%s)", database[e.item][NICK]);
++			fprintf(out, "\n(%s)", database[e.item][NICK]);*/
+ 		fprintf(out, "\n");
+ 
+ 		if (*database[e.item][EMAIL]) {
+@@ -1553,6 +1561,10 @@
+ 				if (*emails[j])
+ 					fprintf(out, "%s\n", emails[j]);
+ 		}
++		if (database[e.item][INSTANT])
++			fprintf(out, "%s\n", 
++					database[e.item][INSTANT]);
++					
+ 		/* Print address */
+ 		if (database[e.item][ADDRESS]) {
+ 			if (!safe_strcmp(style, "us"))	/* US like */
+@@ -1577,6 +1589,10 @@
+ 						database[e.item][j]);
+ 		}
+ 
++		if (database[e.item][BIRTHDAY])
++			fprintf(out, "\nBirthday: %s\n", 
++					database[e.item][BIRTHDAY]);
++
+ 		if (database[e.item][URL])
+ 			fprintf(out, "\n%s\n", database[e.item][URL]);
+ 		if (database[e.item][NOTES])

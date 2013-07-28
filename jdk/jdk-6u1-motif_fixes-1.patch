@@ -1,0 +1,45 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2006-06-25
+Initial Package Version: 1.5.0_05
+Upstream Status: Not applicable
+Origin: Previous motif-fixes patch
+Description: Various fixes for motif-2.1 compilation.  Updated for 6u1.
+
+--- jdk-build-orig/j2se/make/sun/awt/mawt.gmk	2007-02-10 15:22:33.000000000 -0600
++++ jdk-build/j2se/make/sun/awt/mawt.gmk	2007-02-09 17:03:50.000000000 -0600
+@@ -129,12 +129,9 @@
+             LIBXT = -lXt
+         else
+         # Allows for builds on Debian GNU Linux, X11 is in a different place 
+-	    LIBXT = $(firstword $(wildcard /usr/X11R6/lib/libXt.a) \
+-                            $(wildcard /usr/lib/libXt.a))
+-	    LIBSM = $(firstword $(wildcard /usr/X11R6/lib/libSM.a) \
+-                            $(wildcard /usr/lib/libSM.a))
+-	    LIBICE = $(firstword $(wildcard /usr/X11R6/lib/libICE.a) \
+-                             $(wildcard /usr/lib/libICE.a))
++	    LIBXT = -lXt
++	    LIBSM =
++	    LIBICE =
+ 	endif
+     endif
+ else
+--- jdk-build-orig/motif/lib/Xm/util/mkmsgcat.c	2007-02-10 15:23:47.000000000 -0600
++++ jdk-build/motif/lib/Xm/util/mkmsgcat.c	2007-02-09 17:04:09.000000000 -0600
+@@ -14,7 +14,7 @@
+ #include <string.h>
+ char buf[1024];
+ 
+-char *OSF_COPYRIGHT = "$\n\
++char *OSF_COPYRIGHT = "\
+ $  @OSF_COPYRIGHT@\n\
+ $  COPYRIGHT NOTICE\n\
+ $  Copyright (c) 1990, 1991, 1992, 1993 Open Software Foundation, Inc.\n\
+@@ -28,7 +28,7 @@
+ $ (c) Copyright 1996 Novell, Inc. \n\
+ $ (c) Copyright 1996 FUJITSU LIMITED.\n\
+ $ (c) Copyright 1996 Hitachi.\n\
+-$";
++";
+ 
+ char *OSF_COPYRIGHT_C = "/*\n\
+  *\n\

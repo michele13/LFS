@@ -1,0 +1,34 @@
+Submitted By: Nick Fotopoulos <weasel at beyondnormal dot org>
+Date: 2004-09-30
+Initial Package Version: 2.6.1
+Upstream Status: None
+Origin:	Self
+Description:	Updated EOG to use libexif-0.6.10 new gtk_exif_get_value
+		function call with three parameters instead of one in 
+		previous versions.
+
+diff -Naur eog-2.6.1.orig/libeog/eog-info-view.c eog-2.6.1/libeog/eog-info-view.c
+--- eog-2.6.1.orig/libeog/eog-info-view.c	2004-02-15 10:33:11.000000000 -0500
++++ eog-2.6.1/libeog/eog-info-view.c	2004-09-30 19:02:59.513299272 -0400
+@@ -246,6 +246,7 @@
+ 	EogInfoView *view;
+ 	EogInfoViewPrivate *priv;
+ 	char *path;
++	char *entryvalue;
+ 
+ 	view = EOG_INFO_VIEW (data);
+ 	priv = view->priv;
+@@ -255,11 +256,11 @@
+ 	path = g_hash_table_lookup (priv->id_path_hash, GINT_TO_POINTER (entry->tag));
+ 
+ 	if (path != NULL) {
+-		set_row_data (store, path, exif_tag_get_name (entry->tag), exif_entry_get_value (entry));	
++		set_row_data (store, path, exif_tag_get_name (entry->tag), exif_entry_get_value (entry, entryvalue, entry->size));	
+ 	}
+ 	else {
+ 		path = set_row_data (store, NULL, 
+-				     exif_tag_get_name (entry->tag), exif_entry_get_value (entry));	
++				     exif_tag_get_name (entry->tag), exif_entry_get_value (entry, entryvalue, entry->size));	
+ 
+ 		g_hash_table_insert (priv->id_path_hash,
+ 				     GINT_TO_POINTER (entry->tag),

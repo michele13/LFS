@@ -1,0 +1,195 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2013-05-09
+Initial Package Version: 4.0.3.3
+Upstream Status:         Fixed Upstream
+Origin:                  Upstream
+Description:             Fixes building when using Boost 1.53.0
+
+--- a/comphelper/inc/comphelper/scoped_disposing_ptr.hxx	2013-05-02 17:55:29.000000000 +0200
++++ b/comphelper/inc/comphelper/scoped_disposing_ptr.hxx	2013-05-09 16:45:23.616820362 +0200
+@@ -78,7 +78,7 @@
+ 
+     operator bool () const
+     {
+-        return m_aItem;
++        return static_cast< bool >(m_aItem);
+     }
+ 
+     virtual ~scoped_disposing_ptr()
+--- a/liborcus/liborcus_0.1.0-boost-include.patch.1	1970-01-01 01:00:00.000000000 +0100
++++ b/liborcus/liborcus_0.1.0-boost-include.patch.1	2013-05-09 16:45:16.660017822 +0200
+@@ -0,0 +1,26 @@
++From f60d6eecee72349993a392a9a63ddf3383d3b8c8 Mon Sep 17 00:00:00 2001
++From: Stephan Bergmann <sbergman@redhat.com>
++Date: Sat, 16 Feb 2013 13:25:44 +0100
++Subject: [PATCH] Missing include <boost/noncopyable.hpp>
++
++(at least when compiling against Boost 1.53.0)
++---
++ src/liborcus/dom_tree.cpp | 2 ++
++ 1 file changed, 2 insertions(+)
++
++diff --git a/src/liborcus/dom_tree.cpp b/src/liborcus/dom_tree.cpp
++index ecf7beb..14725ad 100644
++--- a/src/liborcus/dom_tree.cpp
+++++ b/src/liborcus/dom_tree.cpp
++@@ -34,6 +34,8 @@
++ #include <iostream>
++ #include <sstream>
++ 
+++#include <boost/noncopyable.hpp>
+++
++ using namespace std;
++ 
++ namespace orcus {
++-- 
++1.8.1.2
++
+--- a/liborcus/UnpackedTarball_orcus.mk	2013-05-02 17:55:29.000000000 +0200
++++ b/liborcus/UnpackedTarball_orcus.mk	2013-05-09 16:45:16.660017822 +0200
+@@ -18,6 +18,10 @@
+ orcus_patches += liborcus_0.1.0-configure.patch
+ # disable boost "auto lib" in MSVC build
+ orcus_patches += liborcus_0.1.0-boost_disable_auto_lib.patch
++# <https://gitorious.org/orcus/orcus/merge_requests/2#
++# f60d6eecee72349993a392a9a63ddf3383d3b8c8-
++# f60d6eecee72349993a392a9a63ddf3383d3b8c8@2>:
++orcus_patches += liborcus_0.1.0-boost-include.patch.1
+ 
+ $(eval $(call gb_UnpackedTarball_fix_end_of_line,orcus,\
+ 	vsprojects/liborcus-static-nozip/liborcus-static-nozip.vcproj \
+--- a/sc/source/filter/excel/xechart.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/sc/source/filter/excel/xechart.cxx	2013-05-09 16:45:23.640154151 +0200
+@@ -682,7 +682,7 @@
+ 
+ bool XclExpChEscherFormat::IsValid() const
+ {
+-    return maData.mxEscherSet;
++    return static_cast< bool >(maData.mxEscherSet);
+ }
+ 
+ void XclExpChEscherFormat::Save( XclExpStream& rStrm )
+--- a/sc/source/filter/excel/xehelper.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/sc/source/filter/excel/xehelper.cxx	2013-05-09 16:45:23.660154542 +0200
+@@ -303,7 +303,7 @@
+     if( GetBiff() == EXC_BIFF8 )    // no HLINK records in BIFF2-BIFF7
+     {
+         // there was/is already a HLINK record
+-        mbMultipleUrls = mxLinkRec;
++        mbMultipleUrls = static_cast< bool >(mxLinkRec);
+ 
+         mxLinkRec.reset( new XclExpHyperlink( GetRoot(), rUrlField, maScPos ) );
+ 
+--- a/sc/source/filter/excel/xichart.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/sc/source/filter/excel/xichart.cxx	2013-05-09 16:45:23.676821534 +0200
+@@ -2689,7 +2689,7 @@
+     maType.Finalize( bStockChart );
+ 
+     // extended type info
+-    maTypeInfo.Set( maType.GetTypeInfo(), mxChart3d, false );
++    maTypeInfo.Set( maType.GetTypeInfo(), static_cast< bool >(mxChart3d), false );
+ 
+     // reverse series order for some unstacked 2D chart types
+     if( maTypeInfo.mbReverseSeries && !Is3dChart() && !maType.IsStacked() && !maType.IsPercent() )
+--- a/sc/source/filter/inc/xichart.hxx	2013-05-02 17:55:29.000000000 +0200
++++ b/sc/source/filter/inc/xichart.hxx	2013-05-09 16:45:23.703488722 +0200
+@@ -1230,9 +1230,9 @@
+     /** Returns true, if the axis contains caption labels. */
+     inline bool         HasLabels() const { return !mxTick || mxTick->HasLabels(); }
+     /** Returns true, if the axis shows its major grid lines. */
+-    inline bool         HasMajorGrid() const { return mxMajorGrid; }
++    inline bool         HasMajorGrid() const { return static_cast< bool >(mxMajorGrid); }
+     /** Returns true, if the axis shows its minor grid lines. */
+-    inline bool         HasMinorGrid() const { return mxMinorGrid; }
++    inline bool         HasMinorGrid() const { return static_cast< bool >(mxMinorGrid); }
+ 
+     /** Creates an API axis object. */
+     XAxisRef            CreateAxis( const XclImpChTypeGroup& rTypeGroup, const XclImpChAxis* pCrossingAxis ) const;
+--- a/slideshow/source/engine/animatedsprite.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/engine/animatedsprite.cxx	2013-05-09 16:45:23.616820362 +0200
+@@ -151,7 +151,7 @@
+                 }
+             }
+ 
+-            return mpSprite;
++            return static_cast< bool >(mpSprite);
+         }
+ 
+         void AnimatedSprite::setPixelOffset( const ::basegfx::B2DSize& rPixelOffset )
+--- a/slideshow/source/engine/shapes/viewshape.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/engine/shapes/viewshape.cxx	2013-05-09 16:45:23.620153761 +0200
+@@ -178,7 +178,7 @@
+                 }
+             }
+ 
+-            return io_rCacheEntry.mpRenderer;
++            return static_cast< bool >(io_rCacheEntry.mpRenderer);
+         }
+ 
+         bool ViewShape::draw( const ::cppcanvas::CanvasSharedPtr&   rDestinationCanvas,
+--- a/slideshow/source/engine/shapesubset.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/engine/shapesubset.cxx	2013-05-09 16:45:23.620153761 +0200
+@@ -104,7 +104,7 @@
+                     maTreeNode );
+             }
+ 
+-            return mpSubsetShape;
++            return static_cast< bool >(mpSubsetShape);
+         }
+ 
+         void ShapeSubset::disableSubsetShape()
+--- a/slideshow/source/engine/slide/slideanimations.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/engine/slide/slideanimations.cxx	2013-05-09 16:45:23.620153761 +0200
+@@ -74,7 +74,7 @@
+ 
+             SHOW_NODE_TREE( mpRootNode );
+ 
+-            return mpRootNode;
++            return static_cast< bool >(mpRootNode);
+         }
+ 
+         bool SlideAnimations::isAnimated() const
+--- a/slideshow/source/inc/shapeattributelayerholder.hxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/inc/shapeattributelayerholder.hxx	2013-05-09 16:45:23.620153761 +0200
+@@ -83,7 +83,7 @@
+                 if( mpShape )
+                     mpAttributeLayer = mpShape->createAttributeLayer();
+ 
+-                return mpAttributeLayer;
++                return static_cast< bool >(mpAttributeLayer);
+             }
+ 
+             ShapeAttributeLayerSharedPtr get() const
+--- a/slideshow/source/inc/shapeattributelayer.hxx	2013-05-02 17:55:29.000000000 +0200
++++ b/slideshow/source/inc/shapeattributelayer.hxx	2013-05-09 16:45:23.616820362 +0200
+@@ -467,7 +467,7 @@
+             // ShapeAttributeLayer(const ShapeAttributeLayer&);
+             // ShapeAttributeLayer& operator=( const ShapeAttributeLayer& );
+ 
+-            bool haveChild() const { return mpChild; }
++            bool haveChild() const { return static_cast< bool >(mpChild); }
+             void updateStateIds();
+ 
+             template< typename T > T calcValue( const T&                   rCurrValue,
+--- a/sw/source/core/inc/bookmrk.hxx	2013-05-02 17:55:29.000000000 +0200
++++ b/sw/source/core/inc/bookmrk.hxx	2013-05-09 16:45:23.620153761 +0200
+@@ -75,7 +75,7 @@
+ 
+             virtual bool IsCoveringPosition(const SwPosition& rPos) const;
+             virtual bool IsExpanded() const
+-                { return m_pPos2; }
++                { return static_cast< bool >(m_pPos2); }
+ 
+             virtual void SetName(const ::rtl::OUString& rName)
+                 { m_aName = rName; }
+--- a/vcl/source/gdi/svgdata.cxx	2013-05-02 17:55:29.000000000 +0200
++++ b/vcl/source/gdi/svgdata.cxx	2013-05-09 16:45:23.876825441 +0200
+@@ -166,7 +166,7 @@
+ 
+ //////////////////////////////////////////////////////////////////////////////
+ SvgData::SvgData(const OUString& rPath):
+-    maSvgDataArray(NULL),
++    maSvgDataArray(static_cast< unsigned char * >(NULL)),
+     mnSvgDataArrayLength(0),
+     maPath(rPath),
+     maRange(),

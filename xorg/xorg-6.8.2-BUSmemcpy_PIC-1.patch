@@ -1,0 +1,218 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-16
+Initial Package Version: 6.8.2
+Upstream Status: Not submitted - They already know
+Origin: http://dev.gentoo.org/~spyderous/xorg-x11/patchsets/6.8.1.901/patch/\
+	9962_all_text-relocations-BUSmemcpy.S.patch
+Description: This patch is needed to make the Xorg server position independent.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+
+--- xc-orig/programs/Xserver/hw/xfree86/os-support/misc/BUSmemcpy.S.orig	1999-07-10 03:24:49.000000000 -0400
++++ xc/programs/Xserver/hw/xfree86/os-support/misc/BUSmemcpy.S	2003-12-03 02:08:01.000000000 -0500
+@@ -39,118 +39,114 @@
+ 
+ #include "assyntax.h"
+ 
+-	FILE("BUSmemcpy.s")
++        FILE("BUSmemcpy.s")
+ 
+-	AS_BEGIN
++        AS_BEGIN
+ 
+ /* BusToMem copies from video memory to main memory
+    MemToBus copies from main memory to video memory
+ 
+-	void xf86BusToMem(unsigned char *dst, unsigned char *src, int len);
+-	void xf86MemToBus(unsigned char *dst, unsigned char *src, int len);
++        void xf86BusToMem(unsigned char *dst, unsigned char *src, int len);
++        void xf86MemToBus(unsigned char *dst, unsigned char *src, int len);
+ */
+ 
+ #define dst     REGOFF(4,ESP)
+ #define src     REGOFF(8,ESP)
+ #define len     REGOFF(12,ESP)
+ 
+-	GLOBL	GLNAME(xf86BusToMem)
+-	GLOBL	GLNAME(xf86MemToBus)
++        GLOBL   GLNAME(xf86BusToMem)
++        GLOBL   GLNAME(xf86MemToBus)
+ 
+-	SEG_DATA
++        SEG_DATA
+ copyright:
+-	STRING("Copyright 8/9/1993 by Glenn G. Lai")
++        STRING("Copyright 8/9/1993 by Glenn G. Lai")
+ 
+-	ALIGNDATA4
+-tmp:	D_LONG	0
+-
+-	SEG_TEXT
+-	ALIGNTEXT4
++        SEG_TEXT
++        ALIGNTEXT4
+ GLNAME(xf86BusToMem):
+-	CLD
+-	MOV_L	(ESI, CONTENT(tmp))
+-	MOV_L	(EDI, EDX)
+-	
+-	MOV_L	(src, ESI)
+-	MOV_L	(dst, EDI)
+-	MOV_L	(len, ECX)
+-	
+-	CMP_L	(CONST(7), ECX)
+-	JC	(quickBM)
+-
+-	TEST_L	(CONST(1), ESI)
+-	JZ	(BwM)
+-
+-	MOVS_B
+-	DEC_L	(ECX)
+-
+-BwM:	
+-	TEST_L	(CONST(2), ESI)
+-	JZ	(BlM)
+-
+-	MOVS_W
+-	DEC_L	(ECX)
+-	DEC_L	(ECX)
++        CLD
++        PUSH_L  (ESI)
++        MOV_L   (EDI, EDX)
++        
++        MOV_L   (src, ESI)
++        MOV_L   (dst, EDI)
++        MOV_L   (len, ECX)
++        
++        CMP_L   (CONST(7), ECX)
++        JC      (quickBM)
++
++        TEST_L  (CONST(1), ESI)
++        JZ      (BwM)
++
++        MOVS_B
++        DEC_L   (ECX)
++
++BwM:    
++        TEST_L  (CONST(2), ESI)
++        JZ      (BlM)
++
++        MOVS_W
++        DEC_L   (ECX)
++        DEC_L   (ECX)
+ 
+ BlM:
+-	MOV_L	(ECX, EAX)
+-	AND_L	(CONST(3), EAX)
+-	SHR_L	(CONST(2), ECX)
+-	REP
+-	MOVS_L
+-	MOV_L	(EAX, ECX)
++        MOV_L   (ECX, EAX)
++        AND_L   (CONST(3), EAX)
++        SHR_L   (CONST(2), ECX)
++        REP
++        MOVS_L
++        MOV_L   (EAX, ECX)
+ quickBM:
+-	OR_L	(ECX, ECX)
+-	JZ	(return)
+-	REP
+-	MOVS_B
++        OR_L    (ECX, ECX)
++        JZ      (return)
++        REP
++        MOVS_B
+ return:
+-	MOV_L	(CONTENT(tmp), ESI)
+-	MOV_L	(EDX, EDI)
+-	RET
++        POP_L   (ESI)
++        MOV_L   (EDX, EDI)
++        RET
+ /************************/
+ 
+-	ALIGNTEXT4
++        ALIGNTEXT4
+ GLNAME(xf86MemToBus):
+-	CLD
+-	MOV_L	(ESI, CONTENT(tmp))
+-	MOV_L	(EDI, EDX)
+-	
+-	MOV_L	(src, ESI)
+-	MOV_L	(dst, EDI)
+-	MOV_L	(len, ECX)
+-	
+-	CMP_L	(CONST(7), ECX)
+-	JC	(quickMB)
+-
+-	TEST_L	(CONST(1), EDI)
+-	JZ	(MwB)
+-
+-	MOVS_B
+-	DEC_L	(ECX)
+-
+-MwB:	
+-	TEST_L	(CONST(2), EDI)
+-	JZ	(MlB)
+-
+-	MOVS_W
+-	DEC_L	(ECX)
+-	DEC_L	(ECX)
++        CLD
++        PUSH_L  (ESI)
++        MOV_L   (EDI, EDX)
++        
++        MOV_L   (src, ESI)
++        MOV_L   (dst, EDI)
++        MOV_L   (len, ECX)
++        
++        CMP_L   (CONST(7), ECX)
++        JC      (quickMB)
++
++        TEST_L  (CONST(1), EDI)
++        JZ      (MwB)
++
++        MOVS_B
++        DEC_L   (ECX)
++
++MwB:    
++        TEST_L  (CONST(2), EDI)
++        JZ      (MlB)
++
++        MOVS_W
++        DEC_L   (ECX)
++        DEC_L   (ECX)
+ 
+ MlB:
+-	MOV_L	(ECX, EAX)
+-	AND_L	(CONST(3), EAX)
+-	SHR_L	(CONST(2), ECX)
+-	REP
+-	MOVS_L
+-	MOV_L	(EAX, ECX)
++        MOV_L   (ECX, EAX)
++        AND_L   (CONST(3), EAX)
++        SHR_L   (CONST(2), ECX)
++        REP
++        MOVS_L
++        MOV_L   (EAX, ECX)
+ quickMB:
+-	OR_L	(ECX, ECX)
+-	JZ	(return)
+-	REP
+-	MOVS_B
+-
+-	MOV_L	(CONTENT(tmp), ESI)
+-	MOV_L	(EDX, EDI)
+-	RET
+-
++        OR_L    (ECX, ECX)
++        JZ      (return)
++        REP
++        MOVS_B
++
++        POP_L   (ESI)
++        MOV_L   (EDX, EDI)
++        RET

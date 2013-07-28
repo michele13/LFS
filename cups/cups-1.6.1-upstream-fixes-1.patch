@@ -1,0 +1,156 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2012-08-07
+Initial Package Version: 1.6.1
+Upstream Status:         Fixed upstream
+Origin:                  Upstream bug tracker
+Description:             Remove obsolete cupsd.conf options and several fixes for dnssd backend.
+
+--- cups.orig/conf/cupsd.conf.in	2010-12-09 22:24:51.000000000 +0100
++++ cups/conf/cupsd.conf.in	2012-08-07 16:27:42.079910081 +0200
+@@ -19,8 +19,6 @@
+ 
+ # Show shared printers on the local network.
+ Browsing On
+-BrowseOrder allow,deny
+-BrowseAllow all
+ BrowseLocalProtocols @CUPS_BROWSE_LOCAL_PROTOCOLS@
+ 
+ # Default authentication type, when authentication is required...
+--- cups.orig/scheduler/client.c	2012-05-08 00:41:30.000000000 +0200
++++ cups/scheduler/client.c	2012-08-07 16:28:08.775254536 +0200
+@@ -4021,7 +4021,7 @@
+ 	    !strncmp(host, "[::1]:", 6));
+   }
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+  /*
+   * Check if the hostname is something.local (Bonjour); if so, allow it.
+   */
+@@ -4040,7 +4040,7 @@
+ 	      !_cups_strcasecmp(end, ".local.") ||
+ 	      !_cups_strncasecmp(end, ".local.:", 8)))
+     return (1);
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+  /*
+   * Check if the hostname is an IP address...
+@@ -4101,7 +4101,7 @@
+     }
+   }
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+   for (a = (cupsd_alias_t *)cupsArrayFirst(DNSSDAlias);
+        a;
+        a = (cupsd_alias_t *)cupsArrayNext(DNSSDAlias))
+@@ -4126,7 +4126,7 @@
+         return (1);
+     }
+   }
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+  /*
+   * Check for interface hostname matches...
+--- cups.orig/scheduler/conf.c	2012-05-18 21:51:02.000000000 +0200
++++ cups/scheduler/conf.c	2012-08-07 16:28:08.777254600 +0200
+@@ -89,9 +89,9 @@
+ {
+   { "AccessLog",		&AccessLog,		CUPSD_VARTYPE_STRING },
+   { "AutoPurgeJobs", 		&JobAutoPurge,		CUPSD_VARTYPE_BOOLEAN },
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+   { "BrowseDNSSDSubTypes",	&DNSSDSubTypes,		CUPSD_VARTYPE_STRING },
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+   { "BrowseWebIF",		&BrowseWebIF,		CUPSD_VARTYPE_BOOLEAN },
+   { "Browsing",			&Browsing,		CUPSD_VARTYPE_BOOLEAN },
+   { "CacheDir",			&CacheDir,		CUPSD_VARTYPE_STRING },
+@@ -735,9 +735,9 @@
+   Browsing                 = CUPS_DEFAULT_BROWSING;
+   DefaultShared            = CUPS_DEFAULT_DEFAULT_SHARED;
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+   cupsdSetString(&DNSSDSubTypes, "_cups,_print");
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+   cupsdSetString(&LPDConfigFile, CUPS_DEFAULT_LPD_CONFIG_FILE);
+   cupsdSetString(&SMBConfigFile, CUPS_DEFAULT_SMB_CONFIG_FILE);
+--- cups.orig/scheduler/ipp.c	2012-05-21 19:40:22.000000000 +0200
++++ cups/scheduler/ipp.c	2012-08-07 16:28:08.780254715 +0200
+@@ -4813,7 +4813,7 @@
+     ippAddDate(con->response, IPP_TAG_PRINTER, "printer-current-time",
+                ippTimeToDate(curtime));
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+   if (!ra || cupsArrayFind(ra, "printer-dns-sd-name"))
+   {
+     if (printer->reg_name)
+@@ -4823,7 +4823,7 @@
+       ippAddInteger(con->response, IPP_TAG_PRINTER, IPP_TAG_NOVALUE,
+                    "printer-dns-sd-name", 0);
+   }
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+   if (!ra || cupsArrayFind(ra, "printer-error-policy"))
+     ippAddString(con->response, IPP_TAG_PRINTER, IPP_TAG_NAME,
+--- cups.orig/scheduler/main.c	2012-04-23 21:19:19.000000000 +0200
++++ cups/scheduler/main.c	2012-08-07 16:28:08.781254758 +0200
+@@ -781,9 +781,9 @@
+       * Got an error from select!
+       */
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+       cupsd_printer_t	*p;		/* Current printer */
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+ 
+       if (errno == EINTR)		/* Just interrupted by a signal */
+@@ -824,13 +824,13 @@
+ 			job->print_pipes[0], job->print_pipes[1],
+ 			job->back_pipes[0], job->back_pipes[1]);
+ 
+-#ifdef HAVE_DNSSD
++#if defined(HAVE_DNSSD) || defined(HAVE_AVAHI)
+       for (p = (cupsd_printer_t *)cupsArrayFirst(Printers);
+ 	   p;
+ 	   p = (cupsd_printer_t *)cupsArrayNext(Printers))
+         cupsdLogMessage(CUPSD_LOG_EMERG, "printer[%s] reg_name=\"%s\"", p->name,
+ 	                p->reg_name ? p->reg_name : "(null)");
+-#endif /* HAVE_DNSSD */
++#endif /* HAVE_DNSSD || HAVE_AVAHI */
+ 
+       break;
+     }
+--- cups.orig/scheduler/printers.c	2012-05-23 03:19:11.000000000 +0200
++++ cups/scheduler/printers.c	2012-08-07 16:27:55.495585251 +0200
+@@ -4829,13 +4829,14 @@
+ 		   "printer-make-and-model", NULL,
+ 		   "Local System V Printer");
+     }
+-    else if (!strncmp(p->device_uri, "ipp://", 6) &&
+-	     (strstr(p->device_uri, "/printers/") != NULL ||
+-	      strstr(p->device_uri, "/classes/") != NULL ||
+-	      ((strstr(p->device_uri, "._ipp.") != NULL ||
+-	        strstr(p->device_uri, "._ipps.") != NULL) &&
+-	       !strcmp(p->device_uri + strlen(p->device_uri) - 5,
+-		       "/cups"))))
++    else if ((!strncmp(p->device_uri, "ipp://", 6) &&
++	      (strstr(p->device_uri, "/printers/") != NULL ||
++	       strstr(p->device_uri, "/classes/") != NULL)) ||
++	     (!strncmp(p->device_uri, "dnssd://", 8) &&
++	      (strstr(p->device_uri, "._ipp.") != NULL ||
++	       strstr(p->device_uri, "._ipps.") != NULL) &&
++	      !strcmp(p->device_uri + strlen(p->device_uri) - 5,
++		      "/cups")))
+     {
+      /*
+       * Tell the client this is really a hard-wired remote printer.

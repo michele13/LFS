@@ -1,0 +1,64 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-16
+Initial Package Version: 1.0.2
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/subversion-1.0.2-neon-gcc34-1.patch
+Upstream Status: not reported
+Description: fix compilation of included neon with gcc34
+ 
+diff -Naur subversion-1.0.2.orig/neon/configure subversion-1.0.2/neon/configure
+--- subversion-1.0.2.orig/neon/configure	2004-05-16 14:19:42.916266800 +0000
++++ subversion-1.0.2/neon/configure	2004-05-16 14:20:09.125282424 +0000
+@@ -17980,7 +17980,7 @@
+ if test "$enable_warnings" = "yes"; then
+    case $GCC:`uname` in
+    yes:*)
+-      CFLAGS="$CFLAGS -Wall -ansi-pedantic -Wmissing-declarations -Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef -Wpointer-arith -Wcast-align -Wbad-function-cast -Wimplicit-prototypes"
++      CFLAGS="$CFLAGS -Wall -ansi-pedantic -Wmissing-declarations -Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef -Wpointer-arith -Wcast-align -Wbad-function-cast"
+       if test -z "$with_ssl" -o "$with_ssl" = "no"; then
+ 	 # OpenSSL headers fail strict prototypes checks
+ 	 CFLAGS="$CFLAGS -Wstrict-prototypes"
+diff -Naur subversion-1.0.2.orig/neon/macros/neon.m4 subversion-1.0.2/neon/macros/neon.m4
+--- subversion-1.0.2.orig/neon/macros/neon.m4	2004-05-16 14:19:42.918266496 +0000
++++ subversion-1.0.2/neon/macros/neon.m4	2004-05-16 14:20:09.128281968 +0000
+@@ -819,7 +819,7 @@
+ if test "$enable_warnings" = "yes"; then
+    case $GCC:`uname` in
+    yes:*)
+-      CFLAGS="$CFLAGS -Wall -ansi-pedantic -Wmissing-declarations -Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef -Wpointer-arith -Wcast-align -Wbad-function-cast -Wimplicit-prototypes"
++      CFLAGS="$CFLAGS -Wall -ansi-pedantic -Wmissing-declarations -Winline -Wshadow -Wreturn-type -Wsign-compare -Wundef -Wpointer-arith -Wcast-align -Wbad-function-cast"
+       if test -z "$with_ssl" -o "$with_ssl" = "no"; then
+ 	 # OpenSSL headers fail strict prototypes checks
+ 	 CFLAGS="$CFLAGS -Wstrict-prototypes"
+diff -Naur subversion-1.0.2.orig/neon/src/ne_locks.c subversion-1.0.2/neon/src/ne_locks.c
+--- subversion-1.0.2.orig/neon/src/ne_locks.c	2004-05-16 14:19:42.894270144 +0000
++++ subversion-1.0.2/neon/src/ne_locks.c	2004-05-16 14:20:09.131281512 +0000
+@@ -505,7 +505,7 @@
+     return end_element_common(lock, state, ctx->cdata->data);
+ }
+ 
+-static inline int can_accept(int parent, int id)
++static int can_accept(int parent, int id)
+ {
+     return (parent == NE_XML_STATEROOT && id == ELM_prop) ||
+         (parent == ELM_prop && id == ELM_lockdiscovery) ||
+diff -Naur subversion-1.0.2.orig/neon/src/ne_request.c subversion-1.0.2/neon/src/ne_request.c
+--- subversion-1.0.2.orig/neon/src/ne_request.c	2004-05-16 14:19:42.893270296 +0000
++++ subversion-1.0.2/neon/src/ne_request.c	2004-05-16 14:20:09.130281664 +0000
+@@ -176,7 +176,7 @@
+ 
+ /* Returns hash value for header 'name', converting it to lower-case
+  * in-place. */
+-static inline unsigned int hash_and_lower(char *name)
++static unsigned int hash_and_lower(char *name)
+ {
+     char *pnt;
+     unsigned int hash = 0;
+@@ -868,7 +868,7 @@
+ /* remove trailing EOL from 'buf', where strlen(buf) == *len.  *len is
+  * adjusted in accordance with any changes made to the string to
+  * remain equal to strlen(buf). */
+-static inline void strip_eol(char *buf, ssize_t *len)
++static void strip_eol(char *buf, ssize_t *len)
+ {
+     char *pnt = &buf[*len-1];
+     while (pnt >= buf && (*pnt == '\r' || *pnt == '\n')) {

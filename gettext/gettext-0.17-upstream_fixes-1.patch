@@ -1,0 +1,38 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2009-05-17
+Initial Package Version: 0.13
+Origin: Upstream via Robert Connolly
+Description: Set permissions explicitly
+
+
+From: http://cvs.savannah.gnu.org/viewvc/gettext/gettext-tools/src/write-catalog.c?root=gettext&r1=1.4&r2=1.5&view=patch
+
+This adjusts the arguments to open() to specify permissions and ownership.
+
+Also see: http://www.archivum.info/bug-gnu-utils%40gnu.org/2007-12/msg00036.html
+
+2007-11-07  Jim Meyering  <meyering@redhat.com>
+            Bruno Haible  <bruno@clisp.org>
+   * write-catalog.c (msgdomain_list_print): Fix open() call.
+
+diff -Naur gettext-0.17.orig/gettext-tools/src/write-catalog.c gettext-0.17/gettext-tools/src/write-catalog.c
+--- gettext-0.17.orig/gettext-tools/src/write-catalog.c	2007-10-07 14:37:39.000000000 -0500
++++ gettext-0.17/gettext-tools/src/write-catalog.c	2009-05-17 13:23:17.000000000 -0500
+@@ -1,5 +1,5 @@
+ /* GNU gettext - internationalization aids
+-   Copyright (C) 1995-1998, 2000-2006 Free Software Foundation, Inc.
++   Copyright (C) 1995-1998, 2000-2007 Free Software Foundation, Inc.
+ 
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+@@ -220,7 +220,9 @@
+       /* Open the output file.  */
+       if (!to_stdout)
+ 	{
+-	  fd = open (filename, O_WRONLY | O_CREAT);
++	  fd = open (filename, O_WRONLY | O_CREAT | O_TRUNC,
++	        /* 0666 in portable POSIX notation: */
++	        S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+ 	  if (fd < 0)
+ 	    {
+ 	      const char *errno_description = strerror (errno);

@@ -1,0 +1,117 @@
+Submitted By: Robert Connolly <robert@linuxfromscratch.org> (ashes)
+Date: 2004-08-29
+Initial Package Version: 2.3.3
+Upstream Status: From Upstream
+Origin: http://kegel.com/crosstool/
+	glibc-linuxthreads-2.3.2-allow-3.4.patch
+	glibc-2.3.2-allow-gcc-3.4-nounit.patch
+	fixup.patch (for glibc-2.3.2)
+Description: These are upstream fixes to allow glibc-2.3.3 to build with
+gcc-3.4.x. This patch comes from crosstools which got it from glibc-2.3.4.
+See also:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -Naur glibc-2.3.3-lfs-5.1.orig/configure glibc-2.3.3-lfs-5.1.gcc34/configure
+--- glibc-2.3.3-lfs-5.1.orig/configure	2004-02-09 20:58:21.000000000 +0000
++++ glibc-2.3.3-lfs-5.1.gcc34/configure	2004-08-29 21:18:56.000000000 +0000
+@@ -5558,6 +5558,35 @@
+ fi
+ 
+ 
++echo "$as_me:$LINENO: checking for -fno-unit-at-a-time" >&5
++echo $ECHO_N "checking for -fno-unit-at-a-time... $ECHO_C" >&6
++if test "${libc_cv_fno_unit_at_a_time+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat > conftest.c <<EOF
++int foo;
++EOF
++if { ac_try='${CC-cc} $CFLAGS $CPPFLAGS -S -fno-unit-at-a-time
++			    conftest.c 1>&5'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }
++then
++  libc_cv_fno_unit_at_a_time=yes
++else
++  libc_cv_fno_unit_at_a_time=no
++fi
++rm -f conftest*
++fi
++echo "$as_me:$LINENO: result: $libc_cv_fno_unit_at_a_time" >&5
++echo "${ECHO_T}$libc_cv_fno_unit_at_a_time" >&6
++if test $libc_cv_fno_unit_at_a_time = yes; then
++  fno_unit_at_a_time=-fno-unit-at-a-time
++fi
++
++
+ if test $elf != yes; then
+   echo "$as_me:$LINENO: checking for .init and .fini sections" >&5
+ echo $ECHO_N "checking for .init and .fini sections... $ECHO_C" >&6
+diff -Naur glibc-2.3.3-lfs-5.1.orig/elf/dl-runtime.c glibc-2.3.3-lfs-5.1.gcc34/elf/dl-runtime.c
+--- glibc-2.3.3-lfs-5.1.orig/elf/dl-runtime.c	2004-02-09 07:08:09.000000000 +0000
++++ glibc-2.3.3-lfs-5.1.gcc34/elf/dl-runtime.c	2004-08-29 21:18:20.000000000 +0000
+@@ -36,6 +36,12 @@
+ # define VERSYMIDX(sym)	(DT_NUM + DT_THISPROCNUM + DT_VERSIONTAGIDX (sym))
+ #endif
+ 
++/* The fixup functions might have need special attributes.  If none
++   are provided define the macro as empty.  */
++#ifndef ARCH_FIXUP_ATTRIBUTE
++# define ARCH_FIXUP_ATTRIBUTE
++#endif
++
+ 
+ /* This function is called through a special trampoline from the PLT the
+    first time each PLT entry is called.  We must perform the relocation
+@@ -46,7 +52,7 @@
+ 
+ #ifndef ELF_MACHINE_NO_PLT
+ static ElfW(Addr)
+-__attribute ((used, noinline))
++__attribute ((used, noinline)) ARCH_FIXUP_ATTRIBUTE
+ fixup (
+ # ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS
+         ELF_MACHINE_RUNTIME_FIXUP_ARGS,
+@@ -128,7 +134,7 @@
+ #if !defined PROF && !defined ELF_MACHINE_NO_PLT && !__BOUNDED_POINTERS__
+ 
+ static ElfW(Addr)
+-__attribute ((used, noinline))
++__attribute ((used, noinline)) ARCH_FIXUP_ATTRIBUTE
+ profile_fixup (
+ #ifdef ELF_MACHINE_RUNTIME_FIXUP_ARGS
+        ELF_MACHINE_RUNTIME_FIXUP_ARGS,
+diff -Naur glibc-2.3.3-lfs-5.1.orig/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile glibc-2.3.3-lfs-5.1.gcc34/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile
+--- glibc-2.3.3-lfs-5.1.orig/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile	2003-01-27 18:57:22.000000000 +0000
++++ glibc-2.3.3-lfs-5.1.gcc34/linuxthreads/sysdeps/unix/sysv/linux/mips/Makefile	2004-08-29 21:21:45.000000000 +0000
+@@ -1,2 +1,6 @@
+ # pull in __syscall_error routine
+ libpthread-routines += sysdep
++
++ifeq ($(subdir),linuxthreads)
++CFLAGS-pt-initfini.s = $(fno-unit-at-a-time)
++endif
+diff -Naur glibc-2.3.3-lfs-5.1.orig/sysdeps/i386/dl-machine.h glibc-2.3.3-lfs-5.1.gcc34/sysdeps/i386/dl-machine.h
+--- glibc-2.3.3-lfs-5.1.orig/sysdeps/i386/dl-machine.h	2003-09-24 21:08:31.000000000 +0000
++++ glibc-2.3.3-lfs-5.1.gcc34/sysdeps/i386/dl-machine.h	2004-08-29 21:17:37.000000000 +0000
+@@ -154,11 +154,14 @@
+    destroys the passed register information.  */
+ /* GKM FIXME: Fix trampoline to pass bounds so we can do
+    without the `__unbounded' qualifier.  */
+-static ElfW(Addr) fixup (struct link_map *__unbounded l, ElfW(Word) reloc_offset)
+-     __attribute__ ((regparm (2), unused));
++#define ARCH_FIXUP_ATTRIBUTE __attribute__ ((regparm (3), unused))
++
++static ElfW(Addr) fixup (struct link_map *__unbounded l,
++			 ElfW(Word) reloc_offset)
++     ARCH_FIXUP_ATTRIBUTE;
+ static ElfW(Addr) profile_fixup (struct link_map *l, ElfW(Word) reloc_offset,
+ 				 ElfW(Addr) retaddr)
+-     __attribute__ ((regparm (3), unused));
++     ARCH_FIXUP_ATTRIBUTE;
+ # endif
+ 
+ /* This code is used in dl-runtime.c to call the `fixup' function

@@ -1,0 +1,234 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-09-10
+Initial Package Version: 1.3.5
+Upstream Status: Submitted
+Origin: None
+Description: This patch adds --with-scripts-dir=DIR to ./configure. In
+LFS we would do './configure --prefix=/usr --bindir=/bin'. SCRIPTSDIR
+defaults to ${exec_prefix}/bin (aka $prefix/bin), which would get
+expanded to /usr/bin. This patch also makes Makefile use 'ln -s' when
+installing alias scripts. To use this patch do:
+
+patch -Np1 -i ../this.patch
+aclocal -I m4
+autoconf
+automake
+./configure --prefix=/usr --bindir=/bin
+make
+make install
+
+There's no need to sed BINDIR on gzeze.in, or move or symlink programs.
+
+This patch depends on newer versions of autoconf, 2.57 or later, which
+supports AS_HELP_STRING.
+
+diff -Naur gzip-1.3.5.orig/ChangeLog gzip-1.3.5/ChangeLog
+--- gzip-1.3.5.orig/ChangeLog	2002-09-30 09:20:09.000000000 +0000
++++ gzip-1.3.5/ChangeLog	2006-09-11 02:52:47.000000000 +0000
+@@ -1,3 +1,16 @@
++2006-09-10 Robert Connolly <robert@linuxfromscratch.org>
++	* configure.in: Added --with-scripts-dir=DIR so scripts and binaries
++	can be installed to different locations.
++	* Makefile.in:
++	Install bin_SCRIPTS to SCRIPTSDIR.
++	* configure.in:
++	Added SHELL_PATH_PREFIX, based on whether '$SCRIPTSDIR = $bindir' or
++	not.
++	* Makefile.am:
++	Use SHELL_PATH_PREFIX in PATH for scripts.
++	* Makefile.am:
++	Use $(LN_S) when installing alias commands.
++
+ 2002-09-30  Paul Eggert  <eggert@twinsun.com>
+ 
+ 	* NEWS, README, revision.h, configure.in (AM_INIT_AUTOMAKE):
+diff -Naur gzip-1.3.5.orig/Makefile.am gzip-1.3.5/Makefile.am
+--- gzip-1.3.5.orig/Makefile.am	2002-09-29 18:18:50.000000000 +0000
++++ gzip-1.3.5/Makefile.am	2006-09-11 02:52:59.000000000 +0000
+@@ -72,17 +72,16 @@
+ 		-e '$(SEDCMD)' \
+ 		-e 's|/bin/sh|$(SHELL)|g' \
+ 		-e 's|BINDIR|$(bindir)|g' \
++		-e 's|SCRIPTSDIR|$(SHELL_PATH_PREFIX)|' \
+ 		$(srcdir)/$@.in >$@
+ 	chmod a+x $@
+ 
+ install-exec-hook: remove-installed-links
+ install-exec-hook remove-installed-links:
+-	@for prog_ext in $(bin_PROGRAMS) $(bin_SCRIPTS); do \
++	@for prog_ext in $(bin_PROGRAMS); do \
+ 	  prog=`echo "$$prog_ext"|sed 's/$(EXEEXT)$$//'`; \
+ 	  case $$prog in \
+ 	  gzip) aliases='gunzip zcat';; \
+-	  zdiff) aliases='zcmp';; \
+-	  zgrep) aliases='zegrep zfgrep';; \
+ 	  *) continue;; \
+ 	  esac; \
+ 	  transform='$(transform)'; \
+@@ -95,14 +94,51 @@
+ 	     rm -f "$$dest" && \
+ 	     case $@ in \
+ 	     install-exec-hook) \
+-	       for ln in ln "$(LN_S)"; do \
+-		 $$ln "$$source" "$$dest" && break; \
++	       for ln in ln ; do \
++		 $(LN_S) "$$source" "$$dest" && break; \
++	       done;; \
++	     esac \
++	    ) || exit; \
++	  done; \
++	done
++
++	@for prog_ext in $(bin_SCRIPTS); do \
++	  prog=`echo "$$prog_ext"|sed 's/$(EXEEXT)$$//'`; \
++	  case $$prog in \
++	  zdiff) aliases='zcmp';; \
++	  zgrep) aliases='zegrep zfgrep';; \
++	  *) continue;; \
++	  esac; \
++	  transform='$(transform)'; \
++	  test "X$$prog" = "X$$prog_ext" || \
++	    transform="$$transform"';s/$$/$(EXEEXT)/'; \
++	  source=$(DESTDIR)$(SCRIPTSDIR)/`echo "$$prog"|sed "$$transform"`; \
++	  for alias in $$aliases; do \
++	    dest=$(DESTDIR)$(SCRIPTSDIR)/`echo "$$alias"|sed "$$transform"`; \
++	    (set -x; \
++	     rm -f "$$dest" && \
++	     case $@ in \
++	     install-exec-hook) \
++	       for ln in ln ; do \
++		 $(LN_S) "$$source" "$$dest" && break; \
+ 	       done;; \
+ 	     esac \
+ 	    ) || exit; \
+ 	  done; \
+ 	done
+ 
++install-binSCRIPTS: $(bin_SCRIPTS)
++	@$(NORMAL_INSTALL)
++	test -z "$(SCRIPTSDIR)" || $(mkdir_p) "$(DESTDIR)$(SCRIPTSDIR)"
++	@list='$(bin_SCRIPTS)'; for p in $$list; do \
++	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
++	  if test -f $$d$$p; then \
++	    f=`echo "$$p"|sed 's|^.*/||;$(transform)'`; \
++	    echo " $(binSCRIPT_INSTALL) '$$d$$p' '$(DESTDIR)$(SCRIPTSDIR)/$$f'"; \
++	    $(binSCRIPT_INSTALL) "$$d$$p" "$(DESTDIR)$(SCRIPTSDIR)/$$f"; \
++	  else :; fi; \
++	done
++
+ uninstall-local: remove-installed-links
+ 
+ MAINTAINERCLEANFILES = gzip.doc
+diff -Naur gzip-1.3.5.orig/configure.in gzip-1.3.5/configure.in
+--- gzip-1.3.5.orig/configure.in	2002-09-30 09:28:09.000000000 +0000
++++ gzip-1.3.5/configure.in	2006-09-11 02:52:47.000000000 +0000
+@@ -18,7 +18,7 @@
+ # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ # 02111-1307, USA.
+ 
+-AC_PREREQ(2.54)
++AC_PREREQ(2.57)
+ AC_INIT(gzip, 1.3.5, bug-gzip@gnu.org)
+ AC_CONFIG_SRCDIR(gzip.c)
+ AM_INIT_AUTOMAKE
+@@ -33,6 +33,18 @@
+ AC_MINIX
+ AC_SYS_LARGEFILE
+ 
++AC_SUBST(SCRIPTSDIR)
++AC_ARG_WITH([scripts-dir],
++  [AS_HELP_STRING([--with-scripts-dir=DIR],
++	[shell scripts @<:@default=EPREFIX@:>@])],
++  [SCRIPTSDIR="$withval"],
++  [SCRIPTSDIR='${exec_prefix}/bin'])
++
++AC_SUBST(SHELL_PATH_PREFIX)
++AS_IF([test "x${bindir}" != x"${SCRIPTSDIR}"],
++  [SHELL_PATH_PREFIX="${bindir}:${SCRIPTSDIR}"],
++  [SHELL_PATH_PREFIX="${bindir}"])
++
+ # cc -E produces incorrect asm files on SVR4, we must use /lib/cpp.
+ test -z "$ASCPP" && test -f /lib/cpp && ASCPP=/lib/cpp
+ test -z "$ASCPP" && ASCPP="$CPP"
+diff -Naur gzip-1.3.5.orig/gzexe.in gzip-1.3.5/gzexe.in
+--- gzip-1.3.5.orig/gzexe.in	2002-09-28 06:18:11.000000000 +0000
++++ gzip-1.3.5/gzexe.in	2006-09-11 02:52:47.000000000 +0000
+@@ -33,7 +33,7 @@
+ # 02111-1307, USA.
+ 
+ 
+-PATH="BINDIR:$PATH"
++PATH="SCRIPTSDIR:$PATH"
+ x=`basename $0`
+ if test $# = 0; then
+   echo compress executables. original file foo is renamed to foo~
+diff -Naur gzip-1.3.5.orig/zdiff.in gzip-1.3.5/zdiff.in
+--- gzip-1.3.5.orig/zdiff.in	2002-09-26 08:33:24.000000000 +0000
++++ gzip-1.3.5/zdiff.in	2006-09-11 02:52:47.000000000 +0000
+@@ -10,7 +10,7 @@
+ # necessary) and fed to cmp or diff.  The exit status from cmp
+ # or diff is preserved.
+ 
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ prog=`echo $0 | sed 's|.*/||'`
+ case "$prog" in
+   *cmp) comp=${CMP-cmp}   ;;
+diff -Naur gzip-1.3.5.orig/zforce.in gzip-1.3.5/zforce.in
+--- gzip-1.3.5.orig/zforce.in	2002-09-29 06:01:53.000000000 +0000
++++ gzip-1.3.5/zforce.in	2006-09-11 02:52:47.000000000 +0000
+@@ -26,7 +26,7 @@
+ # 02111-1307, USA.
+ 
+ 
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ x=`basename $0`
+ if test $# = 0; then
+   echo "force a '.gz' extension on all gzip files"
+diff -Naur gzip-1.3.5.orig/zgrep.in gzip-1.3.5/zgrep.in
+--- gzip-1.3.5.orig/zgrep.in	2002-09-28 05:53:14.000000000 +0000
++++ gzip-1.3.5/zgrep.in	2006-09-11 02:52:47.000000000 +0000
+@@ -22,7 +22,7 @@
+ # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ # 02111-1307, USA.
+ 
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ 
+ prog=`echo $0 | sed 's|.*/||'`
+ case "$prog" in
+diff -Naur gzip-1.3.5.orig/zless.in gzip-1.3.5/zless.in
+--- gzip-1.3.5.orig/zless.in	2002-09-29 07:14:43.000000000 +0000
++++ gzip-1.3.5/zless.in	2006-09-11 02:52:47.000000000 +0000
+@@ -1,5 +1,5 @@
+ :
+ #!/bin/sh
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ LESSOPEN="|gzip -cdfq %s"; export LESSOPEN
+ exec less "$@"
+diff -Naur gzip-1.3.5.orig/zmore.in gzip-1.3.5/zmore.in
+--- gzip-1.3.5.orig/zmore.in	2002-09-28 08:19:37.000000000 +0000
++++ gzip-1.3.5/zmore.in	2006-09-11 02:52:47.000000000 +0000
+@@ -19,7 +19,7 @@
+ # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
+ # 02111-1307, USA.
+ 
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ if test "`echo -n a`" = "-n a"; then
+   # looks like a SysV system:
+   n1=''; n2='\c'
+diff -Naur gzip-1.3.5.orig/znew.in gzip-1.3.5/znew.in
+--- gzip-1.3.5.orig/znew.in	2002-09-27 06:17:09.000000000 +0000
++++ gzip-1.3.5/znew.in	2006-09-11 02:52:47.000000000 +0000
+@@ -1,7 +1,7 @@
+ :
+ #!/bin/sh
+ 
+-PATH="BINDIR:$PATH"; export PATH
++PATH="SCRIPTSDIR:$PATH"; export PATH
+ check=0
+ pipe=0
+ opt=

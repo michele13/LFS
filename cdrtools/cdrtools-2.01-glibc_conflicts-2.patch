@@ -1,0 +1,78 @@
+Submitted By: DJ Lucas <dj at linuxfromscratch dot org>
+Date: 2009-09-28
+Initial Package Version: 2.01
+Upstream Status: unknown
+Origin: http://bugs.gentoo.org/270414
+Description: Fix compilation with recent versions of glibc.
+
+diff -Naur cdrtools-2.01-orig/include/schily.h cdrtools-2.01/include/schily.h
+--- cdrtools-2.01-orig/include/schily.h	2004-03-04 18:30:40.000000000 -0600
++++ cdrtools-2.01/include/schily.h	2009-09-28 01:15:34.000000000 -0500
+@@ -108,7 +108,7 @@
+ 		/* 6th arg not const, fexecv forces av[ac] = NULL */
+ extern	int	fexecv __PR((const char *, FILE *, FILE *, FILE *, int,
+ 							char **));
+-extern	int	fexecve __PR((const char *, FILE *, FILE *, FILE *,
++extern	int	f_execve __PR((const char *, FILE *, FILE *, FILE *,
+ 					char * const *, char * const *));
+ extern	int	fspawnv __PR((FILE *, FILE *, FILE *, int, char * const *));
+ extern	int	fspawnl __PR((FILE *, FILE *, FILE *,
+@@ -187,7 +187,7 @@
+ extern	char	*findbytes __PR((const void *, int, char));
+ extern	int	findline __PR((const char *, char, const char *,
+ 							int, char **, int));
+-extern	int	getline __PR((char *, int));
++extern	int	get_line __PR((char *, int));
+ extern	int	getstr __PR((char *, int));
+ extern	int	breakline __PR((char *, char, char **, int));
+ extern	int	getallargs __PR((int *, char * const**, const char *, ...));
+diff -Naur cdrtools-2.01-orig/libscg/scsitransp.c cdrtools-2.01/libscg/scsitransp.c
+--- cdrtools-2.01-orig/libscg/scsitransp.c	2004-06-17 15:20:27.000000000 -0500
++++ cdrtools-2.01/libscg/scsitransp.c	2009-09-28 01:15:34.000000000 -0500
+@@ -323,7 +323,7 @@
+ 
+ 	js_printf("%s", msg);
+ 	flush();
+-	if (getline(okbuf, sizeof (okbuf)) == EOF)
++	if (get_line(okbuf, sizeof (okbuf)) == EOF)
+ 		exit(EX_BAD);
+ 	if (streql(okbuf, "y") || streql(okbuf, "yes") ||
+ 	    streql(okbuf, "Y") || streql(okbuf, "YES"))
+diff -Naur cdrtools-2.01-orig/libschily/fexec.c cdrtools-2.01/libschily/fexec.c
+--- cdrtools-2.01-orig/libschily/fexec.c	2004-06-06 06:50:24.000000000 -0500
++++ cdrtools-2.01/libschily/fexec.c	2009-09-28 01:15:34.000000000 -0500
+@@ -159,7 +159,7 @@
+ 	} while (p != NULL);
+ 	va_end(args);
+ 
+-	ret = fexecve(name, in, out, err, av, env);
++	ret = f_execve(name, in, out, err, av, env);
+ 	if (av != xav)
+ 		free(av);
+ 	return (ret);
+@@ -173,11 +173,11 @@
+ 	char *av[];
+ {
+ 	av[ac] = NULL;			/*  force list to be null terminated */
+-	return (fexecve(name, in, out, err, av, environ));
++	return (f_execve(name, in, out, err, av, environ));
+ }
+ 
+ EXPORT int
+-fexecve(name, in, out, err, av, env)
++f_execve(name, in, out, err, av, env)
+ 	const char *name;
+ 	FILE *in, *out, *err;
+ 	char * const av[], * const env[];
+diff -Naur cdrtools-2.01-orig/libschily/stdio/fgetline.c cdrtools-2.01/libschily/stdio/fgetline.c
+--- cdrtools-2.01-orig/libschily/stdio/fgetline.c	2004-08-08 06:02:05.000000000 -0500
++++ cdrtools-2.01/libschily/stdio/fgetline.c	2009-09-28 01:15:34.000000000 -0500
+@@ -64,7 +64,7 @@
+ }
+ 
+ EXPORT int
+-getline(buf, len)
++get_line(buf, len)
+ 	char	*buf;
+ 	int	len;
+ {

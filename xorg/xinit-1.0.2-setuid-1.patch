@@ -1,0 +1,23 @@
+Submitted By: Dan Nicholson <dnicholson at linuxfromscratch dot org>
+Date: 2006-08-05
+Initial Package Version: 1.0.2
+Origin: http://xorg.freedesktop.org/releases/X11R7.1/patches/
+Upstream Status: Applied
+Description: Fixes a security vulnerability. See the following advisory:
+    http://lists.freedesktop.org/archives/xorg/2006-June/016146.html
+
+diff -pNur xinit-1.0.2.orig/xinit.c xinit-1.0.2/xinit.c
+--- xinit-1.0.2.orig/xinit.c	2005-10-04 01:27:34.000000000 +0000
++++ xinit-1.0.2/xinit.c	2006-08-05 16:33:59.000000000 +0000
+@@ -692,7 +692,10 @@ static int
+ startClient(char *client[])
+ {
+ 	if ((clientpid = vfork()) == 0) {
+-		setuid(getuid());
++		if (setuid(getuid()) == -1) {
++			Error("cannot change uid: %s\n", strerror(errno));
++			_exit(ERR_EXIT);
++		}
+ 		setpgrp(0, getpid());
+ 		environ = newenviron;
+ #ifdef __UNIXOS2__

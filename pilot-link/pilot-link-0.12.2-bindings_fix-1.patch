@@ -1,0 +1,41 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2007-07-18
+Initial Package Version: 0.11.8
+Upstream Status:         N/A - LFS specific
+Origin:                  Randy McMurchy
+Description:             Fixes the Perl and Python bindings installation so
+                         that the files are installed in expected locations
+
+$Id$
+
+
+diff -Naur pilot-link-0.12.2-orig/bindings/Makefile.in pilot-link-0.12.2/bindings/Makefile.in
+--- pilot-link-0.12.2-orig/bindings/Makefile.in	2007-02-09 22:09:33.000000000 +0000
++++ pilot-link-0.12.2/bindings/Makefile.in	2007-07-18 11:25:01.000000000 +0000
+@@ -600,7 +600,11 @@
+ 	cd $(srcdir)/Python && $(PYTHON) setup.py build
+ 
+ python-install: python-build
+-	cd $(srcdir)/Python && $(PYTHON) setup.py install --root=$(DESTDIR) --prefix=$(prefix)
++	if test -z $(DESTDIR); then \
++	    cd $(srcdir)/Python && $(PYTHON) setup.py install --prefix=$(prefix); \
++	else \
++	    cd $(srcdir)/Python && $(PYTHON) setup.py install --prefix=$(prefix) --root=$(DESTDIR); \
++	fi
+ 
+ python-clean: Python/setup.py
+ 	-cd $(srcdir)/Python && $(PYTHON) setup.py clean 
+
+diff -Naur pilot-link-0.12.2-orig/bindings/Perl/Makefile.PL.in pilot-link-0.12.2/bindings/Perl/Makefile.PL.in
+--- pilot-link-0.12.2-orig/bindings/Perl/Makefile.PL.in	2006-03-15 12:44:07.000000000 +0000
++++ pilot-link-0.12.2/bindings/Perl/Makefile.PL.in	2007-07-18 11:26:14.000000000 +0000
+@@ -41,7 +41,7 @@
+     'INC'        => "-I$plincdir",
+     'DEFINE'     => '-DPERL_POLLUTE',
+     'PREFIX'     => "$prefix",
+-    'INSTALLDIRS'=> 'vendor',
++    'INSTALLDIRS'=> 'site',
+     'dynamic_lib'=> {'OTHERLDFLAGS' => $lib},
+     'depend'     => {'Pilot.c' => 'const-c.inc const-xs.inc'},
+     'clean'      => {'FILES'   => 'const-c.inc const-xs.inc'},
+

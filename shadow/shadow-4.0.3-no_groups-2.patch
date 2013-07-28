@@ -1,0 +1,122 @@
+Submitted By: Ronald Hummelink <ronald at hummelink dot xs4all dot nl>
+Date: 2003-09-07
+Initial Package Version: 4.0.3
+Origin: Myself
+Description: Prevent installation of the groups program and manpages which
+are provided by coreutils. Changes from -1 are this patch also takes groups.1
+away from EXTRA_DIST for various languages.
+
+diff -Naur shadow-4.0.3.orig/man/Makefile.in shadow-4.0.3/man/Makefile.in
+--- shadow-4.0.3.orig/man/Makefile.in	2002-03-13 19:04:01.000000000 +0000
++++ shadow-4.0.3/man/Makefile.in	2003-09-07 05:36:37.000000000 +0000
+@@ -157,7 +157,6 @@
+ EXTRA_DIST = $(man_MANS) \
+ 	dpasswd.8 \
+ 	getspnam.3 \
+-	groups.1 \
+ 	id.1 \
+ 	pw_auth.3 \
+ 	pwauth.8 \
+diff -Naur shadow-4.0.3.orig/man/fr/Makefile.in shadow-4.0.3/man/fr/Makefile.in
+--- shadow-4.0.3.orig/man/fr/Makefile.in	2002-03-13 19:04:03.000000000 +0000
++++ shadow-4.0.3/man/fr/Makefile.in	2003-09-07 05:34:50.000000000 +0000
+@@ -124,8 +124,7 @@
+ 	usermod.8
+ 
+ 
+-EXTRA_DIST = $(man_MANS) \
+-	groups.1
++EXTRA_DIST = $(man_MANS)
+ 
+ subdir = man/fr
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+diff -Naur shadow-4.0.3.orig/man/hu/Makefile.in shadow-4.0.3/man/hu/Makefile.in
+--- shadow-4.0.3.orig/man/hu/Makefile.in	2002-03-13 19:04:04.000000000 +0000
++++ shadow-4.0.3/man/hu/Makefile.in	2003-09-07 05:35:02.000000000 +0000
+@@ -117,8 +117,7 @@
+ 	sg.1
+ 
+ 
+-EXTRA_DIST = $(man_MANS) \
+-	groups.1
++EXTRA_DIST = $(man_MANS)
+ 
+ subdir = man/hu
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+diff -Naur shadow-4.0.3.orig/man/it/Makefile.in shadow-4.0.3/man/it/Makefile.in
+--- shadow-4.0.3.orig/man/it/Makefile.in	2002-03-13 19:04:05.000000000 +0000
++++ shadow-4.0.3/man/it/Makefile.in	2003-09-07 05:36:04.000000000 +0000
+@@ -116,7 +116,6 @@
+ 	groupadd.8 \
+ 	groupdel.8 \
+ 	groupmod.8 \
+-	groups.1 \
+ 	grpck.8 \
+ 	grpconv.8 \
+ 	grpunconv.8 \
+diff -Naur shadow-4.0.3.orig/man/ja/Makefile.in shadow-4.0.3/man/ja/Makefile.in
+--- shadow-4.0.3.orig/man/ja/Makefile.in	2002-03-13 19:04:06.000000000 +0000
++++ shadow-4.0.3/man/ja/Makefile.in	2003-09-07 05:35:57.000000000 +0000
+@@ -151,7 +151,6 @@
+ 
+ EXTRA_DIST = $(man_MANS) \
+ 	dpasswd.8 \
+-	groups.1 \
+ 	id.1 \
+ 	pw_auth.3 \
+ 	pwauth.8 \
+diff -Naur shadow-4.0.3.orig/man/ko/Makefile.in shadow-4.0.3/man/ko/Makefile.in
+--- shadow-4.0.3.orig/man/ko/Makefile.in	2002-03-13 19:04:06.000000000 +0000
++++ shadow-4.0.3/man/ko/Makefile.in	2003-09-07 05:36:12.000000000 +0000
+@@ -116,8 +116,7 @@
+ 	passwd.5
+ 
+ 
+-EXTRA_DIST = $(man_MANS) \
+-	groups.1
++EXTRA_DIST = $(man_MANS)
+ 
+ subdir = man/ko
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+diff -Naur shadow-4.0.3.orig/man/pl/Makefile.in shadow-4.0.3/man/pl/Makefile.in
+--- shadow-4.0.3.orig/man/pl/Makefile.in	2002-03-13 19:04:07.000000000 +0000
++++ shadow-4.0.3/man/pl/Makefile.in	2003-09-07 05:36:19.000000000 +0000
+@@ -154,7 +154,6 @@
+ EXTRA_DIST = $(man_MANS) \
+ 	dialups.5 \
+ 	dpasswd.8 \
+-	groups.1 \
+ 	id.1 \
+ 	pw_auth.3 \
+ 	pwauth.8 \
+diff -Naur shadow-4.0.3.orig/src/Makefile.in shadow-4.0.3/src/Makefile.in
+--- shadow-4.0.3.orig/src/Makefile.in	2002-03-13 19:04:10.000000000 +0000
++++ shadow-4.0.3/src/Makefile.in	2003-09-07 05:38:27.000000000 +0000
+@@ -130,14 +130,14 @@
+ # also /lib/libshadow.so.x.xx (if any) could be moved to /usr/lib
+ # and installation would be much simpler (just two directories,
+ # $prefix/bin and $prefix/sbin, no install-data hacks...)
+-bin_PROGRAMS = groups login su
++bin_PROGRAMS = login su
+ ubin_PROGRAMS = faillog lastlog chage chfn chsh expiry gpasswd newgrp passwd
+ usbin_PROGRAMS = chpasswd dpasswd groupadd groupdel groupmod \
+ 	logoutd mkpasswd newusers useradd userdel usermod grpck \
+ 	pwck vipw grpconv grpunconv pwconv pwunconv
+ 
+ 
+-noinst_PROGRAMS = id sulogin
++noinst_PROGRAMS = groups id sulogin
+ 
+ 
+ # id and groups are from gnu, sulogin from sysvinit
+@@ -167,8 +167,8 @@
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+ CONFIG_HEADER = $(top_builddir)/config.h
+ CONFIG_CLEAN_FILES =
+-bin_PROGRAMS = groups$(EXEEXT) login$(EXEEXT) su$(EXEEXT)
+-noinst_PROGRAMS = id$(EXEEXT) sulogin$(EXEEXT)
++bin_PROGRAMS = login$(EXEEXT) su$(EXEEXT)
++noinst_PROGRAMS = groups$(EXEEXT) id$(EXEEXT) sulogin$(EXEEXT)
+ ubin_PROGRAMS = faillog$(EXEEXT) lastlog$(EXEEXT) chage$(EXEEXT) \
+ 	chfn$(EXEEXT) chsh$(EXEEXT) expiry$(EXEEXT) gpasswd$(EXEEXT) \
+ 	newgrp$(EXEEXT) passwd$(EXEEXT)

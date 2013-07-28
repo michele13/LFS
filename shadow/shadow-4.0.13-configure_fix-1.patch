@@ -1,0 +1,58 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-10-16
+Initial Package Version: 4.0.13
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Fixed default values
+	     As released libpam libselinux and audit are
+	     turned on by default. This patch corrects
+	     the issue.
+ 
+--- shadow-4.0.13/configure.orig	2005-10-16 18:47:05.000000000 +0000
++++ shadow-4.0.13/configure	2005-10-16 18:48:02.000000000 +0000
+@@ -23268,7 +23268,7 @@
+   withval="$with_audit"
+   with_audit=$withval
+ else
+-  with_audit=yes
++  with_audit=no
+ fi;
+ 
+ # Check whether --with-libpam or --without-libpam was given.
+@@ -23276,7 +23276,7 @@
+   withval="$with_libpam"
+   with_libpam=$withval
+ else
+-  with_libpam=yes
++  with_libpam=no
+ fi;
+ 
+ # Check whether --with-selinux or --without-selinux was given.
+@@ -23284,7 +23284,7 @@
+   withval="$with_selinux"
+   with_selinux=$withval
+ else
+-  with_selinux=yes
++  with_selinux=no
+ fi;
+ 
+ # Check whether --with-skey or --without-skey was given.
+--- shadow-4.0.13/configure.in.orig	2005-10-16 18:47:12.000000000 +0000
++++ shadow-4.0.13/configure.in	2005-10-16 18:48:22.000000000 +0000
+@@ -220,13 +220,13 @@
+ 
+ AC_ARG_WITH(audit, 
+ 	[AC_HELP_STRING([--with-audit], [use auditing support @<:@default=yes if found@:>@])],
+-	[with_audit=$withval], [with_audit=yes])
++	[with_audit=$withval], [with_audit=no])
+ AC_ARG_WITH(libpam,
+ 	[AC_HELP_STRING([--with-libpam], [use libpam for PAM support @<:@default=yes if found@:>@])],
+-	[with_libpam=$withval], [with_libpam=yes])
++	[with_libpam=$withval], [with_libpam=no])
+ AC_ARG_WITH(selinux,
+ 	[AC_HELP_STRING([--with-selinux], [use SELinux support @<:@default=autodetect@:>@])],
+-	[with_selinux=$withval], [with_selinux=yes])
++	[with_selinux=$withval], [with_selinux=no])
+ AC_ARG_WITH(skey,
+ 	[AC_HELP_STRING([--with-skey], [use S/Key support @<:@default=no@:>@])],
+ 	[with_skey=$withval], [with_skey=no])

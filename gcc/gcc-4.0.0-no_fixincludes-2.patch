@@ -1,0 +1,32 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch.org> (ashes)
+Date: 2005-03-24
+Initial Package Version: 4.0.0
+Upstream Status: Not Sent - LFS Specfic
+Origin: Originally developed for GCC 3.2 by Greg Schafer and Zack Winkles
+Description: Prevent fixincludes script from running.
+
+diff -Naur gcc-4.0.0-20050117-orig/gcc/Makefile.in gcc-4.0.0-20050117/gcc/Makefile.in
+--- gcc-4.0.0-20050117-orig/gcc/Makefile.in	2005-01-17 09:37:54.000000000 +0000
++++ gcc-4.0.0-20050117/gcc/Makefile.in	2005-01-18 19:37:10.188949439 +0000
+@@ -2798,10 +2798,6 @@
+ 	rm -f include/limits.h
+ 	cp xlimits.h include/limits.h
+ 	chmod a+r include/limits.h
+-# Install the README
+-	rm -f include/README
+-	cp $(srcdir)/../fixincludes/README-fixinc include/README
+-	chmod a+r include/README
+ 	$(STAMP) $@
+ 
+ .PHONY: install-gcc-tooldir
+@@ -2832,9 +2828,7 @@
+ 	(TARGET_MACHINE='$(target)'; srcdir=`cd $(srcdir); ${PWD_COMMAND}`; \
+ 	  SHELL='$(SHELL)'; MACRO_LIST=`${PWD_COMMAND}`/macro_list ; \
+ 	  export TARGET_MACHINE srcdir SHELL MACRO_LIST && \
+-	  cd ../$(build_subdir)/fixincludes && \
+-	  $(SHELL) ./fixinc.sh ../../gcc/include \
+-	    $(SYSTEM_HEADER_DIR) $(OTHER_FIXINCLUDES_DIRS) )
++	  cd ../$(build_subdir)/fixincludes )
+ 	rm -f include/syslimits.h
+ 	if [ -f include/limits.h ]; then \
+ 	  mv include/limits.h include/syslimits.h; \

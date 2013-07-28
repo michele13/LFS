@@ -1,0 +1,55 @@
+Submitted By: Martin Schaffner <schaffner@gmx.li>
+Date: 2005-02-06
+Initial Package Version: 2.6.10
+Upstream Status: Not submitted
+Origin: Martin Schaffner
+Description:
+Various small things to enables cross-compilation on Mac OS X.
+
+diff -ur linux-2.6.10-rc2/Makefile linux-2.6.10-rc2/Makefile
+--- linux-2.6.10-rc2/Makefile	2004-11-15 02:28:05.000000000 +0100
++++ linux-2.6.10-rc2/Makefile	2004-11-18 21:17:30.000000000 +0100
+@@ -203,7 +203,7 @@
+ 
+ HOSTCC  	= gcc
+ HOSTCXX  	= g++
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -idirafter `$(CC) -print-file-name=include`/../../../../../?????*/include/ # for elf.h
+ HOSTCXXFLAGS	= -O2
+ 
+ # 	Decide whether to build built-in, modular, or both.
+diff -ur linux-2.6.10-rc2/scripts/genksyms/parse.c_shipped linux-2.6.10-rc2/scripts/genksyms/parse.c_shipped
+--- linux-2.6.10-rc2/scripts/genksyms/parse.c_shipped	2004-11-15 02:28:18.000000000 +0100
++++ linux-2.6.10-rc2/scripts/genksyms/parse.c_shipped	2004-11-18 21:15:55.000000000 +0100
+@@ -49,7 +49,9 @@
+ 
+ 
+ #include <assert.h>
++#ifndef __APPLE__
+ #include <malloc.h>
++#endif
+ #include "genksyms.h"
+ 
+ static int is_typedef;
+diff -ur linux-2.6.10-rc2/scripts/mod/sumversion.c linux-2.6.10-rc2/scripts/mod/sumversion.c
+--- linux-2.6.10-rc2/scripts/mod/sumversion.c	2004-11-15 02:28:14.000000000 +0100
++++ linux-2.6.10-rc2/scripts/mod/sumversion.c	2004-11-18 21:19:56.000000000 +0100
+@@ -1,4 +1,6 @@
++#ifndef __APPLE__
+ #include <netinet/in.h>
++#endif
+ #ifdef __sun__
+ #include <inttypes.h>
+ #else
+diff -ur linux-2.6.7/arch/ppc/defconfig l266mod/arch/ppc/defconfig
+--- linux-2.6.7/arch/ppc/defconfig     Fri Jun 18 22:51:23 2004
++++ l266mod/arch/ppc/defconfig      Fri Jun 18 23:55:23 2004
+@@ -425,7 +425,7 @@
+ #
+ # CONFIG_IP_VS is not set
+ # CONFIG_IPV6 is not set
+-CONFIG_NETFILTER=y
++CONFIG_NETFILTER=n
+ # CONFIG_NETFILTER_DEBUG is not set
+ 
+ #

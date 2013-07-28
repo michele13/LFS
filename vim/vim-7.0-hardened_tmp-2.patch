@@ -1,0 +1,142 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-12
+Initial Package Version: 7.0
+Upstream Status: Submitted
+Origin: Based on Openwall Owl Linux - vim-6.4-owl-tmp.diff
+Description: This patch modifies Vim for paranoid temporary file creation.
+
+diff -Naur vim70.orig/runtime/tools/vimspell.sh vim70/runtime/tools/vimspell.sh
+--- vim70.orig/runtime/tools/vimspell.sh	2005-02-03 17:20:48.000000000 +0000
++++ vim70/runtime/tools/vimspell.sh	2006-10-12 12:34:33.000000000 +0000
+@@ -16,7 +16,8 @@
+ 
+ INFILE=$1
+ tmp="${TMPDIR-/tmp}"
+-OUTFILE=`mktemp -t vimspellXXXXXX || tempfile -p vimspell || echo none`
++# Different systems have different filename length limits. Let mktemp(1) figure it out.
++OUTFILE=`mktemp || tempfile -p vimspell || echo none`
+ # If the standard commands failed then create the file
+ # since we cannot create a directory (we cannot remove it on exit)
+ # create a file in the safest way possible.
+diff -Naur vim70.orig/src/auto/configure vim70/src/auto/configure
+--- vim70.orig/src/auto/configure	2006-05-04 10:46:19.000000000 +0000
++++ vim70/src/auto/configure	2006-10-12 12:34:33.000000000 +0000
+@@ -4209,7 +4209,7 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+ 
+-	    tmp_mkf="/tmp/Makefile-conf$$"
++	    tmp_mkf="`pwd`/Makefile-conf$$"
+ 	    cat ${PYTHON_CONFDIR}/Makefile - <<'eof' >${tmp_mkf}
+ __:
+ 	@echo "python_MODLIBS='$(MODLIBS)'"
+@@ -12637,9 +12637,10 @@
+ 
+ 
+ 
++
+ for ac_func in bcmp fchdir fchown fseeko fsync ftello getcwd getpseudotty \
+ 	getpwnam getpwuid getrlimit gettimeofday getwd lstat memcmp \
+-	memset nanosleep opendir putenv qsort readlink select setenv \
++	memset mkstemp nanosleep opendir putenv qsort readlink select setenv \
+ 	setpgid setsid sigaltstack sigstack sigset sigsetjmp sigaction \
+ 	sigvec strcasecmp strerror strftime stricmp strncasecmp \
+ 	strnicmp strpbrk strtol tgetent towlower towupper iswupper \
+diff -Naur vim70.orig/src/config.h.in vim70/src/config.h.in
+--- vim70.orig/src/config.h.in	2006-04-20 12:49:16.000000000 +0000
++++ vim70/src/config.h.in	2006-10-12 12:34:33.000000000 +0000
+@@ -148,6 +148,7 @@
+ #undef HAVE_LSTAT
+ #undef HAVE_MEMCMP
+ #undef HAVE_MEMSET
++#undef HAVE_MKSTEMP
+ #undef HAVE_NANOSLEEP
+ #undef HAVE_OPENDIR
+ #undef HAVE_PUTENV
+diff -Naur vim70.orig/src/configure.in vim70/src/configure.in
+--- vim70.orig/src/configure.in	2006-05-04 10:46:11.000000000 +0000
++++ vim70/src/configure.in	2006-10-12 12:34:33.000000000 +0000
+@@ -626,7 +626,7 @@
+ 	dnl    see what the interpreter is built from
+ 	AC_CACHE_VAL(vi_cv_path_python_plibs,
+ 	[
+-	    tmp_mkf="/tmp/Makefile-conf$$"
++	    tmp_mkf="`pwd`/Makefile-conf$$"
+ 	    cat ${PYTHON_CONFDIR}/Makefile - <<'eof' >${tmp_mkf}
+ __:
+ 	@echo "python_MODLIBS='$(MODLIBS)'"
+@@ -2408,7 +2408,7 @@
+ dnl Check for functions in one big call, to reduce the size of configure
+ AC_CHECK_FUNCS(bcmp fchdir fchown fseeko fsync ftello getcwd getpseudotty \
+ 	getpwnam getpwuid getrlimit gettimeofday getwd lstat memcmp \
+-	memset nanosleep opendir putenv qsort readlink select setenv \
++	memset mkstemp nanosleep opendir putenv qsort readlink select setenv \
+ 	setpgid setsid sigaltstack sigstack sigset sigsetjmp sigaction \
+ 	sigvec strcasecmp strerror strftime stricmp strncasecmp \
+ 	strnicmp strpbrk strtol tgetent towlower towupper iswupper \
+diff -Naur vim70.orig/src/fileio.c vim70/src/fileio.c
+--- vim70.orig/src/fileio.c	2006-04-30 15:28:57.000000000 +0000
++++ vim70/src/fileio.c	2006-10-12 12:40:28.000000000 +0000
+@@ -3270,7 +3270,6 @@
+ #if defined(UNIX) || defined(WIN32)
+ 	else if ((bkc_flags & BKC_AUTO))	/* "auto" */
+ 	{
+-	    int		i;
+ 
+ # ifdef UNIX
+ 	    /*
+@@ -3302,10 +3301,18 @@
+ 	    {
+ 		/*
+ 		 * Check if we can create a file and set the owner/group to
+-		 * the ones from the original file.
+-		 * First find a file name that doesn't exist yet (use some
+-		 * arbitrary numbers).
++		 * the ones from the original file. First find a file name
++		 * that doesn't exist yet
+ 		 */
++# ifdef HAVE_MKSTEMP
++		sprintf((char *)IObuff, "%s.XXXXXX", fname);
++		fd = mkstemp((char *)IObuff);
++# else
++		/*
++		 * If mkstemp(3) does not exist then use some arbitrary
++		 * numbers.
++		 */
++		int i;
+ 		STRCPY(IObuff, fname);
+ 		for (i = 4913; ; i += 123)
+ 		{
+@@ -3315,6 +3322,7 @@
+ 		}
+ 		fd = mch_open((char *)IObuff,
+ 				    O_CREAT|O_WRONLY|O_EXCL|O_NOFOLLOW, perm);
++# endif /* HAVE_MKSTEMP */
+ 		if (fd < 0)	/* can't write in directory */
+ 		    backup_copy = TRUE;
+ 		else
+diff -Naur vim70.orig/src/vimtutor vim70/src/vimtutor
+--- vim70.orig/src/vimtutor	2004-06-07 14:32:27.000000000 +0000
++++ vim70/src/vimtutor	2006-10-12 12:34:33.000000000 +0000
+@@ -12,7 +12,8 @@
+ 
+ # We need a temp file for the copy.  First try using a standard command.
+ tmp="${TMPDIR-/tmp}"
+-TUTORCOPY=`mktemp $tmp/tutorXXXXXX || tempfile -p tutor || echo none`
++# Different systems have different filename length limits. Let mktemp(1) figure it out.
++TUTORCOPY=`mktemp || tempfile -p tutor || echo none`
+ 
+ # If the standard commands failed then create a directory to put the copy in.
+ # That is a secure way to make a temp file.
+@@ -36,8 +37,9 @@
+ 
+ export TUTORCOPY
+ 
+-# remove the copy of the tutor on exit
+-trap "rm -rf $TODELETE" 0 1 2 3 9 11 13 15
++# Remove the copy of the tutor on exit.
++trap 'rm -rf -- "$TODELETE"' EXIT
++trap 'trap - EXIT; rm -rf -- "$TODELETE"; exit 1' HUP INT QUIT TERM
+ 
+ # Vim could be called "vim" or "vi".  Also check for "vim6", for people who
+ # have Vim 5.x installed as "vim" and Vim 6.0 as "vim6".

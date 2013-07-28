@@ -1,0 +1,29 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-02-17
+Initial Package Version: 2.8pre2
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Fixes Configure issue with new Cracklib
+ 
+--- Linux-PAM-0.78/configure.orig	2005-02-17 21:26:04.607712448 +0000
++++ Linux-PAM-0.78/configure	2005-02-17 21:26:34.092230120 +0000
+@@ -5996,7 +5996,7 @@
+ echo "$as_me:$LINENO: checking path to cracklib dictionary" >&5
+ echo $ECHO_N "checking path to cracklib dictionary... $ECHO_C" >&6
+ DICT_DIR_CANDIDATES="/usr/lib /usr/share/dict /usr/share/lib \
+-  /usr/local/lib /usr/local/share/lib"
++  /usr/local/lib /usr/local/share/lib /usr/share/cracklib"
+ DICT_FILE_CANDIDATES="pw_dict cracklib_dict"
+ CRACKLIB_DICTPATH=""
+ for d in $DICT_DIR_CANDIDATES ; do
+--- Linux-PAM-0.78/configure.in.orig	2005-02-17 21:26:11.271699368 +0000
++++ Linux-PAM-0.78/configure.in	2005-02-17 21:26:47.592177816 +0000
+@@ -263,7 +263,7 @@
+ dnl Look for cracklib dictionary
+ AC_MSG_CHECKING(path to cracklib dictionary)
+ DICT_DIR_CANDIDATES="/usr/lib /usr/share/dict /usr/share/lib \
+-  /usr/local/lib /usr/local/share/lib"
++  /usr/local/lib /usr/local/share/lib /usr/share/cracklib"
+ DICT_FILE_CANDIDATES="pw_dict cracklib_dict"
+ CRACKLIB_DICTPATH=""
+ for d in $DICT_DIR_CANDIDATES ; do

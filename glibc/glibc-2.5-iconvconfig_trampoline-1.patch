@@ -1,0 +1,97 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-05
+Initial Package Version: 2.5
+Upstream Status: Rejected - http://sources.redhat.com/bugzilla/show_bug.cgi?id=3350
+Origin: Fedora's glibc-fedora.patch (via glibc-2.5.90-21)
+Description: Avoid segmentation faults, or kills, on PaX and Exe-Shield kernels,
+             and some non-x86 architectures.
+
+* Fri May  2 2003 Jakub Jelinek <jakub@redhat.com> 2.3.2-34
+  - avoid using trampolines in iconvconfig for now
+
+This patch is also known as:
+local-iconv-fix-trampoline.diff (Debian)
+4010_all_2.3.5-hardened-iconvconfig-unnest.patch (Gentoo)
+
+Also see:
+http://bugs.gentoo.org/show_bug.cgi?id=85718
+
+diff -Naur glibc-2.5.orig/iconv/iconvconfig.c glibc-2.5/iconv/iconvconfig.c
+--- glibc-2.5.orig/iconv/iconvconfig.c	2006-09-21 03:57:30.000000000 +0000
++++ glibc-2.5/iconv/iconvconfig.c	2007-05-05 08:28:57.000000000 +0000
+@@ -1011,6 +1011,34 @@
+                               module name offset
+                          (following last entry with step count 0)
+ */
++
++static struct hash_entry *hash_table;
++static size_t hash_size;
++
++/* Function to insert the names.  */
++static void name_insert (const void *nodep, VISIT value, int level)
++{
++  struct name *name;
++  unsigned int idx;
++  unsigned int hval2;
++
++  if (value != leaf && value != postorder)
++    return;
++
++  name = *(struct name **) nodep;
++  idx = name->hashval % hash_size;
++  hval2 = 1 + name->hashval % (hash_size - 2);
++
++  while (hash_table[idx].string_offset != 0)
++    if ((idx += hval2) >= hash_size)
++      idx -= hash_size;
++
++  hash_table[idx].string_offset = strtaboffset (name->strent);
++
++  assert (name->module_idx != -1);
++  hash_table[idx].module_idx = name->module_idx;
++}
++
+ static int
+ write_output (void)
+ {
+@@ -1018,8 +1046,6 @@
+   char *string_table;
+   size_t string_table_size;
+   struct gconvcache_header header;
+-  struct hash_entry *hash_table;
+-  size_t hash_size;
+   struct module_entry *module_table;
+   char *extra_table;
+   char *cur_extra_table;
+@@ -1032,31 +1058,6 @@
+   char tmpfname[(output_file == NULL ? sizeof finalname : output_file_len + 1)
+ 		+ strlen (".XXXXXX")];
+ 
+-  /* Function to insert the names.  */
+-  auto void
+-  name_insert (const void *nodep, VISIT value, int level)
+-    {
+-      struct name *name;
+-      unsigned int idx;
+-      unsigned int hval2;
+-
+-      if (value != leaf && value != postorder)
+-	return;
+-
+-      name = *(struct name **) nodep;
+-      idx = name->hashval % hash_size;
+-      hval2 = 1 + name->hashval % (hash_size - 2);
+-
+-      while (hash_table[idx].string_offset != 0)
+-	if ((idx += hval2) >= hash_size)
+-	  idx -= hash_size;
+-
+-      hash_table[idx].string_offset = strtaboffset (name->strent);
+-
+-      assert (name->module_idx != -1);
+-      hash_table[idx].module_idx = name->module_idx;
+-    }
+-
+   /* Open the output file.  */
+   if (output_file == NULL)
+     {

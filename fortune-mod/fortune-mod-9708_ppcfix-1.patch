@@ -1,0 +1,28 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: 2003-08-15
+Initial Package Version: 9708
+Origin: gentoo portage, rediffed to apply with -p1
+Description: allows `make install' to complete on ppc (e.g. iBook).
+
+Without this patch, building the offensive fortunes using `rot' to
+obfuscate the source text never finishes and uses increasing amounts
+of storage for it's output file (I killed mine after about 10 minutes
+and it was taking over 300MB).  With it, the build and install 
+completes in a few seconds.
+
+ I'm surprised it was so hard to find this, because the source doesn't
+build on this platform with gcc-2.95.3 so it isn't exactly a new 
+problem.
+
+diff -Naur fortune-mod-9708/util/rot.c fortune-mod-9708-new/util/rot.c
+--- fortune-mod-9708/util/rot.c	Mon Oct  2 03:34:08 1995
++++ fortune-mod-9708-new/util/rot.c	Fri Aug 15 16:50:40 2003
+@@ -8,7 +8,7 @@
+ 
+ int main(void)
+ {
+-    char a, b;
++    short int a, b;
+ 
+     while ((a = getchar()) != EOF)
+     {

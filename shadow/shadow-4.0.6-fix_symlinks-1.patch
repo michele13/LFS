@@ -1,0 +1,24 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2004-10-28
+Initial Package Version: 4.0.5
+Origin: LFS patches repository
+Description: Fixes incorrectly created symlinks during install.
+Upstream Status: An earlier version of this patch has been submitted, but
+		 apparently not accepted.
+
+diff -Naur shadow-4.0.5-orig/src/Makefile.in shadow-4.0.5/src/Makefile.in
+--- shadow-4.0.5-orig/src/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/src/Makefile.in	2004-10-28 20:51:59.000000000 +0200
+@@ -832,8 +832,10 @@
+ 
+ install-am: all-am
+ 	$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+-	ln -sf newgrp	$(DESTDIR)$(ubindir)/sg
+-	ln -sf vipw	$(DESTDIR)$(usbindir)/vigr
++	$(mkinstalldirs) $(DESTDIR)$(ubindir)
++	ln -sf newgrp   $(DESTDIR)$(ubindir)/sg
++	$(mkinstalldirs) $(DESTDIR)$(usbindir)
++	ln -sf vipw     $(DESTDIR)$(usbindir)/vigr
+ 	for i in $(suidbins); do \
+ 		chmod -f 4755 $(DESTDIR)$(bindir)/$$i; \
+ 	done

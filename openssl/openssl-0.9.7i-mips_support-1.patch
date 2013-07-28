@@ -1,0 +1,34 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2006-01-27
+Initial Package Version: 0.9.7i
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Adds Support for MIPS architectures
+Submitted By: Jim Gifford (patches at jg555 dot com)
+ 
+--- openssl-0.9.7i/Configure.orig	2006-01-28 03:31:23.000000000 +0000
++++ openssl-0.9.7i/Configure	2006-01-28 03:34:56.000000000 +0000
+@@ -223,6 +223,14 @@
+ # GCC 3.1 is a requirement
+ "linux64-sparcv9","gcc:-m64 -mcpu=ultrasparc -DB_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -Wall::-D_REENTRANT:ULTRASPARC:-ldl:SIXTY_FOUR_BIT_LONG RC4_CHAR RC4_CHUNK DES_UNROLL BF_PTR::::asm/md5-sparcv9.o::::::dlfcn:linux-shared:-fPIC:-m64:.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+ 
++#### MIPS
++"linux-mips","gcc:-mabi=32 -DB_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++"linux-mipsel","gcc:-mabi=32 -DL_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++"linux-mips-n32","gcc:-mabi=n32 -DB_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++"linux-mipsel-n32", "gcc:-mabi=n32 -DL_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++"linux-mips64","gcc:-mabi=64 -DB_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:SIXTY_FOUR_BIT_LONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++"linux-mips64el", "gcc:-mabi=64 -DL_ENDIAN -DTERMIO -O3 -g -Wall::-D_REENTRANT::-ldl:SIXTY_FOUR_BIT_LONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
++
+ # Sunos configs, assuming sparc for the gcc one.
+ ##"sunos-cc", "cc:-O4 -DNOPROTO -DNOCONST::(unknown):SUNOS::DES_UNROLL:::",
+ "sunos-gcc","gcc:-O3 -mv8 -Dssize_t=int::(unknown):SUNOS::BN_LLONG RC4_CHAR RC4_CHUNK DES_UNROLL DES_PTR DES_RISC1:::",
+@@ -401,8 +409,6 @@
+ "debug-linux-elf","gcc:-DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DL_ENDIAN -DTERMIO -g -m486 -Wall::-D_REENTRANT::-lefence -ldl:BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_elf_asm}:dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+ "debug-linux-elf-noefence","gcc:-DBN_DEBUG -DREF_CHECK -DCONF_DEBUG -DBN_CTX_DEBUG -DCRYPTO_MDEBUG -DL_ENDIAN -DTERMIO -g -m486 -Wall::-D_REENTRANT::-ldl:BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_elf_asm}:dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+ "linux-aout",	"gcc:-DL_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -m486 -Wall::(unknown):::BN_LLONG ${x86_gcc_des} ${x86_gcc_opts}:${x86_out_asm}",
+-"linux-mipsel",   "gcc:-DL_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+-"linux-mips",   "gcc:-DB_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -Wall::-D_REENTRANT::-ldl:BN_LLONG RC2_CHAR RC4_INDEX DES_INT DES_UNROLL DES_RISC2::::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+ "linux-ppc",    "gcc:-DB_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -Wall::-D_REENTRANT::-ldl:BN_LLONG RC4_CHAR RC4_CHUNK DES_RISC1 DES_UNROLL:asm/linux_ppc32.o:::::::::dlfcn:linux-shared:-fPIC::.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",
+ # -bpowerpc64-linux is transient option, -m64 should be the one to use...
+ "linux-ppc64",  "gcc:-bpowerpc64-linux -DB_ENDIAN -DTERMIO -O3 -fomit-frame-pointer -Wall::-D_REENTRANT::-ldl:SIXTY_FOUR_BIT_LONG RC4_CHAR RC4_CHUNK DES_RISC1 DES_UNROLL:asm/linux_ppc64.o:::::::::dlfcn:linux-shared:-fPIC:-bpowerpc64-linux:.so.\$(SHLIB_MAJOR).\$(SHLIB_MINOR)",

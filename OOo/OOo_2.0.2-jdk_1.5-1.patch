@@ -1,0 +1,202 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2006-04-22
+Initial Package Version: 2.0.0
+Origin: ooo-build and self
+Description: Fixes compilation with jdk-1.5.0.  Updated for OOo-2.0.2.
+Upstream Status: unknown (jdk-1.5.0 was targeted for 2.0.1?)
+
+diff -Naur OOB680_m5-orig/beanshell/bsh-2.0b4-src.patch OOB680_m5/beanshell/bsh-2.0b4-src.patch
+--- OOB680_m5-orig/beanshell/bsh-2.0b4-src.patch	1969-12-31 18:00:00.000000000 -0600
++++ OOB680_m5/beanshell/bsh-2.0b4-src.patch	2006-04-20 22:32:12.000000000 -0500
+@@ -0,0 +1,95 @@
++--- misc/build/BeanShell/build.xml	2003-12-19 17:04:47.000000000 +0000
+++++ misc/build/BeanShell/build.xml	2003-12-19 17:53:18.000000000 +0000
++@@ -17,7 +17,7 @@
++ 		up the build dir!  It has to be done manually the first time (or put
++ 		in the jar file). There must be a way to fix this...
++ -->
++-<project name="beanshell" default="compile" basedir=".">
+++<project name="beanshell" default="jarall" basedir=".">
++ 
++ <!-- Project Configuration -->
++ 
++@@ -81,6 +84,9 @@
++ 		value="bsh/servlet/*"/>
++ 	-->
++ 
+++	<property name="exclude-servlet" 
+++		value="bsh/servlet/*"/>
+++
++ 	<!-- Legacy excludes.  Comment this *out* to build these legacy items -->
++ 	<property name="legacy-excludes" 
++ 		value="bsh/JThis.java"/>
++--- misc/build/BeanShell/makefile.mk	1970-01-01 01:00:00.000000000 +0100
+++++ misc/build/BeanShell/makefile.mk	2003-12-19 17:04:47.000000000 +0000
++@@ -1 +1,70 @@
++-dummy
+++#*************************************************************************
+++#
+++#   $RCSfile: bsh-2.0b1-src.patch,v $
+++#
+++#   $Revision: 1.2 $
+++#
+++#   last change: $Author: kz $ $Date: 2005/03/01 13:13:04 $
+++#
+++#   The Contents of this file are made available subject to the terms of
+++#   either of the following licenses
+++#
+++#          - GNU Lesser General Public License Version 2.1
+++#          - Sun Industry Standards Source License Version 1.1
+++#
+++#   Sun Microsystems Inc., October, 2000
+++#
+++#   GNU Lesser General Public License Version 2.1
+++#   =============================================
+++#   Copyright 2000 by Sun Microsystems, Inc.
+++#   901 San Antonio Road, Palo Alto, CA 94303, USA
+++#
+++#   This library is free software; you can redistribute it and/or
+++#   modify it under the terms of the GNU Lesser General Public
+++#   License version 2.1, as published by the Free Software Foundation.
+++#
+++#   This library is distributed in the hope that it will be useful,
+++#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+++#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+++#   Lesser General Public License for more details.
+++#
+++#   You should have received a copy of the GNU Lesser General Public
+++#   License along with this library; if not, write to the Free Software
+++#   Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+++#   MA  02111-1307  USA
+++#
+++#
+++#   Sun Industry Standards Source License Version 1.1
+++#   =================================================
+++#   The contents of this file are subject to the Sun Industry Standards
+++#   Source License Version 1.1 (the "License"); You may not use this file
+++#   except in compliance with the License. You may obtain a copy of the
+++#   License at http://www.openoffice.org/license.html.
+++#
+++#   Software provided under this License is provided on an "AS IS" basis,
+++#   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+++#   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+++#   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+++#   See the License for the specific provisions governing your rights and
+++#   obligations concerning the Software.
+++#
+++#   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+++#
+++#   Copyright: 2000 by Sun Microsystems, Inc.
+++#
+++#   All Rights Reserved.
+++#
+++#   Contributor(s): _______________________________________
+++#
+++#
+++#
+++#*************************************************************************
+++
+++PRJ=..$/..$/..$/..
+++PRJNAME=ooo_beanshell
+++TARGET=jarall
+++
+++.INCLUDE : ant.mk
+++
+++ALLTAR : ANTBUILD
+++
+diff -Naur OOB680_m5-orig/beanshell/makefile.mk OOB680_m5/beanshell/makefile.mk
+--- OOB680_m5-orig/beanshell/makefile.mk	2005-09-07 17:05:31.000000000 -0500
++++ OOB680_m5/beanshell/makefile.mk	2006-04-20 22:32:12.000000000 -0500
+@@ -45,9 +45,9 @@
+ 
+ # --- Files --------------------------------------------------------
+ 
+-TARFILE_NAME=bsh-2.0b1-src
++TARFILE_NAME=bsh-2.0b4-src
+ TARFILE_ROOTDIR=BeanShell
+-PATCH_FILE_NAME=bsh-2.0b1-src.patch
++PATCH_FILE_NAME=bsh-2.0b4-src.patch
+ 
+ ADDITIONAL_FILES=makefile.mk
+ 
+diff -Naur OOB680_m5-orig/beanshell/prj/d.lst OOB680_m5/beanshell/prj/d.lst
+--- OOB680_m5-orig/beanshell/prj/d.lst	2005-03-01 07:14:23.000000000 -0600
++++ OOB680_m5/beanshell/prj/d.lst	2006-04-20 22:32:12.000000000 -0500
+@@ -1 +1 @@
+-..\%__SRC%\misc\build\BeanShell\dist\bsh-2.0b1.jar %_DEST%\bin%_EXT%\bsh.jar
++..\%__SRC%\misc\build\BeanShell\dist\bsh-2.0b4.jar %_DEST%\bin%_EXT%\bsh.jar
+diff -Naur OOB680_m5-orig/filter/source/config/fragments/makefile.mk OOB680_m5/filter/source/config/fragments/makefile.mk
+--- OOB680_m5-orig/filter/source/config/fragments/makefile.mk	2005-12-14 08:48:16.000000000 -0600
++++ OOB680_m5/filter/source/config/fragments/makefile.mk	2006-04-20 22:32:12.000000000 -0500
+@@ -160,7 +160,7 @@
+ XALANCLASS=$(SOLARBINDIR)/xalan.jar
+ CLASSPATH:=$(CLASSPATH)$(PATH_SEPERATOR){$(subst,%Z*Z%,$(PATH_SEPERATOR) $(XALANCLASS:s/ /%Z*Z%/))}
+ .ENDIF
+-PACKLANG := $(JAVAI) org.apache.xalan.xslt.Process -XSL langfilter.xsl
++PACKLANG := $(JAVAI) $(JAVACPS) $(SOLARBINDIR)/xalan.jar org.apache.xalan.xslt.Process -XSL langfilter.xsl
+ .ENDIF
+ 
+ # -----------------------------------------------------------------------------
+diff -Naur OOB680_m5-orig/sd/source/ui/slidesorter/cache/SlsQueueProcessor.hxx OOB680_m5/sd/source/ui/slidesorter/cache/SlsQueueProcessor.hxx
+--- OOB680_m5-orig/sd/source/ui/slidesorter/cache/SlsQueueProcessor.hxx	2006-02-10 07:01:39.000000000 -0600
++++ OOB680_m5/sd/source/ui/slidesorter/cache/SlsQueueProcessor.hxx	2006-04-20 22:32:12.000000000 -0500
+@@ -170,7 +170,7 @@
+     while ( ! mrQueue.IsEmpty())
+     {
+         // Determine whether the system is idle.
+-        sal_Int32 nIdleState (tools::IdleDetection::GetIdleState(mrView.GetWindow()));
++        sal_Int32 nIdleState (tools::IdleDetection::GetIdleState(static_cast< ::Window* >(mrView.GetWindow())));
+         if (nIdleState != tools::IdleDetection::IDET_IDLE)
+         {
+             if ((nIdleState&tools::IdleDetection::IDET_FULL_SCREEN_SHOW_ACTIVE) != 0)
+diff -Naur OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/ConvertData.java OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/ConvertData.java
+--- OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/ConvertData.java	2005-10-24 12:58:33.000000000 -0500
++++ OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/ConvertData.java	2006-04-20 22:32:12.000000000 -0500
+@@ -127,8 +127,8 @@
+      *           <code>Vector</code> of <code>Document</code> objects.
+      */
+     public Enumeration getDocumentEnumeration() {
+-        Enumeration enum = v.elements();
+-		return (enum);
++        Enumeration uenum = v.elements();
++		return (uenum);
+ 	}
+ 
+ 
+diff -Naur OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/DocumentDeserializerImpl.java OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/DocumentDeserializerImpl.java
+--- OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/DocumentDeserializerImpl.java	2005-10-24 13:12:55.000000000 -0500
++++ OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/DocumentDeserializerImpl.java	2006-04-20 22:32:12.000000000 -0500
+@@ -155,14 +155,14 @@
+      */
+     public Document deserialize() throws ConvertException, IOException {
+ 	log("\nFound the XSLT deserializer");
+-	Enumeration enum = cd.getDocumentEnumeration();
++	Enumeration uenum = cd.getDocumentEnumeration();
+ 	org.w3c.dom.Document domDoc=null;
+ 	DOMDocument docOut=null;
+ 	GenericOfficeDocument doc = null;
+ 	ByteArrayOutputStream baos =null;
+ 	GenericOfficeDocument sxwDoc = new GenericOfficeDocument("output");
+-	while (enum.hasMoreElements()) {       
+-		 docOut = (DOMDocument) enum.nextElement();
++	while (uenum.hasMoreElements()) {       
++		 docOut = (DOMDocument) uenum.nextElement();
+ 	}
+ 	domDoc = docOut.getContentDOM();	
+ 	try{
+diff -Naur OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/PluginFactoryImpl.java OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/PluginFactoryImpl.java
+--- OOB680_m5-orig/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/PluginFactoryImpl.java	2005-10-24 13:13:41.000000000 -0500
++++ OOB680_m5/xmerge/source/xmerge/java/org/openoffice/xmerge/converter/xml/xslt/PluginFactoryImpl.java	2006-04-20 22:32:12.000000000 -0500
+@@ -183,9 +183,9 @@
+ 	String ext= ".txt";
+ 	String mimeType = null;
+ 	ConverterInfo ci = this.getConverterInfo();
+-	Enumeration enum = ci.getDeviceMime();
+-	while (enum.hasMoreElements()) {       
+-	    mimeType= (String) enum.nextElement();
++	Enumeration uenum = ci.getDeviceMime();
++	while (uenum.hasMoreElements()) {       
++	    mimeType= (String) uenum.nextElement();
+ 	}
+ 	try {
+ 	    props.load(is);

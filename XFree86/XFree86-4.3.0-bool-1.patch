@@ -1,0 +1,38 @@
+Submitted By: Kelledin (kelledin at users dot sourceforge dot net)
+Date: 2004-02-18
+Initial Package Version: 4.3.0
+Upstream Status: Reported to maintainers
+Origin: Kelledin
+Description: XFree86 4.3.x uses a loaded name ("bool") for a union type field.
+             This causes nasty compile problems when other stuff (like
+             ncurses-5.4) includes the <stdbool.h> header.  This patch is a
+             workaround for this issue.
+
+diff -Naur xc/programs/Xserver/hw/xfree86/common/xf86Opt.h xc-bool/programs/Xserver/hw/xfree86/common/xf86Opt.h
+--- xc/programs/Xserver/hw/xfree86/common/xf86Opt.h	2001-05-04 14:05:30.000000000 -0500
++++ xc-bool/programs/Xserver/hw/xfree86/common/xf86Opt.h	2004-02-18 14:27:07.000000000 -0600
+@@ -5,6 +5,10 @@
+ #ifndef _XF86_OPT_H_
+ #define _XF86_OPT_H_
+ 
++#ifdef bool
++#  undef bool
++#endif
++
+ typedef struct {
+     double freq;
+     int units;
+diff -Naur xc/programs/Xserver/hw/xfree86/xf86cfg/loader.h xc-bool/programs/Xserver/hw/xfree86/xf86cfg/loader.h
+--- xc/programs/Xserver/hw/xfree86/xf86cfg/loader.h	2001-07-09 18:45:24.000000000 -0500
++++ xc-bool/programs/Xserver/hw/xfree86/xf86cfg/loader.h	2004-02-18 14:26:51.000000000 -0600
+@@ -66,6 +66,10 @@
+ 
+ #ifndef LOADER_PRIVATE
+ /* common/xf86Opt.h */
++#ifdef bool
++#  undef bool
++#endif
++
+ typedef struct {
+     double freq;
+     int units;

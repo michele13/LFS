@@ -1,0 +1,121 @@
+Submitted By: Joe Ciccone <jciccone@gmail.com>
+Date: 2008-09-21
+Initial Package Version: 2.4.2
+Origin: https://launchpad.net/ubuntu/intrepid/+source/libgphoto2/2.4.2-0ubuntu1/+files/libgphoto2_2.4.2-0ubuntu1.diff.gz
+Upstream Status: Unknown
+Description: Fixes compilation errors due to libtool 2.2.
+
+diff -Naur libgphoto2-2.4.2.orig/configure libgphoto2-2.4.2/configure
+--- libgphoto2-2.4.2.orig/configure	2008-07-13 16:35:09.000000000 -0400
++++ libgphoto2-2.4.2/configure	2008-09-21 21:22:04.000000000 -0400
+@@ -20506,9 +20506,9 @@
+ 
+ fi
+ if test $ac_cv_header_ltdl_h = yes; then
+-  { echo "$as_me:$LINENO: checking for lt_dlcaller_register in -lltdl" >&5
+-echo $ECHO_N "checking for lt_dlcaller_register in -lltdl... $ECHO_C" >&6; }
+-if test "${ac_cv_lib_ltdl_lt_dlcaller_register+set}" = set; then
++  { echo "$as_me:$LINENO: checking for lt_dlinterface_register in -lltdl" >&5
++echo $ECHO_N "checking for lt_dlinterface_register in -lltdl... $ECHO_C" >&6; }
++if test "${ac_cv_lib_ltdl_lt_dlinterface_register+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+@@ -20526,11 +20526,11 @@
+ #ifdef __cplusplus
+ extern "C"
+ #endif
+-char lt_dlcaller_register ();
++char lt_dlinterface_register ();
+ int
+ main ()
+ {
+-return lt_dlcaller_register ();
++return lt_dlinterface_register ();
+   ;
+   return 0;
+ }
+@@ -20553,21 +20553,21 @@
+ 	 test ! -s conftest.err
+        } && test -s conftest$ac_exeext &&
+        $as_test_x conftest$ac_exeext; then
+-  ac_cv_lib_ltdl_lt_dlcaller_register=yes
++  ac_cv_lib_ltdl_lt_dlinterface_register=yes
+ else
+   echo "$as_me: failed program was:" >&5
+ sed 's/^/| /' conftest.$ac_ext >&5
+ 
+-	ac_cv_lib_ltdl_lt_dlcaller_register=no
++	ac_cv_lib_ltdl_lt_dlinterface_register=no
+ fi
+ 
+ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+       conftest$ac_exeext conftest.$ac_ext
+ LIBS=$ac_check_lib_save_LIBS
+ fi
+-{ echo "$as_me:$LINENO: result: $ac_cv_lib_ltdl_lt_dlcaller_register" >&5
+-echo "${ECHO_T}$ac_cv_lib_ltdl_lt_dlcaller_register" >&6; }
+-if test $ac_cv_lib_ltdl_lt_dlcaller_register = yes; then
++{ echo "$as_me:$LINENO: result: $ac_cv_lib_ltdl_lt_dlinterface_register" >&5
++echo "${ECHO_T}$ac_cv_lib_ltdl_lt_dlinterface_register" >&6; }
++if test $ac_cv_lib_ltdl_lt_dlinterface_register = yes; then
+   LTDLINCL=""
+ LIBLTDL="-lltdl"
+ 
+diff -Naur libgphoto2-2.4.2.orig/libgphoto2_port/configure libgphoto2-2.4.2/libgphoto2_port/configure
+--- libgphoto2-2.4.2.orig/libgphoto2_port/configure	2008-07-08 17:14:48.000000000 -0400
++++ libgphoto2-2.4.2/libgphoto2_port/configure	2008-09-21 21:22:04.000000000 -0400
+@@ -20076,9 +20076,9 @@
+ 
+ fi
+ if test $ac_cv_header_ltdl_h = yes; then
+-  { echo "$as_me:$LINENO: checking for lt_dlcaller_register in -lltdl" >&5
+-echo $ECHO_N "checking for lt_dlcaller_register in -lltdl... $ECHO_C" >&6; }
+-if test "${ac_cv_lib_ltdl_lt_dlcaller_register+set}" = set; then
++  { echo "$as_me:$LINENO: checking for lt_dlinterface_register in -lltdl" >&5
++echo $ECHO_N "checking for lt_dlinterface_register in -lltdl... $ECHO_C" >&6; }
++if test "${ac_cv_lib_ltdl_lt_dlinterface_register+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   ac_check_lib_save_LIBS=$LIBS
+@@ -20096,11 +20096,11 @@
+ #ifdef __cplusplus
+ extern "C"
+ #endif
+-char lt_dlcaller_register ();
++char lt_dlinterface_register ();
+ int
+ main ()
+ {
+-return lt_dlcaller_register ();
++return lt_dlinterface_register ();
+   ;
+   return 0;
+ }
+@@ -20123,21 +20123,21 @@
+ 	 test ! -s conftest.err
+        } && test -s conftest$ac_exeext &&
+        $as_test_x conftest$ac_exeext; then
+-  ac_cv_lib_ltdl_lt_dlcaller_register=yes
++  ac_cv_lib_ltdl_lt_dlinterface_register=yes
+ else
+   echo "$as_me: failed program was:" >&5
+ sed 's/^/| /' conftest.$ac_ext >&5
+ 
+-	ac_cv_lib_ltdl_lt_dlcaller_register=no
++	ac_cv_lib_ltdl_lt_dlinterface_register=no
+ fi
+ 
+ rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+       conftest$ac_exeext conftest.$ac_ext
+ LIBS=$ac_check_lib_save_LIBS
+ fi
+-{ echo "$as_me:$LINENO: result: $ac_cv_lib_ltdl_lt_dlcaller_register" >&5
+-echo "${ECHO_T}$ac_cv_lib_ltdl_lt_dlcaller_register" >&6; }
+-if test $ac_cv_lib_ltdl_lt_dlcaller_register = yes; then
++{ echo "$as_me:$LINENO: result: $ac_cv_lib_ltdl_lt_dlinterface_register" >&5
++echo "${ECHO_T}$ac_cv_lib_ltdl_lt_dlinterface_register" >&6; }
++if test $ac_cv_lib_ltdl_lt_dlinterface_register = yes; then
+   LTDLINCL=""
+ LIBLTDL="-lltdl"
+ 

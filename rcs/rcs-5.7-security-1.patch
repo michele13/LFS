@@ -1,0 +1,71 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-29
+Initial Package Version: 5.7
+Origin: Mandrake CVS
+Description: Fixes Temp File Security Issue
+ 
+diff -Naur rcs-5.7.orig/src/rcsfnms.c rcs-5.7/src/rcsfnms.c
+--- rcs-5.7.orig/src/rcsfnms.c	1995-06-16 06:19:24.000000000 +0000
++++ rcs-5.7/src/rcsfnms.c	2003-09-29 19:58:14.000000000 +0000
+@@ -258,19 +258,57 @@
+ };
+ 
+ #if has_mktemp
++static char	tmppath[1024];
++
++	static void
++tmpcleanup()
++{
++	/* For now, assume that all temp files get
++	 * removed before we are invoked */
++	rmdir(tmppath);
++}
++
+ 	static char const *tmp P((void));
+ 	static char const *
+ tmp()
+ /* Yield the name of the tmp directory.  */
+ {
+-	static char const *s;
+-	if (!s
+-		&&  !(s = cgetenv("TMPDIR"))	/* Unix tradition */
++	const char	*s;
++
++	if (tmppath[0])
++		return tmppath;
++
++	if (!(s = cgetenv("TMPDIR"))		/* Unix tradition */
+ 		&&  !(s = cgetenv("TMP"))	/* DOS tradition */
+ 		&&  !(s = cgetenv("TEMP"))	/* another DOS tradition */
+ 	)
+ 		s = TMPDIR;
+-	return s;
++
++	if (strlen(s) > sizeof(tmppath) - 11)
++		s = TMPDIR;
++
++#if defined(__GLIBC_PREREQ) && __GLIBC_PREREQ(2, 2)
++	snprintf(tmppath, sizeof(tmppath), "%s/rcsXXXXXX", s);
++	if (!mkdtemp(tmppath) || !tmppath[0])
++		goto failed;
++#else
++	while (1) {
++		snprintf(tmppath, sizeof(tmppath), "%s/rcsXXXXXX", s);
++		if (!mktemp(tmppath) || !tmppath[0])
++			goto failed;
++		if (mkdir(tmppath, 0700) >= 0)
++			break;
++		if (errno != EEXIST)
++			goto failed;
++	}
++#endif
++
++	atexit(tmpcleanup);
++	return tmppath;
++
++failed:
++	perror("Unable to create temp directory");
++	exit(123);
+ }
+ #endif
+ 

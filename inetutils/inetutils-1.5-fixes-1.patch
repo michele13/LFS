@@ -1,0 +1,111 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2008-02-03
+Initial Package Version: 1.5
+Upstream Status: From Upstream
+Origin:
+http://cvs.savannah.gnu.org/viewvc/inetutils/configure.ac?root=inetutils&r1=1.33&r2=1.34
+http://cvs.savannah.gnu.org/viewvc/inetutils/libtelnet/shishi.c?root=inetutils&r1=1.2&r2=1.3
+http://cvs.savannah.gnu.org/viewvc/inetutils/libinetutils/localhost.c?root=inetutils&r1=1.14&r2=1.15
+http://cvs.savannah.gnu.org/viewvc/inetutils/syslogd/syslogd.c?root=inetutils&r1=1.75&r2=1.76
+Description:
+Fixes typo in configure.ac (s/stuct/struct/).
+Fixes bug in libtelnet/shishi.c (kerberos):
+	* (krb5shishi_send): Don't set a use-session-key
+	ap-options, that is for user2user authentication which is not
+	appropriate here.
+Fixes bug in hostname lookups in libinetutils
+	* (localhost): Determine the FQDN only if gethostname did not fail.
+Fixes file handling bug in syslogd
+	* (init): Close CF properly before returning.
+
+Basically I looked at Debian's patches, checked which ones were commited
+upstream, and put them together here.
+
+diff -Naur inetutils-1.5.orig/configure.ac inetutils-1.5/configure.ac
+--- inetutils-1.5.orig/configure.ac	2006-10-21 11:57:04.000000000 +0000
++++ inetutils-1.5/configure.ac	2008-03-04 01:13:50.000000000 +0000
+@@ -1,6 +1,6 @@
+ # Configuration for inetutils
+ #
+-# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006 Free Software Foundation, Inc.
++# Copyright (C) 1995, 1996, 1997, 1998, 2000, 2001, 2002, 2005, 2006, 2007 Free Software Foundation, Inc.
+ #
+ # Written by Miles Bader <miles@gnu.ai.mit.edu>
+ #
+@@ -531,7 +531,7 @@
+   IU_CHECK_MEMBERS([struct utmpx.ut_tv], , , [#include <utmpx.h>])
+ fi
+ 
+-IU_CHECK_MEMBERS([stuct ifreq.ifr_index,
++IU_CHECK_MEMBERS([struct ifreq.ifr_index,
+                   struct ifreq.ifr_netmask,
+                   struct ifreq.ifr_broadaddr], , ,
+                  [#include <sys/types.h>
+diff -Naur inetutils-1.5.orig/libinetutils/localhost.c inetutils-1.5/libinetutils/localhost.c
+--- inetutils-1.5.orig/libinetutils/localhost.c	2006-10-11 21:46:24.000000000 +0000
++++ inetutils-1.5/libinetutils/localhost.c	2008-03-04 01:31:00.000000000 +0000
+@@ -1,6 +1,6 @@
+ /* A slightly more convenient wrapper for gethostname
+ 
+-   Copyright (C) 1996, 1997, 2000, 2005 Free Software Foundation, Inc.
++   Copyright (C) 1996, 1997, 2000, 2005, 2006 Free Software Foundation, Inc.
+ 
+    Written by Miles Bader <miles@gnu.ai.mit.edu>
+ 
+@@ -77,7 +77,7 @@
+       free (buf);
+       buf = 0;
+     }
+-
++  else
+   /* Determine FQDN */
+   {
+     struct hostent *hp = gethostbyname(buf);
+diff -Naur inetutils-1.5.orig/libtelnet/shishi.c inetutils-1.5/libtelnet/shishi.c
+--- inetutils-1.5.orig/libtelnet/shishi.c	2006-10-11 21:46:24.000000000 +0000
++++ inetutils-1.5/libtelnet/shishi.c	2008-03-04 01:18:44.000000000 +0000
+@@ -1,5 +1,4 @@
+-/* Copyright (C) 2002, 2003 Simon Josefsson
+-   Copyright (C) 2003 Free Software Foundation, Inc.
++/* Copyright (C) 2003, 2007 Free Software Foundation, Inc.
+ 
+ This file is part of Shishi / GNU Inetutils.
+ 
+@@ -169,10 +168,6 @@
+   else
+     ap_opts = 0;
+ 
+-#ifdef ENCRYPTION
+-  ap_opts |= SHISHI_APOPTIONS_USE_SESSION_KEY;
+-#endif	/* ENCRYPTION */
+-
+   type_check[0] = ap->type;
+   type_check[1] = ap->way;
+ 
+diff -Naur inetutils-1.5.orig/syslogd/syslogd.c inetutils-1.5/syslogd/syslogd.c
+--- inetutils-1.5.orig/syslogd/syslogd.c	2006-10-21 12:11:57.000000000 +0000
++++ inetutils-1.5/syslogd/syslogd.c	2008-03-04 01:32:17.000000000 +0000
+@@ -1,6 +1,6 @@
+ /* syslogd - log system messages
+  *
+- * Copyright (c) 1983, 1988, 1993, 1994, 2002
++ * Copyright (c) 1983, 1988, 1993, 1994
+  *	The Regents of the University of California.  All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -1657,6 +1657,7 @@
+     {
+       /* There is no graceful recovery here.  */
+       dbg_printf ("cannot allocate space for configuration\n");
++      fclose (cf);
+       return;
+     }
+   cline = cbuf;
+@@ -1696,6 +1697,7 @@
+ 	    {
+ 	      /* Sigh ...  */
+ 	      dbg_printf ("cannot allocate space configuration\n");
++	      fclose (cf);
+ 	      free (cbuf);
+ 	      return;
+ 	    }

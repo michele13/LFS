@@ -1,0 +1,21 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2012-10-02
+Initial Package Version: 3.6.0
+Upstream Status:         Submitted
+Origin:                  Matt Burgess
+Description:             Fixes a build issue when iptables isn't installed
+
+diff -Naur iproute2-3.6.0.orig/tc/Makefile iproute2-3.6.0/tc/Makefile
+--- iproute2-3.6.0.orig/tc/Makefile	2012-10-01 15:39:21.000000000 +0000
++++ iproute2-3.6.0/tc/Makefile	2012-10-02 17:45:31.605612832 +0000
+@@ -52,7 +52,9 @@
+ TCMODULES += q_fq_codel.o
+ 
+ ifeq ($(TC_CONFIG_IPSET), y)
+-  TCMODULES += em_ipset.o
++  ifeq ($(TC_CONFIG_XT), y)
++    TCMODULES += em_ipset.o
++  endif
+ endif
+ 
+ TCSO :=

@@ -1,0 +1,99 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-14
+Initial Package Version: 394
+Upstream Status: Submitted
+Origin: None
+Description: This patch fixes a bug with the configure script so that 'sigset_t',
+and 'sigprocmask', are detected and used.
+
+diff -Naur less-394.orig/configure less-394/configure
+--- less-394.orig/configure	2005-10-21 16:27:43.000000000 +0000
++++ less-394/configure	2006-10-14 19:07:54.000000000 +0000
+@@ -4825,44 +4825,56 @@
+ 
+ echo "$as_me:$LINENO: checking for sigset_t" >&5
+ echo $ECHO_N "checking for sigset_t... $ECHO_C" >&6
+-cat >conftest.$ac_ext <<_ACEOF
++if test "${ac_cv_type_sigset_t+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
+ #line $LINENO "configure"
+ #include "confdefs.h"
+-
+ #include <signal.h>
+ 
+ int
+ main ()
+ {
+-sigset_t s; s = 0;
++if ((sigset_t *) 0)
++  return 0;
++if (sizeof (sigset_t))
++  return 0;
+   ;
+   return 0;
+ }
+ _ACEOF
+-rm -f conftest.$ac_objext conftest$ac_exeext
+-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+-  (eval $ac_link) 2>&5
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>&5
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&5
+   (exit $ac_status); } &&
+-         { ac_try='test -s conftest$ac_exeext'
++         { ac_try='test -s conftest.$ac_objext'
+   { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+   (eval $ac_try) 2>&5
+   ac_status=$?
+   echo "$as_me:$LINENO: \$? = $ac_status" >&5
+   (exit $ac_status); }; }; then
+-  echo "$as_me:$LINENO: result: yes" >&5
+-echo "${ECHO_T}yes" >&6; cat >>confdefs.h <<\_ACEOF
+-#define HAVE_SIGSET_T 1
+-_ACEOF
+-
++  ac_cv_type_sigset_t=yes
+ else
+   echo "$as_me: failed program was:" >&5
+ cat conftest.$ac_ext >&5
+-echo "$as_me:$LINENO: result: no" >&5
+-echo "${ECHO_T}no" >&6
++ac_cv_type_sigset_t=no
+ fi
+-rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
++rm -f conftest.$ac_objext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_type_sigset_t" >&5
++echo "${ECHO_T}$ac_cv_type_sigset_t" >&6
++if test $ac_cv_type_sigset_t = yes; then
++
++cat >>confdefs.h <<_ACEOF
++#define HAVE_SIGSET_T 1
++_ACEOF
++
++
++fi
++
+ 
+ echo "$as_me:$LINENO: checking for sigemptyset" >&5
+ echo $ECHO_N "checking for sigemptyset... $ECHO_C" >&6
+diff -Naur less-394.orig/configure.ac less-394/configure.ac
+--- less-394.orig/configure.ac	2005-10-21 16:21:55.000000000 +0000
++++ less-394/configure.ac	2006-10-14 19:07:48.000000000 +0000
+@@ -256,11 +256,7 @@
+ AC_TRY_LINK(, [extern char *sys_errlist[]; static char **x; x = sys_errlist;], 
+   [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_SYS_ERRLIST)], [AC_MSG_RESULT(no)])
+ 
+-AC_MSG_CHECKING(for sigset_t)
+-AC_TRY_LINK([
+-#include <signal.h>
+-], [sigset_t s; s = 0;],
+-  [AC_MSG_RESULT(yes); AC_DEFINE(HAVE_SIGSET_T)], [AC_MSG_RESULT(no)])
++AC_CHECK_TYPES([sigset_t],,,[#include <signal.h>])
+ 
+ AC_MSG_CHECKING(for sigemptyset)
+ AC_TRY_LINK([

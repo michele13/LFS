@@ -1,0 +1,144 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net> 
+Date: 2004-01-24
+Initial Package Version: 5.0
+Origin: http://www.linuxfromscratch.org/patches/downloads/coreutils/coreutils-5.0-hostname-2.patch
+Description: This patch prevents installation of the following programs and
+	their corresponding man pages:
+	hostname, kill, su and uptime.
+	This patch changes the configure script, but not the configure.ac
+	template, so don't run the GNU autotools on the patched source tree,
+	as it will revert some changes.
+	Use this together with  http://www.linuxfromscratch.org/patches/downloads/shadow/shadow-4.0.3-no_groups-2.patch
+	(or the corresponding patch for shadow 4.0.4.1, once it is available)
+
+diff -Naur coreutils-5.0.orig/README coreutils-5.0/README
+--- coreutils-5.0.orig/README	2003-12-27 16:28:07.000000000 +0100
++++ coreutils-5.0/README	2003-12-27 16:29:21.000000000 +0100
+@@ -9,11 +9,11 @@
+ 
+   basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd
+   df dir dircolors dirname du echo env expand expr factor false fmt fold
+-  ginstall groups head hostid hostname id join kill link ln logname ls
++  ginstall groups head hostid id join link ln logname ls
+   md5sum mkdir mkfifo mknod mv nice nl nohup od paste pathchk pinky pr
+   printenv printf ptx pwd readlink rm rmdir seq sha1sum shred sleep sort
+-  split stat stty su sum sync tac tail tee test touch tr true tsort tty
+-  uname unexpand uniq unlink uptime users vdir wc who whoami yes
++  split stat stty sum sync tac tail tee test touch tr true tsort tty
++  uname unexpand uniq unlink users vdir wc who whoami yes
+ 
+ See the file NEWS for a list of major changes in the current release.
+ 
+diff -Naur coreutils-5.0.orig/configure coreutils-5.0/configure
+--- coreutils-5.0.orig/configure	2003-12-27 16:28:07.000000000 +0100
++++ coreutils-5.0/configure	2003-12-27 16:28:56.000000000 +0100
+@@ -37706,10 +37706,6 @@
+ fi
+ echo "$as_me:$LINENO: result: $gnulib_cv_have_boot_time" >&5
+ echo "${ECHO_T}$gnulib_cv_have_boot_time" >&6
+-  if test $gnulib_cv_have_boot_time = yes; then
+-  OPTIONAL_BIN_PROGS="$OPTIONAL_BIN_PROGS uptime\$(EXEEXT)"
+-  MAN="$MAN uptime.1"
+-fi
+ 
+ 
+ 
+diff -Naur coreutils-5.0.orig/man/Makefile.in coreutils-5.0/man/Makefile.in
+--- coreutils-5.0.orig/man/Makefile.in	2003-12-27 16:28:07.000000000 +0100
++++ coreutils-5.0/man/Makefile.in	2003-12-27 16:31:51.000000000 +0100
+@@ -152,12 +152,12 @@
+   basename.1 cat.1 chgrp.1 chmod.1 chown.1 chroot.1 cksum.1 comm.1 \
+   cp.1 csplit.1 cut.1 date.1 dd.1 df.1 dir.1 dircolors.1 dirname.1 du.1 \
+   echo.1 env.1 expand.1 expr.1 factor.1 false.1 fmt.1 fold.1 groups.1 \
+-  head.1 hostid.1 hostname.1 id.1 install.1 join.1 link.1 ln.1 logname.1 \
++  head.1 hostid.1 id.1 install.1 join.1 link.1 ln.1 logname.1 \
+   ls.1 md5sum.1 mkdir.1 mkfifo.1 mknod.1 mv.1 nice.1 nl.1 nohup.1 od.1 \
+   paste.1 pathchk.1 pinky.1 pr.1 printenv.1 printf.1 ptx.1 pwd.1 readlink.1 \
+   rm.1 rmdir.1 seq.1 sha1sum.1 shred.1 sleep.1 sort.1 split.1 stat.1 stty.1 \
+-  su.1 sum.1 sync.1 tac.1 tail.1 tee.1 test.1 touch.1 tr.1 true.1 tsort.1 \
+-  tty.1 uname.1 unexpand.1 uniq.1 unlink.1 uptime.1 users.1 vdir.1 wc.1 \
++  sum.1 sync.1 tac.1 tail.1 tee.1 test.1 touch.1 tr.1 true.1 tsort.1 \
++  tty.1 uname.1 unexpand.1 uniq.1 unlink.1 users.1 vdir.1 wc.1 \
+   who.1 whoami.1 yes.1
+ 
+ 
+@@ -401,7 +401,6 @@
+ groups.1:	$(common_dep)	$(srcdir)/groups.x	../src/groups.sh
+ head.1:		$(common_dep)	$(srcdir)/head.x	../src/head.c
+ hostid.1:	$(common_dep)	$(srcdir)/hostid.x	../src/hostid.c
+-hostname.1:	$(common_dep)	$(srcdir)/hostname.x	../src/hostname.c
+ id.1:		$(common_dep)	$(srcdir)/id.x		../src/id.c
+ install.1:	$(common_dep)	$(srcdir)/install.x	../src/install.c
+ join.1:		$(common_dep)	$(srcdir)/join.x	../src/join.c
+@@ -437,7 +436,6 @@
+ split.1:	$(common_dep)	$(srcdir)/split.x	../src/split.c
+ stat.1:		$(common_dep)	$(srcdir)/stat.x	../src/stat.c
+ stty.1:		$(common_dep)	$(srcdir)/stty.x	../src/stty.c
+-su.1:		$(common_dep)	$(srcdir)/su.x		../src/su.c
+ sum.1:		$(common_dep)	$(srcdir)/sum.x		../src/sum.c
+ sync.1:		$(common_dep)	$(srcdir)/sync.x	../src/sync.c
+ tac.1:		$(common_dep)	$(srcdir)/tac.x		../src/tac.c
+@@ -453,7 +451,6 @@
+ unexpand.1:	$(common_dep)	$(srcdir)/unexpand.x	../src/unexpand.c
+ uniq.1:		$(common_dep)	$(srcdir)/uniq.x	../src/uniq.c
+ unlink.1:	$(common_dep)	$(srcdir)/unlink.x	../src/unlink.c
+-uptime.1:	$(common_dep)	$(srcdir)/uptime.x	../src/uptime.c
+ users.1:	$(common_dep)	$(srcdir)/users.x	../src/users.c
+ vdir.1:		$(common_dep)	$(srcdir)/vdir.x	../src/ls.c
+ wc.1:		$(common_dep)	$(srcdir)/wc.x		../src/wc.c
+@@ -481,8 +478,10 @@
+ check-x-vs-1:
+ 	PATH=../src@PATH_SEPARATOR@$$PATH; export PATH;			\
+ 	t=ls-files.$$$$;						\
+-	(cd $(srcdir) && ls -1 *.x) | sed 's/\.x$$//' | sort > $$t;	\
+-	echo $(dist_man_MANS) | fmt -w1 | sed 's/\.1$$//' | sort -u	\
++	(cd $(srcdir) && ls -1 *.x) | sed 's/\.x$$//' |			\
++	egrep -v '^(hostname|su|uptime)$$' | sort > $$t;		\
++	echo $(dist_man_MANS) | fmt -w1 | sed 's/\.1$$//' |		\
++	egrep -v '^(hostname|su|uptime)$$' | sort -u			\
+ 	  | diff - $$t || { rm $$t; exit 1; };				\
+ 	rm $$t
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+diff -Naur coreutils-5.0.orig/src/Makefile.in coreutils-5.0/src/Makefile.in
+--- coreutils-5.0.orig/src/Makefile.in	2003-12-27 16:28:07.000000000 +0100
++++ coreutils-5.0/src/Makefile.in	2003-12-27 16:32:24.000000000 +0100
+@@ -155,7 +155,7 @@
+ sysconfdir = @sysconfdir@
+ target_alias = @target_alias@
+ 
+-EXTRA_PROGRAMS = chroot df hostid nice pinky stty su uname uptime users who
++EXTRA_PROGRAMS = chroot df hostid nice pinky stty uname users who
+ EXTRA_SCRIPTS = nohup
+ 
+ bin_SCRIPTS = groups @OPTIONAL_BIN_ZCRIPTS@
+@@ -165,7 +165,7 @@
+   cat cksum comm csplit cut expand fmt fold head join md5sum \
+   nl od paste pr ptx sha1sum sort split sum tac tail tr tsort unexpand uniq wc \
+   basename date dirname echo env expr factor false \
+-  hostname id kill logname pathchk printenv printf pwd seq sleep tee \
++  id logname pathchk printenv printf pwd seq sleep tee \
+   test true tty whoami yes \
+   @OPTIONAL_BIN_PROGS@ @DF_PROG@
+ 
+@@ -289,8 +289,8 @@
+ CONFIG_HEADER = $(top_builddir)/config.h
+ CONFIG_CLEAN_FILES =
+ EXTRA_PROGRAMS = chroot$(EXEEXT) df$(EXEEXT) hostid$(EXEEXT) \
+-	nice$(EXEEXT) pinky$(EXEEXT) stty$(EXEEXT) su$(EXEEXT) \
+-	uname$(EXEEXT) uptime$(EXEEXT) users$(EXEEXT) who$(EXEEXT)
++	nice$(EXEEXT) pinky$(EXEEXT) stty$(EXEEXT) \
++	uname$(EXEEXT) users$(EXEEXT) who$(EXEEXT)
+ bin_PROGRAMS = chgrp$(EXEEXT) chown$(EXEEXT) chmod$(EXEEXT) cp$(EXEEXT) \
+ 	dd$(EXEEXT) dircolors$(EXEEXT) du$(EXEEXT) ginstall$(EXEEXT) \
+ 	link$(EXEEXT) ln$(EXEEXT) dir$(EXEEXT) vdir$(EXEEXT) \
+@@ -305,8 +305,8 @@
+ 	tac$(EXEEXT) tail$(EXEEXT) tr$(EXEEXT) tsort$(EXEEXT) \
+ 	unexpand$(EXEEXT) uniq$(EXEEXT) wc$(EXEEXT) basename$(EXEEXT) \
+ 	date$(EXEEXT) dirname$(EXEEXT) echo$(EXEEXT) env$(EXEEXT) \
+-	expr$(EXEEXT) factor$(EXEEXT) false$(EXEEXT) hostname$(EXEEXT) \
+-	id$(EXEEXT) kill$(EXEEXT) logname$(EXEEXT) pathchk$(EXEEXT) \
++	expr$(EXEEXT) factor$(EXEEXT) false$(EXEEXT) \
++	id$(EXEEXT) logname$(EXEEXT) pathchk$(EXEEXT) \
+ 	printenv$(EXEEXT) printf$(EXEEXT) pwd$(EXEEXT) seq$(EXEEXT) \
+ 	sleep$(EXEEXT) tee$(EXEEXT) test$(EXEEXT) true$(EXEEXT) \
+ 	tty$(EXEEXT) whoami$(EXEEXT) yes$(EXEEXT) @OPTIONAL_BIN_PROGS@ \

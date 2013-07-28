@@ -1,0 +1,237 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-16
+Initial Package Version: 3.0.1
+Origin: Jim Gifford
+Description: Added Variable and cleanup
+
+	     Made the variables follow the same format.
+	     Added variable for cron.d location
+ 
+diff -Naur vixie-cron-3.0.1.orig/CONVERSION vixie-cron-3.0.1/CONVERSION
+--- vixie-cron-3.0.1.orig/CONVERSION	1995-05-31 21:37:19.000000000 +0000
++++ vixie-cron-3.0.1/CONVERSION	2003-09-17 06:48:57.000000000 +0000
+@@ -24,11 +24,11 @@
+ 
+ I say `how about' and `perhaps' because it really doesn't matter to anyone
+ (except you) where you put the crontab source files.  The `crontab' command
+-COPIES them into a protected directory (CRONDIR/SPOOL_DIR in cron.h), named
++COPIES them into a protected directory (CRON_DIR/SPOOL_DIR in cron.h), named
+ after the user whose crontab it is.  If you want to examine, replace, or
+ delete a crontab, the `crontab' command does all of those things.  The
+ various `crontab.src' (my suggested name for them) files are just source
+-files---they have to be copied to SPOOLDIR using `crontab' before they'll be
++files---they have to be copied to SPOOL_DIR using `crontab' before they'll be
+ executed.
+ 
+ On 4.2, your crontab might have a few lines like this:
+diff -Naur vixie-cron-3.0.1.orig/config.h vixie-cron-3.0.1/config.h
+--- vixie-cron-3.0.1.orig/config.h	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/config.h	2003-09-17 06:50:14.000000000 +0000
+@@ -59,7 +59,7 @@
+ /* #define MAILCMD "/usr/mmdf/bin/submit"	/*-*/
+ /* #define MAILARGS "%s -mlrxto %s"		/*-*/
+ 
+-/* #define MAIL_DATE				/*-*/
++/* #define MAILDATE				/*-*/
+ 			/* should we include an ersatz Date: header in
+ 			 * generated mail?  if you are using sendmail
+ 			 * for MAILCMD, it is better to let sendmail
+@@ -73,7 +73,7 @@
+ /*#define ALLOW_ONLY_ROOT			/*-*/
+ 
+ 			/* if you want to use syslog(3) instead of appending
+-			 * to CRONDIR/LOG_FILE (/var/cron/log, e.g.), define
++			 * to CRON_DIR/LOG_FILE (/var/cron/log, e.g.), define
+ 			 * SYSLOG here.  Note that quite a bit of logging
+ 			 * info is written, and that you probably don't want
+ 			 * to use this on 4.2bsd since everything goes in
+diff -Naur vixie-cron-3.0.1.orig/cron.h vixie-cron-3.0.1/cron.h
+--- vixie-cron-3.0.1.orig/cron.h	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/cron.h	2003-09-17 06:56:38.000000000 +0000
+@@ -85,6 +85,7 @@
+ #define	DBIT		0x0080	/* bit twiddling shown (long) */
+ 
+ #define	CRON_TAB(u)	"%s/%s", SPOOL_DIR, u
++#define	CRON_DTAB(u)	"%s/%s", CROND_DIR, u
+ #define	REG		register
+ #define	PPC_NULL	((char **)NULL)
+ 
+diff -Naur vixie-cron-3.0.1.orig/database.c vixie-cron-3.0.1/database.c
+--- vixie-cron-3.0.1.orig/database.c	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/database.c	2003-09-17 06:09:41.000000000 +0000
+@@ -60,7 +60,7 @@
+ 		(void) exit(ERROR_EXIT);
+ 	}
+ 
+-	if (stat("/etc/cron.d", &crond_stat) < OK) {
++	if (stat(CROND_DIR, &crond_stat) < OK) {
+ 		log_it("CRON", getpid(), "STAT FAILED", SPOOL_DIR);
+ 		(void) exit(ERROR_EXIT);
+ 	}
+@@ -99,8 +99,8 @@
+ 				&new_db, old_db);
+ 	}
+ 
+-	if (!(dir = opendir("/etc/cron.d"))) {
+-		log_it("CRON", getpid(), "OPENDIR FAILED", "/etc/cron.d");
++	if (!(dir = opendir(CROND_DIR))) {
++		log_it("CRON", getpid(), "OPENDIR FAILED", CROND_DIR);
+ 		(void) exit(ERROR_EXIT);
+ 	}
+ 
+@@ -118,7 +118,7 @@
+ 		/* ignore files starting with # and ending with ~ */
+ 
+ 		(void) strncpy(fname, dp->d_name, MAXNAMLEN);
+-		snprintf(tabname, MAXNAMLEN+1, "/etc/cron.d/%s", fname);
++		snprintf(tabname, MAXNAMLEN+1, CRON_DTAB(fname));
+ 
+ 		process_crontab("root", "*system*", tabname,
+ 				&crond_stat, &new_db, old_db);
+diff -Naur vixie-cron-3.0.1.orig/do_command.c vixie-cron-3.0.1/do_command.c
+--- vixie-cron-3.0.1.orig/do_command.c	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/do_command.c	2003-09-17 06:44:32.000000000 +0000
+@@ -401,10 +401,10 @@
+ 				fprintf(mail, "Subject: Cron <%s@%s> %s\n",
+ 					usernm, first_word(hostname, "."),
+ 					e->cmd);
+-# if defined(MAIL_DATE)
++# if defined(MAILDATE)
+ 				fprintf(mail, "Date: %s\n",
+ 					arpadate(&TargetTime));
+-# endif /* MAIL_DATE */
++# endif /* MAILDATE */
+ 				for (env = e->envp;  *env;  env++)
+ 					fprintf(mail, "X-Cron-Env: <%s>\n",
+ 						*env);
+diff -Naur vixie-cron-3.0.1.orig/misc.c vixie-cron-3.0.1/misc.c
+--- vixie-cron-3.0.1.orig/misc.c	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/misc.c	2003-09-17 06:53:41.000000000 +0000
+@@ -192,31 +192,31 @@
+ {
+ 	struct stat	sb;
+ 
+-	/* first check for CRONDIR ("/var/cron" or some such)
++	/* first check for CRON_DIR ("/var/cron" or some such)
+ 	 */
+-	if (stat(CRONDIR, &sb) < OK && errno == ENOENT) {
+-		perror(CRONDIR);
+-		if (OK == mkdir(CRONDIR, 0700)) {
+-			fprintf(stderr, "%s: created\n", CRONDIR);
+-			stat(CRONDIR, &sb);
++	if (stat(CRON_DIR, &sb) < OK && errno == ENOENT) {
++		perror(CRON_DIR);
++		if (OK == mkdir(CRON_DIR, 0700)) {
++			fprintf(stderr, "%s: created\n", CRON_DIR);
++			stat(CRON_DIR, &sb);
+ 		} else {
+-			fprintf(stderr, "%s: ", CRONDIR);
++			fprintf(stderr, "%s: ", CRON_DIR);
+ 			perror("mkdir");
+ 			exit(ERROR_EXIT);
+ 		}
+ 	}
+ 	if (!(sb.st_mode & S_IFDIR)) {
+ 		fprintf(stderr, "'%s' is not a directory, bailing out.\n",
+-			CRONDIR);
++			CRON_DIR);
+ 		exit(ERROR_EXIT);
+ 	}
+-	if (chdir(CRONDIR) < OK) {
+-		fprintf(stderr, "cannot chdir(%s), bailing out.\n", CRONDIR);
+-		perror(CRONDIR);
++	if (chdir(CRON_DIR) < OK) {
++		fprintf(stderr, "cannot chdir(%s), bailing out.\n", CRON_DIR);
++		perror(CRON_DIR);
+ 		exit(ERROR_EXIT);
+ 	}
+ 
+-	/* CRONDIR okay (now==CWD), now look at SPOOL_DIR ("tabs" or some such)
++	/* CRON_DIR okay (now==CWD), now look at SPOOL_DIR ("tabs" or some such)
+ 	 */
+ 	if (stat(SPOOL_DIR, &sb) < OK && errno == ENOENT) {
+ 		perror(SPOOL_DIR);
+@@ -242,7 +242,7 @@
+  *
+  * note: main() calls us twice; once before forking, once after.
+  *	we maintain static storage of the file pointer so that we
+- *	can rewrite our PID into the PIDFILE after the fork.
++ *	can rewrite our PID into the PID_FILE after the fork.
+  *
+  * it would be great if fflush() disassociated the file buffer.
+  */
+@@ -263,7 +263,7 @@
+ 		char	buf[MAX_TEMPSTR];
+ 		int	fd, otherpid;
+ 
+-		(void) snprintf(pidfile, MAX_FNAME, PIDFILE, PIDDIR);
++		(void) snprintf(pidfile, MAX_FNAME, PID_FILE, PID_DIR);
+ 		if ((-1 == (fd = open(pidfile, O_RDWR|O_CREAT, 0644)))
+ 		    || (NULL == (fp = fdopen(fd, "r+")))
+ 		    ) {
+@@ -633,7 +633,7 @@
+ }
+ 
+ 
+-#ifdef MAIL_DATE
++#ifdef MAILDATE
+ /* Sat, 27 Feb 93 11:44:51 CST
+  * 123456789012345678901234567
+  */
+@@ -656,7 +656,7 @@
+ 		       TZONE(*tm));
+ 	return ret;
+ }
+-#endif /*MAIL_DATE*/
++#endif /*MAILDATE*/
+ 
+ 
+ #ifdef HAVE_SAVED_SUIDS
+diff -Naur vixie-cron-3.0.1.orig/pathnames.h vixie-cron-3.0.1/pathnames.h
+--- vixie-cron-3.0.1.orig/pathnames.h	2003-09-17 06:33:52.000000000 +0000
++++ vixie-cron-3.0.1/pathnames.h	2003-09-17 06:58:32.000000000 +0000
+@@ -23,12 +23,12 @@
+ # include <paths.h>
+ #endif /*BSD*/
+ 
+-#ifndef CRONDIR
+-			/* CRONDIR is where crond(8) and crontab(1) both chdir
++#ifndef CRON_DIR
++			/* CRON_DIR is where crond(8) and crontab(1) both chdir
+ 			 * to; SPOOL_DIR, ALLOW_FILE, DENY_FILE, and LOG_FILE
+ 			 * are all relative to this directory.
+ 			 */
+-#define CRONDIR		"/var/spool"
++#define CRON_DIR	"/var/spool"
+ #endif
+ 
+ 			/* SPOOLDIR is where the crontabs live.
+@@ -41,6 +41,13 @@
+ 			 */
+ #define SPOOL_DIR	"cron"
+ 
++			/* CROND_DIR is where a directory similar to SPOOL_DIR.
++		           Except that the files in it are not user-specific
++		           and are therefore read with /etc/crontab syntax
++		          (the user is specified explicitly in the 6th column)
++			*/
++#define CROND_DIR	"/etc/cron.d"
++
+ 			/* undefining these turns off their features.  note
+ 			 * that ALLOW_FILE and DENY_FILE must both be defined
+ 			 * in order to enable the allow/deny code.  If neither
+@@ -54,11 +61,11 @@
+ 			/* where should the daemon stick its PID?
+ 			 */
+ #ifdef _PATH_VARRUN
+-# define PIDDIR	_PATH_VARRUN
++# define PID_DIR _PATH_VARRUN
+ #else
+-# define PIDDIR "/etc/"
++# define PID_DIR "/etc/"
+ #endif
+-#define PIDFILE		"%scrond.pid"
++#define PID_FILE	"%scrond.pid"
+ 
+ 			/* 4.3BSD-style crontab */
+ #define SYSCRONTAB	"/etc/crontab"

@@ -1,0 +1,77 @@
+Submitted By: Robert Connolly <cendres at videotron dot ca> (ashes)
+Date: 2004-02-28
+Initial Package Version: 1.2.1
+Origin: none
+Description: This patch will install libz.so.* to /lib instead of /usr/lib, and
+it will symlink /usr/lib/libz.so to /lib. This patch replaces the following commands
+from the book (chap6):
+mv /usr/lib/libz.so.* /lib
+ln -sf ../../lib/libz.so.1 /usr/lib/libz.so
+chmod 644 /usr/lib/libz.a
+Also this patch will not overwrite the man page if the sha1sum is duplicate.
+
+diff -Naur zlib-1.2.1.orig/Makefile.in zlib-1.2.1/Makefile.in
+--- zlib-1.2.1.orig/Makefile.in	2003-11-09 02:29:23.000000000 +0000
++++ zlib-1.2.1/Makefile.in	2004-02-29 08:51:07.695657848 +0000
+@@ -32,6 +32,7 @@
+ SHAREDLIB=libz.so
+ SHAREDLIBV=libz.so.1.2.1
+ SHAREDLIBM=libz.so.1
++SO_LIBROOT=/lib
+ 
+ AR=ar rc
+ RANLIB=ranlib
+@@ -45,6 +46,8 @@
+ includedir = ${prefix}/include
+ mandir = ${prefix}/share/man
+ man3dir = ${mandir}/man3
++MANSUM=`sha1sum $(man3dir)/zlib.3 | sed -e 's@$(man3dir)/zlib.3@@' | tr -d [:space:]`
++NEWMANSUM=`sha1sum zlib.3 | sed -e 's@zlib.3@@' | tr -d [:space:]`
+ 
+ OBJS = adler32.o compress.o crc32.o gzio.o uncompr.o deflate.o trees.o \
+        zutil.o inflate.o infback.o inftrees.o inffast.o
+@@ -94,25 +97,39 @@
+ 	-@if [ ! -d $(includedir)  ]; then mkdir -p $(includedir); fi
+ 	-@if [ ! -d $(libdir)      ]; then mkdir -p $(libdir); fi
+ 	-@if [ ! -d $(man3dir)     ]; then mkdir -p $(man3dir); fi
++	chmod 644 zlib.h zconf.h
+ 	cp zlib.h zconf.h $(includedir)
+-	chmod 644 $(includedir)/zlib.h $(includedir)/zconf.h
+-	cp $(LIBS) $(libdir)
+-	cd $(libdir); chmod 755 $(LIBS)
++	if test -f "libz.a"; then \
++	   chmod 644 libz.a; \
++	   cp libz.a $(libdir); \
++	fi
++	if test -f $(SHAREDLIBV); then \
++	   chmod 755 $(SHAREDLIBV); \
++	   cp $(SHAREDLIBV) $(SO_LIBROOT); \
++	fi
+ 	-@(cd $(libdir); $(RANLIB) libz.a || true) >/dev/null 2>&1
+ 	cd $(libdir); if test -f $(SHAREDLIBV); then \
+ 	  rm -f $(SHAREDLIB) $(SHAREDLIBM); \
+ 	  ln -s $(SHAREDLIBV) $(SHAREDLIB); \
+ 	  ln -s $(SHAREDLIBV) $(SHAREDLIBM); \
++	  ln -sf ../../$(SO_LIBROOT)/$(SHAREDLIBM) $(libdir)/$(SHAREDLIB); \
+ 	  (ldconfig || true)  >/dev/null 2>&1; \
+ 	fi
+-	cp zlib.3 $(man3dir)
+-	chmod 644 $(man3dir)/zlib.3
++	if [ -f $(man3dir)/zlib.3 ] && [ $(MANSUM) == $(NEWMANSUM) ]; then \
++	      echo "Not installing duplicate manpage"; \
++	   else \
++	      echo "Installing manpage"; \
++	      chmod 644 zlib.3; \
++	      cp zlib.3 $(man3dir); \
++	fi
++
+ # The ranlib in install is needed on NeXTSTEP which checks file times
+ # ldconfig is for Linux
+ 
+ uninstall:
+ 	cd $(includedir); \
+ 	cd $(libdir); rm -f libz.a; \
++	cd $(SO_LIBROOT); \
+ 	if test -f $(SHAREDLIBV); then \
+ 	  rm -f $(SHAREDLIBV) $(SHAREDLIB) $(SHAREDLIBM); \
+ 	fi

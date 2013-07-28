@@ -1,0 +1,55 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-10-04
+Initial Package Version: 9.06
+Upstream Status: Slightly different fix applied.
+Origin: From fedora, via gentoo and arch.
+Description: Fixes build error, "invalid conversion from 'const char*' to 'char*'.
+ Fedora think this is a gcc-4.4 problem, the gentoo bugzilla entry thinks it's a
+glibc-2.10.1 problem, see http://udrepper.livejournal.com/20948.html
+Rediffed to apply with -p1.
+
+diff -Naur rxvt-unicode-9.06.orig/src/background.C rxvt-unicode-9.06/src/background.C
+--- rxvt-unicode-9.06.orig/src/background.C	2008-11-04 14:43:06.000000000 +0000
++++ rxvt-unicode-9.06/src/background.C	2009-10-02 00:36:58.000000000 +0100
+@@ -261,7 +261,7 @@
+   unsigned int w = 0, h = 0;
+   unsigned int n;
+   unsigned long new_flags = (flags & (~geometryFlags));
+-  char *p;
++  const char *p;
+ #  define MAXLEN_GEOM		256 /* could be longer than regular geometry string */
+ 
+   if (geom == NULL)
+@@ -677,7 +677,7 @@
+       if (!target->asimman)
+         target->asimman = create_generic_imageman (target->rs[Rs_path]);
+ 
+-      if (char *f = strchr (file, ';'))
++      if (char *f = (char *) strchr (file, ';'))
+         {
+           size_t len = f - file;
+           f = (char *)malloc (len + 1);
+diff -Naur rxvt-unicode-9.06.orig/src/command.C rxvt-unicode-9.06/src/command.C
+--- rxvt-unicode-9.06.orig/src/command.C	2008-11-05 16:21:05.000000000 +0000
++++ rxvt-unicode-9.06/src/command.C	2009-10-02 00:36:58.000000000 +0100
+@@ -3336,7 +3336,7 @@
+           }
+         else
+           {
+-            char *eq = strchr (str, '='); // constness lost, but verified to be ok
++            char *eq = (char *) strchr (str, '='); // constness lost, but verified to be ok
+ 
+             if (eq)
+               {
+diff -Naur rxvt-unicode-9.06.orig/src/misc.C rxvt-unicode-9.06/src/misc.C
+--- rxvt-unicode-9.06.orig/src/misc.C	2008-04-26 03:57:18.000000000 +0100
++++ rxvt-unicode-9.06/src/misc.C	2009-10-02 00:36:58.000000000 +0100
+@@ -170,7 +170,7 @@
+ char *
+ rxvt_basename (const char *str) NOTHROW
+ {
+-  char *base = strrchr (str, '/');
++  char *base = (char *) strrchr (str, '/');
+ 
+   return (char *) (base ? base + 1 : str);
+ }

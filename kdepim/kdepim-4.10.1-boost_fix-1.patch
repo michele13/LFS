@@ -1,0 +1,34 @@
+Submitted By:            Ragnar Thomsen <rthomsen_at_linuxfromscratch_dot_org>
+Date:                    2013-03-05
+Initial Package Version: 4.10.1
+Upstream Status:         Not submitted
+Origin:                  Ragnar Thomsen
+Description:             Fixes building with recent boost versions. See https://bugreports.qt-project.org/browse/QTBUG-22829
+
+diff -Naur a/kleopatra/uiserver/assuanserverconnection.cpp b/kleopatra/uiserver/assuanserverconnection.cpp
+--- a/kleopatra/uiserver/assuanserverconnection.cpp	2013-03-01 07:57:27.691644138 +0100
++++ b/kleopatra/uiserver/assuanserverconnection.cpp	2013-03-05 21:35:13.954195152 +0100
+@@ -80,8 +80,10 @@
+ 
+ #include <boost/type_traits/remove_pointer.hpp>
+ #ifndef _WIN32_WCE
++#ifndef Q_MOC_RUN
+ #include <boost/lexical_cast.hpp>
+ #endif
++#endif
+ #include <boost/bind.hpp>
+ #include <boost/mem_fn.hpp>
+ #include <boost/mpl/if.hpp>
+diff -Naur a/messagecore/tests/util.h b/messagecore/tests/util.h
+--- a/messagecore/tests/util.h	2013-03-01 07:57:28.335636202 +0100
++++ b/messagecore/tests/util.h	2013-03-05 21:17:29.183167542 +0100
+@@ -23,7 +23,9 @@
+ 
+ #include <gpgme++/key.h>
+ #include <messageviewer/objecttreeemptysource.h>
++#ifndef Q_MOC_RUN
+ #include <boost/graph/graph_concepts.hpp>
++#endif
+ 
+ namespace MessageCore {
+ 

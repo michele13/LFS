@@ -1,0 +1,99 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-05
+Initial Package Version: 1.0
+Origin: http://bugzilla.mozilla.org/show_bug.cgi?id=122698
+Description: Patch to check if there is already a running instance of mozilla on startup
+diff -Nur mozilla.orig/build/unix/run-mozilla.sh mozilla/build/unix/run-mozilla.sh
+--- mozilla.orig/build/unix/run-mozilla.sh	2002-05-24 17:41:59.000000000 -0500
++++ mozilla/build/unix/run-mozilla.sh	2002-07-14 10:36:03.000000000 -0500
+@@ -65,10 +65,11 @@
+ #
+ cmdname=`basename "$0"`
+ MOZ_DIST_BIN=`dirname "$0"`
+-MOZ_DEFAULT_NAME="./${cmdname}-bin"
+-MOZ_APPRUNNER_NAME="./mozilla-bin"
+-MOZ_VIEWER_NAME="./viewer"
++MOZ_DEFAULT_NAME="${MOZ_DIST_BIN}/${cmdname}-bin"
++MOZ_APPRUNNER_NAME="${MOZ_DIST_BIN}/mozilla-bin"
++MOZ_VIEWER_NAME="${MOZ_DIST_BIN}/viewer"
+ MOZ_PROGRAM=""
++MOZ_CLIENT_PROGRAM="${MOZ_DIST_BIN}/mozilla-xremote-client"
+ 
+ exitcode=0
+ #
+@@ -131,6 +132,18 @@
+ 	return 0
+ }
+ ##########################################################################
++function check_running() {
++    $MOZ_CLIENT_PROGRAM 'ping()' 2>/dev/null >/dev/null
++    RETURN_VAL=$?
++    if [ "$RETURN_VAL" -eq "2" ]; then
++      echo 0
++      return 0
++    else
++      echo 1
++      return 1
++    fi
++}
++##########################################################################
+ moz_get_debugger()
+ {
+ 	debuggers="ddd gdb dbx bdb"
+@@ -349,6 +362,7 @@
+ ## Set MOZILLA_FIVE_HOME
+ ##
+ MOZILLA_FIVE_HOME=$MOZ_DIST_BIN
++export XPCOM_CHECK_THREADSAFE=0
+ 
+ if [ -z "$MRE_HOME" ]; then
+     MRE_HOME=$MOZILLA_FIVE_HOME
+@@ -429,9 +443,46 @@
+ 
+ if [ $moz_debug -eq 1 ]
+ then
+-	moz_debug_program ${1+"$@"}
++  moz_debug_program ${1+"$@"}
+ else
+-	moz_run_program ${1+"$@"}
++  USE_EXIST=1
++  ALREADY_RUNNING=`check_running`
++  if [ "${ALREADY_RUNNING}" -eq "1" ] && [ -n "$1" ]; then
++    USE_EXIST=0
++    opt="$1"
++    case "$opt" in
++      -mail)
++        exec $MOZ_CLIENT_PROGRAM 'xfeDoCommand(openInbox)'
++        ;;
++      -compose)
++        exec $MOZ_CLIENT_PROGRAM 'xfeDoCommand(composeMessage)'
++        ;;
++      -*) ;;
++      *) USE_EXIST=1 ;;
++    esac
++  fi
++  if [ "${ALREADY_RUNNING}" -eq "1" ] && [ "${USE_EXIST}" -eq "1" ]; then
++    # If there is no command line argument at all then try to open a new
++    # window in an already running instance.
++    if [ -z "$1" ]; then
++      exec $MOZ_CLIENT_PROGRAM "xfeDoCommand(openBrowser)"
++    fi
++
++    # check to make sure that the command contains at least a :/ in it.
++    echo $opt | grep -e ':/' 2>/dev/null > /dev/null
++    RETURN_VAL=$?
++    if [ "$RETURN_VAL" -eq "1" ]; then
++      # if it doesn't begin with a '/' and it exists when the pwd is
++      # prepended to it then append the full path
++      echo $opt | grep -e '^/' 2>/dev/null > /dev/null
++      if [ "${RETURN_VAL}" -ne "0" ] && [ -e `pwd`/$opt ]; then
++        opt="`pwd`/$opt"
++      fi
++      exec $MOZ_CLIENT_PROGRAM "openurl($opt)"
++    fi
++    exec $MOZ_CLIENT_PROGRAM "openurl($opt,new-window)"
++  fi
++  moz_run_program ${1+"$@"}
+ fi
+ 
+ exit $exitcode

@@ -1,0 +1,53 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2006-01-17
+Origin: Bug report sent to upstream privately
+Initial Package Version: 2.0.5
+Upstream Status: From Upstream Maintainer
+Description:
+The slsh executable is not linked when compiling but during installation.
+If fakeroot is used to install the application, then either of the
+following two things happens:
+* If there is a previously installed libslang in @libdir@, then slsh links
+  against that library installed of the one being installed.
+* If there is no previously installed libslang in @libdir@, compilation fails.
+
+diff -ur slang-2.0.5.orig/slsh/Makefile.in slang-2.0.5/slsh/Makefile.in
+--- slang-2.0.5.orig/slsh/Makefile.in	2005-10-17 01:00:18.000000000 -0500
++++ slang-2.0.5/slsh/Makefile.in	2006-01-17 20:10:13.000000000 -0600
+@@ -6,11 +6,12 @@
+ #---------------------------------------------------------------------------
+ prefix 		= @prefix@
+ exec_prefix 	= @exec_prefix@
++INST_LIB_DIR   = @libdir@
+ SLANG_INST_INC	= -I@includedir@
+-SLANG_INST_LIB	= -L@libdir@ -lslang
++SLANG_INST_LIB = -L$(INST_LIB_DIR)
+ #---------------------------------------------------------------------------
+ SLANG_SRCINC	= -I@SRCDIR@
+-SLANG_SRCLIB	= -L@OBJDIR@ -L@ELFDIR@ -lslang
++SLANG_SRCLIB   = -L@OBJDIR@ -L@ELFDIR@
+ #---------------------------------------------------------------------------
+ OTHER_LIBS	= @TERMCAP@ @DYNAMIC_LINK_LIB@ -lm
+ RPATH		= @RPATH@
+@@ -45,6 +46,7 @@
+ DESTDIR		=
+ BIN_DIR		= @bindir@
+ MAN_DIR		= @mandir@/man1
++DEST_LIB_DIR   = -L$(DESTDIR)@libdir@
+ DEST_BIN_DIR	= $(DESTDIR)$(BIN_DIR)
+ DEST_MAN_DIR	= $(DESTDIR)$(MAN_DIR)
+ DEST_SLSH_CONF_DIR = $(DESTDIR)$(SLSH_CONF_DIR)
+@@ -57,11 +59,11 @@
+ #----------------------------------------------------------------------------
+ @SET_MAKE@
+ SHELL = /bin/sh
+-INST_LIBS = $(RPATH) $(SLANG_INST_LIB) $(READLINE_LIB) $(OTHER_LIBS)
++INST_LIBS = $(RPATH) $(DEST_LIB_DIR) $(SLANG_INST_LIB) -lslang $(READLINE_LIB) $(OTHER_LIBS)
+ DEFS = -DSLSH_CONF_DIR='"$(SLSH_CONF_DIR)"' -DSLSH_PATH='"$(SLSH_LIB_DIR)"' \
+  -DSLSH_CONF_DIR_ENV='$(SLSH_CONF_DIR_ENV)' -DSLSH_LIB_DIR_ENV='$(SLSH_LIB_DIR_ENV)' \
+  -DSLSH_PATH_ENV='$(SLSH_PATH_ENV)' 
+-SRC_LIBS = $(SLANG_SRCLIB) $(READLINE_LIB) $(OTHER_LIBS)
++SRC_LIBS = $(SLANG_SRCLIB) -lslang $(READLINE_LIB) $(OTHER_LIBS)
+ #
+ all: slsh_exe
+ slsh_exe: slsh.o readline.o

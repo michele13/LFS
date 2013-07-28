@@ -1,0 +1,23 @@
+Submitted By: Matthew Burgess <matthew@linuxfromscratch.org>
+Date: 2005-09-04
+Initial Package Version: 2.12q
+Upstream Status: Submitted Upstream
+Origin: Jürg Billeter & Greg Schafer
+Description: Fix cfdisk crash occurring on some gcc 4.0 systems. See
+	http://bugs.linuxfromscratch.org/show_bug.cgi?id=1604 
+	http://linuxfromscratch.org/pipermail/lfs-dev/2005-September/053202.html and
+    http://linuxfromscratch.org/pipermail/lfs-dev/2005-September/053225.html
+	for more info.
+
+diff -Naur util-linux-2.12q.orig/fdisk/cfdisk.c util-linux-2.12q/fdisk/cfdisk.c
+--- util-linux-2.12q.orig/fdisk/cfdisk.c	2004-12-22 18:06:01.000000000 +0000
++++ util-linux-2.12q/fdisk/cfdisk.c	2005-09-04 10:48:38.291238936 +0000
+@@ -717,7 +717,7 @@
+ 	offset = (p_info[i].first_sector + p_info[i].offset) * SECTOR_SIZE
+ 		+ REISERFS_DISK_OFFSET_IN_BYTES;
+ 	if (ext2_llseek(fd, offset, SEEK_SET) == offset
+-	    && read(fd, &reiserfsb, 1024) == 1024
++	    && read(fd, &reiserfsb, sizeof(reiserfsb)) == sizeof(reiserfsb)
+ 	    && has_reiserfs_magic_string(&reiserfsb, &reiserfs_is_3_6)) {
+ 		if (reiserfs_is_3_6) {
+ 			/* label only on version 3.6 onward */

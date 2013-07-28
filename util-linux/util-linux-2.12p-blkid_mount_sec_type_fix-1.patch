@@ -1,0 +1,23 @@
+Submitted By: Michael Labuschke (michael at labuschke dot de)
+Date: 2005-01-08
+Initial Package Version: util-linux-2.12p
+Origin: Me
+Upstream Status: Submitted Upstream
+Description:  When trying to mount an ext3 partition which is not
+	      in /etc/fstab mount tries to guess the filesystem
+	      with blkid tools (when installed).
+	      it only looks for TYPE settings which is ext2 even for ext3fs.
+	      so it gets mounted as ext2fs.
+	      This patch returns the SEC_TYPE if available
+ diff -Naur util-linux-2.12p.orig/mount/mount_guess_fstype.c util-linux-2.12p/mount/mount_guess_fstype.c
+--- util-linux-2.12p.orig/mount/mount_guess_fstype.c	2004-11-08 15:21:33.000000000 +0000
++++ util-linux-2.12p/mount/mount_guess_fstype.c	2005-01-08 22:25:06.124738907 +0000
+@@ -51,6 +51,8 @@
+ char *
+ do_guess_fstype(const char *device) 
+ {
++        if (blkid_get_tag_value(blkid,"SEC_TYPE",device)!="")
++	            return blkid_get_tag_value(blkid,"SEC_TYPE",device);
+ 	return blkid_get_tag_value(blkid, "TYPE", device);
+ }
+ 

@@ -1,0 +1,26 @@
+Submitted By: Marc Trachy <mltrachy at gmail dot com> 
+Date: 2006-02-24
+Initial Package Version: 4.0.14
+Upstream Status: Unknown
+Origin: Marc Trachy
+Description: Supresses the creation of a new group during the creation of each new user.
+
+--- shadow-4.0.14/src/useradd.c	2005-12-15 15:06:28.000000000 +0000
++++ useradd.c	2006-02-25 04:21:19.000000000 +0000
+@@ -914,6 +914,7 @@
+ 
+ static void find_new_gid ()
+ {
++	fprintf(stderr, "Trying to find new gid\n");
+ 	const struct group *grp;
+ 	gid_t gid_min, gid_max;
+ 
+@@ -1762,7 +1763,7 @@
+ 
+ 	/* do we have to add a group for that user? This is why we need to
+ 	 * open the group files in the open_files() function  --gafton */
+-	if (!(nflg || gflg)) {
++	if (!(!nflg || gflg)) {
+ 		find_new_gid ();
+ 		grp_add ();
+ 	}

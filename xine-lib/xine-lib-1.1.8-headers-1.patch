@@ -1,0 +1,23 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2007-10-26
+Initial Package Version: 1.1.8
+Origin: self
+Description: The 2.6.23 headers changed a couple of definitions in
+cdrom.h to refer to INT_MAX which for userspace lives in limits.h.
+One file in xine-lib didn't already reference this, which broke the
+build.
+
+Upstream status: submitted, awaiting response.
+
+diff -Naur xine-lib-1.1.8.orig/src/input/vcd/libcdio/_cdio_linux.c xine-lib-1.1.8/src/input/vcd/libcdio/_cdio_linux.c
+--- xine-lib-1.1.8.orig/src/input/vcd/libcdio/_cdio_linux.c     2007-08-19 00:36:48.000000000 +0100
++++ xine-lib-1.1.8/src/input/vcd/libcdio/_cdio_linux.c  2007-10-22 15:08:55.000000000 +0100
+@@ -59,6 +59,7 @@
+ #include <unistd.h>
+ #include <fcntl.h>
+ #include <mntent.h>
++#include <limits.h>
+ 
+ #include <linux/cdrom.h>
+ #include <scsi/scsi.h>
+

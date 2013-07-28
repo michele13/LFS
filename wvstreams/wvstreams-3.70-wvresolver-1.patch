@@ -1,0 +1,17 @@
+Submitted By: BLFS Book <blfs-book@linuxfromscratch.org>
+Date: 2003-10-04
+Initial Package Version: 3.70
+Origin: BLFS Book
+Description: Fixes compilation.
+diff -ur wvstreams-3.70.orig/src/ipstreams/wvresolver.cc wvstreams-3.70/src/ipstreams/wvresolver.cc
+--- wvstreams-3.70.orig/src/ipstreams/wvresolver.cc	2002-03-02 09:33:08.000000000 +0500
++++ wvstreams-3.70/src/ipstreams/wvresolver.cc	2003-04-10 12:51:58.000000000 +0600
+@@ -128,7 +128,7 @@
+ // If addr==NULL, this just tests to see if the name exists.
+ int WvResolver::findaddr(int msec_timeout, const WvString &name,
+ 			 WvIPAddr const **addr,
+-                         WvIPAddrList *addrlist = NULL)
++                         WvIPAddrList *addrlist)
+ {
+     WvResolverHost *host;
+     time_t now = time(NULL);

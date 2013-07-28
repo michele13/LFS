@@ -1,0 +1,72 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-07-12
+Initial Package Version: 6.3.8
+Upstream Status: From Upstream
+Origin: Fetchmail security advisories SA-2007-02 and SA-2008-01
+Description: Fixes vulnerabilities CVE-2007-4565 and CVE-2008-2711.
+
+diff -Naur fetchmail-6.3.8.orig/report.c fetchmail-6.3.8/report.c
+--- fetchmail-6.3.8.orig/report.c	2006-03-14 08:53:31.000000000 +0000
++++ fetchmail-6.3.8/report.c	2008-07-12 19:40:16.000000000 +0100
+@@ -238,11 +238,17 @@
+     rep_ensuresize();
+ 
+ #if defined(VA_START)
+-    VA_START (args, message);
+     for ( ; ; )
+     {
++	/*
++	 * args has to be initialized before every call of vsnprintf(), 
++	 * because vsnprintf() invokes va_arg macro and thus args is 
++	 * undefined after the call.
++	 */
++	VA_START(args, message);
+ 	n = vsnprintf (partial_message + partial_message_size_used, partial_message_size - partial_message_size_used,
+ 		       message, args);
++	va_end (args);
+ 
+ 	if (n >= 0
+ 	    && (unsigned)n < partial_message_size - partial_message_size_used)
+@@ -254,7 +260,6 @@
+ 	partial_message_size += 2048;
+ 	partial_message = REALLOC (partial_message, partial_message_size);
+     }
+-    va_end (args);
+ #else
+     for ( ; ; )
+     {
+@@ -304,12 +309,13 @@
+     rep_ensuresize();
+ 
+ #if defined(VA_START)
+-    VA_START (args, message);
+     for ( ; ; )
+     {
++	VA_START(args, message);
+ 	n = vsnprintf (partial_message + partial_message_size_used,
+ 		       partial_message_size - partial_message_size_used,
+ 		       message, args);
++	va_end(args);
+ 
+ 	/* old glibc versions return -1 for truncation */
+ 	if (n >= 0
+@@ -322,7 +328,6 @@
+ 	partial_message_size += 2048;
+ 	partial_message = REALLOC (partial_message, partial_message_size);
+     }
+-    va_end (args);
+ #else
+     for ( ; ; )
+     {
+diff -Naur fetchmail-6.3.8.orig/sink.c fetchmail-6.3.8/sink.c
+--- fetchmail-6.3.8.orig/sink.c	2007-03-29 23:45:17.000000000 +0100
++++ fetchmail-6.3.8/sink.c	2008-07-12 19:40:08.000000000 +0100
+@@ -262,7 +262,7 @@
+     const char *md1 = "MAILER-DAEMON", *md2 = "MAILER-DAEMON@";
+ 
+     /* don't bounce in reply to undeliverable bounces */
+-    if (!msg->return_path[0] ||
++    if (!msg || !msg->return_path[0] ||
+ 	strcmp(msg->return_path, "<>") == 0 ||
+ 	strcasecmp(msg->return_path, md1) == 0 ||
+ 	strncasecmp(msg->return_path, md2, strlen(md2)) == 0)

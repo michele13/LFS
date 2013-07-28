@@ -1,0 +1,37 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2005-06-17
+Initial Package Version: 2.6.11-050330
+Upstream Status: Sent to maintainer
+Origin: None
+Description: The symlink commands create absolute symlinks instead of relative.
+             This causes dangling links in case the package is installed using
+             DESTDIR. Some package managers will report this as an error.
+
+diff -ur iproute2-2.6.11-050330.orig/Makefile iproute2-2.6.11-050330/Makefile
+--- iproute2-2.6.11-050330.orig/Makefile	2005-04-01 13:58:11.000000000 -0600
++++ iproute2-2.6.11-050330/Makefile	2005-06-17 08:45:57.322370304 -0500
+@@ -50,8 +50,8 @@
+ 	install -m 0644 $(shell find etc/iproute2 -maxdepth 1 -type f) $(DESTDIR)$(CONFDIR)
+ 	install -m 0755 -d $(DESTDIR)$(MANDIR)/man8
+ 	install -m 0644 $(shell find man/man8 -maxdepth 1 -type f) $(DESTDIR)$(MANDIR)/man8
+-	ln -sf $(MANDIR)/man8/tc-pbfifo.8  $(DESTDIR)$(MANDIR)/man8/tc-bfifo.8
+-	ln -sf $(MANDIR)/man8/tc-pbfifo.8  $(DESTDIR)$(MANDIR)/man8/tc-pfifo.8
++	ln -sf tc-pbfifo.8  $(DESTDIR)$(MANDIR)/man8/tc-bfifo.8
++	ln -sf tc-pbfifo.8  $(DESTDIR)$(MANDIR)/man8/tc-pfifo.8
+ 	install -m 0755 -d $(DESTDIR)$(MANDIR)/man3
+ 	install -m 0644 $(shell find man/man3 -maxdepth 1 -type f) $(DESTDIR)$(MANDIR)/man3
+ 
+diff -ur iproute2-2.6.11-050330.orig/misc/Makefile iproute2-2.6.11-050330/misc/Makefile
+--- iproute2-2.6.11-050330.orig/misc/Makefile	2005-04-01 13:58:11.000000000 -0600
++++ iproute2-2.6.11-050330/misc/Makefile	2005-06-17 08:46:23.156442928 -0500
+@@ -28,8 +28,8 @@
+ 
+ install: all
+ 	install -m 0755 -s $(TARGETS) $(DESTDIR)$(SBINDIR)
+-	ln -sf $(SBINDIR)/lnstat $(DESTDIR)$(SBINDIR)/rtstat
+-	ln -sf $(SBINDIR)/lnstat $(DESTDIR)$(SBINDIR)/ctstat
++	ln -sf lnstat $(DESTDIR)$(SBINDIR)/rtstat
++	ln -sf lnstat $(DESTDIR)$(SBINDIR)/ctstat
+ 
+ clean:
+ 	rm -f *.o $(TARGETS) ssfilter.c

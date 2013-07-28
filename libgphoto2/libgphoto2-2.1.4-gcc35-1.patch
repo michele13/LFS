@@ -1,0 +1,75 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-17
+Initial Package Version: 2.1.4
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/libgphoto2-2.1.4-gcc35-1.patch
+Upstream Status: not reported
+Description: fix compilation with gcc35 (invalid lvalue)
+ 
+diff -Naur libgphoto2-2.1.4.orig/camlibs/konica/qm150.c libgphoto2-2.1.4/camlibs/konica/qm150.c
+--- libgphoto2-2.1.4.orig/camlibs/konica/qm150.c	2004-05-17 06:43:25.456695616 +0000
++++ libgphoto2-2.1.4/camlibs/konica/qm150.c	2004-05-17 06:45:03.160842328 +0000
+@@ -286,10 +286,10 @@
+ 		}
+ 		if ((len - bytes_read) > DATA_BUFFER) {
+ 			memcpy((char *)buffer, buf, xret);
+-			(unsigned int)buffer += DATA_BUFFER;
++			buffer += DATA_BUFFER;
+ 		} else {
+ 			memcpy((char *)buffer, buf, (len - bytes_read));
+-			(unsigned int)buffer += len - bytes_read;
++			buffer += len - bytes_read;
+ 		}
+ 
+ 		/* acknowledge the packet */
+@@ -749,7 +749,7 @@
+ 	 * but UNIX timestamp start the 1 January 1970 at 00:00
+ 	 * so we calculate the UNIX timestamp with the camera's one
+ 	 */
+-	(int)timestamp += (8*365 + 2*366)*24*3600-3600;
++	timestamp += (8*365 + 2*366)*24*3600-3600;
+ 
+ 	/* Window creation */
+ 	gp_widget_new (GP_WIDGET_WINDOW, _("Konica Configuration"), window);
+@@ -1150,7 +1150,7 @@
+ 
+ 	timestamp = (buf[TIMESTAMP_PTR] << 24) + (buf[TIMESTAMP_PTR+1] << 16)
+ 		+ (buf[TIMESTAMP_PTR+2] << 8) + buf[TIMESTAMP_PTR+3];
+-	(unsigned int)timestamp += (8*365 + 2*366)*24*3600-3600;
++	timestamp += (8*365 + 2*366)*24*3600-3600;
+ 	tmp = *localtime(&timestamp);
+ 	switch (buf[DATE_FORMAT_PTR]) {
+ 		case 1:
+diff -Naur libgphoto2-2.1.4.orig/camlibs/ptp2/ptp-pack.c libgphoto2-2.1.4/camlibs/ptp2/ptp-pack.c
+--- libgphoto2-2.1.4.orig/camlibs/ptp2/ptp-pack.c	2004-05-17 07:45:43.526422640 +0000
++++ libgphoto2-2.1.4/camlibs/ptp2/ptp-pack.c	2004-05-17 07:47:36.189295280 +0000
+@@ -440,7 +440,7 @@
+ 		case PTP_DTC_STR:
+ 		{
+ 			uint8_t len;
+-			(char *)(*value)=ptp_unpack_string(params,data,0,&len);
++			(*value)=ptp_unpack_string(params,data,0,&len);
+ 			break;
+ 		}
+ 	}
+@@ -513,10 +513,10 @@
+ 		/* XXX: other int types are unimplemented */
+ 		/* XXX: int arrays are unimplemented also */
+ 		case PTP_DTC_STR:
+-			(char *)dpd->FactoryDefaultValue = ptp_unpack_string
++			dpd->FactoryDefaultValue = ptp_unpack_string
+ 				(params,data,PTP_dpd_FactoryDefaultValue,&len);
+ 			totallen=len*2+1;
+-			(char *)dpd->CurrentValue = ptp_unpack_string
++			dpd->CurrentValue = ptp_unpack_string
+ 				(params, data, PTP_dpd_FactoryDefaultValue + 
+ 				totallen, &len);
+ 			totallen+=len*2+1;
+@@ -598,7 +598,7 @@
+ 			int i;
+ 			for(i=0;i<N;i++)
+ 			{
+-				(char *)dpd->FORM.Enum.SupportedValue[i]=
++				dpd->FORM.Enum.SupportedValue[i]=
+ 					ptp_unpack_string
+ 					(params,data,PTP_dpd_FactoryDefaultValue
+ 					+totallen,&len);

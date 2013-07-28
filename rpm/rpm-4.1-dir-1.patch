@@ -1,0 +1,30 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-12
+Initial Package Version: 4.1
+Origin: Jim Gifford
+Description: Fixes mkinstalldirs
+
+diff -Naur rpm-4.1.orig/po/Makefile.in rpm-4.1/po/Makefile.in
+--- rpm-4.1.orig/po/Makefile.in	2002-08-31 13:24:00.000000000 +0000
++++ rpm-4.1/po/Makefile.in	2003-09-12 21:36:47.000000000 +0000
+@@ -29,7 +29,7 @@
+ INSTALL = /usr/bin/install -c
+ INSTALL_DATA = ${INSTALL} -m 644
+ MKINSTALLDIRS = ./mkinstalldirs
+-mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(top_builddir)/$(MKINSTALLDIRS)" ;; esac`
++mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(MKINSTALLDIRS)" ;; esac`
+ 
+ CC = gcc
+ GMSGFMT = /usr/bin/msgfmt
+diff -Naur rpm-4.1.orig/po/Makefile.in.in rpm-4.1/po/Makefile.in.in
+--- rpm-4.1.orig/po/Makefile.in.in	2002-08-10 17:51:29.000000000 +0000
++++ rpm-4.1/po/Makefile.in.in	2003-09-12 21:36:33.000000000 +0000
+@@ -29,7 +29,7 @@
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+ MKINSTALLDIRS = @MKINSTALLDIRS@
+-mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(top_builddir)/$(MKINSTALLDIRS)" ;; esac`
++mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(MKINSTALLDIRS)" ;; esac`
+ 
+ CC = @CC@
+ GMSGFMT = @GMSGFMT@

@@ -1,0 +1,36 @@
+Submitted By: Jim Gifford <jim at linuxfromscratch dot org>
+Date: 2006-07-04
+Initial Package Version: 6.6
+Origin: Various
+Description: Make pcre-config Multilib Friendly
+
+diff -Naur pcre-6.6.orig/pcre-config.in pcre-6.6/pcre-config.in
+--- pcre-6.6.orig/pcre-config.in	2006-02-06 04:17:16.000000000 -0800
++++ pcre-6.6/pcre-config.in	2006-07-04 12:22:33.601152524 -0700
+@@ -12,13 +12,6 @@
+       exit 1
+ fi
+ 
+-libR=
+-case `uname -s` in
+-  *SunOS*)
+-  libR=" -R@libdir@"
+-  ;;
+-esac
+-
+ while test $# -gt 0; do
+   case "$1" in
+   -*=*) optarg=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+@@ -52,10 +45,10 @@
+       echo $includes
+       ;;
+     --libs-posix)
+-      echo -L@libdir@$libR -lpcreposix -lpcre
++      echo -lpcreposix -lpcre
+       ;;
+     --libs)
+-      echo -L@libdir@$libR -lpcre
++      echo -lpcre
+       ;;
+     *)
+       echo "${usage}" 1>&2

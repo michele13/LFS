@@ -1,0 +1,34 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-06-26
+Initial Package Version: 2.6.7
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Removes arpd. arpd depends on db, which is not in the
+	     LFS BOOK.
+ 
+--- iproute2-2.6.7/misc/Makefile.orig	2004-06-26 19:55:24.957612200 +0000
++++ iproute2-2.6.7/misc/Makefile	2004-06-26 19:56:28.974893580 +0000
+@@ -2,11 +2,10 @@
+ NSTATOBJ=nstat.o
+ IFSTATOBJ=ifstat.o
+ RTACCTOBJ=rtacct.o
+-ARPDOBJ=arpd.o
+ RTSTATOBJ=rtstat.o
+ 
+-ALLOBJ=$(SSOBJ) $(NSTATOBJ) $(IFSTATOBJ) $(RTACCTOBJ) $(ARPDOBJ) $(RTSTATOBJ)
+-TARGETS=ss nstat ifstat rtacct arpd rtstat
++ALLOBJ=$(SSOBJ) $(NSTATOBJ) $(IFSTATOBJ) $(RTACCTOBJ) $(RTSTATOBJ)
++TARGETS=ss nstat ifstat rtacct rtstat
+ 
+ all: $(TARGETS)
+ 
+@@ -21,9 +20,6 @@
+ rtacct: $(RTACCTOBJ)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o rtacct $(RTACCTOBJ) $(LIBNETLINK) -lm
+ 
+-arpd: $(ARPDOBJ)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -o arpd $(ARPDOBJ) $(LIBNETLINK) -ldb-4.1
+-
+ rtstat: $(RTSTATOBJ)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o rtstat $(RTSTATOBJ)
+ 

@@ -1,0 +1,21 @@
+Submitted By: Kelledin <kelledin@users.sourceforge.net>
+Date: 2003-10-05
+Initial Package Version: 3.6.0
+Origin: Kelledin <kelledin@users.sourceforge.net>
+Description: tiff-3.6.0 stupidly uses the wrong name for a macro in one of its
+             header files (this only crops up when compiling it with a C++
+             compiler).  This patch corrects the misnaming.
+
+
+diff -Naur tiff-v3.6.0/libtiff/tiffio.h tiff-v3.6.0-tiffio/libtiff/tiffio.h
+--- tiff-v3.6.0/libtiff/tiffio.h	2003-10-04 06:43:16.000000000 -0500
++++ tiff-v3.6.0-tiffio/libtiff/tiffio.h	2003-10-05 10:39:03.000000000 -0500
+@@ -284,7 +284,7 @@
+ extern	int TIFFWriteScanline(TIFF*, tdata_t, uint32, tsample_t = 0);
+ extern	int TIFFReadRGBAImage(TIFF*, uint32, uint32, uint32*, int = 0);
+ extern	int TIFFReadRGBAImageOriented(TIFF*, uint32, uint32, uint32*,
+-				      int = ORIENTATION_BOTTOMLEFT, int = 0);
++				      int = ORIENTATION_BOTLEFT, int = 0);
+ #else
+ extern	void TIFFPrintDirectory(TIFF*, FILE*, long);
+ extern	int TIFFReadScanline(TIFF*, tdata_t, uint32, tsample_t);

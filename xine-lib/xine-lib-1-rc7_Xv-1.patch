@@ -1,0 +1,32 @@
+Submitted By: David Jensen
+Date: 2004-11-20
+Initial Package Version: 1-rc7
+Upstream Status: posted a patch to configure.ac on Sourceforge buglist
+Origin: David Jensen
+Description: Check that libXv.a exits before verifying functions,
+	default to libXv.so if libXv.a does not exist.
+	change the incorrect xlibXv references to libXv
+	correct badly formatted xv_lib test 
+
+--- xine-lib-1-rc7.orig/configure	2004-11-04 08:50:41.000000000 -0600
++++ xine-lib-1-rc7/configure	2004-11-20 08:51:37.007882720 -0600
+@@ -28862,6 +28862,10 @@
+   xv_path="/usr/X11R6/$XINE_LIBNAME"
+ fi;
+ 
++if ! test -f "$xv_path/libXv.a"; then
++  xv_lib="libXv.so"
++fi
++
+ echo "$as_me:$LINENO: checking for XvShmCreateImage in -lXv" >&5
+ echo $ECHO_N "checking for XvShmCreateImage in -lXv... $ECHO_C" >&6
+ if test "${ac_cv_lib_Xv_XvShmCreateImage+set}" = set; then
+@@ -46586,7 +46590,7 @@
+     echo "   - SyncFB (for Matrox G200/G400 cards)"
+   fi
+     if test x$ac_have_xv = "xyes"; then
+-    if test x$xv_lib="xlibXv.a"; then
++    if test x$xv_lib = "xlibXv.a"; then
+       echo "   - Xv (XVideo *static*)"
+     else
+       echo "   - Xv (XVideo *shared*)"

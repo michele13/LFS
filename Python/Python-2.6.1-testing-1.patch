@@ -1,0 +1,33 @@
+Submitted By: Bruce Dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2008-12-30
+Initial Package Version: 2.6.1
+Origin: Upstream
+Description: Fixes Python testing failure
+
+$LastChangedBy$
+$Date$
+
+--- Python-2.6.1/Lib/test/test_urllib2_localnet.py      2008-06-13 17:38:33.000000000 -0500
++++ Python-2.6.1.new/Lib/test/test_urllib2_localnet.py  2008-12-30 18:05:42.000000000 -0600
+@@ -474,7 +474,7 @@
+                           # domain will be spared to serve its defined
+                           # purpose.
+                           # urllib2.urlopen, "http://www.sadflkjsasadf.com/")
+-                          urllib2.urlopen, "http://www.python.invalid./")
++                          urllib2.urlopen, "http://sadflkjsasf.i.nvali.d/")
+
+
+ def test_main():
+diff -Naur Python-2.6.1/Lib/test/test_urllibnet.py Python-2.6.1.new/Lib/test/test_urllibnet.py
+--- Python-2.6.1/Lib/test/test_urllibnet.py     2008-09-08 19:49:16.000000000 -0500
++++ Python-2.6.1.new/Lib/test/test_urllibnet.py 2008-12-30 17:44:08.000000000 -0600
+@@ -137,7 +137,7 @@
+                           # domain will be spared to serve its defined
+                           # purpose.
+                           # urllib.urlopen, "http://www.sadflkjsasadf.com/")
+-                          urllib.urlopen, "http://www.python.invalid./")
++                          urllib.urlopen, "http://sadflkjsasf.i.nvali.d/")
+
+ class urlretrieveNetworkTests(unittest.TestCase):
+     """Tests urllib.urlretrieve using the network."""
+

@@ -1,0 +1,62 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-12-21
+Initial Package Version: 4.1.4
+Origin: Jim Gifford/AuroraLinux
+Upstream Status: Unknown
+Description: Makes GMP work under Sparc64
+ 
+diff -Naur gmp-4.1.4.orig/configure gmp-4.1.4/configure
+--- gmp-4.1.4.orig/configure	2004-09-21 13:06:47.000000000 +0000
++++ gmp-4.1.4/configure	2005-12-22 07:52:44.000000000 +0000
+@@ -2518,44 +2518,13 @@
+       # even though the chip is v9.
+       #
+       sparcv9*-*-* | ultrasparc*-*-* | sparc64-*-*)
+-        path="sparc32/v9 sparc32/v8 sparc32"
+-        extra_functions="udiv_fp"
+-
+-        SPEED_CYCLECOUNTER_OBJ=sparcv9.lo
+-
+-        gcc_cflags="-g -O2 -Wa,-xarch=v8plus"
+-        gcc_cflags_cpu="-mcpu=ultrasparc -mcpu=v9 -mcpu=v8 -mv8"
+-
+-        # must have -xarch=v8plus here, to get the right assembler options
+-        # for our mpn/sparc32/v9 code
+-        cc_cflags="-xtarget=native -xarch=v8plus -xO4"
+-
+-        case $host in
+-          *-*-solaris2.[7-9])
+-            # solaris prior to 2.6 doesn't save registers properly, so the
+-            # 64-bit ABI is only available for 2.7 up
+-            abilist="64 32"
+-            path_64="sparc64"
+-            cclist_64="gcc cc"
+-            gcc_64_cflags="-g -O2 -m64 -mptr64 -Wa,-xarch=v9 -mcpu=v9"
+-            gcc_64_ldflags="-Wc,-m64"
+-	    # -fast enables different optimizations depending compiler version
+-	    # -fns=no and -fsimple=1 disables some transformations that
+-	    # conflict with IEEE 754, which some compiler versions perform.
+-            cc_64_cflags="-fast -fns=no -fsimple=1 -xarch=v9"
+-            SPEED_CYCLECOUNTER_OBJ_64=sparcv9.lo
+-            cyclecounter_size_64=2
+-            ;;
+-          *-*-*bsd*)
+-            # NetBSD and OpenBSD sparc64
+-            abilist="64"
+-            extra_functions=
+-            path="sparc64"
+-            gcc_cflags="-g -O2"
+-            cyclecounter_size=2
+-            ;;
+-        esac
+-      ;;
++        # Linux sparc64
++        abilist="64"
++        extra_functions=
++        path="sparc64"
++        gcc_cflags="-g -O2"
++        cyclecounter_size=2
++        ;;
+     esac
+     ;;
+ 

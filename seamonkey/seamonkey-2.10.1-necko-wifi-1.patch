@@ -1,0 +1,38 @@
+Submitted By: Andrew Benton <andy@benton.eu.com>
+Date: 2012-06-29
+Initial Package Version: 2.10.1
+Upstream Status: Submitted
+https://bugzilla.mozilla.org/show_bug.cgi?id=769655
+Origin: Ported from the current Firefox installer files
+Description: Fixes the Seamonkey installer for the situation when Seamonkey was
+configured with --disable-necko-wifi. The installer's package manifest is
+hardcoded to include necko_wifi.xpt, which is not compiled
+with --disable-necko-wifi
+
+diff -r 9128c033ee05 suite/installer/Makefile.in
+--- a/suite/installer/Makefile.in	Fri Jun 29 10:49:23 2012 +0100
++++ b/suite/installer/Makefile.in	Fri Jun 29 12:32:54 2012 +0100
+@@ -93,6 +93,10 @@
+ DEFINES += -DMOZ_MOVEMAIL=1
+ endif
+
++ifdef NECKO_WIFI
++DEFINES += -DNECKO_WIFI=1
++endif
++
+ # Set MSVC dlls version to package, if any.
+ ifdef WIN32_REDIST_DIR
+ DEFINES += -DMOZ_MSVC_REDIST=$(_MSC_VER)
+diff -r 9128c033ee05 suite/installer/package-manifest.in
+--- a/suite/installer/package-manifest.in	Fri Jun 29 10:49:23 2012 +0100
++++ b/suite/installer/package-manifest.in	Fri Jun 29 12:33:41 2012 +0100
+@@ -258,7 +258,9 @@
+ @BINPATH@/components/necko_strconv.xpt
+ @BINPATH@/components/necko_viewsource.xpt
+ @BINPATH@/components/necko_websocket.xpt
++#ifdef NECKO_WIFI
+ @BINPATH@/components/necko_wifi.xpt
++#endif
+ @BINPATH@/components/necko_wyciwyg.xpt
+ #ifdef MOZ_ENABLE_GNOMEVFS
+ @BINPATH@/components/@DLL_PREFIX@nkgnomevfs@DLL_SUFFIX@

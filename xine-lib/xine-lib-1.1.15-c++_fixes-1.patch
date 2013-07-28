@@ -1,0 +1,22 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-10-17
+Initial Package Version: 1.1.15
+Upstream Status: listed as "required (post-release) patches"
+Origin: Darren Salt, for debian:
+http://hg.debian.org/hg/xine-lib/xine-lib/?cmd=changeset;node=c35bdd51ce1c;style=raw
+http://hg.debian.org/hg/xine-lib/xine-lib?cmd=changeset;node=b3822572afa5;style=raw
+
+Description: Allows c++ programs to use the xine-lib headers
+
+diff -Naur xine-lib-1.1.15.orig/src/xine-engine/buffer.h xine-lib-1.1.15/src/xine-engine/buffer.h
+--- xine-lib-1.1.15.orig/src/xine-engine/buffer.h	2008-07-16 22:01:56.000000000 +0100
++++ xine-lib-1.1.15/src/xine-engine/buffer.h	2008-10-17 12:41:32.000000000 +0100
+@@ -676,7 +676,7 @@
+ /* convert xine_waveformatex struct from little endian */
+ void _x_waveformatex_le2me( xine_waveformatex *wavex ) XINE_PROTECTED;
+ 
+-static inline _x_is_fourcc(void *ptr, void *tag) {
++static __inline int _x_is_fourcc(void *ptr, void *tag) {
+   return memcmp(ptr, tag, 4) == 0;
+ }
+ 

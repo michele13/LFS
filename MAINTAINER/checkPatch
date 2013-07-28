@@ -1,0 +1,74 @@
+#!/bin/sh
+# Script to verify that the patch contains all neccessary headers
+# [Created by Tushar Teredesai]
+# [License: GPL]
+# 
+# Script to verify that the patch meets the basic formatting standards.
+#
+
+if [ "$DEBUG" = "yes" ]
+then
+	set -x
+fi
+
+if [ "$1" = "" ]
+then
+	echo "ERROR: Patch File not specified."
+	echo "Usage: `basename $0` file.patch"
+	exit 1
+fi
+PATCH_FILE="$1"
+if [ ! -f "$PATCH_FILE" ]
+then
+	echo "ERROR: Patch File not found"
+	exit 1
+fi
+
+err_val=0
+
+SUBMITTED_BY=`echo \`grep "^Submitted By:" $PATCH_FILE | cut -f2 -d:\``
+DATE=`echo \`grep -h "^Date:" $PATCH_FILE | cut -f2 -d:\``
+INITIAL_PACKAGE_VERSION=`echo \`grep -h "^Initial Package Version:" $PATCH_FILE | cut -f2 -d:\``
+ORIGIN=`echo \`grep -h "^Origin:" $PATCH_FILE | cut -f2 -d:\``
+DESCRIPTION=`grep -h "^Description:" $PATCH_FILE`
+UPSTREAM_STATUS=`echo \`grep "^Upstream Status:" $PATCH_FILE | cut -f2 -d:\``
+if [ -z "$SUBMITTED_BY" ]
+then
+	echo "Annonymous Submitter!"
+	err_val=1
+else
+	echo "Submitted By: $SUBMITTED_BY"
+fi
+if [ -z "$DATE" ]
+then
+	echo "Date not specified!"
+	err_val=1
+else
+	echo "Date: $DATE"
+fi
+if [ -z "$INITIAL_PACKAGE_VERSION" ]
+then
+	echo "No Package Version specified!"
+	err_val=1
+else
+	echo "Initial Package Version: $INITIAL_PACKAGE_VERSION"
+fi
+if [ -z "$UPSTREAM_STATUS" ]
+then
+	echo "Upstream status not included!"
+	err_val=1
+else
+	echo "Upstream Status: $UPSTREAM_STATUS"
+fi
+if [ -z "$ORIGIN" ]
+then
+	echo "Origin of patch not mentioned!"
+	err_val=1
+fi
+if [ -z "$DESCRIPTION" ]
+then
+	echo "Description missing!"
+	err_val=1
+fi
+
+exit $err_val

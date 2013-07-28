@@ -1,0 +1,132 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-07-02
+Initial Package Version: 2.6.8 (07012004)
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Allows options in the configure script
+ 
+diff -Naur iproute2-2.6.8.orig/configure iproute2-2.6.8/configure
+--- iproute2-2.6.8.orig/configure	2004-07-01 22:24:22.000000000 +0000
++++ iproute2-2.6.8/configure	2004-07-02 18:35:23.254863190 +0000
+@@ -1,13 +1,56 @@
+ #! /bin/bash
+ # This is not an autconf generated configure
+ #
++usage () {
++        echo "$0 : options"
++        echo "options available"
++        echo "  Optional"
++        echo "  [NETEM={y|n} Enabled/Disable NetEM Sheduler]"
++        echo "  [ATM={y|n} Enable/Disable ATM]"
++        echo "  [TCP_VEGAS={y|n} Enable/Disable TCP Vegas]"
++        echo "  [TCP_DRS={y|n} Enable/Disable TCP DRS]"
++        exit 1
++}
++
++# Input Check
++#
++INPUT_CHK="`echo $1 | tr '[:lower:]' '[:upper:]'`"
++if [ "$INPUT_CHK" = "HELP" ]
++        then
++                usage
++fi
++
++echo "Checking Input..."
++while [ $# -gt 0 ]
++        do
++                case $1 in
++                NETEM=*)
++                        NETEM="`echo $1 | awk -F= '{print $2;}' | tr '[:lower:]' '[:upper:]'`"
++                        ;;
++
++                ATM=*)
++                        ATM="`echo $1 | awk -F= '{print $2;}' | tr '[:lower:]' '[:upper:]'`"
++                        ;;
++
++                TCPVEGAS=*)
++                        TCPVEGAS="`echo $1 | awk -F= '{print $2;}' | tr '[:lower:]' '[:upper:]'`"
++                        ;;
++
++                TCPDRS=*)
++	                TCPDRS="`echo $1 | awk -F= '{print $2;}' | tr '[:lower:]' '[:upper:]'`"
++                        ;;
++                esac
++        shift
++done
++
++
+ INCLUDE=${1:-"/usr/include"}
+ 
+ echo "# Generated config based on" $INCLUDE >Config
+ 
+ echo "TC"
+ PKT_SCHED=$INCLUDE/linux/pkt_sched.h
+-if [ ! -r $PKT_SCHED ];
++if [ ! -r $PKT_SCHED ]
+ then
+     echo " can't find file" $PKT_SCHED
+     exit 1
+@@ -16,8 +59,13 @@
+ echo -n " netem scheduler... "
+ if grep -q 'tc_netem_qopt' $PKT_SCHED
+ then
+-    echo "TC_CONFIG_NETEM = y" >>Config
+-    echo y
++    if [ "$NETEM" = "N" ]
++	then
++		echo n
++	else
++		echo "TC_CONFIG_NETEM = y" >>Config
++		echo y
++    fi
+ else
+     echo n
+ fi
+@@ -25,8 +73,13 @@
+ echo -n " ATM...              "
+ if [ -r $INCLUDE/linux/atm.h ]
+ then
+-    echo "TC_CONFIG_ATM = y" >>Config
+-    echo y
++    if [ "$ATM" = "N" ]
++	then
++		echo n
++	else
++    		echo "TC_CONFIG_ATM = y" >>Config
++		echo y
++    fi
+ else
+     echo n
+ fi
+@@ -36,8 +89,13 @@
+ echo -n " TCP Vegas...        "
+ if grep -q TCPDIAG_VEGASINFO $INCLUDE/linux/tcp_diag.h
+ then
+-    echo "SS_CONFIG_VEGAS = y" >>Config
+-    echo y
++    if [ "$TCPVEGAS" = "N" ]
++	then
++		echo n
++	else
++    		echo "SS_CONFIG_VEGAS = y" >>Config
++		echo y
++    fi
+ else
+     echo n
+ fi
+@@ -45,8 +103,13 @@
+ echo -n " TCP DRS...          "
+ if grep -q tcpi_rcv_space $INCLUDE/linux/tcp.h
+ then
+-    echo "SS_CONFIG_DRS = y" >>Config
+-    echo y
++    if [ "$TCPDRS" = "N" ]
++	then
++		echo n
++	else
++    		echo "SS_CONFIG_DRS = y" >>Config
++		echo y
++   fi
+ else
+     echo n
+ fi

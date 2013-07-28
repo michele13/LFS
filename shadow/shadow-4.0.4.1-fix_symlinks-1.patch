@@ -1,0 +1,23 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2004-01-17
+Initial Package Version: 4.0.4.1
+Origin: None
+Description: Fixes incorrectly created symlinks during install.
+Upstream Status: Submitted (though the submitted patch patches Makefile.am)
+
+diff -ur shadow-4.0.4.1.orig/src/Makefile.in shadow-4.0.4.1/src/Makefile.in
+--- shadow-4.0.4.1.orig/src/Makefile.in	2004-01-14 08:15:28.000000000 -0600
++++ shadow-4.0.4.1/src/Makefile.in	2004-01-17 22:36:38.000000000 -0600
+@@ -915,8 +915,10 @@
+ 
+ 
+ install-exec-hook:
+-	ln -sf newgrp	$(DESTDIR)$(bindir)/sg
+-	ln -sf vipw	$(DESTDIR)$(bindir)/vigr
++	$(mkinstalldirs) $(DESTDIR)$(ubindir)
++	ln -sf newgrp	$(DESTDIR)$(ubindir)/sg
++	$(mkinstalldirs) $(DESTDIR)$(usbindir)
++	ln -sf vipw	$(DESTDIR)$(usbindir)/vigr
+ 	for i in $(suidbins); do \
+ 		chmod 4755 $(DESTDIR)$(bindir)/$$i; \
+ 	done

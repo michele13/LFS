@@ -1,0 +1,23 @@
+Submitted By: Archaic (archaic -aT- linuxfromscratch -DoT- org)
+Date: 2006-04-17
+Initial Package Version: 2.6.16.5
+Origin: http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=9469d458b90bfb9117cbb488cfa645d94c3921b1
+Upstream Status: Applied
+Description: Fixes a race condition during device registration.
+
+diff -Naur linux-2.6.16.5.orig/net/core/dev.c linux-2.6.16.5/net/core/dev.c
+--- linux-2.6.16.5.orig/net/core/dev.c	2006-04-12 20:27:57.000000000 +0000
++++ linux-2.6.16.5/net/core/dev.c	2006-04-17 20:59:42.000000000 +0000
+@@ -2932,11 +2932,11 @@
+ 
+ 		switch(dev->reg_state) {
+ 		case NETREG_REGISTERING:
++			dev->reg_state = NETREG_REGISTERED;
+ 			err = netdev_register_sysfs(dev);
+ 			if (err)
+ 				printk(KERN_ERR "%s: failed sysfs registration (%d)\n",
+ 				       dev->name, err);
+-			dev->reg_state = NETREG_REGISTERED;
+ 			break;
+ 
+ 		case NETREG_UNREGISTERING:

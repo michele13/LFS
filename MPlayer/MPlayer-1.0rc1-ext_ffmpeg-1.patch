@@ -1,0 +1,156 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2007-08-10
+Initial Package Version: MPlayer-1.0rc1
+Upstream Status:         In upstream CVS
+Origin:                  Upstream CVS: http://svn.mplayerhq.hu/mplayer/trunk/
+Description:             Adds upstream code to allow linking with a system
+                         installed version of a recent FFmpeg (date sensitive-
+                         must be before 20070620 - BLFS book version is fine).
+Note:                    You must pass CPPFLAGS=-I/usr/include/ffmpeg on the
+                         configure script command so the build can pick up
+                         the system-installed FFMpeg interface headers
+
+$Id$
+
+
+diff -Nau MPlayer-1.0rc1-orig/libmpcodecs/ae_lavc.c MPlayer-1.0rc1/libmpcodecs/ae_lavc.c
+--- MPlayer-1.0rc1-orig/libmpcodecs/ae_lavc.c	2006-10-22 22:32:24.000000000 +0000
++++ MPlayer-1.0rc1/libmpcodecs/ae_lavc.c	2007-08-10 17:07:19.000000000 +0000
+@@ -27,8 +27,11 @@
+ extern int  lavc_param_audio_global_header;
+ extern int  avcodec_inited;
+ static int compressed_frame_size = 0;
+-#if defined(USE_LIBAVFORMAT) ||  defined(USE_LIBAVFORMAT_SO)
++#if defined(USE_LIBAVFORMAT)
+ extern unsigned int codec_get_wav_tag(int id);
++#elif defined(USE_LIBAVFORMAT_SO)
++#include <ffmpeg/avformat.h>
++extern const struct AVCodecTag *mp_wav_taglists[];
+ #endif
+ 
+ static int bind_lavc(audio_encoder_t *encoder, muxer_stream_t *mux_a)
+@@ -170,8 +173,10 @@
+ 	}
+ 	if(lavc_param_atag == 0)
+ 	{
+-#if defined(USE_LIBAVFORMAT) ||  defined(USE_LIBAVFORMAT_SO)
++#if defined(USE_LIBAVFORMAT)
+ 		lavc_param_atag = codec_get_wav_tag(lavc_acodec->id);
++#elif defined(USE_LIBAVFORMAT_SO)
++		lavc_param_atag = av_codec_get_tag(mp_wav_taglists, lavc_acodec->id);
+ #else
+ 		lavc_param_atag = lavc_find_atag(lavc_param_acodec);
+ #endif
+
+
+diff -Nau MPlayer-1.0rc1-orig/libmpdemux/demux_lavf.c MPlayer-1.0rc1/libmpdemux/demux_lavf.c
+--- MPlayer-1.0rc1-orig/libmpdemux/demux_lavf.c	2006-10-22 22:32:31.000000000 +0000
++++ MPlayer-1.0rc1/libmpdemux/demux_lavf.c	2007-08-10 16:52:02.000000000 +0000
+@@ -33,6 +33,8 @@
+ #ifdef USE_LIBAVFORMAT_SO
+ #include <ffmpeg/avformat.h>
+ #include <ffmpeg/opt.h>
++#include <ffmpeg/avutil.h> 
++#include "libavformat/riff.h"
+ #else
+ #include "avformat.h"
+ #include "avi.h"
+@@ -65,6 +67,28 @@
+ 
+ int64_t ff_gcd(int64_t a, int64_t b);
+ 
++#ifdef USE_LIBAVFORMAT_SO
++static const AVCodecTag, mp_wav_tags[] = {
++    { CODEC_ID_ADPCM_4XM, MKTAG('4', 'X', 'M', 'A')},
++    { CODEC_ID_PCM_S24BE, MKTAG('i', 'n', '2', '4')},
++    { CODEC_ID_PCM_S8,    MKTAG('t', 'w', 'o', 's')},
++    { CODEC_ID_WAVPACK,   MKTAG('W', 'V', 'P', 'K')},
++    { CODEC_ID_TTA,       MKTAG('T', 'T', 'A', '1')},
++    { CODEC_ID_SHORTEN,   MKTAG('s', 'h', 'r', 'n')},
++    { 0, 0 },
++};
++
++const struct AVCodecTag *mp_wav_taglists[] = {codec_wav_tags, mp_wav_tags, 0};
++ 
++static const AVCodecTag, mp_bmp_tags[] = {
++
++    { CODEC_ID_XAN_WC3, MKTAG('W', 'C', '3', 'V')},
++    { 0, 0 },
++};
++
++const struct AVCodecTag *mp_bmp_taglists[] = {codec_bmp_tags, mp_bmp_tags, 0};
++#endif
++
+ static int mp_open(URLContext *h, const char *filename, int flags){
+     return 0;
+ }
+@@ -212,7 +236,11 @@
+             priv->astreams[priv->audio_streams] = i;
+             priv->audio_streams++;
+             if(!codec->codec_tag)
++#ifdef USE_LIBAVFORMAT_SO
++                codec->codec_tag= av_codec_get_tag(mp_wav_taglists, codec->codec_id);
++#else
+                 codec->codec_tag= codec_get_wav_tag(codec->codec_id);
++#endif
+             wf->wFormatTag= codec->codec_tag;
+             wf->nChannels= codec->channels;
+             wf->nSamplesPerSec= codec->sample_rate;
+@@ -278,7 +306,11 @@
+ 
+ 	    priv->video_streams++;
+             if(!codec->codec_tag)
++#ifdef USE_LIBAVFORMAT_SO
++                codec->codec_tag= av_codec_get_tag(mp_bmp_taglists, codec->codec_id);
++#else
+                 codec->codec_tag= codec_get_bmp_tag(codec->codec_id);
++#endif
+             bih->biSize= sizeof(BITMAPINFOHEADER) + codec->extradata_size;
+             bih->biWidth= codec->width;
+             bih->biHeight= codec->height;
+
+
+diff -Nau MPlayer-1.0rc1-orig/libmpdemux/muxer_lavf.c MPlayer-1.0rc1/libmpdemux/muxer_lavf.c
+--- MPlayer-1.0rc1-orig/libmpdemux/muxer_lavf.c	2006-10-22 22:32:31.000000000 +0000
++++ MPlayer-1.0rc1/libmpdemux/muxer_lavf.c	2007-08-10 17:16:34.000000000 +0000
+@@ -20,13 +20,15 @@
+ #include "m_option.h"
+ #ifdef USE_LIBAVFORMAT_SO
+ #include <ffmpeg/avformat.h>
++extern const struct AVCodecTag *mp_wav_taglists[];
++extern const struct AVCodecTag *mp_bmp_taglists[];
+ #else
+ #include "avformat.h"
+-#endif
+ 
+ extern unsigned int codec_get_wav_tag(int id);
+ extern enum CodecID codec_get_bmp_id(unsigned int tag);
+ extern enum CodecID codec_get_wav_id(unsigned int tag);
++#endif
+ 
+ extern char *info_name;
+ extern char *info_artist;
+@@ -193,7 +195,11 @@
+ 
+ 	if(stream->type == MUXER_TYPE_AUDIO)
+ 	{
++#ifdef USE_LIBAVFORMAT_SO
++		ctx->codec_id = av_codec_get_id(mp_wav_taglists, stream->wf->wFormatTag);
++#else
+ 		ctx->codec_id = codec_get_wav_id(stream->wf->wFormatTag); 
++#endif
+ #if 0 //breaks aac in mov at least
+ 		ctx->codec_tag = codec_get_wav_tag(ctx->codec_id);
+ #endif
+@@ -222,7 +228,11 @@
+ 	}
+ 	else if(stream->type == MUXER_TYPE_VIDEO)
+ 	{
++#ifdef USE_LIBAVFORMAT_SO
++		ctx->codec_id = av_codec_get_id(mp_bmp_taglists, stream->bih->biCompression);
++#else
+ 		ctx->codec_id = codec_get_bmp_id(stream->bih->biCompression);
++#endif
+                 if(ctx->codec_id <= 0)
+                     ctx->codec_tag= stream->bih->biCompression;
+ 		mp_msg(MSGT_MUXER, MSGL_INFO, "VIDEO CODEC ID: %d\n", ctx->codec_id);

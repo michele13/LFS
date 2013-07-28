@@ -1,0 +1,62 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-03
+Initial Package Version: 1.4.1
+Origin: None
+Description: Some compilation fixes for recent glibc and gcc versions.
+--- Build.orig/hotspot/src/share/vm/c1/c1_FrameMap.hpp	2002-09-06 02:03:41.000000000 -0500
++++ Build/hotspot/src/share/vm/c1/c1_FrameMap.hpp	2003-01-13 09:38:16.000000000 -0600
+@@ -196,7 +196,8 @@
+ //--------------------------------------------------------
+ 
+ class ArgumentLocation VALUE_OBJ_CLASS_SPEC {
+-  friend CallingConvention;
++  /* Syntax fix. Tushar Teredesai <tush@yahoo.com> */
++  friend struct CallingConvention;
+  private:
+   int _n;         // either a register number 0-5 (I0-I5 or O0-O5), or an offset (in words) from SP/FP
+ 
+@@ -246,7 +247,8 @@
+ //--------------------------------------------------------
+ 
+ class CallingConvention: public ResourceObj {
+-  friend FrameMap;
++  /* Syntax fix. Tushar Teredesai <tush@yahoo.com> */
++  friend class FrameMap;
+ 
+  private:
+   intStack* _args;
+--- Build.orig/hotspot/src/share/vm/opto/loopnode.hpp	2002-09-06 02:04:33.000000000 -0500
++++ Build/hotspot/src/share/vm/opto/loopnode.hpp	2003-01-13 09:39:00.000000000 -0600
+@@ -308,7 +308,8 @@
+ // Computes the mapping from Nodes to IdealLoopTrees.  Organizes IdealLoopTrees into a
+ // loop tree.  Drives the loop-based transformations on the ideal graph.
+ class PhaseIdealLoop : public PhaseTransform {
+-  friend IdealLoopTree;
++  /* Syntax fix. Tushar Teredesai <tush@yahoo.com> */
++  friend class IdealLoopTree;
+   // Pre-computed def-use info
+   PhaseIterGVN &_igvn;
+ 
+--- Build.orig/j2se/ext/plugin/oji-plugin/src/motif/common/utils.c	2002-09-06 02:31:43.000000000 -0500
++++ Build/j2se/ext/plugin/oji-plugin/src/motif/common/utils.c	2003-01-13 09:39:45.000000000 -0600
+@@ -12,6 +12,8 @@
+ #include <locale.h>
+ #include <errno.h>
+ #include <strings.h>
++/* Needed by newer gcc3. Tushar Teredesai <tush@yahoo.com> */
++#include <string.h>
+ #include <dlfcn.h>
+ #include "plugin_defs.h"
+ #include "pluginversion.h"
+--- Build.orig/j2se/ext/plugin/oji-plugin/src/motif/navig5/ProxySupport5.cpp	2002-09-06 02:31:45.000000000 -0500
++++ Build/j2se/ext/plugin/oji-plugin/src/motif/navig5/ProxySupport5.cpp	2003-01-13 09:40:44.000000000 -0600
+@@ -30,7 +30,8 @@
+ #include "ProxySupport5.h"
+ extern "C" {
+ #ifdef __linux__
+-extern int gethostname(char *, size_t);
++/* Syntax fix. Tushar Teredesai <tush@yahoo.com> */
++extern int gethostname(char *, size_t) __THROW;
+ #else
+ extern int gethostname(char *, int);
+ #endif

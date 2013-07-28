@@ -1,0 +1,27 @@
+Written By: Alexander Haley (ahaley AT alum DOT wpi DOT edu)
+Date: 2009-11-30
+Initial Package Version: 0.5.2
+Upstream Status: n/a
+Origin: n/a
+Description: When using w3m , <PRE></PRE> formatted text is difficult to distinguish from the surrounding text. This patch causes a single line of - characters to appear before and after the PRE text. This would be the same as if the HTML had been <HR><PRE>text</PRE><HR>. Patch may be applied by 'patch --verbose -i w3m-0.5.2-PRE_standout.patch' in the w3m-0.5.2/ directory.
+
+--- file.c.orig	2009-11-30 10:01:37.000000000 -0500
++++ file.c	2009-11-30 10:23:13.000000000 -0500
+@@ -4638,6 +4638,8 @@ HTMLtagproc1(struct parsed_tag *tag, str
+ 			     h_env->limit);
+ 	}
+ 	else
++	    tmp = process_hr(tag, h_env->limit, envs[h_env->envc].indent);
++	    HTMLlineproc1(tmp->ptr, h_env);
+ 	    fillline(obuf, envs[h_env->envc].indent);
+ 	obuf->flag |= (RB_PRE | RB_IGNORE_P);
+ 	/* istr = str; */
+@@ -4645,6 +4647,8 @@ HTMLtagproc1(struct parsed_tag *tag, str
+     case HTML_N_PRE:
+ 	flushline(h_env, obuf, envs[h_env->envc].indent, 0, h_env->limit);
+ 	if (!(obuf->flag & RB_IGNORE_P)) {
++	    tmp = process_hr(tag, h_env->limit, envs[h_env->envc].indent);
++	    HTMLlineproc1(tmp->ptr, h_env);
+ 	    do_blankline(h_env, obuf, envs[h_env->envc].indent, 0,
+ 			 h_env->limit);
+ 	    obuf->flag |= RB_IGNORE_P;

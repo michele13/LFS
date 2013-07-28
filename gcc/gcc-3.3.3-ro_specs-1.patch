@@ -1,0 +1,499 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-05-23
+Initial Package Version: 3.3.3
+Origin: Idea originally developed by Ryan Oliver and Greg Schafer for the Pure LFS project.
+        More architectures added by Zack Winkles.
+        Further fine tunings by Greg Schafer.
+        Modified for gcc 3.3.2 by Oliver Brakmann
+Description: This patch modifies the location of the dynamic linker for
+the GCC Pass 2 build in LFS Chapter 5. This patch differs from previous
+ones in that it can be applied at any stage of gcc build. The gcc source
+can be read-only from chap5 pass1 and beyond. To use this patch do
+./configure normally then 'echo "#define _USE_TOOLSDIR 1" >> gcc/lfsdefs.h'
+and then make normally (in gcc-build).
+
+It also removes /usr/include from the include search path if _USE_TOOLSDIR
+is set.
+
+	NOTE - !defined(USE_GNULIBC_1) is assumed i.e. libc5 is not supported.
+	WARNING - Not all architectures addressed by this patch have been properly tested due
+		to lack of access to those architectures.
+
+diff -Naur gcc-3.3.3.orig/gcc/config/alpha/linux-elf.h gcc-3.3.3.specs/gcc/config/alpha/linux-elf.h
+--- gcc-3.3.3.orig/gcc/config/alpha/linux-elf.h	2003-11-14 06:46:13.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/alpha/linux-elf.h	2004-05-23 15:30:14.000000000 +0000
+@@ -27,8 +27,10 @@
+ #define SUBTARGET_EXTRA_SPECS \
+ { "elf_dynamic_linker", ELF_DYNAMIC_LINKER },
+ 
+-#ifdef USE_GNULIBC_1
+-#define ELF_DYNAMIC_LINKER	"/lib/ld.so.1"
++/* This breaks libc5 compat. - robert */
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define ELF_DYNAMIC_LINKER	"/tools/lib/ld-linux.so.2"
+ #else
+ #define ELF_DYNAMIC_LINKER	"/lib/ld-linux.so.2"
+ #endif
+diff -Naur gcc-3.3.3.orig/gcc/config/arm/linux-elf.h gcc-3.3.3.specs/gcc/config/arm/linux-elf.h
+--- gcc-3.3.3.orig/gcc/config/arm/linux-elf.h	2003-09-16 15:39:23.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/arm/linux-elf.h	2004-05-23 15:30:14.000000000 +0000
+@@ -78,6 +78,19 @@
+   "%{!shared:crtend.o%s} %{shared:crtendS.o%s} crtn.o%s"
+ 
+ #undef  LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "%{h*} %{version:-v} \
++   %{b} %{Wl,*:%*} \
++   %{static:-Bstatic} \
++   %{shared:-shared} \
++   %{symbolic:-Bsymbolic} \
++   %{rdynamic:-export-dynamic} \
++   %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2} \
++   -X \
++   %{mbig-endian:-EB}" \
++   SUBTARGET_EXTRA_LINK_SPEC
++#else
+ #define LINK_SPEC "%{h*} %{version:-v} \
+    %{b} %{Wl,*:%*} \
+    %{static:-Bstatic} \
+@@ -88,6 +101,7 @@
+    -X \
+    %{mbig-endian:-EB}" \
+    SUBTARGET_EXTRA_LINK_SPEC
++#endif
+ 
+ #define TARGET_OS_CPP_BUILTINS()		\
+     do {					\
+diff -Naur gcc-3.3.3.orig/gcc/config/i386/linux.h gcc-3.3.3.specs/gcc/config/i386/linux.h
+--- gcc-3.3.3.orig/gcc/config/i386/linux.h	2003-11-14 06:46:12.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/i386/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -117,24 +117,16 @@
+ /* If ELF is the default format, we should not use /lib/elf.  */
+ 
+ #undef	LINK_SPEC
+-#ifdef USE_GNULIBC_1
+-#ifndef LINUX_DEFAULT_ELF
++/* This breaks libc5 compat. - robert */
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
+ #define LINK_SPEC "-m elf_i386 %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+-	%{rdynamic:-export-dynamic} \
+-	%{!dynamic-linker:-dynamic-linker /lib/elf/ld-linux.so.1} \
+-	%{!rpath:-rpath /lib/elf/}} %{static:-static}}}"
+-#else
+-#define LINK_SPEC "-m elf_i386 %{shared:-shared} \
+-  %{!shared: \
+-    %{!ibcs: \
+-      %{!static: \
+-	%{rdynamic:-export-dynamic} \
+-	%{!dynamic-linker:-dynamic-linker /lib/ld-linux.so.1}} \
+-	%{static:-static}}}"
+-#endif
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2}} \
++        %{static:-static}}}"
+ #else
+ #define LINK_SPEC "-m elf_i386 %{shared:-shared} \
+   %{!shared: \
+diff -Naur gcc-3.3.3.orig/gcc/config/i386/linux64.h gcc-3.3.3.specs/gcc/config/i386/linux64.h
+--- gcc-3.3.3.orig/gcc/config/i386/linux64.h	2003-11-14 06:46:12.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/i386/linux64.h	2004-05-23 15:30:14.000000000 +0000
+@@ -62,6 +62,17 @@
+    done.  */
+ 
+ #undef	LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "%{!m32:-m elf_x86_64} %{m32:-m elf_i386} \
++  %{shared:-shared} \
++  %{!shared: \
++    %{!static: \
++      %{rdynamic:-export-dynamic} \
++      %{m32:%{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2}} \
++      %{!m32:%{!dynamic-linker:-dynamic-linker /tools/lib64/ld-linux-x86-64.so.2}}} \
++    %{static:-static}}"
++#else
+ #define LINK_SPEC "%{!m32:-m elf_x86_64} %{m32:-m elf_i386} \
+   %{shared:-shared} \
+   %{!shared: \
+@@ -70,6 +81,7 @@
+       %{m32:%{!dynamic-linker:-dynamic-linker /lib/ld-linux.so.2}} \
+       %{!m32:%{!dynamic-linker:-dynamic-linker /lib64/ld-linux-x86-64.so.2}}} \
+     %{static:-static}}"
++#endif
+ 
+ #undef  STARTFILE_SPEC
+ #define STARTFILE_SPEC \
+diff -Naur gcc-3.3.3.orig/gcc/config/ia64/linux.h gcc-3.3.3.specs/gcc/config/ia64/linux.h
+--- gcc-3.3.3.orig/gcc/config/ia64/linux.h	2003-12-12 16:10:09.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/ia64/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -38,6 +38,16 @@
+    linux.h file.  */
+ 
+ #undef LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "\
++  %{shared:-shared} \
++  %{!shared: \
++    %{!static: \
++      %{rdynamic:-export-dynamic} \
++      %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux-ia64.so.2}} \
++      %{static:-static}}"
++#else
+ #define LINK_SPEC "\
+   %{shared:-shared} \
+   %{!shared: \
+@@ -45,7 +55,7 @@
+       %{rdynamic:-export-dynamic} \
+       %{!dynamic-linker:-dynamic-linker /lib/ld-linux-ia64.so.2}} \
+       %{static:-static}}"
+-
++#endif
+ 
+ #define JMP_BUF_SIZE  76
+ 
+diff -Naur gcc-3.3.3.orig/gcc/config/linux.h gcc-3.3.3.specs/gcc/config/linux.h
+--- gcc-3.3.3.orig/gcc/config/linux.h	2003-09-16 15:39:22.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/linux.h	2004-05-23 15:30:58.000000000 +0000
+@@ -115,3 +115,9 @@
+ #define HANDLE_PRAGMA_PACK_PUSH_POP
+ 
+ #define TARGET_HAS_F_SETLKW
++
++/* Remove /usr/include from the end of the include search path.  */
++#if defined(_USE_TOOLSDIR)
++#undef STANDARD_INCLUDE_DIR
++#define STANDARD_INCLUDE_DIR 0
++#endif
+diff -Naur gcc-3.3.3.orig/gcc/config/m68k/linux.h gcc-3.3.3.specs/gcc/config/m68k/linux.h
+--- gcc-3.3.3.orig/gcc/config/m68k/linux.h	2003-11-14 06:46:12.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/m68k/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -158,22 +158,15 @@
+ /* If ELF is the default format, we should not use /lib/elf.  */
+ 
+ #undef	LINK_SPEC
+-#ifdef USE_GNULIBC_1
+-#ifndef LINUX_DEFAULT_ELF
+-#define LINK_SPEC "-m m68kelf %{shared} %{symbolic:-shared -Bsymbolic} \
+-  %{!shared:%{!symbolic: \
+-    %{!static: \
+-      %{rdynamic:-export-dynamic} \
+-      %{!dynamic-linker*:-dynamic-linker /lib/elf/ld-linux.so.1} \
+-      %{!rpath*:-rpath /lib/elf/}} %{static}}}"
+-#else
+-#define LINK_SPEC "-m m68kelf %{shared} %{symbolic:-shared -Bsymbolic} \
+-  %{!shared:%{!symbolic: \
++/* This breaks libc5 compat. - robert */
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "-m m68kelf %{shared} \
++  %{!shared: \
+     %{!static: \
+       %{rdynamic:-export-dynamic} \
+-      %{!dynamic-linker*:-dynamic-linker /lib/ld-linux.so.1}} \
+-    %{static}}}"
+-#endif
++      %{!dynamic-linker*:-dynamic-linker /tools/lib/ld.so.1}} \
++    %{static}}"
+ #else
+ #define LINK_SPEC "-m m68kelf %{shared} \
+   %{!shared: \
+diff -Naur gcc-3.3.3.orig/gcc/config/mips/linux.h gcc-3.3.3.specs/gcc/config/mips/linux.h
+--- gcc-3.3.3.orig/gcc/config/mips/linux.h	2003-12-23 08:58:00.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/mips/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -175,6 +175,18 @@
+ 
+ /* Borrowed from sparc/linux.h */
+ #undef LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC \
++ "%(endian_spec) \
++  %{shared:-shared} \
++  %{!shared: \
++    %{!ibcs: \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld.so.1}} \
++        %{static:-static}}}"
++#else
+ #define LINK_SPEC \
+  "%(endian_spec) \
+   %{shared:-shared} \
+@@ -184,6 +196,7 @@
+         %{rdynamic:-export-dynamic} \
+         %{!dynamic-linker:-dynamic-linker /lib/ld.so.1}} \
+         %{static:-static}}}"
++#endif
+ 
+ #undef SUBTARGET_ASM_SPEC
+ #define SUBTARGET_ASM_SPEC "\
+diff -Naur gcc-3.3.3.orig/gcc/config/pa/pa-linux.h gcc-3.3.3.specs/gcc/config/pa/pa-linux.h
+--- gcc-3.3.3.orig/gcc/config/pa/pa-linux.h	2002-12-10 10:55:31.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/pa/pa-linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -83,6 +83,16 @@
+    linux.h file.  */
+ 
+ #undef LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "\
++  %{shared:-shared} \
++  %{!shared: \
++    %{!static: \
++      %{rdynamic:-export-dynamic} \
++      %{!dynamic-linker:-dynamic-linker /tools/lib/ld.so.1}} \
++      %{static:-static}}"
++#else
+ #define LINK_SPEC "\
+   %{shared:-shared} \
+   %{!shared: \
+@@ -90,6 +100,7 @@
+       %{rdynamic:-export-dynamic} \
+       %{!dynamic-linker:-dynamic-linker /lib/ld.so.1}} \
+       %{static:-static}}"
++#endif
+ 
+ /* glibc's profiling functions don't need gcc to allocate counters.  */
+ #define NO_PROFILE_COUNTERS 1
+diff -Naur gcc-3.3.3.orig/gcc/config/rs6000/linux64.h gcc-3.3.3.specs/gcc/config/rs6000/linux64.h
+--- gcc-3.3.3.orig/gcc/config/rs6000/linux64.h	2003-11-14 06:46:10.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/rs6000/linux64.h	2004-05-23 15:30:14.000000000 +0000
+@@ -156,9 +156,16 @@
+ #define LINK_OS_DEFAULT_SPEC "%(link_os_linux)"
+ 
+ #undef  LINK_OS_LINUX_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_OS_LINUX_SPEC "-m elf64ppc %{!shared: %{!static: \
++  %{rdynamic:-export-dynamic} \
++  %{!dynamic-linker:-dynamic-linker /tools/lib64/ld64.so.1}}}"
++#else
+ #define LINK_OS_LINUX_SPEC "-m elf64ppc %{!shared: %{!static: \
+   %{rdynamic:-export-dynamic} \
+   %{!dynamic-linker:-dynamic-linker /lib64/ld64.so.1}}}"
++#endif
+ 
+ #ifdef NATIVE_CROSS
+ #define STARTFILE_PREFIX_SPEC "/usr/local/lib64/ /lib64/ /usr/lib64/"
+diff -Naur gcc-3.3.3.orig/gcc/config/rs6000/sysv4.h gcc-3.3.3.specs/gcc/config/rs6000/sysv4.h
+--- gcc-3.3.3.orig/gcc/config/rs6000/sysv4.h	2003-10-28 19:55:41.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/rs6000/sysv4.h	2004-05-23 15:30:14.000000000 +0000
+@@ -1159,9 +1159,16 @@
+ 
+ #define LINK_START_LINUX_SPEC ""
+ 
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_OS_LINUX_SPEC "-m elf32ppclinux %{!shared: %{!static: \
++  %{rdynamic:-export-dynamic} \
++  %{!dynamic-linker:-dynamic-linker /tools/lib/ld.so.1}}}"
++#else
+ #define LINK_OS_LINUX_SPEC "-m elf32ppclinux %{!shared: %{!static: \
+   %{rdynamic:-export-dynamic} \
+   %{!dynamic-linker:-dynamic-linker /lib/ld.so.1}}}"
++#endif
+ 
+ #if !defined(USE_GNULIBC_1) && defined(HAVE_LD_EH_FRAME_HDR)
+ # define LINK_EH_SPEC "%{!static:--eh-frame-hdr} "
+diff -Naur gcc-3.3.3.orig/gcc/config/s390/linux.h gcc-3.3.3.specs/gcc/config/s390/linux.h
+--- gcc-3.3.3.orig/gcc/config/s390/linux.h	2003-11-14 06:46:10.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/s390/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -87,6 +87,26 @@
+ #define MULTILIB_DEFAULTS { "m31" }
+ #endif
+ 
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_ARCH31_SPEC \
++  "-m elf_s390 \
++   %{shared:-shared} \
++   %{!shared: \
++      %{static:-static} \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld.so.1}}}"
++
++#define LINK_ARCH64_SPEC \
++  "-m elf64_s390 \
++   %{shared:-shared} \
++   %{!shared: \
++      %{static:-static} \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld64.so.1}}}"
++#else
+ #define LINK_ARCH31_SPEC \
+   "-m elf_s390 \
+    %{shared:-shared} \
+@@ -104,6 +124,7 @@
+       %{!static: \
+ 	%{rdynamic:-export-dynamic} \
+ 	%{!dynamic-linker:-dynamic-linker /lib/ld64.so.1}}}"
++#endif
+ 
+ #ifdef DEFAULT_TARGET_64BIT
+ #undef  LINK_SPEC
+diff -Naur gcc-3.3.3.orig/gcc/config/sh/linux.h gcc-3.3.3.specs/gcc/config/sh/linux.h
+--- gcc-3.3.3.orig/gcc/config/sh/linux.h	2003-11-06 23:13:33.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/sh/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -44,12 +44,22 @@
+ #undef SUBTARGET_LINK_EMUL_SUFFIX
+ #define SUBTARGET_LINK_EMUL_SUFFIX "_linux"
+ #undef SUBTARGET_LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define SUBTARGET_LINK_SPEC \
++  "%{shared:-shared} \
++   %{!static: \
++     %{rdynamic:-export-dynamic} \
++     %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2}} \
++   %{static:-static}"
++#else
+ #define SUBTARGET_LINK_SPEC \
+   "%{shared:-shared} \
+    %{!static: \
+      %{rdynamic:-export-dynamic} \
+      %{!dynamic-linker:-dynamic-linker /lib/ld-linux.so.2}} \
+    %{static:-static}"
++#endif
+ 
+ /* The GNU C++ standard library requires that these macros be defined.  */
+ #undef CPLUSPLUS_CPP_SPEC
+diff -Naur gcc-3.3.3.orig/gcc/config/sparc/linux.h gcc-3.3.3.specs/gcc/config/sparc/linux.h
+--- gcc-3.3.3.orig/gcc/config/sparc/linux.h	2003-11-14 06:46:10.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/sparc/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -151,24 +151,17 @@
+ /* If ELF is the default format, we should not use /lib/elf.  */
+ 
+ #undef  LINK_SPEC
+-#ifdef USE_GNULIBC_1
+-#ifndef LINUX_DEFAULT_ELF
+-#define LINK_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
+-  %{!shared: \
+-    %{!ibcs: \
+-      %{!static: \
+-        %{rdynamic:-export-dynamic} \
+-        %{!dynamic-linker:-dynamic-linker /lib/elf/ld-linux.so.1} \
+-        %{!rpath:-rpath /lib/elf/}} %{static:-static}}}"
+-#else
+-#define LINK_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
++/* This breaks libc5 compat. - robert */
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "-m elf32_sparc -Y P,/tools/lib %{shared:-shared} \
++  %{!mno-relax:%{!r:-relax}} \
+   %{!shared: \
+     %{!ibcs: \
+       %{!static: \
+         %{rdynamic:-export-dynamic} \
+-        %{!dynamic-linker:-dynamic-linker /lib/ld-linux.so.1}} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2}} \
+         %{static:-static}}}"
+-#endif
+ #else
+ #define LINK_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
+   %{!mno-relax:%{!r:-relax}} \
+diff -Naur gcc-3.3.3.orig/gcc/config/sparc/linux64.h gcc-3.3.3.specs/gcc/config/sparc/linux64.h
+--- gcc-3.3.3.orig/gcc/config/sparc/linux64.h	2003-11-14 06:46:10.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/sparc/linux64.h	2004-05-23 15:30:14.000000000 +0000
+@@ -152,7 +152,27 @@
+   { "link_arch64",       LINK_ARCH64_SPEC },              \
+   { "link_arch_default", LINK_ARCH_DEFAULT_SPEC },	  \
+   { "link_arch",	 LINK_ARCH_SPEC },
+-    
++
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_ARCH32_SPEC "-m elf32_sparc -Y P,/tools/lib %{shared:-shared} \
++  %{!shared: \
++    %{!ibcs: \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld-linux.so.2}} \
++        %{static:-static}}} \
++"
++#define LINK_ARCH64_SPEC "-m elf64_sparc -Y P,/tools/lib64 %{shared:-shared} \
++  %{!shared: \
++    %{!ibcs: \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib64/ld-linux.so.2}} \
++        %{static:-static}}} \
++"
++
++#else    
+ #define LINK_ARCH32_SPEC "-m elf32_sparc -Y P,/usr/lib %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+@@ -170,6 +190,7 @@
+         %{!dynamic-linker:-dynamic-linker /lib64/ld-linux.so.2}} \
+         %{static:-static}}} \
+ "
++#endif
+ 
+ #define LINK_ARCH_SPEC "\
+ %{m32:%(link_arch32)} \
+@@ -222,6 +243,19 @@
+ #else /* !SPARC_BI_ARCH */
+ 
+ #undef LINK_SPEC
++/* lfsdefs.h was included above. */
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC "-m elf64_sparc -Y P,/tools/lib64 %{shared:-shared} \
++  %{!shared: \
++    %{!ibcs: \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib64/ld-linux.so.2}} \
++        %{static:-static}}} \
++%{mlittle-endian:-EL} \
++%{!mno-relax:%{!r:-relax}} \
++"
++#else
+ #define LINK_SPEC "-m elf64_sparc -Y P,/usr/lib64 %{shared:-shared} \
+   %{!shared: \
+     %{!ibcs: \
+@@ -232,6 +266,7 @@
+ %{mlittle-endian:-EL} \
+ %{!mno-relax:%{!r:-relax}} \
+ "
++#endif
+ 
+ #endif /* !SPARC_BI_ARCH */
+ 
+diff -Naur gcc-3.3.3.orig/gcc/config/xtensa/linux.h gcc-3.3.3.specs/gcc/config/xtensa/linux.h
+--- gcc-3.3.3.orig/gcc/config/xtensa/linux.h	2003-04-26 00:43:44.000000000 +0000
++++ gcc-3.3.3.specs/gcc/config/xtensa/linux.h	2004-05-23 15:30:14.000000000 +0000
+@@ -46,6 +46,17 @@
+ #undef ASM_FINAL_SPEC
+ 
+ #undef LINK_SPEC
++#include "lfsdefs.h"
++#if defined(_USE_TOOLSDIR)
++#define LINK_SPEC \
++ "%{shared:-shared} \
++  %{!shared: \
++    %{!ibcs: \
++      %{!static: \
++        %{rdynamic:-export-dynamic} \
++        %{!dynamic-linker:-dynamic-linker /tools/lib/ld.so.1}} \
++      %{static:-static}}}"
++#else
+ #define LINK_SPEC \
+  "%{shared:-shared} \
+   %{!shared: \
+@@ -54,6 +65,7 @@
+         %{rdynamic:-export-dynamic} \
+         %{!dynamic-linker:-dynamic-linker /lib/ld.so.1}} \
+       %{static:-static}}}"
++#endif
+ 
+ #undef LOCAL_LABEL_PREFIX
+ #define LOCAL_LABEL_PREFIX	"."

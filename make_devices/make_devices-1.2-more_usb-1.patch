@@ -1,0 +1,155 @@
+Submitted By: Ken Moffat
+Date: 2004-04-14
+Initial Package Version: 1.2
+Upstream Status: make_devices is specific to LFS, and appears to now be
+unmaintained.  A lack of interest on lfs-dev suggests this will not make
+it into the book before that moves on to udev.
+Origin: self, based on details at linux-usb.org
+Description: Adds details for missing usb devices, particularly printers
+and scanners.  In deference to the educational nature of the file they
+are still commented out, but at least the device nodes are now listed.
+In this version of the patch, appropriate mkdir commands for /dev/usb
+and /dev/input can be found every time these subdirectories are
+referenced.
+
+
+--- tmp/make_devices-1.2.orig	2004-04-04 20:42:09.000000000 +0100
++++ tmp/make_devices-1.2	2004-04-04 20:59:18.000000000 +0100
+@@ -1721,7 +1721,14 @@
+     # ...
+
+
++#****************************************************************************
++#                         USB auerswald ISDN devices
++#****************************************************************************
+
++    # First auerswald ISDN device
++    # mkdir usb
++    # mknod -m $MODE usb/auer0 c 180 112 ; chgrp $GROUP usb/auer0
++    # ...
+
+
+
+@@ -2018,7 +2025,13 @@
+     # mknod -m $MODE lp2 c 6 2 ; chgrp $GROUP lp2
+     # ...
+
+-
++#****************************************************************************
++#                         USB printers
++#****************************************************************************
++    # First USB printer
++    # mkdir -p usb
++    # mknod -m $MODE usb/lp0 c 180 0 ; chgrp $GROUP usb/lp0
++    # ...
+
+ #############################################################################
+ GROUP=$mouse ; MODE=660
+@@ -2064,6 +2077,19 @@
+     # Apple Desktop Bus mouse
+     # mknod -m $MODE adbmouse c 10 10 ; chgrp $GROUP adbmouse
+
++    # USB mice - usb/mouse0 etc are deprecated
++    # mkdir -p usb
++    # old USB mice devices
++    # mknod -m $MODE usb/mouse0 c 180 16 ; chgrp $GROUP usb/mouse0
++    # ...
++    # new style, first mouse (only used by usb at the moment)
++    # mkdir -p input
++    # mknod -m $MODE input/mouse0 c 13 32 ; chgrp $GROUP input/mouse0
++    # mknod -m $MODE input/mouse1 c 13 33 ; chgrp $GROUP input/mouse1
++    # ...
++    # mixed input from all mice
++    # mknod -m $MODE input/mice c 1 63 ; chgrp $GROUP input/mice
++
+
+
+ #############################################################################
+@@ -2086,6 +2112,13 @@
+     # mknod -m $MODE djs1 c 15 129 ; chgrp $GROUP djs1
+     # ...
+
++    # USB joysticks
++    # mkdir -p input
++    # First joystick
++    # mknod -m $MODE input/js0 c 13 0 ; chgrp $GROUP input/js0
++    # Second joystick
++    # mknod -m $MODE input/js1 c 13 1 ; chgrp $GROUP input/js1
++    # ...
+
+
+ #############################################################################
+@@ -2209,6 +2242,15 @@
+     # mknod -m $MODE gs4500 c 16 0 ; chgrp $GROUP gs4500
+
+ #****************************************************************************
++#                         USB scanners
++#****************************************************************************
++
++    # First USB scanner
++    # mkdir -p usb
++    # mknod -m $MODE usb/scanner0 c 180 48 ; chgrp $GROUP usb/scanner0
++    # ...
++
++#****************************************************************************
+ #                         Netlink support
+ #****************************************************************************
+
+@@ -3371,6 +3413,19 @@
+     # ...
+
+
++#****************************************************************************
++#                         USB sound devices
++#****************************************************************************
++
++    # mkdir -p usb
++
++    # Diamond Rio 500 mp3 player
++    # mknod -m $MODE usb/rio500 c 180 64 ; chgrp $GROUP usb/rio500
++
++    # dabusb devices
++    # First dabusb device
++    # mknod -m $MODE usb/dabusb0 c 180 240 ; chgrp $GROUP usb/dabusb0
++    # ...
+
+
+ #############################################################################
+@@ -4006,3 +4061,37 @@
+     # mknod -m $MODE ihcp0 c 84 0 ; chgrp $GROUP ihcp0
+     # Second Greensheet port
+     # mknod -m $MODE ihcp1 c 84 1 ; chgrp $GROUP ihcp1
++
++#****************************************************************************
++#                         USB camera(s)
++#****************************************************************************
++
++    # MDC800
++    # mkdir -p usb
++    # mknod -m $MODE usb/mdc800 c 180 32 ; chgrp $GROUP usb/mdc800
++
++#****************************************************************************
++#                         USB firmware loaders
++#****************************************************************************
++
++    # First USB firmware loader
++    # mkdir -p usb
++    # mknod -m $MODE usb/ez0 c 180 32 ; chgrp $GROUP usb/ez0
++    # ...
++
++#****************************************************************************
++#                         USB HID devices
++#****************************************************************************
++
++    # typically used for communicating with UPSs and high-end monitors
++
++    # First USB HID device
++    # mkdir -p usb
++    # mknod -m $MODE usb/hiddev0 c 180 96 ; chgrp $GROUP usb/hiddev0
++    # ...
++
++
++    # USB LCD device
++    # mkdir -p usb
++    # mknod -m $MODE usb/lcd c 180 144 ; chgrp $GROUP usb/lcd
++

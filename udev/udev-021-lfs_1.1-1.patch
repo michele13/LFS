@@ -1,0 +1,82 @@
+Submitted By: Ryan Reich <ryanr@uchicago.edu>
+Date: 2003-03-05
+Initial Package Version: 021
+Origin: Me
+Description: Changes some compilation options and adds ramfs support to the
+		 udev init script.
+
+diff -Naur udev-021-orig/Makefile udev-021-lfs/Makefile
+--- udev-021-orig/Makefile	2004-03-04 22:39:01.000000000 +0000
++++ udev-021-lfs/Makefile	2004-03-07 22:08:57.000000000 +0000
+@@ -18,7 +18,7 @@
+ 
+ # Set the following to control the use of syslog
+ # Set it to `false' to remove all logging
+-USE_LOG = true
++USE_LOG = false
+ 
+ # Set the following to `true' to log the debug
+ # and make a unstripped, unoptimized  binary.
+@@ -37,7 +37,7 @@
+ TESTER =	udevtest
+ STARTER =	udevstart
+ VERSION =	021
+-INSTALL_DIR =	/usr/local/bin
++INSTALL_DIR =	/usr/bin
+ RELEASE_NAME =	$(ROOT)-$(VERSION)
+ LOCAL_CFG_DIR =	etc/udev
+ HOTPLUG_EXEC =	$(ROOT)
+@@ -56,7 +56,7 @@
+ hotplugdir =	${etcdir}/hotplug.d/default
+ dbusdir =	${etcdir}/dbus-1/system.d
+ configdir =	${etcdir}/udev/
+-initdir = 	${etcdir}/init.d/
++initdir = 	${etcdir}/rc.d/init.d/
+ srcdir = .
+ 
+ INSTALL = /usr/bin/install -c
+@@ -69,11 +69,11 @@
+ EXTRAS=
+ 
+ # place to put our device nodes
+-udevdir = ${prefix}/udev
++udevdir = ${prefix}/dev
+ 
+ # Comment out this line to build with something other 
+ # than the local version of klibc
+-#USE_KLIBC = true
++USE_KLIBC = true
+ 
+ # set up PWD so that older versions of make will work with our build.
+ PWD = $(shell pwd)
+@@ -355,6 +355,8 @@
+ 		$(INSTALL_DATA) -D etc/init.d/udev.init.LSB $(DESTDIR)$(initdir)/udev; \
+ 	elif [ -f /etc/debian_version ]; then \
+ 		$(INSTALL_DATA) -D etc/init.d/udev.debian $(DESTDIR)$(initdir)/udev; \
++	elif [ -f /etc/lfs -o -f /etc/lfs-release ]; then \
++		$(INSTALL_DATA) -D etc/init.d/udev.init.lfs $(DESTDIR)$(initdir)/udev; \
+ 	fi
+ 
+ install-config: $(GEN_CONFIGS)
+diff -Naur udev-021-orig/etc/init.d/udev.init.lfs udev-021-lfs/etc/init.d/udev.init.lfs
+--- udev-021-orig/etc/init.d/udev.init.lfs	2004-03-03 00:01:31.000000000 +0000
++++ udev-021-lfs/etc/init.d/udev.init.lfs	2004-03-04 22:38:07.000000000 +0000
+@@ -59,6 +59,18 @@
+ 			fi
+ 		fi
+ 
++		# Create and minimally populate the ramfs /dev
++		# This script generates a lot of warnings if you don't have a
++		# /dev/null.
++		mount -t ramfs /dev/ram0 /dev
++		ACTION=add DEVPATH=/class/mem/null $bin mem/null
++
++		# These are necessary for a functional system these days.  Make
++		# sure you don't mount these someplace else
++		mkdir /dev/{pts,shm}
++		mount /dev/pts
++		mount /dev/shm
++
+ 		# propogate /udev from /sys - we only need this while we do not
+ 		# have initramfs and an early user-space with which to do early
+ 		# device bring up

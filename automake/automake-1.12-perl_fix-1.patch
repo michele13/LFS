@@ -1,0 +1,106 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2012-05-30
+Initial Package Version: 1.12
+Upstream Status:         From Upstream
+Origin:                  http://lists.gnu.org/archive/html/bug-automake/2012-05/msg00034.html
+Description:             Fixes an incompatibility with Perl-5.16.0
+
+diff -Naur automake-1.12.orig/aclocal.in automake-1.12/aclocal.in
+--- automake-1.12.orig/aclocal.in	2012-04-21 14:38:05.000000000 +0000
++++ automake-1.12/aclocal.in	2012-05-28 21:21:32.878668660 +0000
+@@ -152,8 +152,34 @@
+ 
+ ################################################################
+ 
++# Prototypes for all subroutines.
++
++sub unlink_tmp (;$);
++sub xmkdir_p ($);
++sub check_acinclude ();
++sub reset_maps ();
++sub install_file ($$);
++sub list_compare (\@\@);
++sub scan_m4_dirs ($@);
++sub scan_m4_files ();
++sub add_macro ($);
++sub scan_configure_dep ($);
++sub add_file ($);
++sub scan_file ($$$);
++sub strip_redundant_includes (%);
++sub trace_used_macros ();
++sub scan_configure ();
++sub write_aclocal ($@);
++sub usage ($);
++sub version ();
++sub handle_acdir_option ($$);
++sub parse_arguments ();
++sub parse_ACLOCAL_PATH ();
++
++################################################################
++
+ # Erase temporary file ERASE_ME.  Handle signals.
+-sub unlink_tmp
++sub unlink_tmp (;$)
+ {
+   my ($sig) = @_;
+ 
+@@ -350,7 +376,7 @@
+ 	  next if $file eq 'aclocal.m4';
+ 
+ 	  my $fullfile = File::Spec->canonpath ("$m4dir/$file");
+-	    &scan_file ($type, $fullfile, 'aclocal');
++	  scan_file ($type, $fullfile, 'aclocal');
+ 	}
+       closedir (DIR);
+     }
+@@ -361,12 +387,12 @@
+ {
+   # First, scan configure.ac.  It may contain macro definitions,
+   # or may include other files that define macros.
+-  &scan_file (FT_USER, $configure_ac, 'aclocal');
++  scan_file (FT_USER, $configure_ac, 'aclocal');
+ 
+   # Then, scan acinclude.m4 if it exists.
+   if (-f 'acinclude.m4')
+     {
+-      &scan_file (FT_USER, 'acinclude.m4', 'aclocal');
++      scan_file (FT_USER, 'acinclude.m4', 'aclocal');
+     }
+ 
+   # Finally, scan all files in our search paths.
+@@ -380,7 +406,7 @@
+   my $search = "sub search {\nmy \$found = 0;\n";
+   foreach my $key (reverse sort keys %map)
+     {
+-      $search .= ('if (/\b\Q' . $key . '\E(?!\w)/) { & add_macro ("' . $key
++      $search .= ('if (/\b\Q' . $key . '\E(?!\w)/) { add_macro ("' . $key
+ 		  . '"); $found = 1; }' . "\n");
+     }
+   $search .= "return \$found;\n};\n";
+@@ -403,7 +429,7 @@
+ 
+   verb "saw macro $macro";
+   $macro_seen{$macro} = 1;
+-  &add_file ($map{$macro});
++  add_file ($map{$macro});
+ }
+ 
+ # scan_configure_dep ($file)
+@@ -465,7 +491,7 @@
+     }
+ 
+   add_macro ($_) foreach (@rlist);
+-  &scan_configure_dep ($_) foreach @ilist;
++  scan_configure_dep ($_) foreach @ilist;
+ }
+ 
+ # add_file ($FILE)
+@@ -932,7 +958,7 @@
+ }
+ 
+ # Print version and exit.
+-sub version()
++sub version ()
+ {
+   print <<EOF;
+ aclocal (GNU $PACKAGE) $VERSION

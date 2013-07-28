@@ -1,0 +1,24 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2008-03-07
+Initial Package Version: 2.19
+Upstream Status: Not yet submitted
+Origin: NA
+Description: xmalloc.h includes a readline header for no apparent reason.
+             The compilation fails if readline is not installed.
+
+diff -aur which-2.19.orig/tilde/xmalloc.h which-2.19/tilde/xmalloc.h
+--- which-2.19.orig/tilde/xmalloc.h	2008-01-16 10:07:57.000000000 -0600
++++ which-2.19/tilde/xmalloc.h	2008-03-07 12:26:30.375000000 -0600
+@@ -23,12 +23,6 @@
+ #if !defined (_XMALLOC_H_)
+ #define _XMALLOC_H_
+ 
+-#if defined (READLINE_LIBRARY)
+-#  include "rlstdc.h"
+-#else
+-#  include <readline/rlstdc.h>
+-#endif
+-
+ #ifndef PTR_T
+ 
+ #ifdef __STDC__

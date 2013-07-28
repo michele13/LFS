@@ -1,0 +1,988 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-03-23
+Initial Package Version: 2.6.11.0
+Origin: Jim Gifford
+Upstream Status: Unknown
+Description: Updates to Match RaQ2 Patch
+
+ 
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/break.h linux-libc-headers-2.6.11.0/include/asm-mips/break.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/break.h	2005-03-13 20:52:00 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/break.h	2005-03-24 07:06:20 +0000
+@@ -28,6 +28,7 @@
+ #define BRK_NORLD	10	/* No rld found - not used by Linux/MIPS */
+ #define _BRK_THREADBP	11	/* For threads, user bp (used by debuggers) */
+ #define BRK_BUG		512	/* Used by BUG() */
++#define BRK_KDB		513	/* Used in KDB_ENTER() */
+ #define BRK_MULOVF	1023	/* Multiply overflow */
+ 
+ #endif /* __ASM_BREAK_H */
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/cacheflush.h linux-libc-headers-2.6.11.0/include/asm-mips/cacheflush.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/cacheflush.h	2004-10-31 19:54:07 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/cacheflush.h	2005-03-24 07:06:20 +0000
+@@ -49,17 +49,24 @@
+ 
+ extern void (*flush_icache_page)(struct vm_area_struct *vma,
+ 	struct page *page);
+-extern void (*flush_icache_range)(unsigned long start, unsigned long end);
++extern void (*flush_icache_range)(unsigned long __user start,
++	unsigned long __user end);
+ #define flush_cache_vmap(start, end)		flush_cache_all()
+ #define flush_cache_vunmap(start, end)		flush_cache_all()
+ 
+ #define copy_to_user_page(vma, page, vaddr, dst, src, len)		\
+ do {									\
++	if (cpu_has_dc_aliases)						\
++		flush_cache_page(vma, vaddr);				\
+ 	memcpy(dst, (void *) src, len);					\
+ 	flush_icache_page(vma, page);					\
+ } while (0)
+ #define copy_from_user_page(vma, page, vaddr, dst, src, len)		\
+-	memcpy(dst, src, len)
++do {									\
++	if (cpu_has_dc_aliases)						\
++		flush_cache_page(vma, vaddr);				\
++	memcpy(dst, src, len);						\
++} while (0)
+ 
+ extern void (*flush_cache_sigtramp)(unsigned long addr);
+ extern void (*flush_icache_all)(void);
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/cobalt.h linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/cobalt.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/cobalt.h	2004-10-31 19:54:12 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/cobalt.h	2005-03-24 07:06:20 +0000
+@@ -19,7 +19,10 @@
+  *     9  - PCI
+  *    14  - IDE0
+  *    15  - IDE1
+- *
++ */
++#define COBALT_QUBE_SLOT_IRQ	9
++
++/*
+  * CPU IRQs  are 16 ... 23
+  */
+ #define COBALT_TIMER_IRQ	18
+@@ -30,7 +33,6 @@
+ #define COBALT_SERIAL_IRQ	21
+ #define COBALT_SCSI_IRQ         21
+ #define COBALT_VIA_IRQ		22		/* Chained to VIA ISA bridge */
+-#define COBALT_QUBE_SLOT_IRQ	23
+ 
+ /*
+  * PCI configuration space manifest constants.  These are wired into
+@@ -69,13 +71,16 @@
+  * Most of this really should go into a separate GT64111 header file.
+  */
+ #define GT64111_IO_BASE		0x10000000UL
++#define GT64111_IO_END		0x11ffffffUL
++#define GT64111_MEM_BASE	0x12000000UL
++#define GT64111_MEM_END		0x13ffffffUL
+ #define GT64111_BASE		0x14000000UL
+-#define GALILEO_REG(ofs)	(KSEG0 + GT64111_BASE + (unsigned long)(ofs))
++#define GALILEO_REG(ofs)	CKSEG1ADDR(GT64111_BASE + (unsigned long)(ofs))
+ 
+ #define GALILEO_INL(port)	(*(volatile unsigned int *) GALILEO_REG(port))
+ #define GALILEO_OUTL(val, port)						\
+ do {									\
+-	*(volatile unsigned int *) GALILEO_REG(port) = (port);		\
++	*(volatile unsigned int *) GALILEO_REG(port) = (val);		\
+ } while (0)
+ 
+ #define GALILEO_T0EXP		0x0100
+@@ -86,5 +91,21 @@
+ 	GALILEO_OUTL((0x80000000 | (PCI_SLOT (devfn) << 11) |		\
+ 		(PCI_FUNC (devfn) << 8) | (where)), GT_PCI0_CFGADDR_OFS)
+ 
++#define COBALT_LED_PORT		(*(volatile unsigned char *) CKSEG1ADDR(0x1c000000))
++# define COBALT_LED_BAR_LEFT	(1 << 0)	/* Qube */
++# define COBALT_LED_BAR_RIGHT	(1 << 1)	/* Qube */
++# define COBALT_LED_WEB		(1 << 2)	/* RaQ */
++# define COBALT_LED_POWER_OFF	(1 << 3)	/* RaQ */
++# define COBALT_LED_RESET	0x0f
++
++#define COBALT_KEY_PORT		((~*(volatile unsigned int *) CKSEG1ADDR(0x1d000000) >> 24) & COBALT_KEY_MASK)
++# define COBALT_KEY_CLEAR	(1 << 1)
++# define COBALT_KEY_LEFT	(1 << 2)
++# define COBALT_KEY_UP		(1 << 3)
++# define COBALT_KEY_DOWN	(1 << 4)
++# define COBALT_KEY_RIGHT	(1 << 5)
++# define COBALT_KEY_ENTER	(1 << 6)
++# define COBALT_KEY_SELECT	(1 << 7)
++# define COBALT_KEY_MASK	0xfe
+ 
+ #endif /* __ASM_COBALT_H */
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/ide.h linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/ide.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/ide.h	1970-01-01 00:00:00 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/ide.h	2005-03-24 07:06:20 +0000
+@@ -0,0 +1,83 @@
++
++/*
++ * PIO "in" transfers can cause D-cache lines to be allocated
++ * to the data being read. If the target is the page cache then
++ * the kernel can create a user space mapping of the same page
++ * without flushing it from the D-cache. This has large potential
++ * to create cache aliases. The Cobalts seem to trigger this
++ * problem easily.
++ *
++ * MIPs doesn't have a flush_dcache_range() so we roll
++ * our own.
++ *
++ * -- pdh
++ */
++
++#define MAX_HWIFS			2
++
++#include <asm/r4kcache.h>
++
++static inline void __flush_dcache(void)
++{
++	unsigned long dc_size, dc_line, addr, end;
++
++	dc_size = current_cpu_data.dcache.ways << current_cpu_data.dcache.waybit;
++	dc_line = current_cpu_data.dcache.linesz;
++
++	addr = CKSEG0;
++	end = addr + dc_size;
++
++	for (; addr < end; addr += dc_line)
++		flush_dcache_line_indexed(addr);
++}
++
++static inline void __flush_dcache_range(unsigned long start, unsigned long end)
++{
++	unsigned long dc_size, dc_line, addr;
++
++	dc_size = current_cpu_data.dcache.ways << current_cpu_data.dcache.waybit;
++	dc_line = current_cpu_data.dcache.linesz;
++
++	addr = start & ~(dc_line - 1);
++	end += dc_line - 1;
++
++	if (end - addr < dc_size)
++		for (; addr < end; addr += dc_line)
++			flush_dcache_line(addr);
++	else
++		__flush_dcache();
++}
++
++static inline void __ide_insw(unsigned long port, void *addr, unsigned int count)
++{
++	insw(port, addr, count);
++
++	__flush_dcache_range((unsigned long) addr, (unsigned long) addr + count * 2);
++}
++
++static inline void __ide_insl(unsigned long port, void *addr, unsigned int count)
++{
++	insl(port, addr, count);
++
++	__flush_dcache_range((unsigned long) addr, (unsigned long) addr + count * 4);
++}
++
++static inline void __ide_mm_insw(volatile void __iomem *port, void *addr, unsigned int count)
++{
++	readsw(port, addr, count);
++
++	__flush_dcache_range((unsigned long) addr, (unsigned long) addr + count * 2);
++}
++
++static inline void __ide_mm_insl(volatile void __iomem *port, void *addr, unsigned int count)
++{
++	readsl(port, addr, count);
++
++	__flush_dcache_range((unsigned long) addr, (unsigned long) addr + count * 4);
++}
++
++#define insw			__ide_insw
++#define insl			__ide_insl
++
++#define __ide_mm_outsw		writesw
++#define __ide_mm_outsl		writesl
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/mach-gt64120.h linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/mach-gt64120.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/cobalt/mach-gt64120.h	1970-01-01 00:00:00 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/cobalt/mach-gt64120.h	2005-03-24 07:06:20 +0000
+@@ -0,0 +1,2 @@
++/* there's something here ... in the dark */
++
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/cpu.h linux-libc-headers-2.6.11.0/include/asm-mips/cpu.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/cpu.h	2004-10-31 19:54:13 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/cpu.h	2005-03-24 07:06:20 +0000
+@@ -22,12 +22,17 @@
+    spec.
+ */
+ 
+-#define PRID_COMP_LEGACY       0x000000
+-#define PRID_COMP_MIPS         0x010000
+-#define PRID_COMP_BROADCOM     0x020000
+-#define PRID_COMP_ALCHEMY      0x030000
+-#define PRID_COMP_SIBYTE       0x040000
+-#define PRID_COMP_SANDCRAFT    0x050000
++#define PRID_COMP_LEGACY	0x000000
++#define PRID_COMP_MIPS		0x010000
++#define PRID_COMP_BROADCOM	0x020000
++#define PRID_COMP_ALCHEMY	0x030000
++#define PRID_COMP_SIBYTE	0x040000
++#define PRID_COMP_SANDCRAFT	0x050000
++#define PRID_COMP_PHILIPS	0x060000
++#define PRID_COMP_TOSHIBA	0x070000
++#define PRID_COMP_LSI		0x080000
++#define PRID_COMP_LEXRA		0x0b0000
++
+ 
+ /*
+  * Assigned values for the product ID register.  In order to detect a
+@@ -177,7 +182,8 @@
+ #define CPU_VR4133		56
+ #define CPU_AU1550		57
+ #define CPU_24K			58
+-#define CPU_LAST		58
++#define CPU_AU1200		59
++#define CPU_LAST		59
+ 
+ /*
+  * ISA Level encodings
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/elf.h linux-libc-headers-2.6.11.0/include/asm-mips/elf.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/elf.h	2005-03-13 20:51:53 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/elf.h	2005-03-24 07:07:34 +0000
+@@ -191,9 +191,6 @@
+ #endif /* !defined(ELF_ARCH) */
+ 
+ 
+-/* This one accepts IRIX binaries.  */
+-#define irix_elf_check_arch(hdr)	((hdr)->e_machine == EM_MIPS)
+-
+ #define USE_ELF_CORE_DUMP
+ #define ELF_EXEC_PAGESIZE	PAGE_SIZE
+ 
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/fixmap.h linux-libc-headers-2.6.11.0/include/asm-mips/fixmap.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/fixmap.h	2005-01-08 14:02:53 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/fixmap.h	2005-03-24 07:06:20 +0000
+@@ -106,4 +106,11 @@
+ 	return __virt_to_fix(vaddr);
+ }
+ 
++/*
++ * Called from pgtable_init()
++ */
++extern void fixrange_init(unsigned long start, unsigned long end,
++        pgd_t *pgd_base);
++
++
+ #endif
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/fpu_emulator.h linux-libc-headers-2.6.11.0/include/asm-mips/fpu_emulator.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/fpu_emulator.h	2004-10-31 19:54:16 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/fpu_emulator.h	2005-03-24 07:06:20 +0000
+@@ -35,4 +35,6 @@
+ 	} stats;
+ };
+ 
++extern struct mips_fpu_emulator_private fpuemuprivate;
++
+ #endif /* _ASM_FPU_EMULATOR_H */
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/io.h linux-libc-headers-2.6.11.0/include/asm-mips/io.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/io.h	2005-03-13 20:51:58 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/io.h	2005-03-24 07:06:29 +0000
+@@ -30,7 +30,7 @@
+ #undef CONF_SLOWDOWN_IO
+ 
+ /*
+- * Raw operations are never swapped in software.  Otoh values that raw
++ * Raw operations are never swapped in software.  OTOH values that raw
+  * operations are working on may or may not have been swapped by the bus
+  * hardware.  An example use would be for flash memory that's used for
+  * execute in place.
+@@ -39,45 +39,53 @@
+ # define __raw_ioswabw(x)	(x)
+ # define __raw_ioswabl(x)	(x)
+ # define __raw_ioswabq(x)	(x)
++# define ____raw_ioswabq(x)	(x)
+ 
+ /*
+  * Sane hardware offers swapping of PCI/ISA I/O space accesses in hardware;
+  * less sane hardware forces software to fiddle with this...
++ *
++ * Regardless, if the host bus endianness mismatches that of PCI/ISA, then
++ * you can't have the numerical value of data and byte addresses within
++ * multibyte quantities both preserved at the same time.  Hence two
++ * variations of functions: non-prefixed ones that preserve the value
++ * and prefixed ones that preserve byte addresses.  The latters are
++ * typically used for moving raw data between a peripheral and memory (cf.
++ * string I/O functions), hence the "mem_" prefix.
+  */
+ #if defined(CONFIG_SWAP_IO_SPACE)
+ 
+ # define ioswabb(x)		(x)
++# define mem_ioswabb(x)		(x)
+ # ifdef CONFIG_SGI_IP22
+ /*
+  * IP22 seems braindead enough to swap 16bits values in hardware, but
+  * not 32bits.  Go figure... Can't tell without documentation.
+  */
+ #  define ioswabw(x)		(x)
++#  define mem_ioswabw(x)	le16_to_cpu(x)
+ # else
+ #  define ioswabw(x)		le16_to_cpu(x)
++#  define mem_ioswabw(x)	(x)
+ # endif
+ # define ioswabl(x)		le32_to_cpu(x)
++# define mem_ioswabl(x)		(x)
+ # define ioswabq(x)		le64_to_cpu(x)
++# define mem_ioswabq(x)		(x)
+ 
+ #else
+ 
+ # define ioswabb(x)		(x)
++# define mem_ioswabb(x)		(x)
+ # define ioswabw(x)		(x)
++# define mem_ioswabw(x)		cpu_to_le16(x)
+ # define ioswabl(x)		(x)
++# define mem_ioswabl(x)		cpu_to_le32(x)
+ # define ioswabq(x)		(x)
++# define mem_ioswabq(x)		cpu_to_le32(x)
+ 
+ #endif
+ 
+-/*
+- * Native bus accesses never swapped.
+- */
+-#define bus_ioswabb(x)		(x)
+-#define bus_ioswabw(x)		(x)
+-#define bus_ioswabl(x)		(x)
+-#define bus_ioswabq(x)		(x)
+-
+-#define __bus_ioswabq		bus_ioswabq
+-
+ #define IO_SPACE_LIMIT 0xffff
+ 
+ /*
+@@ -315,7 +323,8 @@
+ 	else if (cpu_has_64bits) {					\
+ 		unsigned long __flags;					\
+ 									\
+-		local_irq_save(__flags);				\
++		if (irq)						\
++			local_irq_save(__flags);			\
+ 		__asm__ __volatile__(					\
+ 			".set	mips3"		"\t\t# __readq"	"\n\t"	\
+ 			"ld	%L0, %1"			"\n\t"	\
+@@ -324,7 +333,8 @@
+ 			".set	mips0"				"\n"	\
+ 			: "=r" (__val)					\
+ 			: "m" (*__mem));				\
+-		local_irq_restore(__flags);				\
++		if (irq)						\
++			local_irq_restore(__flags);			\
+ 	} else {							\
+ 		__val = 0;						\
+ 		BUG();							\
+@@ -382,15 +392,15 @@
+ 
+ #define BUILDIO(bwlq, type)						\
+ 									\
+-__BUILD_MEMORY_PFX(, bwlq, type)					\
+ __BUILD_MEMORY_PFX(__raw_, bwlq, type)					\
+-__BUILD_MEMORY_PFX(bus_, bwlq, type)					\
++__BUILD_MEMORY_PFX(, bwlq, type)					\
++__BUILD_MEMORY_PFX(mem_, bwlq, type)					\
+ __BUILD_IOPORT_PFX(, bwlq, type)					\
+-__BUILD_IOPORT_PFX(__raw_, bwlq, type)
++__BUILD_IOPORT_PFX(mem_, bwlq, type)
+ 
+ #define __BUILDIO(bwlq, type)						\
+ 									\
+-__BUILD_MEMORY_SINGLE(__bus_, bwlq, type, 0)
++__BUILD_MEMORY_SINGLE(____raw_, bwlq, type, 0)
+ 
+ BUILDIO(b, u8)
+ BUILDIO(w, u16)
+@@ -418,7 +428,7 @@
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		__raw_write##bwlq(*__addr, mem);			\
++		mem_write##bwlq(*__addr, mem);				\
+ 		__addr++;						\
+ 	}								\
+ }									\
+@@ -429,7 +439,7 @@
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		*__addr = __raw_read##bwlq(mem);			\
++		*__addr = mem_read##bwlq(mem);				\
+ 		__addr++;						\
+ 	}								\
+ }
+@@ -442,7 +452,7 @@
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		__raw_out##bwlq(*__addr, port);				\
++		mem_out##bwlq(*__addr, port);				\
+ 		__addr++;						\
+ 	}								\
+ }									\
+@@ -453,7 +463,7 @@
+ 	volatile type *__addr = addr;					\
+ 									\
+ 	while (count--) {						\
+-		*__addr = __raw_in##bwlq(port);				\
++		*__addr = mem_in##bwlq(port);				\
+ 		__addr++;						\
+ 	}								\
+ }
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/irq.h linux-libc-headers-2.6.11.0/include/asm-mips/irq.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/irq.h	2005-01-08 14:02:47 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/irq.h	2005-03-24 07:06:29 +0000
+@@ -23,11 +23,9 @@
+ 
+ struct pt_regs;
+ 
+-#ifdef CONFIG_PREEMPT
+-
+ extern asmlinkage unsigned int do_IRQ(unsigned int irq, struct pt_regs *regs);
+ 
+-#else
++#ifdef CONFIG_PREEMPT
+ 
+ /*
+  * do_IRQ handles all normal device IRQ's (the special
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/mipsregs.h linux-libc-headers-2.6.11.0/include/asm-mips/mipsregs.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/mipsregs.h	2005-03-13 20:52:00 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/mipsregs.h	2005-03-24 07:06:29 +0000
+@@ -789,10 +789,18 @@
+ #define read_c0_config1()	__read_32bit_c0_register($16, 1)
+ #define read_c0_config2()	__read_32bit_c0_register($16, 2)
+ #define read_c0_config3()	__read_32bit_c0_register($16, 3)
++#define read_c0_config4()	__read_32bit_c0_register($16, 4)
++#define read_c0_config5()	__read_32bit_c0_register($16, 5)
++#define read_c0_config6()	__read_32bit_c0_register($16, 6)
++#define read_c0_config7()	__read_32bit_c0_register($16, 7)
+ #define write_c0_config(val)	__write_32bit_c0_register($16, 0, val)
+ #define write_c0_config1(val)	__write_32bit_c0_register($16, 1, val)
+ #define write_c0_config2(val)	__write_32bit_c0_register($16, 2, val)
+ #define write_c0_config3(val)	__write_32bit_c0_register($16, 3, val)
++#define write_c0_config4(val)	__write_32bit_c0_register($16, 4, val)
++#define write_c0_config5(val)	__write_32bit_c0_register($16, 5, val)
++#define write_c0_config6(val)	__write_32bit_c0_register($16, 6, val)
++#define write_c0_config7(val)	__write_32bit_c0_register($16, 7, val)
+ 
+ /*
+  * The WatchLo register.  There may be upto 8 of them.
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/module.h linux-libc-headers-2.6.11.0/include/asm-mips/module.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/module.h	2004-10-31 19:54:08 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/module.h	2005-03-24 07:06:29 +0000
+@@ -10,15 +10,23 @@
+ 
+ typedef uint8_t Elf64_Byte;		/* Type for a 8-bit quantity.  */
+ 
+-typedef struct
+-{
+-  Elf64_Addr r_offset;			/* Address of relocation.  */
+-  Elf64_Word r_sym;			/* Symbol index.  */
+-  Elf64_Byte r_ssym;			/* Special symbol.  */
+-  Elf64_Byte r_type3;			/* Third relocation.  */
+-  Elf64_Byte r_type2;			/* Second relocation.  */
+-  Elf64_Byte r_type;			/* First relocation.  */
+-  Elf64_Sxword r_addend;		/* Addend.  */
++typedef struct {
++	Elf64_Addr r_offset;			/* Address of relocation.  */
++	Elf64_Word r_sym;			/* Symbol index.  */
++	Elf64_Byte r_ssym;			/* Special symbol.  */
++	Elf64_Byte r_type3;			/* Third relocation.  */
++	Elf64_Byte r_type2;			/* Second relocation.  */
++	Elf64_Byte r_type;			/* First relocation.  */
++} Elf64_Mips_Rel;
++
++typedef struct {
++	Elf64_Addr r_offset;			/* Address of relocation.  */
++	Elf64_Word r_sym;			/* Symbol index.  */
++	Elf64_Byte r_ssym;			/* Special symbol.  */
++	Elf64_Byte r_type3;			/* Third relocation.  */
++	Elf64_Byte r_type2;			/* Second relocation.  */
++	Elf64_Byte r_type;			/* First relocation.  */
++	Elf64_Sxword r_addend;			/* Addend.  */
+ } Elf64_Mips_Rela;
+ 
+ #ifdef CONFIG_MIPS32
+@@ -26,6 +34,13 @@
+ #define Elf_Shdr	Elf32_Shdr
+ #define Elf_Sym		Elf32_Sym
+ #define Elf_Ehdr	Elf32_Ehdr
++#define Elf_Addr	Elf32_Addr
++
++#define Elf_Mips_Rel	Elf32_Rel
++#define Elf_Mips_Rela	Elf32_Rela
++
++#define ELF_MIPS_R_SYM(rel) ELF32_R_SYM(rel.r_info)
++#define ELF_MIPS_R_TYPE(rel) ELF32_R_TYPE(rel.r_info)
+ 
+ #endif
+ 
+@@ -34,6 +49,13 @@
+ #define Elf_Shdr	Elf64_Shdr
+ #define Elf_Sym		Elf64_Sym
+ #define Elf_Ehdr	Elf64_Ehdr
++#define Elf_Addr	Elf64_Addr
++
++#define Elf_Mips_Rel	Elf64_Mips_Rel
++#define Elf_Mips_Rela	Elf64_Mips_Rela
++
++#define ELF_MIPS_R_SYM(rel) (rel.r_sym)
++#define ELF_MIPS_R_TYPE(rel) (rel.r_type)
+ 
+ #endif
+ 
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/page.h linux-libc-headers-2.6.11.0/include/asm-mips/page.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/page.h	2004-10-31 19:54:11 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/page.h	1970-01-01 00:00:00 +0000
+@@ -1,21 +0,0 @@
+-/*
+- * This file is subject to the terms and conditions of the GNU General Public
+- * License.  See the file "COPYING" in the main directory of this archive
+- * for more details.
+- *
+- * Copyright (C) 1994 - 1999, 2000, 03 Ralf Baechle
+- * Copyright (C) 1999, 2000 Silicon Graphics, Inc.
+- */
+-#ifndef _ASM_PAGE_H
+-#define _ASM_PAGE_H
+-
+-#include <unistd.h>
+-
+-#define PAGE_SIZE ((unsigned long)getpagesize())
+-#define PAGE_SHIFT ((PAGE_SIZE > 65536) ? -1 : ((unsigned long[]){12,13,14,-1,15,-1,-1,-1,16}[PAGE_SIZE>>13]))
+-
+-#endif /* _ASM_PAGE_H */
+-#ifdef CONFIG_LIMITED_DMA
+-#define WANT_PAGE_VIRTUAL
+-#endif
+-
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgalloc.h linux-libc-headers-2.6.11.0/include/asm-mips/pgalloc.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgalloc.h	2005-03-13 20:52:04 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/pgalloc.h	2005-03-24 07:06:29 +0000
+@@ -24,10 +24,22 @@
+ }
+ 
+ /*
++ * Initialize a new pmd table with invalid pointers.
++ */
++extern void pmd_init(unsigned long page, unsigned long pagetable);
++
++#ifdef CONFIG_MIPS64
++
++static inline void pud_populate(struct mm_struct *mm, pud_t *pud, pmd_t *pmd)
++{
++	set_pud(pud, __pud((unsigned long)pmd));
++}
++#endif
++
++/*
+  * Initialize a new pgd / pmd table with invalid pointers.
+  */
+ extern void pgd_init(unsigned long page);
+-extern void pmd_init(unsigned long page, unsigned long pagetable);
+ 
+ static inline pgd_t *pgd_alloc(struct mm_struct *mm)
+ {
+@@ -84,21 +96,18 @@
+ #define __pte_free_tlb(tlb,pte)		tlb_remove_page((tlb),(pte))
+ 
+ #ifdef CONFIG_MIPS32
+-#define pgd_populate(mm, pmd, pte)	BUG()
+ 
+ /*
+  * allocating and freeing a pmd is trivial: the 1-entry pmd is
+  * inside the pgd, so has no extra memory associated with it.
+  */
+-#define pmd_alloc_one(mm, addr)		({ BUG(); ((pmd_t *)2); })
+ #define pmd_free(x)			do { } while (0)
+ #define __pmd_free_tlb(tlb,x)		do { } while (0)
++
+ #endif
+ 
+ #ifdef CONFIG_MIPS64
+ 
+-#define pgd_populate(mm, pgd, pmd)	set_pgd(pgd, __pgd(pmd))
+-
+ static inline pmd_t *pmd_alloc_one(struct mm_struct *mm, unsigned long address)
+ {
+ 	pmd_t *pmd;
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgtable-32.h linux-libc-headers-2.6.11.0/include/asm-mips/pgtable-32.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgtable-32.h	2005-03-13 20:51:52 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/pgtable-32.h	2005-03-24 07:06:29 +0000
+@@ -16,6 +16,8 @@
+ #include <asm/cachectl.h>
+ #include <asm/fixmap.h>
+ 
++#include <asm-generic/pgtable-nopmd.h>
++
+ /*
+  * - add_wired_entry() add a fixed TLB entry, and move wired register
+  */
+@@ -40,42 +42,38 @@
+  * works even with the cache aliasing problem the R4k and above have.
+  */
+ 
+-/* PMD_SHIFT determines the size of the area a second-level page table can map */
++/* PGDIR_SHIFT determines what a third-level page table entry can map */
+ #ifdef CONFIG_64BIT_PHYS_ADDR
+-#define PMD_SHIFT	21
++#define PGDIR_SHIFT	21
+ #else
+-#define PMD_SHIFT	22
++#define PGDIR_SHIFT	22
+ #endif
+-#define PMD_SIZE	(1UL << PMD_SHIFT)
+-#define PMD_MASK	(~(PMD_SIZE-1))
+-
+-/* PGDIR_SHIFT determines what a third-level page table entry can map */
+-#define PGDIR_SHIFT	PMD_SHIFT
+ #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+ #define PGDIR_MASK	(~(PGDIR_SIZE-1))
+ 
+ /*
+  * Entries per page directory level: we use two-level, so
+- * we don't really have any PMD directory physically.
++ * we don't really have any PUD/PMD directory physically.
+  */
+ #ifdef CONFIG_64BIT_PHYS_ADDR
+ #define PGD_ORDER	1
+-#define PMD_ORDER	0
++#define PUD_ORDER	aieeee_attempt_to_allocate_pud
++#define PMD_ORDER	1
+ #define PTE_ORDER	0
+ #else
+ #define PGD_ORDER	0
+-#define PMD_ORDER	0
++#define PUD_ORDER	aieeee_attempt_to_allocate_pud
++#define PMD_ORDER	1
+ #define PTE_ORDER	0
+ #endif
+ 
+ #define PTRS_PER_PGD	((PAGE_SIZE << PGD_ORDER) / sizeof(pgd_t))
+-#define PTRS_PER_PMD	1
+ #define PTRS_PER_PTE	((PAGE_SIZE << PTE_ORDER) / sizeof(pte_t))
+ 
+ #define USER_PTRS_PER_PGD	(0x80000000UL/PGDIR_SIZE)
+ #define FIRST_USER_PGD_NR	0
+ 
+-#define VMALLOC_START     KSEG2
++#define VMALLOC_START     MAP_BASE
+ 
+ #ifdef CONFIG_HIGHMEM
+ # define VMALLOC_END	(PKMAP_BASE-2*PAGE_SIZE)
+@@ -90,8 +88,6 @@
+ #define pte_ERROR(e) \
+ 	printk("%s:%d: bad pte %08lx.\n", __FILE__, __LINE__, pte_val(e))
+ #endif
+-#define pmd_ERROR(e) \
+-	printk("%s:%d: bad pmd %08lx.\n", __FILE__, __LINE__, pmd_val(e))
+ #define pgd_ERROR(e) \
+ 	printk("%s:%d: bad pgd %08lx.\n", __FILE__, __LINE__, pgd_val(e))
+ 
+@@ -119,16 +115,6 @@
+ 	pmd_val(*pmdp) = ((unsigned long) invalid_pte_table);
+ }
+ 
+-/*
+- * The "pgd_xxx()" functions here are trivial for a folded two-level
+- * setup: the pgd is never bad, and a pmd always exists (as it's folded
+- * into the pgd entry)
+- */
+-static inline int pgd_none(pgd_t pgd)		{ return 0; }
+-static inline int pgd_bad(pgd_t pgd)		{ return 0; }
+-static inline int pgd_present(pgd_t pgd)	{ return 1; }
+-static inline void pgd_clear(pgd_t *pgdp)	{ }
+-
+ #if defined(CONFIG_64BIT_PHYS_ADDR) && defined(CONFIG_CPU_MIPS32)
+ #define pte_page(x)		pfn_to_page(pte_pfn(x))
+ #define pte_pfn(x)		((unsigned long)((x).pte_high >> 6))
+@@ -155,22 +141,17 @@
+ #endif /* defined(CONFIG_64BIT_PHYS_ADDR) && defined(CONFIG_CPU_MIPS32) */
+ 
+ #define __pgd_offset(address)	pgd_index(address)
++#define __pud_offset(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
+ #define __pmd_offset(address)	(((address) >> PMD_SHIFT) & (PTRS_PER_PMD-1))
+ 
+ /* to find an entry in a kernel page-table-directory */
+ #define pgd_offset_k(address) pgd_offset(&init_mm, address)
+ 
+-#define pgd_index(address)	((address) >> PGDIR_SHIFT)
++#define pgd_index(address)	(((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
+ 
+ /* to find an entry in a page-table-directory */
+ #define pgd_offset(mm,addr)	((mm)->pgd + pgd_index(addr))
+ 
+-/* Find an entry in the second-level page table.. */
+-static inline pmd_t *pmd_offset(pgd_t *dir, unsigned long address)
+-{
+-	return (pmd_t *) dir;
+-}
+-
+ /* Find an entry in the third-level page table.. */
+ #define __pte_offset(address)						\
+ 	(((address) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgtable-64.h linux-libc-headers-2.6.11.0/include/asm-mips/pgtable-64.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/pgtable-64.h	2005-01-08 14:02:53 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/pgtable-64.h	2005-03-24 07:06:29 +0000
+@@ -15,13 +15,15 @@
+ #include <asm/page.h>
+ #include <asm/cachectl.h>
+ 
++#include <asm-generic/pgtable-nopud.h>
++
+ /*
+  * Each address space has 2 4K pages as its page directory, giving 1024
+  * (== PTRS_PER_PGD) 8 byte pointers to pmd tables. Each pmd table is a
+- * pair of 4K pages, giving 1024 (== PTRS_PER_PMD) 8 byte pointers to
+- * page tables. Each page table is a single 4K page, giving 512 (==
+- * PTRS_PER_PTE) 8 byte ptes. Each pgde is initialized to point to
+- * invalid_pmd_table, each pmde is initialized to point to
++ * single 4K page, giving 512 (== PTRS_PER_PMD) 8 byte pointers to page
++ * tables. Each page table is also a single 4K page, giving 512 (==
++ * PTRS_PER_PTE) 8 byte ptes. Each pud entry is initialized to point to
++ * invalid_pmd_table, each pmd entry is initialized to point to
+  * invalid_pte_table, each pte is initialized to 0. When memory is low,
+  * and a pmd table or a page table allocation fails, empty_bad_pmd_table
+  * and empty_bad_page_table is returned back to higher layer code, so
+@@ -35,17 +37,17 @@
+  */
+ 
+ /* PMD_SHIFT determines the size of the area a second-level page table can map */
+-#define PMD_SHIFT	(PAGE_SHIFT + (PAGE_SHIFT - 3))
++#define PMD_SHIFT	(PAGE_SHIFT + (PAGE_SHIFT + PTE_ORDER - 3))
+ #define PMD_SIZE	(1UL << PMD_SHIFT)
+ #define PMD_MASK	(~(PMD_SIZE-1))
+ 
+ /* PGDIR_SHIFT determines what a third-level page table entry can map */
+-#define PGDIR_SHIFT	(PMD_SHIFT + (PAGE_SHIFT + 1 - 3))
++#define PGDIR_SHIFT	(PMD_SHIFT + (PAGE_SHIFT + PMD_ORDER - 3))
+ #define PGDIR_SIZE	(1UL << PGDIR_SHIFT)
+ #define PGDIR_MASK	(~(PGDIR_SIZE-1))
+ 
+ /*
+- * For 4kB page size we use a 3 level page tree and a 8kB pmd and pgds which
++ * For 4kB page size we use a 3 level page tree and an 8kB pud, which
+  * permits us mapping 40 bits of virtual address space.
+  *
+  * We used to implement 41 bits by having an order 1 pmd level but that seemed
+@@ -56,7 +58,7 @@
+  * two levels would be easy to implement.
+  *
+  * For 16kB page size we use a 2 level page tree which permits a total of
+- * 36 bits of virtual address space.  We could add a third leve. but it seems
++ * 36 bits of virtual address space.  We could add a third level but it seems
+  * like at the moment there's no need for this.
+  *
+  * For 64kB page size we use a 2 level page table tree for a total of 42 bits
+@@ -64,21 +66,25 @@
+  */
+ #ifdef CONFIG_PAGE_SIZE_4KB
+ #define PGD_ORDER		1
++#define PUD_ORDER		aieeee_attempt_to_allocate_pud
+ #define PMD_ORDER		0
+ #define PTE_ORDER		0
+ #endif
+ #ifdef CONFIG_PAGE_SIZE_8KB
+ #define PGD_ORDER		0
++#define PUD_ORDER		aieeee_attempt_to_allocate_pud
+ #define PMD_ORDER		0
+ #define PTE_ORDER		0
+ #endif
+ #ifdef CONFIG_PAGE_SIZE_16KB
+ #define PGD_ORDER		0
++#define PUD_ORDER		aieeee_attempt_to_allocate_pud
+ #define PMD_ORDER		0
+ #define PTE_ORDER		0
+ #endif
+ #ifdef CONFIG_PAGE_SIZE_64KB
+ #define PGD_ORDER		0
++#define PUD_ORDER		aieeee_attempt_to_allocate_pud
+ #define PMD_ORDER		0
+ #define PTE_ORDER		0
+ #endif
+@@ -90,7 +96,7 @@
+ #define USER_PTRS_PER_PGD	(TASK_SIZE / PGDIR_SIZE)
+ #define FIRST_USER_PGD_NR	0
+ 
+-#define VMALLOC_START		XKSEG
++#define VMALLOC_START		MAP_BASE
+ #define VMALLOC_END	\
+ 	(VMALLOC_START + PTRS_PER_PGD * PTRS_PER_PMD * PTRS_PER_PTE * PAGE_SIZE)
+ 
+@@ -101,10 +107,10 @@
+ #define pgd_ERROR(e) \
+ 	printk("%s:%d: bad pgd %016lx.\n", __FILE__, __LINE__, pgd_val(e))
+ 
+-extern pte_t invalid_pte_table[PAGE_SIZE/sizeof(pte_t)];
+-extern pte_t empty_bad_page_table[PAGE_SIZE/sizeof(pte_t)];
+-extern pmd_t invalid_pmd_table[2*PAGE_SIZE/sizeof(pmd_t)];
+-extern pmd_t empty_bad_pmd_table[2*PAGE_SIZE/sizeof(pmd_t)];
++extern pte_t invalid_pte_table[PTRS_PER_PTE];
++extern pte_t empty_bad_page_table[PTRS_PER_PTE];
++extern pmd_t invalid_pmd_table[PTRS_PER_PMD];
++extern pmd_t empty_bad_pmd_table[PTRS_PER_PMD];
+ 
+ /*
+  * Empty pmd entries point to the invalid_pte_table.
+@@ -127,23 +133,26 @@
+ }
+ 
+ /*
+- * Empty pgd entries point to the invalid_pmd_table.
++ * Empty pud entries point to the invalid_pmd_table.
+  */
+-static inline int pgd_none(pgd_t pgd)
++static inline int pud_none(pud_t pud)
+ {
+-	return pgd_val(pgd) == (unsigned long) invalid_pmd_table;
++	return pud_val(pud) == (unsigned long) invalid_pmd_table;
+ }
+ 
+-#define pgd_bad(pgd)		(pgd_val(pgd) &~ PAGE_MASK)
++static inline int pud_bad(pud_t pud)
++{
++	return pud_val(pud) & ~PAGE_MASK;
++}
+ 
+-static inline int pgd_present(pgd_t pgd)
++static inline int pud_present(pud_t pud)
+ {
+-	return pgd_val(pgd) != (unsigned long) invalid_pmd_table;
++	return pud_val(pud) != (unsigned long) invalid_pmd_table;
+ }
+ 
+-static inline void pgd_clear(pgd_t *pgdp)
++static inline void pud_clear(pud_t *pudp)
+ {
+-	pgd_val(*pgdp) = ((unsigned long) invalid_pmd_table);
++	pud_val(*pudp) = ((unsigned long) invalid_pmd_table);
+ }
+ 
+ #define pte_page(x)		pfn_to_page((unsigned long)((pte_val(x) >> PAGE_SHIFT)))
+@@ -156,25 +165,26 @@
+ #endif
+ 
+ #define __pgd_offset(address)	pgd_index(address)
++#define __pud_offset(address)	(((address) >> PUD_SHIFT) & (PTRS_PER_PUD-1))
+ #define page_pte(page) page_pte_prot(page, __pgprot(0))
+ 
+ /* to find an entry in a kernel page-table-directory */
+ #define pgd_offset_k(address) pgd_offset(&init_mm, 0)
+ 
+-#define pgd_index(address)		((address) >> PGDIR_SHIFT)
++#define pgd_index(address)	(((address) >> PGDIR_SHIFT) & (PTRS_PER_PGD-1))
+ 
+ /* to find an entry in a page-table-directory */
+ #define pgd_offset(mm,addr)	((mm)->pgd + pgd_index(addr))
+ 
+-static inline unsigned long pgd_page(pgd_t pgd)
++static inline unsigned long pud_page(pud_t pud)
+ {
+-	return pgd_val(pgd);
++	return pud_val(pud);
+ }
+ 
+ /* Find an entry in the second-level page table.. */
+-static inline pmd_t *pmd_offset(pgd_t * dir, unsigned long address)
++static inline pmd_t *pmd_offset(pud_t * pud, unsigned long address)
+ {
+-	return (pmd_t *) pgd_page(*dir) +
++	return (pmd_t *) pud_page(*pud) +
+ 	       ((address >> PMD_SHIFT) & (PTRS_PER_PMD - 1));
+ }
+ 
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/serial.h linux-libc-headers-2.6.11.0/include/asm-mips/serial.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/serial.h	2005-01-08 14:02:50 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/serial.h	2005-03-24 07:06:33 +0000
+@@ -308,9 +308,9 @@
+ #define JAGUAR_ATX_SERIAL1_BASE	0xfd000023L
+ 
+ #define _JAGUAR_ATX_SERIAL_INIT(int, base)				\
+-	{ baud_base: JAGUAR_ATX_BASE_BAUD, irq: int,			\
+-	  flags: (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST),		\
+-	  iomem_base: (u8 *) base, iomem_reg_shift: 2,			\
++	{ .baud_base = JAGUAR_ATX_BASE_BAUD, irq: int,			\
++	  .flags = (ASYNC_BOOT_AUTOCONF | ASYNC_SKIP_TEST),		\
++	  .iomem_base = (u8 *) base, iomem_reg_shift: 2,			\
+ 	  io_type: SERIAL_IO_MEM }
+ #define MOMENCO_JAGUAR_ATX_SERIAL_PORT_DEFNS				\
+ 	_JAGUAR_ATX_SERIAL_INIT(JAGUAR_ATX_SERIAL1_IRQ, JAGUAR_ATX_SERIAL1_BASE)
+@@ -324,9 +324,9 @@
+ #define OCELOT_3_SERIAL_BASE	(signed)0xfd000020
+ 
+ #define _OCELOT_3_SERIAL_INIT(int, base)				\
+-	{ baud_base: OCELOT_3_BASE_BAUD, irq: int, 			\
+-	  flags: STD_COM_FLAGS,						\
+-	  iomem_base: (u8 *) base, iomem_reg_shift: 2,			\
++	{ .baud_base = OCELOT_3_BASE_BAUD, irq: int, 			\
++	  .flags = STD_COM_FLAGS,						\
++	  .iomem_base = (u8 *) base, iomem_reg_shift: 2,			\
+ 	  io_type: SERIAL_IO_MEM }
+ 
+ #define MOMENCO_OCELOT_3_SERIAL_PORT_DEFNS				\
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/spinlock.h linux-libc-headers-2.6.11.0/include/asm-mips/spinlock.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/spinlock.h	2005-03-13 20:51:58 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/spinlock.h	2005-03-24 07:06:34 +0000
+@@ -140,6 +140,18 @@
+ 
+ #define rwlock_init(x)  do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ 
++/*
++ * read_can_lock - would read_trylock() succeed?
++ * @lock: the rwlock in question.
++ */
++#define read_can_lock(rw)	((rw)->lock >= 0)
++
++/*
++ * write_can_lock - would write_trylock() succeed?
++ * @lock: the rwlock in question.
++ */
++#define write_can_lock(rw)	(!(rw)->lock)
++
+ static inline void _raw_read_lock(rwlock_t *rw)
+ {
+ 	unsigned int tmp;
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/asm-mips/stackframe.h linux-libc-headers-2.6.11.0/include/asm-mips/stackframe.h
+--- linux-libc-headers-2.6.11.0.orig/include/asm-mips/stackframe.h	2005-03-13 20:51:59 +0000
++++ linux-libc-headers-2.6.11.0/include/asm-mips/stackframe.h	2005-03-24 07:06:34 +0000
+@@ -77,7 +77,12 @@
+ 		MFC0	k1, CP0_CONTEXT
+ 		dsrl	k1, 23
+ 		dsll	k1, k1, 3
+-		LONG_L	k1, kernelsp(k1)
++		lui	k0, %highest(kernelsp)
++		daddiu	k0, %higher(kernelsp)
++		dsll	k0, k0, 16
++		daddiu	k0, %hi(kernelsp)
++		daddu	k1, k1, k0
++		LONG_L	k1, %lo(kernelsp)(k1)
+ #endif
+ 		.endm
+ 
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/linux/init.h linux-libc-headers-2.6.11.0/include/linux/init.h
+--- linux-libc-headers-2.6.11.0.orig/include/linux/init.h	2005-03-13 20:53:59 +0000
++++ linux-libc-headers-2.6.11.0/include/linux/init.h	2005-03-24 07:06:36 +0000
+@@ -84,6 +84,8 @@
+ 	static initcall_t __initcall_##fn \
+ 	__attribute__((__section__(".initcall" level ".init"))) = fn
+ 
++#define early_initcall(fn)		__define_initcall(".early1",fn)
++
+ #define core_initcall(fn)		__define_initcall("1",fn)
+ #define postcore_initcall(fn)		__define_initcall("2",fn)
+ #define arch_initcall(fn)		__define_initcall("3",fn)
+diff -Naur linux-libc-headers-2.6.11.0.orig/include/linux/serial.h linux-libc-headers-2.6.11.0/include/linux/serial.h
+--- linux-libc-headers-2.6.11.0.orig/include/linux/serial.h	2004-10-31 19:55:10 +0000
++++ linux-libc-headers-2.6.11.0/include/linux/serial.h	2005-03-24 07:06:37 +0000
+@@ -55,7 +55,8 @@
+ #define PORT_16654	11
+ #define PORT_16850	12
+ #define PORT_RSA	13	/* RSA-DV II/S card */
+-#define PORT_MAX	13
++#define PORT_SB1250	14
++#define PORT_MAX	14
+ 
+ #define SERIAL_IO_PORT	0
+ #define SERIAL_IO_HUB6	1

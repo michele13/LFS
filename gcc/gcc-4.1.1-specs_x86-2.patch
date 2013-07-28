@@ -1,0 +1,143 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-07-05
+Initial Package Version: 4.1.1
+Upstream Status: Not submitted - Not currently portable outside i386, it'll be rejected.
+Origin: None
+Description: This patch is a replacement for the LFS gcc-specs patch.
+This patch adds --with-dynamic-linker= and --with-nostdinc to gcc/configure.
+--with-dynamic-linker= can point to glibc, uclibc, or whatever. If $with_dynamic_linker
+is set then it will be used to discover if the libc it links to has gcc41+ support for
+stack smashing protector (usable by Glibc, uClibc, BSD, or whatever).
+
+If you modify this patch to add more platforms than i386 Linux, please send me the
+differences so I can add them to this patch. If one magical day all platforms are
+supported then this patch could be added to mainline GCC.
+
+diff -Naur gcc-4.1.1.orig/gcc/Makefile.in gcc-4.1.1/gcc/Makefile.in
+--- gcc-4.1.1.orig/gcc/Makefile.in	2006-05-17 18:38:58.000000000 +0000
++++ gcc-4.1.1/gcc/Makefile.in	2006-07-06 04:01:30.000000000 +0000
+@@ -793,7 +793,7 @@
+ 
+ # This is the variable actually used when we compile. If you change this,
+ # you probably want to update BUILD_CFLAGS in configure.ac
+-ALL_CFLAGS = $(X_CFLAGS) $(T_CFLAGS) \
++ALL_CFLAGS = $(X_CFLAGS) $(T_CFLAGS) @NOSTDINC@ \
+   $(CFLAGS) $(INTERNAL_CFLAGS) $(COVERAGE_FLAGS) $(WARN_CFLAGS) $(XCFLAGS) @DEFS@
+ 
+ # Likewise.  Put INCLUDES at the beginning: this way, if some autoconf macro
+@@ -1611,7 +1611,8 @@
+ 	(SHLIB_LINK='$(SHLIB_LINK)' \
+ 	SHLIB_MULTILIB='$(SHLIB_MULTILIB)'; \
+ 	$(CC) $(ALL_CFLAGS) $(ALL_CPPFLAGS) \
+-  $(DRIVER_DEFINES) \
++  $(DRIVER_DEFINES) `if test -n "@DYNAMICLINKER@" ; then \
++      echo -D__DYNAMIC_LINKER__=\"@DYNAMICLINKER@\" ; fi` \
+   -c $(srcdir)/gcc.c $(OUTPUT_OPTION))
+ 
+ gccspec.o: gccspec.c $(CONFIG_H) $(SYSTEM_H) coretypes.h $(TM_H) $(GCC_H)
+diff -Naur gcc-4.1.1.orig/gcc/config/i386/linux.h gcc-4.1.1/gcc/config/i386/linux.h
+--- gcc-4.1.1.orig/gcc/config/i386/linux.h	2005-08-10 17:53:01.000000000 +0000
++++ gcc-4.1.1/gcc/config/i386/linux.h	2006-07-06 04:01:30.000000000 +0000
+@@ -105,7 +105,11 @@
+ /* If ELF is the default format, we should not use /lib/elf.  */
+ 
+ #define LINK_EMULATION "elf_i386"
++#ifdef __DYNAMIC_LINKER__
++#define DYNAMIC_LINKER __DYNAMIC_LINKER__
++#else
+ #define DYNAMIC_LINKER "/lib/ld-linux.so.2"
++#endif
+ 
+ #undef  SUBTARGET_EXTRA_SPECS
+ #define SUBTARGET_EXTRA_SPECS \
+diff -Naur gcc-4.1.1.orig/gcc/config/linux.h gcc-4.1.1/gcc/config/linux.h
+--- gcc-4.1.1.orig/gcc/config/linux.h	2005-08-06 13:26:35.000000000 +0000
++++ gcc-4.1.1/gcc/config/linux.h	2006-07-06 04:01:30.000000000 +0000
+@@ -104,3 +104,8 @@
+ #define TARGET_C99_FUNCTIONS 1
+ 
+ #define TARGET_POSIX_IO
++
++#ifdef NOSTDINC
++#undef STANDARD_INCLUDE_DIR
++#define STANDARD_INCLUDE_DIR 0
++#endif
+diff -Naur gcc-4.1.1.orig/gcc/configure gcc-4.1.1/gcc/configure
+--- gcc-4.1.1.orig/gcc/configure	2006-02-14 16:50:45.000000000 +0000
++++ gcc-4.1.1/gcc/configure	2006-07-06 04:03:28.000000000 +0000
+@@ -935,6 +935,11 @@
+                           with the compiler
+   --with-system-zlib      use installed libz
+   --with-slibdir=DIR      shared libraries in DIR LIBDIR
++  --with-dynamic-linker=PATH
++                          specifies path to dynamic linker.
++                          example: "/lib/ld-linux.so.2"
++  --with-nostdinc         build gcc to ignore standard include directories.
++                          You will have to use --with-local-prefix with this option.
+ 
+ Some influential environment variables:
+   CC          C compiler command
+@@ -4678,6 +4683,29 @@
+ #define SIZEOF_INT $ac_cv_sizeof_int
+ _ACEOF
+ 
++# Check whether --with-dynamic-linker= was given.
++
++if test "${with_dynamic_linker+set}" = set; then
++  withval="$with_dynamic_linker"
++  case "${withval}" in
++yes)    { { echo "$as_me:$LINENO: error: bad value "${withval}". Use --with-dynamic-linker=/path/to/lib/ld.so" >&5
++echo "$as_me: error: bad value "${withval}". Use --with-dynamic-linker=/path/to/lib/ld.so" >&2;}
++   { (exit 1); exit 1; }; } ;;
++no)     ;;
++*)	DYNAMICLINKER=$withval ;;
++esac
++fi;
++
++# Check whether --with-nostdinc was given.
++
++if test "${with_nostdinc+set}" = set; then
++  withval="$with_nostdinc"
++  case "${withval}" in
++yes)	NOSTDINC="-DNOSTDINC" ;;
++no)	;;
++*)	NOSTDINC="-DNOSTDINC" ;;
++esac
++fi;
+ 
+ echo "$as_me:$LINENO: checking for long" >&5
+ echo $ECHO_N "checking for long... $ECHO_C" >&6
+@@ -16174,6 +16202,24 @@
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   gcc_cv_libc_provides_ssp=no
++      if test -n "$DYNAMICLINKER" && test -n "$gcc_cv_objdump" ; then
++      # Check whether the libc we are going to link to has __stack_chk_* in it.
++      # We need objdump for this, grep, sed, dirname, and tr.
++
++      # First figure out the filename of our libc.so.
++	echo 'main(){}' > conftest.c
++	$CC conftest.c -o conftest -Wl,--dynamic-linker -Wl,${with_dynamic_linker}
++	our_libc_filename=`$gcc_cv_objdump -p conftest|grep NEEDED| \
++		sed -e "s@NEEDED@$(dirname ${DYNAMICLINKER})/@"|tr -d [:space:]`
++	rm -f conftest.c conftest
++
++      # Then look for __stack_chk_*
++	if test "`readelf -s $our_libc_filename | grep __stack_chk_`"; then
++	gcc_cv_libc_provides_ssp=yes
++	fi
++      # Don't stop. $glibc_header_dir might be needed later in this script.
++      fi
++
+       if test x$host != x$target || test "x$TARGET_SYSTEM_ROOT" != x; then
+ 	if test "x$with_sysroot" = x; then
+ 	  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-include"
+@@ -17240,6 +17286,8 @@
+ s,@TARGET_SYSTEM_ROOT_DEFINE@,$TARGET_SYSTEM_ROOT_DEFINE,;t t
+ s,@CROSS_SYSTEM_HEADER_DIR@,$CROSS_SYSTEM_HEADER_DIR,;t t
+ s,@onestep@,$onestep,;t t
++s,@DYNAMICLINKER@,$DYNAMICLINKER,;t t
++s,@NOSTDINC@,$NOSTDINC,;t t
+ s,@SET_MAKE@,$SET_MAKE,;t t
+ s,@AWK@,$AWK,;t t
+ s,@LN_S@,$LN_S,;t t

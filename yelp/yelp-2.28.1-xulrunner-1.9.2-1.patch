@@ -1,0 +1,95 @@
+Submitted By: DJ Lucas <dj at linuxfromscratch dot org>
+Date: 2010-02-18
+Initial Package Version: 2.28.1
+Upstream Status: Applied
+Origin: Upstream
+Description: Eliminates endless loop when used with XULRunner-1.9.2.
+
+diff -Naur yelp-2.28.1-orig/src/yelp-html.cpp yelp-2.28.1/src/yelp-html.cpp
+--- yelp-2.28.1-orig/src/yelp-html.cpp	2009-11-19 11:09:56.000000000 -0600
++++ yelp-2.28.1/src/yelp-html.cpp	2010-02-04 01:40:50.000000000 -0600
+@@ -24,6 +24,8 @@
+ #include <mozilla-config.h>
+ #include <config.h>
+ 
++#include <string.h>
++
+ #include "yelp-gecko-services.h"
+ #include "yelp-gecko-utils.h"
+ #include "yelp-marshal.h"
+@@ -90,13 +92,20 @@
+ html_open_uri (GtkMozEmbed *embed, const gchar *uri)
+ {
+     YelpHtml *html = YELP_HTML (embed);
+-    gboolean block_load;
++    gboolean block_load = FALSE;
+ 
+     g_return_val_if_fail (uri != NULL, FALSE);
+ 
+     debug_print (DB_FUNCTION, "entering\n");
+     debug_print (DB_ARG, "  uri = \"%s\"\n", uri);
+ 
++    if (g_str_equal (html->priv->base_uri, uri)) {
++    /* As of xulrunner 1.6.2, open_uri is called in response
++    to the base URI we pass in.
++    */
++     return FALSE;
++     }
++
+     if (!html->priv->frames_enabled) {
+ 	g_signal_emit (html, signals[URI_SELECTED], 0, uri, FALSE);
+ 	block_load = TRUE;
+diff -Naur yelp-2.28.1-orig/src/yelp-window.c yelp-2.28.1/src/yelp-window.c
+--- yelp-2.28.1-orig/src/yelp-window.c	2009-11-19 11:09:56.000000000 -0600
++++ yelp-2.28.1/src/yelp-window.c	2010-02-04 01:45:26.000000000 -0600
+@@ -1854,14 +1854,21 @@
+ 		      gboolean   handled,
+ 		      gpointer   user_data)
+ {
++    gchar *new_uri = uri;
+     YelpWindow *window = YELP_WINDOW (user_data);
+ 
+     debug_print (DB_FUNCTION, "entering\n");
+     debug_print (DB_ARG, "  uri = \"%s\"\n", uri);
+ 
++    if (g_str_has_prefix (uri, "xref:"))
++    new_uri = g_strconcat (window->priv->base_uri, "#", uri + 5, NULL);
++
+     if (!handled) {
+-	yelp_window_load (window, uri);
++	yelp_window_load (window, new_uri);
+     }
++
++    if (new_uri != uri)
++    g_free (new_uri);
+ }
+ 
+ static gboolean
+diff -Naur yelp-2.28.1-orig/stylesheets/db2html.xsl.in yelp-2.28.1/stylesheets/db2html.xsl.in
+--- yelp-2.28.1-orig/stylesheets/db2html.xsl.in	2009-11-19 11:09:56.000000000 -0600
++++ yelp-2.28.1/stylesheets/db2html.xsl.in	2010-02-04 01:46:05.000000000 -0600
+@@ -68,7 +68,7 @@
+ <!-- == db.xref.target == -->
+ <xsl:template name="db.xref.target">
+   <xsl:param name="linkend"/>
+-  <xsl:value-of select="concat('#', $linkend)"/>
++  <xsl:value-of select="concat('xref:', $linkend)"/>
+ </xsl:template>
+ 
+ <!-- == db2html.css.custom == -->
+diff -Naur yelp-2.28.1-orig/stylesheets/mal2html.xsl.in yelp-2.28.1/stylesheets/mal2html.xsl.in
+--- yelp-2.28.1-orig/stylesheets/mal2html.xsl.in	2009-11-19 11:09:56.000000000 -0600
++++ yelp-2.28.1/stylesheets/mal2html.xsl.in	2010-02-04 01:48:57.000000000 -0600
+@@ -44,10 +44,10 @@
+     <xsl:when test="contains($xref, '#')">
+       <xsl:variable name="pageid" select="substring-before($xref, '#')"/>
+       <xsl:variable name="sectionid" select="substring-after($xref, '#')"/>
+-      <xsl:value-of select="concat('#', $pageid, '/', $sectionid)"/>
++      <xsl:value-of select="concat('xref:', $pageid, '/', $sectionid)"/>
+     </xsl:when>
+     <xsl:otherwise>
+-      <xsl:value-of select="concat('#', $xref)"/>
++      <xsl:value-of select="concat('xref:', $xref)"/>
+     </xsl:otherwise>
+   </xsl:choose>
+ </xsl:template>

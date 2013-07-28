@@ -1,0 +1,51 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-04-29
+Initial Package Version: 1.0pre4
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Fixes POSIX Complince Issues
+ 
+diff -Naur MPlayer-1.0pre4.orig/configure MPlayer-1.0pre4/configure
+--- MPlayer-1.0pre4.orig/configure	2004-04-26 09:44:06.000000000 +0000
++++ MPlayer-1.0pre4/configure	2004-04-30 01:10:07.246510743 +0000
+@@ -506,7 +506,7 @@
+ if test "$_skip_cc_check" != yes ; then
+  for _cc in "$_cc" gcc gcc-3.3 gcc-3.2 gcc-3.1 gcc3 gcc-3.0 cc ; do
+   echocheck "$_cc version"
+-  cc_name=`( $_cc -v ) 2>&1 | tail -1 | cut -d ' ' -f 1`
++  cc_name=`( $_cc -v ) 2>&1 | tail -n 1 | cut -d ' ' -f 1`
+   cc_version=`( $_cc -dumpversion ) 2>&1`
+   if test "$?" -gt 0; then
+     cc_version="not found"
+@@ -616,15 +616,15 @@
+   _def_arch="#define ARCH_X86 1"
+   _target_arch="TARGET_ARCH_X86 = yes"
+ 
+-  pname=`$_cpuinfo | grep 'model name' | cut -d ':' -f 2 | head -1`
+-  pvendor=`$_cpuinfo | grep 'vendor_id' | cut -d ':' -f 2  | cut -d ' ' -f 2 | head -1`
+-  pfamily=`$_cpuinfo | grep 'cpu family' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -1`
+-  pmodel=`$_cpuinfo | grep -v 'model name' | grep 'model' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -1`
+-  pstepping=`$_cpuinfo | grep 'stepping' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -1`
++  pname=`$_cpuinfo | grep 'model name' | cut -d ':' -f 2 | head -n 1`
++  pvendor=`$_cpuinfo | grep 'vendor_id' | cut -d ':' -f 2  | cut -d ' ' -f 2 | head -n 1`
++  pfamily=`$_cpuinfo | grep 'cpu family' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -n 1`
++  pmodel=`$_cpuinfo | grep -v 'model name' | grep 'model' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -n 1`
++  pstepping=`$_cpuinfo | grep 'stepping' | cut -d ':' -f 2 | cut -d ' ' -f 2 | head -n 1`
+ 
+-  pparam=`$_cpuinfo | grep 'features' | cut -d ':' -f 2 | head -1`
++  pparam=`$_cpuinfo | grep 'features' | cut -d ':' -f 2 | head -n 1`
+   if test -z "$pparam" ; then
+-    pparam=`$_cpuinfo | grep 'flags' | cut -d ':' -f 2 | head -1`
++    pparam=`$_cpuinfo | grep 'flags' | cut -d ':' -f 2 | head -n 1`
+   fi
+ 
+   _mmx=no
+@@ -869,7 +869,7 @@
+ 
+     echocheck "CPU type"
+     if linux && test -n "$_cpuinfo"; then
+-	proc=`$_cpuinfo | grep 'cpu' | cut -d ':' -f 2 | cut -d ',' -f 1 | cut -b 2- | head -1`
++	proc=`$_cpuinfo | grep 'cpu' | cut -d ':' -f 2 | cut -d ',' -f 1 | cut -b 2- | head -n 1`
+ 	if test -n "`$_cpuinfo | grep altivec`"; then
+ 	    _altivec=yes
+ 	fi

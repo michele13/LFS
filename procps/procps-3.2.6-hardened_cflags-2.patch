@@ -1,0 +1,93 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-11-06
+Initial Package Version: 3.2.6
+Upstream Status: Not submitted
+Origin: None
+Description: Check for gcc -fpie, -fpic, -fstack-protector, and ld -pie,
+-z relro, -z now. Use whatever works.
+
+See:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -Naur procps-3.2.6.orig/Makefile procps-3.2.6/Makefile
+--- procps-3.2.6.orig/Makefile	2005-10-30 06:27:04.000000000 +0000
++++ procps-3.2.6/Makefile	2005-11-07 00:26:44.000000000 +0000
+@@ -104,10 +104,12 @@
+ # an option that starts with "-g". (-g, -g2, -g3, -ggdb, etc.)
+ CFLAGS       := -O2 -s
+ ALL_CFLAGS   := $(PKG_CFLAGS) $(CFLAGS)
++EXE_CFLAGS  :=
+ 
+ PKG_LDFLAGS  := -Wl,-warn-common
+ LDFLAGS      :=
+ ALL_LDFLAGS  := $(PKG_LDFLAGS) $(LDFLAGS)
++EXE_LDFLAGS :=
+ 
+ ############ Add some extra flags if gcc allows
+ 
+@@ -148,6 +150,13 @@
+ # in case -O3 is enabled, avoid bloat
+ ALL_CFLAGS += $(call check_gcc,-fno-inline-functions,)
+ 
++# Extra stuff.
++ALL_CFLAGS += $(call check_gcc,-fstack-protector-all,)
++EXE_CFLAGS += $(call check_gcc,-pie -fpie,)
++EXE_LDFLAGS += $(call check_gcc,-pie,)
++ALL_LDFLAGS += $(call check_gcc,-z relro,)
++ALL_LDFLAGS += $(call check_gcc,-z now,)
++
+ endif
+ endif
+ endif
+@@ -236,21 +245,24 @@
+ top.o : top.h
+ 
+ %.o : %.c
+-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) -c -o $@ $<
++	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) $(EXE_CFLAGS) -c -o $@ $<
+ 
+ w.o:    w.c
+-	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) $(W_SHOWFROM) -c $<
++	$(CC) $(ALL_CPPFLAGS) $(ALL_CFLAGS) $(EXE_CFLAGS) $(W_SHOWFROM) -c $<
+ 
+ ############ prog.o --> prog
+ 
+ pmap w uptime tload free sysctl vmstat utmp pgrep skill pwdx: % : %.o $(LIBPROC)
+-	$(CC) $(ALL_CFLAGS) $^ $(ALL_LDFLAGS) -o $@
++	$(CC) $(ALL_CFLAGS) $(EXE_CFLAGS) $^ $(ALL_LDFLAGS) \
++		$(EXE_LDFLAGS) -o $@
+ 
+ slabtop top: % : %.o $(LIBPROC)
+-	$(CC) $(ALL_CFLAGS) $^ $(ALL_LDFLAGS) -o $@ $(CURSES)
++	$(CC) $(ALL_CFLAGS) $(EXE_CFLAGS) $^ $(ALL_LDFLAGS) \
++		$(EXE_LDFLAGS) -o $@ $(CURSES)
+ 
+ watch: % : %.o
+-	$(CC) $(ALL_CFLAGS) $^ $(ALL_LDFLAGS) -o $@ $(CURSES)
++	$(CC) $(ALL_CFLAGS) $(EXE_CFLAGS) $^ $(ALL_LDFLAGS) \
++		$(EXE_LDFLAGS) -o $@ $(CURSES)
+ 
+ ############ progX --> progY
+ 
+diff -Naur procps-3.2.6.orig/ps/module.mk procps-3.2.6/ps/module.mk
+--- procps-3.2.6.orig/ps/module.mk	2005-10-30 03:19:46.000000000 +0000
++++ procps-3.2.6/ps/module.mk	2005-11-07 00:29:10.000000000 +0000
+@@ -20,14 +20,15 @@
+ TARFILES += $(PSSRC) $(addprefix ps/,$(PS_X))
+ 
+ ps/ps: $(PSOBJ) $(LIBPROC)
+-	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^ $(ldl)
++	$(CC) $(ALL_CFLAGS) $(EXE_CFLAGS) $(ALL_LDFLAGS) $(EXE_LDFLAGS) -o $@ $^ $(ldl)
+ 
+ # This just adds the stacktrace code
+ ps/debug: $(PSOBJ) stacktrace.o $(LIBPROC)
+-	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^ -lefence $(ldl)
++	$(CC) $(ALL_CFLAGS) $(EXE_CFLAGS) $(ALL_LDFLAGS) $(EXE_LDFLAGS) \
++		-o $@ $^ -lefence $(ldl)
+ 
+ $(PSOBJ): %.o: %.c ps/common.h $(LIBPROC)
+-	$(CC) -c $(ALL_CPPFLAGS) $(ALL_CFLAGS) $< -o $@
++	$(CC) -c $(ALL_CPPFLAGS) $(ALL_CFLAGS) $(EXE_CFLAGS) $< -o $@
+ 
+ ps/stacktrace.o: ps/stacktrace.c
+ 

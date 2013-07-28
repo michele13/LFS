@@ -1,0 +1,65 @@
+Submitted By: Remy Bosch <remybosch AT zonnet DOT nl>
+Date: 2004-01-21
+Initial Package Version: 1.7
+Origin: My home ;-)
+Description: Added a Major for md and added input devices
+
+--- MAKEDEV-1	2004-01-21 22:51:12.000000000 +0100
++++ /dev/MAKEDEV-1.7	2004-01-21 23:11:02.000000000 +0100
+@@ -1,6 +1,6 @@
+ #!/bin/bash
+ 
+-MAKEDEV_VERSION=1.7
++MAKEDEV_VERSION=1.7-1
+ 
+ # This script is originally taken from Slackware 7.1 and modified for
+ #  the Linux From Scratch Project (http://www.linuxfromscratch.org/) by
+@@ -54,6 +54,11 @@
+ #  -- Give vcs a fallback major number (7) as the /proc processing code
+ #  has been removed.
+ 
++# Version 1.7-1
++# -- Added inputdevices in /dev/input for usb-devices like mice/tablets
++# -- Added a major number to md (for raid). Used the Software-RAID-HOWTO for
++# reference.
++
+ 
+ # Kernel version 2.4.9 (2.4.x series)
+ 
+@@ -972,7 +977,7 @@
+ 		done
+ 		;;
+ 	md)
+-		major=`Major md` || continue
++		major=`Major md 9` || continue
+ 		for part in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+ 		do
+ 			makedev md$part b $major $part $disk
+@@ -1309,6 +1314,27 @@
+ 	ppp)
+ 		makedev ppp c 108 0 $dialout
+ 		;;
++	input)
++		if [ ! -d input ] ; then mkdir input ; fi
++		cd input
++		major=13
++		minor=64
++		i=0
++		until [ $minor -gt 68 ]; do
++			makedev event$i c $major $minor $mouse
++			minor=`math $minor + 1`
++			i=`math $i + 1`
++		done
++		minor=32
++		i=0
++		until [ $minor -gt 36 ]; do # can go through to 62...
++			makedev mouse$i c $major $minor $mouse
++			minor=`math $minor + 1`
++			i=`math $i + 1`
++		done
++		makedev mice c 13 63 $mouse
++		cd ../
++		;;
+ 	*)
+ 		echo "$0: don't know how to make device \"$arg\"" >&2
+ 		exit 1

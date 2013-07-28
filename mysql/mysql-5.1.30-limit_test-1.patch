@@ -1,0 +1,26 @@
+Submitted By: Bruce dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2008-12-28
+Initial Package Version: 5.1.30
+Origin: mysql mailing list
+Description: Patches the limit count of a table when big tables are not
+             enabled.
+
+--- a/sql/sql_lex.cc    2008-09-18 08:38:44 +0000
++++ b/sql/sql_lex.cc    2008-10-10 20:28:40 +0000
+@@ -2404,8 +2404,13 @@ void st_select_lex_unit::set_limit(st_se
+   if (val != (ulonglong)select_limit_val)
+     select_limit_val= HA_POS_ERROR;
+ #endif
+-  offset_limit_cnt= (ha_rows)(sl->offset_limit ? sl->offset_limit->val_uint() :
+-                                                 ULL(0));
++  val= sl->offset_limit ? sl->offset_limit->val_uint() : ULL(0);
++  offset_limit_cnt= (ha_rows)val;
++#ifndef BIG_TABLES
++  /* Check for truncation. */
++  if (val != (ulonglong)offset_limit_cnt)
++    offset_limit_cnt= HA_POS_ERROR;
++#endif
+   select_limit_cnt= select_limit_val + offset_limit_cnt;
+   if (select_limit_cnt < select_limit_val)
+     select_limit_cnt= HA_POS_ERROR;		// no limit
+

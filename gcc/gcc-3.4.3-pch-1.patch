@@ -1,0 +1,863 @@
+Submitted By: Dan Nicholson <dbn.lists@gmail.com>
+Date: 2005-12-14
+Initial Package Version: 3.4.4
+Upstream Status: Backported from trunk
+Origin: GCC CVS Commits
+Description: GCC-3.4.3 and 3.4.4 have a problem with precompiled
+	headers (PCH) when used with Linux-2.6.12+.  This bug 
+	results in failures in the GCC testsuite.  See:
+
+	http://linuxfromscratch.org/pipermail/lfs-dev/2005-July/052312.html
+	http://gcc.gnu.org/bugzilla/show_bug.cgi?id=14400
+
+	The issue has been resolved in GCC-3.4.5 and GCC-4.
+
+diff -Naur gcc-3.4.4.orig/gcc/c-pch.c gcc-3.4.4/gcc/c-pch.c
+--- gcc-3.4.4.orig/gcc/c-pch.c	2005-11-03 13:11:08.569995200 -0800
++++ gcc-3.4.4/gcc/c-pch.c	2005-11-03 13:55:43.105788800 -0800
+@@ -428,6 +428,6 @@
+   if (cpp_get_callbacks (parse_in)->valid_pch)
+     {
+       cpp_get_callbacks (parse_in)->valid_pch = NULL;
+-      host_hooks.gt_pch_use_address (NULL, 0);
++      host_hooks.gt_pch_use_address (NULL, 0, -1, 0);
+     }
+ }
+diff -Naur gcc-3.4.4.orig/gcc/config/host-linux.c gcc-3.4.4/gcc/config/host-linux.c
+--- gcc-3.4.4.orig/gcc/config/host-linux.c	1969-12-31 16:00:00.000000000 -0800
++++ gcc-3.4.4/gcc/config/host-linux.c	2005-11-03 13:55:44.297502400 -0800
+@@ -0,0 +1,219 @@
++/* Linux host-specific hook definitions.
++   Copyright (C) 2004, 2005 Free Software Foundation, Inc.
++
++   This file is part of GCC.
++
++   GCC is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published
++   by the Free Software Foundation; either version 2, or (at your
++   option) any later version.
++
++   GCC is distributed in the hope that it will be useful, but WITHOUT
++   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
++   License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GCC; see the file COPYING.  If not, write to the
++   Free Software Foundation, 59 Temple Place - Suite 330, Boston,
++   MA 02111-1307, USA.  */
++
++#include "config.h"
++#include "system.h"
++#include "coretypes.h"
++#include <sys/mman.h>
++#include <limits.h>
++#include "hosthooks.h"
++#include "hosthooks-def.h"
++
++
++/* Linux has a feature called exec-shield-randomize that perturbs the
++   address of non-fixed mapped segments by a (relatively) small amount.
++   The feature is intended to make it harder to attack the system with
++   buffer overflow attacks, since every invocation of a program will
++   have its libraries and data segments at slightly different addresses.
++
++   This feature causes us problems with PCH because it makes it that
++   much harder to acquire a stable location at which to map our PCH
++   data file.
++
++   [ The feature causes other points of non-determinism within the
++     compiler as well, so we'd *really* like to be able to have the
++     driver disable exec-shield-randomize for the process group, but
++     that isn't possible at present.  ]
++
++   We're going to try several things:
++
++      * Select an architecture specific address as "likely" and see
++	if that's free.  For our 64-bit hosts, we can easily choose
++	an address in Never Never Land.
++
++      * If exec-shield-randomize is disabled, then just use the
++	address chosen by mmap in step one.
++
++      * If exec-shield-randomize is enabled, then temporarily allocate
++	32M of memory as a buffer, then allocate PCH memory, then
++	free the buffer.  The theory here is that the perturbation is
++	no more than 16M, and so by allocating our buffer larger than
++	that we make it considerably more likely that the address will
++	be free when we want to load the data back.
++*/
++
++#undef HOST_HOOKS_GT_PCH_GET_ADDRESS
++#define HOST_HOOKS_GT_PCH_GET_ADDRESS linux_gt_pch_get_address
++
++#undef HOST_HOOKS_GT_PCH_USE_ADDRESS
++#define HOST_HOOKS_GT_PCH_USE_ADDRESS linux_gt_pch_use_address
++
++/* For various ports, try to guess a fixed spot in the vm space
++   that's probably free.  */
++#if defined(__alpha)
++# define TRY_EMPTY_VM_SPACE	0x10000000000
++#elif defined(__ia64)
++# define TRY_EMPTY_VM_SPACE	0x2000000100000000
++#elif defined(__x86_64)
++# define TRY_EMPTY_VM_SPACE	0x1000000000
++#elif defined(__i386)
++# define TRY_EMPTY_VM_SPACE	0x60000000
++#elif defined(__powerpc__)
++# define TRY_EMPTY_VM_SPACE	0x60000000
++#elif defined(__s390x__)
++# define TRY_EMPTY_VM_SPACE	0x8000000000
++#elif defined(__s390__)
++# define TRY_EMPTY_VM_SPACE	0x60000000
++#elif defined(__sparc__) && defined(__LP64__)
++# define TRY_EMPTY_VM_SPACE	0x8000000000
++#elif defined(__sparc__)
++# define TRY_EMPTY_VM_SPACE	0x60000000
++#else
++# define TRY_EMPTY_VM_SPACE	0
++#endif
++
++/* Determine a location where we might be able to reliably allocate SIZE
++   bytes.  FD is the PCH file, though we should return with the file 
++   unmapped.  */
++
++static void *
++linux_gt_pch_get_address (size_t size, int fd)
++{
++  size_t buffer_size = 32 * 1024 * 1024;
++  void *addr, *buffer;
++  FILE *f;
++  bool randomize_on;
++
++  addr = mmap ((void *)TRY_EMPTY_VM_SPACE, size, PROT_READ | PROT_WRITE,
++	       MAP_PRIVATE, fd, 0);
++
++  /* If we failed the map, that means there's *no* free space.  */
++  if (addr == (void *) MAP_FAILED)
++    return NULL;
++  /* Unmap the area before returning.  */
++  munmap (addr, size);
++
++  /* If we got the exact area we requested, then that's great.  */
++  if (TRY_EMPTY_VM_SPACE && addr == (void *) TRY_EMPTY_VM_SPACE)
++    return addr;
++
++  /* If we didn't, then we need to look to see if virtual address
++     randomization is on.  That is recorded in
++     kernel.randomize_va_space.  An older implementation used
++     kernel.exec-shield-randomize.  */
++  f = fopen ("/proc/sys/kernel/randomize_va_space", "r");
++  if (f == NULL)
++    f = fopen ("/proc/sys/kernel/exec-shield-randomize", "r");
++  randomize_on = false;
++  if (f != NULL)
++    {
++      char buf[100];
++      size_t c;
++
++      c = fread (buf, 1, sizeof buf - 1, f);
++      if (c > 0)
++	{
++	  buf[c] = '\0';
++	  randomize_on = (atoi (buf) > 0);
++	}
++      fclose (f);
++    }
++
++  /* If it isn't, then accept the address that mmap selected as fine.  */
++  if (!randomize_on)
++    return addr;
++
++  /* Otherwise, we need to try again with buffer space.  */
++  buffer = mmap (0, buffer_size, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
++  addr = mmap (0, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
++  if (buffer != (void *) MAP_FAILED)
++    munmap (buffer, buffer_size);
++  if (addr == (void *) MAP_FAILED)
++    return NULL;
++  munmap (addr, size);
++
++  return addr;
++}
++
++/* Map SIZE bytes of FD+OFFSET at BASE.  Return 1 if we succeeded at
++   mapping the data at BASE, -1 if we couldn't.
++
++   It's not possibly to reliably mmap a file using MAP_PRIVATE to
++   a specific START address on either hpux or linux.  First we see
++   if mmap with MAP_PRIVATE works.  If it does, we are off to the
++   races.  If it doesn't, we try an anonymous private mmap since the
++   kernel is more likely to honor the BASE address in anonymous maps.
++   We then copy the data to the anonymous private map.  This assumes
++   of course that we don't need to change the data in the PCH file
++   after it is created.
++
++   This approach obviously causes a performance penalty but there is
++   little else we can do given the current PCH implementation.  */
++
++static int
++linux_gt_pch_use_address (void *base, size_t size, int fd, size_t offset)
++{
++  void *addr;
++
++  /* We're called with size == 0 if we're not planning to load a PCH
++     file at all.  This allows the hook to free any static space that
++     we might have allocated at link time.  */
++  if (size == 0)
++    return -1;
++
++  /* Try to map the file with MAP_PRIVATE.  */
++  addr = mmap (base, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, offset);
++
++  if (addr == base)
++    return 1;
++
++  if (addr != (void *) MAP_FAILED)
++    munmap (addr, size);
++
++  /* Try to make an anonymous private mmap at the desired location.  */
++  addr = mmap (base, size, PROT_READ | PROT_WRITE,
++	       MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
++
++  if (addr != base)
++    {
++      if (addr != (void *) MAP_FAILED)
++        munmap (addr, size);
++      return -1;
++    }
++
++  if (lseek (fd, offset, SEEK_SET) == (off_t)-1)
++    return -1;
++
++  while (size)
++    {
++      ssize_t nbytes;
++
++      nbytes = read (fd, base, MIN (size, SSIZE_MAX));
++      if (nbytes <= 0)
++        return -1;
++      base = (char *) base + nbytes;
++      size -= nbytes;
++    }
++
++  return 1;
++}
++
++
++const struct host_hooks host_hooks = HOST_HOOKS_INITIALIZER;
+diff -Naur gcc-3.4.4.orig/gcc/config/host-solaris.c gcc-3.4.4/gcc/config/host-solaris.c
+--- gcc-3.4.4.orig/gcc/config/host-solaris.c	1969-12-31 16:00:00.000000000 -0800
++++ gcc-3.4.4/gcc/config/host-solaris.c	2005-11-03 13:55:44.477761600 -0800
+@@ -0,0 +1,79 @@
++/* Solaris host-specific hook definitions.
++   Copyright (C) 2004 Free Software Foundation, Inc.
++
++   This file is part of GCC.
++
++   GCC is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published
++   by the Free Software Foundation; either version 2, or (at your
++   option) any later version.
++
++   GCC is distributed in the hope that it will be useful, but WITHOUT
++   ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
++   or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
++   License for more details.
++
++   You should have received a copy of the GNU General Public License
++   along with GCC; see the file COPYING.  If not, write to the
++   Free Software Foundation, 59 Temple Place - Suite 330, Boston,
++   MA 02111-1307, USA.  */
++
++#include "config.h"
++#include "system.h"
++#include "coretypes.h"
++#include <sys/mman.h>
++#include "hosthooks.h"
++#include "hosthooks-def.h"
++
++
++#undef HOST_HOOKS_GT_PCH_USE_ADDRESS
++#define HOST_HOOKS_GT_PCH_USE_ADDRESS sol_gt_pch_use_address
++
++/* Map SIZE bytes of FD+OFFSET at BASE.  Return 1 if we succeeded at 
++   mapping the data at BASE, -1 if we couldn't.  */
++
++static int
++sol_gt_pch_use_address (void *base, size_t size, int fd, size_t offset)
++{
++  void *addr;
++
++  /* We're called with size == 0 if we're not planning to load a PCH
++     file at all.  This allows the hook to free any static space that
++     we might have allocated at link time.  */
++  if (size == 0)
++    return -1;
++
++  addr = mmap (base, size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
++	       fd, offset);
++
++  /* Solaris isn't good about honoring the mmap START parameter
++     without MAP_FIXED set.  Before we give up, search the desired
++     address space with mincore to see if the space is really free.  */
++  if (addr != base)
++    {
++      size_t page_size = getpagesize();
++      char one_byte;
++      size_t i;
++
++      if (addr != (void *) MAP_FAILED)
++	munmap (addr, size);
++
++      errno = 0;
++      for (i = 0; i < size; i += page_size)
++	if (mincore ((char *)base + i, page_size, (void *)&one_byte) == -1
++	    && errno == ENOMEM)
++	  continue; /* The page is not mapped.  */
++	else
++	  break;
++
++      if (i >= size)
++	addr = mmap (base, size, 
++		     PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED,
++		     fd, offset);
++    }
++
++  return addr == base ? 1 : -1;
++}
++
++
++const struct host_hooks host_hooks = HOST_HOOKS_INITIALIZER;
+diff -Naur gcc-3.4.4.orig/gcc/config/rs6000/host-darwin.c gcc-3.4.4/gcc/config/rs6000/host-darwin.c
+--- gcc-3.4.4.orig/gcc/config/rs6000/host-darwin.c	2005-11-03 13:11:27.687484800 -0800
++++ gcc-3.4.4/gcc/config/rs6000/host-darwin.c	2005-11-03 13:55:44.087200000 -0800
+@@ -1,5 +1,5 @@
+ /* Darwin/powerpc host-specific hook definitions.
+-   Copyright (C) 2003 Free Software Foundation, Inc.
++   Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+ 
+    This file is part of GCC.
+ 
+@@ -137,22 +137,18 @@
+     fatal_error ("While setting up signal handler: %m");
+ }
+ 
+-static void * darwin_rs6000_gt_pch_get_address (size_t);
+-static bool darwin_rs6000_gt_pch_use_address (void *, size_t);
+-
+ #undef HOST_HOOKS_GT_PCH_GET_ADDRESS
+ #define HOST_HOOKS_GT_PCH_GET_ADDRESS darwin_rs6000_gt_pch_get_address
+ #undef HOST_HOOKS_GT_PCH_USE_ADDRESS
+ #define HOST_HOOKS_GT_PCH_USE_ADDRESS darwin_rs6000_gt_pch_use_address
+ 
+-
+ /* Yes, this is really supposed to work.  */
+ static char pch_address_space[1024*1024*1024] __attribute__((aligned (4096)));
+ 
+ /* Return the address of the PCH address space, if the PCH will fit in it.  */
+ 
+ static void *
+-darwin_rs6000_gt_pch_get_address (size_t sz)
++darwin_rs6000_gt_pch_get_address (size_t sz, int fd ATTRIBUTE_UNUSED)
+ {
+   if (sz <= sizeof (pch_address_space))
+     return pch_address_space;
+@@ -163,18 +159,19 @@
+ /* Check ADDR and SZ for validity, and deallocate (using munmap) that part of
+    pch_address_space beyond SZ.  */
+ 
+-static bool
+-darwin_rs6000_gt_pch_use_address (void *addr, size_t sz)
++static int
++darwin_rs6000_gt_pch_use_address (void *addr, size_t sz, int fd, size_t off)
+ {
+   const size_t pagesize = getpagesize();
+-  bool result;
++  void *mmap_result;
++  int ret;
+ 
+   if ((size_t)pch_address_space % pagesize != 0
+       || sizeof (pch_address_space) % pagesize != 0)
+     abort ();
+   
+-  result = (addr == pch_address_space && sz <= sizeof (pch_address_space));
+-  if (! result)
++  ret = (addr == pch_address_space && sz <= sizeof (pch_address_space));
++  if (! ret)
+     sz = 0;
+ 
+   /* Round the size to a whole page size.  Normally this is a no-op.  */
+@@ -183,7 +180,22 @@
+   if (munmap (pch_address_space + sz, sizeof (pch_address_space) - sz) != 0)
+     fatal_error ("couldn't unmap pch_address_space: %m\n");
+ 
+-  return result;
++  if (ret)
++    {
++      mmap_result = mmap (addr, sz,
++			  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED,
++			  fd, off);
++
++      /* The file might not be mmap-able.  */
++      ret = mmap_result != (void *) MAP_FAILED;
++
++      /* Sanity check for broken MAP_FIXED.  */
++      if (ret && mmap_result != addr)
++	abort ();
++    }
++
++  return ret;
+ }
++
+ 
+ const struct host_hooks host_hooks = HOST_HOOKS_INITIALIZER;
+diff -Naur gcc-3.4.4.orig/gcc/config/x-linux gcc-3.4.4/gcc/config/x-linux
+--- gcc-3.4.4.orig/gcc/config/x-linux	1969-12-31 16:00:00.000000000 -0800
++++ gcc-3.4.4/gcc/config/x-linux	2005-11-03 13:55:45.379057600 -0800
+@@ -0,0 +1,4 @@
++host-linux.o : $(srcdir)/config/host-linux.c $(CONFIG_H) $(SYSTEM_H) \
++  coretypes.h hosthooks.h hosthooks-def.h
++	$(CC) -c $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
++		$(srcdir)/config/host-linux.c
+diff -Naur gcc-3.4.4.orig/gcc/config/x-solaris gcc-3.4.4/gcc/config/x-solaris
+--- gcc-3.4.4.orig/gcc/config/x-solaris	1969-12-31 16:00:00.000000000 -0800
++++ gcc-3.4.4/gcc/config/x-solaris	2005-11-03 13:55:45.549302400 -0800
+@@ -0,0 +1,4 @@
++host-solaris.o : $(srcdir)/config/host-solaris.c $(CONFIG_H) $(SYSTEM_H) \
++  coretypes.h hosthooks.h hosthooks-def.h
++	$(CC) -c $(ALL_CFLAGS) $(ALL_CPPFLAGS) $(INCLUDES) \
++		$(srcdir)/config/host-solaris.c
+diff -Naur gcc-3.4.4.orig/gcc/config.host gcc-3.4.4/gcc/config.host
+--- gcc-3.4.4.orig/gcc/config.host	2005-11-03 13:11:32.053763200 -0800
++++ gcc-3.4.4/gcc/config.host	2005-11-03 13:55:43.306076800 -0800
+@@ -113,6 +113,8 @@
+     ;;
+   i[34567]86-*-solaris2*)
+     host_xm_defines="SMALL_ARG_MAX"
++    out_host_hook_obj=host-solaris.o
++    host_xmake_file=x-solaris
+     ;;
+   i[34567]86-*-sysv4*) # Intel 80386's running System V Release 4
+     host_xm_defines="SMALL_ARG_MAX"
+@@ -152,4 +154,12 @@
+     out_host_hook_obj=host-darwin.o
+     host_xmake_file=rs6000/x-darwin
+     ;;
++  *-*-solaris2*)
++    out_host_hook_obj=host-solaris.o
++    host_xmake_file=x-solaris
++    ;;
++  *-*-linux*)
++    out_host_hook_obj=host-linux.o
++    host_xmake_file=x-linux
++    ;;
+ esac
+diff -Naur gcc-3.4.4.orig/gcc/doc/hostconfig.texi gcc-3.4.4/gcc/doc/hostconfig.texi
+--- gcc-3.4.4.orig/gcc/doc/hostconfig.texi	2005-11-03 13:11:37.832072000 -0800
++++ gcc-3.4.4/gcc/doc/hostconfig.texi	2005-11-03 13:55:44.648006400 -0800
+@@ -42,35 +42,31 @@
+ common thing to do in this hook is to detect stack overflow.
+ @end deftypefn
+ 
+-@deftypefn {Host Hook} void * HOST_HOOKS_GT_PCH_GET_ADDRESS (size_t @var{size})
+-This host hook returns the address of some space in which a PCH may be
+-loaded with @samp{HOST_HOOKS_PCH_LOAD_PCH}.  The space will need to
+-have @var{size} bytes.  If insufficient space is available,
+-@samp{NULL} may be returned; the PCH machinery will try to find a
+-suitable address using a heuristic.
+-
+-The memory does not have to be available now.  In fact, usually
+-@samp{HOST_HOOKS_PCH_LOAD_PCH} will already have been called.  The memory
+-need only be available in future invocations of GCC.
++@deftypefn {Host Hook} void * HOST_HOOKS_GT_PCH_GET_ADDRESS (size_t @var{size}, int @var{fd})
++This host hook returns the address of some space that is likely to be
++free in some subsequent invocation of the compiler.  We intend to load
++the PCH data at this address such that the data need not be relocated.
++The area should be able to hold @var{size} bytes.  If the host uses
++@code{mmap}, @var{fd} is an open file descriptor that can be used for
++probing.
+ @end deftypefn
+ 
+-@deftypefn {Host Hook} bool HOST_HOOKS_GT_PCH_USE_ADDRESS (size_t @var{size}, void * @var{address})
+-This host hook is called when a PCH file is about to be loaded.  If
+-@var{address} is the address that would have been returned by
+-@samp{HOST_HOOKS_PCH_MEMORY_ADDRESS}, and @var{size} is smaller than
+-the maximum than @samp{HOST_HOOKS_PCH_MEMORY_ADDRESS} would have
+-accepted, return true, otherwise return false.
+-
+-In addition, free any address space reserved that isn't needed to hold
+-@var{size} bytes (whether or not true is returned).  The PCH machinery will
+-use @samp{mmap} with @samp{MAP_FIXED} to load the PCH if @samp{HAVE_MMAP_FILE},
+-or will use @samp{fread} otherwise.
+-
+-If no PCH will be loaded, this hook may be called with @var{size}
+-zero, in which case all reserved address space should be freed.
++@deftypefn {Host Hook} int HOST_HOOKS_GT_PCH_USE_ADDRESS (void * @var{address}, size_t @var{size}, int @var{fd}, size_t @var{offset})
++This host hook is called when a PCH file is about to be loaded.
++We want to load @var{size} bytes from @var{fd} at @var{offset}
++into memory at @var{address}.  The given address will be the result of
++a previous invocation of @code{HOST_HOOKS_GT_PCH_GET_ADDRESS}.
++Return @minus{}1 if we couldn't allocate @var{size} bytes at @var{address}.
++Return 0 if the memory is allocated but the data is not loaded.  Return 1
++if the hook has performed everything.
++
++If the implementation uses reserved address space, free any reserved
++space beyond @var{size}, regardless of the return value.  If no PCH will
++be loaded, this hook may be called with @var{size} zero, in which case
++all reserved address space should be freed.
+ 
+ Do not try to handle values of @var{address} that could not have been
+-returned by this executable; just return false.  Such values usually
++returned by this executable; just return @minus{}1.  Such values usually
+ indicate an out-of-date PCH file (built by some other GCC executable),
+ and such a PCH file won't work.
+ @end deftypefn
+diff -Naur gcc-3.4.4.orig/gcc/ggc-common.c gcc-3.4.4/gcc/ggc-common.c
+--- gcc-3.4.4.orig/gcc/ggc-common.c	2005-11-03 13:11:47.035305600 -0800
++++ gcc-3.4.4/gcc/ggc-common.c	2005-11-03 13:55:43.526393600 -0800
+@@ -30,6 +30,7 @@
+ #include "toplev.h"
+ #include "params.h"
+ #include "hosthooks.h"
++#include "hosthooks-def.h"
+ 
+ #ifdef HAVE_SYS_RESOURCE_H
+ # include <sys/resource.h>
+@@ -458,21 +459,8 @@
+      and on the rest it's a lot of work to do better.  
+      (The extra work goes in HOST_HOOKS_GT_PCH_GET_ADDRESS and
+      HOST_HOOKS_GT_PCH_USE_ADDRESS.)  */
+-  mmi.preferred_base = host_hooks.gt_pch_get_address (mmi.size);
++  mmi.preferred_base = host_hooks.gt_pch_get_address (mmi.size, fileno (f));
+       
+-#if HAVE_MMAP_FILE
+-  if (mmi.preferred_base == NULL)
+-    {
+-      mmi.preferred_base = mmap (NULL, mmi.size,
+-				 PROT_READ | PROT_WRITE, MAP_PRIVATE,
+-				 fileno (state.f), 0);
+-      if (mmi.preferred_base == (void *) MAP_FAILED)
+-	mmi.preferred_base = NULL;
+-      else
+-	munmap (mmi.preferred_base, mmi.size);
+-    }
+-#endif /* HAVE_MMAP_FILE */
+-
+   ggc_pch_this_base (state.d, mmi.preferred_base);
+ 
+   state.ptrs = xmalloc (state.count * sizeof (*state.ptrs));
+@@ -526,7 +514,8 @@
+ 				  state.ptrs[i]->note_ptr_cookie,
+ 				  relocate_ptrs, &state);
+       ggc_pch_write_object (state.d, state.f, state.ptrs[i]->obj,
+-			    state.ptrs[i]->new_addr, state.ptrs[i]->size, state.ptrs[i]->note_ptr_fn == gt_pch_p_S);
++			    state.ptrs[i]->new_addr, state.ptrs[i]->size,
++			    state.ptrs[i]->note_ptr_fn == gt_pch_p_S);
+       if (state.ptrs[i]->note_ptr_fn != gt_pch_p_S)
+ 	memcpy (state.ptrs[i]->obj, this_object, state.ptrs[i]->size);
+     }
+@@ -546,8 +535,7 @@
+   const struct ggc_root_tab *rti;
+   size_t i;
+   struct mmap_info mmi;
+-  void *addr;
+-  bool needs_read;
++  int result;
+ 
+   /* Delete any deletable objects.  This makes ggc_pch_read much
+      faster, as it can be sure that no GCable objects remain other
+@@ -580,110 +568,95 @@
+   if (fread (&mmi, sizeof (mmi), 1, f) != 1)
+     fatal_error ("can't read PCH file: %m");
+ 
+-  if (host_hooks.gt_pch_use_address (mmi.preferred_base, mmi.size))
+-    {
+-#if HAVE_MMAP_FILE
+-      void *mmap_result;
+-
+-      mmap_result = mmap (mmi.preferred_base, mmi.size,
+-			  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED,
+-			  fileno (f), mmi.offset);
+-
+-      /* The file might not be mmap-able.  */
+-      needs_read = mmap_result == (void *) MAP_FAILED;
+-
+-      /* Sanity check for broken MAP_FIXED.  */
+-      if (! needs_read && mmap_result != mmi.preferred_base)
+-	abort ();
+-#else
+-      needs_read = true;
+-#endif
+-      addr = mmi.preferred_base;
+-    }
+-  else
+-    {
+-#if HAVE_MMAP_FILE
+-      addr = mmap (mmi.preferred_base, mmi.size,
+-		   PROT_READ | PROT_WRITE, MAP_PRIVATE,
+-		   fileno (f), mmi.offset);
+-      
+-#if HAVE_MINCORE
+-      if (addr != mmi.preferred_base)
+-	{
+-	  size_t page_size = getpagesize();
+-	  char one_byte;
+-	  
+-	  if (addr != (void *) MAP_FAILED)
+-	    munmap (addr, mmi.size);
+-	  
+-	  /* We really want to be mapped at mmi.preferred_base
+-	     so we're going to resort to MAP_FIXED.  But before,
+-	     make sure that we can do so without destroying a
+-	     previously mapped area, by looping over all pages
+-	     that would be affected by the fixed mapping.  */
+-	  errno = 0;
+-	  
+-	  for (i = 0; i < mmi.size; i+= page_size)
+-	    if (mincore ((char *)mmi.preferred_base + i, page_size, 
+-			 (void *)&one_byte) == -1
+-		&& errno == ENOMEM)
+-	      continue; /* The page is not mapped.  */
+-	    else
+-	      break;
+-	  
+-	  if (i >= mmi.size)
+-	    addr = mmap (mmi.preferred_base, mmi.size, 
+-			 PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_FIXED,
+-			 fileno (f), mmi.offset);
+-	}
+-#endif /* HAVE_MINCORE */
+-      
+-      needs_read = addr == (void *) MAP_FAILED;
+-
+-#else /* HAVE_MMAP_FILE */
+-      needs_read = true;
+-#endif /* HAVE_MMAP_FILE */
+-      if (needs_read)
+-	addr = xmalloc (mmi.size);
+-    }
+-
+-  if (needs_read)
++  result = host_hooks.gt_pch_use_address (mmi.preferred_base, mmi.size,
++					  fileno (f), mmi.offset);
++  if (result < 0)
++    fatal_error ("had to relocate PCH");
++  if (result == 0)
+     {
+       if (fseek (f, mmi.offset, SEEK_SET) != 0
+-	  || fread (&mmi, mmi.size, 1, f) != 1)
++	  || fread (mmi.preferred_base, mmi.size, 1, f) != 1)
+ 	fatal_error ("can't read PCH file: %m");
+     }
+   else if (fseek (f, mmi.offset + mmi.size, SEEK_SET) != 0)
+     fatal_error ("can't read PCH file: %m");
+ 
+-  ggc_pch_read (f, addr);
++  ggc_pch_read (f, mmi.preferred_base);
+ 
+-  if (addr != mmi.preferred_base)
+-    {
+-      for (rt = gt_ggc_rtab; *rt; rt++)
+-	for (rti = *rt; rti->base != NULL; rti++)
+-	  for (i = 0; i < rti->nelt; i++)
+-	    {
+-	      char **ptr = (char **)((char *)rti->base + rti->stride * i);
+-	      if (*ptr != NULL)
+-		*ptr += (size_t)addr - (size_t)mmi.preferred_base;
+-	    }
++  gt_pch_restore_stringpool ();
++}
+ 
+-      for (rt = gt_pch_cache_rtab; *rt; rt++)
+-	for (rti = *rt; rti->base != NULL; rti++)
+-	  for (i = 0; i < rti->nelt; i++)
+-	    {
+-	      char **ptr = (char **)((char *)rti->base + rti->stride * i);
+-	      if (*ptr != NULL)
+-		*ptr += (size_t)addr - (size_t)mmi.preferred_base;
+-	    }
++/* Default version of HOST_HOOKS_GT_PCH_GET_ADDRESS when mmap is not present.
++   Select no address whatsoever, and let gt_pch_save choose what it will with
++   malloc, presumably.  */
+ 
+-      sorry ("had to relocate PCH");
+-    }
++void *
++default_gt_pch_get_address (size_t size ATTRIBUTE_UNUSED,
++			    int fd ATTRIBUTE_UNUSED)
++{
++  return NULL;
++}
+ 
+-  gt_pch_restore_stringpool ();
++/* Default version of HOST_HOOKS_GT_PCH_USE_ADDRESS when mmap is not present.
++   Allocate SIZE bytes with malloc.  Return 0 if the address we got is the
++   same as base, indicating that the memory has been allocated but needs to
++   be read in from the file.  Return -1 if the address differs, to relocation
++   of the PCH file would be required.  */
++
++int
++default_gt_pch_use_address (void *base, size_t size, int fd ATTRIBUTE_UNUSED,
++			    size_t offset ATTRIBUTE_UNUSED)
++{
++  void *addr = xmalloc (size);
++  return (addr == base) - 1;
++}
++
++#if HAVE_MMAP_FILE
++/* Default version of HOST_HOOKS_GT_PCH_GET_ADDRESS when mmap is present.
++   We temporarily allocate SIZE bytes, and let the kernel place the data
++   whereever it will.  If it worked, that's our spot, if not we're likely
++   to be in trouble.  */
++ 
++void *
++mmap_gt_pch_get_address (size_t size, int fd)
++{
++  void *ret;
++ 
++  ret = mmap (NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
++  if (ret == (void *) MAP_FAILED)
++    ret = NULL;
++  else
++    munmap (ret, size);
++ 
++  return ret;
+ }
+ 
++/* Default version of HOST_HOOKS_GT_PCH_USE_ADDRESS when mmap is present.
++   Map SIZE bytes of FD+OFFSET at BASE.  Return 1 if we succeeded at 
++   mapping the data at BASE, -1 if we couldn't.
++ 
++   This version assumes that the kernel honors the START operand of mmap
++   even without MAP_FIXED if START through START+SIZE are not currently
++   mapped with something.  */
++ 
++int
++mmap_gt_pch_use_address (void *base, size_t size, int fd, size_t offset)
++{
++  void *addr;
++ 
++  /* We're called with size == 0 if we're not planning to load a PCH
++     file at all.  This allows the hook to free any static space that
++     we might have allocated at link time.  */
++  if (size == 0)
++    return -1;
++ 
++  addr = mmap (base, size, PROT_READ | PROT_WRITE, MAP_PRIVATE,
++	       fd, offset);
++
++  return addr == base ? 1 : -1;
++ }
++#endif /* HAVE_MMAP_FILE */
++
+ /* Modify the bound based on rlimits.  Keep the smallest number found.  */
+ static double
+ ggc_rlimit_bound (double limit)
+diff -Naur gcc-3.4.4.orig/gcc/hooks.c gcc-3.4.4/gcc/hooks.c
+--- gcc-3.4.4.orig/gcc/hooks.c	2005-11-03 13:11:48.106846400 -0800
++++ gcc-3.4.4/gcc/hooks.c	2005-11-03 13:55:43.716667200 -0800
+@@ -213,21 +213,6 @@
+   return NULL;
+ }
+ 
+-/* Generic hook that takes a size_t and returns NULL.  */
+-void *
+-hook_voidp_size_t_null (size_t a ATTRIBUTE_UNUSED)
+-{
+-  return NULL;
+-}
+-
+-/* Generic hook that takes a size_t and a pointer and returns false.  */
+-bool
+-hook_bool_voidp_size_t_false (void * a ATTRIBUTE_UNUSED,
+-			      size_t b ATTRIBUTE_UNUSED)
+-{
+-  return false;
+-}
+-
+ /* Generic hook that takes a tree and returns a NULL string.  */
+ const char *
+ hook_constcharptr_tree_null (tree t ATTRIBUTE_UNUSED)
+diff -Naur gcc-3.4.4.orig/gcc/hooks.h gcc-3.4.4/gcc/hooks.h
+--- gcc-3.4.4.orig/gcc/hooks.h	2005-11-03 13:11:48.116860800 -0800
++++ gcc-3.4.4/gcc/hooks.h	2005-11-03 13:55:43.896926400 -0800
+@@ -58,7 +58,5 @@
+ extern rtx hook_rtx_rtx_identity (rtx);
+ extern rtx hook_rtx_rtx_null (rtx);
+ extern rtx hook_rtx_tree_int_null (tree, int);
+-extern void * hook_voidp_size_t_null (size_t);
+-extern bool hook_bool_voidp_size_t_false (void *, size_t);
+ extern const char *hook_constcharptr_tree_null (tree);
+ #endif
+diff -Naur gcc-3.4.4.orig/gcc/hosthooks-def.h gcc-3.4.4/gcc/hosthooks-def.h
+--- gcc-3.4.4.orig/gcc/hosthooks-def.h	2005-11-03 13:11:48.136889600 -0800
++++ gcc-3.4.4/gcc/hosthooks-def.h	2005-11-03 13:55:44.848294400 -0800
+@@ -24,8 +24,18 @@
+ #include "hooks.h"
+ 
+ #define HOST_HOOKS_EXTRA_SIGNALS hook_void_void
+-#define HOST_HOOKS_GT_PCH_GET_ADDRESS hook_voidp_size_t_null
+-#define HOST_HOOKS_GT_PCH_USE_ADDRESS hook_bool_voidp_size_t_false
++#if HAVE_MMAP_FILE
++#define HOST_HOOKS_GT_PCH_GET_ADDRESS mmap_gt_pch_get_address
++#define HOST_HOOKS_GT_PCH_USE_ADDRESS mmap_gt_pch_use_address
++#else
++#define HOST_HOOKS_GT_PCH_GET_ADDRESS default_gt_pch_get_address
++#define HOST_HOOKS_GT_PCH_USE_ADDRESS default_gt_pch_use_address
++#endif
++
++extern void* default_gt_pch_get_address (size_t, int);
++extern int default_gt_pch_use_address (void *, size_t, int, size_t);
++extern void* mmap_gt_pch_get_address (size_t, int);
++extern int mmap_gt_pch_use_address (void *, size_t, int, size_t);
+ 
+ /* The structure is defined in hosthooks.h.  */
+ #define HOST_HOOKS_INITIALIZER {		\
+diff -Naur gcc-3.4.4.orig/gcc/hosthooks.h gcc-3.4.4/gcc/hosthooks.h
+--- gcc-3.4.4.orig/gcc/hosthooks.h	2005-11-03 13:11:48.146904000 -0800
++++ gcc-3.4.4/gcc/hosthooks.h	2005-11-03 13:55:45.018539200 -0800
+@@ -25,8 +25,16 @@
+ {
+   void (*extra_signals) (void);
+ 
+-  void * (*gt_pch_get_address) (size_t);
+-  bool (*gt_pch_use_address) (void *, size_t);
++  /* Identify an address that's likely to be free in a subsequent invocation
++     of the compiler.  The area should be able to hold SIZE bytes.  FD is an
++     open file descriptor if the host would like to probe with mmap.  */
++  void * (*gt_pch_get_address) (size_t size, int fd);
++
++  /* ADDR is an address returned by gt_pch_get_address.  Attempt to allocate
++     SIZE bytes at the same address and load it with the data from FD at 
++     OFFSET.  Return -1 if we couldn't allocate memory at ADDR, return 0
++     if the memory is allocated but the data not loaded, return 1 if done.  */
++  int (*gt_pch_use_address) (void *addr, size_t size, int fd, size_t offset);
+ 
+   /* Whenever you add entries here, make sure you adjust hosthooks-def.h.  */
+ };
+diff -Naur gcc-3.4.4.orig/gcc/testsuite/gcc.dg/pch/pch.exp gcc-3.4.4/gcc/testsuite/gcc.dg/pch/pch.exp
+--- gcc-3.4.4.orig/gcc/testsuite/gcc.dg/pch/pch.exp	2005-11-03 13:16:08.290972800 -0800
++++ gcc-3.4.4/gcc/testsuite/gcc.dg/pch/pch.exp	2005-11-03 13:55:45.198798400 -0800
+@@ -37,6 +37,21 @@
+     dg-pch $subdir $test [concat [list {-O0 -g}] $torture_without_loops] ".h"
+ }
+ 
++set test "largefile.c"
++set testh "largefile.hs"
++set f [open $test w]
++set v 0
++for { set v 0 } { $v < 10000 } { incr v } {
++    puts $f "#define MACRO_${v} \"1234567890\" \"$v\""
++}
++puts $f "#include \"largefile.h\""
++close $f
++set f [open $testh w]
++close $f
++dg-pch $subdir $test [concat [list {-O0 -g}] $torture_without_loops] ".h"    
++file delete $test
++file delete $testh
++
+ set dg-do-what-default "$old_dg_do_what_default"
+ 
+ # All done.

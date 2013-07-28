@@ -1,0 +1,24 @@
+Submitted By: Greg Schafer <gschafer at zip dot com dot au>
+Date: 2003-09-09
+Initial Package Version: 1.34
+Origin: I made this one myself after investigating and finding the problem.
+Description: Enable the debugfs utility to dynamically load libreadline and thus
+             utilise features like command history etc. For the technical
+             details behind this patch see here:-
+
+             http://archives.linuxfromscratch.org/mail-archives/lfs-dev/2003-August/035979.html
+             
+             If I really cared, I would send this upstream for further
+             investigation.
+
+--- e2fsprogs-1.34/debugfs/Makefile.in.gws	2003-05-21 21:58:35.000000000 +0000
++++ e2fsprogs-1.34/debugfs/Makefile.in	2003-09-09 09:54:06.000000000 +0000
+@@ -35,7 +35,7 @@
+ all:: $(PROGS) $(MANPAGES)
+ 
+ debugfs: $(DEBUG_OBJS) $(DEPLIBS)
+-	$(CC) $(ALL_LDFLAGS) -o debugfs $(DEBUG_OBJS) $(LIBS)
++	$(CC) $(ALL_LDFLAGS) -o debugfs $(DEBUG_OBJS) $(LIBS) -lcurses
+ 
+ debug_cmds.c debug_cmds.h: debug_cmds.ct
+ 	$(MK_CMDS) $(srcdir)/debug_cmds.ct

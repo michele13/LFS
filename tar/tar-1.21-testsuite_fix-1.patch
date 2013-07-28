@@ -1,0 +1,117 @@
+Submitted by: Matt Burgess (matthew at linuxfromscratch dot org)
+Date: 2009-01-25
+Initial Package Version: 1.21
+Upstream Status: From Upstream
+Origin: Upstream git commit
+
+diff -Naur tar-1.21.orig/tests/pipe.at tar-1.21/tests/pipe.at
+--- tar-1.21.orig/tests/pipe.at	2007-06-27 14:30:32.000000000 +0100
++++ tar-1.21/tests/pipe.at	2009-01-24 21:10:42.000000000 +0000
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -30,7 +30,8 @@
+ 
+ AT_KEYWORDS([pipe])
+ 
+-AT_TAR_CHECK([
++AT_TAR_WITH_HOOK([TAR_IGNREC_HOOK],
++[AT_TAR_CHECK([
+ AT_SORT_PREREQ
+ 
+ mkdir directory
+@@ -49,6 +50,7 @@
+ directory/file2
+ separator
+ separator
+-])
++],
++[stderr])])
+ 
+ AT_CLEANUP
+diff -Naur tar-1.21.orig/tests/shortrec.at tar-1.21/tests/shortrec.at
+--- tar-1.21.orig/tests/shortrec.at	2007-06-27 14:30:32.000000000 +0100
++++ tar-1.21/tests/shortrec.at	2009-01-24 21:14:58.000000000 +0000
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2005, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2005, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -23,17 +23,22 @@
+ # used to create the archive.
+ 
+ AT_SETUP([short records])
+-AT_KEYWORDS([shortrec.at])
++AT_KEYWORDS([shortrec])
+ 
+-AT_TAR_CHECK([
++AT_TAR_WITH_HOOK([TAR_IGNREC_HOOK],
++[AT_TAR_CHECK([
+ mkdir directory
+ (cd directory && touch a b c d e f g h i j k l m n o p q r)
+-tar -c -b 1 -f - directory | tar -t -f - >/dev/null
++tar -c -b 1 -f - directory | tar -t -f -
+ tar -c -b 1 -f archive directory
+-tar -t -f archive >/dev/null
+-tar -t -f - < archive >/dev/null
++tar -t -f archive
++tar -t -f - < archive
+ 
+ rm -r directory
++],
++[0],
++[ignore],
++[stderr])
+ ])
+ 
+ AT_CLEANUP
+diff -Naur tar-1.21.orig/tests/testsuite.at tar-1.21/tests/testsuite.at
+--- tar-1.21.orig/tests/testsuite.at	2008-07-31 07:57:51.000000000 +0100
++++ tar-1.21/tests/testsuite.at	2009-01-24 21:06:27.000000000 +0000
+@@ -1,7 +1,7 @@
+ # Process this file with autom4te to create testsuite. -*- Autotest -*-
+ 
+ # Test suite for GNU tar.
+-# Copyright (C) 2004, 2005, 2006, 2007 Free Software Foundation, Inc.
++# Copyright (C) 2004, 2005, 2006, 2007, 2008 Free Software Foundation, Inc.
+ 
+ # This program is free software; you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -21,6 +21,7 @@
+ # We need a recent Autotest.
+ m4_version_prereq([2.52g])
+ 
++m4_define([AT_TAR_CHECK_HOOK])
+ m4_define([AT_TAR_CHECK],[
+   AT_XFAIL_IF(test -f $[]XFAILFILE)
+   m4_foreach([FMT],
+@@ -33,7 +34,18 @@
+ TAR_OPTIONS="-H FMT"
+ export TAR_OPTIONS
+ rm -rf *
+-$1)],$2,$3,$4,$5,$6)])
++$1)],$2,$3,$4,$5,$6)
++              AT_TAR_CHECK_HOOK])
++])
++
++m4_define([AT_TAR_WITH_HOOK],[
++  m4_pushdef([AT_TAR_CHECK_HOOK],[$1])
++  $2
++
++  m4_popdef([AT_TAR_CHECK_HOOK])])
++
++m4_defin([TAR_IGNREC_HOOK],[
++  AT_CHECK([grep -v '^.*tar: Record size = ' stderr; exit 0])
+ ])
+ 
+ m4_define([RE_CHECK],[

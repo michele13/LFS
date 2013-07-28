@@ -1,0 +1,64 @@
+Submitted By: DJ Lucas <dj_AT_lucasit_DOT_com>
+Date: 2004-05-26
+Initial Package Version: 1.1.1
+Origin: gentoo cvs
+Description: Fixes minor build issues with NPTL
+Upstream Status: Unknown
+
+diff -Naur oo_1.1.1_src-orig/neon/neon.patch oo_1.1.1_src/neon/neon.patch
+--- oo_1.1.1_src-orig/neon/neon.patch	2002-10-24 06:50:58.000000000 -0500
++++ oo_1.1.1_src/neon/neon.patch	2004-05-27 00:42:36.000000000 -0500
+@@ -19,7 +19,7 @@
+ ! 
+ ! /* Define as __inline if that's what the C compiler calls it.  */
+ ! #ifdef UNX
+-! #define inline
++! #define inline inline
+ ! #endif
+ ! 
+ ! /* Define if you need to in order for stat and other things to work.  */
+diff -Naur oo_1.1.1_src-orig/sal/osl/unx/process.c oo_1.1.1_src/sal/osl/unx/process.c
+--- oo_1.1.1_src-orig/sal/osl/unx/process.c	2003-07-02 08:34:17.000000000 -0500
++++ oo_1.1.1_src/sal/osl/unx/process.c	2004-05-27 00:42:36.000000000 -0500
+@@ -1020,7 +1020,7 @@
+ #if defined(LINUX)
+             /* mfe: linux likes to have just one thread when the exec family is called */
+             /*      this np function has this purpose ...                              */
+-            pthread_kill_other_threads_np();
++            /*pthread_kill_other_threads_np();*/
+ #endif
+             OSL_TRACE("ChildStatusProc : starting '%s'",data.m_pszArgs[0]);
+      
+diff -Naur oo_1.1.1_src-orig/sal/osl/unx/semaphor.c oo_1.1.1_src/sal/osl/unx/semaphor.c
+--- oo_1.1.1_src-orig/sal/osl/unx/semaphor.c	2001-03-01 07:26:57.000000000 -0600
++++ oo_1.1.1_src/sal/osl/unx/semaphor.c	2004-05-27 00:42:36.000000000 -0500
+@@ -79,7 +79,7 @@
+ /* osl_createSemaphore  */
+ /*****************************************************************************/
+ 
+-#ifdef LINUX
++#if 0
+ /* sem_t from glibc-2.1 (/usr/include/semaphore.h) */ 
+ 
+ typedef struct {
+@@ -100,7 +100,7 @@
+      * larger of both
+      * XXX
+      */
+-#ifdef LINUX
++#if 0
+ 	if ( sizeof(glibc_21_sem_t) > sizeof(sem_t) )
+ 		Semaphore= malloc(sizeof(glibc_21_sem_t));
+ 	else
+diff -Naur oo_1.1.1_src-orig/tools/source/solar/solar.c oo_1.1.1_src/tools/source/solar/solar.c
+--- oo_1.1.1_src-orig/tools/source/solar/solar.c	2003-04-15 12:55:43.000000000 -0500
++++ oo_1.1.1_src/tools/source/solar/solar.c	2004-05-27 00:42:36.000000000 -0500
+@@ -577,7 +577,7 @@
+ 
+   {
+ 	char* p = NULL;
+-	InfoMemoryAccess( p );
++	/*InfoMemoryAccess( p );*/
+ 	p = (char*)&p;
+ 	InfoMemoryAccess( p );
+ 	InfoMemoryTypeAccess( t_short );

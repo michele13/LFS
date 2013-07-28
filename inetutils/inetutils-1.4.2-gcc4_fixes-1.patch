@@ -1,0 +1,43 @@
+Submitted By: Matthew Burgess <matthew@linuxfromscratch.org>
+Date: 2005-07-28
+Initial Package Version: 1.4.2
+Upstream Status: Submitted Upstream
+Origin: Greg Schafer <gschafer@zip.com.au> (http://www.diy-linux.org/downloads/patches/GCC4/inetutils-1.4.2-gcc4-fixes-1.patch)
+Description: Fix compilation issues with gcc4
+
+diff -Naur inetutils-1.4.2.orig/ftp/cmdtab.c inetutils-1.4.2/ftp/cmdtab.c
+--- inetutils-1.4.2.orig/ftp/cmdtab.c	2000-07-06 04:21:07.000000000 +0000
++++ inetutils-1.4.2/ftp/cmdtab.c	2005-07-28 19:53:39.601733208 +0000
+@@ -109,7 +109,7 @@
+ char	userhelp[] =	"send new user information";
+ char	verbosehelp[] =	"toggle verbose mode";
+ 
+-struct cmd cmdtab[] = {
++struct cmd *cmdtab = {
+ 	{ "!",		shellhelp,	0,	0,	0,	shell },
+ 	{ "$",		domachelp,	1,	0,	0,	domacro },
+ 	{ "account",	accounthelp,	0,	1,	1,	account},
+diff -Naur inetutils-1.4.2.orig/ftp/extern.h inetutils-1.4.2/ftp/extern.h
+--- inetutils-1.4.2.orig/ftp/extern.h	2000-08-09 05:44:23.000000000 +0000
++++ inetutils-1.4.2/ftp/extern.h	2005-07-28 19:53:58.008934888 +0000
+@@ -137,7 +137,7 @@
+ 
+ extern jmp_buf	abortprox;
+ extern int	abrtflag;
+-extern struct	cmd cmdtab[];
++extern struct	cmd *cmdtab;
+ extern FILE	*cout;
+ extern int	data;
+ extern char    *home;
+diff -Naur inetutils-1.4.2.orig/libinetutils/ttymsg.c inetutils-1.4.2/libinetutils/ttymsg.c
+--- inetutils-1.4.2.orig/libinetutils/ttymsg.c	2001-11-01 15:52:19.000000000 +0000
++++ inetutils-1.4.2/libinetutils/ttymsg.c	2005-07-28 19:55:10.713882056 +0000
+@@ -132,7 +132,7 @@
+ 	    }
+ 	  if (wret)
+ 	    {
+-	      (char *)iov->iov_base += wret;
++	      iov->iov_base = (char *)iov->iov_base + wret;
+ 	      iov->iov_len -= wret;
+ 	    }
+ 	  continue;

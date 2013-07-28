@@ -1,0 +1,38 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-03-21
+Initial Package Version: 21.6
+Upstream Status: From upstream
+ORIGIN: psmisc-cvs
+Description: uClibc does not have rpmatch(). This patch makes configure check for
+rpmatch() and creates a compatable function if it is not provided by the C library.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+http://www.uclibc.org/
+
+diff -Naur psmisc-21.6.orig/configure psmisc-21.6/configure
+--- psmisc-21.6.orig/configure	2005-03-11 10:57:53.000000000 +0000
++++ psmisc-21.6/configure	2005-03-21 05:15:23.000000000 +0000
+@@ -6129,7 +6129,7 @@
+ 
+ 
+ 
+-for ac_func in strdup strerror strtoul
++for ac_func in strdup strerror strtoul rpmatch
+ do
+ as_ac_var=`echo "ac_cv_func_$ac_func" | $as_tr_sh`
+ echo "$as_me:$LINENO: checking for $ac_func" >&5
+diff -Naur psmisc-21.6.orig/src/i18n.h psmisc-21.6/src/i18n.h
+--- psmisc-21.6.orig/src/i18n.h	2004-11-09 11:25:15.000000000 +0000
++++ psmisc-21.6/src/i18n.h	2005-03-21 05:15:57.000000000 +0000
+@@ -17,3 +17,10 @@
+ 
+ #endif
+ 
++#ifndef HAVE_RPMATCH
++#define rpmatch(line) \
++	( (line == NULL)? -1 : \
++	  (*line == 'y' || *line == 'Y')? 1 : \
++	  (*line == 'n' || *line == 'N')? 0 : \
++	  -1 )
++#endif

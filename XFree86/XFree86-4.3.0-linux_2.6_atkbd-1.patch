@@ -1,0 +1,88 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-03-18
+Initial Package Version: 4.3.0
+Origin: XFree86 CVS HEAD
+Upstream Status: Merged.
+Description: Fix XFree86 improperly accessing the keyboard on linux 2.6:
+
+atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
+atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
+
+diff -Naur xc.orig/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c
+--- xc.orig/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c	2002-10-20 17:45:27.000000000 -0400
++++ xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_io.c	2004-03-18 19:10:26.925106600 -0500
+@@ -80,7 +80,7 @@
+ #endif
+ 
+ static int
+-KDKBDREP_ioctl_ok(int rate, int delay) {
++KDKBDREP_ioctl_ok(int fd, int rate, int delay) {
+ #if defined(KDKBDREP) && !defined(__sparc__)
+      /* This ioctl is defined in <linux/kd.h> but is not
+ 	implemented anywhere - must be in some m68k patches. */
+@@ -89,7 +89,7 @@
+    /* don't change, just test */
+    kbdrep_s.rate = -1;
+    kbdrep_s.delay = -1;
+-   if (ioctl( 0, KDKBDREP, &kbdrep_s )) {
++   if (ioctl( fd, KDKBDREP, &kbdrep_s )) {
+        return 0;
+    }
+ 
+@@ -104,7 +104,7 @@
+    if (kbdrep_s.delay < 1)
+      kbdrep_s.delay = 1;
+    
+-   if (ioctl( 0, KDKBDREP, &kbdrep_s )) {
++   if (ioctl( fd, KDKBDREP, &kbdrep_s )) {
+      return 0;
+    }
+ 
+@@ -178,7 +178,7 @@
+     delay = xf86Info.kbdDelay;
+ 
+ 
+-  if(KDKBDREP_ioctl_ok(rate, delay)) 	/* m68k? */
++  if(KDKBDREP_ioctl_ok(xf86Info.consoleFd, rate, delay)) 	/* m68k? */
+     return;
+ 
+   if(KIOCSRATE_ioctl_ok(rate, delay))	/* sparc? */
+diff -Naur xc.orig/programs/Xserver/hw/xfree86/os-support/linux/lnx_kbd.c xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_kbd.c
+--- xc.orig/programs/Xserver/hw/xfree86/os-support/linux/lnx_kbd.c	2003-02-17 10:11:57.000000000 -0500
++++ xc/programs/Xserver/hw/xfree86/os-support/linux/lnx_kbd.c	2004-03-18 19:10:26.926106448 -0500
+@@ -100,7 +100,7 @@
+ #endif
+ 
+ static int
+-KDKBDREP_ioctl_ok(int rate, int delay) {
++KDKBDREP_ioctl_ok(int fd, int rate, int delay) {
+ #if defined(KDKBDREP) && !defined(__sparc__)
+      /* This ioctl is defined in <linux/kd.h> but is not
+ 	implemented anywhere - must be in some m68k patches. */
+@@ -109,7 +109,7 @@
+    /* don't change, just test */
+    kbdrep_s.rate = -1;
+    kbdrep_s.delay = -1;
+-   if (ioctl( 0, KDKBDREP, &kbdrep_s )) {
++   if (ioctl( fd, KDKBDREP, &kbdrep_s )) {
+        return 0;
+    }
+ 
+@@ -124,7 +124,7 @@
+    if (kbdrep_s.delay < 1)
+      kbdrep_s.delay = 1;
+    
+-   if (ioctl( 0, KDKBDREP, &kbdrep_s )) {
++   if (ioctl( fd, KDKBDREP, &kbdrep_s )) {
+      return 0;
+    }
+ 
+@@ -190,7 +190,7 @@
+   if (pKbd->delay >= 0)
+     delay = pKbd->delay;
+ 
+-  if(KDKBDREP_ioctl_ok(rate, delay)) 	/* m68k? */
++  if(KDKBDREP_ioctl_ok(pInfo->fd, rate, delay)) 	/* m68k? */
+     return;
+ 
+   if(KIOCSRATE_ioctl_ok(rate, delay))	/* sparc? */

@@ -1,0 +1,227 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2012-02-16
+Initial Package Version: 3.82
+Upstream Status:         From Upstream
+Origin:                  Upstream
+Description:             Fixes a number of bugs that prevent packages outside of
+                         LFS from building.
+
+diff -Naur make-3.82.orig/ChangeLog make-3.82/ChangeLog
+--- make-3.82.orig/ChangeLog	2010-07-28 05:39:50.000000000 +0000
++++ make-3.82/ChangeLog	2012-02-16 21:13:38.547958645 +0000
+@@ -1,3 +1,18 @@
++2010-11-28  Paul Smith  <psmith@gnu.org>
++
++	* read.c (record_target_var): Don't reset v if it's the same as
++	the global version.  Fixes Savannah bug #31743.
++
++2010-08-13  Paul Smith  <psmith@gnu.org>
++
++	* read.c (parse_file_seq): Fix various errors parsing archives
++	with multiple objects in the parenthesis, as well as wildcards.
++	Fixes Savannah bug #30612.
++
++2010-08-10  Paul Smith  <psmith@gnu.org>
++	* main.c (main): Expand MAKEFLAGS before adding it to the
++	environment when re-exec'ing.  Fixes Savannah bug #30723.
++
+ 2010-07-28  Paul Smith  <psmith@gnu.org>
+ 
+ 	Version 3.82 released.
+diff -Naur make-3.82.orig/main.c make-3.82/main.c
+--- make-3.82.orig/main.c	2010-07-19 07:10:53.000000000 +0000
++++ make-3.82/main.c	2012-02-16 21:13:38.548958648 +0000
+@@ -2093,7 +2093,7 @@
+             const char *pv = define_makeflags (1, 1);
+             char *p = alloca (sizeof ("MAKEFLAGS=") + strlen (pv) + 1);
+             sprintf (p, "MAKEFLAGS=%s", pv);
+-            putenv (p);
++            putenv (allocated_variable_expand (p));
+           }
+ 
+ 	  if (ISDB (DB_BASIC))
+diff -Naur make-3.82.orig/read.c make-3.82/read.c
+--- make-3.82.orig/read.c	2010-07-13 01:20:42.000000000 +0000
++++ make-3.82/read.c	2012-02-16 21:13:38.550958648 +0000
+@@ -1811,7 +1811,8 @@
+           int len = strlen(v->name);
+ 
+           gv = lookup_variable (v->name, len);
+-          if (gv && (gv->origin == o_env_override || gv->origin == o_command))
++          if (gv && v != gv
++              && (gv->origin == o_env_override || gv->origin == o_command))
+             {
+               if (v->value != 0)
+                 free (v->value);
+@@ -3028,7 +3029,7 @@
+             {
+               /* This looks like the first element in an open archive group.
+                  A valid group MUST have ')' as the last character.  */
+-              const char *e = p + nlen;
++              const char *e = p;
+               do
+                 {
+                   e = next_token (e);
+@@ -3084,19 +3085,19 @@
+          Go to the next item in the string.  */
+       if (flags & PARSEFS_NOGLOB)
+         {
+-          NEWELT (concat (2, prefix, tp));
++          NEWELT (concat (2, prefix, tmpbuf));
+           continue;
+         }
+ 
+       /* If we get here we know we're doing glob expansion.
+          TP is a string in tmpbuf.  NLEN is no longer used.
+          We may need to do more work: after this NAME will be set.  */
+-      name = tp;
++      name = tmpbuf;
+ 
+       /* Expand tilde if applicable.  */
+-      if (tp[0] == '~')
++      if (tmpbuf[0] == '~')
+ 	{
+-	  tildep = tilde_expand (tp);
++	  tildep = tilde_expand (tmpbuf);
+ 	  if (tildep != 0)
+             name = tildep;
+ 	}
+@@ -3152,7 +3153,10 @@
+             else
+               {
+                 /* We got a chain of items.  Attach them.  */
++                if (*newp)
+                 (*newp)->next = found;
++                else
++                *newp = found;
+ 
+                 /* Find and set the new end.  Massage names if necessary.  */
+                 while (1)
+diff -Naur make-3.82.orig/tests/ChangeLog make-3.82/tests/ChangeLog
+--- make-3.82.orig/tests/ChangeLog	2010-07-28 05:39:50.000000000 +0000
++++ make-3.82/tests/ChangeLog	2012-02-16 21:13:38.551958648 +0000
+@@ -1,3 +1,12 @@
++2010-08-13  Paul Smith  <psmith@gnu.org>
++
++	* scripts/features/archives: New regression tests for archive
++	support.  Test for fix to Savannah bug #30612.
++
++2010-08-10  Paul Smith  <psmith@gnu.org>
++	* scripts/features/reinvoke: Ensure command line variable settings
++	are preserved across make re-exec.  Tests Savannah bug #30723.
++
+ 2010-07-28  Paul Smith  <psmith@gnu.org>
+ 
+ 	* scripts/targets/POSIX: Compatibility issues with Solaris (and
+diff -Naur make-3.82.orig/tests/run_make_tests.pl make-3.82/tests/run_make_tests.pl
+--- make-3.82.orig/tests/run_make_tests.pl	2010-07-13 01:20:43.000000000 +0000
++++ make-3.82/tests/run_make_tests.pl	2012-02-16 21:23:22.364814080 +0000
+@@ -29,6 +29,7 @@
+ # You should have received a copy of the GNU General Public License along with
+ # this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
++%FEATURES = ();
+ 
+ $valgrind = 0;              # invoke make with valgrind
+ $valgrind_args = '';
+@@ -367,6 +368,8 @@
+      $parallel_jobs = 1;
+    }
+ 
++   %FEATURES = map { $_ => 1 } split /\s+/, `sh -c "echo '\\\$(info \\\$(.FEATURES))' | $make_path -f- 2>/dev/null"`;
++
+    # Set up for valgrind, if requested.
+ 
+    if ($valgrind) {
+diff -Naur make-3.82.orig/tests/scripts/features/archives make-3.82/tests/scripts/features/archives
+--- make-3.82.orig/tests/scripts/features/archives	1970-01-01 00:00:00.000000000 +0000
++++ make-3.82/tests/scripts/features/archives	2012-02-16 21:26:15.257086258 +0000
+@@ -0,0 +1,42 @@
++#                                                              -*-mode: perl-*-
++
++$description = "Test GNU make's archive management features.";
++
++$details = "\
++This only works on systems that support it.";
++
++# If this instance of make doesn't support archives, skip it
++exists $FEATURES{archives} or return -1;
++
++# Create some .o files to work with
++utouch(-60, qw(a1.o a2.o a3.o));
++
++# Very simple
++run_make_test('all: libxx.a(a1.o)',
++              '', "ar rv libxx.a a1.o\nar: creating libxx.a\na - a1.o\n");
++
++# Multiple .o's.  Add a new one to the existing library
++run_make_test('all: libxx.a(a1.o a2.o)',
++              '', "ar rv libxx.a a2.o\na - a2.o\n");
++
++# Touch one of the .o's so it's rebuilt
++utouch(-40, 'a1.o');
++run_make_test(undef, '', "ar rv libxx.a a1.o\nr - a1.o\n");
++
++# Use wildcards
++run_make_test('all: libxx.a(*.o)',
++              '', "#MAKE#: Nothing to be done for `all'.\n");
++
++# Touch one of the .o's so it's rebuilt
++utouch(-30, 'a1.o');
++run_make_test(undef, '', "ar rv libxx.a a1.o\nr - a1.o\n");
++
++# Use both wildcards and simple names
++utouch(-50, 'a2.o');
++run_make_test('all: libxx.a(a3.o *.o)', '',
++              "ar rv libxx.a a3.o\na - a3.o\nar rv libxx.a a2.o\nr - a2.o\n");
++
++rmfiles(qw(a1.o a2.o a3.o libxx.a));
++
++# This tells the test driver that the perl test script executed properly.
++1;
+diff -Naur make-3.82.orig/tests/scripts/features/reinvoke make-3.82/tests/scripts/features/reinvoke
+--- make-3.82.orig/tests/scripts/features/reinvoke	2005-06-27 22:18:47.000000000 +0000
++++ make-3.82/tests/scripts/features/reinvoke	2012-02-16 21:13:38.552958648 +0000
+@@ -57,9 +57,21 @@
+ # Now try with the file we're not updating being the actual file we're
+ # including: this and the previous one test different parts of the code.
+ 
+-run_make_test(undef, "F=b", "[ -f b ] || echo >> b\nhello\n")
++run_make_test(undef, 'F=b', "[ -f b ] || echo >> b\nhello\n")
+ 
+ &rmfiles('a','b','c');
+ 
++run_make_test('
++ifdef RECURSE
++-include foo30723
++endif
++recurse: ; @$(MAKE) -f $(MAKEFILE_LIST) RECURSE=1 test
++test: ; @echo F.O=$(F.O)
++foo30723: ; @touch $@
++',
++              '--no-print-directory F.O=bar', "F.O=bar\n");
++
++unlink('foo30723');
++
+ # This tells the test driver that the perl test script executed properly.
+ 1;
+diff -Naur make-3.82.orig/tests/scripts/features/targetvars make-3.82/tests/scripts/features/targetvars
+--- make-3.82.orig/tests/scripts/features/targetvars	2009-06-09 15:35:39.000000000 +0000
++++ make-3.82/tests/scripts/features/targetvars	2012-02-16 21:13:38.552958648 +0000
+@@ -237,6 +237,16 @@
+ 
+ run_make_test(undef, 'FOO=C', "C f1\n");
+ 
++# TEST #19: Conditional variables with command-line settings
++ 	  	 
++run_make_test('
++a: FOO ?= f1
++a: ; @echo "$(FOO)"
++',
++              '', "f1\n");
++
++run_make_test(undef, 'FOO=C', "C\n");
++
+ # TEST #20: Check for continuation after semicolons
+ 
+ run_make_test(q!

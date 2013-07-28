@@ -1,0 +1,65 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-03
+Initial Package Version: 1.4.1
+Origin: None.
+Description: Add linking of libraries to fix compilation with recent glibc and gcc releases.
+--- Build.orig/hotspot/build/linux/makefiles/vm.make	2002-09-06 02:01:22.000000000 -0500
++++ Build/hotspot/build/linux/makefiles/vm.make	2003-01-13 09:33:53.000000000 -0600
+@@ -134,7 +134,9 @@
+ 
+ # The whole megilla:
+ 
+-LIBS += -lnsl -lm -ldl -lpthread
++# The build uses gcc to compile a c++ file and hence libstdc++ is not linked automatically
++# Fixed by Tushar Teredesai <tush@yahoo.com>
++LIBS += -lnsl -lm -ldl -lpthread -lstdc++
+ 
+ JVM = jvm$(G_SUFFIX)
+ LIBJVM = lib$(JVM).so
+--- Build.orig/j2se/make/java/net/Makefile	2002-09-06 02:07:34.000000000 -0500
++++ Build/j2se/make/java/net/Makefile	2003-01-13 09:35:07.000000000 -0600
+@@ -61,6 +61,8 @@
+ #
+ # Include rules
+ #
++# Added a missing -lpthread for linux
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ include $(BUILDDIR)/common/Mapfile-vers.gmk
+ 
+ include $(BUILDDIR)/common/Library.gmk
+@@ -70,7 +72,7 @@
+   COMPILER_WARNING_LEVEL=2
+ else
+   LIBSOCKET = -lsocket
+-  OTHER_LDLIBS = $(LIBSOCKET) -lnsl -ldl $(JVMLIB)
++  OTHER_LDLIBS = $(LIBSOCKET) -lnsl -ldl $(JVMLIB) -lpthread
+ endif
+ 
+ CLASSES.export += java.lang.Integer java.io.FileDescriptor java.net.InetAddressImplFactory java.net.Inet4AddressImpl java.net.Inet6AddressImpl
+--- Build.orig/j2se/make/java/nio/Makefile	2002-09-06 02:07:34.000000000 -0500
++++ Build/j2se/make/java/nio/Makefile	2003-01-13 09:35:50.000000000 -0600
+@@ -112,7 +112,9 @@
+ endif
+ ifeq ($(PLATFORM), linux)
+ OTHER_CFLAGS += -Werror
+-OTHER_LDLIBS += -L$(LIBDIR)/$(LIBARCH)$(SUFFIX) -ljava$(SUFFIX) -lnet$(SUFFIX)
++# Added missing -lpthread for linux
++# Changed by Tushar Teredesai <tush@yahoo.com>
++OTHER_LDLIBS += -L$(LIBDIR)/$(LIBARCH)$(SUFFIX) -ljava$(SUFFIX) -lnet$(SUFFIX) -lpthread
+ endif
+ ifeq ($(PLATFORM), solaris)
+ OTHER_LDLIBS += $(JVMLIB) -lsocket -lposix4 \
+--- Build.orig//j2se/make/jpda/back/Makefile	2002-09-06 02:07:39.000000000 -0500
++++ Build/j2se/make/jpda/back/Makefile	2003-01-13 09:36:33.000000000 -0600
+@@ -33,8 +33,10 @@
+ endif
+ endif # PLATFORM
+ 
++# Also needs to link to JVMLIB (-ljvm) to resolve symbol fork1
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ ifeq ($(PLATFORM), linux)
+-  OTHER_LDLIBS = -ldl 
++  OTHER_LDLIBS = -ldl $(JVMLIB)
+ endif # PLATFORM
+ 
+ ifeq ($(PLATFORM), solaris)

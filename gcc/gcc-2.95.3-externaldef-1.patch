@@ -1,0 +1,21 @@
+Submitted By: David Shust (www.shustring.com)
+Date: 2003-08-19
+Initial Package Version: 2.95.3
+Origin: David Shust
+Description: this change allows for a wholesale replacement of the
+             include and libiberty directories of binutils-2.14 overtop
+             of the corresponding directories in gcc-2.95.3.
+             (Not that I'm recommending you do that...)
+
+diff -Naur gcc-2.95.3-orig/gcc/collect2.c gcc-2.95.3/gcc/collect2.c
+--- gcc-2.95.3-orig/gcc/collect2.c	2001-01-25 14:03:01.000000000 +0000
++++ gcc-2.95.3/gcc/collect2.c	2003-08-19 20:06:14.000000000 +0000
+@@ -54,7 +54,7 @@
+ #define obstack_chunk_alloc xmalloc
+ #define obstack_chunk_free free
+ 
+-extern char *make_temp_file PROTO ((char *));
++extern char *make_temp_file PROTO ((const char *));
+
+ /* On certain systems, we have code that works by scanning the object file
+    directly.  But this code uses system-specific header files and library

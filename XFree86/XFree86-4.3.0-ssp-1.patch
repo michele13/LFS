@@ -1,0 +1,38 @@
+Submitted By: Robert Connolly <cendres at videotron dot ca> (ashes)
+Date: 2003-10-26
+Initial Package Version: 4.3.0
+Origin: http://dev.gentoo.org/~spyderous/xfree/patchsets/ \
+	patch-4.3.99.14-0.3/9900_all_4.3.0_propolice-gentoo.patch
+Description: Smashing Stack Protector - http://www.trl.ibm.com/projects/security/ssp/
+This patch switches on SSP code in XFree86.
+https://twocents.mooo.com/hints/downloads/files/winter.txt
+https://twocents.mooo.com/hints/downloads/files/ssp.txt
+
+--- xc/config/imake/imake.c.old	2003-03-26 18:58:21.000000000 -0500
++++ xc/config/imake/imake.c	2003-03-26 18:58:42.000000000 -0500
+@@ -1034,7 +1034,6 @@
+ }
+ #endif
+ 
+-#if defined(__OpenBSD__) 
+ static void
+ get_stackprotector(FILE *inFile)
+ {
+@@ -1059,7 +1058,6 @@
+   if (pclose(fp)) 
+     abort();
+ }
+-#endif
+ 	
+ 
+ #if defined CROSSCOMPILE || defined linux
+@@ -1617,9 +1615,7 @@
+       fprintf(inFile, "#define DefaultOSTeenyVersion 0\n");
+     }
+ #endif /* EMX */
+-#if defined(__OpenBSD__)
+   get_stackprotector(inFile);
+-#endif
+   return FALSE;
+ }
+ 

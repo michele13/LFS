@@ -1,0 +1,84 @@
+Submitted By: Bryan Kadzban <bryan@linuxfromscratch.org>
+Date: 2009-09-25
+Initial Package Version: 2.02.53
+Upstream Status: Not submitted - Rules still stabilizing
+Origin: Self
+Description: Fixes device-mapper udev rules:
+  - Don't ever move devices (don't set NAME); use symlinks
+  - Nothing ever sets STARTUP, so don't skip rules if it's unset
+  - Never set NAME="$kernel"; udev will stop supporting that
+  - Don't override permissions on device files
+
+  Note that these rules are not installed by default (you need to
+  --enable-udev_rules to get them).
+
+  This patch is used by the raid-crypt-lvm.txt hint.
+
+diff -Naur LVM2.2.02.53/udev/10-dm.rules.in LVM2.2.02.53-patched/udev/10-dm.rules.in
+--- LVM2.2.02.53/udev/10-dm.rules.in	2009-09-11 09:05:20.000000000 -0700
++++ LVM2.2.02.53-patched/udev/10-dm.rules.in	2009-09-25 20:02:03.000000000 -0700
+@@ -10,7 +10,7 @@
+ #   DM_SUSPENDED - suspended state of DM device (0 or 1)
+ #   DM_UDEV_RULES_VSN - DM udev rules version
+ 
+-KERNEL=="device-mapper", NAME="(DM_DIR)/control"
++KERNEL=="device-mapper", SYMLINK+="(DM_DIR)/control"
+ 
+ SUBSYSTEM!="block", GOTO="dm_end"
+ KERNEL!="dm-[0-9]*", GOTO="dm_end"
+@@ -27,7 +27,8 @@
+ # recognize this and do our actions in this particular
+ # situation, too. Also, we don't want the nodes to be
+ # created prematurely on "add" events while not coldplugging.
+-ACTION=="add", ENV{STARTUP}!="1", NAME="", GOTO="dm_end"
++# Or not; this is broken, since *nothing ever sets STARTUP*.
++#ACTION=="add", ENV{STARTUP}!="1", NAME="", GOTO="dm_end"
+ 
+ # "dm" sysfs subdirectory is available in newer versions of DM
+ # only (kernels >= 2.6.29). We have to check for its existence
+@@ -55,7 +56,7 @@
+ # possible future changes.
+ ENV{DM_UDEV_RULES_VSN}="1"
+ 
+-ENV{DM_NAME}=="?*", NAME="$kernel", SYMLINK+="(DM_DIR)/$env{DM_NAME}"
++ENV{DM_NAME}=="?*", SYMLINK+="(DM_DIR)/$env{DM_NAME}"
+ 
+ # We have to ignore further rule application for temporary
+ # cryptsetup devices. But don't forget to send the notification!
+diff -Naur LVM2.2.02.53/udev/11-lvm.rules LVM2.2.02.53-patched/udev/11-lvm.rules
+--- LVM2.2.02.53/udev/11-lvm.rules	2009-09-11 09:05:20.000000000 -0700
++++ LVM2.2.02.53-patched/udev/11-lvm.rules	2009-09-25 20:02:03.000000000 -0700
+@@ -18,7 +18,8 @@
+ # coldplugging, there's an "add" event present. We have
+ # to recognize this and do our actions in this particular
+ # situation, too.
+-ACTION=="add", ENV{STARTUP}!="1", GOTO="lvm_end"
++# Or not; this is broken, since *nothing ever sets STARTUP*.
++#ACTION=="add", ENV{STARTUP}!="1", GOTO="lvm_end"
+ 
+ # Use DM name and split it up into its VG/LV/layer constituents.
+ IMPORT{program}="$env{DM_SBIN_PATH}/dmsetup splitname --nameprefixes --noheadings --rows $env{DM_NAME}"
+diff -Naur LVM2.2.02.53/udev/12-dm-disk.rules LVM2.2.02.53-patched/udev/12-dm-disk.rules
+--- LVM2.2.02.53/udev/12-dm-disk.rules	2009-09-11 09:05:20.000000000 -0700
++++ LVM2.2.02.53-patched/udev/12-dm-disk.rules	2009-09-25 20:02:57.000000000 -0700
+@@ -14,7 +14,8 @@
+ # coldplugging, there's an "add" event present. We have to
+ # recognize this and do our actions in this particular
+ # situation, too.
+-ACTION=="add", ENV{STARTUP}!="1", GOTO="dm_end"
++# Or not; this is broken, since *nothing ever sets STARTUP*.
++#ACTION=="add", ENV{STARTUP}!="1", GOTO="dm_end"
+ 
+ SYMLINK+="disk/by-id/dm-name-$env{DM_NAME}"
+ ENV{DM_UUID}=="?*", SYMLINK+="disk/by-id/dm-uuid-$env{DM_UUID}"
+diff -Naur LVM2.2.02.53/udev/95-dm-notify.rules LVM2.2.02.53-patched/udev/95-dm-notify.rules
+--- LVM2.2.02.53/udev/95-dm-notify.rules	2009-09-11 09:05:20.000000000 -0700
++++ LVM2.2.02.53-patched/udev/95-dm-notify.rules	2009-09-25 20:04:47.000000000 -0700
+@@ -10,7 +10,6 @@
+ KERNEL!="dm-[0-9]*", GOTO="dm_end"
+ ACTION!="change|remove", GOTO="dm_end"
+ 
+-ACTION=="change", OWNER:="root", GROUP:="root", MODE:="600"
+ ENV{DM_COOKIE}=="?*", RUN+="$env{DM_SBIN_PATH}/dmsetup udevcomplete $env{DM_COOKIE}"
+ 
+ LABEL="dm_end"

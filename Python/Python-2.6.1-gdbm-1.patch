@@ -1,0 +1,28 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-12-26
+Initial Package Version: 2.3.3
+Origin: Greg Schafer and Jim Gifford
+Description: Fixes Python build issue with gdbm
+Comment: Rediffed for Python-2.6.1 by Bruce Dubbs 2008-12-30
+
+$LastChangedBy$
+$Date$
+
+diff -Naur Python-2.6.1/setup.py Python-2.6.1.new/setup.py
+--- Python-2.6.1/setup.py       2008-11-04 14:43:31.000000000 -0600
++++ Python-2.6.1.new/setup.py   2008-12-30 17:17:37.000000000 -0600
+@@ -1015,12 +1015,12 @@
+                 if self.compiler.find_library_file(lib_dirs, 'ndbm'):
+                     ndbm_libs = ['ndbm']
+                 else:
+-                    ndbm_libs = []
++                    ndbm_libs = ['gdbm', 'gdbm_compat']
+                 exts.append( Extension('dbm', ['dbmmodule.c'],
+                                        define_macros=[('HAVE_NDBM_H',None)],
+                                        libraries = ndbm_libs ) )
+             elif (self.compiler.find_library_file(lib_dirs, 'gdbm')
+-                  and find_file("gdbm/ndbm.h", inc_dirs, []) is not None):
++                  and find_file("ndbm.h", inc_dirs, []) is not None):
+                 exts.append( Extension('dbm', ['dbmmodule.c'],
+                                        define_macros=[('HAVE_GDBM_NDBM_H',None)],
+                                        libraries = ['gdbm'] ) )

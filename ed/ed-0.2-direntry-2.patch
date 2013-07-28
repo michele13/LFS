@@ -1,0 +1,36 @@
+Submitted By: Henrik S. Hansen <hsh@freecode.dk>
+Date: 2004-09-04
+Initial Package Version: 0.2
+Upstream Status: Not submitted - simple hack
+Origin: Henrik S. Hansen
+Description: Adds ed to info directory.
+
+diff -Naur ed-0.2.orig/Makefile.in ed-0.2/Makefile.in
+--- ed-0.2.orig/Makefile.in	1994-11-19 13:45:32.000000000 +0100
++++ ed-0.2/Makefile.in	2004-09-04 00:48:47.000000000 +0200
+@@ -104,6 +104,10 @@
+ 	cd $(bindir); \
+ 	  $(LN_S) $(binprefix)ed $(binprefix)red
+ 	$(INSTALL_DATA) $(srcdir)/ed.info $(infodir)/$(binprefix)ed.info
++# run install-info if it is present to update the info directory
++	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
++		install-info --dir-file=$(infodir)/dir $(infodir)/$(binprefix)ed.info; \
++	else true; fi
+ 	$(INSTALL_DATA) $(srcdir)/ed.1 $(mandir)/$(binprefix)ed$(manext)
+ 	rm -f $(mandir)/$(binprefix)red$(manext)
+ 	cd $(mandir); \
+diff -Naur ed-0.2.orig/ed.texinfo ed-0.2/ed.texinfo
+--- ed-0.2.orig/ed.texinfo	1994-11-19 13:38:01.000000000 +0100
++++ ed-0.2/ed.texinfo	2004-09-04 00:49:44.000000000 +0200
+@@ -6,6 +6,11 @@
+ @setchapternewpage odd
+ @c %**end of header
+ 
++@dircategory Utilities
++@direntry
++* Ed: (ed).                     A line-oriented text editor.
++@end direntry
++
+ @ifinfo
+ This file documents the @code{ed} command, which has the purpose of
+ editing text files.

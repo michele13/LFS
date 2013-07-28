@@ -1,0 +1,32 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-09
+Initial Package Version: 2.8.4
+Origin: azarah@gentoo.org Gentoo Bug # 8934
+Description: Build fails with make -j5 or greater on pentium4.  This is because
+	     the jobs creating the opjects, which depend on paths.h is sheduled
+	     at the same time paths.h is generated.
+
+diff -Naur diffutils-2.8.4.orig/src/Makefile.am diffutils-2.8.4/src/Makefile.am
+--- diffutils-2.8.4.orig/src/Makefile.am	2002-06-17 05:55:42.000000000 +0000
++++ diffutils-2.8.4/src/Makefile.am	2003-09-09 20:19:18.000000000 +0000
+@@ -37,7 +37,7 @@
+ 
+ MOSTLYCLEANFILES = paths.h
+ 
+-cmp.$(OBJEXT) diff3.$(OBJECT) diff.$(OBJECT) sdiff.$(OBJECT): paths.h
++cmp.$(OBJEXT) diff3.$(OBJEXT) diff.$(OBJEXT) sdiff.$(OBJEXT): paths.h
+ paths.h:
+ 	(echo '#define DEFAULT_DIFF_PROGRAM "$(bindir)/'`echo diff|sed '$(transform)'`'"' && \
+ 	 echo '#define LOCALEDIR "$(localedir)"') >$@
+diff -Naur diffutils-2.8.4.orig/src/Makefile.in diffutils-2.8.4/src/Makefile.in
+--- diffutils-2.8.4.orig/src/Makefile.in	2002-06-28 07:04:20.000000000 +0000
++++ diffutils-2.8.4/src/Makefile.in	2003-09-09 20:19:18.000000000 +0000
+@@ -410,7 +410,7 @@
+ 	uninstall-binPROGRAMS uninstall-info-am
+ 
+ 
+-cmp.$(OBJEXT) diff3.$(OBJECT) diff.$(OBJECT) sdiff.$(OBJECT): paths.h
++cmp.$(OBJEXT) diff3.$(OBJEXT) diff.$(OBJEXT) sdiff.$(OBJEXT): paths.h
+ paths.h:
+ 	(echo '#define DEFAULT_DIFF_PROGRAM "$(bindir)/'`echo diff|sed '$(transform)'`'"' && \
+ 	 echo '#define LOCALEDIR "$(localedir)"') >$@

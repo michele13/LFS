@@ -1,0 +1,92 @@
+Submitted By: Matthew Burgess <matthew at linuxfromscratch dot org>
+Date: 2007-02-24
+Initial Package Version: 4.5.20
+Upstream Status: From Upstream
+Origin: http://www.oracle.com/technology/products/berkeley-db/db/update/4.5.20/patch.4.5.20.html
+Description: Fixes a couple of issues when trying to access databases through
+             the Java API.
+
+diff -Naur db-4.5.20.orig/rep/rep_method.c db-4.5.20/rep/rep_method.c
+--- db-4.5.20.orig/rep/rep_method.c	2006-09-09 14:29:04.000000000 +0000
++++ db-4.5.20/rep/rep_method.c	2007-02-14 21:14:13.000000000 +0000
+@@ -526,10 +526,12 @@
+ 		 * will allow the client to either perform recovery or
+ 		 * simply join in.
+ 		 */
+-		if (announce)
++		if (announce) {
++			if ((ret = __dbt_usercopy(dbenv, dbt)) != 0)
++				goto err;
+ 			(void)__rep_send_message(dbenv,
+ 			    DB_EID_BROADCAST, REP_NEWCLIENT, NULL, dbt, 0, 0);
+-		else
++		} else
+ 			(void)__rep_send_message(dbenv,
+ 			    DB_EID_BROADCAST, REP_ALIVE_REQ, NULL, NULL, 0, 0);
+ 	}
+@@ -553,6 +555,7 @@
+ 	}
+ 	if (pending_event != DB_EVENT_NO_SUCH_EVENT)
+ 		DB_EVENT(dbenv, pending_event, NULL);
++	__dbt_userfree(dbenv, dbt, NULL, NULL);
+ 	return (ret);
+ }
+ 
+diff -Naur db-4.5.20.orig/rep/rep_record.c db-4.5.20/rep/rep_record.c
+--- db-4.5.20.orig/rep/rep_record.c	2006-09-12 20:15:21.000000000 +0000
++++ db-4.5.20/rep/rep_record.c	2007-02-14 21:14:13.000000000 +0000
+@@ -163,6 +163,14 @@
+ 		return (EINVAL);
+ 	}
+ 
++	if ((ret = __dbt_usercopy(dbenv, control)) != 0 ||
++ 	    (ret = __dbt_usercopy(dbenv, rec)) != 0) {
++ 		__dbt_userfree(dbenv, control, rec, NULL);
++ 		__db_errx(dbenv,
++ 	"DB_ENV->rep_process_message: error retrieving DBT contents");
++ 		return ret;
++ 	}
++
+ 	ret = 0;
+ 	db_rep = dbenv->rep_handle;
+ 	rep = db_rep->region;
+@@ -621,6 +629,7 @@
+ 			*ret_lsnp = rp->lsn;
+ 		ret = DB_REP_NOTPERM;
+ 	}
++	__dbt_userfree(dbenv, control, rec, NULL);
+ 	return (ret);
+ }
+ 
+diff -Naur db-4.5.20.orig/sequence/sequence.c db-4.5.20/sequence/sequence.c
+--- db-4.5.20.orig/sequence/sequence.c	2006-08-24 14:56:16.000000000 +0000
++++ db-4.5.20/sequence/sequence.c	2007-02-14 21:13:48.000000000 +0000
+@@ -228,6 +228,9 @@
+ 	seq->seq_data.ulen = seq->seq_data.size = sizeof(seq->seq_record);
+ 	seq->seq_rp = &seq->seq_record;
+ 
++	if ((ret = __dbt_usercopy(dbenv, keyp)) != 0)
++		goto err;
++
+ 	memset(&seq->seq_key, 0, sizeof(DBT));
+ 	if ((ret = __os_malloc(dbenv, keyp->size, &seq->seq_key.data)) != 0)
+ 		goto err;
+@@ -365,6 +368,7 @@
+ 		ret = t_ret;
+ 
+ 	ENV_LEAVE(dbenv, ip);
++	__dbt_userfree(dbenv, keyp, NULL, NULL);
+ 	return (ret);
+ }
+ 
+@@ -765,6 +769,10 @@
+ {
+ 	SEQ_ILLEGAL_BEFORE_OPEN(seq, "DB_SEQUENCE->get_key");
+ 
++	if (F_ISSET(key, DB_DBT_USERCOPY))
++		return (__db_retcopy(seq->seq_dbp->dbenv, key,
++		    seq->seq_key.data, seq->seq_key.size, NULL, 0));
++
+ 	key->data = seq->seq_key.data;
+ 	key->size = key->ulen = seq->seq_key.size;
+ 	key->flags = seq->seq_key.flags;

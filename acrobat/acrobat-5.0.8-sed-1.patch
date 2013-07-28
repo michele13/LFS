@@ -1,0 +1,24 @@
+Submitted By: Archaic <archaic@remove-this.indy.rr.com
+Date: 2004-01-01
+Initial Package Version: 5.0.8
+Origin: Archaic
+Description: Adobe Acrobat uses the outdated "ed" to set your install prefix.
+             This patch changes "ed" to "sed".
+
+diff -Naur acrobat-5.0.8.orig/INSTALL acrobat-5.0.8/INSTALL
+--- acrobat-5.0.8.orig/INSTALL	2003-07-15 11:54:40.000000000 +0000
++++ acrobat-5.0.8/INSTALL	2004-01-01 20:00:58.000000000 +0000
+@@ -216,11 +216,8 @@
+           ;;
+       esac
+ 
+-      ed -s "$i" <<__EOF__
+-        1,\$s@REPLACE_ME@$replacement@
+-        w
+-        q
+-__EOF__
++      sed -i "s%REPLACE_ME%$replacement%" $i
++
+       if [ $? != 0 ] ; then
+         echo "ERROR installing $filename"
+         continue

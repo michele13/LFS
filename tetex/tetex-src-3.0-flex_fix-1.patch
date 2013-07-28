@@ -1,0 +1,27 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-02-19
+Initial Package Version: 3.0
+Upstream Status: not submitted, arguably a flex issue.
+Origin: self
+Description: Allows it to compile with flex-2.5.34.
+
+ flex-2.5.34 seems to be more pedantic, and chokes when it encounters %p
+http://sourceforge.net/tracker/index.php?func=detail&aid=1860773&group_id=97492&atid=618177
+The info manual apparently used to state that the lex table size declarations
+(%p, %n, %a, %e, %k, %o) are silently ignored.
+
+diff -Naur tetex-src-3.0.orig/texk/web2c/omegafonts/pl.l tetex-src-3.0/texk/web2c/omegafonts/pl.l
+--- tetex-src-3.0.orig/texk/web2c/omegafonts/pl.l	2003-05-06 09:30:52.000000000 +0100
++++ tetex-src-3.0/texk/web2c/omegafonts/pl.l	2008-02-04 18:04:30.000000000 +0000
+@@ -65,9 +65,10 @@
+ 
+ /* For Solaris's lex, to increase tables sizes --RP */
+ /* Space before number keeps ancient flex happy. */
++/* flex-2.5.34 barfs on this
+ %e 4000
+ %p 7000
+-%n 1000
++%n 1000 */
+ 
+ ws		[ \t]+
+ hexnumber       H{ws}[A-F0-9]+

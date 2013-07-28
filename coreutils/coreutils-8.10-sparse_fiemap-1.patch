@@ -1,0 +1,113 @@
+Submitted by: Matt Burgess (matthew_at_linuxfromscratch_dot_org)
+Date: 2011-03-12
+Initial Package Version: 8.10
+Upstream Status: From Upstream
+Origin: http://thread.gmane.org/gmane.comp.gnu.core-utils.announce/65/focus=867
+
+diff -Naur coreutils-8.10.orig/tests/Makefile.am coreutils-8.10/tests/Makefile.am
+--- coreutils-8.10.orig/tests/Makefile.am	2011-01-31 17:26:06.000000000 +0000
++++ coreutils-8.10/tests/Makefile.am	2011-03-11 21:09:51.000000000 +0000
+@@ -11,6 +11,7 @@
+   check.mk		\
+   envvar-check		\
+   filefrag-extent-compare \
++  fiemap-capable	\
+   init.cfg		\
+   init.sh		\
+   lang-default		\
+diff -Naur coreutils-8.10.orig/tests/cp/fiemap-2 coreutils-8.10/tests/cp/fiemap-2
+--- coreutils-8.10.orig/tests/cp/fiemap-2	2011-01-31 13:42:58.000000000 +0000
++++ coreutils-8.10/tests/cp/fiemap-2	2011-03-11 21:09:51.000000000 +0000
+@@ -20,7 +20,8 @@
+ print_ver_ cp
+ 
+ # Require a fiemap-enabled FS.
+-fiemap_capable_ . \
++touch fiemap_chk # check a file rather than current dir for best coverage
++fiemap_capable_ fiemap_chk \
+   || skip_ "this file system lacks FIEMAP support"
+ 
+ # Exercise the code that handles a file ending in a hole.
+diff -Naur coreutils-8.10.orig/tests/cp/fiemap-perf coreutils-8.10/tests/cp/fiemap-perf
+--- coreutils-8.10.orig/tests/cp/fiemap-perf	2011-02-02 11:00:15.000000000 +0000
++++ coreutils-8.10/tests/cp/fiemap-perf	2011-03-11 21:09:51.000000000 +0000
+@@ -20,6 +20,8 @@
+ print_ver_ cp
+ 
+ # Require a fiemap-enabled FS.
++# Note we don't check a file here as that could enable
++# the test on ext3 where emulated extent scanning can be slow.
+ fiemap_capable_ . \
+   || skip_ "this file system lacks FIEMAP support"
+ 
+diff -Naur coreutils-8.10.orig/tests/cp/sparse-fiemap coreutils-8.10/tests/cp/sparse-fiemap
+--- coreutils-8.10.orig/tests/cp/sparse-fiemap	2011-01-31 13:42:00.000000000 +0000
++++ coreutils-8.10/tests/cp/sparse-fiemap	2011-03-11 21:09:51.000000000 +0000
+@@ -19,6 +19,8 @@
+ . "${srcdir=.}/init.sh"; path_prepend_ ../src
+ print_ver_ cp
+ 
++# Note we don't check a file here as that could enable
++# the test on ext3 where this test is seen to fail.
+ if fiemap_capable_ . ; then
+   : # Current dir is on a partition with working extents.  Good!
+ else
+@@ -66,11 +68,13 @@
+     $PERL -e 'BEGIN { $n = '$i' * 1024; *F = *STDOUT }' \
+           -e 'for (1..'$j') { sysseek (*F, $n, 1)' \
+           -e '&& syswrite (*F, chr($_)x$n) or die "$!"}' > j1 || fail=1
+-    # sync
++
++    # Note the explicit fdatasync is used here as
++    # it was seen that `filefrag -s` (FIEMAP_FLAG_SYNC) was
++    # ineffective on ext4 loopback on Linux 2.6.35.10-72.fc14.i686
++    dd if=/dev/null of=j1 conv=notrunc,fdatasync
+     cp --sparse=always j1 j2 || fail=1
+-    # sync
+-    # Technically we may need the 'sync' uses above, but
+-    # uncommenting them makes this test take much longer.
++    dd if=/dev/null of=j2 conv=notrunc,fdatasync
+ 
+     cmp j1 j2 || fail=1
+     filefrag -v j1 | grep extent \
+diff -Naur coreutils-8.10.orig/tests/fiemap-capable coreutils-8.10/tests/fiemap-capable
+--- coreutils-8.10.orig/tests/fiemap-capable	1970-01-01 00:00:00.000000000 +0000
++++ coreutils-8.10/tests/fiemap-capable	2011-03-11 21:09:51.000000000 +0000
+@@ -0,0 +1,16 @@
++import struct, fcntl, sys, os
++
++def sizeof(t): return struct.calcsize(t)
++IOCPARM_MASK = 0x7f
++IOC_OUT = 0x40000000
++IOC_IN = 0x80000000
++IOC_INOUT = (IOC_IN|IOC_OUT)
++def _IOWR(x,y,t): return (IOC_INOUT|((sizeof(t)&IOCPARM_MASK)<<16)|((x)<<8)|y)
++
++try:
++    fd = os.open (len (sys.argv) == 2 and sys.argv[1] or '.', os.O_RDONLY)
++    struct_fiemap = '=qqllll'
++    FS_IOC_FIEMAP = _IOWR (ord ('f'), 11, struct_fiemap)
++    fcntl.ioctl (fd, FS_IOC_FIEMAP, struct.pack(struct_fiemap, 0,~0,0,0,0,0))
++except:
++    sys.exit (1)
+diff -Naur coreutils-8.10.orig/tests/init.cfg coreutils-8.10/tests/init.cfg
+--- coreutils-8.10.orig/tests/init.cfg	2011-01-31 14:20:11.000000000 +0000
++++ coreutils-8.10/tests/init.cfg	2011-03-11 21:09:51.000000000 +0000
+@@ -295,13 +295,12 @@
+     kill $pid
+ }
+ 
+-# Return nonzero if the specified directory is on a file system for
+-# which FIEMAP support exists, and the file system type is new enough
+-# (unlike ext2 and ext3) that it is hard to find an instance *without*
+-# FIEMAP support.
++# Return nonzero if the specified path is on a file system for
++# which FIEMAP support exists.  Note some file systems (like ext3)
++# only support FIEMAP for files, not directories.
+ fiemap_capable_()
+ {
+-  df -T -t btrfs -t xfs -t ext4 -t ocfs2 -t gfs2 "$@"
++  python $abs_srcdir/fiemap-capable "$@"
+ }
+ 
+ # Does the current (working-dir) file system support sparse files?

@@ -1,0 +1,180 @@
+Submitted By:            DJ Lucas <dj_at_linuxfromscratch_dot_org>
+Date:                    2012-06-17
+Initial Package Version: 1.3.2
+Upstream Status:         Submitted
+Origin:                  Matt Burgess and Armin Krejzi
+Description:             Fixes compilation issues with GCC-4.7+ and Perl-5.16+.
+
+diff -Naurp openjade-1.3.2-orig/jade/Makefile.sub openjade-1.3.2/jade/Makefile.sub
+--- openjade-1.3.2-orig/jade/Makefile.sub	2002-11-15 22:46:50.000000000 +0000
++++ openjade-1.3.2/jade/Makefile.sub	2012-06-17 09:49:00.000000000 +0000
+@@ -4,7 +4,7 @@ OBJS=jade.o SgmlFOTBuilder.o RtfFOTBuild
+ INCLUDE=-I$(srcdir)/../grove -I$(srcdir)/../spgrove -I$(srcdir)/../style
+ # XLIBS=../style/libostyle.a ../spgrove/libospgrove.a ../grove/libogrove.a \
+ #   ../lib/libosp.a
+-XLIBS=../style/libostyle.a ../spgrove/libospgrove.a ../grove/libogrove.a $(splibdir)/libosp.a
++XLIBS=../style/libostyle.a ../spgrove/libospgrove.a ../grove/libogrove.a -losp
+ GENSRCS=JadeMessages.h HtmlMessages.h RtfMessages.h TeXMessages.h \
+  HtmlFOTBuilder_inst.cxx RtfFOTBuilder_inst.cxx  TeXFOTBuilder_inst.cxx \
+  TransformFOTBuilder_inst.cxx MifMessages.h MifFOTBuilder_inst.cxx
+diff -Naurp openjade-1.3.2-orig/jade/TeXFOTBuilder.cxx openjade-1.3.2/jade/TeXFOTBuilder.cxx
+--- openjade-1.3.2-orig/jade/TeXFOTBuilder.cxx	2002-01-15 10:35:37.000000000 +0000
++++ openjade-1.3.2/jade/TeXFOTBuilder.cxx	2012-06-17 09:45:55.000000000 +0000
+@@ -75,6 +75,7 @@ public:
+     virtual void end(TeXFOTBuilder &) const = 0;
+   };
+   class PageFloatFlowObj : public TeXCompoundExtensionFlowObj {
++  public:
+     void start(TeXFOTBuilder &fotb, const NodePtr &) const {
+       fotb.startPageFloat(nic_);
+     }
+@@ -88,12 +89,14 @@ public:
+       value.convertString(nic_.placement);
+       }
+     ExtensionFlowObj *copy() const { return new PageFloatFlowObj(*this); }
++    PageFloatFlowObj() {}
+   private:
+     PageFloatNIC nic_;
+     StringC name_;
+     StringC placement;
+   };
+   class PageFootnoteFlowObj : public TeXCompoundExtensionFlowObj {
++  public:
+     void start(TeXFOTBuilder &fotb, const NodePtr &) const {
+       fotb.startPageFootnote();
+     }
+@@ -101,6 +104,7 @@ public:
+       fotb.endPageFootnote();
+     }
+     ExtensionFlowObj *copy() const { return new PageFootnoteFlowObj(*this); }
++    PageFootnoteFlowObj() {}
+   private:
+   };
+   //////////////////////////////////////////////////////////////////////
+diff -Naurp openjade-1.3.2-orig/jade/TransformFOTBuilder.cxx openjade-1.3.2/jade/TransformFOTBuilder.cxx
+--- openjade-1.3.2-orig/jade/TransformFOTBuilder.cxx	2002-12-01 14:55:51.000000000 +0000
++++ openjade-1.3.2/jade/TransformFOTBuilder.cxx	2012-06-17 09:45:55.000000000 +0000
+@@ -51,6 +51,7 @@ public:
+       value.convertString(name_);
+     }
+     ExtensionFlowObj *copy() const { return new EntityRefFlowObj(*this); }
++    EntityRefFlowObj() {}
+   private:
+     StringC name_;
+   };
+@@ -66,10 +67,12 @@ public:
+       value.convertString(data_);
+     }
+     ExtensionFlowObj *copy() const { return new ProcessingInstructionFlowObj(*this); }
++    ProcessingInstructionFlowObj() {}
+   private:
+     StringC data_;
+   };
+   class EmptyElementFlowObj : public TransformExtensionFlowObj {
++  public:
+     void atomic(TransformFOTBuilder &fotb, const NodePtr &nd) const {
+       if (nic_.gi.size() > 0)
+ 	fotb.emptyElement(nic_);
+@@ -98,10 +101,12 @@ public:
+       }
+     }
+     ExtensionFlowObj *copy() const { return new EmptyElementFlowObj(*this); }
++    EmptyElementFlowObj() {}
+   private:
+     ElementNIC nic_;
+   };
+   class ElementFlowObj : public TransformCompoundExtensionFlowObj {
++  public:
+     void start(TransformFOTBuilder &fotb, const NodePtr &nd) const {
+       if (nic_.gi.size() > 0)
+ 	fotb.startElement(nic_);
+@@ -133,10 +138,12 @@ public:
+       }
+     }
+     ExtensionFlowObj *copy() const { return new ElementFlowObj(*this); }
++    ElementFlowObj() {}
+   private:
+     ElementNIC nic_;
+   };
+   class EntityFlowObj : public TransformCompoundExtensionFlowObj {
++  public:
+     void start(TransformFOTBuilder &fotb, const NodePtr &) const {
+       fotb.startEntity(systemId_);
+     }
+@@ -150,10 +157,12 @@ public:
+       value.convertString(systemId_);
+     }
+     ExtensionFlowObj *copy() const { return new EntityFlowObj(*this); }
++    EntityFlowObj() {}
+   private:
+     StringC systemId_;
+   };
+   class DocumentTypeFlowObj : public TransformExtensionFlowObj {
++  public:
+     void atomic(TransformFOTBuilder &fotb, const NodePtr &nd) const {
+       fotb.documentType(nic_);
+     }
+@@ -174,6 +183,7 @@ public:
+       }
+     }
+     ExtensionFlowObj *copy() const { return new DocumentTypeFlowObj(*this); }
++    DocumentTypeFlowObj() {}
+   private:
+     DocumentTypeNIC nic_;
+   };
+diff -Naurp openjade-1.3.2-orig/msggen.pl openjade-1.3.2/msggen.pl
+--- openjade-1.3.2-orig/msggen.pl	2002-10-20 21:47:23.000000000 +0000
++++ openjade-1.3.2/msggen.pl	2012-06-17 09:48:15.000000000 +0000
+@@ -15,10 +15,51 @@ $prog =~ s@.*/@@;
+ 
+ $gen_c = 0;
+ 
++sub Getopts {
++    local($argumentative) = @_;
++    local(@args,$_,$first,$rest);
++    local($errs) = 0;
++
++    @args = split( / */, $argumentative );
++    while(@ARGV && ($_ = $ARGV[0]) =~ /^-(.)(.*)/) {
++       ($first,$rest) = ($1,$2);
++       $pos = index($argumentative,$first);
++       if($pos >= 0) {
++           if($pos < $#args && $args[$pos+1] eq ':') {
++               shift(@ARGV);
++               if($rest eq '') {
++                   ++$errs unless @ARGV;
++                   $rest = shift(@ARGV);
++               }
++               ${"opt_$first"} = $rest;
++           }
++           else {
++               ${"opt_$first"} = 1;
++               if($rest eq '') {
++                   shift(@ARGV);
++               }
++               else {
++                   $ARGV[0] = "-$rest";
++               }
++           }
++       }
++       else {
++           print STDERR "Unknown option: $first\n";
++           ++$errs;
++           if($rest ne '') {
++               $ARGV[0] = "-$rest";
++           }
++           else {
++               shift(@ARGV);
++           }
++       }
++    }
++    $errs == 0;
++}
++
+ undef $opt_l;
+ undef $opt_p;
+ undef $opt_t;
+-do 'getopts.pl';
+ &Getopts('l:p:t:');
+ $module = $opt_l;
+ $pot_file = $opt_p;

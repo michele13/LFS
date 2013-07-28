@@ -1,0 +1,26 @@
+Submitted By: Jim Gifford <jim at linuxfromscratch dot org>
+Date: 2006-07-04
+Initial Package Version: 1.2.10
+Origin: Various
+Description: Make libpng-config Multilib Friendly
+
+diff -Naur libpng-1.2.10.orig/scripts/libpng-config.in libpng-1.2.10/scripts/libpng-config.in
+--- libpng-1.2.10.orig/scripts/libpng-config.in	2006-03-02 18:48:03.000000000 -0800
++++ libpng-1.2.10/scripts/libpng-config.in	2006-07-04 12:57:46.031343325 -0700
+@@ -8,11 +8,11 @@
+ 
+ # Modeled after libxml-config.
+ 
+-version="@PNGLIB_VERSION@"
+-prefix="@prefix@"
+-exec_prefix="@exec_prefix@"
+-libdir="@libdir@"
+-includedir="@includedir@/libpng@PNGLIB_MAJOR@"
++version=`pkg-config --modversion libpng`
++prefix=`pkg-config --variable prefix libpng`
++exec_prefix=`pkg-config --variable exec_prefix libpng`
++libdir=`pkg-config --variable libdir libpng`
++includedir=`pkg-config --variable includedir libpng`
+ libs="-lpng@PNGLIB_MAJOR@"
+ all_libs="-lpng@PNGLIB_MAJOR@ -lz -lm"
+ I_opts="-I${includedir}"

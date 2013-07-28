@@ -1,0 +1,1160 @@
+Submitted By:            Randy McMurchy <randy at linuxfromscratch dot org>
+Date:                    2009-02-22
+Initial Package Version: 20080816
+Upstream Status:         Not submitted as it isn't a complete update for for DESTDIR.
+                         It only works for the installation of a package, I didn't
+                         mess with any of the uninstallation.
+Origin:                  Self
+Description:             Adds DESTDIR installation functionality. Note that it has
+                         only been tested with the following configure command:
+./configure --prefix=/usr \
+            --bindir=/usr/bin/TeX \
+            --libdir=/usr/lib \
+            --sysconfdir=/etc/livetex \
+            --with-x \
+            --with-system-ncurses \
+            --with-system-zlib \
+            --with-system-pnglib \
+            --with-system-t1lib \
+            --with-system-freetype2 \
+            --with-freetype2-libdir=/usr/lib \
+            --with-freetype2-include=/usr/include \
+            --with-system-gd \
+            --enable-gf \
+            --disable-a4 \
+            --without-texinfo \
+            --without-xindy \
+            --without-luatex \
+
+
+
+diff -Naur texlive-20080816-source-orig/texk/afm2pl/Makefile.in texlive-20080816-source/texk/afm2pl/Makefile.in
+--- texlive-20080816-source-orig/texk/afm2pl/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/afm2pl/Makefile.in	2009-02-22 00:13:50.000000000 +0000
+@@ -23,14 +23,14 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(program)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) $(program) $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) $(program) $(DESTDIR)/$(bindir)
+ uninstall-exec:
+ 	rm -f $(bindir)/$(program)
+ 
+ install-data: $(program).1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/$(program).1 $(man1dir)/$(program).$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/$(program).1 $(DESTDIR)/$(man1dir)/$(program).$(manext)
+ uninstall-data:
+ 	rm -f $(man1dir)/$(program).$(manext)
+ 
+diff -Naur texlive-20080816-source-orig/texk/bibtex8/Makefile.in texlive-20080816-source/texk/bibtex8/Makefile.in
+--- texlive-20080816-source-orig/texk/bibtex8/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/bibtex8/Makefile.in	2009-02-22 00:14:43.000000000 +0000
+@@ -30,17 +30,17 @@
+ 	$(kpathsea_link) $(OBJS) $(LOADLIBES)
+ 
+ install: all install-data install-doc
+-	-$(top_srcdir)/../mkinstalldirs $(bindir)
+-	-$(INSTALL_LIBTOOL_PROG) bibtex8 $(bindir)/bibtex8
++	-$(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	-$(INSTALL_LIBTOOL_PROG) bibtex8 $(DESTDIR)/$(bindir)/bibtex8
+ 
+ install-data:
+-	-$(top_srcdir)/../mkinstalldirs $(texmf)/bibtex/csf
+-	-$(INSTALL) -m 644 $(srcdir)/csf/*.csf $(texmf)/bibtex/csf
++	-$(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texmf)/bibtex/csf
++	-$(INSTALL) -m 644 $(srcdir)/csf/*.csf $(DESTDIR)/$(texmf)/bibtex/csf
+ 
+ install-doc:
+-	-$(top_srcdir)/../mkinstalldirs $(texmf)/doc/bibtex8
++	-$(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texmf)/doc/bibtex8
+ 	for i in 00readme.txt HISTORY csfile.txt file_id.diz ; \
+-	   do $(INSTALL) -m 644  $(srcdir)/$$i $(texmf)/doc/bibtex8; \
++	   do $(INSTALL) -m 644  $(srcdir)/$$i $(DESTDIR)/$(texmf)/doc/bibtex8; \
+ 	done
+ 
+ kpse_include ../make/tkpathsea.mk
+diff -Naur texlive-20080816-source-orig/texk/cjkutils/hbf2gf/Makefile.in texlive-20080816-source/texk/cjkutils/hbf2gf/Makefile.in
+--- texlive-20080816-source-orig/texk/cjkutils/hbf2gf/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/cjkutils/hbf2gf/Makefile.in	2009-02-22 00:15:32.000000000 +0000
+@@ -44,14 +44,14 @@
+ install: install-exec install-data
+ uninstall: uninstall-exec uninstall-data
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do $(RM) $(bindir)/$$p; done
+ 
+ install-data:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/$(program).1 $(man1dir)/$(program).$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/$(program).1 $(DESTDIR)/$(man1dir)/$(program).$(manext)
+ uninstall-data:
+ 	$(RM) $(man1dir)/$(program).$(manext)
+ 
+diff -Naur texlive-20080816-source-orig/texk/detex/Makefile.in texlive-20080816-source/texk/detex/Makefile.in
+--- texlive-20080816-source-orig/texk/detex/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/detex/Makefile.in	2009-02-22 00:16:34.000000000 +0000
+@@ -40,13 +40,13 @@
+ install: install-exec install-data
+ uninstall: uninstall-exec uninstall-data
+ install-exec: $(program)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) $(program) $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) $(program) $(DESTDIR)/$(bindir)
+ uninstall-exec:
+ 	rm -f $(bindir)/$(program)
+ install-data:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/detex.man $(man1dir)/detex.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/detex.man $(DESTDIR)/$(man1dir)/detex.$(manext)
+ uninstall-data:
+ 	rm -f $(man1dir)/detex.$(manext)
+ depend info dvi check:
+diff -Naur texlive-20080816-source-orig/texk/dtl/Makefile.in texlive-20080816-source/texk/dtl/Makefile.in
+--- texlive-20080816-source-orig/texk/dtl/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/dtl/Makefile.in	2009-02-22 00:17:30.000000000 +0000
+@@ -30,15 +30,15 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: 
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dv2dt.man $(man1dir)/dv2dt.1
+-	$(INSTALL_DATA) $(srcdir)/dt2dv.man $(man1dir)/dt2dv.1
++	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dv2dt.man $(DESTDIR)/$(man1dir)/dv2dt.1
++	$(INSTALL_DATA) $(srcdir)/dt2dv.man $(DESTDIR)/$(man1dir)/dt2dv.1
+ 
+ uninstall-data: 
+ 	rm -f $(man1dir)/dv2dt.1
+diff -Naur texlive-20080816-source-orig/texk/dvi2tty/Makefile.in texlive-20080816-source/texk/dvi2tty/Makefile.in
+--- texlive-20080816-source-orig/texk/dvi2tty/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/dvi2tty/Makefile.in	2009-02-22 00:18:35.000000000 +0000
+@@ -21,14 +21,14 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: dvi2tty.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dvi2tty.1 $(man1dir)/dvi2tty.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dvi2tty.1 $(DESTDIR)/$(man1dir)/dvi2tty.$(manext)
+ 
+ uninstall-data:
+ 	rm -f $(man1dir)/dvi2tty.$(manext)
+diff -Naur texlive-20080816-source-orig/texk/dvidvi/Makefile.in texlive-20080816-source/texk/dvidvi/Makefile.in
+--- texlive-20080816-source-orig/texk/dvidvi/Makefile.in	2008-01-30 14:56:21.000000000 +0000
++++ texlive-20080816-source/texk/dvidvi/Makefile.in	2009-02-22 00:19:14.000000000 +0000
+@@ -26,14 +26,14 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: 
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dvidvi.1 $(man1dir)/dvidvi.1
++	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dvidvi.1 $(DESTDIR)/$(man1dir)/dvidvi.1
+ 
+ uninstall-data: 
+ 	rm -f $(man1dir)/dvidvi.1
+diff -Naur texlive-20080816-source-orig/texk/dviljk/Makefile.in texlive-20080816-source/texk/dviljk/Makefile.in
+--- texlive-20080816-source-orig/texk/dviljk/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/dviljk/Makefile.in	2009-02-22 00:21:14.000000000 +0000
+@@ -59,35 +59,35 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
+ 	test ! -f $(program) \
+-	  || $(INSTALL_LIBTOOL_PROG) $(program) $(bindir)
++	  || $(INSTALL_LIBTOOL_PROG) $(program) $(DESTDIR)/$(bindir)
+ 	test ! -f $(program2p) \
+-	  || $(INSTALL_LIBTOOL_PROG) $(program2p) $(bindir)
++	  || $(INSTALL_LIBTOOL_PROG) $(program2p) $(DESTDIR)/$(bindir)
+ 	test ! -f $(program4) \
+-	  || $(INSTALL_LIBTOOL_PROG) $(program4) $(bindir)
++	  || $(INSTALL_LIBTOOL_PROG) $(program4) $(DESTDIR)/$(bindir)
+ 	test ! -f $(program4l) \
+-	  || $(INSTALL_LIBTOOL_PROG) $(program4l) $(bindir)
+-	$(INSTALL_SCRIPT) $(srcdir)/dvihp $(scriptdir)/dvihp
+-	cd $(bindir) && (rm -f $(program6); $(LN) $(program4) $(program6))
++	  || $(INSTALL_LIBTOOL_PROG) $(program4l) $(DESTDIR)/$(bindir)
++	$(INSTALL_SCRIPT) $(srcdir)/dvihp $(DESTDIR)/$(scriptdir)/dvihp
++	cd $(DESTDIR)/$(bindir) && (rm -f $(program6); $(LN) $(program4) $(program6))
+ uninstall-exec:
+ 	cd $(bindir); rm -f $(programs)
+ 
+ install-data:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dvilj.man $(man1dir)/dvilj.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dvilj.man $(DESTDIR)/$(man1dir)/dvilj.$(manext)
+ 	for p in dvilj2p dvilj4 dvilj4l dvilj6; do \
+-	  rm -f $(man1dir)/$$p.$(manext); \
+-	  ln -s dvilj.$(manext) $(man1dir)/$$p.$(manext); \
++	  rm -f $(DESTDIR)/$(man1dir)/$$p.$(manext); \
++	  ln -s dvilj.$(manext) $(DESTDIR)/$(man1dir)/$$p.$(manext); \
+ 	done
+-	$(INSTALL_DATA) $(srcdir)/dvihp.man $(man1dir)/dvihp.$(manext)
++	$(INSTALL_DATA) $(srcdir)/dvihp.man $(DESTDIR)/$(man1dir)/dvihp.$(manext)
+ 
+ # It seems simplest to keep this separate. Use find and cpio instead of
+ # just cp -r in case the source hierarchy is cvs- or rcs-ified.
+ # Use "" to quote wildcards because backslash is a directory separator
+ # on MS-DOS and MS-Windows.
+ install-fonts:
+-	find fonts -name \( "*.tfm" -o -name "*.vf" \) -print | cpio -pld $(texmf)
++	find fonts -name \( "*.tfm" -o -name "*.vf" \) -print | cpio -pld $(DESTDIR)/$(texmf)
+ 
+ uninstall-data:
+ 	rm -f $(man1dir)/dvilj.$(manext)
+diff -Naur texlive-20080816-source-orig/texk/dvipdfm/Makefile.in texlive-20080816-source/texk/dvipdfm/Makefile.in
+--- texlive-20080816-source-orig/texk/dvipdfm/Makefile.in	2008-05-22 23:07:33.000000000 +0000
++++ texlive-20080816-source/texk/dvipdfm/Makefile.in	2009-02-22 00:22:28.000000000 +0000
+@@ -51,21 +51,21 @@
+ 	$(RM) config.h
+ 
+ install-exec:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) $(program) $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) $(program) $(DESTDIR)/$(bindir)
+ # don't install ebb; we use the compatible version in dvipdfmx.
+ # but i guess we may as well keep building it for now. --karl, 23may08.
+ #	$(INSTALL_LIBTOOL_PROG) ebb $(bindir)
+-	$(INSTALL_SCRIPT) $(srcdir)/dvipdft $(bindir)
++	$(INSTALL_SCRIPT) $(srcdir)/dvipdft $(DESTDIR)/$(bindir)
+ 
+ uninstall-exec:
+ 	cd $(bindir); rm -f $(programs)
+ 
+ install-data:
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/$(program).1 $(man1dir)/$(program).$(manext)
+-	$(INSTALL_DATA) $(srcdir)/dvipdft.1 $(man1dir)/dvipdft.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/ebb.1 $(man1dir)/ebb.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/$(program).1 $(DESTDIR)/$(man1dir)/$(program).$(manext)
++	$(INSTALL_DATA) $(srcdir)/dvipdft.1 $(DESTDIR)/$(man1dir)/dvipdft.$(manext)
++	$(INSTALL_DATA) $(srcdir)/ebb.1 $(DESTDIR)/$(man1dir)/ebb.$(manext)
+ 
+ uninstall-data:
+ 	rm -f $(man1dir)/dvilj.$(manext)
+diff -Naur texlive-20080816-source-orig/texk/dvipos/Makefile.in texlive-20080816-source/texk/dvipos/Makefile.in
+--- texlive-20080816-source-orig/texk/dvipos/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/dvipos/Makefile.in	2009-02-22 00:23:01.000000000 +0000
+@@ -23,15 +23,15 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: 
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dvipos.1 $(man1dir)/dvipos.1
++	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dvipos.1 $(DESTDIR)/$(man1dir)/dvipos.1
+ 
+ uninstall-data: 
+ 	rm -f $(man1dir)/dvipos.1
+diff -Naur texlive-20080816-source-orig/texk/dvipsk/Makefile.in texlive-20080816-source/texk/dvipsk/Makefile.in
+--- texlive-20080816-source-orig/texk/dvipsk/Makefile.in	2008-04-29 22:40:29.000000000 +0000
++++ texlive-20080816-source/texk/dvipsk/Makefile.in	2009-02-22 00:25:23.000000000 +0000
+@@ -89,10 +89,10 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
+-	rm -f $(bindir)/o$(program)
+-	ln -s $(program) $(bindir)/o$(program)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
++	rm -f $(DESTDIR)/$(bindir)/o$(program)
++	ln -s $(program) $(DESTDIR)/$(bindir)/o$(program)
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 	rm -f $(bindir)/o$(program)
+@@ -100,20 +100,20 @@
+ # config.ps, encoding files, etc., are not installed here, since they
+ # need to go through the usual package mechanism.
+ install-data: $(program).info
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) $(infodir) $(psheaderdir)/base
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir) $(DESTDIR)/$(infodir) $(DESTDIR)/$(psheaderdir)/base
+ # PostScript prologues and encodings.
+-	for h in $(prologues); do $(INSTALL_DATA) $$h $(psheaderdir)/base/$$h; done
++	for h in $(prologues); do $(INSTALL_DATA) $$h $(DESTDIR)/$(psheaderdir)/base/$$h; done
+ # Info files.
+-	$(INSTALL_DATA) $(srcdir)/$(program).i* $(infodir)/
++	$(INSTALL_DATA) $(srcdir)/$(program).i* $(DESTDIR)/$(infodir)/
+ # Man pages.
+-	$(INSTALL_DATA) $(srcdir)/$(program).1 $(man1dir)/$(program).$(manext)
+-	rm -f $(man1dir)/o$(program).$(manext)
+-	ln -s $(program).$(manext) $(man1dir)/o$(program).$(manext)
+-	$(INSTALL_DATA) $(srcdir)/afm2tfm.1 $(man1dir)/afm2tfm.$(manext)
++	$(INSTALL_DATA) $(srcdir)/$(program).1 $(DESTDIR)/$(man1dir)/$(program).$(manext)
++	rm -f $(DESTDIR)/$(man1dir)/o$(program).$(manext)
++	ln -s $(program).$(manext) $(DESTDIR)/$(man1dir)/o$(program).$(manext)
++	$(INSTALL_DATA) $(srcdir)/afm2tfm.1 $(DESTDIR)/$(man1dir)/afm2tfm.$(manext)
+ # Post.
+ 	$(POST_INSTALL)
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+-	  install-info --info-dir=$(infodir) $(infodir)/$(program).info; \
++	  install-info --info-dir=$(DESTDIR)/$(infodir) $(DESTDIR)/$(infodir)/$(program).info; \
+ 	else true; fi
+ 
+ uninstall-data:
+diff -Naur texlive-20080816-source-orig/texk/gsftopk/Makefile.in texlive-20080816-source/texk/gsftopk/Makefile.in
+--- texlive-20080816-source-orig/texk/gsftopk/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/gsftopk/Makefile.in	2009-02-22 00:26:32.000000000 +0000
+@@ -35,15 +35,15 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(program)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) $(program) $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) $(program) $(DESTDIR)/$(bindir)
+ uninstall-exec:
+ 	rm -f $(bindir)/$(program)
+ 
+ install-data: gsftopk.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) $(gsftopkpsheaderdir)
+-	$(INSTALL_DATA) gsftopk.1 $(man1dir)/gsftopk.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/render.ps $(gsftopkpsheaderdir)/render.ps
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir) $(DESTDIR)/$(gsftopkpsheaderdir)
++	$(INSTALL_DATA) gsftopk.1 $(DESTDIR)/$(man1dir)/gsftopk.$(manext)
++	$(INSTALL_DATA) $(srcdir)/render.ps $(DESTDIR)/$(gsftopkpsheaderdir)/render.ps
+ uninstall-data:
+ 	rm -f $(man1dir)/gsftopk.$(manext)
+ 	rm -f $(gsftopkpsheaderdir)/render.ps
+diff -Naur texlive-20080816-source-orig/texk/kpathsea/Makefile.in texlive-20080816-source/texk/kpathsea/Makefile.in
+--- texlive-20080816-source-orig/texk/kpathsea/Makefile.in	2008-05-29 20:59:08.000000000 +0000
++++ texlive-20080816-source/texk/kpathsea/Makefile.in	2009-02-21 23:53:47.000000000 +0000
+@@ -129,35 +129,35 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: kpsewhich
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir) $(scriptdir) \
+-	  $(libdir) $(web2cdir)
+-	if grep 'original mktexpk --' $(scriptdir)/mktexpk >/dev/null 2>&1\
+-	   || test ! -r $(scriptdir)/mktexpk; then \
+-	  $(INSTALL_SCRIPT) $(srcdir)/mktexpk $(scriptdir)/mktexpk; \
+-	else true; fi
+-	if grep 'original mktexmf --' $(scriptdir)/mktexmf >/dev/null 2>&1\
+-	   || test ! -r $(scriptdir)/mktexmf; then \
+-	  $(INSTALL_SCRIPT) $(srcdir)/mktexmf $(scriptdir)/mktexmf; \
+-	else true; fi
+-	if grep 'original mktextfm --' $(scriptdir)/mktextfm >/dev/null 2>&1\
+-	   || test ! -r $(scriptdir)/mktextfm; then \
+-	  $(INSTALL_SCRIPT) $(srcdir)/mktextfm $(scriptdir)/mktextfm; \
+-	else true; fi
+-	if grep 'original mktexlsr --' $(scriptdir)/mktexlsr >/dev/null 2>&1\
+-	   || test ! -r $(scriptdir)/mktexlsr; then \
+-	  $(INSTALL_SCRIPT) $(srcdir)/mktexlsr $(scriptdir)/mktexlsr; \
+-	else true; fi
+-	$(INSTALL_DATA) $(srcdir)/mktex.opt $(web2cdir)/mktex.opt
+-	$(INSTALL_SCRIPT) $(srcdir)/mktexdir $(web2cdir)/mktexdir
+-	$(INSTALL_DATA) $(srcdir)/mktexdir.opt $(web2cdir)/mktexdir.opt
+-	$(INSTALL_SCRIPT) $(srcdir)/mktexnam $(web2cdir)/mktexnam
+-	$(INSTALL_DATA) $(srcdir)/mktexnam.opt $(web2cdir)/mktexnam.opt
+-	$(INSTALL_SCRIPT) $(srcdir)/mktexupd $(web2cdir)/mktexupd
+-	$(INSTALL_LIBTOOL_LIBS) lib$(library).la $(libdir)
+-	$(INSTALL_LIBTOOL_PROG) kpsewhich $(bindir)
+-	$(INSTALL_PROGRAM) kpsestat $(bindir)
+-	$(INSTALL_PROGRAM) kpseaccess $(bindir)
+-	$(INSTALL_PROGRAM) kpsereadlink $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir) $(DESTDIR)/$(scriptdir) \
++	  $(DESTDIR)/$(libdir) $(DESTDIR)/$(web2cdir)
++	if grep 'original mktexpk --' $(DESTDIR)/$(scriptdir)/mktexpk >/dev/null 2>&1\
++	   || test ! -r $(DESTDIR)/$(scriptdir)/mktexpk; then \
++	  $(INSTALL_SCRIPT) $(srcdir)/mktexpk $(DESTDIR)/$(scriptdir)/mktexpk; \
++	else true; fi
++	if grep 'original mktexmf --' $(DESTDIR)/$(scriptdir)/mktexmf >/dev/null 2>&1\
++	   || test ! -r $(DESTDIR)/$(scriptdir)/mktexmf; then \
++	  $(INSTALL_SCRIPT) $(srcdir)/mktexmf $(DESTDIR)/$(scriptdir)/mktexmf; \
++	else true; fi
++	if grep 'original mktextfm --' $(DESTDIR)/$(scriptdir)/mktextfm >/dev/null 2>&1\
++	   || test ! -r $(DESTDIR)/$(scriptdir)/mktextfm; then \
++	  $(INSTALL_SCRIPT) $(srcdir)/mktextfm $(DESTDIR)/$(scriptdir)/mktextfm; \
++	else true; fi
++	if grep 'original mktexlsr --' $(DESTDIR)/$(scriptdir)/mktexlsr >/dev/null 2>&1\
++	   || test ! -r $(DESTDIR)/$(scriptdir)/mktexlsr; then \
++	  $(INSTALL_SCRIPT) $(srcdir)/mktexlsr $(DESTDIR)/$(scriptdir)/mktexlsr; \
++	else true; fi
++	$(INSTALL_DATA) $(srcdir)/mktex.opt $(DESTDIR)/$(web2cdir)/mktex.opt
++	$(INSTALL_SCRIPT) $(srcdir)/mktexdir $(DESTDIR)/$(web2cdir)/mktexdir
++	$(INSTALL_DATA) $(srcdir)/mktexdir.opt $(DESTDIR)/$(web2cdir)/mktexdir.opt
++	$(INSTALL_SCRIPT) $(srcdir)/mktexnam $(DESTDIR)/$(web2cdir)/mktexnam
++	$(INSTALL_DATA) $(srcdir)/mktexnam.opt $(DESTDIR)/$(web2cdir)/mktexnam.opt
++	$(INSTALL_SCRIPT) $(srcdir)/mktexupd $(DESTDIR)/$(web2cdir)/mktexupd
++	$(INSTALL_LIBTOOL_LIBS) lib$(library).la $(DESTDIR)/$(libdir)
++	$(INSTALL_LIBTOOL_PROG) kpsewhich $(DESTDIR)/$(bindir)
++	$(INSTALL_PROGRAM) kpsestat $(DESTDIR)/$(bindir)
++	$(INSTALL_PROGRAM) kpseaccess $(DESTDIR)/$(bindir)
++	$(INSTALL_PROGRAM) kpsereadlink $(DESTDIR)/$(bindir)
+ uninstall-exec:
+ 	$(UNINSTALL_LIBTOOL_LIBS) $(libdir)/lib$(library).la
+ 	$(UNINSTALL_LIBTOOL_PROG) $(bindir)/kpsewhich
+@@ -166,23 +166,23 @@
+ 	$(UNINSTALL_PROGRAM) $(bindir)/kpsereadlink
+ 
+ install-data: $(srcdir)/texmf.cnf kpathsea.info install-man
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(texmf) $(infodir) $(web2cdir)
+-	if grep 'original texmf.cnf --' $(web2cdir)/texmf.cnf >/dev/null 2>&1 \
+-	   || test ! -r $(web2cdir)/texmf.cnf; then \
+-	  $(INSTALL_DATA) $(srcdir)/texmf.cnf $(web2cdir)/texmf.cnf; \
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texmf) $(DESTDIR)/$(infodir) $(DESTDIR)/$(web2cdir)
++	if grep 'original texmf.cnf --' $(DESTDIR)/$(web2cdir)/texmf.cnf >/dev/null 2>&1 \
++	   || test ! -r $(DESTDIR)/$(web2cdir)/texmf.cnf; then \
++	  $(INSTALL_DATA) $(srcdir)/texmf.cnf $(DESTDIR)/$(web2cdir)/texmf.cnf; \
+ 	else true; fi
+ # Info files.
+-	$(INSTALL_DATA) $(srcdir)/kpathsea.i* $(infodir)/
++	$(INSTALL_DATA) $(srcdir)/kpathsea.i* $(DESTDIR)/$(infodir)/
+ # Should we install the headers?  They are not just system-dependent,
+ # which is bad enough, but even compiler-dependent.
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(includedir)/kpathsea
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(includedir)/kpathsea
+ 	for f in $(install_headers); do \
+-	  $(INSTALL_DATA) $$f $(includedir)/kpathsea/; done
+-	rm -f $(includedir)/kpathsea/acconfig.h
++	  $(INSTALL_DATA) $$f $(DESTDIR)/$(includedir)/kpathsea/; done
++	rm -f $(DESTDIR)/$(includedir)/kpathsea/acconfig.h
+ # Post.
+ 	$(POST_INSTALL)
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+-	  install-info --info-dir=$(infodir) $(infodir)/kpathsea.info; \
++	  install-info --info-dir=$(DESTDIR)/$(infodir) $(DESTDIR)/$(infodir)/kpathsea.info; \
+ 	else true; fi
+ 
+ uninstall-data:
+diff -Naur texlive-20080816-source-orig/texk/lacheck/Makefile.in texlive-20080816-source/texk/lacheck/Makefile.in
+--- texlive-20080816-source-orig/texk/lacheck/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/lacheck/Makefile.in	2009-02-22 00:27:11.000000000 +0000
+@@ -29,14 +29,14 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: lacheck.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(man1dir)
+-	$(INSTALL_DATA) lacheck.1 $(man1dir)/lacheck.1
++	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) lacheck.1 $(DESTDIR)/$(man1dir)/lacheck.1
+ 
+ uninstall-data: 
+ 	rm -f $(man1dir)/lacheck.1
+diff -Naur texlive-20080816-source-orig/texk/make/man.mk texlive-20080816-source/texk/make/man.mk
+--- texlive-20080816-source-orig/texk/make/man.mk	2006-01-17 21:41:51.000000000 +0000
++++ texlive-20080816-source/texk/make/man.mk	2009-02-22 01:26:10.000000000 +0000
+@@ -51,10 +51,10 @@
+ 	echo 's%@LOCALMODES@%$(localmodes)%'	>>sedscript
+ 
+ install-man: manfiles
+-	$(top_srcdir)/../mkinstalldirs $(man1dir)
++	$(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
+ 	for nameone in $(manfiles); do					\
+           name=`basename $${nameone} .1`;				\
+-          $(INSTALL_DATA) $${name}.1 $(man1dir)/$${name}.$(manext);	\
++          $(INSTALL_DATA) $${name}.1 $(DESTDIR)/$(man1dir)/$${name}.$(manext);	\
+         done
+ 
+ uninstall-man:
+diff -Naur texlive-20080816-source-orig/texk/makeindexk/Makefile.in texlive-20080816-source/texk/makeindexk/Makefile.in
+--- texlive-20080816-source-orig/texk/makeindexk/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/makeindexk/Makefile.in	2009-02-22 00:28:00.000000000 +0000
+@@ -20,17 +20,17 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG)  $(program) $(bindir)
+-	$(INSTALL_SCRIPT) $(srcdir)/mkindex $(scriptdir)/mkindex
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG)  $(program) $(DESTDIR)/$(bindir)
++	$(INSTALL_SCRIPT) $(srcdir)/mkindex $(DESTDIR)/$(scriptdir)/mkindex
+ uninstall-exec:
+ 	cd $(bindir) && rm -f $(program)
+ 	cd $(scriptdir) && rm -f mkindex
+ 
+ install-data: makeindex.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/makeindex.1 $(man1dir)/makeindex.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/mkindex.1 $(man1dir)/mkindex.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/makeindex.1 $(DESTDIR)/$(man1dir)/makeindex.$(manext)
++	$(INSTALL_DATA) $(srcdir)/mkindex.1 $(DESTDIR)/$(man1dir)/mkindex.$(manext)
+ 
+ uninstall-data:
+ 
+diff -Naur texlive-20080816-source-orig/texk/musixflx/Makefile.in texlive-20080816-source/texk/musixflx/Makefile.in
+--- texlive-20080816-source-orig/texk/musixflx/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/musixflx/Makefile.in	2009-02-22 00:28:29.000000000 +0000
+@@ -22,8 +22,8 @@
+ uninstall: uninstall-exec 
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+diff -Naur texlive-20080816-source-orig/texk/ps2pkm/Makefile.in texlive-20080816-source/texk/ps2pkm/Makefile.in
+--- texlive-20080816-source-orig/texk/ps2pkm/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/ps2pkm/Makefile.in	2009-02-22 00:29:22.000000000 +0000
+@@ -36,17 +36,17 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: mag.1 pfb2pfa.1 pk2bm.1 ps2pk.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/mag.1 $(man1dir)/mag.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/pfb2pfa.1 $(man1dir)/pfb2pfa.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/pk2bm.1 $(man1dir)/pk2bm.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/ps2pk.1 $(man1dir)/ps2pk.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/mag.1 $(DESTDIR)/$(man1dir)/mag.$(manext)
++	$(INSTALL_DATA) $(srcdir)/pfb2pfa.1 $(DESTDIR)/$(man1dir)/pfb2pfa.$(manext)
++	$(INSTALL_DATA) $(srcdir)/pk2bm.1 $(DESTDIR)/$(man1dir)/pk2bm.$(manext)
++	$(INSTALL_DATA) $(srcdir)/ps2pk.1 $(DESTDIR)/$(man1dir)/ps2pk.$(manext)
+ uninstall-data:
+ 	rm -f $(man1dir)/ps2pk.$(manext) $(man1dir)/pk2bm.$(manext) \
+           $(man1dir)/pfb2pfa.$(manext) $(man1dir)/mag.$(manext)
+diff -Naur texlive-20080816-source-orig/texk/seetexk/Makefile.in texlive-20080816-source/texk/seetexk/Makefile.in
+--- texlive-20080816-source-orig/texk/seetexk/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/seetexk/Makefile.in	2009-02-22 00:30:13.000000000 +0000
+@@ -52,17 +52,17 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: 
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/dviselect.man $(man1dir)/dviselect.1
+-	$(INSTALL_DATA) $(srcdir)/dviconcat.man $(man1dir)/dviconcat.1
+-	$(INSTALL_DATA) $(srcdir)/dvibook.man $(man1dir)/dvibook.1
+-	$(INSTALL_DATA) $(srcdir)/dvitodvi.man $(man1dir)/dvitodvi.1
++	$(SHELL) $(top_srcdir)/../mkinstalldirs  $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/dviselect.man $(DESTDIR)/$(man1dir)/dviselect.1
++	$(INSTALL_DATA) $(srcdir)/dviconcat.man $(DESTDIR)/$(man1dir)/dviconcat.1
++	$(INSTALL_DATA) $(srcdir)/dvibook.man $(DESTDIR)/$(man1dir)/dvibook.1
++	$(INSTALL_DATA) $(srcdir)/dvitodvi.man $(DESTDIR)/$(man1dir)/dvitodvi.1
+ 
+ uninstall-data:
+ 	rm -f $(man1dir)/dviselect.1
+diff -Naur texlive-20080816-source-orig/texk/tetex/Makefile.in texlive-20080816-source/texk/tetex/Makefile.in
+--- texlive-20080816-source-orig/texk/tetex/Makefile.in	2008-07-05 16:43:44.000000000 +0000
++++ texlive-20080816-source/texk/tetex/Makefile.in	2009-02-22 00:35:24.000000000 +0000
+@@ -34,62 +34,62 @@
+ 
+ # Auxiliary files.
+ install-data::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) $(man5dir) $(texpooldir) $(texmf)/doc/tetex
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir) $(DESTDIR)/$(man5dir) $(DESTDIR)/$(texpooldir) $(DESTDIR)/$(texmf)/doc/tetex
+ 	for p in $(manpgs); do \
+-	  $(INSTALL_DATA) $(srcdir)/$$p.man $(man1dir)/$$p.$(manext); \
++	  $(INSTALL_DATA) $(srcdir)/$$p.man $(DESTDIR)/$(man1dir)/$$p.$(manext); \
+ 	done
+ 	for p in $(contextmanpgs); do \
+-	  $(INSTALL_DATA) $(srcdir)/context/$$p.man $(man1dir)/$$p.$(manext); \
++	  $(INSTALL_DATA) $(srcdir)/context/$$p.man $(DESTDIR)/$(man1dir)/$$p.$(manext); \
+ 	done
+-	$(INSTALL_DATA) $(srcdir)/fmtutil.man $(man1dir)/fmtutil.1
+-	$(INSTALL_DATA) $(srcdir)/texlinks.man $(man1dir)/texlinks.1
+-	$(INSTALL_DATA) $(srcdir)/fmtutil.cnf.5 $(man5dir)/fmtutil.cnf.5
+-	$(INSTALL_DATA) $(srcdir)/updmap.cfg.5 $(man5dir)/updmap.cfg.5
+-	cd $(man1dir); rm -f allec.$(manext) texhash.$(manext) \
++	$(INSTALL_DATA) $(srcdir)/fmtutil.man $(DESTDIR)/$(man1dir)/fmtutil.1
++	$(INSTALL_DATA) $(srcdir)/texlinks.man $(DESTDIR)/$(man1dir)/texlinks.1
++	$(INSTALL_DATA) $(srcdir)/fmtutil.cnf.5 $(DESTDIR)/$(man5dir)/fmtutil.cnf.5
++	$(INSTALL_DATA) $(srcdir)/updmap.cfg.5 $(DESTDIR)/$(man5dir)/updmap.cfg.5
++	cd $(DESTDIR)/$(man1dir); rm -f allec.$(manext) texhash.$(manext) \
+ 	  lambda.$(manext) pdflatex.$(manext) kpsepath.$(manext) \
+ 	  kpsexpand.$(manext) mf-nowin.$(manext) ctangle.$(manext) \
+ 	  cweave.$(manext) odvicopy.$(manext) \
+ 	  odvitype.$(manext) texconfig-sys.$(manext) \
+ 	  updmap-sys.$(manext) mktexfmt.$(manext) fmtutil-sys.$(manext)
+-	ln -s allcm.$(manext) $(man1dir)/allec.$(manext)
+-	ln -s mktexlsr.$(manext) $(man1dir)/texhash.$(manext)
+-	ln -s omega.$(manext) $(man1dir)/lambda.$(manext)
+-	ln -s pdftex.$(manext) $(man1dir)/pdflatex.$(manext)
+-	ln -s kpsetool.$(manext) $(man1dir)/kpsepath.$(manext)
+-	ln -s kpsetool.$(manext) $(man1dir)/kpsexpand.$(manext)
+-	ln -s mf.$(manext) $(man1dir)/mf-nowin.$(manext)
+-	ln -s cweb.$(manext) $(man1dir)/ctangle.$(manext)
+-	ln -s cweb.$(manext) $(man1dir)/cweave.$(manext)
+-	ln -s dvicopy.$(manext) $(man1dir)/odvicopy.$(manext)
+-	ln -s dvitype.$(manext) $(man1dir)/odvitype.$(manext)
+-	ln -s texconfig.$(manext) $(man1dir)/texconfig-sys.$(manext)
+-	ln -s updmap.$(manext) $(man1dir)/updmap-sys.$(manext)
+-	ln -s fmtutil.$(manext) $(man1dir)/mktexfmt.$(manext)
+-	ln -s fmtutil.$(manext) $(man1dir)/fmtutil-sys.$(manext)
++	ln -s allcm.$(manext) $(DESTDIR)/$(man1dir)/allec.$(manext)
++	ln -s mktexlsr.$(manext) $(DESTDIR)/$(man1dir)/texhash.$(manext)
++	ln -s omega.$(manext) $(DESTDIR)/$(man1dir)/lambda.$(manext)
++	ln -s pdftex.$(manext) $(DESTDIR)/$(man1dir)/pdflatex.$(manext)
++	ln -s kpsetool.$(manext) $(DESTDIR)/$(man1dir)/kpsepath.$(manext)
++	ln -s kpsetool.$(manext) $(DESTDIR)/$(man1dir)/kpsexpand.$(manext)
++	ln -s mf.$(manext) $(DESTDIR)/$(man1dir)/mf-nowin.$(manext)
++	ln -s cweb.$(manext) $(DESTDIR)/$(man1dir)/ctangle.$(manext)
++	ln -s cweb.$(manext) $(DESTDIR)/$(man1dir)/cweave.$(manext)
++	ln -s dvicopy.$(manext) $(DESTDIR)/$(man1dir)/odvicopy.$(manext)
++	ln -s dvitype.$(manext) $(DESTDIR)/$(man1dir)/odvitype.$(manext)
++	ln -s texconfig.$(manext) $(DESTDIR)/$(man1dir)/texconfig-sys.$(manext)
++	ln -s updmap.$(manext) $(DESTDIR)/$(man1dir)/updmap-sys.$(manext)
++	ln -s fmtutil.$(manext) $(DESTDIR)/$(man1dir)/mktexfmt.$(manext)
++	ln -s fmtutil.$(manext) $(DESTDIR)/$(man1dir)/fmtutil-sys.$(manext)
+ 	for p in TETEXDOC.pdf TETEXDOC.ps TETEXDOC.dvi teTeX-FAQ; do \
+-	  $(INSTALL_DATA) $(srcdir)/doc/$$p $(texmf)/doc/tetex; \
++	  $(INSTALL_DATA) $(srcdir)/doc/$$p $(DESTDIR)/$(texmf)/doc/tetex; \
+ 	done
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(texmf)/texconfig $(texmf)/texconfig/g $(texmf)/texconfig/v $(texmf)/texconfig/x
+-	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/g/generic $(texmf)/texconfig/g
+-	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/v/vt100 $(texmf)/texconfig/v
+-	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/x/xterm $(texmf)/texconfig/x
+-	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/README $(texmf)/texconfig
+-	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/generic $(texmf)/texconfig
+-	$(INSTALL_SCRIPT) $(srcdir)/tcfmgr $(texmf)/texconfig/tcfmgr
+-	$(INSTALL_DATA) $(srcdir)/tcfmgr.map $(texmf)/texconfig/tcfmgr.map
+-	$(INSTALL_DATA) $(srcdir)/fmtutil.cnf $(texmf)/web2c/fmtutil.cnf
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texmf)/texconfig $(DESTDIR)/$(texmf)/texconfig/g $(DESTDIR)/$(texmf)/texconfig/v $(DESTDIR)/$(texmf)/texconfig/x
++	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/g/generic $(DESTDIR)/$(texmf)/texconfig/g
++	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/v/vt100 $(DESTDIR)/$(texmf)/texconfig/v
++	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/x/xterm $(DESTDIR)/$(texmf)/texconfig/x
++	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/README $(DESTDIR)/$(texmf)/texconfig
++	$(INSTALL_DATA) $(srcdir)/texmf/texconfig/generic $(DESTDIR)/$(texmf)/texconfig
++	$(INSTALL_SCRIPT) $(srcdir)/tcfmgr $(DESTDIR)/$(texmf)/texconfig/tcfmgr
++	$(INSTALL_DATA) $(srcdir)/tcfmgr.map $(DESTDIR)/$(texmf)/texconfig/tcfmgr.map
++	$(INSTALL_DATA) $(srcdir)/fmtutil.cnf $(DESTDIR)/$(texmf)/web2c/fmtutil.cnf
+ 
+ install-exec: 
+-	-$(SHELL) $(srcdir)/../mkinstalldirs $(scriptdir)
++	-$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)/$(scriptdir)
+ 	for s in $(SCRIPTS); do \
+-	  $(INSTALL_SCRIPT) $(srcdir)/$$s $(scriptdir)/$$s; \
++	  $(INSTALL_SCRIPT) $(srcdir)/$$s $(DESTDIR)/$(scriptdir)/$$s; \
+ 	done
+-	cd $(scriptdir) && rm -f allec kpsepath kpsexpand texhash; \
++	cd $(DESTDIR)/$(scriptdir) && rm -f allec kpsepath kpsexpand texhash; \
+ 	  ln -s allcm allec; \
+ 	  ln -s kpsetool kpsepath; \
+ 	  ln -s kpsetool kpsexpand; \
+ 	  ln -s mktexlsr texhash
+-	cd $(scriptdir) && rm -f mktexfmt; ln -s fmtutil mktexfmt
++	cd $(DESTDIR)/$(scriptdir) && rm -f mktexfmt; ln -s fmtutil mktexfmt
+ 
+ # 
+ # This target is invoked by the top-level make,
+@@ -97,9 +97,9 @@
+ # after everything else is installed.  We explicitly specify the
+ # fmtutil.cnf file to use for the sake of distro builds.  Also, that way
+ # we don't have to run mktexlsr also.
+-run_texlinks = $(bindir)/texlinks -f $(web2cdir)/fmtutil.cnf
++run_texlinks = $(DESTDIR)/$(bindir)/texlinks -f $(DESTDIR)/$(web2cdir)/fmtutil.cnf
+ run-texlinks:
+-	PATH=$(bindir):$(PATH); export PATH; $(run_texlinks)
++	PATH=$(DESTDIR)/$(bindir):$(PATH); export PATH; $(run_texlinks)
+ 
+ kpse_include ../make/clean.mk
+ 
+diff -Naur texlive-20080816-source-orig/texk/tex4htk/Makefile.in texlive-20080816-source/texk/tex4htk/Makefile.in
+--- texlive-20080816-source-orig/texk/tex4htk/Makefile.in	2008-05-17 23:55:02.000000000 +0000
++++ texlive-20080816-source/texk/tex4htk/Makefile.in	2009-02-22 00:38:04.000000000 +0000
+@@ -30,21 +30,21 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: all
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
+-	$(INSTALL) -d "$(prefix)/texmf-dist/scripts/tex4ht"
+-	for p in $(shell_scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p "$(prefix)/texmf-dist/scripts/tex4ht/$$p.sh"; done
+-	for p in $(perl_scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p "$(prefix)/texmf-dist/scripts/tex4ht/$$p.pl"; done
+-	if test -d "$(bindir)/../../texmf-dist/scripts/tex4ht"; then \
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
++	$(INSTALL) -d "$(DESTDIR)/$(prefix)/texmf-dist/scripts/tex4ht"
++	for p in $(shell_scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p "$(DESTDIR)/$(prefix)/texmf-dist/scripts/tex4ht/$$p.sh"; done
++	for p in $(perl_scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p "$(DESTDIR)/$(prefix)/texmf-dist/scripts/tex4ht/$$p.pl"; done
++	if test -d "$(DESTDIR)/$(bindir)/../../texmf-dist/scripts/tex4ht"; then \
+ 	  d=../../texmf-dist/scripts/tex4ht; \
+-	elif test -d "$(bindir)/../texmf-dist/scripts/tex4ht"; then \
++	elif test -d "$(DESTDIR)/$(bindir)/../texmf-dist/scripts/tex4ht"; then \
+ 	  d=../texmf-dist/scripts/tex4ht; \
+ 	else \
+ 	  echo "Error: texmf-dist/scripts/tex4ht directory not found" >&2; \
+ 	  exit 1; \
+ 	fi; \
+-	for p in $(shell_scripts); do rm -f $(bindir)/$$p; ln -s $$d/$$p.sh $(bindir)/$$p; done; \
+-	for p in $(perl_scripts); do rm -f $(bindir)/$$p; ln -s $$d/$$p.pl $(bindir)/$$p; done
++	for p in $(shell_scripts); do rm -f $(DESTDIR)/$(bindir)/$$p; ln -s $$d/$$p.sh $(DESTDIR)/$(bindir)/$$p; done; \
++	for p in $(perl_scripts); do rm -f $(DESTDIR)/$(bindir)/$$p; ln -s $$d/$$p.pl $(DESTDIR)/$(bindir)/$$p; done
+ 
+ uninstall-exec:
+ 	for p in $(programs) $(scripts); do rm -f $(bindir)/$$p; done
+diff -Naur texlive-20080816-source-orig/texk/texlive/Makefile.in texlive-20080816-source/texk/texlive/Makefile.in
+--- texlive-20080816-source-orig/texk/texlive/Makefile.in	2008-07-11 21:56:25.000000000 +0000
++++ texlive-20080816-source/texk/texlive/Makefile.in	2009-02-22 00:40:08.000000000 +0000
+@@ -72,7 +72,7 @@
+ # Auxiliary files.
+ install-data::
+ 	for p in $(manpgs); do \
+-	  $(INSTALL_DATA) $(srcdir)/$$p.man $(man1dir)/$$p.$(manext); \
++	  $(INSTALL_DATA) $(srcdir)/$$p.man $(DESTDIR)/$(man1dir)/$$p.$(manext); \
+ 	done
+ 
+ # The idea is to install the scripts themselves in texmf*/scripts, and
+@@ -98,27 +98,27 @@
+ # bin/i386-linux, not the texmf*/scripts dir.
+ # 
+ install-exec:
+-	-$(SHELL) $(srcdir)/../mkinstalldirs $(scriptdir)
++	-$(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)/$(scriptdir)
+ # - link to the basename, removing any extension, of the source.
+ # - we downcase for the sake of TeXcount.pl -> texcount.
+ # - the purpose of the case..esac is to support both multiplatform and
+ #   non-multiplatform builds.
+ 	for s in $(LINKED_SCRIPTS); do \
+-	  target=$(scriptdir)/`basename $$s | sed 's,\.[^/]*$$,,' | tr '[A-Z]' '[a-z]'`; \
++	  target=$(DESTDIR)/$(scriptdir)/`basename $$s | sed 's,\.[^/]*$$,,' | tr '[A-Z]' '[a-z]'`; \
+ 	  target=$$target; \
+ 	  rm -f $$target; \
+-	  case "$(scriptdir)" in \
++	  case "$(DESTDIR)/$(scriptdir)" in \
+ 	    */bin)   d=..;; \
+ 	    */bin/*) d=../..;; \
+-	    *) echo "$(scriptdir): strange directory for linked scripts" >&2;\
++	    *) echo "$(DESTDIR)/$(scriptdir): strange directory for linked scripts" >&2;\
+ 	      exit 1;; \
+ 	  esac; \
+-	  $(SHELL) $(srcdir)/../mkinstalldirs $(prefix)/`dirname $$s`; \
+-	  $(INSTALL_SCRIPT) $(srcdir)/linked_scripts/`basename $$s` $(prefix)/$$s; \
++	  $(SHELL) $(srcdir)/../mkinstalldirs $(DESTDIR)/$(prefix)/`dirname $$s`; \
++	  $(INSTALL_SCRIPT) $(srcdir)/linked_scripts/`basename $$s` $(DESTDIR)/$(prefix)/$$s; \
+ 	  ln -s $$d/$$s $$target; \
+ 	done
+-	rm -f $(scriptdir)/getnonfreefonts-sys
+-	ln -s getnonfreefonts $(scriptdir)/getnonfreefonts-sys
++	rm -f $(DESTDIR)/$(scriptdir)/getnonfreefonts-sys
++	ln -s getnonfreefonts $(DESTDIR)/$(scriptdir)/getnonfreefonts-sys
+ 
+ kpse_include ../make/clean.mk
+ 
+diff -Naur texlive-20080816-source-orig/texk/ttf2pk/Makefile.in texlive-20080816-source/texk/ttf2pk/Makefile.in
+--- texlive-20080816-source-orig/texk/ttf2pk/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/texk/ttf2pk/Makefile.in	2009-02-22 00:40:58.000000000 +0000
+@@ -39,15 +39,15 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ uninstall-exec:
+ 	for p in $(programs); do rm -f $(bindir)/$$p; done
+ 
+ install-data: ttf2pk.1 ttf2tfm.1
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir)
+-	$(INSTALL_DATA) $(srcdir)/ttf2pk.1 $(man1dir)/ttf2pk.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/ttf2tfm.1 $(man1dir)/ttf2tfm.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir)
++	$(INSTALL_DATA) $(srcdir)/ttf2pk.1 $(DESTDIR)/$(man1dir)/ttf2pk.$(manext)
++	$(INSTALL_DATA) $(srcdir)/ttf2tfm.1 $(DESTDIR)/$(man1dir)/ttf2tfm.$(manext)
+ uninstall-data:
+ 	rm -f $(man1dir)/ttf2pk.$(manext) $(man1dir)/ttf2tfm.$(manext)
+ 
+diff -Naur texlive-20080816-source-orig/texk/web2c/Makefile.in texlive-20080816-source/texk/web2c/Makefile.in
+--- texlive-20080816-source-orig/texk/web2c/Makefile.in	2008-08-12 23:46:59.000000000 +0000
++++ texlive-20080816-source/texk/web2c/Makefile.in	2009-02-22 00:05:56.000000000 +0000
+@@ -817,28 +817,28 @@
+ 
+ # Installation directories.
+ $(bindir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
+ $(texpooldir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(texpooldir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texpooldir)
+ $(mfpooldir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(mfpooldir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(mfpooldir)
+ $(mppooldir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(mppooldir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(mppooldir)
+ $(fmtdir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(fmtdir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(fmtdir)
+ $(basedir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(basedir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(basedir)
+ $(memdir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(memdir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(memdir)
+ $(web2cdir)::
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(web2cdir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(web2cdir)
+ 
+ # Installing the binaries.  Each of the *dir/*.mk files (except etex)
+ # add to this target via a dependency-only rule, to install their
+ # respective engines.
+ install-programs: $(programs) $(basic_engines) $(bindir)
+ 	for p in $(programs) $(basic_engines); do \
+-	  $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	  $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 
+ # We do not attempt to install any of the per-format symlinks, leaving
+ # that to a separate run of texlinks.
+@@ -849,38 +849,39 @@
+ install-fmts: install-tex-fmts
+ install-tex-fmts: fmts $(fmtdir)
+ 	fmts="$(all_fmts)"; \
+-	  for f in $$fmts; do $(INSTALL_DATA) $$f $(fmtdir)/$$f; done
+-	cd $(fmtdir) && (rm -f plain.fmt; $(LN) tex.fmt plain.fmt)
++	  for f in $$fmts; do $(INSTALL_DATA) $$f $(DESTDIR)/$(fmtdir)/$$f; done
++	cd $(DESTDIR)/$(fmtdir) && (rm -f plain.fmt; $(LN) tex.fmt plain.fmt)
+ 	fmts="$(fmts)"; \
+ 	  for f in $$fmts; do base=`basename $$f .fmt`; \
+-	    (cd $(bindir) && (rm -f $$base; $(LN) tex $$base)); done
++	    (cd $(DESTDIR)/$(bindir) && (rm -f $$base; $(LN) tex $$base)); done
+ 
+ install-bases: install-mf-bases
+ install-mf-bases: bases $(basedir)
+ 	bases="$(all_bases)"; \
+-	  for f in $$bases; do $(INSTALL_DATA) $$f $(basedir)/$$f; done
+-	cd $(basedir) && (rm -f plain.base; $(LN) mf.base plain.base)
++	  for f in $$bases; do $(INSTALL_DATA) $$f $(DESTDIR)/$(basedir)/$$f; done
++	cd $(DESTDIR)/$(basedir) && (rm -f plain.base; $(LN) mf.base plain.base)
+ 	bases="$(bases)"; \
+ 	  for f in $$bases; do base=`basename $$f .base`;\
+-	    (cd $(bindir) && (rm -f $$base; $(LN) mf $$base)); done
++	    (cd $(DESTDIR)/$(bindir) && (rm -f $$base; $(LN) mf $$base)); done
+ 
+ install-mems: install-mpost-mems
+ install-mpost-mems: mems $(memdir)
+ 	mems="$(all_mems)"; \
+-	  for f in $$mems; do $(INSTALL_DATA) $$f $(memdir)/$$f; done
+-	cd $(memdir) && (rm -f plain.mem; $(LN) mpost.mem plain.mem)
++	  for f in $$mems; do $(INSTALL_DATA) $$f $(DESTDIR)/$(memdir)/$$f; done
++	cd $(DESTDIR)/$(memdir) && (rm -f plain.mem; $(LN) mpost.mem plain.mem)
+ 	mems="$(mems)"; \
+ 	  for f in $$mems; do base=`basename $$f .mem`; \
+-            (cd $(bindir) && (rm -f $$base; $(LN) mpost $$base)); done
++            (cd $(DESTDIR)/$(bindir) && (rm -f $$base; $(LN) mpost $$base)); done
+ 
+ # Auxiliary files.
+ install-data:: $(web2cdir)
+ 	cd doc && $(MAKE) $(install_makeargs) install-data
+ 	cd man && $(MAKE) $(install_makeargs) install-data
+-	$(INSTALL_DATA) $(srcdir)/tiedir/tie.1 $(man1dir)/tie.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/ctiedir/ctie.1 $(man1dir)/ctie.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/synctexdir/man1/synctex.1 $(man1dir)/synctex.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/synctexdir/man5/synctex.5 $(man5dir)/synctex.5
++	$(INSTALL_DATA) $(srcdir)/tiedir/tie.1 $(DESTDIR)/$(man1dir)/tie.$(manext)
++	$(INSTALL_DATA) $(srcdir)/ctiedir/ctie.1 $(DESTDIR)/$(man1dir)/ctie.$(manext)
++	$(INSTALL_DATA) $(srcdir)/synctexdir/man1/synctex.1 $(DESTDIR)/$(man1dir)/synctex.$(manext)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man5dir)
++	$(INSTALL_DATA) $(srcdir)/synctexdir/man5/synctex.5 $(DESTDIR)/$(man5dir)/synctex.5
+ 
+ # Dummy target.
+ uninstall uninstall-exec uninstall-data:
+diff -Naur texlive-20080816-source-orig/texk/web2c/alephdir/aleph.mk texlive-20080816-source/texk/web2c/alephdir/aleph.mk
+--- texlive-20080816-source-orig/texk/web2c/alephdir/aleph.mk	2008-05-28 18:29:28.000000000 +0000
++++ texlive-20080816-source/texk/web2c/alephdir/aleph.mk	2009-02-22 02:38:29.000000000 +0000
+@@ -160,6 +160,6 @@
+ install-aleph: install-aleph-exec
+ install-programs: @ALEPH@ install-aleph-exec
+ install-aleph-exec: aleph $(bindir)
+-	for p in aleph; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	for p in aleph; do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 
+ # end of aleph.mk
+diff -Naur texlive-20080816-source-orig/texk/web2c/doc/Makefile.in texlive-20080816-source/texk/web2c/doc/Makefile.in
+--- texlive-20080816-source-orig/texk/web2c/doc/Makefile.in	2008-04-29 22:40:29.000000000 +0000
++++ texlive-20080816-source/texk/web2c/doc/Makefile.in	2009-02-22 00:09:46.000000000 +0000
+@@ -49,12 +49,12 @@
+ install: install-exec install-data
+ install-exec:
+ install-data: web2c.info
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(infodir)
+-	$(INSTALL_DATA) $(srcdir)/web2c.i* $(infodir)/
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(infodir)
++	$(INSTALL_DATA) $(srcdir)/web2c.i* $(DESTDIR)/$(infodir)/
+ #
+ 	$(POST_INSTALL)
+ 	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+-	  install-info --info-dir=$(infodir) $(infodir)/web2c.info; \
++	  install-info --info-dir=$(DESTDIR)/$(infodir) $(DESTDIR)/$(infodir)/web2c.info; \
+ 	else true; fi
+ 
+ check: all
+diff -Naur texlive-20080816-source-orig/texk/web2c/mpware/Makefile.in texlive-20080816-source/texk/web2c/mpware/Makefile.in
+--- texlive-20080816-source-orig/texk/web2c/mpware/Makefile.in	2008-01-30 14:56:21.000000000 +0000
++++ texlive-20080816-source/texk/web2c/mpware/Makefile.in	2009-02-22 00:07:27.000000000 +0000
+@@ -46,11 +46,11 @@
+ 
+ install: install-exec install-data
+ install-exec: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir) $(scriptdir)
+-	$(INSTALL_PROGRAM) newer $(bindir)/newer
+-	$(INSTALL_LIBTOOL_PROG) dmp $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) mpto $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) makempx $(bindir)
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir) $(DESTDIR)/$(scriptdir)
++	$(INSTALL_PROGRAM) newer $(DESTDIR)/$(bindir)/newer
++	$(INSTALL_LIBTOOL_PROG) dmp $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) mpto $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) makempx $(DESTDIR)/$(bindir)
+ install-data:
+ 
+ kpse_include ../make/tkpathsea.mk
+diff -Naur texlive-20080816-source-orig/texk/web2c/omegadir/omega.mk texlive-20080816-source/texk/web2c/omegadir/omega.mk
+--- texlive-20080816-source-orig/texk/web2c/omegadir/omega.mk	2008-07-03 22:16:18.000000000 +0000
++++ texlive-20080816-source/texk/web2c/omegadir/omega.mk	2009-02-22 02:37:39.000000000 +0000
+@@ -213,7 +213,7 @@
+ install-omega: install-omega-exec
+ install-programs: @OMEGA@ install-omega-exec
+ install-omega-exec: $(omega_programs) $(bindir) install-omega-links
+-	for p in omega; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	for p in omega; do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 	cd otps && $(MAKE) $(install_makeargs) install-programs
+ 	cd omegafonts && $(MAKE) $(install_makeargs) install-programs
+ 
+diff -Naur texlive-20080816-source-orig/texk/web2c/omegafonts/Makefile.in texlive-20080816-source/texk/web2c/omegafonts/Makefile.in
+--- texlive-20080816-source-orig/texk/web2c/omegafonts/Makefile.in	2008-03-01 23:49:05.000000000 +0000
++++ texlive-20080816-source/texk/web2c/omegafonts/Makefile.in	2009-02-22 00:08:19.000000000 +0000
+@@ -53,12 +53,12 @@
+ install-exec:: install-links
+ 
+ install-programs: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir) 
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir) 
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 
+ install-links: install-programs
+ 	for f in ""$(linked_programs); do \
+-	cd $(bindir) && (rm -f $$f; $(LN) omfonts $$f); done
++	cd $(DESTDIR)/$(bindir) && (rm -f $$f; $(LN) omfonts $$f); done
+ 
+ Makefile: Makefile.in ../config.status
+ 	cd .. && $(SHELL) config.status
+diff -Naur texlive-20080816-source-orig/texk/web2c/otps/Makefile.in texlive-20080816-source/texk/web2c/otps/Makefile.in
+--- texlive-20080816-source-orig/texk/web2c/otps/Makefile.in	2008-01-30 14:56:21.000000000 +0000
++++ texlive-20080816-source/texk/web2c/otps/Makefile.in	2009-02-22 00:08:58.000000000 +0000
+@@ -36,9 +36,9 @@
+ $(programs): $(proglib) $(kpathsea)
+ 
+ install-programs: $(programs)
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir) 
+-	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
+-	for p in $(scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p $(scriptdir); done
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir) 
++	for p in $(programs); do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
++	for p in $(scripts); do $(INSTALL_SCRIPT) $(srcdir)/$$p $(DESTDIR)/$(scriptdir); done
+ 
+ Makefile: Makefile.in ../config.status
+ 	cd .. && $(SHELL) config.status
+diff -Naur texlive-20080816-source-orig/texk/web2c/pdftexdir/pdftex.mk texlive-20080816-source/texk/web2c/pdftexdir/pdftex.mk
+--- texlive-20080816-source-orig/texk/web2c/pdftexdir/pdftex.mk	2008-07-11 06:51:52.000000000 +0000
++++ texlive-20080816-source/texk/web2c/pdftexdir/pdftex.mk	2009-02-22 02:39:09.000000000 +0000
+@@ -112,7 +112,7 @@
+ install-pdftex: install-pdftex-exec
+ install-programs: @PETEX@ install-pdftex-exec
+ install-pdftex-exec: $(pdftex) $(bindir)
+-	for p in pdftex; do $(INSTALL_LIBTOOL_PROG) $$p $(bindir); done
++	for p in pdftex; do $(INSTALL_LIBTOOL_PROG) $$p $(DESTDIR)/$(bindir); done
+ 
+ # 
+ # ttf2afm
+diff -Naur texlive-20080816-source-orig/texk/xdvik/Makefile.in texlive-20080816-source/texk/xdvik/Makefile.in
+--- texlive-20080816-source-orig/texk/xdvik/Makefile.in	2008-07-01 15:42:36.000000000 +0000
++++ texlive-20080816-source/texk/xdvik/Makefile.in	2009-02-22 00:43:32.000000000 +0000
+@@ -146,29 +146,29 @@
+ uninstall: uninstall-exec uninstall-data
+ 
+ install-exec: @final_exec_name@
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(bindir)
+-	$(INSTALL_LIBTOOL_PROG) @final_exec_name@ $(bindir)
+-	$(INSTALL_SCRIPT) xdvi-sh $(scriptdir)/@wrapper_script@
+-	rm -f $(scriptdir)/o@wrapper_script@
+-	ln -s @wrapper_script@ $(scriptdir)/o@wrapper_script@
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(bindir)
++	$(INSTALL_LIBTOOL_PROG) @final_exec_name@ $(DESTDIR)/$(bindir)
++	$(INSTALL_SCRIPT) xdvi-sh $(DESTDIR)/$(scriptdir)/@wrapper_script@
++	rm -f $(DESTDIR)/$(scriptdir)/o@wrapper_script@
++	ln -s @wrapper_script@ $(DESTDIR)/$(scriptdir)/o@wrapper_script@
+ 
+ uninstall-exec:
+ 	for p in @final_exec_name@; do rm -f $(bindir)/$$p; done
+ 	for p in @wrapper_script@ o@wrapper_script@; do rm -f $(scriptdir)/$$p; done
+ 
+ install-data: $(manpage).1 pixmaps/toolbar.xpm pixmaps/toolbar2.xpm
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(man1dir) 
+-	$(SHELL) $(top_srcdir)/../mkinstalldirs $(texmf)/xdvi/pixmaps
+-	$(INSTALL_DATA) $(manpage).1 $(man1dir)/$(manpage).$(manext)
+-	rm -f $(man1dir)/o$(manpage).$(manext)
+-	ln -s $(manpage).$(manext) $(man1dir)/o$(manpage).$(manext)
+-	$(INSTALL_DATA) $(srcdir)/texmf/XDvi $(texmf)/xdvi/XDvi
+-	$(INSTALL_DATA) $(srcdir)/pixmaps/toolbar.xpm $(srcdir)/pixmaps/toolbar2.xpm $(texmf)/xdvi/pixmaps
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(man1dir) 
++	$(SHELL) $(top_srcdir)/../mkinstalldirs $(DESTDIR)/$(texmf)/xdvi/pixmaps
++	$(INSTALL_DATA) $(manpage).1 $(DESTDIR)/$(man1dir)/$(manpage).$(manext)
++	rm -f $(DESTDIR)/$(man1dir)/o$(manpage).$(manext)
++	ln -s $(manpage).$(manext) $(DESTDIR)/$(man1dir)/o$(manpage).$(manext)
++	$(INSTALL_DATA) $(srcdir)/texmf/XDvi $(DESTDIR)/$(texmf)/xdvi/XDvi
++	$(INSTALL_DATA) $(srcdir)/pixmaps/toolbar.xpm $(srcdir)/pixmaps/toolbar2.xpm $(DESTDIR)/$(texmf)/xdvi/pixmaps
+ 	if \
+-	    grep 'original xdvi.cfg --' $(texmf)/xdvi/xdvi.cfg >/dev/null 2>&1 \
+-	    || test ! -r $(texmf)/xdvi/xdvi.cfg; \
++	    grep 'original xdvi.cfg --' $(DESTDIR)/$(texmf)/xdvi/xdvi.cfg >/dev/null 2>&1 \
++	    || test ! -r $(DESTDIR)/$(texmf)/xdvi/xdvi.cfg; \
+ 	then \
+-	    $(INSTALL_DATA) $(srcdir)/texmf/xdvi.cfg $(texmf)/xdvi/xdvi.cfg; \
++	    $(INSTALL_DATA) $(srcdir)/texmf/xdvi.cfg $(DESTDIR)/$(texmf)/xdvi/xdvi.cfg; \
+ 	else \
+ 	    true; \
+ 	fi
+diff -Naur texlive-20080816-source-orig/utils/dialog/Makefile.in texlive-20080816-source/utils/dialog/Makefile.in
+--- texlive-20080816-source-orig/utils/dialog/Makefile.in	2006-01-17 21:16:42.000000000 +0000
++++ texlive-20080816-source/utils/dialog/Makefile.in	2009-02-21 23:26:19.000000000 +0000
+@@ -104,17 +104,17 @@
+ @SET_MAKE@
+ 
+ .PHONY: install installdirs install-exec
+-install: install-exec $(man1dir)/tcdialog.$(manext)
++install: install-exec $(DESTDIR)/$(man1dir)/tcdialog.$(manext)
+ 
+-install-exec: installdirs $(bindir)/tcdialog
++install-exec: installdirs $(DESTDIR)/$(bindir)/tcdialog
+ 
+ installdirs:
+-	$(SHELL) ${srcdir}/mkinstalldirs $(bindir) $(man1dir)
++	$(SHELL) ${srcdir}/mkinstalldirs $(DESTDIR)/$(bindir) $(DESTDIR)/$(man1dir)
+ 
+-$(bindir)/tcdialog: dialog
++$(DESTDIR)/$(bindir)/tcdialog: dialog
+ 	$(INSTALL_PROGRAM) dialog $@
+ 
+-$(man1dir)/tcdialog.$(manext): dialog.man
++$(DESTDIR)/$(man1dir)/tcdialog.$(manext): dialog.man
+ 	$(INSTALL_DATA) $(srcdir)/dialog.man $@
+ 
+ 
+diff -Naur texlive-20080816-source-orig/utils/ps2eps/Makefile.in texlive-20080816-source/utils/ps2eps/Makefile.in
+--- texlive-20080816-source-orig/utils/ps2eps/Makefile.in	2008-02-18 00:13:19.000000000 +0000
++++ texlive-20080816-source/utils/ps2eps/Makefile.in	2009-02-21 23:27:21.000000000 +0000
+@@ -30,12 +30,12 @@
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $<
+ 
+ install: bbox
+-	$(INSTALL) -d $(bindir)
+-	$(INSTALL) -d $(man1dir)
+-	$(INSTALL_SCRIPT) $(srcdir)/ps2eps $(bindir)/ps2eps
+-	$(INSTALL_PROGRAM) bbox $(bindir)/bbox
+-	$(INSTALL_DATA) $(srcdir)/ps2eps.1 $(man1dir)/ps2eps.1
+-	$(INSTALL_DATA) $(srcdir)/bbox.1 $(man1dir)/bbox.1
++	$(INSTALL) -d $(DESTDIR)/$(bindir)
++	$(INSTALL) -d $(DESTDIR)/$(man1dir)
++	$(INSTALL_SCRIPT) $(srcdir)/ps2eps $(DESTDIR)/$(bindir)/ps2eps
++	$(INSTALL_PROGRAM) bbox $(DESTDIR)/$(bindir)/bbox
++	$(INSTALL_DATA) $(srcdir)/ps2eps.1 $(DESTDIR)/$(man1dir)/ps2eps.1
++	$(INSTALL_DATA) $(srcdir)/bbox.1 $(DESTDIR)/$(man1dir)/bbox.1
+ 
+ check:
+ 
+diff -Naur texlive-20080816-source-orig/utils/psutils/Makefile.in texlive-20080816-source/utils/psutils/Makefile.in
+--- texlive-20080816-source-orig/utils/psutils/Makefile.in	2008-02-01 11:23:16.000000000 +0000
++++ texlive-20080816-source/utils/psutils/Makefile.in	2009-02-21 23:29:00.000000000 +0000
+@@ -194,14 +194,14 @@
+ install: install-exec install-man
+ 
+ install-exec: installdirs
+-	for p in $(BIN); do $(INSTALL_PROGRAM) $$p $(bindir)/$$p; done
+-	for p in $(SHELLSCRIPTS) $(PERLSCRIPTS); do $(INSTALL_PROGRAM) $$p $(scriptdir)/$$p; done
++	for p in $(BIN); do $(INSTALL_PROGRAM) $$p $(DESTDIR)/$(bindir)/$$p; done
++	for p in $(SHELLSCRIPTS) $(PERLSCRIPTS); do $(INSTALL_PROGRAM) $$p $(DESTDIR)/$(scriptdir)/$$p; done
+ 
+ install-man: installdirs
+-	for p in $(MANPAGES); do $(INSTALL_DATA) $$p $(man1dir)/$$p; done
++	for p in $(MANPAGES); do $(INSTALL_DATA) $$p $(DESTDIR)/$(man1dir)/$$p; done
+ 
+ installdirs:
+-	$(SHELL) ${srcdir}/../../texk/mkinstalldirs $(bindir) $(scriptdir) $(man1dir) 
++	$(SHELL) ${srcdir}/../../texk/mkinstalldirs $(DESTDIR)/$(bindir) $(DESTDIR)/$(scriptdir) $(DESTDIR)/$(man1dir) 
+ 
+ clean:
+ 	rm -f *.o $(BIN) $(SHELLSCRIPTS) $(PERLSCRIPTS) $(MANPAGES)
+diff -Naur texlive-20080816-source-orig/utils/tpic2pdftex/Makefile.in texlive-20080816-source/utils/tpic2pdftex/Makefile.in
+--- texlive-20080816-source-orig/utils/tpic2pdftex/Makefile.in	2007-12-29 21:14:20.000000000 +0000
++++ texlive-20080816-source/utils/tpic2pdftex/Makefile.in	2009-02-21 23:29:40.000000000 +0000
+@@ -39,8 +39,8 @@
+ 	$(srcdir)/tpic2pdftex $< > $@
+ 
+ install:
+-	$(INSTALL) -d $(bindir)
+-	$(INSTALL_SCRIPT) $(srcdir)/tpic2pdftex $(bindir)/tpic2pdftex
++	$(INSTALL) -d $(DESTDIR)/$(bindir)
++	$(INSTALL_SCRIPT) $(srcdir)/tpic2pdftex $(DESTDIR)/$(bindir)/tpic2pdftex
+ 
+ clean:
+ 	- rm *.tex

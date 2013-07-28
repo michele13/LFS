@@ -1,0 +1,32 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-08-28
+Initial Package Version: 2.3.5
+Origin: Debian
+Upstream Status: Already Applied
+Description: Fixes Compile uses under 64bit architectures
+ 
+diff -Naur glibc-2.3.5.orig/sysdeps/wordsize-64/strtol_l.c glibc-2.3.5/sysdeps/wordsize-64/strtol_l.c
+--- glibc-2.3.5.orig/sysdeps/wordsize-64/strtol_l.c	2003-03-03 09:45:12.000000000 +0000
++++ glibc-2.3.5/sysdeps/wordsize-64/strtol_l.c	2005-08-28 15:39:07.000000000 +0000
+@@ -8,7 +8,9 @@
+ #undef ____strtoll_l_internal
+ #undef __strtoll_l
+ #undef strtoll_l
++#if !UNSIGNED
+ strong_alias (____strtol_l_internal, ____strtoll_l_internal)
+ libc_hidden_ver (____strtol_l_internal, ____strtoll_l_internal)
+ weak_alias (__strtol_l, __strtoll_l)
+ weak_alias (__strtol_l, strtoll_l)
++#endif
+diff -Naur glibc-2.3.5.orig/sysdeps/wordsize-64/wcstol_l.c glibc-2.3.5/sysdeps/wordsize-64/wcstol_l.c
+--- glibc-2.3.5.orig/sysdeps/wordsize-64/wcstol_l.c	2002-08-08 11:44:51.000000000 +0000
++++ glibc-2.3.5/sysdeps/wordsize-64/wcstol_l.c	2005-08-28 15:39:07.000000000 +0000
+@@ -8,6 +8,8 @@
+ #undef ____wcstoll_l_internal
+ #undef __wcstoll_l
+ #undef wcstoll_l
++#if !UNSIGNED
+ strong_alias (____wcstol_l_internal, ____wcstoll_l_internal)
+ weak_alias (__wcstol_l, __wcstoll_l)
+ weak_alias (__wcstol_l, wcstoll_l)
++#endif

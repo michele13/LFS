@@ -1,0 +1,32 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-02-12
+Initial Package Version: 3.2.0
+Origin: http://bugs.kde.org/show_bug.cgi?id=73041
+Upstream status: this is the official fix
+Description: Fix the problem "Konqueror and Kmail hang on printing".
+To reproduce: try printing anything to a CUPS printer. The problem manifests
+itself only with Qt 3.3.0
+
+Comments from the developers:
+
+This little test case gives 756.0 with qt 3.2 and 0 with qt-copy 
+QString f("756\""); 
+qDebug("f %f", f.toFloat()); 
+
+This leads to the unfortunate suprise that cups printers are labeled 
+to have 0 points high pages - which gives khtml a hard time trying to 
+find the right number of pages 
+
+diff -ur kdelibs-3.2.0.old/kdeprint/ppdloader.cpp kdelibs-3.2.0/kdeprint/ppdloader.cpp
+--- kdelibs-3.2.0.old/kdeprint/ppdloader.cpp	2004-02-04 09:06:56.000000000 +0500
++++ kdelibs-3.2.0/kdeprint/ppdloader.cpp	2004-02-12 10:18:18.817220296 +0500
+@@ -83,7 +83,8 @@
+ 		}
+ 		else
+ 		{
+-			l.append( s.mid( p1 ).toFloat() );
++			// ignore the final quote 
++			l.append( s.mid( p1, s.length() - p1 - 1 ).toFloat() ); 
+ 			break;
+ 		}
+ 	}

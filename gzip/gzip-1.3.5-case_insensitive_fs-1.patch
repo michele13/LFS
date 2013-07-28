@@ -1,0 +1,151 @@
+Submitted by: Martin Schaffner <schaffner@gmx.li>
+Date: 2004-11-17
+Initial package version: 1.3.5
+Upstream status: Submitted Upstream by e-mail to author, no answer yet
+Origin: Martin Schaffner
+Description: Correctly configure and build on case-insensitive filesystems
+
+diff -ur gzip-1.3.5.orig/Makefile.am gzip-1.3.5/Makefile.am
+--- gzip-1.3.5.orig/Makefile.am	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/Makefile.am	2004-11-16 23:24:46.000000000 +0100
+@@ -58,10 +58,10 @@
+ 
+ match.$(OBJEXT): match.c
+ 	cp $(srcdir)/match.c _match.S
+-	$(ASCPP) _match.S >_match.s
+-	$(CC) -c $(CFLAGS) _match.s
++	$(ASCPP) _match.S >_match.asm
++	$(CC) -c $(CFLAGS) _match.asm
+ 	mv _match.$(OBJEXT) match.$(OBJEXT)
+-	rm -f _match.S _match.s
++	rm -f _match.S _match.asm
+ 
+ gzip.doc: gzip.1
+ 	groff -man -Tascii $(srcdir)/gzip.1 | col -b | uniq >$@
+@@ -107,4 +107,4 @@
+ 
+ MAINTAINERCLEANFILES = gzip.doc
+ 
+-MOSTLYCLEANFILES = _match.s gzexe zdiff zforce zgrep zless zmore znew
++MOSTLYCLEANFILES = _match.asm gzexe zdiff zforce zgrep zless zmore znew
+diff -ur gzip-1.3.5.orig/Makefile.in gzip-1.3.5/Makefile.in
+--- gzip-1.3.5.orig/Makefile.in	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/Makefile.in	2004-11-16 23:25:02.000000000 +0100
+@@ -152,7 +152,7 @@
+ 
+ MAINTAINERCLEANFILES = gzip.doc
+ 
+-MOSTLYCLEANFILES = _match.s gzexe zdiff zforce zgrep zless zmore znew
++MOSTLYCLEANFILES = _match.asm gzexe zdiff zforce zgrep zless zmore znew
+ subdir = .
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
+@@ -804,10 +804,10 @@
+ 
+ match.$(OBJEXT): match.c
+ 	cp $(srcdir)/match.c _match.S
+-	$(ASCPP) _match.S >_match.s
+-	$(CC) -c $(CFLAGS) _match.s
++	$(ASCPP) _match.S >_match.asm
++	$(CC) -c $(CFLAGS) _match.asm
+ 	mv _match.$(OBJEXT) match.$(OBJEXT)
+-	rm -f _match.S _match.s
++	rm -f _match.S _match.asm
+ 
+ gzip.doc: gzip.1
+ 	groff -man -Tascii $(srcdir)/gzip.1 | col -b | uniq >$@
+diff -ur gzip-1.3.5.orig/amiga/Makefile.gcc gzip-1.3.5/amiga/Makefile.gcc
+--- gzip-1.3.5.orig/amiga/Makefile.gcc	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/amiga/Makefile.gcc	2004-11-16 23:22:41.000000000 +0100
+@@ -56,7 +56,7 @@
+ gzip$O getopt$O: getopt.h
+ 
+ match$O: match.S
+-	$(CPP) $(CPPFLAGS) match.S > _match.s
+-	$(CC) -c _match.s
++	$(CPP) $(CPPFLAGS) match.S > _match.asm
++	$(CC) -c _match.asm
+ 	mv _match$O match$O
+-	rm -f _match.s
++	rm -f _match.asm
+diff -ur gzip-1.3.5.orig/configure gzip-1.3.5/configure
+--- gzip-1.3.5.orig/configure	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/configure	2004-11-16 23:23:47.000000000 +0100
+@@ -3585,7 +3585,7 @@
+ 
+ 
+ # Try to assemble match.S.
+-# "gcc -E match.s" ignores -E, so we must use match.S.
++# "gcc -E match.asm" ignores -E, so we must use match.S.
+ echo "$as_me:$LINENO: checking for assembler" >&5
+ echo $ECHO_N "checking for assembler... $ECHO_C" >&6
+ if test "${gzip_cv_assembler+set}" = set; then
+@@ -3596,15 +3596,15 @@
+    *' NO_ASM '*) ;;
+    *)
+      if cp $srcdir/match.c _match.S &&
+-        eval "$ASCPP _match.S > _match.s 2>/dev/null"; then
+-       if test ! -s _match.s || grep error < _match.s > /dev/null; then
++        eval "$ASCPP _match.S > _match.asm 2>/dev/null"; then
++       if test ! -s _match.asm || grep error < _match.asm > /dev/null; then
+ 	 :
+-       elif eval "$CC -c _match.s >/dev/null 2>&1" &&
++       elif eval "$CC -c _match.asm >/dev/null 2>&1" &&
+ 	    test -f _match.$OBJEXT; then
+ 	 gzip_cv_assembler=yes
+        fi
+      fi
+-     rm -f _match.S _match.s _match.$OBJEXT;;
++     rm -f _match.S _match.asm _match.$OBJEXT;;
+    esac
+ fi
+ echo "$as_me:$LINENO: result: $gzip_cv_assembler" >&5
+diff -ur gzip-1.3.5.orig/configure.in gzip-1.3.5/configure.in
+--- gzip-1.3.5.orig/configure.in	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/configure.in	2004-11-16 23:24:11.000000000 +0100
+@@ -48,22 +48,22 @@
+ AC_OBJEXT
+ 
+ # Try to assemble match.S.
+-# "gcc -E match.s" ignores -E, so we must use match.S.
++# "gcc -E match.asm" ignores -E, so we must use match.S.
+ AC_CACHE_CHECK([for assembler], [gzip_cv_assembler],
+   [gzip_cv_assembler=no
+    case " $DEFS " in
+    *' NO_ASM '*) ;;
+    *)
+      if cp $srcdir/match.c _match.S &&
+-        eval "$ASCPP _match.S > _match.s 2>/dev/null"; then
+-       if test ! -s _match.s || grep error < _match.s > /dev/null; then
++        eval "$ASCPP _match.S > _match.asm 2>/dev/null"; then
++       if test ! -s _match.asm || grep error < _match.asm > /dev/null; then
+ 	 :
+-       elif eval "$CC -c _match.s >/dev/null 2>&1" &&
++       elif eval "$CC -c _match.asm >/dev/null 2>&1" &&
+ 	    test -f _match.$OBJEXT; then
+ 	 gzip_cv_assembler=yes
+        fi
+      fi
+-     rm -f _match.S _match.s _match.$OBJEXT;;
++     rm -f _match.S _match.asm _match.$OBJEXT;;
+    esac])
+ if test $gzip_cv_assembler = yes; then
+   AC_DEFINE(ASMV, ,
+diff -ur gzip-1.3.5.orig/match.c gzip-1.3.5/match.c
+--- gzip-1.3.5.orig/match.c	2004-11-16 23:21:35.000000000 +0100
++++ gzip-1.3.5/match.c	2004-11-16 23:25:38.000000000 +0100
+@@ -1,4 +1,4 @@
+-/* match.s -- optional optimized asm version of longest match in deflate.c
++/* match.S -- optional optimized asm version of longest match in deflate.c
+  * Copyright (C) 2002 Free Software Foundation, Inc.
+  * Copyright (C) 1992-1993 Jean-loup Gailly
+  * This is free software; you can redistribute it and/or modify it under the
+@@ -30,7 +30,7 @@
+ #endif
+ 
+ #ifdef DYN_ALLOC
+-  error: DYN_ALLOC not yet supported in match.s
++  error: DYN_ALLOC not yet supported in match.S
+ #endif
+ 
+ #if defined(i386) || defined(_I386) || defined(__i386) || defined(__i386__)

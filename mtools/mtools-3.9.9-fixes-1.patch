@@ -1,0 +1,50 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-18
+Initial Package Version: 3.9.9
+Origin: MTOOLS Home Page
+Description: Program Updates
+ 
+diff -Naur mtools-3.9.9.orig/fat.c mtools-3.9.9/fat.c
+--- mtools-3.9.9.orig/fat.c	2003-09-19 02:40:29.000000000 +0000
++++ mtools-3.9.9/fat.c	2003-09-19 02:41:43.000000000 +0000
+@@ -629,6 +629,10 @@
+ 		 * and 0xff.  Do not consider this as an error */
+ 		return 0;
+ 	
++
++	/* Some Atari ST disks are actually using f7/f9; ignore this
++	   "sanity check" to read them...
++	
+ 	if((address[0] != boot->descr && boot->descr >= 0xf0 &&
+ 	    ((address[0] != 0xf9 && address[0] != 0xf7) 
+ 	     || boot->descr != 0xf0)) || address[0] < 0xf0) {
+@@ -637,7 +641,7 @@
+ 				address[0],
+ 				boot->descr);
+ 		return -1;
+-	}
++	} */
+ 
+ 	if(address[1] != 0xff || address[2] != 0xff){
+ 		fprintf(stderr,"Initial byte of fat is not 0xff\n");
+diff -Naur mtools-3.9.9.orig/mformat.c mtools-3.9.9/mformat.c
+--- mtools-3.9.9.orig/mformat.c	2003-09-19 02:40:29.000000000 +0000
++++ mtools-3.9.9/mformat.c	2003-09-19 02:42:02.000000000 +0000
+@@ -31,6 +31,7 @@
+ 
+ #define _LINUX_STRING_H_
+ #define kdev_t int
++#include "asm/atomic.h"
+ #include "linux/fs.h"
+ #undef _LINUX_STRING_H_
+ 
+diff -Naur mtools-3.9.9.orig/mpartition.c mtools-3.9.9/mpartition.c
+--- mtools-3.9.9.orig/mpartition.c	2003-09-19 02:40:29.000000000 +0000
++++ mtools-3.9.9/mpartition.c	2003-09-19 02:42:02.000000000 +0000
+@@ -20,6 +20,7 @@
+ 
+ #define _LINUX_STRING_H_
+ #define kdev_t int
++#include "asm/atomic.h"
+ #include "linux/fs.h"
+ #undef _LINUX_STRING_H_

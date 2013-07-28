@@ -1,0 +1,273 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2008-03-20
+Initial Package Version: 1.1
+Upstream Status:         Not submitted yet. Upstream is aware of the issue and
+                         a modified version of this patch will be submitted.
+Origin:                  Randy McMurchy
+Description:             Fixes the installation so that it doesn't overwrite
+                         some files installed by the E2fsprogs package. This
+                         patch modifies the sources so that the installed files
+                         have unique names.
+
+
+diff -Naur heimdal-1.1-orig/lib/sl/Makefile.in heimdal-1.1/lib/sl/Makefile.in
+--- heimdal-1.1-orig/lib/sl/Makefile.in	2008-01-24 13:14:23.000000000 +0000
++++ heimdal-1.1/lib/sl/Makefile.in	2008-03-20 16:37:37.000000000 +0000
+@@ -47,7 +47,7 @@
+ 	parse.h slc-gram.c slc-gram.h slc-lex.c
+ TESTS = test_sl$(EXEEXT)
+ check_PROGRAMS = $(am__EXEEXT_1)
+-bin_PROGRAMS = mk_cmds$(EXEEXT)
++bin_PROGRAMS = mk_cmds-krb5$(EXEEXT)
+ noinst_PROGRAMS = slc$(EXEEXT)
+ subdir = lib/sl
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+@@ -116,23 +116,23 @@
+ libsl_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+ 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(libsl_la_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+-libss_la_DEPENDENCIES =
++libss-krb5_la_DEPENDENCIES =
+ am__objects_2 = sl.lo
+-dist_libss_la_OBJECTS = $(am__objects_2) ss.lo
+-nodist_libss_la_OBJECTS = $(am__objects_1)
+-libss_la_OBJECTS = $(dist_libss_la_OBJECTS) $(nodist_libss_la_OBJECTS)
+-libss_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+-	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(libss_la_LDFLAGS) \
++dist_libss-krb5_la_OBJECTS = $(am__objects_2) ss.lo
++nodist_libss-krb5_la_OBJECTS = $(am__objects_1)
++libss-krb5_la_OBJECTS = $(dist_libss-krb5_la_OBJECTS) $(nodist_libss-krb5_la_OBJECTS)
++libss-krb5_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
++	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(libss-krb5_la_LDFLAGS) \
+ 	$(LDFLAGS) -o $@
+ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+ am__EXEEXT_1 = test_sl$(EXEEXT)
+ PROGRAMS = $(bin_PROGRAMS) $(noinst_PROGRAMS)
+-am_mk_cmds_OBJECTS = make_cmds.$(OBJEXT) parse.$(OBJEXT) lex.$(OBJEXT)
+-mk_cmds_OBJECTS = $(am_mk_cmds_OBJECTS)
++am_mk_cmds-krb5_OBJECTS = make_cmds.$(OBJEXT) parse.$(OBJEXT) lex.$(OBJEXT)
++mk_cmds-krb5_OBJECTS = $(am_mk_cmds-krb5_OBJECTS)
+ am__DEPENDENCIES_1 =
+ am__DEPENDENCIES_2 = libsl.la $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_1)
+-mk_cmds_DEPENDENCIES = libsl.la $(am__DEPENDENCIES_2)
++mk_cmds-krb5_DEPENDENCIES = libsl.la $(am__DEPENDENCIES_2)
+ am_slc_OBJECTS = slc-gram.$(OBJEXT) slc-lex.$(OBJEXT)
+ slc_OBJECTS = $(am_slc_OBJECTS)
+ slc_LDADD = $(LDADD)
+@@ -165,10 +165,10 @@
+ LTYACCCOMPILE = $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+ 	--mode=compile $(YACC) $(YFLAGS) $(AM_YFLAGS)
+ SOURCES = $(dist_libsl_la_SOURCES) $(nodist_libsl_la_SOURCES) \
+-	$(dist_libss_la_SOURCES) $(nodist_libss_la_SOURCES) \
+-	$(mk_cmds_SOURCES) $(slc_SOURCES) test_sl.c
+-DIST_SOURCES = $(dist_libsl_la_SOURCES) $(dist_libss_la_SOURCES) \
+-	$(mk_cmds_SOURCES) $(slc_SOURCES) test_sl.c
++	$(dist_libss-krb5_la_SOURCES) $(nodist_libss-krb5_la_SOURCES) \
++	$(mk_cmds-krb5_SOURCES) $(slc_SOURCES) test_sl.c
++DIST_SOURCES = $(dist_libsl_la_SOURCES) $(dist_libss-krb5_la_SOURCES) \
++	$(mk_cmds-krb5_SOURCES) $(slc_SOURCES) test_sl.c
+ includeHEADERS_INSTALL = $(INSTALL_HEADER)
+ ssincludeHEADERS_INSTALL = $(INSTALL_HEADER)
+ HEADERS = $(include_HEADERS) $(ssinclude_HEADERS)
+@@ -390,20 +390,20 @@
+ @DCE_TRUE@LIB_kdfs = $(top_builddir)/lib/kdfs/libkdfs.la
+ @do_roken_rename_TRUE@ES = strtok_r.c snprintf.c strdup.c strupr.c getprogname.c
+ include_HEADERS = sl.h
+-lib_LTLIBRARIES = libsl.la libss.la
++lib_LTLIBRARIES = libsl.la libss-krb5.la
+ libsl_la_LDFLAGS = -version-info 2:1:2
+-libss_la_LDFLAGS = -version-info 1:6:1
++libss-krb5_la_LDFLAGS = -version-info 1:6:1
+ libsl_la_LIBADD = @LIB_readline@
+-libss_la_LIBADD = @LIB_readline@ @LIB_com_err@
++libss-krb5_la_LIBADD = @LIB_readline@ @LIB_com_err@
+ dist_libsl_la_SOURCES = sl_locl.h sl.c roken_rename.h
+ nodist_libsl_la_SOURCES = $(ES)
+-dist_libss_la_SOURCES = $(dist_libsl_la_SOURCES) ss.c ss.h
+-nodist_libss_la_SOURCES = $(ES)
+-mk_cmds_SOURCES = make_cmds.c make_cmds.h parse.y lex.l
+-mk_cmds_LDADD = libsl.la $(LDADD)
++dist_libss-krb5_la_SOURCES = $(dist_libsl_la_SOURCES) ss.c ss-krb5.h
++nodist_libss-krb5_la_SOURCES = $(ES)
++mk_cmds-krb5_SOURCES = make_cmds.c make_cmds.h parse.y lex.l
++mk_cmds-krb5_LDADD = libsl.la $(LDADD)
+ slc_SOURCES = slc-gram.y slc-lex.l slc.h
+ ssincludedir = $(includedir)/ss
+-ssinclude_HEADERS = ss.h
++ssinclude_HEADERS = ss-krb5.h
+ CLEANFILES = snprintf.c strtok_r.c strdup.c strupr.c getprogname.c
+ LDADD = \
+ 	libsl.la				\
+@@ -472,8 +472,8 @@
+ 	done
+ libsl.la: $(libsl_la_OBJECTS) $(libsl_la_DEPENDENCIES) 
+ 	$(libsl_la_LINK) -rpath $(libdir) $(libsl_la_OBJECTS) $(libsl_la_LIBADD) $(LIBS)
+-libss.la: $(libss_la_OBJECTS) $(libss_la_DEPENDENCIES) 
+-	$(libss_la_LINK) -rpath $(libdir) $(libss_la_OBJECTS) $(libss_la_LIBADD) $(LIBS)
++libss-krb5.la: $(libss-krb5_la_OBJECTS) $(libss-krb5_la_DEPENDENCIES) 
++	$(libss-krb5_la_LINK) -rpath $(libdir) $(libss-krb5_la_OBJECTS) $(libss-krb5_la_LIBADD) $(LIBS)
+ install-binPROGRAMS: $(bin_PROGRAMS)
+ 	@$(NORMAL_INSTALL)
+ 	test -z "$(bindir)" || $(MKDIR_P) "$(DESTDIR)$(bindir)"
+@@ -521,9 +521,9 @@
+ 	  rm -f parse.c; \
+ 	  $(MAKE) $(AM_MAKEFLAGS) parse.c; \
+ 	else :; fi
+-mk_cmds$(EXEEXT): $(mk_cmds_OBJECTS) $(mk_cmds_DEPENDENCIES) 
+-	@rm -f mk_cmds$(EXEEXT)
+-	$(LINK) $(mk_cmds_OBJECTS) $(mk_cmds_LDADD) $(LIBS)
++mk_cmds-krb5$(EXEEXT): $(mk_cmds-krb5_OBJECTS) $(mk_cmds-krb5_DEPENDENCIES) 
++	@rm -f mk_cmds-krb5$(EXEEXT)
++	$(LINK) $(mk_cmds-krb5_OBJECTS) $(mk_cmds-krb5_LDADD) $(LIBS)
+ slc-gram.h: slc-gram.c
+ 	@if test ! -f $@; then \
+ 	  rm -f slc-gram.c; \
+@@ -1045,7 +1045,7 @@
+ 	  fi ; \
+ 	done
+ 
+-$(mk_cmds_OBJECTS): parse.h parse.c
++$(mk_cmds-krb5_OBJECTS): parse.h parse.c
+ 
+ strtok_r.c:
+ 	$(LN_S) $(srcdir)/../roken/strtok_r.c .
+
+
+diff -Naur heimdal-1.1-orig/lib/sl/ss-krb5.h heimdal-1.1/lib/sl/ss-krb5.h
+--- heimdal-1.1-orig/lib/sl/ss-krb5.h	1970-01-01 00:00:00.000000000 +0000
++++ heimdal-1.1/lib/sl/ss-krb5.h	2008-01-24 13:13:32.000000000 +0000
+@@ -0,0 +1,57 @@
++/*
++ * Copyright (c) 1998 - 2000 Kungliga Tekniska Högskolan
++ * (Royal Institute of Technology, Stockholm, Sweden). 
++ * All rights reserved. 
++ *
++ * Redistribution and use in source and binary forms, with or without 
++ * modification, are permitted provided that the following conditions 
++ * are met: 
++ *
++ * 1. Redistributions of source code must retain the above copyright 
++ *    notice, this list of conditions and the following disclaimer. 
++ *
++ * 2. Redistributions in binary form must reproduce the above copyright 
++ *    notice, this list of conditions and the following disclaimer in the 
++ *    documentation and/or other materials provided with the distribution. 
++ *
++ * 3. Neither the name of the Institute nor the names of its contributors 
++ *    may be used to endorse or promote products derived from this software 
++ *    without specific prior written permission. 
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND 
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
++ * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE 
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
++ * SUCH DAMAGE. 
++ */
++/* $Id: ss.h 8294 2000-05-25 00:15:21Z assar $ */
++
++/* SS compatibility for SL */
++
++#ifndef __ss_h__
++#define __ss_h__
++
++#include <sl.h>
++
++typedef SL_cmd ss_request_table;
++
++int ss_create_invocation (const char *, const char *, const char*, 
++			  ss_request_table*, int*);
++
++void ss_error (int, long, const char*, ...);
++int ss_execute_command (int, char**);
++int ss_execute_line (int, const char*);
++int ss_list_requests (int argc, char**);
++int ss_listen (int);
++void ss_perror (int, long, const char*);
++int ss_quit (int argc, char**);
++
++#define SS_ET_COMMAND_NOT_FOUND (-1)
++
++#endif /* __ss_h__ */
+
+
+diff -Naur heimdal-1.1-orig/lib/sl/ss.c heimdal-1.1/lib/sl/ss.c
+--- heimdal-1.1-orig/lib/sl/ss.c	2008-01-24 13:13:32.000000000 +0000
++++ heimdal-1.1/lib/sl/ss.c	2008-03-20 16:37:35.000000000 +0000
+@@ -33,7 +33,7 @@
+ 
+ #include "sl_locl.h"
+ #include <com_err.h>
+-#include "ss.h"
++#include "ss-krb5.h"
+ 
+ RCSID("$Id: ss.c 15429 2005-06-16 19:24:11Z lha $");
+
+ 
+diff -Naur heimdal-1.1-orig/lib/sl/ss.h heimdal-1.1/lib/sl/ss.h
+--- heimdal-1.1-orig/lib/sl/ss.h	2008-01-24 13:13:32.000000000 +0000
++++ heimdal-1.1/lib/sl/ss.h	1970-01-01 00:00:00.000000000 +0000
+@@ -1,57 +0,0 @@
+-/*
+- * Copyright (c) 1998 - 2000 Kungliga Tekniska Högskolan
+- * (Royal Institute of Technology, Stockholm, Sweden). 
+- * All rights reserved. 
+- *
+- * Redistribution and use in source and binary forms, with or without 
+- * modification, are permitted provided that the following conditions 
+- * are met: 
+- *
+- * 1. Redistributions of source code must retain the above copyright 
+- *    notice, this list of conditions and the following disclaimer. 
+- *
+- * 2. Redistributions in binary form must reproduce the above copyright 
+- *    notice, this list of conditions and the following disclaimer in the 
+- *    documentation and/or other materials provided with the distribution. 
+- *
+- * 3. Neither the name of the Institute nor the names of its contributors 
+- *    may be used to endorse or promote products derived from this software 
+- *    without specific prior written permission. 
+- *
+- * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND 
+- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
+- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
+- * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE 
+- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
+- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS 
+- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT 
+- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY 
+- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF 
+- * SUCH DAMAGE. 
+- */
+-/* $Id: ss.h 8294 2000-05-25 00:15:21Z assar $ */
+-
+-/* SS compatibility for SL */
+-
+-#ifndef __ss_h__
+-#define __ss_h__
+-
+-#include <sl.h>
+-
+-typedef SL_cmd ss_request_table;
+-
+-int ss_create_invocation (const char *, const char *, const char*, 
+-			  ss_request_table*, int*);
+-
+-void ss_error (int, long, const char*, ...);
+-int ss_execute_command (int, char**);
+-int ss_execute_line (int, const char*);
+-int ss_list_requests (int argc, char**);
+-int ss_listen (int);
+-void ss_perror (int, long, const char*);
+-int ss_quit (int argc, char**);
+-
+-#define SS_ET_COMMAND_NOT_FOUND (-1)
+-
+-#endif /* __ss_h__ */

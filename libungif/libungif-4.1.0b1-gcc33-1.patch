@@ -1,0 +1,206 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-18
+Initial Package Version: 4.1.0b1
+Origin: Slackware Sources and Jim Gifford
+Description: Fixes Automake Issues
+	     Fixes Autoconf Issues
+	     Fixes ltconfig Issues
+	     Fixes GCC 3.3 Issues
+ 
+diff -Naur libungif-4.1.0b1.orig/TODO libungif-4.1.0b1/TODO
+--- libungif-4.1.0b1.orig/TODO	2000-02-12 13:21:11.000000000 +0000
++++ libungif-4.1.0b1/TODO	2003-09-19 06:08:20.000000000 +0000
+@@ -1,6 +1,10 @@
++Make sure all malloc calls check their return value.
++
++=======
+ Merge in all the changes that accumulated while I was gone.
+ (Point your mail reader at libungif.mail to see these messages.)
+ 
++=======
+ Besides fixing bugs, what's really needed is for someone to work out how to
+ calculate a colormap for writing gifs from rgb sources.  Right now, an rgb
+ source that has only two colors (b/w) is being converted into an 8 bit gif....
+diff -Naur libungif-4.1.0b1.orig/autogen.sh libungif-4.1.0b1/autogen.sh
+--- libungif-4.1.0b1.orig/autogen.sh	2000-02-11 21:25:13.000000000 +0000
++++ libungif-4.1.0b1/autogen.sh	2003-09-19 06:08:44.000000000 +0000
+@@ -12,6 +12,7 @@
+ cd $srcdir
+ 
+ aclocal
++libtoolize --copy --force
+ autoheader
+ automake --add-missing
+ autoconf
+diff -Naur libungif-4.1.0b1.orig/configure libungif-4.1.0b1/configure
+--- libungif-4.1.0b1.orig/configure	2000-02-17 13:01:16.000000000 +0000
++++ libungif-4.1.0b1/configure	2003-09-19 06:08:20.000000000 +0000
+@@ -3247,7 +3247,7 @@
+ fi
+ done
+ 
+-for ac_hdr in varargs.h
++for ac_hdr in stdarg.h
+ do
+ ac_safe=`echo "$ac_hdr" | sed 'y%./+-%__p_%'`
+ echo $ac_n "checking for $ac_hdr""... $ac_c" 1>&6
+diff -Naur libungif-4.1.0b1.orig/configure.in libungif-4.1.0b1/configure.in
+--- libungif-4.1.0b1.orig/configure.in	2000-02-17 12:51:53.000000000 +0000
++++ libungif-4.1.0b1/configure.in	2003-09-19 06:08:20.000000000 +0000
+@@ -48,7 +48,7 @@
+ dnl Checks for header files.
+ AC_HEADER_STDC
+ AC_CHECK_HEADERS(fcntl.h)
+-AC_CHECK_HEADERS(varargs.h)
++AC_CHECK_HEADERS(stdarg.h)
+ 
+ dnl Checks for typedefs, structures, and compiler characteristics.
+ AC_C_CONST
+diff -Naur libungif-4.1.0b1.orig/lib/Makefile.am libungif-4.1.0b1/lib/Makefile.am
+--- libungif-4.1.0b1.orig/lib/Makefile.am	2000-02-03 14:23:52.000000000 +0000
++++ libungif-4.1.0b1/lib/Makefile.am	2003-09-19 06:08:20.000000000 +0000
+@@ -22,4 +22,4 @@
+ ## Version is 4.1.0  [x:y:z  (x - z).(z).(y) ]
+ libungif_la_LDFLAGS = -version-info 5:0:1
+ libungif_la_LIBADD = @DEVS@
+-CFLAGS = @CFLAGS@ $(X_CFLAGS)
++AM_CFLAGS = @CFLAGS@ $(X_CFLAGS)
+diff -Naur libungif-4.1.0b1.orig/lib/dgif_lib.c libungif-4.1.0b1/lib/dgif_lib.c
+--- libungif-4.1.0b1.orig/lib/dgif_lib.c	2000-02-08 01:00:26.000000000 +0000
++++ libungif-4.1.0b1/lib/dgif_lib.c	2003-09-19 06:08:20.000000000 +0000
+@@ -24,6 +24,10 @@
+ #include <sys/stat.h>
+ #endif /* __MSDOS__ */
+ 
++#ifdef HAVE_IO_H
++#include <io.h>
++#endif
++
+ #ifndef __MSDOS__
+ #include <stdlib.h>
+ #endif
+@@ -61,9 +65,9 @@
+     GifFileType *GifFile;
+ 
+     if ((FileHandle = open(FileName, O_RDONLY
+-#ifdef __MSDOS__
++#if defined(__MSDOS__) || defined(_OPEN_BINARY)
+ 			           | O_BINARY
+-#endif /* __MSDOS__ */
++#endif /* __MSDOS__ || _OPEN_BINARY */
+ 			                     )) == -1) {
+ 	_GifError = D_GIF_ERR_OPEN_FAILED;
+ 	return NULL;
+@@ -87,15 +91,16 @@
+     GifFilePrivateType *Private;
+     FILE *f;
+ 
+-    if ((GifFile = (GifFileType *) malloc(sizeof(GifFileType))) == NULL) {
++    GifFile = (GifFileType *) malloc(sizeof(GifFileType));
++    if (GifFile == NULL) {
+         _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
+         return NULL;
+     }
+ 
+     memset(GifFile, '\0', sizeof(GifFileType));
+ 
+-    if ((Private = (GifFilePrivateType *) malloc(sizeof(GifFilePrivateType)))
+-    == NULL) {
++    Private = (GifFilePrivateType *) malloc(sizeof(GifFilePrivateType));
++    if (Private == NULL) {
+         _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
+         free((char *) GifFile);
+         return NULL;
+@@ -160,15 +165,16 @@
+     GifFileType *GifFile;
+     GifFilePrivateType *Private;
+ 
+-
+-    if ((GifFile = (GifFileType *) malloc(sizeof(GifFileType))) == NULL) {
++    GifFile = (GifFileType *) malloc(sizeof(GifFileType));
++    if (GifFile == NULL) {
+ 	  _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
+ 	  return NULL;
+     }
+ 
+     memset(GifFile, '\0', sizeof(GifFileType));
+ 
+-    if (!(Private = (GifFilePrivateType*) malloc(sizeof(GifFilePrivateType)))){
++    Private = (GifFilePrivateType*) malloc(sizeof(GifFilePrivateType));
++    if (!Private){
+ 	  _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
+ 	  free((char *) GifFile);
+ 	  return NULL;
+@@ -342,6 +348,11 @@
+ 	    GifFile->Image.ColorMap->Colors[i].Blue = Buf[2];
+ 	}
+     }
++    else if (GifFile->Image.ColorMap)
++    {
++        FreeMapObject(GifFile->Image.ColorMap);
++        GifFile->Image.ColorMap = NULL;
++    }
+ 
+     if (GifFile->SavedImages) {
+ 	    if ((GifFile->SavedImages = (SavedImage *)realloc(GifFile->SavedImages,
+@@ -554,7 +565,7 @@
+     if (GifFile->SavedImages)
+     {
+ 	FreeSavedImages(GifFile);
+-	GifFile = NULL;
++	GifFile->SavedImages = NULL;
+     }
+ 
+     free(GifFile);
+diff -Naur libungif-4.1.0b1.orig/lib/egif_lib.c libungif-4.1.0b1/lib/egif_lib.c
+--- libungif-4.1.0b1.orig/lib/egif_lib.c	2000-02-08 01:00:26.000000000 +0000
++++ libungif-4.1.0b1/lib/egif_lib.c	2003-09-19 06:08:20.000000000 +0000
+@@ -30,6 +30,10 @@
+ #endif
+ #endif /* __MSDOS__ */
+ 
++#ifdef HAVE_IO_H
++#include <io.h>
++#endif
++
+ #include <fcntl.h>
+ #include <stdlib.h>
+ #include <stdio.h>
+diff -Naur libungif-4.1.0b1.orig/lib/gif_font.c libungif-4.1.0b1/lib/gif_font.c
+--- libungif-4.1.0b1.orig/lib/gif_font.c	2000-02-06 16:45:07.000000000 +0000
++++ libungif-4.1.0b1/lib/gif_font.c	2003-09-19 06:08:20.000000000 +0000
+@@ -255,8 +255,8 @@
+ 		 x + border + (leadspace * GIF_FONT_WIDTH),
+ 		 y + border + (GIF_FONT_HEIGHT * i++),
+ 		 cp, fg);
+-    } while
+-	(cp = strtok((char *)NULL, "\r\n"));
++	cp = strtok((char *)NULL, "\r\n");
++    } while (cp);
+ 
+     /* outline the box */
+     DrawBox(Image,
+diff -Naur libungif-4.1.0b1.orig/lib/gifalloc.c libungif-4.1.0b1/lib/gifalloc.c
+--- libungif-4.1.0b1.orig/lib/gifalloc.c	2000-02-06 16:45:07.000000000 +0000
++++ libungif-4.1.0b1/lib/gifalloc.c	2003-09-19 06:08:20.000000000 +0000
+@@ -138,7 +138,7 @@
+      */
+     while (ColorIn1->Colors[CrntSlot-1].Red == 0
+ 	   && ColorIn1->Colors[CrntSlot-1].Green == 0
+-	   && ColorIn1->Colors[CrntSlot-1].Red == 0)
++	   && ColorIn1->Colors[CrntSlot-1].Blue == 0)
+ 	CrntSlot--;
+ 
+     /* Copy ColorIn2 to ColorUnionSize (use old colors if they exist): */
+diff -Naur libungif-4.1.0b1.orig/util/Makefile.am libungif-4.1.0b1/util/Makefile.am
+--- libungif-4.1.0b1.orig/util/Makefile.am	2000-02-05 08:31:41.000000000 +0000
++++ libungif-4.1.0b1/util/Makefile.am	2003-09-19 06:08:20.000000000 +0000
+@@ -9,7 +9,7 @@
+ EXTRA_DIST=Makefile.unx $(bin_SCRIPTS)
+ 
+ LDADD = ../lib/libungif.la ../lib/libgetarg.a
+-CFLAGS = @CFLAGS@ $(X_CFLAGS)
++AM_CFLAGS = @CFLAGS@ $(X_CFLAGS)
+ 
+ INCLUDES = -I. -I.. -I$(top_srcdir)/lib
+ gif2rle_SOURCES = gif2rle.c

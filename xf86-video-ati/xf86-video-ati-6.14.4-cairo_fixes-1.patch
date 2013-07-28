@@ -1,0 +1,1313 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2012-06-19
+Initial Package Version: 6.14.4
+Upstream Status: Mostly applied
+Origin: https://bugs.freedesktop.org/show_bug.cgi?id=47266
+Description: Fixes (from Michel Dänzer and Alex Deucher) for
+corruption in rendering with recent cairo, e.g. in firefox.
+Taken from debian's collection of the patches in freedesktop
+bug 47266 for the radeon part of the fix (other fixes in other
+drivers!)
+
+ The first hunk is perhaps unnecessary (not applied in 6.14.5),
+the others are all applied.  Unfortunately, the Mesa 8.0.x drivers
+will not build for nouveau using a later version of libdrm than is
+in the book, and ati-6.14.5 needs libdrm-2.4.35.
+
+--- xserver-xorg-video-ati-6.14.4.orig/src/bicubic_table.py
++++ xserver-xorg-video-ati-6.14.4/src/bicubic_table.py
+@@ -0,0 +1,72 @@
++#!/usr/bin/python
++
++import struct
++
++def half(i):
++ fs, fe, fm = ((i >> 31) & 0x1, (i >> 23) & 0xff, i & 0x7fffff)
++ s, e, m = (fs, 0, 0)
++
++ if (fe == 0x0):
++  pass
++ if ((fe == 0xff) and (fm == 0x0)):
++  e = 31
++ elif (fe == 0xff):
++  m = 1
++  e = 31
++ else:
++  exp = fe - 127;
++  if (exp < -24):
++   pass
++  elif (exp < -14):
++   temp = 10 - (-14 - exp)
++   m = 2**temp + (m >> (23 - temp))
++  elif (exp > 15):
++   e = 31
++  else:
++   e = exp + 15
++   m = fm >> 13
++
++ return ((s << 15) | (e << 10) | m)
++
++def texgen(pix):
++
++ tex = []
++
++ for i in range(0,pix,4):
++
++  a = i / float(pix)
++  a2 = a ** 2
++  a3 = a ** 3
++
++  w0 = 1 / 6.0 * (-a3 + 3 * a2 + -3 * a + 1)
++  w1 = 1 / 6.0 * (3 * a3 + -6 * a2 + 4)
++  w2 = 1 / 6.0 * (-3 * a3 + 3 * a2 + 3 * a + 1)
++  w3 = 1 / 6.0 * a3
++
++  tex.append(-(1 - (w1 / (w0 + w1)) + a))
++  tex.append(1 + (w3 / (w2 + w3)) - a)
++  tex.append(w0 + w1)
++  tex.append(w2 + w3)
++
++ return tex
++
++def printrow(l, offset):
++
++ seq = [ struct.unpack('<I',struct.pack('f',i))[0] for i in l[offset:offset+4] ]
++ seq = [ hex(half(i)) for i in seq ]
++ return "\t" + ", ".join(seq) + ","
++
++def maketable(pix):
++
++ l = texgen(pix)
++
++ print "static const uint16_t bicubic_tex_" + str(pix) + "[] = {"
++
++ for i in range(0, pix, 4):
++
++  print printrow(l, i)
++
++ print "\t0 };\n"
++
++maketable(512)
++maketable(2048)
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_exa_shared.c
++++ xserver-xorg-video-ati-6.14.4/src/radeon_exa_shared.c
+@@ -126,6 +126,25 @@
+ 	return FALSE;
+ }
+ 
++PixmapPtr RADEONSolidPixmap(ScreenPtr pScreen, uint32_t solid)
++{
++    PixmapPtr pPix = pScreen->CreatePixmap(pScreen, 1, 1, 32, 0);
++    struct radeon_bo *bo;
++
++    exaMoveInPixmap(pPix);
++    bo = radeon_get_pixmap_bo(pPix);
++
++    if (radeon_bo_map(bo, 1)) {
++	pScreen->DestroyPixmap(pPix);
++	return NULL;
++    }
++
++    memcpy(bo->ptr, &solid, 4);
++    radeon_bo_unmap(bo);
++
++    return pPix;
++}
++
+ static Bool radeon_vb_get(ScrnInfoPtr pScrn)
+ {
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_accel.c
++++ xserver-xorg-video-ati-6.14.4/src/radeon_accel.c
+@@ -982,10 +982,9 @@
+ 
+ 	    for (; nwords > 0; --nwords, ++d, ++s)
+ #ifdef __powerpc__
+-		asm volatile("stwbrx %0,0,%1" : : "r" (*s), "r" (d));
++		asm volatile("sthbrx %0,0,%1" : : "r" (*s), "r" (d));
+ #else
+-	        *d = ((*s >> 24) & 0xff) | ((*s >> 8) & 0xff00)
+-			| ((*s & 0xff00) << 8) | ((*s & 0xff) << 24);
++	        *d = (*s >> 8) | (*s << 8);
+ #endif
+ 	    return;
+ 	}
+--- xserver-xorg-video-ati-6.14.4.orig/src/r600_exa.c
++++ xserver-xorg-video-ati-6.14.4/src/r600_exa.c
+@@ -901,17 +901,8 @@
+ 				      int op,
+ 				      int unit)
+ {
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+     unsigned int i;
+-    int max_tex_w, max_tex_h;
+-
+-    max_tex_w = 8192;
+-    max_tex_h = 8192;
+-
+-    if ((w > max_tex_w) || (h > max_tex_h))
+-	RADEON_FALLBACK(("Picture w/h too large (%dx%d)\n", w, h));
+ 
+     for (i = 0; i < sizeof(R600TexFormats) / sizeof(R600TexFormats[0]); i++) {
+ 	if (R600TexFormats[i].fmt == pPict->format)
+@@ -951,9 +942,7 @@
+     ScrnInfoPtr pScrn = xf86Screens[pPix->drawable.pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_accel_state *accel_state = info->accel_state;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+-    unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    unsigned int repeatType;
+     unsigned int i;
+     tex_resource_t  tex_res;
+     tex_sampler_t   tex_samp;
+@@ -969,9 +958,16 @@
+     }
+ 
+     /* Texture */
++    if (pPict->pDrawable) {
++	tex_res.w               = pPict->pDrawable->width;
++	tex_res.h               = pPict->pDrawable->height;
++	repeatType              = pPict->repeat ? pPict->repeatType : RepeatNone;
++    } else {
++	tex_res.w               = 1;
++	tex_res.h               = 1;
++	repeatType              = RepeatNormal;
++    }
+     tex_res.id                  = unit;
+-    tex_res.w                   = w;
+-    tex_res.h                   = h;
+     tex_res.pitch               = accel_state->src_obj[unit].pitch;
+     tex_res.depth               = 0;
+     tex_res.dim                 = SQ_TEX_DIM_2D;
+@@ -1170,24 +1166,24 @@
+ 	vs_alu_consts[0] = xFixedToFloat(pPict->transform->matrix[0][0]);
+ 	vs_alu_consts[1] = xFixedToFloat(pPict->transform->matrix[0][1]);
+ 	vs_alu_consts[2] = xFixedToFloat(pPict->transform->matrix[0][2]);
+-	vs_alu_consts[3] = 1.0 / w;
++	vs_alu_consts[3] = 1.0 / tex_res.w;
+ 
+ 	vs_alu_consts[4] = xFixedToFloat(pPict->transform->matrix[1][0]);
+ 	vs_alu_consts[5] = xFixedToFloat(pPict->transform->matrix[1][1]);
+ 	vs_alu_consts[6] = xFixedToFloat(pPict->transform->matrix[1][2]);
+-	vs_alu_consts[7] = 1.0 / h;
++	vs_alu_consts[7] = 1.0 / tex_res.h;
+     } else {
+ 	accel_state->is_transform[unit] = FALSE;
+ 
+ 	vs_alu_consts[0] = 1.0;
+ 	vs_alu_consts[1] = 0.0;
+ 	vs_alu_consts[2] = 0.0;
+-	vs_alu_consts[3] = 1.0 / w;
++	vs_alu_consts[3] = 1.0 / tex_res.w;
+ 
+ 	vs_alu_consts[4] = 0.0;
+ 	vs_alu_consts[5] = 1.0;
+ 	vs_alu_consts[6] = 0.0;
+-	vs_alu_consts[7] = 1.0 / h;
++	vs_alu_consts[7] = 1.0 / tex_res.h;
+     }
+ 
+     /* VS alu constants */
+@@ -1202,33 +1198,30 @@
+ {
+     uint32_t tmp1;
+     PixmapPtr pSrcPixmap, pDstPixmap;
+-    int max_tex_w, max_tex_h, max_dst_w, max_dst_h;
+ 
+     /* Check for unsupported compositing operations. */
+     if (op >= (int) (sizeof(R600BlendOp) / sizeof(R600BlendOp[0])))
+ 	RADEON_FALLBACK(("Unsupported Composite op 0x%x\n", op));
+ 
+-    if (!pSrcPicture->pDrawable)
+-	RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
++    if (pSrcPicture->pDrawable) {
++	pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
+ 
+-    pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
++	if (pSrcPixmap->drawable.width >= 8192 ||
++	    pSrcPixmap->drawable.height >= 8192) {
++	    RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
++			     pSrcPixmap->drawable.width,
++			     pSrcPixmap->drawable.height));
++	}
+ 
+-    max_tex_w = 8192;
+-    max_tex_h = 8192;
+-    max_dst_w = 8192;
+-    max_dst_h = 8192;
+-
+-    if (pSrcPixmap->drawable.width >= max_tex_w ||
+-	pSrcPixmap->drawable.height >= max_tex_h) {
+-	RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
+-			 pSrcPixmap->drawable.width,
+-			 pSrcPixmap->drawable.height));
+-    }
++	if (!R600CheckCompositeTexture(pSrcPicture, pDstPicture, op, 0))
++	    return FALSE;
++    } else if (pSrcPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+ 
+     pDstPixmap = RADEONGetDrawablePixmap(pDstPicture->pDrawable);
+ 
+-    if (pDstPixmap->drawable.width >= max_dst_w ||
+-	pDstPixmap->drawable.height >= max_dst_h) {
++    if (pDstPixmap->drawable.width >= 8192 ||
++	pDstPixmap->drawable.height >= 8192) {
+ 	RADEON_FALLBACK(("Dest w/h too large (%d,%d).\n",
+ 			 pDstPixmap->drawable.width,
+ 			 pDstPixmap->drawable.height));
+@@ -1237,38 +1230,35 @@
+     if (pMaskPicture) {
+ 	PixmapPtr pMaskPixmap;
+ 
+-	if (!pMaskPicture->pDrawable)
+-	    RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
++	if (pMaskPicture->pDrawable) {
++	    pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+ 
+-	pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+-
+-	if (pMaskPixmap->drawable.width >= max_tex_w ||
+-	    pMaskPixmap->drawable.height >= max_tex_h) {
+-	    RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
+-			     pMaskPixmap->drawable.width,
+-			     pMaskPixmap->drawable.height));
+-	}
++	    if (pMaskPixmap->drawable.width >= 8192 ||
++		pMaskPixmap->drawable.height >= 8192) {
++	      RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
++			       pMaskPixmap->drawable.width,
++			       pMaskPixmap->drawable.height));
++	    }
+ 
+-	if (pMaskPicture->componentAlpha) {
+-	    /* Check if it's component alpha that relies on a source alpha and
+-	     * on the source value.  We can only get one of those into the
+-	     * single source value that we get to blend with.
+-	     */
+-	    if (R600BlendOp[op].src_alpha &&
+-		(R600BlendOp[op].blend_cntl & COLOR_SRCBLEND_mask) !=
+-		(BLEND_ZERO << COLOR_SRCBLEND_shift)) {
+-		RADEON_FALLBACK(("Component alpha not supported with source "
+-				 "alpha and source value blending.\n"));
++	    if (pMaskPicture->componentAlpha) {
++		/* Check if it's component alpha that relies on a source alpha and
++		 * on the source value.  We can only get one of those into the
++		 * single source value that we get to blend with.
++		 */
++		if (R600BlendOp[op].src_alpha &&
++		    (R600BlendOp[op].blend_cntl & COLOR_SRCBLEND_mask) !=
++		    (BLEND_ZERO << COLOR_SRCBLEND_shift)) {
++		    RADEON_FALLBACK(("Component alpha not supported with source "
++				     "alpha and source value blending.\n"));
++		}
+ 	    }
+-	}
+ 
+-	if (!R600CheckCompositeTexture(pMaskPicture, pDstPicture, op, 1))
+-	    return FALSE;
++	    if (!R600CheckCompositeTexture(pMaskPicture, pDstPicture, op, 1))
++		return FALSE;
++	} else if (pMaskPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	    RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+     }
+ 
+-    if (!R600CheckCompositeTexture(pSrcPicture, pDstPicture, op, 0))
+-	return FALSE;
+-
+     if (!R600GetDestFormat(pDstPicture, &tmp1))
+ 	return FALSE;
+ 
+@@ -1280,7 +1270,8 @@
+ 				 PicturePtr pMaskPicture, PicturePtr pDstPicture,
+ 				 PixmapPtr pSrc, PixmapPtr pMask, PixmapPtr pDst)
+ {
+-    ScrnInfoPtr pScrn = xf86Screens[pSrc->drawable.pScreen->myNum];
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_accel_state *accel_state = info->accel_state;
+     uint32_t dst_format;
+@@ -1288,15 +1279,21 @@
+     shader_config_t vs_conf, ps_conf;
+     struct r600_accel_object src_obj, mask_obj, dst_obj;
+ 
+-    if (pDst->drawable.bitsPerPixel < 8 || pSrc->drawable.bitsPerPixel < 8)
++    if (pDst->drawable.bitsPerPixel < 8 || (pSrc && pSrc->drawable.bitsPerPixel < 8))
+ 	return FALSE;
+ 
++    if (!pSrc) {
++	pSrc = RADEONSolidPixmap(pScreen, pSrcPicture->pSourcePict->solidFill.color);
++	if (!pSrc)
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++    }
++
+ #if defined(XF86DRM_MODE)
+     if (info->cs) {
+ 	src_obj.offset = 0;
+ 	dst_obj.offset = 0;
+-	src_obj.bo = radeon_get_pixmap_bo(pSrc);
+ 	dst_obj.bo = radeon_get_pixmap_bo(pDst);
++	src_obj.bo = radeon_get_pixmap_bo(pSrc);
+ 	dst_obj.tiling_flags = radeon_get_pixmap_tiling(pDst);
+ 	src_obj.tiling_flags = radeon_get_pixmap_tiling(pSrc);
+ 	dst_obj.surface = radeon_get_pixmap_surface(pDst);
+@@ -1322,7 +1319,16 @@
+     dst_obj.bpp = pDst->drawable.bitsPerPixel;
+     dst_obj.domain = RADEON_GEM_DOMAIN_VRAM;
+ 
+-    if (pMask) {
++    if (pMaskPicture) {
++	if (!pMask) {
++	    pMask = RADEONSolidPixmap(pScreen, pMaskPicture->pSourcePict->solidFill.color);
++	    if (!pMask) {
++		if (!pSrcPicture->pDrawable)
++		    pScreen->DestroyPixmap(pSrc);
++		RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++	    }
++	}
++
+ #if defined(XF86DRM_MODE)
+ 	if (info->cs) {
+ 	    mask_obj.offset = 0;
+@@ -1509,11 +1515,9 @@
+     return TRUE;
+ }
+ 
+-static void R600DoneComposite(PixmapPtr pDst)
++static void R600FinishComposite(ScrnInfoPtr pScrn, PixmapPtr pDst,
++				struct radeon_accel_state *accel_state)
+ {
+-    ScrnInfoPtr pScrn = xf86Screens[pDst->drawable.pScreen->myNum];
+-    RADEONInfoPtr info = RADEONPTR(pScrn);
+-    struct radeon_accel_state *accel_state = info->accel_state;
+     int vtx_size;
+ 
+     if (accel_state->vsync)
+@@ -1527,6 +1531,22 @@
+     r600_finish_op(pScrn, vtx_size);
+ }
+ 
++static void R600DoneComposite(PixmapPtr pDst)
++{
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
++    RADEONInfoPtr info = RADEONPTR(pScrn);
++    struct radeon_accel_state *accel_state = info->accel_state;
++
++    R600FinishComposite(pScrn, pDst, accel_state);
++
++    if (!accel_state->src_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->src_pix);
++
++    if (accel_state->msk_pic && !accel_state->msk_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->msk_pix);
++}
++
+ static void R600Composite(PixmapPtr pDst,
+ 			  int srcX, int srcY,
+ 			  int maskX, int maskY,
+@@ -1543,7 +1563,7 @@
+ 
+ #ifdef XF86DRM_MODE
+     if (info->cs && CS_FULL(info->cs)) {
+-	R600DoneComposite(info->accel_state->dst_pix);
++	R600FinishComposite(pScrn, pDst, info->accel_state);
+ 	radeon_cs_flush_indirect(pScrn);
+ 	R600PrepareComposite(info->accel_state->composite_op,
+ 			     info->accel_state->src_pic,
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_exa_shared.h
++++ xserver-xorg-video-ati-6.14.4/src/radeon_exa_shared.h
+@@ -40,6 +40,7 @@
+ extern void RADEONVlineHelperSet(ScrnInfoPtr pScrn, int x1, int y1, int x2, int y2);
+ extern Bool RADEONValidPM(uint32_t pm, int bpp);
+ extern Bool RADEONCheckBPP(int bpp);
++extern PixmapPtr RADEONSolidPixmap(ScreenPtr pScreen, uint32_t solid);
+ 
+ #define RADEON_TRACE_FALL 0
+ #define RADEON_TRACE_DRAW 0
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_exa_render.c
++++ xserver-xorg-video-ati-6.14.4/src/radeon_exa_render.c
+@@ -299,8 +299,8 @@
+     if (repeatType == RepeatNormal || repeatType == RepeatReflect) {
+ 	Bool badPitch = needMatchingPitch && !RADEONPitchMatches(pPix);
+ 	
+-	int w = pPict->pDrawable->width;
+-	int h = pPict->pDrawable->height;
++	int w = pPict->pDrawable ? pPict->pDrawable->width : 1;
++	int h = pPict->pDrawable ? pPict->pDrawable->height : 1;
+ 	
+ 	if (pPict->transform) {
+ 	    if (badPitch)
+@@ -338,17 +338,8 @@
+ 				      int unit)
+ {
+     unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     int i;
+ 
+-    /* r100 limit should be 2048, there are issues with 2048
+-     * see 197a62704742a4a19736c2637ac92d1dc5ab34ed
+-     */
+-
+-    if ((w > 2047) || (h > 2047))
+-	RADEON_FALLBACK(("Picture w/h too large (%dx%d)\n", w, h));
+-
+     for (i = 0; i < sizeof(R100TexFormats) / sizeof(R100TexFormats[0]); i++) {
+ 	if (R100TexFormats[i].fmt == pPict->format)
+ 	    break;
+@@ -357,7 +348,7 @@
+ 	RADEON_FALLBACK(("Unsupported picture format 0x%x\n",
+ 			(int)pPict->format));
+ 
+-    if (!RADEONCheckTexturePOT(pPict, unit == 0))
++    if (pPict->pDrawable && !RADEONCheckTexturePOT(pPict, unit == 0))
+ 	return FALSE;
+ 
+     if (pPict->filter != PictFilterNearest &&
+@@ -392,15 +383,24 @@
+ {
+     RINFO_FROM_SCREEN(pPix->drawable.pScreen);
+     uint32_t txfilter, txformat, txoffset, txpitch;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+-    unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+-    Bool repeat = (repeatType == RepeatNormal || repeatType == RepeatReflect) &&
+-	!(unit == 0 && (info->accel_state->need_src_tile_x || info->accel_state->need_src_tile_y));
+-    int i;
++    unsigned int repeatType;
++    Bool repeat;
++    int i, w, h;
+     struct radeon_exa_pixmap_priv *driver_priv;
+     ACCEL_PREAMBLE();
+ 
++    if (pPict->pDrawable) {
++	w = pPict->pDrawable->width;
++	h = pPict->pDrawable->height;
++	repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    } else {
++	w = h = 1;
++	repeatType = RepeatNormal;
++    }
++
++    repeat = (repeatType == RepeatNormal || repeatType == RepeatReflect) &&
++	!(unit == 0 && (info->accel_state->need_src_tile_x || info->accel_state->need_src_tile_y));
++
+     txpitch = exaGetPixmapPitch(pPix);
+     txoffset = 0;
+ 
+@@ -510,22 +510,6 @@
+     if (op >= sizeof(RadeonBlendOp) / sizeof(RadeonBlendOp[0]))
+ 	RADEON_FALLBACK(("Unsupported Composite op 0x%x\n", op));
+ 
+-    if (!pSrcPicture->pDrawable)
+-	RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
+-
+-    /* r100 limit should be 2048, there are issues with 2048
+-     * see 197a62704742a4a19736c2637ac92d1dc5ab34ed
+-     */
+-
+-    pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
+-
+-    if (pSrcPixmap->drawable.width > 2047 ||
+-	pSrcPixmap->drawable.height > 2047) {
+-	RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
+-			 pSrcPixmap->drawable.width,
+-			 pSrcPixmap->drawable.height));
+-    }
+-
+     pDstPixmap = RADEONGetDrawablePixmap(pDstPicture->pDrawable);
+ 
+     if (pDstPixmap->drawable.width > 2047 ||
+@@ -535,20 +519,35 @@
+ 			 pDstPixmap->drawable.height));
+     }
+ 
++    if (pSrcPicture->pDrawable) {
++	/* r100 limit should be 2048, there are issues with 2048
++	 * see 197a62704742a4a19736c2637ac92d1dc5ab34ed
++	 */
++	pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
++
++	if (pSrcPixmap->drawable.width > 2047 ||
++	    pSrcPixmap->drawable.height > 2047) {
++	    RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
++			     pSrcPixmap->drawable.width,
++			     pSrcPixmap->drawable.height));
++	}
++    } else if (pSrcPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
++
+     if (pMaskPicture) {
+ 	PixmapPtr pMaskPixmap;
+ 
+-	if (!pMaskPicture->pDrawable)
+-	    RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
++	if (pMaskPicture->pDrawable) {
++	    pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+ 
+-	pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+-
+-	if (pMaskPixmap->drawable.width > 2047 ||
+-	    pMaskPixmap->drawable.height > 2047) {
+-	    RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
+-			     pMaskPixmap->drawable.width,
+-			     pMaskPixmap->drawable.height));
+-	}
++	    if (pMaskPixmap->drawable.width > 2047 ||
++		pMaskPixmap->drawable.height > 2047) {
++		RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
++				 pMaskPixmap->drawable.width,
++				 pMaskPixmap->drawable.height));
++	    }
++	} else if (pMaskPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	    RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+ 
+ 	if (pMaskPicture->componentAlpha) {
+ 	    /* Check if it's component alpha that relies on a source alpha and
+@@ -624,7 +623,8 @@
+ 					    PixmapPtr pMask,
+ 					    PixmapPtr pDst)
+ {
+-    RINFO_FROM_SCREEN(pDst->drawable.pScreen);
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    RINFO_FROM_SCREEN(pScreen);
+     uint32_t dst_format, dst_pitch, colorpitch;
+     uint32_t pp_cntl, blendcntl, cblend, ablend;
+     int pixel_shift;
+@@ -648,12 +648,27 @@
+ 
+     CHECK_OFFSET(pDst, 0x0f, "destination");
+ 
++    if (!pSrc) {
++	pSrc = RADEONSolidPixmap(pScreen, cpu_to_le32(pSrcPicture->pSourcePict->solidFill.color));
++	if (!pSrc)
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++    }
++
+     if (((dst_pitch >> pixel_shift) & 0x7) != 0)
+ 	RADEON_FALLBACK(("Bad destination pitch 0x%x\n", (int)dst_pitch));
+ 
+     if (!RADEONSetupSourceTile(pSrcPicture, pSrc, FALSE, TRUE))
+ 	return FALSE;
+ 
++    if (pMaskPicture && !pMask) {
++	pMask = RADEONSolidPixmap(pScreen, cpu_to_le32(pMaskPicture->pSourcePict->solidFill.color));
++	if (!pMask) {
++	    if (!pSrcPicture->pDrawable)
++		pScreen->DestroyPixmap(pSrc);
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++	}
++    }
++
+     RADEONPrepareCompositeCS(op, pSrcPicture, pMaskPicture, pDstPicture,
+ 			     pSrc, pMask, pDst);
+ 
+@@ -741,17 +756,8 @@
+ 				      int unit)
+ {
+     unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     int i;
+ 
+-    /* r200 limit should be 2048, there are issues with 2048
+-     * see bug 19269
+-     */
+-
+-    if ((w > 2047) || (h > 2047))
+-	RADEON_FALLBACK(("Picture w/h too large (%dx%d)\n", w, h));
+-
+     for (i = 0; i < sizeof(R200TexFormats) / sizeof(R200TexFormats[0]); i++)
+     {
+ 	if (R200TexFormats[i].fmt == pPict->format)
+@@ -761,7 +767,7 @@
+ 	RADEON_FALLBACK(("Unsupported picture format 0x%x\n",
+ 			 (int)pPict->format));
+ 
+-    if (!RADEONCheckTexturePOT(pPict, unit == 0))
++    if (pPict->pDrawable && !RADEONCheckTexturePOT(pPict, unit == 0))
+ 	return FALSE;
+ 
+     if (pPict->filter != PictFilterNearest &&
+@@ -794,15 +800,24 @@
+ {
+     RINFO_FROM_SCREEN(pPix->drawable.pScreen);
+     uint32_t txfilter, txformat, txoffset, txpitch;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+-    unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+-    Bool repeat = (repeatType == RepeatNormal || repeatType == RepeatReflect) &&
+-	!(unit == 0 && (info->accel_state->need_src_tile_x || info->accel_state->need_src_tile_y));
+-    int i;
++    unsigned int repeatType;
++    Bool repeat;
++    int i, w, h;
+     struct radeon_exa_pixmap_priv *driver_priv;
+     ACCEL_PREAMBLE();
+ 
++    if (pPict->pDrawable) {
++	w = pPict->pDrawable->width;
++	h = pPict->pDrawable->height;
++	repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    } else {
++	w = h = 1;
++	repeatType = RepeatNormal;
++    }
++
++    repeat = (repeatType == RepeatNormal || repeatType == RepeatReflect) &&
++	!(unit == 0 && (info->accel_state->need_src_tile_x || info->accel_state->need_src_tile_y));
++
+     txpitch = exaGetPixmapPitch(pPix);
+ 
+     txoffset = 0;
+@@ -911,22 +926,6 @@
+     if (op >= sizeof(RadeonBlendOp) / sizeof(RadeonBlendOp[0]))
+ 	RADEON_FALLBACK(("Unsupported Composite op 0x%x\n", op));
+ 
+-    if (!pSrcPicture->pDrawable)
+-	RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
+-
+-    /* r200 limit should be 2048, there are issues with 2048
+-     * see bug 19269
+-     */
+-
+-    pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
+-
+-    if (pSrcPixmap->drawable.width > 2047 ||
+-	pSrcPixmap->drawable.height > 2047) {
+-	RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
+-			 pSrcPixmap->drawable.width,
+-			 pSrcPixmap->drawable.height));
+-    }
+-
+     pDstPixmap = RADEONGetDrawablePixmap(pDstPicture->pDrawable);
+ 
+     if (pDstPixmap->drawable.width > 2047 ||
+@@ -936,20 +935,35 @@
+ 			 pDstPixmap->drawable.height));
+     }
+ 
++    if (pSrcPicture->pDrawable) {
++	/* r200 limit should be 2048, there are issues with 2048
++	 * see 197a62704742a4a19736c2637ac92d1dc5ab34ed
++	 */
++	pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
++
++	if (pSrcPixmap->drawable.width > 2047 ||
++	    pSrcPixmap->drawable.height > 2047) {
++	    RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
++			     pSrcPixmap->drawable.width,
++			     pSrcPixmap->drawable.height));
++	}
++    } else if (pSrcPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
++
+     if (pMaskPicture) {
+ 	PixmapPtr pMaskPixmap;
+ 
+-	if (!pMaskPicture->pDrawable)
+-	    RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
++	if (pMaskPicture->pDrawable) {
++	    pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+ 
+-	pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+-
+-	if (pMaskPixmap->drawable.width > 2047 ||
+-	    pMaskPixmap->drawable.height > 2047) {
+-	    RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
+-			     pMaskPixmap->drawable.width,
+-			     pMaskPixmap->drawable.height));
+-	}
++	    if (pMaskPixmap->drawable.width > 2047 ||
++		pMaskPixmap->drawable.height > 2047) {
++		RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
++				 pMaskPixmap->drawable.width,
++				 pMaskPixmap->drawable.height));
++	    }
++	} else if (pMaskPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	    RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+ 
+ 	if (pMaskPicture->componentAlpha) {
+ 	    /* Check if it's component alpha that relies on a source alpha and
+@@ -982,7 +996,8 @@
+ 				PicturePtr pMaskPicture, PicturePtr pDstPicture,
+ 				PixmapPtr pSrc, PixmapPtr pMask, PixmapPtr pDst)
+ {
+-    RINFO_FROM_SCREEN(pDst->drawable.pScreen);
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    RINFO_FROM_SCREEN(pScreen);
+     uint32_t dst_format, dst_pitch;
+     uint32_t pp_cntl, blendcntl, cblend, ablend, colorpitch;
+     int pixel_shift;
+@@ -1009,9 +1024,24 @@
+     if (((dst_pitch >> pixel_shift) & 0x7) != 0)
+ 	RADEON_FALLBACK(("Bad destination pitch 0x%x\n", (int)dst_pitch));
+ 
++    if (!pSrc) {
++	pSrc = RADEONSolidPixmap(pScreen, cpu_to_le32(pSrcPicture->pSourcePict->solidFill.color));
++	if (!pSrc)
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++    }
++
+     if (!RADEONSetupSourceTile(pSrcPicture, pSrc, FALSE, TRUE))
+ 	return FALSE;
+ 
++    if (pMaskPicture && !pMask) {
++	pMask = RADEONSolidPixmap(pScreen, cpu_to_le32(pMaskPicture->pSourcePict->solidFill.color));
++	if (!pMask) {
++	    if (!pSrcPicture->pDrawable)
++		pScreen->DestroyPixmap(pSrc);
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++	}
++    }
++
+     RADEONPrepareCompositeCS(op, pSrcPicture, pMaskPicture, pDstPicture,
+ 			     pSrc, pMask, pDst);
+ 
+@@ -1112,23 +1142,8 @@
+     ScreenPtr pScreen = pDstPict->pDrawable->pScreen;
+     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+-
+     unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     int i;
+-    int max_tex_w, max_tex_h;
+-
+-    if (is_r500) {
+-	max_tex_w = 4096;
+-	max_tex_h = 4096;
+-    } else {
+-	max_tex_w = 2048;
+-	max_tex_h = 2048;
+-    }
+-
+-    if ((w > max_tex_w) || (h > max_tex_h))
+-	RADEON_FALLBACK(("Picture w/h too large (%dx%d)\n", w, h));
+ 
+     for (i = 0; i < sizeof(R300TexFormats) / sizeof(R300TexFormats[0]); i++)
+     {
+@@ -1139,7 +1154,7 @@
+ 	RADEON_FALLBACK(("Unsupported picture format 0x%x\n",
+ 			 (int)pPict->format));
+ 
+-    if (!RADEONCheckTexturePOT(pPict, unit == 0)) {
++    if (pPict->pDrawable && !RADEONCheckTexturePOT(pPict, unit == 0)) {
+ 	if (info->cs) {
+     		struct radeon_exa_pixmap_priv *driver_priv;
+ 		PixmapPtr pPix;
+@@ -1181,15 +1196,23 @@
+ {
+     RINFO_FROM_SCREEN(pPix->drawable.pScreen);
+     uint32_t txfilter, txformat0, txformat1, txoffset, txpitch, us_format = 0;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
++    int w, h;
+     int i, pixel_shift, out_size = 6;
+-    unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    unsigned int repeatType;
+     struct radeon_exa_pixmap_priv *driver_priv;
+     ACCEL_PREAMBLE();
+ 
+     TRACE;
+ 
++    if (pPict->pDrawable) {
++	w = pPict->pDrawable->width;
++	h = pPict->pDrawable->height;
++	repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    } else {
++	w = h = 1;
++	repeatType = RepeatNormal;
++    }
++
+     txpitch = exaGetPixmapPitch(pPix);
+     txoffset = 0;
+ 
+@@ -1394,11 +1417,6 @@
+     if (op >= sizeof(RadeonBlendOp) / sizeof(RadeonBlendOp[0]))
+ 	RADEON_FALLBACK(("Unsupported Composite op 0x%x\n", op));
+ 
+-    if (!pSrcPicture->pDrawable)
+-	RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
+-
+-    pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
+-
+     if (IS_R500_3D) {
+ 	max_tex_w = 4096;
+ 	max_tex_h = 4096;
+@@ -1416,13 +1434,6 @@
+ 	}
+     }
+ 
+-    if (pSrcPixmap->drawable.width > max_tex_w ||
+-	pSrcPixmap->drawable.height > max_tex_h) {
+-	RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
+-			 pSrcPixmap->drawable.width,
+-			 pSrcPixmap->drawable.height));
+-    }
+-
+     pDstPixmap = RADEONGetDrawablePixmap(pDstPicture->pDrawable);
+ 
+     if (pDstPixmap->drawable.width > max_dst_w ||
+@@ -1432,20 +1443,32 @@
+ 			 pDstPixmap->drawable.height));
+     }
+ 
++    if (pSrcPicture->pDrawable) {
++	pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
++
++	if (pSrcPixmap->drawable.width > max_tex_w ||
++	    pSrcPixmap->drawable.height > max_tex_h) {
++	    RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
++			     pSrcPixmap->drawable.width,
++			     pSrcPixmap->drawable.height));
++	}
++    } else if (pSrcPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
++
+     if (pMaskPicture) {
+ 	PixmapPtr pMaskPixmap;
+ 
+-	if (!pMaskPicture->pDrawable)
+-	    RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
+-
+-	pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
++	if (pMaskPicture->pDrawable) {
++	    pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+ 
+-	if (pMaskPixmap->drawable.width > max_tex_w ||
+-	    pMaskPixmap->drawable.height > max_tex_h) {
+-	    RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
+-			     pMaskPixmap->drawable.width,
+-			     pMaskPixmap->drawable.height));
+-	}
++	    if (pMaskPixmap->drawable.width > max_tex_w ||
++		pMaskPixmap->drawable.height > max_tex_h) {
++	      RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
++			       pMaskPixmap->drawable.width,
++			       pMaskPixmap->drawable.height));
++	    }
++	} else if (pMaskPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	    RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+ 
+ 	if (pMaskPicture->componentAlpha) {
+ 	    /* Check if it's component alpha that relies on a source alpha and
+@@ -1479,7 +1502,8 @@
+ 				PicturePtr pMaskPicture, PicturePtr pDstPicture,
+ 				PixmapPtr pSrc, PixmapPtr pMask, PixmapPtr pDst)
+ {
+-    RINFO_FROM_SCREEN(pDst->drawable.pScreen);
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    RINFO_FROM_SCREEN(pScreen);
+     uint32_t dst_format, dst_pitch;
+     uint32_t txenable, colorpitch;
+     uint32_t blendcntl, output_fmt;
+@@ -1508,9 +1532,24 @@
+     if (((dst_pitch >> pixel_shift) & 0x7) != 0)
+ 	RADEON_FALLBACK(("Bad destination pitch 0x%x\n", (int)dst_pitch));
+ 
++    if (!pSrc) {
++	pSrc = RADEONSolidPixmap(pScreen, cpu_to_le32(pSrcPicture->pSourcePict->solidFill.color));
++	if (!pSrc)
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++    }
++
+     if (!RADEONSetupSourceTile(pSrcPicture, pSrc, TRUE, FALSE))
+ 	return FALSE;
+ 
++    if (pMaskPicture && !pMask) {
++	pMask = RADEONSolidPixmap(pScreen, cpu_to_le32(pMaskPicture->pSourcePict->solidFill.color));
++	if (!pMask) {
++	    if (!pSrcPicture->pDrawable)
++		pScreen->DestroyPixmap(pSrc);
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++	}
++    }
++
+     RADEONPrepareCompositeCS(op, pSrcPicture, pMaskPicture, pDstPicture,
+ 			     pSrc, pMask, pDst);
+ 
+@@ -2132,7 +2171,7 @@
+     return TRUE;
+ }
+ 
+-static void FUNC_NAME(RadeonDoneComposite)(PixmapPtr pDst)
++static void FUNC_NAME(RadeonFinishComposite)(PixmapPtr pDst)
+ {
+     RINFO_FROM_SCREEN(pDst->drawable.pScreen);
+     ACCEL_PREAMBLE();
+@@ -2179,6 +2218,20 @@
+     LEAVE_DRAW(0);
+ }
+ 
++static void FUNC_NAME(RadeonDoneComposite)(PixmapPtr pDst)
++{
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    RINFO_FROM_SCREEN(pScreen);
++    struct radeon_accel_state *accel_state = info->accel_state;
++
++    FUNC_NAME(RadeonFinishComposite)(pDst);
++
++    if (!accel_state->src_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->src_pix);
++
++    if (accel_state->msk_pic && !accel_state->msk_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->msk_pix);
++}
+ 
+ #ifdef ACCEL_CP
+ 
+@@ -2257,7 +2310,7 @@
+     if ((info->cs && CS_FULL(info->cs)) ||
+ 	(!info->cs && (info->cp->indirectBuffer->used + 4 * 32) >
+ 	 info->cp->indirectBuffer->total)) {
+-	FUNC_NAME(RadeonDoneComposite)(info->accel_state->dst_pix);
++	FUNC_NAME(RadeonFinishComposite)(info->accel_state->dst_pix);
+ 	if (info->cs)
+ 	    radeon_cs_flush_indirect(pScrn);
+ 	else
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_kms.c
++++ xserver-xorg-video-ati-6.14.4/src/radeon_kms.c
+@@ -975,7 +975,10 @@
+     radeon_cs_set_limit(info->cs, RADEON_GEM_DOMAIN_GTT, info->gart_size);
+     radeon_cs_space_set_flush(info->cs, (void(*)(void *))radeon_cs_flush_indirect, pScrn); 
+ 
+-    radeon_setup_kernel_mem(pScreen);
++    if (!radeon_setup_kernel_mem(pScreen)) {
++	xf86DrvMsg(pScrn->scrnIndex, X_ERROR, "radeon_setup_kernel_mem failed\n");
++	return FALSE;
++    }
+     front_ptr = info->front_bo->ptr;
+ 
+     if (info->r600_shadow_fb) {
+@@ -1233,8 +1236,10 @@
+     }
+     if (info->r600_shadow_fb == FALSE) {
+         info->accel_state->exa = exaDriverAlloc();
+-        if (info->accel_state->exa == NULL)
++        if (info->accel_state->exa == NULL) {
++	    xf86DrvMsg(pScreen->myNum, X_ERROR, "exaDriverAlloc failed\n");
+ 	    return FALSE;
++	}
+     }
+ 
+     if (info->allowColorTiling) {
+@@ -1274,9 +1279,13 @@
+ 			surface.flags |= RADEON_SURF_SET(RADEON_SURF_MODE_2D, MODE);
+ 		}
+ 		if (radeon_surface_best(info->surf_man, &surface)) {
++			xf86DrvMsg(pScreen->myNum, X_ERROR,
++				   "radeon_surface_best failed\n");
+ 			return FALSE;
+ 		}
+ 		if (radeon_surface_init(info->surf_man, &surface)) {
++			xf86DrvMsg(pScreen->myNum, X_ERROR,
++				   "radeon_surface_init failed\n");
+ 			return FALSE;
+ 		}
+ 		pitch = surface.level[0].pitch_bytes;
+@@ -1311,6 +1320,7 @@
+                                                     cursor_size, 0,
+                                                     RADEON_GEM_DOMAIN_VRAM, 0);
+                 if (!info->cursor_bo[c]) {
++                    ErrorF("Failed to allocate cursor buffer memory\n");
+                     return FALSE;
+                 }
+ 
+--- xserver-xorg-video-ati-6.14.4.orig/src/radeon_exa.c
++++ xserver-xorg-video-ati-6.14.4/src/radeon_exa.c
+@@ -511,6 +511,13 @@
+ 			surface.last_level = 0;
+ 			surface.bpe = cpp;
+ 			surface.nsamples = 1;
++			if (height < 64) {
++				/* disable 2d tiling for small surface to work around
++				 * the fact that ddx align height to 8 pixel for old
++				 * obscure reason i can't remember
++				 */
++				tiling &= ~RADEON_TILING_MACRO;
++			}
+ 			surface.flags = RADEON_SURF_SCANOUT;
+ 			surface.flags |= RADEON_SURF_SET(RADEON_SURF_TYPE_2D, TYPE);
+ 			surface.flags |= RADEON_SURF_SET(RADEON_SURF_MODE_LINEAR, MODE);
+--- xserver-xorg-video-ati-6.14.4.orig/src/evergreen_exa.c
++++ xserver-xorg-video-ati-6.14.4/src/evergreen_exa.c
+@@ -748,17 +748,8 @@
+ 					   int op,
+ 					   int unit)
+ {
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
+     unsigned int i;
+-    int max_tex_w, max_tex_h;
+-
+-    max_tex_w = 16384;
+-    max_tex_h = 16384;
+-
+-    if ((w > max_tex_w) || (h > max_tex_h))
+-	RADEON_FALLBACK(("Picture w/h too large (%dx%d)\n", w, h));
+ 
+     for (i = 0; i < sizeof(EVERGREENTexFormats) / sizeof(EVERGREENTexFormats[0]); i++) {
+ 	if (EVERGREENTexFormats[i].fmt == pPict->format)
+@@ -798,9 +789,16 @@
+     ScrnInfoPtr pScrn = xf86Screens[pPix->drawable.pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_accel_state *accel_state = info->accel_state;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+     int const_offset = unit * 8;
++    int w, h;
++
++    if (pPict->pDrawable) {
++	w = pPict->pDrawable->width;
++	h = pPict->pDrawable->height;
++    } else {
++	w = 1;
++	h = 1;
++    }
+ 
+     if (pPict->transform != 0) {
+ 	accel_state->is_transform[unit] = TRUE;
+@@ -837,9 +835,7 @@
+     ScrnInfoPtr pScrn = xf86Screens[pPix->drawable.pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_accel_state *accel_state = info->accel_state;
+-    int w = pPict->pDrawable->width;
+-    int h = pPict->pDrawable->height;
+-    unsigned int repeatType = pPict->repeat ? pPict->repeatType : RepeatNone;
++    unsigned int repeatType;
+     unsigned int i;
+     tex_resource_t  tex_res;
+     tex_sampler_t   tex_samp;
+@@ -854,9 +850,17 @@
+     }
+ 
+     /* Texture */
++    if (pPict->pDrawable) {
++	tex_res.w               = pPict->pDrawable->width;
++	tex_res.h               = pPict->pDrawable->height;
++	repeatType              = pPict->repeat ? pPict->repeatType : RepeatNone;
++    } else {
++	tex_res.w               = 1;
++	tex_res.h               = 1;
++	repeatType              = RepeatNormal;
++    }
++
+     tex_res.id                  = unit;
+-    tex_res.w                   = w;
+-    tex_res.h                   = h;
+     tex_res.pitch               = accel_state->src_obj[unit].pitch;
+     tex_res.depth               = 0;
+     tex_res.dim                 = SQ_TEX_DIM_2D;
+@@ -1054,33 +1058,30 @@
+ {
+     uint32_t tmp1;
+     PixmapPtr pSrcPixmap, pDstPixmap;
+-    int max_tex_w, max_tex_h, max_dst_w, max_dst_h;
+ 
+     /* Check for unsupported compositing operations. */
+     if (op >= (int) (sizeof(EVERGREENBlendOp) / sizeof(EVERGREENBlendOp[0])))
+ 	RADEON_FALLBACK(("Unsupported Composite op 0x%x\n", op));
+ 
+-    if (!pSrcPicture->pDrawable)
+-	RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
++    if (pSrcPicture->pDrawable) {
++	pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
+ 
+-    pSrcPixmap = RADEONGetDrawablePixmap(pSrcPicture->pDrawable);
++	if (pSrcPixmap->drawable.width >= 16384 ||
++	    pSrcPixmap->drawable.height >= 16384) {
++	    RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
++			     pSrcPixmap->drawable.width,
++			     pSrcPixmap->drawable.height));
++	}
+ 
+-    max_tex_w = 8192;
+-    max_tex_h = 8192;
+-    max_dst_w = 8192;
+-    max_dst_h = 8192;
+-
+-    if (pSrcPixmap->drawable.width >= max_tex_w ||
+-	pSrcPixmap->drawable.height >= max_tex_h) {
+-	RADEON_FALLBACK(("Source w/h too large (%d,%d).\n",
+-			 pSrcPixmap->drawable.width,
+-			 pSrcPixmap->drawable.height));
+-    }
++	if (!EVERGREENCheckCompositeTexture(pSrcPicture, pDstPicture, op, 0))
++	    return FALSE;
++    } else if (pSrcPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+ 
+     pDstPixmap = RADEONGetDrawablePixmap(pDstPicture->pDrawable);
+ 
+-    if (pDstPixmap->drawable.width >= max_dst_w ||
+-	pDstPixmap->drawable.height >= max_dst_h) {
++    if (pDstPixmap->drawable.width >= 16384 ||
++	pDstPixmap->drawable.height >= 16384) {
+ 	RADEON_FALLBACK(("Dest w/h too large (%d,%d).\n",
+ 			 pDstPixmap->drawable.width,
+ 			 pDstPixmap->drawable.height));
+@@ -1089,38 +1090,35 @@
+     if (pMaskPicture) {
+ 	PixmapPtr pMaskPixmap;
+ 
+-	if (!pMaskPicture->pDrawable)
+-	    RADEON_FALLBACK(("Solid or gradient pictures not supported yet\n"));
+-
+-	pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
++	if (pMaskPicture->pDrawable) {
++	    pMaskPixmap = RADEONGetDrawablePixmap(pMaskPicture->pDrawable);
+ 
+-	if (pMaskPixmap->drawable.width >= max_tex_w ||
+-	    pMaskPixmap->drawable.height >= max_tex_h) {
+-	    RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
+-			     pMaskPixmap->drawable.width,
+-			     pMaskPixmap->drawable.height));
+-	}
++	    if (pMaskPixmap->drawable.width >= 16384 ||
++		pMaskPixmap->drawable.height >= 16384) {
++	      RADEON_FALLBACK(("Mask w/h too large (%d,%d).\n",
++			       pMaskPixmap->drawable.width,
++			       pMaskPixmap->drawable.height));
++	    }
+ 
+-	if (pMaskPicture->componentAlpha) {
+-	    /* Check if it's component alpha that relies on a source alpha and
+-	     * on the source value.  We can only get one of those into the
+-	     * single source value that we get to blend with.
+-	     */
+-	    if (EVERGREENBlendOp[op].src_alpha &&
+-		(EVERGREENBlendOp[op].blend_cntl & COLOR_SRCBLEND_mask) !=
+-		(BLEND_ZERO << COLOR_SRCBLEND_shift)) {
+-		RADEON_FALLBACK(("Component alpha not supported with source "
+-				 "alpha and source value blending.\n"));
++	    if (pMaskPicture->componentAlpha) {
++		/* Check if it's component alpha that relies on a source alpha and
++		 * on the source value.  We can only get one of those into the
++		 * single source value that we get to blend with.
++		 */
++		if (EVERGREENBlendOp[op].src_alpha &&
++		    (EVERGREENBlendOp[op].blend_cntl & COLOR_SRCBLEND_mask) !=
++		    (BLEND_ZERO << COLOR_SRCBLEND_shift)) {
++		    RADEON_FALLBACK(("Component alpha not supported with source "
++				     "alpha and source value blending.\n"));
++		}
+ 	    }
+-	}
+ 
+-	if (!EVERGREENCheckCompositeTexture(pMaskPicture, pDstPicture, op, 1))
+-	    return FALSE;
++	    if (!EVERGREENCheckCompositeTexture(pMaskPicture, pDstPicture, op, 1))
++		return FALSE;
++	} else if (pMaskPicture->pSourcePict->type != SourcePictTypeSolidFill)
++	    RADEON_FALLBACK(("Gradient pictures not supported yet\n"));
+     }
+ 
+-    if (!EVERGREENCheckCompositeTexture(pSrcPicture, pDstPicture, op, 0))
+-	return FALSE;
+-
+     if (!EVERGREENGetDestFormat(pDstPicture, &tmp1))
+ 	return FALSE;
+ 
+@@ -1132,7 +1130,8 @@
+ 				      PicturePtr pMaskPicture, PicturePtr pDstPicture,
+ 				      PixmapPtr pSrc, PixmapPtr pMask, PixmapPtr pDst)
+ {
+-    ScrnInfoPtr pScrn = xf86Screens[pSrc->drawable.pScreen->myNum];
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_accel_state *accel_state = info->accel_state;
+     uint32_t dst_format;
+@@ -1142,13 +1141,19 @@
+     struct r600_accel_object src_obj, mask_obj, dst_obj;
+     float *cbuf;
+ 
+-    if (pDst->drawable.bitsPerPixel < 8 || pSrc->drawable.bitsPerPixel < 8)
++    if (pDst->drawable.bitsPerPixel < 8 || (pSrc && pSrc->drawable.bitsPerPixel < 8))
+ 	return FALSE;
+ 
++    if (!pSrc) {
++	pSrc = RADEONSolidPixmap(pScreen, pSrcPicture->pSourcePict->solidFill.color);
++	if (!pSrc)
++	    RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++    }
++
+     src_obj.offset = 0;
+     dst_obj.offset = 0;
+-    src_obj.bo = radeon_get_pixmap_bo(pSrc);
+     dst_obj.bo = radeon_get_pixmap_bo(pDst);
++    src_obj.bo = radeon_get_pixmap_bo(pSrc);
+     dst_obj.surface = radeon_get_pixmap_surface(pDst);
+     src_obj.surface = radeon_get_pixmap_surface(pSrc);
+     dst_obj.tiling_flags = radeon_get_pixmap_tiling(pDst);
+@@ -1166,7 +1171,15 @@
+     dst_obj.bpp = pDst->drawable.bitsPerPixel;
+     dst_obj.domain = RADEON_GEM_DOMAIN_VRAM;
+ 
+-    if (pMask) {
++    if (pMaskPicture) {
++	if (!pMask) {
++	    pMask = RADEONSolidPixmap(pScreen, pMaskPicture->pSourcePict->solidFill.color);
++	    if (!pMask) {
++		if (!pSrcPicture->pDrawable)
++		    pScreen->DestroyPixmap(pSrc);
++		RADEON_FALLBACK("Failed to create solid scratch pixmap\n");
++	    }
++	}
+ 	mask_obj.offset = 0;
+ 	mask_obj.bo = radeon_get_pixmap_bo(pMask);
+ 	mask_obj.tiling_flags = radeon_get_pixmap_tiling(pMask);
+@@ -1363,11 +1376,9 @@
+     return TRUE;
+ }
+ 
+-static void EVERGREENDoneComposite(PixmapPtr pDst)
++static void EVERGREENFinishComposite(ScrnInfoPtr pScrn, PixmapPtr pDst,
++				     struct radeon_accel_state *accel_state)
+ {
+-    ScrnInfoPtr pScrn = xf86Screens[pDst->drawable.pScreen->myNum];
+-    RADEONInfoPtr info = RADEONPTR(pScrn);
+-    struct radeon_accel_state *accel_state = info->accel_state;
+     int vtx_size;
+ 
+     if (accel_state->vsync)
+@@ -1381,6 +1392,22 @@
+     evergreen_finish_op(pScrn, vtx_size);
+ }
+ 
++static void EVERGREENDoneComposite(PixmapPtr pDst)
++{
++    ScreenPtr pScreen = pDst->drawable.pScreen;
++    ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
++    RADEONInfoPtr info = RADEONPTR(pScrn);
++    struct radeon_accel_state *accel_state = info->accel_state;
++
++    EVERGREENFinishComposite(pScrn, pDst, accel_state);
++
++    if (!accel_state->src_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->src_pix);
++
++    if (accel_state->msk_pic && !accel_state->msk_pic->pDrawable)
++	pScreen->DestroyPixmap(accel_state->msk_pix);
++}
++
+ static void EVERGREENComposite(PixmapPtr pDst,
+ 			       int srcX, int srcY,
+ 			       int maskX, int maskY,
+@@ -1393,7 +1420,7 @@
+     float *vb;
+ 
+     if (CS_FULL(info->cs)) {
+-	EVERGREENDoneComposite(info->accel_state->dst_pix);
++	EVERGREENFinishComposite(pScrn, pDst, info->accel_state);
+ 	radeon_cs_flush_indirect(pScrn);
+ 	EVERGREENPrepareComposite(info->accel_state->composite_op,
+ 				  info->accel_state->src_pic,

@@ -1,0 +1,59 @@
+Submitted By:            Matthew Burgess <matthew@linuxfromscratch.org>
+Date:                    2004-03-21
+Initial Package Version: 5.2.1
+Origin:                  Based on work by ttrepl@yahoo.de
+Description:             Suppresses installation of hostname binary and manpage.
+
+diff -Naur coreutils-5.2.1.orig/README coreutils-5.2.1/README
+--- coreutils-5.2.1.orig/README	2004-01-18 07:59:41.000000000 +0000
++++ coreutils-5.2.1/README	2004-03-21 11:44:51.000000000 +0000
+@@ -9,7 +9,7 @@
+ 
+   [ basename cat chgrp chmod chown chroot cksum comm cp csplit cut date dd
+   df dir dircolors dirname du echo env expand expr factor false fmt fold
+-  ginstall groups head hostid hostname id join kill link ln logname ls
++  ginstall groups head hostid id join kill link ln logname ls
+   md5sum mkdir mkfifo mknod mv nice nl nohup od paste pathchk pinky pr
+   printenv printf ptx pwd readlink rm rmdir seq sha1sum shred sleep sort
+   split stat stty su sum sync tac tail tee test touch tr true tsort tty
+diff -Naur coreutils-5.2.1.orig/man/Makefile.in coreutils-5.2.1/man/Makefile.in
+--- coreutils-5.2.1.orig/man/Makefile.in	2004-03-11 08:58:00.000000000 +0000
++++ coreutils-5.2.1/man/Makefile.in	2004-03-21 11:45:48.000000000 +0000
+@@ -266,7 +266,7 @@
+   basename.1 cat.1 chgrp.1 chmod.1 chown.1 chroot.1 cksum.1 comm.1 \
+   cp.1 csplit.1 cut.1 date.1 dd.1 df.1 dir.1 dircolors.1 dirname.1 du.1 \
+   echo.1 env.1 expand.1 expr.1 factor.1 false.1 fmt.1 fold.1 groups.1 \
+-  head.1 hostid.1 hostname.1 id.1 install.1 join.1 kill.1 \
++  head.1 hostid.1 id.1 install.1 join.1 kill.1 \
+   link.1 ln.1 logname.1 \
+   ls.1 md5sum.1 mkdir.1 mkfifo.1 mknod.1 mv.1 nice.1 nl.1 nohup.1 od.1 \
+   paste.1 pathchk.1 pinky.1 pr.1 printenv.1 printf.1 ptx.1 pwd.1 readlink.1 \
+@@ -535,7 +535,6 @@
+ groups.1:	$(common_dep)	$(srcdir)/groups.x	../src/groups.sh
+ head.1:		$(common_dep)	$(srcdir)/head.x	../src/head.c
+ hostid.1:	$(common_dep)	$(srcdir)/hostid.x	../src/hostid.c
+-hostname.1:	$(common_dep)	$(srcdir)/hostname.x	../src/hostname.c
+ id.1:		$(common_dep)	$(srcdir)/id.x		../src/id.c
+ install.1:	$(common_dep)	$(srcdir)/install.x	../src/install.c
+ join.1:		$(common_dep)	$(srcdir)/join.x	../src/join.c
+@@ -619,7 +618,7 @@
+ check-x-vs-1:
+ 	PATH=../src$(PATH_SEPARATOR)$$PATH; export PATH;		\
+ 	t=ls-files.$$$$;						\
+-	(cd $(srcdir) && ls -1 *.x) | sed 's/\.x$$//' | $(ASSORT) > $$t;\
++	(cd $(srcdir) && ls -1 *.x | grep -v 'hostname.x') | sed 's/\.x$$//' | $(ASSORT) > $$t;\
+ 	echo $(dist_man_MANS) | tr -s ' ' '\n' | sed 's/\.1$$//'	\
+ 	  | $(ASSORT) | diff - $$t || { rm $$t; exit 1; };		\
+ 	rm $$t
+diff -Naur coreutils-5.2.1.orig/src/Makefile.in coreutils-5.2.1/src/Makefile.in
+--- coreutils-5.2.1.orig/src/Makefile.in	2004-03-11 08:59:23.000000000 +0000
++++ coreutils-5.2.1/src/Makefile.in	2004-03-21 11:44:51.000000000 +0000
+@@ -56,7 +56,7 @@
+ 	tail$(EXEEXT) tr$(EXEEXT) tsort$(EXEEXT) unexpand$(EXEEXT) \
+ 	uniq$(EXEEXT) wc$(EXEEXT) basename$(EXEEXT) date$(EXEEXT) \
+ 	dirname$(EXEEXT) echo$(EXEEXT) env$(EXEEXT) expr$(EXEEXT) \
+-	factor$(EXEEXT) false$(EXEEXT) hostname$(EXEEXT) id$(EXEEXT) \
++	factor$(EXEEXT) false$(EXEEXT) id$(EXEEXT) \
+ 	kill$(EXEEXT) logname$(EXEEXT) pathchk$(EXEEXT) \
+ 	printenv$(EXEEXT) printf$(EXEEXT) pwd$(EXEEXT) seq$(EXEEXT) \
+ 	sleep$(EXEEXT) tee$(EXEEXT) test$(EXEEXT) true$(EXEEXT) \

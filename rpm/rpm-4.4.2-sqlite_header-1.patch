@@ -1,0 +1,17 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-02-21
+Initial Package Version: 4.4.2
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Adds Missing Header
+
+--- rpm-4.4.2/sqlite/Makefile.in.orig	2005-02-22 04:12:19.100040424 +0000
++++ rpm-4.4.2/sqlite/Makefile.in	2005-02-22 04:13:05.079050552 +0000
+@@ -354,6 +354,7 @@
+ sqlite3.h:	$(TOP)/src/sqlite.h.in 
+ 	sed -e s/--VERS--/$(RELEASE)/ $(TOP)/src/sqlite.h.in | \
+ 	sed -e s/--VERSION-NUMBER--/$(VERSION_NUMBER)/ >sqlite3.h
++	cp sqlite3.h ../rpmdb/sqlite3.h
+ 
+ table.lo:	$(TOP)/src/table.c $(HDR)
+ 	$(LTCOMPILE) -c $(TOP)/src/table.c

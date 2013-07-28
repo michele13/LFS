@@ -1,0 +1,91 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-03-01
+Initial Package Version: 1.0.3
+Upstream Status: Not submitted
+Origin: None
+Description: Use gcc -fpie, -fpic, and ld -pie, -z relro, -z now.
+
+See:
+http://www.linuxfromscratch.org/~robert/Homogenic/
+
+diff -Naur bzip2-1.0.3.orig/Makefile bzip2-1.0.3/Makefile
+--- bzip2-1.0.3.orig/Makefile	2005-02-17 11:28:24.000000000 +0000
++++ bzip2-1.0.3/Makefile	2005-03-01 17:47:48.000000000 +0000
+@@ -5,10 +5,11 @@
+ CC=gcc
+ AR=ar
+ RANLIB=ranlib
+-LDFLAGS=
++LDFLAGS= -pie -z relro -z now
+ 
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-Wall -Winline -O -g $(BIGFILES)
++CFLAGS=-pie -fpie -Wall -Winline -O -g $(BIGFILES)
++LIBCFLAGS=-fPIC -Wall -Winline -O -g $(BIGFILES)
+ 
+ # Where you want it installed when you do 'make install'
+ PREFIX=/usr
+@@ -102,19 +103,19 @@
+ 
+ blocksort.o: blocksort.c
+ 	@cat words0
+-	$(CC) $(CFLAGS) -c blocksort.c
++	$(CC) $(LIBCFLAGS) -c blocksort.c
+ huffman.o: huffman.c
+-	$(CC) $(CFLAGS) -c huffman.c
++	$(CC) $(LIBCFLAGS) -c huffman.c
+ crctable.o: crctable.c
+-	$(CC) $(CFLAGS) -c crctable.c
++	$(CC) $(LIBCFLAGS) -c crctable.c
+ randtable.o: randtable.c
+-	$(CC) $(CFLAGS) -c randtable.c
++	$(CC) $(LIBCFLAGS) -c randtable.c
+ compress.o: compress.c
+-	$(CC) $(CFLAGS) -c compress.c
++	$(CC) $(LIBCFLAGS) -c compress.c
+ decompress.o: decompress.c
+-	$(CC) $(CFLAGS) -c decompress.c
++	$(CC) $(LIBCFLAGS) -c decompress.c
+ bzlib.o: bzlib.c
+-	$(CC) $(CFLAGS) -c bzlib.c
++	$(CC) $(LIBCFLAGS) -c bzlib.c
+ bzip2.o: bzip2.c
+ 	$(CC) $(CFLAGS) -c bzip2.c
+ bzip2recover.o: bzip2recover.c
+diff -Naur bzip2-1.0.3.orig/Makefile-libbz2_so bzip2-1.0.3/Makefile-libbz2_so
+--- bzip2-1.0.3.orig/Makefile-libbz2_so	2004-10-17 17:32:13.000000000 +0000
++++ bzip2-1.0.3/Makefile-libbz2_so	2005-03-01 17:45:17.000000000 +0000
+@@ -9,7 +9,8 @@
+ SHELL=/bin/sh
+ CC=gcc
+ BIGFILES=-D_FILE_OFFSET_BITS=64
+-CFLAGS=-fpic -fPIC -Wall -Winline -O -g
++LIBCFLAGS=-fpic -fPIC -Wall -Winline -O -g
++CFLAGS=-pie -fPIE -Wall -Winline -O -g
+ 
+ OBJS= blocksort.o  \
+       huffman.o    \
+@@ -29,16 +30,16 @@
+ 	rm -f $(OBJS) bzip2.o libbz2.so.1.0.3 libbz2.so.1.0 bzip2-shared
+ 
+ blocksort.o: blocksort.c
+-	$(CC) $(CFLAGS) -c blocksort.c
++	$(CC) $(LIBCFLAGS) -c blocksort.c
+ huffman.o: huffman.c
+-	$(CC) $(CFLAGS) -c huffman.c
++	$(CC) $(LIBCFLAGS) -c huffman.c
+ crctable.o: crctable.c
+-	$(CC) $(CFLAGS) -c crctable.c
++	$(CC) $(LIBCFLAGS) -c crctable.c
+ randtable.o: randtable.c
+-	$(CC) $(CFLAGS) -c randtable.c
++	$(CC) $(LIBCFLAGS) -c randtable.c
+ compress.o: compress.c
+-	$(CC) $(CFLAGS) -c compress.c
++	$(CC) $(LIBCFLAGS) -c compress.c
+ decompress.o: decompress.c
+-	$(CC) $(CFLAGS) -c decompress.c
++	$(CC) $(LIBCFLAGS) -c decompress.c
+ bzlib.o: bzlib.c
+-	$(CC) $(CFLAGS) -c bzlib.c
++	$(CC) $(LIBCFLAGS) -c bzlib.c

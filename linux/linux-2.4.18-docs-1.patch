@@ -1,0 +1,71 @@
+Submitted By: Gregory Davis <gregdavis AT ieee DOT org>
+Date: 2003-10-31
+Initial Package Version: 2.4.18
+Origin: Gregory Davis
+Description: Fixes broken generation of linux kernel (2.4.18) documentation.
+--- linux-2.4.18-vanilla/Documentation/DocBook/Makefile	2001-11-02 20:13:53.000000000 -0500
++++ linux-2.4.18-421/Documentation/DocBook/Makefile	2003-10-27 16:18:50.000000000 -0500
+@@ -5,12 +5,15 @@
+ 
+ PS	:=	$(patsubst %.sgml, %.ps, $(BOOKS))
+ PDF	:=	$(patsubst %.sgml, %.pdf, $(BOOKS))
+-HTML    :=      $(patsubst %.sgml, %, $(BOOKS))
++HTML    :=      $(patsubst %.sgml, %.html, $(BOOKS))
+ IMG-parportbook := parport-share.fig parport-multi.fig parport-structure.fig
+ EPS-parportbook := $(patsubst %.fig, %.eps, $(IMG-parportbook))
+ PNG-parportbook := $(patsubst %.fig, %.png, $(IMG-parportbook))
+ C-procfs-example = procfs_example.sgml
+ 
++DCL = /usr/share/sgml/docbook/dsssl-stylesheets-1.78/dtds/decls/docbook.dcl
++DSLDIR = /usr/share/sgml/docbook/dsssl-stylesheets-1.78
++
+ books:	$(BOOKS)
+ 
+ $(BOOKS): $(TOPDIR)/scripts/docproc
+@@ -131,7 +134,8 @@
+ 
+ parportbook parportbook.pdf: $(PNG-parportbook)
+ parportbook.ps: $(EPS-parportbook)
+-parportbook.sgml: parportbook.tmpl $(TOPDIR)/drivers/parport/init.c
++parportbook.sgml: parportbook.tmpl $(PNG-parportbook) \
++      $(TOPDIR)/drivers/parport/init.c
+ 	$(TOPDIR)/scripts/docgen $(TOPDIR)/drivers/parport/init.c <$< >$@
+ 
+ DVI	:=	$(patsubst %.sgml, %.dvi, $(BOOKS))
+@@ -155,24 +159,26 @@
+ 	rm -rf DBTOHTML_OUTPUT*
+ 
+ %.ps : %.sgml
+-	@(which db2ps > /dev/null 2>&1) || \
++	@(which docbook2ps > /dev/null 2>&1) || \
+ 	 (echo "*** You need to install DocBook stylesheets ***"; \
+ 	  exit 1)
+-	db2ps $<
++	docbook2ps -d $(DSLDIR)/print/docbook.dsl -l $(DCL) $<
+ 
+ %.pdf : %.sgml
+-	@(which db2pdf > /dev/null 2>&1) || \
++	@(which docbook2pdf > /dev/null 2>&1) || \
+ 	 (echo "*** You need to install DocBook stylesheets ***"; \
+-	  exit 1)
+-	db2pdf $<
++	  xit 1)
++	docbook2pdf -d $(DSLDIR)/print/docbook.dsl -l $(DCL) $<
+ 
+-%:	%.sgml
+-	@(which db2html > /dev/null 2>&1) || \
++%.html:	%.sgml
++	@(which docbook2html > /dev/null 2>&1) || \
+ 	 (echo "*** You need to install DocBook stylesheets ***"; \
+ 	  exit 1)
+-	rm -rf $@
+-	db2html $<
+-	if [ ! -z "$(PNG-$@)" ]; then cp $(PNG-$@) $@; fi
++	rm -rf $(patsubst %.html,%,$@)
++	docbook2html -d $(DSLDIR)/html/docbook.dsl -l $(DCL)      \
++      -o $(patsubst %.html,%,$@) $<
++	if [ ! -z "$(PNG-$(basename $(notdir $@)))" ]; then       \
++      cp $(PNG-$(basename $(notdir $@))) $(patsubst %.html,%,$@); fi
+ 
+ #
+ # we could have our own dependency generator

@@ -1,0 +1,102 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-10-07
+Initial Package Version: 1.4.2
+Origin: j2sdk-1.4.1-use-included-motif.patch
+Description: j2sdk includes its hacked/fixed version of motif source that it
+	     links against. In some cases it ends up linking against the system installed
+	     motif instead of the internal statically compiled libXm. This patch fixes the
+	     code so that the internal motif lib is renamed to a different and unique name
+	     and then links against that lib instead.
+ 
+diff -Naur java.orig/control/make/motif-rules.gmk java/control/make/motif-rules.gmk
+--- java.orig/control/make/motif-rules.gmk	2003-09-11 01:39:24.000000000 +0000
++++ java/control/make/motif-rules.gmk	2003-10-07 08:00:13.000000000 +0000
+@@ -32,7 +32,7 @@
+   ABS_MOTIF_DIR := $(shell $(CD) $(MOTIF_DIR); $(PWD))
+ endif
+ 
+-MOTIF = $(MOTIF_DIR)/lib/libXm.a 
++MOTIF = $(MOTIF_DIR)/lib/libXm-j2sdk.a 
+ 
+ motif: motif-build motif-install
+ 
+@@ -50,8 +50,8 @@
+ motif-install-lib: $(MOTIF_DIR)/lib 
+   ifdef BUILD_MOTIF
+ 	$(CD) $(MOTIF_DIR)/lib; \
+-	$(RM) libXm.a ; \
+-	$(LN) -s $(ABS_MOTIF_TOPDIR)/lib/libXm.a .
++	$(RM) libXm-j2sdk.a ; \
++	$(LN) -s $(ABS_MOTIF_TOPDIR)/lib/libXm-j2sdk.a .
+   endif
+ 
+ motif-install-include: $(MOTIF_DIR)/include 
+@@ -69,7 +69,7 @@
+   ifdef BUILD_MOTIF
+ 	( $(CD) $(MOTIF_TOPDIR)/lib/Xm ; \
+ 		$(MAKE) clean MAKEFLAGS= ARCH_DATA_MODEL=$(ARCH_DATA_MODEL); ); \
+-	$(RM) $(MOTIF_TOPDIR)/lib/libXm.a \
++	$(RM) $(MOTIF_TOPDIR)/lib/libXm-j2sdk.a \
+ 	      $(MOTIF_TOPDIR)/lib/Xm/Xm.msg 
+ 	$(RM) -r $(MOTIF_TOPDIR)/lib/Xm/exports
+ 	$(RM) -r $(MOTIF_DIR)/lib $(MOTIF_DIR)/include $(MOTIF_DIR)
+diff -Naur java.orig/j2se/make/sun/awt/Makefile java/j2se/make/sun/awt/Makefile
+--- java.orig/j2se/make/sun/awt/Makefile	2003-09-11 01:43:13.000000000 +0000
++++ java/j2se/make/sun/awt/Makefile	2003-10-07 07:57:59.000000000 +0000
+@@ -280,8 +280,10 @@
+ ifneq ($(PLATFORM), windows)
+ # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv SOLARIS/LINUX
+ 
++# If using static motif, use the non-standard name for the lib
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ ifeq ($(STATIC_MOTIF),true)
+-  LIBXM = $(MOTIF_LIB)/libXm.a -lXp
++  LIBXM = $(MOTIF_LIB)/libXm-j2sdk.a -lXp
+ else # STATIC_MOTIF
+   LIBXM = -lXm
+ endif # STATIC_MOTIF
+diff -Naur java.orig/j2se/make/sun/awt/mawt.gmk java/j2se/make/sun/awt/mawt.gmk
+--- java.orig/j2se/make/sun/awt/mawt.gmk	2003-09-11 01:43:14.000000000 +0000
++++ java/j2se/make/sun/awt/mawt.gmk	2003-10-07 07:57:59.000000000 +0000
+@@ -123,8 +123,10 @@
+ else
+ CFLAGS += -DMOTIF_VERSION=$(MOTIF_VERSION)
+ 
++# If using static motif, use non-standard lib name
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ ifeq ($(STATIC_MOTIF),true)
+-LIBXM = $(MOTIF_LIB)/libXm.a -lXp
++LIBXM = $(MOTIF_LIB)/libXm-j2sdk.a -lXp
+ else
+ LIBXM = -lXm
+ endif
+
+diff -Naur java.orig/motif/lib/Xm/Makefile java/motif/lib/Xm/Makefile
+--- java.orig/motif/lib/Xm/Makefile	2003-09-11 01:42:17.000000000 +0000
++++ java/motif/lib/Xm/Makefile	2003-10-07 07:57:59.000000000 +0000
+@@ -1295,20 +1295,20 @@
+ 	$(RM) $(DESTDIR)$(USRLIBDIR)/libXm.so
+ 	$(LN) libXm.so.$(SOXMREV) $(DESTDIR)$(USRLIBDIR)/libXm.so
+ 
+-all:: ../libXm.a
++all:: ../libXm-j2sdk.a
+ 
+-../libXm.a: $(OBJS) $(EXTRALIBRARYDEPS)
++../libXm-j2sdk.a: $(OBJS) $(EXTRALIBRARYDEPS)
+ 	$(RM) $@
+ 	(cd unshared; $(AR) ../$@ $(OBJS))
+ 	$(RANLIB) $@
+ 	$(_NULLCMD_)
+ 
+-install:: ../libXm.a
++install:: ../libXm-j2sdk.a
+ 	echo "install"
+ 	@if [ -d $(DESTDIR)$(USRLIBDIR) ]; then set +x; \
+ 	else (set -x; $(MKDIRHIER) $(DESTDIR)$(USRLIBDIR)); fi
+-	$(INSTALL) $(INSTALLFLAGS) $(INSTLIBFLAGS) libXm.a $(DESTDIR)$(USRLIBDIR)
+-	@#$(RANLIB) $(RANLIBINSTFLAGS) $(DESTDIR)$(USRLIBDIR)/libXm.a
++	$(INSTALL) $(INSTALLFLAGS) $(INSTLIBFLAGS) libXm-j2sdk.a $(DESTDIR)$(USRLIBDIR)
++	@#$(RANLIB) $(RANLIBINSTFLAGS) $(DESTDIR)$(USRLIBDIR)/libXm-j2sdk.a
+ 
+ lintlib:: llib-lXm.ln
+ 

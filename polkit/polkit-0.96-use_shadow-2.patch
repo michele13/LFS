@@ -1,0 +1,846 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2010-06-22
+Initial Package Version: 0.96
+Upstream Status: Probably not submitted.
+Origin: Believed to come from Andrew Psaltis, for Slackware.  Rediffed
+ by Andrew Benton to no longer require autoreconf (which requires gtk-doc).
+Description: Add shadow support, to avoid needing PAM.  Add
+ --with-authfw=shadow to configure.
+
+diff -Naur polkit-0.96-orig/configure polkit-0.96/configure
+--- polkit-0.96-orig/configure	2010-01-15 18:51:15.000000000 +0000
++++ polkit-0.96/configure	2010-04-10 21:02:07.000000000 +0100
+@@ -11046,13 +11046,10 @@
+   # before this can be enabled.
+   hardcode_into_libs=yes
+ 
+-  # Add ABI-specific directories to the system library path.
+-  sys_lib_dlsearch_path_spec="/lib64 /usr/lib64 /lib /usr/lib"
+-
+   # Append ld.so.conf contents to the search path
+   if test -f /etc/ld.so.conf; then
+     lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s 2>/dev/null", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;/^[	 ]*hwcap[	 ]/d;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+-    sys_lib_dlsearch_path_spec="$sys_lib_dlsearch_path_spec $lt_ld_extra"
++    sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
+   fi
+ 
+   # We used to test for /lib/ld.so.1 and disable shared libraries on
+@@ -11684,7 +11681,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11687 "configure"
++#line 11684 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+@@ -11780,7 +11777,7 @@
+   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
+   lt_status=$lt_dlunknown
+   cat > conftest.$ac_ext <<_LT_EOF
+-#line 11783 "configure"
++#line 11780 "configure"
+ #include "confdefs.h"
+ 
+ #if HAVE_DLFCN_H
+diff -Naur polkit-0.96-orig/src/polkitagent/Makefile.am polkit-0.96/src/polkitagent/Makefile.am
+--- polkit-0.96-orig/src/polkitagent/Makefile.am	2009-09-13 18:31:29.000000000 +0100
++++ polkit-0.96/src/polkitagent/Makefile.am	2010-04-10 21:01:22.000000000 +0100
+@@ -68,8 +68,15 @@
+ libexec_PROGRAMS = polkit-agent-helper-1
+ 
+ polkit_agent_helper_1_SOURCES = 					\
+-	polkitagenthelper.c						\
+-	$(NULL)
++	polkitagenthelperprivate.c polkitagenthelperprivate.h		
++
++if POLKIT_AUTHFW_PAM
++polkit_agent_helper_1_SOURCES += polkitagenthelper-pam.c
++endif
++if POLKIT_AUTHFW_SHADOW
++polkit_agent_helper_1_SOURCES += polkitagenthelper-shadow.c
++endif
++polkit_agent_helper_1_SOURCES += $(NULL)
+ 
+ polkit_agent_helper_1_CFLAGS  = 					\
+         -D_POLKIT_COMPILATION                                  		\
+diff -Naur polkit-0.96-orig/src/polkitagent/Makefile.in polkit-0.96/src/polkitagent/Makefile.in
+--- polkit-0.96-orig/src/polkitagent/Makefile.in	2010-01-15 18:53:03.000000000 +0000
++++ polkit-0.96/src/polkitagent/Makefile.in	2010-04-10 21:02:08.000000000 +0100
+@@ -37,6 +37,8 @@
+ build_triplet = @build@
+ host_triplet = @host@
+ libexec_PROGRAMS = polkit-agent-helper-1$(EXEEXT)
++@POLKIT_AUTHFW_PAM_TRUE@am__append_1 = polkitagenthelper-pam.c
++@POLKIT_AUTHFW_SHADOW_TRUE@am__append_2 = polkitagenthelper-shadow.c
+ subdir = src/polkitagent
+ DIST_COMMON = $(libpolkit_agent_1include_HEADERS) \
+ 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
+@@ -93,9 +95,14 @@
+ 	$(libpolkit_agent_1_la_CFLAGS) $(CFLAGS) \
+ 	$(libpolkit_agent_1_la_LDFLAGS) $(LDFLAGS) -o $@
+ PROGRAMS = $(libexec_PROGRAMS)
++am__polkit_agent_helper_1_SOURCES_DIST = polkitagenthelperprivate.c \
++	polkitagenthelperprivate.h polkitagenthelper-pam.c \
++	polkitagenthelper-shadow.c
++@POLKIT_AUTHFW_PAM_TRUE@am__objects_4 = polkit_agent_helper_1-polkitagenthelper-pam.$(OBJEXT)
++@POLKIT_AUTHFW_SHADOW_TRUE@am__objects_5 = polkit_agent_helper_1-polkitagenthelper-shadow.$(OBJEXT)
+ am_polkit_agent_helper_1_OBJECTS =  \
+-	polkit_agent_helper_1-polkitagenthelper.$(OBJEXT) \
+-	$(am__objects_1)
++	polkit_agent_helper_1-polkitagenthelperprivate.$(OBJEXT) \
++	$(am__objects_4) $(am__objects_5) $(am__objects_1)
+ polkit_agent_helper_1_OBJECTS = $(am_polkit_agent_helper_1_OBJECTS)
+ polkit_agent_helper_1_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+ 	$(top_builddir)/src/polkit/libpolkit-gobject-1.la \
+@@ -133,7 +140,7 @@
+ SOURCES = $(libpolkit_agent_1_la_SOURCES) \
+ 	$(polkit_agent_helper_1_SOURCES)
+ DIST_SOURCES = $(libpolkit_agent_1_la_SOURCES) \
+-	$(polkit_agent_helper_1_SOURCES)
++	$(am__polkit_agent_helper_1_SOURCES_DIST)
+ HEADERS = $(libpolkit_agent_1include_HEADERS)
+ ETAGS = etags
+ CTAGS = ctags
+@@ -361,10 +368,9 @@
+         $(NULL)
+ 
+ libpolkit_agent_1_la_LDFLAGS = -export-symbols-regex '(^polkit_.*)'
+-polkit_agent_helper_1_SOURCES = \
+-	polkitagenthelper.c						\
++polkit_agent_helper_1_SOURCES = polkitagenthelperprivate.c \
++	polkitagenthelperprivate.h $(am__append_1) $(am__append_2) \
+ 	$(NULL)
+-
+ polkit_agent_helper_1_CFLAGS = \
+         -D_POLKIT_COMPILATION                                  		\
+ 	$(GLIB_CFLAGS)							\
+@@ -500,7 +506,9 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpolkit_agent_1_la-polkitagentlistener.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpolkit_agent_1_la-polkitagentmarshal.Plo@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libpolkit_agent_1_la-polkitagentsession.Plo@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Po@am__quote@
+ 
+ .c.o:
+ @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@@ -550,21 +558,53 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libpolkit_agent_1_la_CFLAGS) $(CFLAGS) -c -o libpolkit_agent_1_la-polkitagentlistener.lo `test -f 'polkitagentlistener.c' || echo '$(srcdir)/'`polkitagentlistener.c
+ 
+-polkit_agent_helper_1-polkitagenthelper.o: polkitagenthelper.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper.o -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Tpo -c -o polkit_agent_helper_1-polkitagenthelper.o `test -f 'polkitagenthelper.c' || echo '$(srcdir)/'`polkitagenthelper.c
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Po
++polkit_agent_helper_1-polkitagenthelperprivate.o: polkitagenthelperprivate.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelperprivate.o -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Tpo -c -o polkit_agent_helper_1-polkitagenthelperprivate.o `test -f 'polkitagenthelperprivate.c' || echo '$(srcdir)/'`polkitagenthelperprivate.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Po
++@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelperprivate.c' object='polkit_agent_helper_1-polkitagenthelperprivate.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelperprivate.o `test -f 'polkitagenthelperprivate.c' || echo '$(srcdir)/'`polkitagenthelperprivate.c
++
++polkit_agent_helper_1-polkitagenthelperprivate.obj: polkitagenthelperprivate.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelperprivate.obj -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Tpo -c -o polkit_agent_helper_1-polkitagenthelperprivate.obj `if test -f 'polkitagenthelperprivate.c'; then $(CYGPATH_W) 'polkitagenthelperprivate.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelperprivate.c'; fi`
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelperprivate.Po
++@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelperprivate.c' object='polkit_agent_helper_1-polkitagenthelperprivate.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelperprivate.obj `if test -f 'polkitagenthelperprivate.c'; then $(CYGPATH_W) 'polkitagenthelperprivate.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelperprivate.c'; fi`
++
++polkit_agent_helper_1-polkitagenthelper-pam.o: polkitagenthelper-pam.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper-pam.o -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Tpo -c -o polkit_agent_helper_1-polkitagenthelper-pam.o `test -f 'polkitagenthelper-pam.c' || echo '$(srcdir)/'`polkitagenthelper-pam.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Po
++@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper-pam.c' object='polkit_agent_helper_1-polkitagenthelper-pam.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper-pam.o `test -f 'polkitagenthelper-pam.c' || echo '$(srcdir)/'`polkitagenthelper-pam.c
++
++polkit_agent_helper_1-polkitagenthelper-pam.obj: polkitagenthelper-pam.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper-pam.obj -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Tpo -c -o polkit_agent_helper_1-polkitagenthelper-pam.obj `if test -f 'polkitagenthelper-pam.c'; then $(CYGPATH_W) 'polkitagenthelper-pam.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper-pam.c'; fi`
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-pam.Po
++@am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper-pam.c' object='polkit_agent_helper_1-polkitagenthelper-pam.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper-pam.obj `if test -f 'polkitagenthelper-pam.c'; then $(CYGPATH_W) 'polkitagenthelper-pam.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper-pam.c'; fi`
++
++polkit_agent_helper_1-polkitagenthelper-shadow.o: polkitagenthelper-shadow.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper-shadow.o -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Tpo -c -o polkit_agent_helper_1-polkitagenthelper-shadow.o `test -f 'polkitagenthelper-shadow.c' || echo '$(srcdir)/'`polkitagenthelper-shadow.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Po
+ @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper.c' object='polkit_agent_helper_1-polkitagenthelper.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper-shadow.c' object='polkit_agent_helper_1-polkitagenthelper-shadow.o' libtool=no @AMDEPBACKSLASH@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper.o `test -f 'polkitagenthelper.c' || echo '$(srcdir)/'`polkitagenthelper.c
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper-shadow.o `test -f 'polkitagenthelper-shadow.c' || echo '$(srcdir)/'`polkitagenthelper-shadow.c
+ 
+-polkit_agent_helper_1-polkitagenthelper.obj: polkitagenthelper.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper.obj -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Tpo -c -o polkit_agent_helper_1-polkitagenthelper.obj `if test -f 'polkitagenthelper.c'; then $(CYGPATH_W) 'polkitagenthelper.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper.c'; fi`
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper.Po
++polkit_agent_helper_1-polkitagenthelper-shadow.obj: polkitagenthelper-shadow.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -MT polkit_agent_helper_1-polkitagenthelper-shadow.obj -MD -MP -MF $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Tpo -c -o polkit_agent_helper_1-polkitagenthelper-shadow.obj `if test -f 'polkitagenthelper-shadow.c'; then $(CYGPATH_W) 'polkitagenthelper-shadow.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper-shadow.c'; fi`
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Tpo $(DEPDIR)/polkit_agent_helper_1-polkitagenthelper-shadow.Po
+ @am__fastdepCC_FALSE@	$(AM_V_CC) @AM_BACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper.c' object='polkit_agent_helper_1-polkitagenthelper.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='polkitagenthelper-shadow.c' object='polkit_agent_helper_1-polkitagenthelper-shadow.obj' libtool=no @AMDEPBACKSLASH@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper.obj `if test -f 'polkitagenthelper.c'; then $(CYGPATH_W) 'polkitagenthelper.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper.c'; fi`
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(polkit_agent_helper_1_CFLAGS) $(CFLAGS) -c -o polkit_agent_helper_1-polkitagenthelper-shadow.obj `if test -f 'polkitagenthelper-shadow.c'; then $(CYGPATH_W) 'polkitagenthelper-shadow.c'; else $(CYGPATH_W) '$(srcdir)/polkitagenthelper-shadow.c'; fi`
+ 
+ mostlyclean-libtool:
+ 	-rm -f *.lo
+diff -Naur polkit-0.96-orig/src/polkitagent/polkitagenthelper-pam.c polkit-0.96/src/polkitagent/polkitagenthelper-pam.c
+--- polkit-0.96-orig/src/polkitagent/polkitagenthelper-pam.c	1970-01-01 01:00:00.000000000 +0100
++++ polkit-0.96/src/polkitagent/polkitagenthelper-pam.c	2010-04-10 21:01:22.000000000 +0100
+@@ -0,0 +1,264 @@
++/*
++ * Copyright (C) 2008, 2010 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General
++ * Public License along with this library; if not, write to the
++ * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
++ * Boston, MA 02111-1307, USA.
++ *
++ * Author: David Zeuthen <davidz@redhat.com>
++ */
++
++#include "config.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <syslog.h>
++#include <security/pam_appl.h>
++
++#include <polkit/polkit.h>
++#include "polkitagenthelperprivate.h"
++
++static int conversation_function (int n, const struct pam_message **msg, struct pam_response **resp, void *data);
++
++int
++main (int argc, char *argv[])
++{
++  int rc;
++  const char *user_to_auth;
++  const char *cookie;
++  struct pam_conv pam_conversation;
++  pam_handle_t *pam_h;
++  const void *authed_user;
++
++  rc = 0;
++  pam_h = NULL;
++
++  /* clear the entire environment to avoid attacks using with libraries honoring environment variables */
++  if (clearenv () != 0)
++    goto error;
++
++  /* set a minimal environment */
++  setenv ("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
++
++  /* check that we are setuid root */
++  if (geteuid () != 0)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: needs to be setuid root\n");
++      goto error;
++    }
++
++  openlog ("polkit-agent-helper-1", LOG_CONS | LOG_PID, LOG_AUTHPRIV);
++
++  /* check for correct invocation */
++  if (argc != 3)
++    {
++      syslog (LOG_NOTICE, "inappropriate use of helper, wrong number of arguments [uid=%d]", getuid ());
++      fprintf (stderr, "polkit-agent-helper-1: wrong number of arguments. This incident has been logged.\n");
++      goto error;
++    }
++
++  user_to_auth = argv[1];
++  cookie = argv[2];
++
++  if (getuid () != 0)
++    {
++      /* check we're running with a non-tty stdin */
++      if (isatty (STDIN_FILENO) != 0)
++        {
++          syslog (LOG_NOTICE, "inappropriate use of helper, stdin is a tty [uid=%d]", getuid ());
++          fprintf (stderr, "polkit-agent-helper-1: inappropriate use of helper, stdin is a tty. This incident has been logged.\n");
++          goto error;
++        }
++    }
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: user to auth is '%s'.\n", user_to_auth);
++#endif /* PAH_DEBUG */
++
++  pam_conversation.conv        = conversation_function;
++  pam_conversation.appdata_ptr = NULL;
++
++  /* start the pam stack */
++  rc = pam_start ("polkit-1",
++                  user_to_auth,
++                  &pam_conversation,
++                  &pam_h);
++  if (rc != PAM_SUCCESS)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: pam_start failed: %s\n", pam_strerror (pam_h, rc));
++      goto error;
++    }
++
++  /* set the requesting user */
++  rc = pam_set_item (pam_h, PAM_RUSER, user_to_auth);
++  if (rc != PAM_SUCCESS)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: pam_set_item failed: %s\n", pam_strerror (pam_h, rc));
++      goto error;
++    }
++
++  /* is user really user? */
++  rc = pam_authenticate (pam_h, 0);
++  if (rc != PAM_SUCCESS)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: pam_authenticated failed: %s\n", pam_strerror (pam_h, rc));
++      goto error;
++    }
++
++  /* permitted access? */
++  rc = pam_acct_mgmt (pam_h, 0);
++  if (rc != PAM_SUCCESS)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: pam_acct_mgmt failed: %s\n", pam_strerror (pam_h, rc));
++      goto error;
++    }
++
++  /* did we auth the right user? */
++  rc = pam_get_item (pam_h, PAM_USER, &authed_user);
++  if (rc != PAM_SUCCESS)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: pam_get_item failed: %s\n", pam_strerror (pam_h, rc));
++      goto error;
++    }
++
++  if (strcmp (authed_user, user_to_auth) != 0)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: Tried to auth user '%s' but we got auth for user '%s' instead",
++               user_to_auth, (const char *) authed_user);
++      goto error;
++    }
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: successfully authenticated user '%s'.\n", user_to_auth);
++#endif /* PAH_DEBUG */
++
++  pam_end (pam_h, rc);
++  pam_h = NULL;
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: sending D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++
++  /* now send a D-Bus message to the PolicyKit daemon that
++   * includes a) the cookie; and b) the user we authenticated
++   */
++  if (!send_dbus_message (cookie, user_to_auth))
++    {
++#ifdef PAH_DEBUG
++      fprintf (stderr, "polkit-agent-helper-1: error sending D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++      goto error;
++    }
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: successfully sent D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++
++  fprintf (stdout, "SUCCESS\n");
++  flush_and_wait();
++  return 0;
++
++error:
++  if (pam_h != NULL)
++    pam_end (pam_h, rc);
++
++  fprintf (stdout, "FAILURE\n");
++  flush_and_wait();
++  return 1;
++}
++
++static int
++conversation_function (int n, const struct pam_message **msg, struct pam_response **resp, void *data)
++{
++  struct pam_response *aresp;
++  char buf[PAM_MAX_RESP_SIZE];
++  int i;
++
++  data = data;
++  if (n <= 0 || n > PAM_MAX_NUM_MSG)
++    return PAM_CONV_ERR;
++
++  if ((aresp = calloc(n, sizeof *aresp)) == NULL)
++    return PAM_BUF_ERR;
++
++  for (i = 0; i < n; ++i)
++    {
++      aresp[i].resp_retcode = 0;
++      aresp[i].resp = NULL;
++      switch (msg[i]->msg_style)
++        {
++
++        case PAM_PROMPT_ECHO_OFF:
++          fprintf (stdout, "PAM_PROMPT_ECHO_OFF ");
++          goto conv1;
++
++        case PAM_PROMPT_ECHO_ON:
++          fprintf (stdout, "PAM_PROMPT_ECHO_ON ");
++        conv1:
++          fputs (msg[i]->msg, stdout);
++          if (strlen (msg[i]->msg) > 0 && msg[i]->msg[strlen (msg[i]->msg) - 1] != '\n')
++            fputc ('\n', stdout);
++          fflush (stdout);
++
++          if (fgets (buf, sizeof buf, stdin) == NULL)
++            goto error;
++
++          if (strlen (buf) > 0 &&
++              buf[strlen (buf) - 1] == '\n')
++            buf[strlen (buf) - 1] = '\0';
++
++          aresp[i].resp = strdup (buf);
++          if (aresp[i].resp == NULL)
++            goto error;
++          break;
++
++        case PAM_ERROR_MSG:
++          fprintf (stdout, "PAM_ERROR_MSG ");
++          goto conv2;
++
++        case PAM_TEXT_INFO:
++          fprintf (stdout, "PAM_TEXT_INFO ");
++        conv2:
++          fputs (msg[i]->msg, stdout);
++          if (strlen (msg[i]->msg) > 0 &&
++              msg[i]->msg[strlen (msg[i]->msg) - 1] != '\n')
++            fputc ('\n', stdout);
++          fflush (stdout);
++          break;
++
++        default:
++          goto error;
++        }
++    }
++
++  *resp = aresp;
++  return PAM_SUCCESS;
++
++error:
++
++  for (i = 0; i < n; ++i)
++    {
++      if (aresp[i].resp != NULL) {
++        memset (aresp[i].resp, 0, strlen(aresp[i].resp));
++        free (aresp[i].resp);
++      }
++    }
++  memset (aresp, 0, n * sizeof *aresp);
++  *resp = NULL;
++  return PAM_CONV_ERR;
++}
++
+diff -Naur polkit-0.96-orig/src/polkitagent/polkitagenthelperprivate.c polkit-0.96/src/polkitagent/polkitagenthelperprivate.c
+--- polkit-0.96-orig/src/polkitagent/polkitagenthelperprivate.c	1970-01-01 01:00:00.000000000 +0100
++++ polkit-0.96/src/polkitagent/polkitagenthelperprivate.c	2010-04-10 21:01:22.000000000 +0100
+@@ -0,0 +1,97 @@
++/*
++ * Copyright (C) 2009-2010 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General
++ * Public License along with this library; if not, write to the
++ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
++ * Boston, MA 02110-1301, USA.
++ *
++ * Authors: David Zeuthen <davidz@redhat.com>,
++ *          Andrew Psaltis <ampsaltis@gmail.com>
++ */
++
++#include "polkitagenthelperprivate.h"
++#include <stdio.h>
++
++#ifndef HAVE_CLEARENV
++extern char **environ;
++
++static int
++clearenv (void)
++{
++	if (environ != NULL)
++		environ[0] = NULL;
++	return 0;
++}
++#endif
++
++
++gboolean
++send_dbus_message (const char *cookie, const char *user)
++{
++  PolkitAuthority *authority;
++  PolkitIdentity *identity;
++  GError *error;
++  gboolean ret;
++
++  ret = FALSE;
++
++  error = NULL;
++
++  g_type_init ();
++
++  authority = polkit_authority_get ();
++
++  identity = polkit_unix_user_new_for_name (user, &error);
++  if (identity == NULL)
++    {
++      g_printerr ("Error constructing identity: %s\n", error->message);
++      g_error_free (error);
++      goto out;
++    }
++
++  if (!polkit_authority_authentication_agent_response_sync (authority,
++                                                            cookie,
++                                                            identity,
++                                                            NULL,
++                                                            &error))
++    {
++      g_printerr ("polkit-agent-helper-1: error response to PolicyKit daemon: %s\n", error->message);
++      g_error_free (error);
++      goto out;
++    }
++
++  ret = TRUE;
++
++ out:
++
++  if (identity != NULL)
++    g_object_unref (identity);
++
++  if (authority != NULL)
++    g_object_unref (authority);
++
++  return ret;
++}
++
++/* fflush(3) stdin and stdout and wait a little bit.
++ * This replaces the three-line commands at the bottom of
++ * polkit-agent-helper-1's main() function.
++ */
++void
++flush_and_wait ()
++{
++  fflush (stdout);
++  fflush (stderr);
++  usleep (10 * 1000); /* since fflush(3) seems buggy */
++}
+diff -Naur polkit-0.96-orig/src/polkitagent/polkitagenthelperprivate.h polkit-0.96/src/polkitagent/polkitagenthelperprivate.h
+--- polkit-0.96-orig/src/polkitagent/polkitagenthelperprivate.h	1970-01-01 01:00:00.000000000 +0100
++++ polkit-0.96/src/polkitagent/polkitagenthelperprivate.h	2010-04-10 21:01:22.000000000 +0100
+@@ -0,0 +1,42 @@
++/*
++ * Copyright (C) 2009-2010 Red Hat, Inc.
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General
++ * Public License along with this library; if not, write to the
++ * Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
++ * Boston, MA 02110-1301, USA.
++ *
++ * Authors: David Zeuthen <davidz@redhat.com>,
++ *          Andrew Psaltis <ampsalits@gmail.com>
++ */
++#ifndef __POLKIT_AGENT_HELPER_PRIVATE_H
++#define __POLKIT_AGENT_HELPER_PRIVATE_H
++
++#include <polkit/polkit.h>
++ 
++/* Development aid: define PAH_DEBUG to get debugging output. Do _NOT_
++ * enable this in production builds; it may leak passwords and other
++ * sensitive information.
++ */
++#undef PAH_DEBUG
++// #define PAH_DEBUG
++
++#ifdef HAVE_SOLARIS
++#  define LOG_AUTHPRIV    (10<<3)
++#endif
++
++gboolean send_dbus_message (const char *cookie, const char *user);
++
++void flush_and_wait ();
++
++#endif /* __POLKIT_AGENT_HELPER_PRIVATE_H */
+diff -Naur polkit-0.96-orig/src/polkitagent/polkitagenthelper-shadow.c polkit-0.96/src/polkitagent/polkitagenthelper-shadow.c
+--- polkit-0.96-orig/src/polkitagent/polkitagenthelper-shadow.c	1970-01-01 01:00:00.000000000 +0100
++++ polkit-0.96/src/polkitagent/polkitagenthelper-shadow.c	2010-04-10 21:01:22.000000000 +0100
+@@ -0,0 +1,189 @@
++/*
++ * Copyright (C) 2008 Red Hat, Inc.
++ * Copyright (C) 2009-2010 Andrew Psaltis <ampsaltis@gmail.com>
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General
++ * Public License along with this library; if not, write to the
++ * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
++ * Boston, MA 02111-1307, USA.
++ *
++ * Authors: Andrew Psaltis <ampsaltis@gmail.com>, based on
++ *            polkitagenthelper.c which was written by
++ *          David Zeuthen <davidz@redhat.com>
++ */
++
++#include "config.h"
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <syslog.h>
++#include <shadow.h>
++#include <grp.h>
++#include <pwd.h>
++#include <time.h>
++
++#include <polkit/polkit.h>
++#include "polkitagenthelperprivate.h"
++
++
++extern char *crypt ();
++static int shadow_authenticate (struct spwd *shadow);
++
++int
++main (int argc, char *argv[])
++{
++  struct spwd *shadow;
++  const char *user_to_auth;
++  const char *cookie;
++  time_t tm;
++
++  /* clear the entire environment to avoid attacks with
++     libraries honoring environment variables */
++  if (clearenv () != 0)
++    goto error;
++
++  /* set a minimal environment */
++  setenv ("PATH", "/usr/sbin:/usr/bin:/sbin:/bin", 1);
++
++  /* check that we are setuid root */
++  if (geteuid () != 0)
++    {
++      fprintf (stderr, "polkit-agent-helper-1: needs to be setuid root\n");
++      goto error;
++    }
++
++  openlog ("polkit-agent-helper-1", LOG_CONS | LOG_PID, LOG_AUTHPRIV);
++
++  /* check for correct invocation */
++  if (argc != 3)
++    {
++      syslog (LOG_NOTICE, "inappropriate use of helper, wrong number of arguments [uid=%d]", getuid ());
++      fprintf (stderr, "polkit-agent-helper-1: wrong number of arguments. This incident has been logged.\n");
++      goto error;
++    }
++
++  if (getuid () != 0)
++    {
++    /* check we're running with a non-tty stdin */
++    if (isatty (STDIN_FILENO) != 0)
++      {
++        syslog (LOG_NOTICE, "inappropriate use of helper, stdin is a tty [uid=%d]", getuid ());
++        fprintf (stderr, "polkit-agent-helper-1: inappropriate use of helper, stdin is a tty. This incident has been logged.\n");
++        goto error;
++      }
++    }
++
++  user_to_auth = argv[1];
++  cookie = argv[2];
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: user to auth is '%s'.\n", user_to_auth);
++#endif /* PAH_DEBUG */
++
++  /* Ask shadow about the user requesting authentication */
++  if ((shadow = getspnam (user_to_auth)) == NULL)
++    {
++      syslog (LOG_NOTICE, "shadow file data information request for user %s [uid=%d] failed", user_to_auth, getuid());
++      fprintf(stderr, "polkit-agent-helper-1: could not get shadow information for%.100s", user_to_auth);
++      goto error;
++    }
++  
++  /* Check the user's identity */
++  if(!shadow_authenticate (shadow))
++    {
++      syslog (LOG_NOTICE, "authentication failure [uid=%d] trying to authenticate '%s'", getuid (), user_to_auth);
++      fprintf (stderr, "polkit-agent-helper-1: authentication failure. This incident has been logged.\n");
++      goto error;
++    }
++
++  /* Check whether the user's password has expired */
++  time(&tm);
++  if( shadow->sp_max >= 0 && (shadow->sp_lstchg + shadow->sp_max) * 60 * 60 * 24 <= tm)
++    {
++      syslog (LOG_NOTICE, "password expired for user '%s' [uid=%d] trying to authenticate", user_to_auth, getuid () );
++      fprintf (stderr, "polkit-agent-helper-1: authorization failure. This incident has been logged.\n");
++      goto error;
++    }
++
++  /* Check whether the user's password has aged (and account expired along
++   * with it)
++   */
++  if( shadow->sp_inact >= 0 && (shadow->sp_lstchg + shadow->sp_max + shadow->sp_inact) * 60 * 60 * 24           <= tm) 
++    {
++      syslog (LOG_NOTICE, "password aged for user '%s' [uid=%d] trying to authenticate", user_to_auth, getuid () );
++      fprintf (stderr, "polkit-agent-helper-1: authorization failure. This incident has been logged.\n");
++      goto error;
++    }
++
++  /* Check whether the user's account has expired */
++  if(shadow->sp_expire >= 0 && shadow->sp_expire * 60 * 60 * 24 <= tm) 
++    {
++      syslog (LOG_NOTICE, "account expired for user '%s' [uid=%d] trying to authenticate", user_to_auth, getuid () );
++      fprintf (stderr, "polkit-agent-helper-1: authorization failure. This incident has been logged.\n");
++      goto error;
++    }
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: sending D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++
++  /* now send a D-Bus message to the PolicyKit daemon that
++   * includes a) the cookie; and b) the user we authenticated
++   */
++  if (!send_dbus_message (cookie, user_to_auth))
++    {
++#ifdef PAH_DEBUG
++      fprintf (stderr, "polkit-agent-helper-1: error sending D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++      goto error;
++    }
++
++#ifdef PAH_DEBUG
++  fprintf (stderr, "polkit-agent-helper-1: successfully sent D-Bus message to PolicyKit daemon\n");
++#endif /* PAH_DEBUG */
++
++  fprintf (stdout, "SUCCESS\n");
++  flush_and_wait();
++  return 0;
++
++error:
++  fprintf (stdout, "FAILURE\n");
++  flush_and_wait();
++  return 1;
++}
++
++static int
++shadow_authenticate(struct spwd *shadow)
++{
++  /* Speak PAM to the daemon, thanks to David Zeuthen for the idea. */
++  char passwd[512];
++  fprintf(stdout, "PAM_PROMPT_ECHO_OFF password:\n");
++  fflush(stdout);
++  usleep (10 * 1000); /* since fflush(3) seems buggy */
++
++  if (fgets (passwd, sizeof (passwd), stdin) == NULL)
++    goto error;
++
++  if (strlen (passwd) > 0 && passwd[strlen (passwd) - 1] == '\n')
++    passwd[strlen (passwd) - 1] = '\0';
++  
++  if (strcmp (shadow->sp_pwdp, crypt (passwd, shadow->sp_pwdp)) != 0)
++    goto error;
++  return 1;
++error:
++  return 0;
++}
++
+diff -Naur polkit-0.96-orig/src/programs/pkexec.c polkit-0.96/src/programs/pkexec.c
+--- polkit-0.96-orig/src/programs/pkexec.c	2009-12-15 19:04:15.000000000 +0000
++++ polkit-0.96/src/programs/pkexec.c	2010-04-10 21:01:22.000000000 +0100
+@@ -34,7 +34,11 @@
+ #include <grp.h>
+ #include <pwd.h>
+ #include <errno.h>
++
++#ifdef POLKIT_AUTHFW_PAM
+ #include <security/pam_appl.h>
++#endif /* POLKIT_AUTHFW_PAM */
++
+ #include <syslog.h>
+ #include <stdarg.h>
+ 
+@@ -115,6 +119,7 @@
+ 
+ /* ---------------------------------------------------------------------------------------------------- */
+ 
++#ifdef POLKIT_AUTHFW_PAM
+ static int
+ pam_conversation_function (int n,
+                            const struct pam_message **msg,
+@@ -167,6 +172,7 @@
+     pam_end (pam_h, rc);
+   return ret;
+ }
++#endif /* POLKIT_AUTHFW_PAM */
+ 
+ /* ---------------------------------------------------------------------------------------------------- */
+ 
+@@ -742,11 +748,13 @@
+    * TODO: The question here is whether we should clear the limits before applying them?
+    * As evident above, neither su(1) (and, for that matter, nor sudo(8)) does this.
+    */
++#ifdef POLKIT_AUTHW_PAM
+   if (!open_session (pw->pw_name))
+     {
+       goto out;
+     }
+-
++#endif /* POLKIT_AUTHFW_PAM */
++  
+   /* become the user */
+   if (setgroups (0, NULL) != 0)
+     {

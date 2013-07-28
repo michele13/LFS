@@ -1,0 +1,22 @@
+Submitted By: Jeremy Utley <jeremy@linuxfromscratch.org>
+Date: 2004-10-15
+Initial Package Version: 0.7.41
+Upstream Status: Not submitted - Hack
+Origin: LFS IRC work with others
+Description: Avifile has a problem in compiling with newer versions of glibc.
+This patch fixes the problem.  First version of Glibc used in LFS affected by
+this was 20041011.
+
+
+diff -Naur avifile-0.7-0.7.41/include/utils.h avifile-0.7-0.7.41-new/include/utils.h
+--- avifile-0.7-0.7.41/include/utils.h	2002-09-24 07:19:22.000000000 +0000
++++ avifile-0.7-0.7.41-new/include/utils.h	2004-10-16 06:19:46.761565529 +0000
+@@ -38,6 +38,8 @@
+  * function to retrieve/store data in machine independent format
+  * - right now dump implementation - as we could check functionality
+  */
++#undef __THROW
++#define __THROW
+ static inline uint16_t avm_get_le16(const void* p) __THROW {
+ #ifdef WORDS_BIGENDIAN 
+     const uint8_t* c = (const uint8_t*) p;

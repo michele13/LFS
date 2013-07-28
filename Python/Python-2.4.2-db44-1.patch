@@ -1,0 +1,73 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-12-10
+Initial Package Version: 2.4.2
+Upstream Status:         Unknown
+Origin:                  Randy McMurchy,
+                         http://www.sleepycat.com/docs/ref/upgrade.4.4/toc.html,
+                         http://www.mail-archive.com/pld-cvs-commit@lists.pld-linux.org/msg23836.html
+Description:             Adds Berkeley-DB 4.4 API changes
+
+
+diff -Naur Python-2.4.2-orig/Modules/_bsddb.c Python-2.4.2/Modules/_bsddb.c
+--- Python-2.4.2-orig/Modules/_bsddb.c	2004-12-16 09:48:37.000000000 +0000
++++ Python-2.4.2/Modules/_bsddb.c	2005-12-11 01:12:53.000000000 +0000
+@@ -97,7 +97,7 @@
+ #error "eek! DBVER can't handle minor versions > 9"
+ #endif
+ 
+-#define PY_BSDDB_VERSION "4.3.0"
++#define PY_BSDDB_VERSION "4.4.0"
+ static char *rcs_id = "$Id: _bsddb.c,v 1.38.2.1 2004/12/16 09:48:37 greg Exp $";
+ 
+ 
+@@ -4101,8 +4101,15 @@
+ #endif
+     MAKE_ENTRY(nrequests);
+     MAKE_ENTRY(nreleases);
++#if (DBVER < 44)
+     MAKE_ENTRY(nnowaits);
+     MAKE_ENTRY(nconflicts);
++#else
++    MAKE_ENTRY(nupgrade);
++    MAKE_ENTRY(ndowngrade);
++    MAKE_ENTRY(lock_wait);
++    MAKE_ENTRY(lock_nowait);
++#endif
+     MAKE_ENTRY(ndeadlocks);
+     MAKE_ENTRY(regsize);
+     MAKE_ENTRY(region_wait);
+@@ -4938,7 +4945,13 @@
+     ADD_INT(d, DB_LOCK_IREAD);
+     ADD_INT(d, DB_LOCK_IWR);
+ #if (DBVER >= 33)
++#if (DBVER < 44)
+     ADD_INT(d, DB_LOCK_DIRTY);
++#else
++    ADD_INT(d, DB_LOCK_READ_UNCOMMITTED);
++#endif
++#endif
++#if (DBVER >= 33)
+     ADD_INT(d, DB_LOCK_WWRITE);
+ #endif
+ 
+diff -Naur Python-2.4.2-orig/setup.py Python-2.4.2/setup.py
+--- Python-2.4.2-orig/setup.py	2005-03-09 22:27:24.000000000 +0000
++++ Python-2.4.2/setup.py	2005-12-11 01:12:53.000000000 +0000
+@@ -489,7 +489,7 @@
+         #
+         # http://www.sleepycat.com/update/index.html
+ 
+-        max_db_ver = (4, 3)
++        max_db_ver = (4, 4)
+         min_db_ver = (3, 2)
+         db_setup_debug = False   # verbose debug prints from this script?
+ 
+@@ -506,7 +506,7 @@
+             '/sw/include/db3',
+         ]
+         # 4.x minor number specific paths
+-        for x in (0,1,2,3):
++        for x in (0,1,2,3,4):
+             db_inc_paths.append('/usr/include/db4%d' % x)
+             db_inc_paths.append('/usr/local/BerkeleyDB.4.%d/include' % x)
+             db_inc_paths.append('/usr/local/include/db4%d' % x)

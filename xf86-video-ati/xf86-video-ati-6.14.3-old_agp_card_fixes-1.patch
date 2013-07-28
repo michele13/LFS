@@ -1,0 +1,83 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2011-11-30
+Initial Package Version: 6.13.2
+Upstream Status: Unknown, still applies in 6.14.
+Origin: Uncertain, I thought I found it included in cgit.freedesktop.org
+ on a stable branch of xf86-video-ati, but I had previously created my
+ own revert without the 'blames'.
+Description: Makes things 'just work' with my R200 (7500, 9200se) cards.
+(bug 32282 was mine, system unusable with the gimp's perspective tool).
+
+ This patch reverts:
+commit f8fb9312d791af1f77020e8c2d35bb30841ed9aa
+Author: Karl Tomlinson <karlt+@karlt.net>
+Date:   Sun Aug 22 22:46:33 2010 +1200
+
+    RADEONPrepareAccess_CS: fallback to DFS when pixmap is in VRAM
+    
+    This avoids costly CPU VRAM reads and lets EXA manage a system memory cache
+    of the portions of pixmaps needed for unaccelerated operations.
+    
+    https://bugs.freedesktop.org/show_bug.cgi?id=27139
+
+:040000 040000 94afde6673141f2976633cbba6a946e336856e5f d7184fa36bb29ec3fd00d564293c041efd132e18 M      src
+
+ which is blamed for radeon bugs 30679, 30785, 32282 (probably all on old AGP cards).
+
+diff -Naur xf86-video-ati-6.13.2.orig//src/radeon_exa.c xf86-video-ati-6.13.2/src/radeon_exa.c
+--- xf86-video-ati-6.13.2.orig//src/radeon_exa.c	2010-09-27 18:34:37.000000000 +0100
++++ xf86-video-ati-6.13.2/src/radeon_exa.c	2010-12-10 20:03:46.462288009 +0000
+@@ -284,21 +284,12 @@
+     ScrnInfoPtr pScrn = xf86Screens[pScreen->myNum];
+     RADEONInfoPtr info = RADEONPTR(pScrn);
+     struct radeon_exa_pixmap_priv *driver_priv;
+-    uint32_t possible_domains = ~0U;
+-    uint32_t current_domain = 0;
+-#ifdef EXA_MIXED_PIXMAPS
+-    Bool can_fail = !(pPix->drawable.bitsPerPixel < 8) &&
+-	pPix != pScreen->GetScreenPixmap(pScreen) &&
+-        (info->accel_state->exa->flags & EXA_MIXED_PIXMAPS);
+-#else
+-    Bool can_fail = FALSE;
+-#endif
+-    Bool flush = FALSE;
+     int ret;
+ 
+ #if X_BYTE_ORDER == X_BIG_ENDIAN
+     /* May need to handle byte swapping in DownloadFrom/UploadToScreen */
+-    if (can_fail && pPix->drawable.bitsPerPixel > 8)
++    if (pPix->drawable.bitsPerPixel > 8 &&
++	pPix != pScreen->GetScreenPixmap(pScreen))
+ 	return FALSE;
+ #endif
+ 
+@@ -307,28 +298,7 @@
+       return FALSE;
+ 
+     /* if we have more refs than just the BO then flush */
+-    if (radeon_bo_is_referenced_by_cs(driver_priv->bo, info->cs)) {
+-	flush = TRUE;
+-
+-	if (can_fail) {
+-	    possible_domains = radeon_bo_get_src_domain(driver_priv->bo);
+-	    if (possible_domains == RADEON_GEM_DOMAIN_VRAM)
+-		return FALSE; /* use DownloadFromScreen */
+-	}
+-    }
+-
+-    /* if the BO might end up in VRAM, prefer DownloadFromScreen */
+-    if (can_fail && (possible_domains & RADEON_GEM_DOMAIN_VRAM)) {
+-	radeon_bo_is_busy(driver_priv->bo, &current_domain);
+-
+-	if (current_domain & possible_domains) {
+-	    if (current_domain == RADEON_GEM_DOMAIN_VRAM)
+-		return FALSE;
+-	} else if (possible_domains & RADEON_GEM_DOMAIN_VRAM)
+-	    return FALSE;
+-    }
+-
+-    if (flush)
++    if (radeon_bo_is_referenced_by_cs(driver_priv->bo, info->cs))
+         radeon_cs_flush_indirect(pScrn);
+     
+     /* flush IB */

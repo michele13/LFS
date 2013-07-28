@@ -1,0 +1,149 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2006-08-15
+Initial Package Version: 2.4
+Origin: http://sourceware.org/bugzilla/show_bug.cgi?id=2873
+Upstream Status: Applied
+Description: Fixes http://sourceware.org/bugzilla/show_bug.cgi?id=2873
+	     http://sourceware.org/bugzilla/show_bug.cgi?id=3040
+             http://linuxfromscratch.org/pipermail/lfs-dev/2006-June/057562.html
+
+
+diff -Naur glibc-2.4.orig/sysdeps/unix/sysv/linux/i386/fchownat.c glibc-2.4/sysdeps/unix/sysv/linux/i386/fchownat.c
+--- glibc-2.4.orig/sysdeps/unix/sysv/linux/i386/fchownat.c	2006-02-23 14:50:21.000000000 -0800
++++ glibc-2.4/sysdeps/unix/sysv/linux/i386/fchownat.c	2006-08-15 09:01:43.000000000 -0700
+@@ -61,6 +61,24 @@
+ int
+ fchownat (int fd, const char *file, uid_t owner, gid_t group, int flag)
+ {
++  int result;
++
++#ifdef __NR_fchownat
++# ifndef __ASSUME_ATFCTS
++  if (__have_atfcts >= 0)
++# endif
++    {
++      result = INLINE_SYSCALL (fchownat, 5, fd, file, owner, group, flag);
++# ifndef __ASSUME_ATFCTS
++      if (result == -1 && errno == ENOSYS)
++	__have_atfcts = -1;
++      else
++# endif
++	return result;
++    }
++#endif
++
++#ifndef __ASSUME_ATFCTS
+   if (flag & ~AT_SYMLINK_NOFOLLOW)
+     {
+       __set_errno (EINVAL);
+@@ -87,14 +105,13 @@
+       file = buf;
+     }
+ 
+-  int result;
+   INTERNAL_SYSCALL_DECL (err);
+ 
+-#if defined __NR_lchown || __ASSUME_LCHOWN_SYSCALL > 0
+-# if __ASSUME_LCHOWN_SYSCALL == 0
++# if defined __NR_lchown || __ASSUME_LCHOWN_SYSCALL > 0
++#  if __ASSUME_LCHOWN_SYSCALL == 0
+   static int __libc_old_chown;
+ 
+-#  ifdef __NR_chown32
++#   ifdef __NR_chown32
+   if (__libc_missing_32bit_uids <= 0)
+     {
+       if (flag & AT_SYMLINK_NOFOLLOW)
+@@ -111,7 +128,7 @@
+ 
+       __libc_missing_32bit_uids = 1;
+     }
+-#  endif /* __NR_chown32 */
++#   endif /* __NR_chown32 */
+ 
+   if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
+       || ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+@@ -135,13 +152,13 @@
+ 
+   result = INTERNAL_SYSCALL (lchown, err, 3, CHECK_STRING (file), owner,
+ 			     group);
+-# elif __ASSUME_32BITUIDS
++#  elif __ASSUME_32BITUIDS
+   /* This implies __ASSUME_LCHOWN_SYSCALL.  */
+   result = INTERNAL_SYSCALL (chown32, err, 3, CHECK_STRING (file), owner,
+ 			     group);
+-# else
++#  else
+   /* !__ASSUME_32BITUIDS && ASSUME_LCHOWN_SYSCALL  */
+-#  ifdef __NR_chown32
++#   ifdef __NR_chown32
+   if (__libc_missing_32bit_uids <= 0)
+     {
+       result = INTERNAL_SYSCALL (chown32, err, 3, CHECK_STRING (file), owner,
+@@ -153,7 +170,7 @@
+ 
+       __libc_missing_32bit_uids = 1;
+     }
+-#  endif /* __NR_chown32 */
++#   endif /* __NR_chown32 */
+   if (((owner + 1) > (uid_t) ((__kernel_uid_t) -1U))
+       || ((group + 1) > (gid_t) ((__kernel_gid_t) -1U)))
+     {
+@@ -162,10 +179,10 @@
+     }
+ 
+   result = INTERNAL_SYSCALL (chown, err, 3, CHECK_STRING (file), owner, group);
+-# endif
+-#else
++#  endif
++# else
+   result = INTERNAL_SYSCALL (chown, err, 3, CHECK_STRING (file), owner, group);
+-#endif
++# endif
+ 
+   if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (result, err), 0))
+     goto fail;
+@@ -175,4 +192,5 @@
+  fail:
+   __atfct_seterrno (INTERNAL_SYSCALL_ERRNO (result, err), fd, buf);
+   return -1;
++#endif
+ }
+diff -Naur glibc-2.4.orig/sysdeps/unix/sysv/linux/openat.c glibc-2.4/sysdeps/unix/sysv/linux/openat.c
+--- glibc-2.4.orig/sysdeps/unix/sysv/linux/openat.c	2006-02-28 21:32:42.000000000 -0800
++++ glibc-2.4/sysdeps/unix/sysv/linux/openat.c	2006-08-14 22:48:17.000000000 -0700
+@@ -27,6 +27,9 @@
+ #include <sysdep-cancel.h>
+ #include <not-cancel.h>
+ 
++#if !defined OPENAT
++# define OPENAT openat
++#endif
+ 
+ #if !defined OPENAT && !defined __ASSUME_ATFCTS
+ # define OPENAT openat
+@@ -70,11 +73,7 @@
+ 
+ 
+ int
+-OPENAT_NOT_CANCEL (fd, file, oflag, mode)
+-     int fd;
+-     const char *file;
+-     int oflag;
+-     mode_t mode;
++OPENAT_NOT_CANCEL (int fd, const char *file, int oflag, mode_t mode)
+ {
+ 
+   /* We have to add the O_LARGEFILE flag for openat64.  */
+@@ -144,10 +143,7 @@
+    the directory associated with FD.  If OFLAG includes O_CREAT, a
+    third argument is the file protection.  */
+ int
+-__OPENAT (fd, file, oflag)
+-     int fd;
+-     const char *file;
+-     int oflag;
++__OPENAT (int fd, const char *file, int oflag, ...)
+ {
+   mode_t mode = 0;
+   if (oflag & O_CREAT)

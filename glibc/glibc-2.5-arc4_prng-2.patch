@@ -1,0 +1,1064 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-06-06
+Initial Package Version: 2.5
+Upstream Status: Rejected
+                 http://sources.redhat.com/bugzilla/show_bug.cgi?id=4417
+Origin: OpenBSD src/lib/libc/crypt/arc4random.c v1.16, Alt/Owl Linux's
+        glibc-2.5-owl-alt-res_randomid.patch, and gcc-4.1.2's
+        libiberty/mkstemps.c.
+Description: This patch adds arc4random(3) to the Glibc library, to tempname.c
+for mktemp and friends, to res_init.c and res_mkquery.c to improve the
+resolver, to bindrsvprt.c to randomize the port numbers, and to strfry(3).
+This patch also adds  the mkstemps(3) function.
+
+Both arc4random(3) and mkstemps(3) are non-standard BSD functions. They will
+be used by many packages if they're found, such as openntpd, bind9, perl, kde,
+poppler, binutils, gcc.
+
+Manual pages for arc4random() and mkstemps() are in the manual/ directory.
+
+This patch also adds the --with-prng-device configure option to let you
+specify /dev/urandom, /dev/erandom, or whatever. This device does not need to
+exist at build time. This device will be used arc4random and stack smashing
+protector.
+
+This patch also uses ./configure to check for RANDOM_ERANDOM in
+<linux/sysctl.h>, and will use it with arc4random() if it is found.
+/dev/?random will be used otherwise, and none need to exist in the host kernel
+at build time.
+Note: It looks like the Linux kernel will eventually stop supplying the
+__sysctl syscall, so this option may be removed one day.
+
+After 'make install' you will probably want to install the manual pages by hand.
+
+diff -Naur glibc-2.5.orig/config.h.in glibc-2.5/config.h.in
+--- glibc-2.5.orig/config.h.in	2006-03-02 15:54:43.000000000 +0000
++++ glibc-2.5/config.h.in	2007-06-08 08:08:21.000000000 +0000
+@@ -206,6 +206,12 @@
+ /* Define if __stack_chk_guard canary should be randomized at program startup.  */
+ #undef ENABLE_STACKGUARD_RANDOMIZE
+ 
++/* Define this to the system's pseudo-random device (/dev/urandom).  */
++#undef PRNG_DEV
++
++/* Define if your <linux/sysctl.h> has RANDOM_ERANDOM.  */
++#undef HAVE_RANDOM_ERANDOM
++
+ /*
+  */
+ 
+diff -Naur glibc-2.5.orig/configure glibc-2.5/configure
+--- glibc-2.5.orig/configure	2006-09-29 20:18:33.000000000 +0000
++++ glibc-2.5/configure	2007-06-08 08:08:21.000000000 +0000
+@@ -313,7 +313,7 @@
+ # include <unistd.h>
+ #endif"
+ 
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS with_fp with_cvs enable_check_abi oldest_abi bindnow force_install all_warnings build build_cpu build_vendor build_os host host_cpu host_vendor host_os subdirs add_ons add_on_subdirs base_machine submachine sysnames sysdeps_add_ons INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT BUILD_CC cross_compiling CPP CXX CXXFLAGS ac_ct_CXX AR OBJDUMP RANLIB ac_ct_RANLIB MIG AS LD PWD_P MAKE MSGFMT MAKEINFO SED AUTOCONF SYSINCLUDES CXX_SYSINCLUDES libc_cv_gcc_static_libgcc BASH libc_cv_have_bash2 KSH libc_cv_have_ksh AWK PERL INSTALL_INFO BISON VERSIONING libc_cv_asm_protected_directive libc_cv_cc_with_libunwind libc_cv_z_nodelete libc_cv_z_nodlopen libc_cv_z_initfirst libc_cv_z_relro libc_cv_Bgroup libc_cv_libgcc_s_suffix libc_cv_as_needed ASFLAGS_config libc_cv_z_combreloc libc_cv_z_execstack libc_cv_fpie libc_cv_hashstyle fno_unit_at_a_time libc_cv_ssp libc_cv_have_initfini no_whole_archive exceptions LIBGD have_libaudit have_libcap have_selinux EGREP sizeof_long_double libc_cv_gcc_unwind_find_fde uname_sysname uname_release uname_version old_glibc_headers libc_cv_slibdir libc_cv_localedir libc_cv_sysconfdir libc_cv_rootsbindir libc_cv_forced_unwind use_ldconfig ldd_rewrite_script elf xcoff static shared pic_default profile omitfp bounded static_nss nopic_initfini DEFINES mach_interface_list VERSION RELEASE LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS with_fp with_cvs enable_check_abi oldest_abi bindnow force_install all_warnings build build_cpu build_vendor build_os host host_cpu host_vendor host_os subdirs add_ons add_on_subdirs base_machine submachine sysnames sysdeps_add_ons INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA LN_S CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC OBJEXT BUILD_CC cross_compiling CPP CXX CXXFLAGS ac_ct_CXX AR OBJDUMP RANLIB ac_ct_RANLIB MIG AS LD PWD_P MAKE MSGFMT MAKEINFO SED AUTOCONF SYSINCLUDES CXX_SYSINCLUDES libc_cv_gcc_static_libgcc BASH libc_cv_have_bash2 KSH libc_cv_have_ksh AWK PERL INSTALL_INFO BISON VERSIONING libc_cv_asm_protected_directive libc_cv_cc_with_libunwind libc_cv_z_nodelete libc_cv_z_nodlopen libc_cv_z_initfirst libc_cv_z_relro libc_cv_Bgroup libc_cv_libgcc_s_suffix libc_cv_as_needed ASFLAGS_config libc_cv_z_combreloc libc_cv_z_execstack libc_cv_fpie libc_cv_hashstyle fno_unit_at_a_time libc_cv_ssp libc_cv_have_initfini no_whole_archive exceptions LIBGD have_libaudit have_libcap have_selinux EGREP sizeof_long_double libc_cv_gcc_unwind_find_fde uname_sysname uname_release uname_version old_glibc_headers libc_cv_slibdir libc_cv_localedir libc_cv_sysconfdir libc_cv_rootsbindir libc_cv_forced_unwind use_ldconfig ldd_rewrite_script elf xcoff static shared pic_default have_random_erandom profile omitfp bounded static_nss nopic_initfini DEFINES mach_interface_list VERSION RELEASE LIBOBJS LTLIBOBJS'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -903,6 +903,9 @@
+   --with-headers=PATH     location of system headers to use (for example
+                           /usr/src/linux/include) [default=compiler
+                           default]
++  --with-prng-device=/path/to/prng
++                          specify the path to the system's pseudo-random
++                          device. [default=/dev/urandom]
+   --with-tls              enable support for TLS
+   --without-__thread      do not use TLS features even when supporting them
+   --with-cpu=CPU          select code for CPU variant
+@@ -1513,6 +1516,19 @@
+   sysheaders=''
+ fi;
+ 
++
++# Check whether --with-prng-device or --without-prng-device was given.
++if test "${with_prng_device+set}" = set; then
++  withval="$with_prng_device"
++  prng_device=$withval
++else
++  prng_device=/dev/urandom
++fi;
++cat >>confdefs.h <<_ACEOF
++#define PRNG_DEV "$prng_device"
++_ACEOF
++
++
+ # Check whether --enable-sanity-checks or --disable-sanity-checks was given.
+ if test "${enable_sanity_checks+set}" = set; then
+   enableval="$enable_sanity_checks"
+@@ -7797,6 +7813,31 @@
+ echo "${ECHO_T}$pic_default" >&6
+ 
+ 
++echo "$as_me:$LINENO: checking whether you have sysctl RANDOM_ERANDOM" >&5
++echo $ECHO_N "checking whether you have sysctl RANDOM_ERANDOM... $ECHO_C" >&6
++if test "${have_random_erandom+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  have_random_erandom=no
++cat > conftest.c <<EOF
++#include <sys/sysctl.h>
++int main(void) { return RANDOM_ERANDOM; }
++EOF
++if eval "${CC-cc} -S conftest.c 2>&5 1>&5"; then
++  have_random_erandom=yes
++fi
++rm -f conftest.*
++fi
++echo "$as_me:$LINENO: result: $have_random_erandom" >&5
++echo "${ECHO_T}$have_random_erandom" >&6
++
++if test $have_random_erandom = yes; then
++  cat >>confdefs.h <<\_ACEOF
++#define HAVE_RANDOM_ERANDOM 1
++_ACEOF
++
++fi
++
+ 
+ 
+ 
+@@ -8552,6 +8593,7 @@
+ s,@static@,$static,;t t
+ s,@shared@,$shared,;t t
+ s,@pic_default@,$pic_default,;t t
++s,@have_random_erandom@,$have_random_erandom,;t t
+ s,@profile@,$profile,;t t
+ s,@omitfp@,$omitfp,;t t
+ s,@bounded@,$bounded,;t t
+diff -Naur glibc-2.5.orig/configure.in glibc-2.5/configure.in
+--- glibc-2.5.orig/configure.in	2006-07-10 21:45:29.000000000 +0000
++++ glibc-2.5/configure.in	2007-06-08 08:08:21.000000000 +0000
+@@ -100,6 +100,15 @@
+ 	    [sysheaders=$withval],
+ 	    [sysheaders=''])
+ 
++AC_ARG_WITH([prng-device],
++	    AC_HELP_STRING([--with-prng-device=/path/to/prng],
++			   [specify the path to the system's
++			    pseudo-random device.
++			    @<:@default=/dev/urandom@:>@]),
++	    [prng_device=$withval],
++	    [prng_device=/dev/urandom])
++AC_DEFINE_UNQUOTED(PRNG_DEV, "$prng_device")
++
+ AC_ARG_ENABLE([sanity-checks],
+               AC_HELP_STRING([--disable-sanity-checks],
+                              [really do not use threads (should not be used except in special situations) @<:@default=yes@:>@]),
+@@ -2165,6 +2174,21 @@
+ rm -f conftest.*])
+ AC_SUBST(pic_default)
+ 
++AC_CACHE_CHECK([whether you have sysctl RANDOM_ERANDOM], have_random_erandom,
++[have_random_erandom=no
++cat > conftest.c <<EOF
++#include <sys/sysctl.h>
++int main(void) { return RANDOM_ERANDOM; }
++EOF
++if eval "${CC-cc} -S conftest.c 2>&AS_MESSAGE_LOG_FD 1>&AS_MESSAGE_LOG_FD"; then
++  have_random_erandom=yes
++fi
++rm -f conftest.*])
++AC_SUBST(have_random_erandom)
++if test $have_random_erandom = yes; then
++  AC_DEFINE(HAVE_RANDOM_ERANDOM)
++fi
++
+ AC_SUBST(profile)
+ AC_SUBST(omitfp)
+ AC_SUBST(bounded)
+diff -Naur glibc-2.5.orig/manual/arc4random.3 glibc-2.5/manual/arc4random.3
+--- glibc-2.5.orig/manual/arc4random.3	1970-01-01 00:00:00.000000000 +0000
++++ glibc-2.5/manual/arc4random.3	2007-06-08 08:08:21.000000000 +0000
+@@ -0,0 +1,110 @@
++.\" $OpenBSD: arc4random.3,v 1.19 2005/07/17 08:50:55 jaredy Exp $
++.\"
++.\" Copyright 1997 Niels Provos <provos@physnet.uni-hamburg.de>
++.\" All rights reserved.
++.\"
++.\" Redistribution and use in source and binary forms, with or without
++.\" modification, are permitted provided that the following conditions
++.\" are met:
++.\" 1. Redistributions of source code must retain the above copyright
++.\"    notice, this list of conditions and the following disclaimer.
++.\" 2. Redistributions in binary form must reproduce the above copyright
++.\"    notice, this list of conditions and the following disclaimer in the
++.\"    documentation and/or other materials provided with the distribution.
++.\" 3. All advertising materials mentioning features or use of this software
++.\"    must display the following acknowledgement:
++.\"      This product includes software developed by Niels Provos.
++.\" 4. The name of the author may not be used to endorse or promote products
++.\"    derived from this software without specific prior written permission.
++.\"
++.\" THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
++.\" IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
++.\" OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
++.\" IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
++.\" INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
++.\" NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
++.\" DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
++.\" THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
++.\" (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
++.\" THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++.\"
++.\" Manual page, using -mandoc macros
++.\"
++.Dd April 15, 1997
++.Dt ARC4RANDOM 3
++.Os
++.Sh NAME
++.Nm arc4random ,
++.Nm arc4random_stir ,
++.Nm arc4random_addrandom
++.Nd arc4 random number generator
++.Sh SYNOPSIS
++.Fd #include <stdlib.h>
++.Ft u_int32_t
++.Fn arc4random "void"
++.Ft void
++.Fn arc4random_stir "void"
++.Ft void
++.Fn arc4random_addrandom "u_char *dat" "int datlen"
++.Sh DESCRIPTION
++The
++.Fn arc4random
++function provides a high quality 32-bit pseudo-random
++number very quickly.
++.Fn arc4random
++seeds itself on a regular basis from the kernel strong random number
++subsystem described in
++.Xr random 4 .
++On each call, an ARC4 generator is used to generate a new result.
++The
++.Fn arc4random
++function uses the ARC4 cipher key stream generator,
++which uses 8*8 8-bit S-Boxes.
++The S-Boxes can be in about (2**1700) states.
++.Pp
++.Fn arc4random
++fits into a middle ground not covered by other subsystems such as
++the strong, slow, and resource expensive random
++devices described in
++.Xr random 4
++versus the fast but poor quality interfaces described in
++.Xr rand 3 ,
++.Xr random 3 ,
++and
++.Xr drand48 3 .
++.Pp
++The
++.Fn arc4random_stir
++function reads data from a pseudo-random device, usually
++.Pa /dev/urandom,
++and uses it to permute the S-Boxes via
++.Fn arc4random_addrandom .
++.Pp
++There is no need to call
++.Fn arc4random_stir
++before using
++.Fn arc4random ,
++since
++.Fn arc4random
++automatically initializes itself.
++.Sh SEE ALSO
++.Xr rand 3 ,
++.Xr rand48 3 ,
++.Xr random 3
++.Sh HISTORY
++An algorithm called
++.Pa RC4
++was designed by RSA Data Security, Inc.
++It was considered a trade secret.
++Because it was a trade secret, it obviously could not be patented.
++A clone of this was posted anonymously to USENET and confirmed to
++be equivalent by several sources who had access to the original cipher.
++Because of the trade secret situation, RSA Data Security, Inc. can do
++nothing about the release of the ARC4 algorithm.
++Since
++.Pa RC4
++used to be a trade secret, the cipher is now referred to as
++.Pa ARC4 .
++.Pp
++These functions first appeared in
++.Ox 2.1 .
+diff -Naur glibc-2.5.orig/manual/mkstemps.3 glibc-2.5/manual/mkstemps.3
+--- glibc-2.5.orig/manual/mkstemps.3	1970-01-01 00:00:00.000000000 +0000
++++ glibc-2.5/manual/mkstemps.3	2007-06-08 08:08:21.000000000 +0000
+@@ -0,0 +1,86 @@
++.\"	$OpenBSD: mktemp.3,v 1.40 2007/05/10 22:46:36 espie Exp $
++.\"
++.\" Copyright (c) 1989, 1991, 1993
++.\"	The Regents of the University of California.  All rights reserved.
++.\"
++.\" Redistribution and use in source and binary forms, with or without
++.\" modification, are permitted provided that the following conditions
++.\" are met:
++.\" 1. Redistributions of source code must retain the above copyright
++.\"    notice, this list of conditions and the following disclaimer.
++.\" 2. Redistributions in binary form must reproduce the above copyright
++.\"    notice, this list of conditions and the following disclaimer in the
++.\"    documentation and/or other materials provided with the distribution.
++.\" 3. Neither the name of the University nor the names of its contributors
++.\"    may be used to endorse or promote products derived from this software
++.\"    without specific prior written permission.
++.\"
++.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
++.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
++.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++.\" SUCH DAMAGE.
++.\"
++.Dd June 4, 1993
++.Dt MKTEMP 3
++.Os
++.Sh NAME
++.Nm mkstemps
++.Nd make temporary file name (unique)
++.Sh SYNOPSIS
++.Fd #include <stdlib.h>
++.Ft int
++.Fn mkstemps "char *template" "int suffixlen"
++.Sh DESCRIPTION
++.Pp
++The
++.Fn mkstemps
++function acts the same as
++.Fn mkstemp ,
++except it permits a suffix to exist in the template.
++The template should be of the form
++.Pa /tmp/tmpXXXXXXXXXXsuffix .
++.Fn mkstemps
++is told the length of the suffix string, i.e.,
++.Li strlen("suffix") .
++.Pp
++The
++.Fn mkstemps
++function return \-1 if no suitable file could be created.
++If any call fails, an error code is placed in the global variable
++.Va errno .
++The
++.Fn mkstemps
++function may also set
++.Va errno
++to any value specified by the
++.Xr open 2
++function or,
++.Bl -tag -width Er
++.It Bq Er EINVAL
++The suffix length is longer than the template length.
++.El
++.Sh SEE ALSO
++.Xr chmod 2 ,
++.Xr getpid 2 ,
++.Xr mkdir 2 ,
++.Xr open 2 ,
++.Xr stat 2 ,
++.Xr tempnam 3 ,
++.Xr tmpfile 3 ,
++.Xr tmpnam 3
++.Sh HISTORY
++The
++.Fn mkstemps
++function appeared in
++.Ox 2.3 .
++.Sh BUGS
++The
++.Fn mkstemps
++function are non-standard and should not be used if portability is required.
+diff -Naur glibc-2.5.orig/misc/Makefile glibc-2.5/misc/Makefile
+--- glibc-2.5.orig/misc/Makefile	2006-06-17 17:00:58.000000000 +0000
++++ glibc-2.5/misc/Makefile	2007-06-08 08:08:21.000000000 +0000
+@@ -44,7 +44,7 @@
+ 	    acct chroot fsync sync fdatasync reboot \
+ 	    gethostid sethostid \
+ 	    revoke vhangup \
+-	    swapon swapoff mktemp mkstemp mkstemp64 mkdtemp \
++	    swapon swapoff mktemp mkstemp mkstemps mkstemp64 mkdtemp \
+ 	    ualarm usleep \
+ 	    gtty stty \
+ 	    ptrace \
+diff -Naur glibc-2.5.orig/misc/Versions glibc-2.5/misc/Versions
+--- glibc-2.5.orig/misc/Versions	2005-11-11 18:58:19.000000000 +0000
++++ glibc-2.5/misc/Versions	2007-06-08 08:08:21.000000000 +0000
+@@ -54,7 +54,7 @@
+ 
+     # m*
+     madvise; mkstemp; mktemp; mlock; mlockall; mmap; mount; mprotect; msync;
+-    munlock; munlockall; munmap;
++    munlock; munlockall; munmap; mkstemps;
+ 
+     # o*
+     openlog;
+diff -Naur glibc-2.5.orig/misc/mkstemps.c glibc-2.5/misc/mkstemps.c
+--- glibc-2.5.orig/misc/mkstemps.c	1970-01-01 00:00:00.000000000 +0000
++++ glibc-2.5/misc/mkstemps.c	2007-06-08 08:08:21.000000000 +0000
+@@ -0,0 +1,116 @@
++/* Copyright (C) 1991, 1992, 1996, 1998, 2004 Free Software Foundation, Inc.
++   This file is derived from mkstemp.c from the GNU C Library.
++
++   The GNU C Library is free software; you can redistribute it and/or
++   modify it under the terms of the GNU Library General Public License as
++   published by the Free Software Foundation; either version 2 of the
++   License, or (at your option) any later version.
++
++   The GNU C Library is distributed in the hope that it will be useful,
++   but WITHOUT ANY WARRANTY; without even the implied warranty of
++   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++   Library General Public License for more details.
++
++   You should have received a copy of the GNU Library General Public
++   License along with the GNU C Library; see the file COPYING.LIB.  If not,
++   write to the Free Software Foundation, Inc., 51 Franklin Street - Fifth Floor,
++   Boston, MA 02110-1301, USA.  */
++
++/* From gcc-4.1.2 libiberty. This version uses arc4random(). - ashes */
++
++#include <sys/types.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <stdio.h>
++#include <fcntl.h>
++#include <unistd.h>
++#include <sys/time.h>
++
++/* We need to provide a type for gcc_uint64_t.  */
++#ifdef __GNUC__
++__extension__ typedef unsigned long long gcc_uint64_t;
++#else
++typedef unsigned long gcc_uint64_t;
++#endif
++
++#ifndef TMP_MAX
++#define TMP_MAX 16384
++#endif
++
++/*
++
++@deftypefn Replacement int mkstemps (char *@var{pattern}, int @var{suffix_len})
++
++Generate a unique temporary file name from @var{pattern}.
++@var{pattern} has the form:
++
++@example
++   @var{path}/ccXXXXXX@var{suffix}
++@end example
++
++@var{suffix_len} tells us how long @var{suffix} is (it can be zero
++length).  The last six characters of @var{pattern} before @var{suffix}
++must be @samp{XXXXXX}; they are replaced with a string that makes the
++filename unique.  Returns a file descriptor open on the file for
++reading and writing.
++
++@end deftypefn
++
++*/
++
++int
++mkstemps (char *pattern, int suffix_len)
++{
++  static const char letters[]
++    = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
++  static gcc_uint64_t value;
++  char *XXXXXX;
++  size_t len;
++  int count;
++
++  len = strlen (pattern);
++
++  if ((int) len < 6 + suffix_len
++      || strncmp (&pattern[len - 6 - suffix_len], "XXXXXX", 6))
++    {
++      return -1;
++    }
++
++  XXXXXX = &pattern[len - 6 - suffix_len];
++
++  value = arc4random();
++
++  for (count = 0; count < TMP_MAX; ++count)
++    {
++      gcc_uint64_t v = value;
++      int fd;
++
++      /* Fill in the random bits.  */
++      XXXXXX[0] = letters[v % 62];
++      v /= 62;
++      XXXXXX[1] = letters[v % 62];
++      v /= 62;
++      XXXXXX[2] = letters[v % 62];
++      v /= 62;
++      XXXXXX[3] = letters[v % 62];
++      v /= 62;
++      XXXXXX[4] = letters[v % 62];
++      v /= 62;
++      XXXXXX[5] = letters[v % 62];
++
++      fd = open (pattern, O_RDWR|O_CREAT|O_EXCL, 0600);
++      if (fd >= 0)
++	/* The file does not exist.  */
++	return fd;
++
++      /* This is a random value.  It is only necessary that the next
++	 TMP_MAX values generated by adding 7777 to VALUE are different
++	 with (module 2^32).  */
++      value += 7777;
++    }
++
++  /* We return the null string if we can't find a unique file name.  */
++  pattern[0] = '\0';
++  return -1;
++}
+diff -Naur glibc-2.5.orig/resolv/res_init.c glibc-2.5/resolv/res_init.c
+--- glibc-2.5.orig/resolv/res_init.c	2006-09-04 17:59:54.000000000 +0000
++++ glibc-2.5/resolv/res_init.c	2007-06-08 08:08:21.000000000 +0000
+@@ -537,7 +537,7 @@
+ 
+ u_int
+ res_randomid(void) {
+-	return 0xffff & __getpid();
++	return arc4random() & 0xffff;
+ }
+ #ifdef _LIBC
+ libc_hidden_def (__res_randomid)
+diff -Naur glibc-2.5.orig/resolv/res_mkquery.c glibc-2.5/resolv/res_mkquery.c
+--- glibc-2.5.orig/resolv/res_mkquery.c	2006-09-04 17:57:02.000000000 +0000
++++ glibc-2.5/resolv/res_mkquery.c	2007-06-08 08:08:21.000000000 +0000
+@@ -120,23 +120,7 @@
+ 		return (-1);
+ 	memset(buf, 0, HFIXEDSZ);
+ 	hp = (HEADER *) buf;
+-	/* We randomize the IDs every time.  The old code just
+-	   incremented by one after the initial randomization which
+-	   still predictable if the application does multiple
+-	   requests.  */
+-	int randombits;
+-	do
+-	  {
+-#ifdef RANDOM_BITS
+-	    RANDOM_BITS (randombits);
+-#else
+-	    struct timeval tv;
+-	    __gettimeofday (&tv, NULL);
+-	    randombits = (tv.tv_sec << 8) ^ tv.tv_usec;
+-#endif
+-	  }
+-	while ((randombits & 0xffff) == 0);
+-	statp->id = (statp->id + randombits) & 0xffff;
++	statp->id = arc4random() & 0xffff;
+ 	hp->id = statp->id;
+ 	hp->opcode = op;
+ 	hp->rd = (statp->options & RES_RECURSE) != 0;
+diff -Naur glibc-2.5.orig/scripts/data/localplt-i386-linux-gnu.data glibc-2.5/scripts/data/localplt-i386-linux-gnu.data
+--- glibc-2.5.orig/scripts/data/localplt-i386-linux-gnu.data	2006-01-11 21:06:19.000000000 +0000
++++ glibc-2.5/scripts/data/localplt-i386-linux-gnu.data	2007-06-08 08:08:21.000000000 +0000
+@@ -1,4 +1,6 @@
+ libc.so: _Unwind_Find_FDE
++libc.so: arc4random
++libc.so: arc4random_stir
+ libc.so: calloc
+ libc.so: free
+ libc.so: malloc
+diff -Naur glibc-2.5.orig/stdlib/Makefile glibc-2.5/stdlib/Makefile
+--- glibc-2.5.orig/stdlib/Makefile	2006-08-21 21:02:11.000000000 +0000
++++ glibc-2.5/stdlib/Makefile	2007-06-08 08:08:21.000000000 +0000
+@@ -30,7 +30,7 @@
+ 
+ routines	:=							      \
+ 	atof atoi atol atoll						      \
+-	abort								      \
++	abort arc4random						      \
+ 	bsearch qsort msort						      \
+ 	getenv putenv setenv secure-getenv				      \
+ 	exit on_exit atexit cxa_atexit cxa_finalize old_atexit		      \
+diff -Naur glibc-2.5.orig/stdlib/Versions glibc-2.5/stdlib/Versions
+--- glibc-2.5.orig/stdlib/Versions	2004-05-03 21:25:53.000000000 +0000
++++ glibc-2.5/stdlib/Versions	2007-06-08 08:08:21.000000000 +0000
+@@ -11,6 +11,7 @@
+ 
+     # a*
+     a64l; abort; abs; atexit; atof; atoi; atol; atoll;
++    arc4random_stir; arc4random_addrandom; arc4random;
+ 
+     # b*
+     bsearch;
+diff -Naur glibc-2.5.orig/stdlib/arc4random.c glibc-2.5/stdlib/arc4random.c
+--- glibc-2.5.orig/stdlib/arc4random.c	1970-01-01 00:00:00.000000000 +0000
++++ glibc-2.5/stdlib/arc4random.c	2007-06-08 08:08:21.000000000 +0000
+@@ -0,0 +1,262 @@
++/*
++ * Copyright (c) 1996, David Mazieres <dm@uun.org>
++ *
++ * Permission to use, copy, modify, and distribute this software for any
++ * purpose with or without fee is hereby granted, provided that the above
++ * copyright notice and this permission notice appear in all copies.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++ */
++
++/*
++ * Arc4 random number generator for OpenBSD.
++ *
++ * This code is derived from section 17.1 of Applied Cryptography,
++ * second edition, which describes a stream cipher allegedly
++ * compatible with RSA Labs "RC4" cipher (the actual description of
++ * which is a trade secret).  The same algorithm is used as a stream
++ * cipher called "arcfour" in Tatu Ylonen's ssh package.
++ *
++ * Here the stream cipher has been modified always to include entropy
++ * when initializing the state.  That makes it impossible to
++ * regenerate the same random sequence twice, so this can't be used
++ * for encryption, but will generate good random numbers.
++ *
++ * RC4 is a registered trademark of RSA Laboratories.
++ */
++
++/* Modified by Robert Connolly for Glibc. April 23, 2007 */
++
++#include <fcntl.h>
++#include <stdlib.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/time.h>
++
++#if defined(HAVE_RANDOM_ERANDOM)
++#include <sys/sysctl.h>
++#endif
++
++#ifndef PRNG_DEV
++#error "PRNG_DEV is not defined"
++#endif
++
++#ifdef __GNUC__
++#define inline __inline
++#else
++#define inline
++#endif
++
++struct arc4_stream {
++	u_int8_t i;
++	u_int8_t j;
++	u_int8_t s[256];
++};
++
++static int rs_initialized;
++static struct arc4_stream rs;
++static pid_t arc4_stir_pid;
++static int arc4_count;
++
++static inline u_int8_t arc4_getbyte(struct arc4_stream *);
++
++#if defined(TEST)
++u_int32_t arc4random(void);
++void arc4random_stir(void);
++void arc4random_addrandom(unsigned char *, int);
++#endif
++
++#if !defined(_LIBC)
++#define __getpid getpid
++#define __gettimeofday gettimeofday
++#define __open open
++#define __read read
++#define __close close
++#endif
++
++static inline void
++arc4_init(struct arc4_stream *as)
++{
++	int     n;
++
++	for (n = 0; n < 256; n++)
++		as->s[n] = n;
++	as->i = 0;
++	as->j = 0;
++}
++
++static inline void
++arc4_addrandom(struct arc4_stream *as, u_char *dat, int datlen)
++{
++	int     n;
++	u_int8_t si;
++
++	as->i--;
++	for (n = 0; n < 256; n++) {
++		as->i = (as->i + 1);
++		si = as->s[as->i];
++		as->j = (as->j + si + dat[n % datlen]);
++		as->s[as->i] = as->s[as->j];
++		as->s[as->j] = si;
++	}
++	as->j = as->i;
++}
++
++static void
++arc4_stir(struct arc4_stream *as)
++{
++	int	n, fd;
++	u_char	rnd[128];
++	struct timeval tv;
++
++#if defined(HAVE_RANDOM_ERANDOM)
++	/* This is the most efficient method (1 syscall). */
++	int     mib[3];
++	size_t  len;
++
++	mib[0] = CTL_KERN;
++	mib[1] = KERN_RANDOM;
++	mib[2] = RANDOM_ERANDOM;
++
++	len = sizeof(rnd);
++	if (__sysctl(mib, 3, rnd, &len, NULL, 0) == -1)
++	/* Sysctl failed? Try /dev/urandom (3 syscalls). */
++#endif
++	  fd = __open(PRNG_DEV, O_RDONLY, 0);
++	  if (fd != -1) {
++		__read(fd, rnd, sizeof(rnd));
++		__close(fd);
++	  }
++	  /* Did the pseudo-random device fail? Use gettimeofday(). */
++	  else if (__gettimeofday(&tv, NULL) != (-1)) {
++
++		/* Initialize the first element so it's hopefully not '0',
++		 * to help out the next loop. Tossing in some prime numbers
++		 * probably can't hurt. */
++		rnd[0] = (tv.tv_sec % 10000) * 3 + tv.tv_usec * 7 + \
++			(__getpid() % 1000) * 13;
++
++		for (n = 1; n < 127 ; n++) {
++
++		/* Take advantage of the stack space. Only initialize
++		 * elements equal to '0'. This will make the rnd[]
++		 * array much less vulnerable to timing attacks. Here
++		 * we'll stir getpid() into the value of the previous
++		 * elememnt. Approximately 1 in 128 elements will still
++		 * become '0', so it will be a nightmare to try to
++		 * predict this array. */
++
++			if (rnd[n] == 0) {
++				rnd[n] = ((rnd[n - 1] + n) ^ \
++					((__getpid() % 1000) * 17));
++			}
++		}
++	  }
++	  else {
++	  /* gettimeofday() failed? Do the same thing as above, but only
++	   * with getpid(). This is very bad, but arc4random() should never
++	   * fail, so never give up. */
++
++		rnd[0] = (__getpid() % 1000) * 19;
++		for (n = 1; n < 127 ; n++) {
++			if (rnd[n] == 0) {
++				rnd[n] = ((rnd[n - 1] + n) ^ \
++					((__getpid() % 1000) * 23));
++			}
++		}
++	  }
++	  /* else??? Print warning here. */
++
++	arc4_stir_pid = __getpid();
++	arc4_addrandom(as, rnd, sizeof(rnd));
++
++	/*
++	 * Discard early keystream, as per recommendations in:
++	 * http://www.wisdom.weizmann.ac.il/~itsik/RC4/Papers/Rc4_ksa.ps
++	 */
++	for (n = 0; n < 256; n++)
++		(void)arc4_getbyte(as);
++	arc4_count = 1600000;
++}
++
++static inline u_int8_t
++arc4_getbyte(struct arc4_stream *as)
++{
++	u_int8_t si, sj;
++
++	as->i = (as->i + 1);
++	si = as->s[as->i];
++	as->j = (as->j + si);
++	sj = as->s[as->j];
++	as->s[as->i] = sj;
++	as->s[as->j] = si;
++	return (as->s[(si + sj) & 0xff]);
++}
++
++/*
++ * __arc4_getbyte() is a libc private function intended for use
++ * with malloc(3) without calling getpid(2). It's good for
++ * fetching a specific amount of bytes.
++ */
++u_int8_t
++__arc4_getbyte(void)
++{
++	if (--arc4_count == 0 || !rs_initialized)
++		arc4random_stir();
++	return arc4_getbyte(&rs);
++}
++
++static inline u_int32_t
++arc4_getword(struct arc4_stream *as)
++{
++	u_int32_t val;
++	val = arc4_getbyte(as) << 24;
++	val |= arc4_getbyte(as) << 16;
++	val |= arc4_getbyte(as) << 8;
++	val |= arc4_getbyte(as);
++	return val;
++}
++
++void
++arc4random_stir(void)
++{
++	if (!rs_initialized) {
++		arc4_init(&rs);
++		rs_initialized = 1;
++	}
++	arc4_stir(&rs);
++}
++
++void
++arc4random_addrandom(u_char *dat, int datlen)
++{
++	if (!rs_initialized)
++		arc4random_stir();
++	arc4_addrandom(&rs, dat, datlen);
++}
++
++u_int32_t
++arc4random(void)
++{
++	arc4_count -= 4;
++	if (arc4_count <= 0 || !rs_initialized || arc4_stir_pid != __getpid())
++		arc4random_stir();
++	return arc4_getword(&rs);
++}
++
++#if defined(TEST)
++#include <stdio.h>
++int main(void)
++{
++	int random_number;
++	random_number = arc4random() % 65536;
++	printf("%d\n", random_number);
++	return 0;
++}
++#endif
+diff -Naur glibc-2.5.orig/stdlib/stdlib.h glibc-2.5/stdlib/stdlib.h
+--- glibc-2.5.orig/stdlib/stdlib.h	2006-01-14 12:08:29.000000000 +0000
++++ glibc-2.5/stdlib/stdlib.h	2007-06-08 08:08:21.000000000 +0000
+@@ -577,6 +577,12 @@
+ extern int lcong48_r (unsigned short int __param[7],
+ 		      struct drand48_data *__buffer)
+      __THROW __nonnull ((1, 2));
++
++/* Arcfour random number generator. */
++extern u_int32_t arc4random(void);
++extern void arc4random_stir(void);
++extern void arc4random_addrandom(unsigned char *, int);
++
+ # endif	/* Use misc.  */
+ #endif	/* Use SVID or X/Open.  */
+ 
+@@ -727,6 +733,7 @@
+    Returns TEMPLATE, or a null pointer if it cannot get a unique name.
+    The directory is created mode 700.  */
+ extern char *mkdtemp (char *__template) __THROW __nonnull ((1)) __wur;
++extern int mkstemps(char *, int) __THROW __wur;
+ #endif
+ 
+ 
+diff -Naur glibc-2.5.orig/string/strfry.c glibc-2.5/string/strfry.c
+--- glibc-2.5.orig/string/strfry.c	2002-03-11 23:47:45.000000000 +0000
++++ glibc-2.5/string/strfry.c	2007-06-08 08:28:04.000000000 +0000
+@@ -18,38 +18,9 @@
+ 
+ #include <string.h>
+ #include <stdlib.h>
+-#include <time.h>
+-#include <unistd.h>
+ 
+ char *
+ strfry (char *string)
+ {
+-  static int init;
+-  static struct random_data rdata;
+-  size_t len, i;
+-
+-  if (!init)
+-    {
+-      static char state[32];
+-      rdata.state = NULL;
+-      __initstate_r (time ((time_t *) NULL) ^ getpid (),
+-		     state, sizeof (state), &rdata);
+-      init = 1;
+-    }
+-
+-  len = strlen (string);
+-  for (i = 0; i < len; ++i)
+-    {
+-      int32_t j;
+-      char c;
+-
+-      __random_r (&rdata, &j);
+-      j %= len;
+-
+-      c = string[i];
+-      string[i] = string[j];
+-      string[j] = c;
+-    }
+-
+-  return string;
++  return (char)arc4random();
+ }
+diff -Naur glibc-2.5.orig/sunrpc/bindrsvprt.c glibc-2.5/sunrpc/bindrsvprt.c
+--- glibc-2.5.orig/sunrpc/bindrsvprt.c	2005-11-22 04:39:05.000000000 +0000
++++ glibc-2.5/sunrpc/bindrsvprt.c	2007-06-08 08:08:21.000000000 +0000
+@@ -67,7 +67,7 @@
+ 
+   if (port == 0)
+     {
+-      port = (__getpid () % NPORTS) + STARTPORT;
++      port = (arc4random() % NPORTS) + STARTPORT;
+     }
+ 
+   /* Initialize to make gcc happy.  */
+diff -Naur glibc-2.5.orig/sysdeps/posix/tempname.c glibc-2.5/sysdeps/posix/tempname.c
+--- glibc-2.5.orig/sysdeps/posix/tempname.c	2006-04-07 19:29:07.000000000 +0000
++++ glibc-2.5/sysdeps/posix/tempname.c	2007-06-08 08:08:21.000000000 +0000
+@@ -52,10 +52,6 @@
+ # include <fcntl.h>
+ #endif
+ 
+-#if HAVE_SYS_TIME_H || _LIBC
+-# include <sys/time.h>
+-#endif
+-
+ #if HAVE_STDINT_H || _LIBC
+ # include <stdint.h>
+ #endif
+@@ -94,8 +90,6 @@
+ # define struct_stat64 struct stat64
+ #else
+ # define struct_stat64 struct stat
+-# define __getpid getpid
+-# define __gettimeofday gettimeofday
+ # define __mkdir mkdir
+ # define __open open
+ # define __open64 open
+@@ -107,25 +101,6 @@
+ # define __secure_getenv getenv
+ #endif
+ 
+-#ifdef _LIBC
+-# include <hp-timing.h>
+-# if HP_TIMING_AVAIL
+-#  define RANDOM_BITS(Var) \
+-  if (__builtin_expect (value == UINT64_C (0), 0))			      \
+-    {									      \
+-      /* If this is the first time this function is used initialize	      \
+-	 the variable we accumulate the value in to some somewhat	      \
+-	 random value.  If we'd not do this programs at startup time	      \
+-	 might have a reduced set of possible names, at least on slow	      \
+-	 machines.  */							      \
+-      struct timeval tv;						      \
+-      __gettimeofday (&tv, NULL);					      \
+-      value = ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec;		      \
+-    }									      \
+-  HP_TIMING_NOW (Var)
+-# endif
+-#endif
+-
+ /* Use the widest available unsigned type if uint64_t is not
+    available.  The algorithm below extracts a number less than 62**6
+    (approximately 2**35.725) from uint64_t, so ancient hosts where
+@@ -229,10 +204,8 @@
+ {
+   int len;
+   char *XXXXXX;
+-  static uint64_t value;
+-  uint64_t random_time_bits;
+-  unsigned int count;
+   int fd = -1;
++  unsigned int i;
+   int save_errno = errno;
+   struct_stat64 st;
+ 
+@@ -262,39 +235,13 @@
+   /* This is where the Xs start.  */
+   XXXXXX = &tmpl[len - 6];
+ 
+-  /* Get some more or less random data.  */
+-#ifdef RANDOM_BITS
+-  RANDOM_BITS (random_time_bits);
+-#else
+-# if HAVE_GETTIMEOFDAY || _LIBC
+-  {
+-    struct timeval tv;
+-    __gettimeofday (&tv, NULL);
+-    random_time_bits = ((uint64_t) tv.tv_usec << 16) ^ tv.tv_sec;
+-  }
+-# else
+-  random_time_bits = time (NULL);
+-# endif
+-#endif
+-  value += random_time_bits ^ __getpid ();
+-
+-  for (count = 0; count < attempts; value += 7777, ++count)
++  for (i = 0; i < 6 ; ++i)
+     {
+-      uint64_t v = value;
+-
+-      /* Fill in the random bits.  */
+-      XXXXXX[0] = letters[v % 62];
+-      v /= 62;
+-      XXXXXX[1] = letters[v % 62];
+-      v /= 62;
+-      XXXXXX[2] = letters[v % 62];
+-      v /= 62;
+-      XXXXXX[3] = letters[v % 62];
+-      v /= 62;
+-      XXXXXX[4] = letters[v % 62];
+-      v /= 62;
+-      XXXXXX[5] = letters[v % 62];
++      XXXXXX[i] = letters[(arc4random() % 62)];
++    }
+ 
++  for (i = 0; i < attempts; ++i)
++    {
+       switch (kind)
+ 	{
+ 	case __GT_FILE:
+diff -Naur glibc-2.5.orig/sysdeps/unix/sysv/linux/dl-osinfo.h glibc-2.5/sysdeps/unix/sysv/linux/dl-osinfo.h
+--- glibc-2.5.orig/sysdeps/unix/sysv/linux/dl-osinfo.h	2006-08-01 06:55:27.000000000 +0000
++++ glibc-2.5/sysdeps/unix/sysv/linux/dl-osinfo.h	2007-06-08 08:08:21.000000000 +0000
+@@ -158,12 +158,15 @@
+       FATAL ("FATAL: cannot determine kernel version\n");		      \
+   } while (0)
+ 
++#ifndef PRNG_DEV
++#error "PRNG_DEV is not defined"
++#endif
+ static inline uintptr_t __attribute__ ((always_inline))
+ _dl_setup_stack_chk_guard (void)
+ {
+   uintptr_t ret;
+ #ifdef ENABLE_STACKGUARD_RANDOMIZE
+-  int fd = __open ("/dev/urandom", O_RDONLY);
++  int fd = __open (PRNG_DEV, O_RDONLY);
+   if (fd >= 0)
+     {
+       ssize_t reslen = __read (fd, &ret, sizeof (ret));

@@ -1,0 +1,33 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-04-11
+Origin: gimp-print CVS
+Initial Package Version: 4.2.6
+Upstream status: this is the official fix in CVS
+Description: This patch corrects margins for Epson Stylus C83, C84, C63 and C64
+inkjet printers. Without this patch, the printout is offset by ~1 cm to
+the left.
+
+--- gimp-print-4.2.6/src/main/print-escp2-data.c	2004-04-11 11:00:36.196842400 +0600
++++ gimp-print-4.2.6/src/main/print-escp2-data.c	2004-04-11 11:01:29.977666472 +0600
+@@ -4938,8 +4938,8 @@
+     59, 60, 2, 180, 180, 2, 180, 180, 2,
+     360, 720, 720, 14400, -1, 2880, 1440, 360, 180,
+     INCH(17 / 2), INCH(1200), INCH(2), INCH(4),
+-    9, 9, 0, 9, 9, 9, 9, 9, 9, 9, 0, 0, 9, 9, 0, 0,
+-    0, 1, 0, 0, -240, 0, 0,
++    0, 0, 0, 9, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0,
++    0, 1, 0, 125, -240, 0, 0,
+     c3pl_pigment_dotsizes, c3pl_pigment_densities, &variable_3pl_pigment_inks,
+     &c80_paper_list, standard_reslist, &c80_inklist,
+     variable_bits, variable_base_res, &default_input_slot_list,
+@@ -4953,8 +4953,8 @@
+     29, 30, 3, 90, 90, 3, 90, 90, 3,
+     360, 720, 720, 14400, -1, 2880, 1440, 360, 180,
+     INCH(17 / 2), INCH(1200), INCH(2), INCH(4),
+-    9, 9, 0, 9, 9, 9, 9, 9, 9, 9, 0, 0, 9, 9, 0, 0,
+-    0, 1, 0, 0, -180, 0, 0,
++    0, 0, 0, 9, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0,
++    0, 1, 0, 125, -180, 0, 0,
+     c3pl_pigment_dotsizes, c3pl_pigment_densities, &variable_3pl_pigment_inks,
+     &c80_paper_list, standard_reslist, &c64_inklist,
+     variable_bits, variable_base_res, &default_input_slot_list,

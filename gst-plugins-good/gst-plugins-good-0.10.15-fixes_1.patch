@@ -1,0 +1,63 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-06-16
+Initial Package Version: 0.10.15
+Upstream Status: Applied
+Origin: Upstream commit d9544bcc44adcef769cbdf7f6453e140058a3adc
+Description: Fixes CVE-2009-1932 : Thought to apply to ALL recent
+versions, compile-tested for 0.10.1{3,4} [ 0.10.15 requires
+gstreamer-0.10.23 ] - I don't have any older versions installed.
+
+--- gst-plugins-good-0.10.15/ext/libpng/gstpngdec.c.orig	2009-05-12 01:00:06.000000000 +0100
++++ gst-plugins-good-0.10.15/ext/libpng/gstpngdec.c	2009-06-16 17:52:33.000000000 +0100
+@@ -201,7 +201,15 @@
+ 
+   /* Allocate output buffer */
+   pngdec->rowbytes = png_get_rowbytes (pngdec->png, pngdec->info);
+-  buffer_size = pngdec->height * GST_ROUND_UP_4 (pngdec->rowbytes);
++  if (pngdec->rowbytes > (G_MAXUINT32 - 3)
++      || pngdec->height > G_MAXUINT32 / pngdec->rowbytes) {
++    ret = GST_FLOW_ERROR;
++    goto beach;
++  }
++  pngdec->rowbytes = GST_ROUND_UP_4 (pngdec->rowbytes);
++  buffer_size = pngdec->height * pngdec->rowbytes;
++
++
+   ret =
+       gst_pad_alloc_buffer_and_set_caps (pngdec->srcpad, GST_BUFFER_OFFSET_NONE,
+       buffer_size, GST_PAD_CAPS (pngdec->srcpad), &buffer);
+@@ -228,7 +236,8 @@
+   /* If buffer_out doesn't exist, it means buffer_alloc failed, which 
+    * will already have set the return code */
+   if (GST_IS_BUFFER (pngdec->buffer_out)) {
+-    size_t offset = row_num * GST_ROUND_UP_4 (pngdec->rowbytes);
++    size_t offset = row_num * pngdec->rowbytes;
++
+ 
+     GST_LOG ("got row %u, copying in buffer %p at offset %" G_GSIZE_FORMAT,
+         (guint) row_num, pngdec->buffer_out, offset);
+@@ -496,7 +505,13 @@
+ 
+   /* Allocate output buffer */
+   rowbytes = png_get_rowbytes (pngdec->png, pngdec->info);
+-  buffer_size = pngdec->height * GST_ROUND_UP_4 (rowbytes);
++  if (rowbytes > (G_MAXUINT32 - 3) || pngdec->height > G_MAXUINT32 / rowbytes) {
++    ret = GST_FLOW_ERROR;
++    goto pause;
++  }
++  rowbytes = GST_ROUND_UP_4 (rowbytes);
++  buffer_size = pngdec->height * rowbytes;
++
+   ret =
+       gst_pad_alloc_buffer_and_set_caps (pngdec->srcpad, GST_BUFFER_OFFSET_NONE,
+       buffer_size, GST_PAD_CAPS (pngdec->srcpad), &buffer);
+@@ -509,7 +524,8 @@
+ 
+   for (i = 0; i < pngdec->height; i++) {
+     rows[i] = inp;
+-    inp += GST_ROUND_UP_4 (rowbytes);
++    inp += rowbytes;
++
+   }
+ 
+   /* Read the actual picture */

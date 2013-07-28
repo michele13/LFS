@@ -1,0 +1,79 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-12-22
+Initial Package Version: 3.1
+Origin: Upstream
+Upstream Status: Applied 
+Description: Contains Patch 001 from Upstream
+
+001 - 	There are parsing problems with compound assignments in several contexts,
+	including as arguments to builtins like `local', `eval', and `let', and
+	as multiple assignments in a single command.
+ 
+diff -Naur bash-3.1.orig/parse.y bash-3.1/parse.y
+--- bash-3.1.orig/parse.y	2005-11-12 04:14:18.000000000 +0000
++++ bash-3.1/parse.y	2005-12-22 08:25:48.000000000 +0000
+@@ -3695,7 +3695,9 @@
+       struct builtin *b;
+       b = builtin_address_internal (token, 0);
+       if (b && (b->flags & ASSIGNMENT_BUILTIN))
+-        parser_state |= PST_ASSIGNOK;
++	parser_state |= PST_ASSIGNOK;
++      else if (STREQ (token, "eval") || STREQ (token, "let"))
++	parser_state |= PST_ASSIGNOK;
+     }
+ 
+   yylval.word = the_word;
+@@ -4686,18 +4688,21 @@
+      int *retlenp;
+ {
+   WORD_LIST *wl, *rl;
+-  int tok, orig_line_number, orig_token_size;
++  int tok, orig_line_number, orig_token_size, orig_last_token, assignok;
+   char *saved_token, *ret;
+ 
+   saved_token = token;
+   orig_token_size = token_buffer_size;
+   orig_line_number = line_number;
++  orig_last_token = last_read_token;
+ 
+   last_read_token = WORD;	/* WORD to allow reserved words here */
+ 
+   token = (char *)NULL;
+   token_buffer_size = 0;
+ 
++  assignok = parser_state&PST_ASSIGNOK;		/* XXX */
++
+   wl = (WORD_LIST *)NULL;	/* ( */
+   parser_state |= PST_COMPASSIGN;
+ 
+@@ -4740,7 +4745,7 @@
+ 	jump_to_top_level (DISCARD);
+     }
+ 
+-  last_read_token = WORD;
++  last_read_token = orig_last_token;		/* XXX - was WORD? */
+   if (wl)
+     {
+       rl = REVERSE_LIST (wl, WORD_LIST *);
+@@ -4752,6 +4757,10 @@
+ 
+   if (retlenp)
+     *retlenp = (ret && *ret) ? strlen (ret) : 0;
++
++  if (assignok)
++    parser_state |= PST_ASSIGNOK;
++
+   return ret;
+ }
+ 
+diff -Naur bash-3.1.orig/patchlevel.h bash-3.1/patchlevel.h
+--- bash-3.1.orig/patchlevel.h	2005-07-20 17:58:20.000000000 +0000
++++ bash-3.1/patchlevel.h	2005-12-22 08:25:48.000000000 +0000
+@@ -25,6 +25,6 @@
+    regexp `^#define[ 	]*PATCHLEVEL', since that's what support/mkversion.sh
+    looks for to find the patch level (for the sccs version string). */
+ 
+-#define PATCHLEVEL 0
++#define PATCHLEVEL 1
+ 
+ #endif /* _PATCHLEVEL_H_ */

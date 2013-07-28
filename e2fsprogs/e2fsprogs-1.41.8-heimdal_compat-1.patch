@@ -1,0 +1,54 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2010-03-04
+Initial Package Version: 1.41.8
+Upstream Status:         Submitted upstream
+Origin:                  Arch Linux
+Description:             Adds the com_right_r function to the libcom_err library
+                         so that Heimdal will use this library instead of creating
+                         a new one which overwrites the e2fsprogs library.
+
+
+diff -Naur e2fsprogs-1.41.8-orig/lib/et/com_err.h e2fsprogs-1.41.8/lib/et/com_err.h
+--- e2fsprogs-1.41.8-orig/lib/et/com_err.h	2009-06-01 11:48:42.000000000 +0000
++++ e2fsprogs-1.41.8/lib/et/com_err.h	2010-03-05 00:07:57.000000000 +0000
+@@ -16,6 +16,7 @@
+ #define COM_ERR_ATTR(x)
+ #endif
+ 
++#include <stddef.h>
+ #include <stdarg.h>
+ 
+ typedef long errcode_t;
+@@ -49,6 +50,7 @@
+ 
+ /* Provided for Heimdall compatibility */
+ extern const char *com_right(struct et_list *list, long code);
++extern const char *com_right_r(struct et_list *list, long code, char *str, size_t len);
+ extern void initialize_error_table_r(struct et_list **list,
+ 				     const char **messages,
+ 				     int num_errors,
+
+diff -Naur e2fsprogs-1.41.8-orig/lib/et/com_right.c e2fsprogs-1.41.8/lib/et/com_right.c
+--- e2fsprogs-1.41.8-orig/lib/et/com_right.c	2009-02-14 13:49:08.000000000 +0000
++++ e2fsprogs-1.41.8/lib/et/com_right.c	2010-03-05 00:04:45.000000000 +0000
+@@ -55,6 +55,20 @@
+     return NULL;
+ }
+ 
++const char *
++com_right_r(struct et_list *list, long code, char *str, size_t len)
++{
++    struct et_list *p;
++    for (p = list; p; p = p->next) {
++        if (code >= p->table->base && code < p->table->base + p->table->n_msgs) {
++            strncpy(str, p->table->msgs[code - p->table->base], len);
++            str[len-1] = '\0';
++            return str;
++        }
++    }
++    return NULL;
++}
++
+ struct foobar {
+     struct et_list etl;
+     struct error_table tab;

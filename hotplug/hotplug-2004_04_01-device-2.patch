@@ -1,0 +1,53 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-05-16
+Initial Package Version: 2004_04_01
+Upstream Status: will send a copy to linux-hotplug-devel@lists.sourceforge.net
+Origin: Alexander E. Patrakov
+Description: Provides the correct DEVICE variable for USB coldplug events
+for 2.6.x kernels. The grep ...\$ is used instead of tail -c 4 because LFS has
+the tail command in /usr/bin. That's even more illogical because head
+is in /bin.
+This patch requires a 2.6.6 kernel. 2.6.4 is too old.
+
+diff -ur hotplug-2004_04_01.orig/etc/hotplug/usb.rc hotplug-2004_04_01/etc/hotplug/usb.rc
+--- hotplug-2004_04_01.orig/etc/hotplug/usb.rc	2004-04-01 23:38:59.000000000 +0600
++++ hotplug-2004_04_01/etc/hotplug/usb.rc	2004-05-16 13:00:17.631861872 +0600
+@@ -90,25 +90,23 @@
+ 	DEVICE=
+ 	export ACTION PRODUCT TYPE INTERFACE DEVPATH DEVFS DEVICE
+ 
+-	# these notifications will be handled by usbmodules
+-	# NOTE: we're not providing a full set of hotplug
+-	# parameters for USB.  that's why "usbmodules" is a
+-	# requirement: it reads usbfs to get the others.
+-	# (it's included in usbutils 0.8 and later)
+-	#
+-	# FIXME usbmodules, or something, should set real
+-	# PRODUCT and DEVICE strings so /etc/hotplug/usb/*
+-	# scripts can rely on them ...
+-	# FIXME: this comment is out of date.
+ 	if [ -d /sys/bus ]; then
+ 	    if [ -d /sys/bus/usb/devices ]; then
+ 		cd /sys/bus/usb/devices
+-		# XXX FIXME this is not the right way...
+ 		for device in /sys/bus/usb/devices/[0-9]*; do
+-		    DEVPATH=${device#/sys/}
+-		    if [ -f $device/idVendor ]; then
+-			 PRODUCT="$(cat $device/idVendor)/$(cat $device/idProduct)/$(cat $device/bcdDevice)"
+-			 /etc/hotplug/usb.agent
++		    devlink=$( readlink -f $device )
++		    DEVPATH=${devlink#/sys}
++		    if [ -f $devlink/../idVendor ]; then
++			PRODUCT="$(cat $devlink/../idVendor)/$(cat $devlink/../idProduct)/$(cat $devlink/../bcdDevice)"
++		        if [ -f $devlink/../../devnum ]
++			then
++			    devbus=$( ( echo -n 000 ; cat $devlink/../../devnum ) | grep -o ...\$ )
++			    devdev=$( ( echo -n 000 ; cat $devlink/../devnum ) | grep -o ...\$ )
++			    DEVICE="/proc/bus/usb/$devbus/$devdev"
++			else
++			    DEVICE=
++			fi
++			/etc/hotplug/usb.agent
+ 		    fi	
+ 		done
+ 	    fi

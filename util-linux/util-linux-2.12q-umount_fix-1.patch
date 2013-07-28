@@ -1,0 +1,20 @@
+Submitted By: Archaic <archaic AT linuxfromscratch D0T org>
+Date: 2005-09-15
+Initial Package Version: 2.12q
+Upstream Status: Applying upstream
+Origin: upstream
+Description: Fixes a local priviledge escalation in umount where a user can
+             remount a partition to bypass the nosuid option
+
+diff -Naur util-linux-2.12q.orig/mount/umount.c util-linux-2.12q/mount/umount.c
+--- util-linux-2.12q.orig/mount/umount.c	2004-12-20 22:03:45.000000000 +0000
++++ util-linux-2.12q/mount/umount.c	2005-09-15 22:29:28.000000000 +0000
+@@ -714,7 +714,7 @@
+ 
+ 	if (getuid () != geteuid ()) {
+ 		suid = 1;
+-		if (all || types || nomtab || force)
++		if (all || types || nomtab || force || remount)
+ 			die (2, _("umount: only root can do that"));
+ 	}
+ 

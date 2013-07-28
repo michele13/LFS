@@ -1,0 +1,89 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2012-04-06
+Initial Package Version: 4.1.5
+Upstream Status:         In upstream SVN
+Origin:                  Upstream
+Description:             Fixes several bugs, including build failure when acl is present,
+                         runtime errors when nscd is present but not running and
+                         useradd segfault.
+
+--- shadow.orig/lib/nscd.c	2011-10-16 19:05:30.000000000 +0200
++++ shadow/lib/nscd.c	2012-04-06 16:22:54.892957923 +0200
+@@ -39,8 +39,11 @@
+ 		/* nscd is not installed, or it is installed but uses an
+ 		   interpreter that is missing.  Probably the former. */
+ 		return 0;
++	} else if (code == 1) {
++		/* nscd is installed, but it isn't active. */
++		return 0;
+ 	} else if (code != 0) {
+-		(void) fprintf (stderr, _("%s: nscd exited with status %d"),
++		(void) fprintf (stderr, _("%s: nscd exited with status %d\n"),
+ 		                Prog, code);
+ 		(void) fprintf (stderr, _(MSG_NSCD_FLUSH_CACHE_FAILED), Prog);
+ 		return -1;
+--- shadow.orig/libmisc/copydir.c	2011-12-09 23:23:15.000000000 +0100
++++ shadow/libmisc/copydir.c	2012-04-06 16:23:06.107174494 +0200
+@@ -34,6 +34,7 @@
+ 
+ #ident "$Id: copydir.c 3655 2011-12-09 22:13:02Z nekral-guest $"
+ 
++#include <stdarg.h>
+ #include <assert.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+--- shadow.orig/src/userdel.c	2011-11-19 22:51:12.000000000 +0100
++++ shadow/src/userdel.c	2012-04-06 16:22:43.904745826 +0200
+@@ -329,26 +329,33 @@
+ 	}
+ 
+ 	if (NULL == pwd) {
++		char gr_name[GROUP_NAME_MAX_LENGTH + 1];
++
++		/* make a copy of the group name before we delete it.
++		 * we can't use ->gr_name after the group is deleted
++		 * for logging purposes */
++		snprintf(gr_name, GROUP_NAME_MAX_LENGTH, "%s", grp->gr_name);
++
+ 		/*
+ 		 * We can remove this group, it is not the primary
+ 		 * group of any remaining user.
+ 		 */
+-		if (gr_remove (grp->gr_name) == 0) {
++		if (gr_remove (gr_name) == 0) {
+ 			fprintf (stderr,
+ 			         _("%s: cannot remove entry '%s' from %s\n"),
+-			         Prog, grp->gr_name, gr_dbname ());
++			         Prog, gr_name, gr_dbname ());
+ 			fail_exit (E_GRP_UPDATE);
+ 		}
+ 
+ #ifdef WITH_AUDIT
+ 		audit_logger (AUDIT_DEL_GROUP, Prog,
+ 		              "deleting group",
+-		              grp->gr_name, AUDIT_NO_ID,
++		              gr_name, AUDIT_NO_ID,
+ 		              SHADOW_AUDIT_SUCCESS);
+ #endif				/* WITH_AUDIT */
+ 		SYSLOG ((LOG_INFO,
+ 		         "removed group '%s' owned by '%s'\n",
+-		         grp->gr_name, user_name));
++		         gr_name, user_name));
+ 
+ #ifdef	SHADOWGRP
+ 		if (sgr_locate (user_name) != NULL) {
+@@ -361,12 +368,12 @@
+ #ifdef WITH_AUDIT
+ 			audit_logger (AUDIT_DEL_GROUP, Prog,
+ 			              "deleting shadow group",
+-			              grp->gr_name, AUDIT_NO_ID,
++			              gr_name, AUDIT_NO_ID,
+ 			              SHADOW_AUDIT_SUCCESS);
+ #endif				/* WITH_AUDIT */
+ 			SYSLOG ((LOG_INFO,
+ 			         "removed shadow group '%s' owned by '%s'\n",
+-			         grp->gr_name, user_name));
++			         gr_name, user_name));
+ 
+ 		}
+ #endif				/* SHADOWGRP */

@@ -1,0 +1,895 @@
+Submitted By: "Armin K" <krejzi@email.com>
+Date: 2012-28-02
+Initial Package Version: 2.4.10
+Origin: Armin put it together using some hints from 
+https://bugzilla.redhat.com/show_bug.cgi?id=704527
+Description: Fixes compiling and running gnucash with guile-2.0.3
+
+diff -Naur gnucash.orig/src/app-utils/date-utilities.scm gnucash/src/app-utils/date-utilities.scm
+--- gnucash.orig/src/app-utils/date-utilities.scm	2012-02-06 01:24:13.000000000 +0100
++++ gnucash/src/app-utils/date-utilities.scm	2012-02-27 11:53:18.610189883 +0100
+@@ -22,6 +22,7 @@
+ 
+ (use-modules (gnucash core-utils)
+              (gnucash printf))
++(use-modules (gnucash app-utils))
+ 
+ (define gnc:reldate-list '())
+ 
+diff -Naur gnucash.orig/src/app-utils/prefs.scm gnucash/src/app-utils/prefs.scm
+--- gnucash.orig/src/app-utils/prefs.scm	2012-02-06 01:24:13.000000000 +0100
++++ gnucash/src/app-utils/prefs.scm	2012-02-27 11:53:48.235573701 +0100
+@@ -59,6 +59,8 @@
+ ;; Old-school config files depend on this API
+  (define (gnc:config-file-format-version version) #t)
+ 
++(use-modules (gnucash app-utils))
++
+ ;;;;;; Create config vars
+ 
+ (define gnc:*debit-strings*
+diff -Naur gnucash.orig/src/app-utils/swig-app-utils.c gnucash/src/app-utils/swig-app-utils.c
+--- gnucash.orig/src/app-utils/swig-app-utils.c	2012-02-06 01:27:22.000000000 +0100
++++ gnucash/src/app-utils/swig-app-utils.c	2012-02-27 11:36:36.290945245 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/business/business-utils/business-prefs.scm gnucash/src/business/business-utils/business-prefs.scm
+--- gnucash.orig/src/business/business-utils/business-prefs.scm	2012-02-06 01:24:00.000000000 +0100
++++ gnucash/src/business/business-utils/business-prefs.scm	2012-02-27 11:51:49.971623279 +0100
+@@ -19,6 +19,8 @@
+ ;; 51 Franklin Street, Fifth Floor    Fax:    +1-617-542-2652
+ ;; Boston, MA  02110-1301,  USA       gnu@gnu.org
+ 
++(use-modules (gnucash app-utils))
++
+ (define gnc:*option-section-counters* (N_ "Counters"))
+ 
+ ;; This defines all available counter types to show options for. This a
+diff -Naur gnucash.orig/src/business/business-utils/business-utils.scm gnucash/src/business/business-utils/business-utils.scm
+--- gnucash.orig/src/business/business-utils/business-utils.scm	2012-02-06 01:24:00.000000000 +0100
++++ gnucash/src/business/business-utils/business-utils.scm	2012-02-27 11:51:56.296733017 +0100
+@@ -1,4 +1,5 @@
+ (define-module (gnucash business-utils))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash gnc-module))
+ (gnc:module-load "gnucash/app-utils" 0)
+diff -Naur gnucash.orig/src/business/dialog-tax-table/swig-dialog-tax-table.c gnucash/src/business/dialog-tax-table/swig-dialog-tax-table.c
+--- gnucash.orig/src/business/dialog-tax-table/swig-dialog-tax-table.c	2012-02-06 01:27:28.000000000 +0100
++++ gnucash/src/business/dialog-tax-table/swig-dialog-tax-table.c	2012-02-27 11:36:36.292945291 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/core-utils/swig-core-utils.c gnucash/src/core-utils/swig-core-utils.c
+--- gnucash.orig/src/core-utils/swig-core-utils.c	2012-02-06 01:27:13.000000000 +0100
++++ gnucash/src/core-utils/swig-core-utils.c	2012-02-27 11:36:36.296945381 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/engine/swig-business-core.c gnucash/src/engine/swig-business-core.c
+--- gnucash.orig/src/engine/swig-business-core.c	2012-02-06 01:27:17.000000000 +0100
++++ gnucash/src/engine/swig-business-core.c	2012-02-27 11:36:36.311945727 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/engine/swig-engine.c gnucash/src/engine/swig-engine.c
+--- gnucash.orig/src/engine/swig-engine.c	2012-02-06 01:27:16.000000000 +0100
++++ gnucash/src/engine/swig-engine.c	2012-02-27 11:36:36.326946071 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnc-module/swig-gnc-module.c gnucash/src/gnc-module/swig-gnc-module.c
+--- gnucash.orig/src/gnc-module/swig-gnc-module.c	2012-02-06 01:27:14.000000000 +0100
++++ gnucash/src/gnc-module/swig-gnc-module.c	2012-02-27 11:36:36.332946207 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnc-module/test/mod-bar/swig-bar.c gnucash/src/gnc-module/test/mod-bar/swig-bar.c
+--- gnucash.orig/src/gnc-module/test/mod-bar/swig-bar.c	2012-02-06 01:27:15.000000000 +0100
++++ gnucash/src/gnc-module/test/mod-bar/swig-bar.c	2012-02-27 11:36:36.333946231 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnc-module/test/mod-baz/swig-baz.c gnucash/src/gnc-module/test/mod-baz/swig-baz.c
+--- gnucash.orig/src/gnc-module/test/mod-baz/swig-baz.c	2012-02-06 01:27:15.000000000 +0100
++++ gnucash/src/gnc-module/test/mod-baz/swig-baz.c	2012-02-27 11:36:36.340946392 +0100
+@@ -771,16 +771,17 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+   
+-  l = SCM_STRING_LENGTH(str);
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnc-module/test/mod-foo/swig-foo.c gnucash/src/gnc-module/test/mod-foo/swig-foo.c
+--- gnucash.orig/src/gnc-module/test/mod-foo/swig-foo.c	2012-02-06 01:27:15.000000000 +0100
++++ gnucash/src/gnc-module/test/mod-foo/swig-foo.c	2012-02-27 11:36:36.342946438 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnome/swig-gnome.c gnucash/src/gnome/swig-gnome.c
+--- gnucash.orig/src/gnome/swig-gnome.c	2012-02-06 01:27:25.000000000 +0100
++++ gnucash/src/gnome/swig-gnome.c	2012-02-27 11:36:36.346946530 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/gnome-utils/swig-gnome-utils.c gnucash/src/gnome-utils/swig-gnome-utils.c
+--- gnucash.orig/src/gnome-utils/swig-gnome-utils.c	2012-02-06 01:27:22.000000000 +0100
++++ gnucash/src/gnome-utils/swig-gnome-utils.c	2012-02-27 11:36:36.347946552 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/html/swig-gnc-html.c gnucash/src/html/swig-gnc-html.c
+--- gnucash.orig/src/html/swig-gnc-html.c	2012-02-06 01:27:24.000000000 +0100
++++ gnucash/src/html/swig-gnc-html.c	2012-02-27 11:36:36.349946597 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/report/locale-specific/us/taxtxf-de_DE.scm gnucash/src/report/locale-specific/us/taxtxf-de_DE.scm
+--- gnucash.orig/src/report/locale-specific/us/taxtxf-de_DE.scm	2012-02-06 01:23:55.000000000 +0100
++++ gnucash/src/report/locale-specific/us/taxtxf-de_DE.scm	2012-02-27 11:50:16.808057243 +0100
+@@ -51,6 +51,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash printf))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash gnc-module))
+ (gnc:module-load "gnucash/tax/de_DE" 0)
+diff -Naur gnucash.orig/src/report/locale-specific/us/taxtxf.scm gnucash/src/report/locale-specific/us/taxtxf.scm
+--- gnucash.orig/src/report/locale-specific/us/taxtxf.scm	2012-02-06 01:23:55.000000000 +0100
++++ gnucash/src/report/locale-specific/us/taxtxf.scm	2012-02-27 11:50:25.226194342 +0100
+@@ -66,6 +66,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
+ (use-modules (sw_gnome_utils)) ;; to get to gnc-error-dialog
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/report-gnome/report-gnome.scm gnucash/src/report/report-gnome/report-gnome.scm
+--- gnucash.orig/src/report/report-gnome/report-gnome.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-gnome/report-gnome.scm	2012-02-27 11:49:56.041722581 +0100
+@@ -9,6 +9,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
+ (use-modules (gnucash gnome-utils))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/report-gnome/swig-report-gnome.c gnucash/src/report/report-gnome/swig-report-gnome.c
+--- gnucash.orig/src/report/report-gnome/swig-report-gnome.c	2012-02-06 01:27:21.000000000 +0100
++++ gnucash/src/report/report-gnome/swig-report-gnome.c	2012-02-27 11:36:36.350946621 +0100
+@@ -771,7 +771,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -780,7 +780,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/report/report-system/html-acct-table.scm gnucash/src/report/report-system/html-acct-table.scm
+--- gnucash.orig/src/report/report-system/html-acct-table.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-system/html-acct-table.scm	2012-02-27 11:48:25.095339010 +0100
+@@ -497,6 +497,7 @@
+ 
+ ;; this is to work around a bug in the HTML export sytmem
+ ;; which causes COLSPAN= attributes not to be exported (!!)
++(use-modules (gnucash app-utils))
+ (define gnc:colspans-are-working-right #f)
+ 
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+diff -Naur gnucash.orig/src/report/report-system/html-fonts.scm gnucash/src/report/report-system/html-fonts.scm
+--- gnucash.orig/src/report/report-system/html-fonts.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-system/html-fonts.scm	2012-02-27 11:48:45.483636211 +0100
+@@ -6,6 +6,8 @@
+ ;;  Copyright (c) Phil Longstaff <plongstaff@rogers.com>
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
++(use-modules (gnucash app-utils))
++
+ ;; Converts a font name to css style information
+ (define (font-name-to-style-info font-name)
+     (let*
+diff -Naur gnucash.orig/src/report/report-system/html-style-sheet.scm gnucash/src/report/report-system/html-style-sheet.scm
+--- gnucash.orig/src/report/report-system/html-style-sheet.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-system/html-style-sheet.scm	2012-02-27 11:49:05.553936533 +0100
+@@ -21,6 +21,7 @@
+ ;; Boston, MA  02110-1301,  USA       gnu@gnu.org
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
++(use-modules (gnucash app-utils))
+ 
+ (define *gnc:_style-sheet-templates_* (make-hash-table 23))
+ (define *gnc:_style-sheets_* (make-hash-table 23))
+diff -Naur gnucash.orig/src/report/report-system/options-utilities.scm gnucash/src/report/report-system/options-utilities.scm
+--- gnucash.orig/src/report/report-system/options-utilities.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-system/options-utilities.scm	2012-02-27 11:49:24.609228347 +0100
+@@ -21,6 +21,7 @@
+ ;; Boston, MA  02110-1301,  USA       gnu@gnu.org
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+ 
++(use-modules (gnucash app-utils))
+ 
+ ;; These are just a bunch of options which were useful in several
+ ;; reports and hence they got defined in a seperate function.
+diff -Naur gnucash.orig/src/report/report-system/report.scm gnucash/src/report/report-system/report.scm
+--- gnucash.orig/src/report/report-system/report.scm	2012-02-06 01:23:58.000000000 +0100
++++ gnucash/src/report/report-system/report.scm	2012-02-27 11:49:33.521366900 +0100
+@@ -23,6 +23,7 @@
+ (use-modules (gnucash main))
+ (use-modules (gnucash printf))
+ (use-modules (sw_report_system))
++(use-modules (gnucash app-utils))
+ 
+ ;; This hash should contain all the reports available and will be used
+ ;; to generate the reports menu whenever a new window opens and to
+diff -Naur gnucash.orig/src/report/report-system/swig-report-system.c gnucash/src/report/report-system/swig-report-system.c
+--- gnucash.orig/src/report/report-system/swig-report-system.c	2012-02-06 01:27:20.000000000 +0100
++++ gnucash/src/report/report-system/swig-report-system.c	2012-02-27 11:36:36.352946669 +0100
+@@ -771,16 +771,17 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+   
+-  l = SCM_STRING_LENGTH(str);
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/report/standard-reports/account-piecharts.scm gnucash/src/report/standard-reports/account-piecharts.scm
+--- gnucash.orig/src/report/standard-reports/account-piecharts.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/account-piecharts.scm	2012-02-27 11:41:33.828771520 +0100
+@@ -29,6 +29,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (ice-9 regex))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/account-summary.scm gnucash/src/report/standard-reports/account-summary.scm
+--- gnucash.orig/src/report/standard-reports/account-summary.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/account-summary.scm	2012-02-27 11:41:42.157962883 +0100
+@@ -53,6 +53,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/advanced-portfolio.scm gnucash/src/report/standard-reports/advanced-portfolio.scm
+--- gnucash.orig/src/report/standard-reports/advanced-portfolio.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/advanced-portfolio.scm	2012-02-27 11:41:47.038074645 +0100
+@@ -30,6 +30,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/average-balance.scm gnucash/src/report/standard-reports/average-balance.scm
+--- gnucash.orig/src/report/standard-reports/average-balance.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/average-balance.scm	2012-02-27 11:41:52.893208990 +0100
+@@ -11,6 +11,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash main))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+ (define reportname (N_ "Average Balance"))
+diff -Naur gnucash.orig/src/report/standard-reports/balance-sheet.scm gnucash/src/report/standard-reports/balance-sheet.scm
+--- gnucash.orig/src/report/standard-reports/balance-sheet.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/balance-sheet.scm	2012-02-27 11:41:59.789367242 +0100
+@@ -65,6 +65,7 @@
+ (define-module (gnucash report standard-reports balance-sheet))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/budget-balance-sheet.scm gnucash/src/report/standard-reports/budget-balance-sheet.scm
+--- gnucash.orig/src/report/standard-reports/budget-balance-sheet.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/budget-balance-sheet.scm	2012-02-27 11:42:17.239767563 +0100
+@@ -31,6 +31,7 @@
+ (define-module (gnucash report standard-reports budget-balance-sheet))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/budget-barchart.scm gnucash/src/report/standard-reports/budget-barchart.scm
+--- gnucash.orig/src/report/standard-reports/budget-barchart.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/budget-barchart.scm	2012-02-27 11:42:47.354458499 +0100
+@@ -29,6 +29,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/budget-flow.scm gnucash/src/report/standard-reports/budget-flow.scm
+--- gnucash.orig/src/report/standard-reports/budget-flow.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/budget-flow.scm	2012-02-27 11:42:53.118590691 +0100
+@@ -28,6 +28,7 @@
+ (define-module (gnucash report standard-reports budget-flow))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/budget-income-statement.scm gnucash/src/report/standard-reports/budget-income-statement.scm
+--- gnucash.orig/src/report/standard-reports/budget-income-statement.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/budget-income-statement.scm	2012-02-27 11:42:57.999702888 +0100
+@@ -44,6 +44,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash printf))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/budget.scm gnucash/src/report/standard-reports/budget.scm
+--- gnucash.orig/src/report/standard-reports/budget.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/budget.scm	2012-02-27 11:43:04.616854570 +0100
+@@ -28,6 +28,7 @@
+ (define-module (gnucash report standard-reports budget))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/cash-flow.scm gnucash/src/report/standard-reports/cash-flow.scm
+--- gnucash.orig/src/report/standard-reports/cash-flow.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/cash-flow.scm	2012-02-27 11:43:10.017978424 +0100
+@@ -30,6 +30,7 @@
+ (define-module (gnucash report standard-reports cash-flow))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/category-barchart.scm gnucash/src/report/standard-reports/category-barchart.scm
+--- gnucash.orig/src/report/standard-reports/category-barchart.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/category-barchart.scm	2012-02-27 11:43:14.523081826 +0100
+@@ -28,6 +28,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (ice-9 regex))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/daily-reports.scm gnucash/src/report/standard-reports/daily-reports.scm
+--- gnucash.orig/src/report/standard-reports/daily-reports.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/daily-reports.scm	2012-02-27 11:43:19.120187305 +0100
+@@ -32,6 +32,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (ice-9 regex))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/equity-statement.scm gnucash/src/report/standard-reports/equity-statement.scm
+--- gnucash.orig/src/report/standard-reports/equity-statement.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/equity-statement.scm	2012-02-27 11:43:25.719338723 +0100
+@@ -48,6 +48,7 @@
+ (define-module (gnucash report standard-reports equity-statement))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/general-journal.scm gnucash/src/report/standard-reports/general-journal.scm
+--- gnucash.orig/src/report/standard-reports/general-journal.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/general-journal.scm	2012-02-27 11:43:30.811455542 +0100
+@@ -30,6 +30,7 @@
+ (export gnc:make-general-journal-report)
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/general-ledger.scm gnucash/src/report/standard-reports/general-ledger.scm
+--- gnucash.orig/src/report/standard-reports/general-ledger.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/general-ledger.scm	2012-02-27 11:43:36.454577628 +0100
+@@ -33,6 +33,7 @@
+ (export gnc:make-general-ledger-report)
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/income-statement.scm gnucash/src/report/standard-reports/income-statement.scm
+--- gnucash.orig/src/report/standard-reports/income-statement.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/income-statement.scm	2012-02-27 11:43:42.149690870 +0100
+@@ -45,6 +45,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash printf))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/net-barchart.scm gnucash/src/report/standard-reports/net-barchart.scm
+--- gnucash.orig/src/report/standard-reports/net-barchart.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/net-barchart.scm	2012-02-27 11:43:45.899765511 +0100
+@@ -29,6 +29,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/net-linechart.scm gnucash/src/report/standard-reports/net-linechart.scm
+--- gnucash.orig/src/report/standard-reports/net-linechart.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/net-linechart.scm	2012-02-27 11:43:50.031847731 +0100
+@@ -30,6 +30,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/portfolio.scm gnucash/src/report/standard-reports/portfolio.scm
+--- gnucash.orig/src/report/standard-reports/portfolio.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/portfolio.scm	2012-02-27 11:43:54.998946376 +0100
+@@ -26,6 +26,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/price-scatter.scm gnucash/src/report/standard-reports/price-scatter.scm
+--- gnucash.orig/src/report/standard-reports/price-scatter.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/price-scatter.scm	2012-02-27 11:44:06.237170400 +0100
+@@ -28,6 +28,7 @@
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
+ (use-modules (gnucash core-utils))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/register.scm gnucash/src/report/standard-reports/register.scm
+--- gnucash.orig/src/report/standard-reports/register.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/register.scm	2012-02-27 11:44:24.350530402 +0100
+@@ -6,6 +6,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/standard-reports.scm gnucash/src/report/standard-reports/standard-reports.scm
+--- gnucash.orig/src/report/standard-reports/standard-reports.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/standard-reports.scm	2012-02-27 11:44:32.647695375 +0100
+@@ -10,6 +10,7 @@
+ (use-modules (srfi srfi-13))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash core-utils))
++(use-modules (gnucash app-utils))
+ 
+ (export gnc:register-report-create)
+ (export gnc:register-report-hook)
+diff -Naur gnucash.orig/src/report/standard-reports/sx-summary.scm gnucash/src/report/standard-reports/sx-summary.scm
+--- gnucash.orig/src/report/standard-reports/sx-summary.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/sx-summary.scm	2012-02-27 11:44:38.810817805 +0100
+@@ -37,6 +37,7 @@
+ (use-modules (gnucash main))
+ (use-modules (gnucash printf))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/transaction.scm gnucash/src/report/standard-reports/transaction.scm
+--- gnucash.orig/src/report/standard-reports/transaction.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/transaction.scm	2012-02-27 11:44:45.015863323 +0100
+@@ -34,6 +34,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (srfi srfi-1))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/standard-reports/trial-balance.scm gnucash/src/report/standard-reports/trial-balance.scm
+--- gnucash.orig/src/report/standard-reports/trial-balance.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/standard-reports/trial-balance.scm	2012-02-27 11:44:51.146907722 +0100
+@@ -54,6 +54,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash printf))
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/report/stylesheets/stylesheet-easy.scm gnucash/src/report/stylesheets/stylesheet-easy.scm
+--- gnucash.orig/src/report/stylesheets/stylesheet-easy.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/stylesheets/stylesheet-easy.scm	2012-02-27 11:40:05.332741280 +0100
+@@ -31,6 +31,7 @@
+ 
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/html" 0)   ; added for 'gnc-html-engine-supports-css'
+ (gnc:module-load "gnucash/report/report-system" 0)
+diff -Naur gnucash.orig/src/report/stylesheets/stylesheet-fancy.scm gnucash/src/report/stylesheets/stylesheet-fancy.scm
+--- gnucash.orig/src/report/stylesheets/stylesheet-fancy.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/stylesheets/stylesheet-fancy.scm	2012-02-27 11:40:11.628885793 +0100
+@@ -25,6 +25,7 @@
+ 
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/html" 0)   ; added for 'gnc-html-engine-supports-css'
+ (gnc:module-load "gnucash/report/report-system" 0)
+diff -Naur gnucash.orig/src/report/stylesheets/stylesheet-footer.scm gnucash/src/report/stylesheets/stylesheet-footer.scm
+--- gnucash.orig/src/report/stylesheets/stylesheet-footer.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/stylesheets/stylesheet-footer.scm	2012-02-27 11:40:18.676047398 +0100
+@@ -36,6 +36,7 @@
+ 
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/html" 0)   ; added for 'gnc-html-engine-supports-css'
+ (gnc:module-load "gnucash/report/report-system" 0)
+diff -Naur gnucash.orig/src/report/stylesheets/stylesheet-plain.scm gnucash/src/report/stylesheets/stylesheet-plain.scm
+--- gnucash.orig/src/report/stylesheets/stylesheet-plain.scm	2012-02-06 01:23:57.000000000 +0100
++++ gnucash/src/report/stylesheets/stylesheet-plain.scm	2012-02-27 11:40:30.185311420 +0100
+@@ -28,6 +28,7 @@
+ (use-modules (gnucash gnc-module))
+ (use-modules (gnucash core-utils))
+ (use-modules (gnucash report report-system))
++(use-modules (gnucash app-utils))
+ (use-modules (srfi srfi-13))
+ (use-modules (srfi srfi-14))
+ 
+diff -Naur gnucash.orig/src/report/utility-reports/hello-world.scm gnucash/src/report/utility-reports/hello-world.scm
+--- gnucash.orig/src/report/utility-reports/hello-world.scm	2012-02-06 01:23:55.000000000 +0100
++++ gnucash/src/report/utility-reports/hello-world.scm	2012-02-27 11:46:57.008164172 +0100
+@@ -7,6 +7,7 @@
+ (define-module (gnucash report hello-world))
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ 
+ (debug-enable 'debug)
+ (debug-enable 'backtrace)
+diff -Naur gnucash.orig/src/report/utility-reports/view-column.scm gnucash/src/report/utility-reports/view-column.scm
+--- gnucash.orig/src/report/utility-reports/view-column.scm	2012-02-06 01:23:55.000000000 +0100
++++ gnucash/src/report/utility-reports/view-column.scm	2012-02-27 11:47:05.653270587 +0100
+@@ -30,6 +30,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
+ (use-modules (sw_report_system))
++(use-modules (gnucash app-utils))
+ 
+ (use-modules (gnucash printf))
+ 
+diff -Naur gnucash.orig/src/report/utility-reports/welcome-to-gnucash.scm gnucash/src/report/utility-reports/welcome-to-gnucash.scm
+--- gnucash.orig/src/report/utility-reports/welcome-to-gnucash.scm	2012-02-06 01:23:55.000000000 +0100
++++ gnucash/src/report/utility-reports/welcome-to-gnucash.scm	2012-02-27 11:47:21.117466039 +0100
+@@ -26,6 +26,7 @@
+ (use-modules (gnucash main)) ;; FIXME: delete after we finish modularizing.
+ (use-modules (gnucash gnc-module))
+ (use-modules (sw_report_system))
++(use-modules (gnucash app-utils))
+ 
+ (gnc:module-load "gnucash/report/report-system" 0)
+ 
+diff -Naur gnucash.orig/src/scm/command-line.scm gnucash/src/scm/command-line.scm
+--- gnucash.orig/src/scm/command-line.scm	2012-02-06 01:23:59.000000000 +0100
++++ gnucash/src/scm/command-line.scm	2012-02-27 11:54:15.429900046 +0100
+@@ -16,6 +16,7 @@
+ ;; Boston, MA  02110-1301,  USA       gnu@gnu.org
+ 
+ (use-modules (srfi srfi-2))
++(use-modules (gnucash app-utils))
+ 
+ (define gnc:*command-line-remaining* #f)
+ 
+diff -Naur gnucash.orig/src/scm/main.scm gnucash/src/scm/main.scm
+--- gnucash.orig/src/scm/main.scm	2012-02-06 01:23:59.000000000 +0100
++++ gnucash/src/scm/main.scm	2012-02-27 11:36:36.353946692 +0100
+@@ -74,7 +74,6 @@
+ (debug-enable 'backtrace)
+ (read-enable 'positions)
+ 
+-(debug-set! maxdepth 100000)
+ (debug-set! stack    200000)
+ 
+ ;;(use-modules (ice-9 statprof))
+diff -Naur gnucash.orig/src/swig-runtime.h gnucash/src/swig-runtime.h
+--- gnucash.orig/src/swig-runtime.h	2012-02-06 01:27:11.000000000 +0100
++++ gnucash/src/swig-runtime.h	2012-02-27 11:36:36.363946920 +0100
+@@ -796,7 +796,7 @@
+ SWIGINTERN char *
+ SWIG_Guile_scm2newstr(SCM str, size_t *len) {
+ #define FUNC_NAME "SWIG_Guile_scm2newstr"
+-  char *ret;
++  char *ret, *tmp;
+   size_t l;
+ 
+   SCM_ASSERT (SCM_STRINGP(str), str, 1, FUNC_NAME);
+@@ -805,7 +805,9 @@
+   ret = (char *) SWIG_malloc( (l + 1) * sizeof(char));
+   if (!ret) return NULL;
+ 
+-  memcpy(ret, SCM_STRING_CHARS(str), l);
++  tmp = scm_to_utf8_string(str);
++  memcpy(ret, tmp, l);
++  free(tmp);
+   ret[l] = '\0';
+   if (len) *len = l;
+   return ret;
+diff -Naur gnucash.orig/src/tax/us/de_DE.scm gnucash/src/tax/us/de_DE.scm
+--- gnucash.orig/src/tax/us/de_DE.scm	2012-02-06 01:24:05.000000000 +0100
++++ gnucash/src/tax/us/de_DE.scm	2012-02-27 11:54:40.522234741 +0100
+@@ -1,6 +1,7 @@
+ (define-module (gnucash tax de_DE))
+ 
+ (use-modules (gnucash gnc-module))
++(use-modules (gnucash app-utils))
+ (gnc:module-load "gnucash/app-utils" 0)
+ 
+ (export gnc:txf-get-payer-name-source)
+diff -Naur gnucash.orig/src/tax/us/txf-de_DE.scm gnucash/src/tax/us/txf-de_DE.scm
+--- gnucash.orig/src/tax/us/txf-de_DE.scm	2012-02-06 01:24:05.000000000 +0100
++++ gnucash/src/tax/us/txf-de_DE.scm	2012-02-27 11:54:55.023449765 +0100
+@@ -26,6 +26,8 @@
+ ;; http://www.felfri.de/winston/schnittstellen.htm
+ ;;
+ 
++(use-modules (gnucash app-utils))
++
+ (define txf-tax-entity-types
+   (list
+    (cons 'Ind #("Individual, Joint, etc." "Umsatzsteuer-Kennzahlen"))

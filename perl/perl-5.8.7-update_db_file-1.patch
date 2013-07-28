@@ -1,0 +1,245 @@
+Submitted By: Alexander E. Patrakov
+Date: 2006-01-16
+Initial Package Version: 5.8.7
+Upstream Status: Backport
+Origin: Berkeley DB 4.4.16
+Description: This patch updates the DB_File extension to a version
+compatible with DB 4.4.x.
+
+diff -ur perl-5.8.7/ext/DB_File/Changes db-4.4.16/perl/DB_File/Changes
+--- perl-5.8.7/ext/DB_File/Changes	2005-04-03 21:23:48.000000000 +0600
++++ db-4.4.16/perl/DB_File/Changes	2005-11-12 05:27:41.000000000 +0500
+@@ -1,5 +1,23 @@
+ 
+ 
++1.814 11 November 2005
++
++   * Fix from Dominic Dunlop to tidy up an OS-X specific warning in
++     db-btree.t.
++
++   * Silenced a warning about $DB_File::Error only being used once.
++     Issue spotted by Dominic Dunlop.
++
++1.813 31st October 2005
++
++   * Updates for Berkeley DB 4.4
++
++1.812 9th October 2005
++
++   * Added libscan to Makefile.PL
++
++   * Fixed test failing under windows
++
+ 1.811 12th March 2005
+ 
+    * Fixed DBM filter bug in seq
+diff -ur perl-5.8.7/ext/DB_File/DB_File.pm db-4.4.16/perl/DB_File/DB_File.pm
+--- perl-5.8.7/ext/DB_File/DB_File.pm	2005-04-03 21:23:49.000000000 +0600
++++ db-4.4.16/perl/DB_File/DB_File.pm	2005-11-12 05:27:41.000000000 +0500
+@@ -1,8 +1,8 @@
+ # DB_File.pm -- Perl 5 interface to Berkeley DB 
+ #
+ # written by Paul Marquess (pmqs@cpan.org)
+-# last modified 12th March 2005
+-# version 1.811
++# last modified 11th November 2005
++# version 1.814
+ #
+ #     Copyright (c) 1995-2005 Paul Marquess. All rights reserved.
+ #     This program is free software; you can redistribute it and/or
+@@ -161,11 +161,11 @@
+ use warnings;
+ use strict;
+ our ($VERSION, @ISA, @EXPORT, $AUTOLOAD, $DB_BTREE, $DB_HASH, $DB_RECNO);
+-our ($db_version, $use_XSLoader, $splice_end_array);
++our ($db_version, $use_XSLoader, $splice_end_array, $Error);
+ use Carp;
+ 
+ 
+-$VERSION = "1.811" ;
++$VERSION = "1.814" ;
+ 
+ {
+     local $SIG{__WARN__} = sub {$splice_end_array = "@_";};
+@@ -268,6 +268,10 @@
+ 
+     # make recno in Berkeley DB version 2 (or better) work like 
+     # recno in version 1.
++    if ($db_version >= 4 and ! $tieHASH) {
++        $arg[2] |= O_CREAT();
++    }
++
+     if ($db_version > 1 and defined $arg[4] and $arg[4] =~ /RECNO/ and 
+ 	$arg[1] and ! -e $arg[1]) {
+ 	open(FH, ">$arg[1]") or return undef ;
+@@ -1851,7 +1855,7 @@
+ a DBM database it always writes the key and value as strings. So when
+ you use this:
+ 
+-    $hash{12345} = "soemthing" ;
++    $hash{12345} = "something" ;
+ 
+ the key 12345 will get stored in the DBM database as the 5 byte string
+ "12345". If you actually want the key to be stored in the DBM database
+diff -ur perl-5.8.7/ext/DB_File/DB_File.xs db-4.4.16/perl/DB_File/DB_File.xs
+--- perl-5.8.7/ext/DB_File/DB_File.xs	2005-04-03 21:23:51.000000000 +0600
++++ db-4.4.16/perl/DB_File/DB_File.xs	2005-11-12 05:27:41.000000000 +0500
+@@ -3,8 +3,8 @@
+  DB_File.xs -- Perl 5 interface to Berkeley DB 
+ 
+  written by Paul Marquess <pmqs@cpan.org>
+- last modified 12th March 2005
+- version 1.811
++ last modified 11th November 2005
++ version 1.814
+ 
+  All comments/suggestions/problems are welcome
+ 
+@@ -111,6 +111,9 @@
+         1.809 - no change
+         1.810 - no change
+         1.811 - no change
++        1.812 - no change
++        1.813 - no change
++        1.814 - no change
+ 
+ */
+ 
+@@ -192,10 +195,22 @@
+ #    define AT_LEAST_DB_3_2
+ #endif
+ 
++#if DB_VERSION_MAJOR > 3 || (DB_VERSION_MAJOR == 3 && DB_VERSION_MINOR >= 3)
++#    define AT_LEAST_DB_3_3
++#endif
++
+ #if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
+ #    define AT_LEAST_DB_4_1
+ #endif
+ 
++#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 3)
++#    define AT_LEAST_DB_4_3
++#endif
++
++#ifdef AT_LEAST_DB_3_3
++#   define WANT_ERROR
++#endif
++
+ /* map version 2 features & constants onto their version 1 equivalent */
+ 
+ #ifdef DB_Prefix_t
+@@ -769,14 +784,13 @@
+     return (retval) ;
+ }
+ 
+-#if 0
++#ifdef WANT_ERROR
++
+ static void
+-#ifdef CAN_PROTOTYPE
+-db_errcall_cb(const char * db_errpfx, char * buffer)
++#ifdef AT_LEAST_DB_4_3
++db_errcall_cb(const DB_ENV* dbenv, const char * db_errpfx, const char * buffer)
+ #else
+-db_errcall_cb(db_errpfx, buffer)
+-const char * db_errpfx;
+-char * buffer;
++db_errcall_cb(const char * db_errpfx, char * buffer)
+ #endif
+ {
+ #ifdef dTHX
+@@ -1236,6 +1250,9 @@
+     }	
+     dbp = RETVAL->dbp ;
+ 
++#ifdef WANT_ERROR
++	    RETVAL->dbp->set_errcall(RETVAL->dbp, db_errcall_cb) ;
++#endif
+     if (sv)
+     {
+         if (! SvROK(sv) )
+@@ -1430,6 +1447,12 @@
+             Flags |= DB_TRUNCATE ;
+ #endif
+ 
++#ifdef AT_LEAST_DB_4_4
++        /* need this for recno */
++        if ((flags & O_TRUNC) == O_TRUNC)
++            Flags |= DB_CREATE ;
++#endif
++
+ #ifdef AT_LEAST_DB_4_1
+         status = (RETVAL->dbp->open)(RETVAL->dbp, NULL, name, NULL, RETVAL->type, 
+ 	    			Flags, mode) ; 
+@@ -1440,7 +1463,6 @@
+ 	/* printf("open returned %d %s\n", status, db_strerror(status)) ; */
+ 
+         if (status == 0) {
+-	    /* RETVAL->dbp->set_errcall(RETVAL->dbp, db_errcall_cb) ;*/
+ 
+             status = (RETVAL->dbp->cursor)(RETVAL->dbp, NULL, &RETVAL->cursor,
+ 			0) ;
+@@ -1470,7 +1492,9 @@
+ #ifdef dTHX
+     dTHX;
+ #endif    
+-    /* SV * sv_err = perl_get_sv(ERR_BUFF, GV_ADD|GV_ADDMULTI) ;  */
++#ifdef WANT_ERROR
++    SV * sv_err = perl_get_sv(ERR_BUFF, GV_ADD|GV_ADDMULTI) ; 
++#endif
+     MY_CXT_INIT;
+     __getBerkeleyDBInfo() ;
+  
+diff -ur perl-5.8.7/ext/DB_File/t/db-btree.t db-4.4.16/perl/DB_File/t/db-btree.t
+--- perl-5.8.7/ext/DB_File/t/db-btree.t	2004-06-23 02:42:28.000000000 +0600
++++ db-4.4.16/perl/DB_File/t/db-btree.t	2005-11-12 05:27:41.000000000 +0500
+@@ -18,7 +18,12 @@
+             exit 0;
+         }
+     }
++}
++
++BEGIN
++{
+     if ($^O eq 'darwin'
++	&& (split(/\./, $Config{osvers}))[0] < 7 # Mac OS X 10.3 == Darwin 7
+ 	&& $Config{db_version_major} == 1
+ 	&& $Config{db_version_minor} == 0
+ 	&& $Config{db_version_patch} == 0) {
+@@ -456,7 +461,8 @@
+ # ##
+ 
+ $status = $X->fd ;
+-ok(71, $status != 0 );
++ok(71, 1 );
++#ok(71, $status != 0 );
+ 
+ 
+ undef $X ;
+diff -ur perl-5.8.7/ext/DB_File/t/db-hash.t db-4.4.16/perl/DB_File/t/db-hash.t
+--- perl-5.8.7/ext/DB_File/t/db-hash.t	2005-04-03 21:23:52.000000000 +0600
++++ db-4.4.16/perl/DB_File/t/db-hash.t	2005-11-01 19:49:47.000000000 +0500
+@@ -337,7 +337,8 @@
+ # ##
+ 
+ $status = $X->fd ;
+-ok(43, $status != 0 );
++ok(43, 1 );
++#ok(43, $status != 0 );
+ 
+ undef $X ;
+ untie %h ;
+diff -ur perl-5.8.7/ext/DB_File/t/db-recno.t db-4.4.16/perl/DB_File/t/db-recno.t
+--- perl-5.8.7/ext/DB_File/t/db-recno.t	2004-06-23 02:42:28.000000000 +0600
++++ db-4.4.16/perl/DB_File/t/db-recno.t	2005-11-01 19:49:48.000000000 +0500
+@@ -522,7 +522,9 @@
+     ok(86, $x eq "abc\ndef\nghi\njkl\n") ;
+ 
+     # $# sets array to same length
+-    ok(87, $self = tie @h, 'DB_File', $Dfile, O_RDWR, 0640, $DB_RECNO ) ;
++    $self = tie @h, 'DB_File', $Dfile, O_RDWR, 0640, $DB_RECNO ;
++    ok(87, $self) 
++        or warn "# $DB_File::Error\n";
+     if ($FA)
+       { $#h = 3 }
+     else 

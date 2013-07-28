@@ -1,0 +1,38 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-02-08
+Initial Package Version: 4.1.20
+Origin: Debian findutils_4.1.20-3.diff.gz
+Description: updatedb(1) silently fails when --localuser specifies and
+	user without a valid login shell.
+
+diff -Naur findutils-4.1.20.orig/locate/updatedb.sh findutils-4.1.20/locate/updatedb.sh
+--- findutils-4.1.20.orig/locate/updatedb.sh	2003-05-24 14:36:25.000000000 -0400
++++ findutils-4.1.20/locate/updatedb.sh	2004-02-08 16:32:11.467697536 -0500
+@@ -53,6 +53,9 @@
+ # You can set these in the environment, or use command-line options,
+ # to override their defaults:
+ 
++# Shell to use
++: ${SHELL="/bin/sh"}
++
+ # Non-network directories to put in the database.
+ : ${SEARCHPATHS="/"}
+ 
+@@ -117,7 +120,7 @@
+ {
+ if test -n "$SEARCHPATHS"; then
+   if [ "$LOCALUSER" != "" ]; then
+-    su $LOCALUSER -c \
++    su $LOCALUSER -s $SHELL -c \
+     "$find $SEARCHPATHS \
+      \\( $prunefs_exp \
+      -type d -regex '$PRUNEREGEX' \\) -prune -o -print"
+@@ -170,7 +173,7 @@
+ {
+ if test -n "$SEARCHPATHS"; then
+   if [ "$LOCALUSER" != "" ]; then
+-    su $LOCALUSER -c \
++    su $LOCALUSER -s $SHELL -c \
+     "$find $SEARCHPATHS \
+      \( $prunefs_exp \
+      -type d -regex '$PRUNEREGEX' \) -prune -o -print"

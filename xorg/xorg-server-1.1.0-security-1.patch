@@ -1,0 +1,280 @@
+Submitted By: Dan Nicholson <dnicholson at linuxfromscratch dot org>
+Date: 2007-07-18
+Initial Package Version: 1.1.0
+Origin: http://xorg.freedesktop.org/releases/X11R7.1/patches/ and
+    http://gitweb.freedesktop.org/?p=xorg/xserver.git;a=commit;h=50a3e1ad18c815a5adafee22beccdf970bae62d6
+Upstream Status: Applied
+Description: Fixes multiple security vulnerabilities in the X server.
+    See the following advisories:
+    http://lists.freedesktop.org/archives/xorg/2006-June/016146.html
+    http://lists.freedesktop.org/archives/xorg/2007-January/021054.html
+
+diff -pNur xorg-server-1.1.0.orig/dbe/dbe.c xorg-server-1.1.0/dbe/dbe.c
+--- xorg-server-1.1.0.orig/dbe/dbe.c	2006-03-27 17:20:59.000000000 -0800
++++ xorg-server-1.1.0/dbe/dbe.c	2007-01-18 20:19:51.000000000 -0800
+@@ -42,6 +42,11 @@
+ #endif
+ 
+ #include <string.h>
++#if HAVE_STDINT_H
++#include <stdint.h>
++#elif !defined(UINT32_MAX)
++#define UINT32_MAX 0xffffffffU
++#endif
+ 
+ #include <X11/X.h>
+ #include <X11/Xproto.h>
+@@ -716,11 +721,14 @@ ProcDbeSwapBuffers(ClientPtr client)
+         return(Success);
+     }
+ 
++    if (nStuff > UINT32_MAX / sizeof(DbeSwapInfoRec))
++	    return BadAlloc;
++
+     /* Get to the swap info appended to the end of the request. */
+     dbeSwapInfo = (xDbeSwapInfo *)&stuff[1];
+ 
+     /* Allocate array to record swap information. */ 
+-    swapInfo = (DbeSwapInfoPtr)ALLOCATE_LOCAL(nStuff * sizeof(DbeSwapInfoRec));
++    swapInfo = (DbeSwapInfoPtr)Xalloc(nStuff * sizeof(DbeSwapInfoRec));
+     if (swapInfo == NULL)
+     {
+         return(BadAlloc);
+@@ -735,14 +743,14 @@ ProcDbeSwapBuffers(ClientPtr client)
+         if (!(pWin = SecurityLookupWindow(dbeSwapInfo[i].window, client,
+ 					  SecurityWriteAccess)))
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+ 	    return(BadWindow);
+         }
+ 
+         /* Each window must be double-buffered - BadMatch. */
+         if (DBE_WINDOW_PRIV(pWin) == NULL)
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(BadMatch);
+         }
+ 
+@@ -751,7 +759,7 @@ ProcDbeSwapBuffers(ClientPtr client)
+         {
+             if (dbeSwapInfo[i].window == dbeSwapInfo[j].window)
+             {
+-                DEALLOCATE_LOCAL(swapInfo);
++                Xfree(swapInfo);
+                 return(BadMatch);
+ 	    }
+         }
+@@ -762,7 +770,7 @@ ProcDbeSwapBuffers(ClientPtr client)
+             (dbeSwapInfo[i].swapAction != XdbeUntouched ) &&
+             (dbeSwapInfo[i].swapAction != XdbeCopied    ))
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(BadValue);
+         }
+ 
+@@ -792,12 +800,12 @@ ProcDbeSwapBuffers(ClientPtr client)
+         error = (*pDbeScreenPriv->SwapBuffers)(client, &nStuff, swapInfo);
+         if (error != Success)
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(error);
+         }
+     }
+     
+-    DEALLOCATE_LOCAL(swapInfo);
++    Xfree(swapInfo);
+     return(Success);
+ 
+ } /* ProcDbeSwapBuffers() */
+@@ -879,10 +887,12 @@ ProcDbeGetVisualInfo(ClientPtr client)
+ 
+     REQUEST_AT_LEAST_SIZE(xDbeGetVisualInfoReq);
+ 
++    if (stuff->n > UINT32_MAX / sizeof(DrawablePtr))
++	    return BadAlloc;
+     /* Make sure any specified drawables are valid. */
+     if (stuff->n != 0)
+     {
+-        if (!(pDrawables = (DrawablePtr *)ALLOCATE_LOCAL(stuff->n *
++        if (!(pDrawables = (DrawablePtr *)Xalloc(stuff->n *
+                                                  sizeof(DrawablePtr))))
+         {
+             return(BadAlloc);
+@@ -895,7 +905,7 @@ ProcDbeGetVisualInfo(ClientPtr client)
+             if (!(pDrawables[i] = (DrawablePtr)SecurityLookupDrawable(
+ 				drawables[i], client, SecurityReadAccess)))
+             {
+-                DEALLOCATE_LOCAL(pDrawables);
++                Xfree(pDrawables);
+                 return(BadDrawable);
+             }
+         }
+@@ -907,7 +917,7 @@ ProcDbeGetVisualInfo(ClientPtr client)
+     {
+         if (pDrawables)
+         {
+-            DEALLOCATE_LOCAL(pDrawables);
++            Xfree(pDrawables);
+         }
+ 
+         return(BadAlloc);
+@@ -934,7 +944,7 @@ ProcDbeGetVisualInfo(ClientPtr client)
+             /* Free pDrawables if we needed to allocate it above. */
+             if (pDrawables)
+             {
+-                DEALLOCATE_LOCAL(pDrawables);
++                Xfree(pDrawables);
+             }
+ 
+             return(BadAlloc);
+@@ -1015,7 +1025,7 @@ ProcDbeGetVisualInfo(ClientPtr client)
+ 
+     if (pDrawables)
+     {
+-        DEALLOCATE_LOCAL(pDrawables);
++        Xfree(pDrawables);
+     }
+ 
+     return(client->noClientException);
+diff -pNur xorg-server-1.1.0.orig/hw/xfree86/common/xf86Init.c xorg-server-1.1.0/hw/xfree86/common/xf86Init.c
+--- xorg-server-1.1.0.orig/hw/xfree86/common/xf86Init.c	2006-05-09 11:04:19.000000000 -0700
++++ xorg-server-1.1.0/hw/xfree86/common/xf86Init.c	2007-01-18 20:19:27.000000000 -0800
+@@ -1905,7 +1905,11 @@ xf86RunVtInit(void)
+           FatalError("xf86RunVtInit: fork failed (%s)\n", strerror(errno));
+           break;
+       case 0:  /* child */
+-          setuid(getuid());
++	  if (setuid(getuid()) == -1) {
++	      xf86Msg(X_ERROR, "xf86RunVtInit: setuid failed (%s)\n",
++			 strerror(errno));
++	      exit(255);
++	  }
+           /* set stdin, stdout to the consoleFd */
+           for (i = 0; i < 2; i++) {
+             if (xf86Info.consoleFd != i) {
+diff -pNur xorg-server-1.1.0.orig/hw/xfree86/os-support/shared/libc_wrapper.c xorg-server-1.1.0/hw/xfree86/os-support/shared/libc_wrapper.c
+--- xorg-server-1.1.0.orig/hw/xfree86/os-support/shared/libc_wrapper.c	2006-03-25 11:52:04.000000000 -0800
++++ xorg-server-1.1.0/hw/xfree86/os-support/shared/libc_wrapper.c	2007-01-18 20:19:27.000000000 -0800
+@@ -1270,7 +1270,10 @@ xf86execl(const char *pathname, const ch
+ #ifndef SELF_CONTAINED_WRAPPER
+ 	xf86DisableIO();
+ #endif
+-        setuid(getuid());
++        if (setuid(getuid()) == -1) {
++		ErrorF("xf86Execl: setuid() failed: %s\n", strerror(errno));
++		exit(255);
++	}
+ #if !defined(SELF_CONTAINED_WRAPPER)
+         /* set stdin, stdout to the consoleFD, and leave stderr alone */
+         for (i = 0; i < 2; i++)
+diff -pNur xorg-server-1.1.0.orig/hw/xfree86/parser/write.c xorg-server-1.1.0/hw/xfree86/parser/write.c
+--- xorg-server-1.1.0.orig/hw/xfree86/parser/write.c	2005-07-03 00:01:37.000000000 -0700
++++ xorg-server-1.1.0/hw/xfree86/parser/write.c	2007-01-18 20:19:27.000000000 -0800
+@@ -170,7 +170,10 @@ xf86writeConfigFile (const char *filenam
+ 					strerror(errno));
+ 			return 0;
+ 		case 0: /* child */
+-			setuid(getuid());
++			if (setuid(getuid()) == -1) 
++			    FatalError("xf86writeConfigFile(): "
++				"setuid failed(%s)\n", 
++				strerror(errno));
+ 			ret = doWriteConfigFile(filename, cptr);
+ 			exit(ret);
+ 			break;
+diff -pNur xorg-server-1.1.0.orig/os/utils.c xorg-server-1.1.0/os/utils.c
+--- xorg-server-1.1.0.orig/os/utils.c	2006-03-25 11:52:05.000000000 -0800
++++ xorg-server-1.1.0/os/utils.c	2007-01-18 20:19:27.000000000 -0800
+@@ -1721,8 +1721,10 @@ System(char *command)
+     case -1:	/* error */
+ 	p = -1;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+ 	_exit(127);
+     default:	/* parent */
+@@ -1773,8 +1775,10 @@ Popen(char *command, char *type)
+ 	xfree(cur);
+ 	return NULL;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	if (*type == 'r') {
+ 	    if (pdes[1] != 1) {
+ 		/* stdout */
+@@ -1848,8 +1852,10 @@ Fopen(char *file, char *type)
+ 	xfree(cur);
+ 	return NULL;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	if (*type == 'r') {
+ 	    if (pdes[1] != 1) {
+ 		/* stdout */
+diff -pNur xorg-server-1.1.0.orig/render/render.c xorg-server-1.1.0/render/render.c
+--- xorg-server-1.1.0.orig/render/render.c	2006-05-09 15:35:52.000000000 -0700
++++ xorg-server-1.1.0/render/render.c	2007-01-18 20:19:51.000000000 -0800
+@@ -49,6 +49,12 @@
+ #include <X11/Xfuncproto.h>
+ #include "cursorstr.h"
+ 
++#if HAVE_STDINT_H
++#include <stdint.h>
++#elif !defined(UINT32_MAX)
++#define UINT32_MAX 0xffffffffU
++#endif
++
+ static int ProcRenderQueryVersion (ClientPtr pClient);
+ static int ProcRenderQueryPictFormats (ClientPtr pClient);
+ static int ProcRenderQueryPictIndexValues (ClientPtr pClient);
+@@ -1105,11 +1111,14 @@ ProcRenderAddGlyphs (ClientPtr client)
+     }
+ 
+     nglyphs = stuff->nglyphs;
++    if (nglyphs > UINT32_MAX / sizeof(GlyphNewRec))
++	    return BadAlloc;
++
+     if (nglyphs <= NLOCALGLYPH)
+ 	glyphsBase = glyphsLocal;
+     else
+     {
+-	glyphsBase = (GlyphNewPtr) ALLOCATE_LOCAL (nglyphs * sizeof (GlyphNewRec));
++	glyphsBase = (GlyphNewPtr) Xalloc (nglyphs * sizeof (GlyphNewRec));
+ 	if (!glyphsBase)
+ 	    return BadAlloc;
+     }
+@@ -1166,7 +1175,7 @@ ProcRenderAddGlyphs (ClientPtr client)
+     }
+ 
+     if (glyphsBase != glyphsLocal)
+-	DEALLOCATE_LOCAL (glyphsBase);
++	Xfree (glyphsBase);
+     return client->noClientException;
+ bail:
+     while (glyphs != glyphsBase)
+@@ -1175,7 +1184,7 @@ bail:
+ 	xfree (glyphs->glyph);
+     }
+     if (glyphsBase != glyphsLocal)
+-	DEALLOCATE_LOCAL (glyphsBase);
++	Xfree (glyphsBase);
+     return err;
+ }
+ 

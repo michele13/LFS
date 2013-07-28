@@ -1,0 +1,33 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2004-03-17
+Origin: None
+Initial Package Version: 2.2.1
+Upstream Status: Hack, not submitted
+Description: Fixes compilation with freetype-2.1.7
+diff -ur fontconfig-2.2.1.orig/fontconfig/fcfreetype.h fontconfig-2.2.1/fontconfig/fcfreetype.h
+--- fontconfig-2.2.1.orig/fontconfig/fcfreetype.h	2003-03-28 11:08:35.000000000 -0600
++++ fontconfig-2.2.1/fontconfig/fcfreetype.h	2004-03-17 08:33:08.000000000 -0600
+@@ -24,7 +24,8 @@
+ 
+ #ifndef _FCFREETYPE_H_
+ #define _FCFREETYPE_H_
+-#include <freetype/freetype.h>
++#include <ft2build.h>
++#include FT_FREETYPE_H
+ 
+ FT_UInt
+ FcFreeTypeCharIndex (FT_Face face, FcChar32 ucs4);
+diff -ur fontconfig-2.2.1.orig/src/fcfreetype.c fontconfig-2.2.1/src/fcfreetype.c
+--- fontconfig-2.2.1.orig/src/fcfreetype.c	2003-04-30 10:17:58.000000000 -0500
++++ fontconfig-2.2.1/src/fcfreetype.c	2004-03-17 08:41:44.000000000 -0600
+@@ -57,7 +57,9 @@
+ 
+ #if (FREETYPE_MINOR > 1 || (FREETYPE_MINOR == 1 && FREETYPE_PATCH >= 4))
+ #include <freetype/ftbdf.h>
+-#include <freetype/ftmodule.h>
++#include <ft2build.h>
++#define FT_USE_MODULE( x )  extern const FT_Module_Class*  x;
++#include FT_CONFIG_MODULES_H
+ #define USE_FTBDF
+ #define HAS_BDF_PROPERTY(f) ((f) && (f)->driver && \
+ 			     (f)->driver->root.clazz->get_interface)

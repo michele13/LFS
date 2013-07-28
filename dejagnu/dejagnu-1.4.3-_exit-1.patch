@@ -1,0 +1,28 @@
+Submitted By: Ronald Hummelink <ronald at hummelink dot xs4all dot nl>
+Date: 2003-08-16
+Initial Package Version: 1.4.3
+Origin: Dejagnu mailinglist: http://mail.gnu.org/archive/html/dejagnu/2003-05/msg00004.html
+Description: Fix from H.J. Lu for a bug he found using the binutils testsuite:
+
+2003-05-12  H.J. Lu <hongjiu.lu at intel dot com>
+
+	* lib/libgloss.exp (build_wrapper): Add -Wl,-wrap,_exit.
+
+--- dejagnu/lib/libgloss.exp._exit	2002-08-29 20:53:40.000000000 -0700
++++ dejagnu/lib/libgloss.exp	2003-05-12 22:20:49.000000000 -0700
+@@ -818,13 +818,13 @@ proc build_wrapper { gluefile } {
+ 	set result "";
+     } elseif [target_info exists uses_underscores] {
+ 	set flags "additional_flags=-DUNDERSCORES";
+-	set result "-Wl,-wrap,__exit -Wl,-wrap,_main -Wl,-wrap,_abort";
++	set result "-Wl,-wrap,_exit -Wl,-wrap,__exit -Wl,-wrap,_main -Wl,-wrap,_abort";
+     } else {
+ 	set flags "";
+ 	if [target_info exists is_vxworks] {
+ 	    set flags "additional_flags=-DVXWORKS";
+ 	}
+-	set result "-Wl,-wrap,exit -Wl,-wrap,main -Wl,-wrap,abort";
++	set result "-Wl,-wrap,exit -Wl,-wrap,_exit -Wl,-wrap,main -Wl,-wrap,abort";
+     }
+     if [target_info exists wrap_compile_flags] {
+ 	lappend flags "additional_flags=[target_info wrap_compile_flags]";

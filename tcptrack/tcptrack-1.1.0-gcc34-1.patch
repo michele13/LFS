@@ -1,0 +1,30 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-04-25
+Initial Package Version: 1.1.0
+Origin: tcptrack developer
+Upstream Status: Accepted
+Description: Fixes Compile Issues with GCC 3.4
+ 
+--- tcptrack-1.1.0/src/NetworkPacket.h.orig	2004-04-25 23:02:02.374317317 +0000
++++ tcptrack-1.1.0/src/NetworkPacket.h	2004-04-25 23:02:14.416113979 +0000
+@@ -7,7 +7,7 @@
+ class NetworkPacket
+ {
+ public:
+-	virtual unsigned long len() const = NULL;
++	virtual unsigned long len() const = 0;
+ 	//static void f();
+ 	static NetworkPacket * newPacket(const u_char *data,
+ 	                                 unsigned int data_len, 
+ 
+--- tcptrack-1.1.0/src/AppError.h.orig	2004-04-25 23:05:58.765060451 +0000
++++ tcptrack-1.1.0/src/AppError.h	2004-04-25 23:06:05.923750379 +0000
+@@ -10,7 +10,7 @@
+ class AppError
+ {
+ public:
+-	virtual string msg() const = NULL;
++	virtual string msg() const = 0;
+ };
+ 
+ #endif

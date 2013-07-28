@@ -1,0 +1,251 @@
+Submitted By: William Harrington <kb0iic@hotmail.com>
+Date: 2005-03-19
+Initial Package Version: 2.0.53
+Upstream Status: Submitted
+Origin: Unknown
+Description: Hack mod_autoindex.c to provide color options
+             so admins can modify colors of index pages.
+
+--- httpd-2.0.53/modules/generators/mod_autoindex.c.orig	2005-03-19 17:59:21.823662480 +0000
++++ httpd-2.0.53/modules/generators/mod_autoindex.c	2005-03-19 18:00:26.859775488 +0000
+@@ -23,6 +23,8 @@
+  * Adapted to Apache by rst.
+  *
+  * Version sort added by Martin Pool <mbp@humbug.org.au>.
++ *
++ * Colored Indexes added by Guenter Knauf <info@gknw.de> 2002-Okt-12.
+  */
+ 
+ #include "apr_strings.h"
+@@ -47,6 +49,17 @@
+ 
+ module AP_MODULE_DECLARE_DATA autoindex_module;
+ 
++/* Advertising modified version */
++
++static int init_autoindex(apr_pool_t * p, apr_pool_t * plog, apr_pool_t * ptemp, server_rec * s)
++{
++#if !defined(MOD_AUTOINDEX_NO_ADVERTISEMENT)
++    /* advertise the patched autoindex module;-) */
++    ap_add_version_component(p, "mod_autoindex/color");
++#endif
++       return OK;
++}
++
+ /****************************************************************
+  *
+  * Handling configuration directives...
+@@ -136,6 +149,11 @@
+     apr_array_header_t *hdr_list;
+     apr_array_header_t *rdme_list;
+ 
++    apr_array_header_t *bg_color;
++    apr_array_header_t *text_color;
++    apr_array_header_t *link_color;
++    apr_array_header_t *vlink_color;
++    apr_array_header_t *alink_color;
+ } autoindex_config_rec;
+ 
+ static char c_by_encoding, c_by_type, c_by_path;
+@@ -149,11 +167,29 @@
+  * We include the DOCTYPE because we may be using features therefrom (i.e.,
+  * HEIGHT and WIDTH attributes on the icons if we're FancyIndexing).
+  */
+-static void emit_preamble(request_rec *r, int xhtml, const char *title)
++static void emit_preamble(request_rec *r, int xhtml, const char *title, const char *bg,
++                               const char *text, const char *link, const char *vlink,
++                               const char *alink)
+ {
++    char *params = "";
++    if (bg != NULL) {
++        params = apr_pstrcat(r->pool, params, " BGCOLOR=\"", bg, "\"", NULL);
++    }
++    if (text != NULL) {
++        params = apr_pstrcat(r->pool, params, " TEXT=\"", text, "\"", NULL);
++    }
++    if (link != NULL) {
++        params = apr_pstrcat(r->pool, params, " LINK=\"", link, "\"", NULL);
++    }
++    if (vlink != NULL) {
++        params = apr_pstrcat(r->pool, params, " VLINK=\"", vlink, "\"", NULL);
++    }
++    if (alink != NULL) {
++        params = apr_pstrcat(r->pool, params, " ALINK=\"", alink, "\"", NULL);
++    }
+     ap_rvputs(r, xhtml ? DOCTYPE_XHTML_1_0T : DOCTYPE_HTML_3_2,
+               "<html>\n <head>\n  <title>Index of ", title,
+-              "</title>\n </head>\n <body>\n", NULL);
++              "</title>\n </head>\n <body", params, ">\n", NULL);
+ }
+ 
+ static void push_item(apr_array_header_t *arr, char *type, const char *to,
+@@ -300,6 +336,43 @@
+     return NULL;
+ }
+ 
++/* Colors of directory indexes */
++
++static const char *add_bgcolor(cmd_parms *cmd, void *d, const char *name)
++{
++    push_item(((autoindex_config_rec *) d)->bg_color, 0, NULL, cmd->path,
++              name);
++    return NULL;
++}
++
++static const char *add_textcolor(cmd_parms *cmd, void *d, const char *name)
++{
++    push_item(((autoindex_config_rec *) d)->text_color, 0, NULL, cmd->path,
++              name);
++    return NULL;
++}
++
++static const char *add_linkcolor(cmd_parms *cmd, void *d, const char *name)
++{
++    push_item(((autoindex_config_rec *) d)->link_color, 0, NULL, cmd->path,
++              name);
++    return NULL;
++}
++
++static const char *add_vlinkcolor(cmd_parms *cmd, void *d, const char *name)
++{
++    push_item(((autoindex_config_rec *) d)->vlink_color, 0, NULL, cmd->path,
++              name);
++    return NULL;
++}
++
++static const char *add_alinkcolor(cmd_parms *cmd, void *d, const char *name)
++{
++    push_item(((autoindex_config_rec *) d)->alink_color, 0, NULL, cmd->path,
++              name);
++    return NULL;
++}
++
+ static const char *add_opts(cmd_parms *cmd, void *d, const char *optstr)
+ {
+     char *w;
+@@ -557,6 +630,16 @@
+     AP_INIT_TAKE1("DefaultIcon", ap_set_string_slot,
+                   (void *)APR_OFFSETOF(autoindex_config_rec, default_icon),
+                   DIR_CMD_PERMS, "an icon URL"),
++    AP_INIT_TAKE1("DirectoryIndexTextColor", add_textcolor, NULL, DIR_CMD_PERMS,
++                  "a valid HTML color"),
++    AP_INIT_TAKE1("DirectoryIndexBGColor", add_bgcolor, NULL, DIR_CMD_PERMS,
++                  "a valid HTML color"),
++    AP_INIT_TAKE1("DirectoryIndexLinkColor", add_linkcolor, NULL, DIR_CMD_PERMS,
++                  "a valid HTML color"),
++    AP_INIT_TAKE1("DirectoryIndexVLinkColor", add_vlinkcolor, NULL, DIR_CMD_PERMS,
++                  "a valid HTML color"),
++    AP_INIT_TAKE1("DirectoryIndexALinkColor", add_alinkcolor, NULL, DIR_CMD_PERMS,
++                  "a valid HTML color"),
+     {NULL}
+ };
+ 
+@@ -582,6 +665,11 @@
+     new->decremented_opts = 0;
+     new->default_keyid = '\0';
+     new->default_direction = '\0';
++    new->bg_color = apr_array_make(p, 4, sizeof(struct item));
++    new->text_color = apr_array_make(p, 4, sizeof(struct item));
++    new->link_color = apr_array_make(p, 4, sizeof(struct item));
++    new->vlink_color = apr_array_make(p, 4, sizeof(struct item));
++    new->alink_color = apr_array_make(p, 4, sizeof(struct item));
+ 
+     return (void *) new;
+ }
+@@ -598,6 +686,12 @@
+     new->icon_height = add->icon_height ? add->icon_height : base->icon_height;
+     new->icon_width = add->icon_width ? add->icon_width : base->icon_width;
+ 
++    new->bg_color = apr_array_append(p, add->bg_color, base->bg_color);
++    new->text_color = apr_array_append(p, add->text_color, base->text_color);
++    new->link_color = apr_array_append(p, add->link_color, base->link_color);
++    new->vlink_color = apr_array_append(p, add->vlink_color, base->vlink_color);
++    new->alink_color = apr_array_append(p, add->alink_color, base->alink_color);
++
+     new->alt_list = apr_array_append(p, add->alt_list, base->alt_list);
+     new->ign_list = apr_array_append(p, add->ign_list, base->ign_list);
+     new->hdr_list = apr_array_append(p, add->hdr_list, base->hdr_list);
+@@ -750,6 +844,12 @@
+ #define find_header(d,p) find_item(p,d->hdr_list,0)
+ #define find_readme(d,p) find_item(p,d->rdme_list,0)
+ 
++#define find_bg_color(d,p) find_item(p,d->bg_color,0)
++#define find_text_color(d,p) find_item(p,d->text_color,0)
++#define find_link_color(d,p) find_item(p,d->link_color,0)
++#define find_vlink_color(d,p) find_item(p,d->vlink_color,0)
++#define find_alink_color(d,p) find_item(p,d->alink_color,0)
++
+ static char *find_default_item(char *bogus_name, apr_array_header_t *list)
+ {
+     request_rec r;
+@@ -951,7 +1051,8 @@
+  * oh well.
+  */
+ static void emit_head(request_rec *r, char *header_fname, int suppress_amble,
+-                      int emit_xhtml, char *title)
++                      int emit_xhtml, char *title, char *bg, char *text, char *link,
++                      char *vlink, char *alink)
+ {
+     apr_table_t *hdrs = r->headers_in;
+     apr_file_t *f = NULL;
+@@ -994,7 +1095,7 @@
+                 emit_H1 = 0;
+ 
+                 if (! suppress_amble) {
+-                    emit_preamble(r, emit_xhtml, title);
++                    emit_preamble(r, emit_xhtml, title, bg, text, link, vlink, alink);
+                 }
+                 /* This is a hack, but I can't find any better way to do this.
+                  * The problem is that we have already created the sub-request,
+@@ -1032,7 +1133,7 @@
+                  */
+                 if (apr_file_open(&f, rr->filename, APR_READ,
+                                   APR_OS_DEFAULT, r->pool) == APR_SUCCESS) {
+-                    emit_preamble(r, emit_xhtml, title);
++                    emit_preamble(r, emit_xhtml, title, bg, text, link, vlink, alink);
+                     emit_amble = 0;
+                     do_emit_plain(r, f);
+                     apr_file_close(f);
+@@ -1054,7 +1155,7 @@
+     }
+ 
+     if (emit_amble) {
+-        emit_preamble(r, emit_xhtml, title);
++        emit_preamble(r, emit_xhtml, title, bg, text, link, vlink, alink);
+     }
+     if (emit_H1) {
+         ap_rvputs(r, "<h1>Index of ", title, "</h1>\n", NULL);
+@@ -1941,6 +2042,11 @@
+     char *colargs;
+     char *fullpath;
+     apr_size_t dirpathlen;
++    apr_array_header_t *bg = autoindex_conf->bg_color;
++    apr_array_header_t *text = autoindex_conf->text_color;
++    apr_array_header_t *link = autoindex_conf->link_color;
++    apr_array_header_t *vlink = autoindex_conf->vlink_color;
++    apr_array_header_t *alink = autoindex_conf->alink_color;
+ 
+     if ((status = apr_dir_open(&thedir, name, r->pool)) != APR_SUCCESS) {
+         ap_log_rerror(APLOG_MARK, APLOG_ERR, status, r,
+@@ -2083,7 +2189,12 @@
+ 
+     emit_head(r, find_header(autoindex_conf, r),
+               autoindex_opts & SUPPRESS_PREAMBLE,
+-              autoindex_opts & EMIT_XHTML, title_name);
++              autoindex_opts & EMIT_XHTML, title_name,
++              find_bg_color(autoindex_conf, r),
++              find_text_color(autoindex_conf, r),
++              find_link_color(autoindex_conf, r),
++              find_vlink_color(autoindex_conf, r),
++              find_alink_color(autoindex_conf, r));
+ 
+     /*
+      * Since we don't know how many dir. entries there are, put them into a
+@@ -2208,6 +2319,7 @@
+ 
+ static void register_hooks(apr_pool_t *p)
+ {
++    ap_hook_post_config(init_autoindex, NULL, NULL, APR_HOOK_MIDDLE);
+     ap_hook_handler(handle_autoindex,NULL,NULL,APR_HOOK_MIDDLE);
+ }
+

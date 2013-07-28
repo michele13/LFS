@@ -1,0 +1,665 @@
+Submitted By: Dan Nicholson <dnicholson at linuxfromscratch dot org>
+Date: 2007-01-18
+Initial Package Version: 6.9.0
+Origin: http://xorg.freedesktop.org/releases/X11R6.9.0/patches/ and
+    http://gitweb.freedesktop.org/?p=xorg/xserver.git;a=commit;h=50a3e1ad18c815a5adafee22beccdf970bae62d6
+Upstream Status: Applied
+Description: Fixes 4 security vulnerabilities. See the following advisories:
+    http://lists.freedesktop.org/archives/xorg/2006-March/013992.html
+    http://lists.freedesktop.org/archives/xorg/2006-May/015136.html
+    http://lists.freedesktop.org/archives/xorg/2006-June/016146.html
+    http://lists.freedesktop.org/archives/xorg/2006-September/018021.html
+    http://lists.freedesktop.org/archives/xorg/2007-January/021054.html
+
+diff -pNur xc.orig/config/util/chownxterm.c xc/config/util/chownxterm.c
+--- xc.orig/config/util/chownxterm.c	2003-11-14 08:48:20.000000000 -0800
++++ xc/config/util/chownxterm.c	2007-01-18 20:48:34.000000000 -0800
+@@ -41,8 +41,10 @@ char *prog_name;
+ 
+ void help()
+ {
+-    setgid(getgid());
+-    setuid(getuid());
++    if (setgid(getgid()) == -1) 
++	exit(1);
++    if (setuid(getuid()) == -1)
++	exit(1);
+     printf("chown-xterm makes %s suid root\n", XTERM_PATH);
+     printf("This is necessary on Ultrix for /dev/tty operation.\n");
+     exit(0);
+@@ -51,8 +53,10 @@ void help()
+ void print_error(err_string)
+     char *err_string;
+ {
+-    setgid(getgid());
+-    setuid(getuid());
++    if (setgid(getgid()) == -1)
++	exit(1);
++    if (setuid(getuid()) == -1)
++	exit(1);
+     fprintf(stderr, "%s: \"%s\"", prog_name, err_string);
+     perror(" failed");
+     exit(1);
+diff -pNur xc.orig/lib/font/Type1/afm.c xc/lib/font/Type1/afm.c
+--- xc.orig/lib/font/Type1/afm.c	2005-07-09 16:30:06.000000000 -0700
++++ xc/lib/font/Type1/afm.c	2007-01-18 20:48:35.000000000 -0800
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <string.h>
+ #include <stdlib.h>
++#include <limits.h>
+ #else
+ #include "Xmd.h"        /* For INT32 declaration */
+ #include "Xdefs.h"      /* For Bool */
+@@ -118,6 +119,11 @@ int CIDAFM(FILE *fd, FontInfo **pfi) {
+             
+             fi->nChars = atoi(p);
+ 
++	    if (fi->nChars < 0 || fi->nChars > INT_MAX / sizeof(Metrics)) {
++		xfree(afmbuf);
++		xfree(fi);
++		return(1);
++	    }
+             fi->metrics = (Metrics *)xalloc(fi->nChars * 
+                 sizeof(Metrics));
+             if (fi->metrics == NULL) {
+diff -pNur xc.orig/lib/font/Type1/scanfont.c xc/lib/font/Type1/scanfont.c
+--- xc.orig/lib/font/Type1/scanfont.c	2005-07-09 16:30:06.000000000 -0700
++++ xc/lib/font/Type1/scanfont.c	2007-01-18 20:48:35.000000000 -0800
+@@ -57,6 +57,7 @@
+ 
+ #ifndef FONTMODULE
+ #include <string.h>
++#include <limits.h>
+ #else
+ #include "Xdefs.h"	/* Bool declaration */
+ #include "Xmd.h"	/* INT32 declaration */
+@@ -654,6 +655,7 @@ getFDArray(psobj *arrayP)
+   arrayP->data.valueP = tokenStartP;
+ 
+   /* allocate FDArray */
++  /* No integer overflow since arrayP->len is unsigned short */
+   FDArrayP = (psfont *)vm_alloc(arrayP->len*(sizeof(psfont)));
+   if (!(FDArrayP)) return(SCAN_OUT_OF_MEMORY);
+ 
+@@ -850,7 +852,8 @@ BuildSubrs(psfont *FontP)
+      }
+      return(SCAN_OK);
+    }
+- 
++   if (N > INT_MAX / sizeof(psobj)) 
++       return (SCAN_ERROR);
+    arrayP = (psobj *)vm_alloc(N*sizeof(psobj));
+    if (!(arrayP) ) return(SCAN_OUT_OF_MEMORY);
+    FontP->Subrs.len = N;
+@@ -911,7 +914,7 @@ BuildCharStrings(psfont *FontP)
+      }
+      else return(rc);  /* if next token was not an Int */
+    }
+-   if (N<=0) return(SCAN_ERROR);
++   if (N<=0 || N > INT_MAX / sizeof(psdict)) return(SCAN_ERROR);
+    /* save number of entries in the dictionary */
+  
+    dictP = (psdict *)vm_alloc((N+1)*sizeof(psdict));
+@@ -1719,6 +1722,10 @@ scan_cidfont(cidfont *CIDFontP, cmapres 
+     if (tokenType == TOKEN_INTEGER)
+       rangecnt = tokenValue.integer;
+ 
++    if (rangecnt < 0 || rangecnt > INT_MAX / sizeof(spacerangecode)) {
++	rc = SCAN_ERROR;
++	break;
++    }
+     /* ==> tokenLength, tokenTooLong, tokenType, and */
+     /* tokenValue are now set                        */
+ 
+diff -pNur xc.orig/lib/font/Type1/util.c xc/lib/font/Type1/util.c
+--- xc.orig/lib/font/Type1/util.c	2005-07-09 16:30:07.000000000 -0700
++++ xc/lib/font/Type1/util.c	2007-01-18 20:48:35.000000000 -0800
+@@ -104,7 +104,7 @@ vm_alloc(int bytes)
+   bytes = (bytes + 7) & ~7;
+  
+   /* Allocate the space, if it is available */
+-  if (bytes <= vm_free) {
++  if (bytes > 0 && bytes <= vm_free) {
+     answer = vm_next;
+     vm_free -= bytes;
+     vm_next += bytes;
+diff -pNur xc.orig/lib/X11/lcFile.c xc/lib/X11/lcFile.c
+--- xc.orig/lib/X11/lcFile.c	2005-05-13 15:53:44.000000000 -0700
++++ xc/lib/X11/lcFile.c	2007-01-18 20:48:34.000000000 -0800
+@@ -269,7 +269,11 @@ xlocaledir(
+ 	    if (seteuid(0) != 0) {
+ 		priv = 0;
+ 	    } else {
+-		seteuid(oldeuid);
++		if (seteuid(oldeuid) == -1) {
++		    /* XXX ouch, coudn't get back to original uid 
++		     what can we do ??? */
++		    _exit(127);
++		}
+ 		priv = 1;
+ 	    }
+ #endif
+diff -pNur xc.orig/lib/xtrans/Xtranslcl.c xc/lib/xtrans/Xtranslcl.c
+--- xc.orig/lib/xtrans/Xtranslcl.c	2005-11-07 22:33:26.000000000 -0800
++++ xc/lib/xtrans/Xtranslcl.c	2007-01-18 20:48:35.000000000 -0800
+@@ -360,7 +360,10 @@ TRANS(PTSOpenClient)(XtransConnInfo cipt
+ 	uid_t       saved_euid;
+ 
+ 	saved_euid = geteuid();
+-	setuid( getuid() ); /** sets the euid to the actual/real uid **/
++	/** sets the euid to the actual/real uid **/
++	if (setuid( getuid() ) == -1) {
++		exit(1);
++	}
+ 	if( chown( slave, saved_euid, -1 ) < 0 ) {
+ 		exit( 1 );
+ 		}
+@@ -369,7 +372,13 @@ TRANS(PTSOpenClient)(XtransConnInfo cipt
+     }
+ 
+     waitpid(saved_pid, &exitval, 0);
+-
++    if (WIFEXITED(exitval) && WEXITSTATUS(exitval) != 0) {
++	close(fd);
++	close(server);
++	PRMSG(1, "PTSOpenClient: cannot set the owner of %s\n",
++	      slave, 0, 0);
++	return(-1);
++    }
+     if (chmod(slave, 0666) < 0) {
+ 	close(fd);
+ 	close(server);
+diff -pNur xc.orig/programs/xdm/session.c xc/programs/xdm/session.c
+--- xc.orig/programs/xdm/session.c	2005-11-07 22:33:31.000000000 -0800
++++ xc/programs/xdm/session.c	2007-01-18 20:48:35.000000000 -0800
+@@ -488,8 +488,14 @@ SessionExit (struct display *d, int stat
+     else
+ 	ResetServer (d);
+     if (removeAuth) {
+-	setgid (verify.gid);
+-	setuid (verify.uid);
++	if (setgid (verify.gid) == -1) {
++	    LogError( "SessionExit: setgid: %s\n", strerror(errno));
++	    exit(status);
++	}
++	if (setuid (verify.uid) == -1) {
++	    LogError( "SessionExit: setuid: %s\n", strerror(errno));
++	    exit(status);
++	}
+ 	RemoveUserAuthorization (d, &verify);
+ #ifdef K5AUTH
+ 	/* do like "kdestroy" program */
+diff -pNur xc.orig/programs/xdm/xdmshell.c xc/programs/xdm/xdmshell.c
+--- xc.orig/programs/xdm/xdmshell.c	2005-07-14 15:58:25.000000000 -0700
++++ xc/programs/xdm/xdmshell.c	2007-01-18 20:48:35.000000000 -0800
+@@ -183,7 +183,11 @@ main (
+ #endif
+ 
+     /* make xdm run in a non-setuid environment */
+-    setuid (geteuid());
++    if (setuid (geteuid()) == -1) {
++	fprintf(stderr, "%s: cannot setuid (error %d, %s)\r\n",
++		ProgramName, errno, strerror(errno));
++	exit(1);
++    }
+ 
+     /*
+      * exec /usr/bin/X11/xdm -nodaemon -udpPort 0
+diff -pNur xc.orig/programs/xf86dga/dga.c xc/programs/xf86dga/dga.c
+--- xc.orig/programs/xf86dga/dga.c	2004-04-23 12:54:47.000000000 -0700
++++ xc/programs/xf86dga/dga.c	2007-01-18 20:48:35.000000000 -0800
+@@ -16,6 +16,7 @@
+ #include <X11/Xmd.h>
+ #include <X11/extensions/xf86dga.h>
+ #include <ctype.h>
++#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <signal.h>
+@@ -141,7 +142,10 @@ main(int argc, char *argv[])
+ 
+ #ifndef __UNIXOS2__
+    /* Give up root privs */
+-   setuid(getuid());
++   if (setuid(getuid()) == -1) {
++      fprintf(stderr, "Unable to change uid: %s\n", strerror(errno));
++      exit(2);
++   }
+ #endif
+ 
+    XF86DGASetViewPort(dis, DefaultScreen(dis), 0, 0);
+diff -pNur xc.orig/programs/xinit/xinit.c xc/programs/xinit/xinit.c
+--- xc.orig/programs/xinit/xinit.c	2005-10-03 18:27:34.000000000 -0700
++++ xc/programs/xinit/xinit.c	2007-01-18 20:48:35.000000000 -0800
+@@ -692,7 +692,10 @@ static int
+ startClient(char *client[])
+ {
+ 	if ((clientpid = vfork()) == 0) {
+-		setuid(getuid());
++		if (setuid(getuid()) == -1) {
++			Error("cannot change uid: %s\n", strerror(errno));
++			_exit(ERR_EXIT);
++		}
+ 		setpgrp(0, getpid());
+ 		environ = newenviron;
+ #ifdef __UNIXOS2__
+diff -pNur xc.orig/programs/xload/xload.c xc/programs/xload/xload.c
+--- xc.orig/programs/xload/xload.c	2004-04-23 12:54:57.000000000 -0700
++++ xc/programs/xload/xload.c	2007-01-18 20:48:35.000000000 -0800
+@@ -34,7 +34,7 @@ from the X Consortium.
+  * xload - display system load average in a window
+  */
+ 
+-
++#include <errno.h>
+ #include <stdio.h> 
+ #include <stdlib.h>
+ #include <unistd.h>
+@@ -162,8 +162,17 @@ main(int argc, char **argv)
+     /* For security reasons, we reset our uid/gid after doing the necessary
+        system initialization and before calling any X routines. */
+     InitLoadPoint();
+-    setgid(getgid());		/* reset gid first while still (maybe) root */
+-    setuid(getuid());
++    /* reset gid first while still (maybe) root */
++    if (setgid(getgid()) == -1) {
++	    fprintf(stderr, "%s: setgid failed: %s\n", 
++		ProgramName, strerror(errno));
++	    exit(1);
++    }
++    if (setuid(getuid()) == -1) {
++	    fprintf(stderr, "%s: setuid failed: %s\n", 
++		ProgramName, strerror(errno));
++	    exit(1);
++    }
+ 
+     XtSetLanguageProc(NULL, (XtLanguageProc) NULL, NULL);
+ 
+diff -pNur xc.orig/programs/Xserver/dbe/dbe.c xc/programs/Xserver/dbe/dbe.c
+--- xc.orig/programs/Xserver/dbe/dbe.c	2005-07-03 00:01:17.000000000 -0700
++++ xc/programs/Xserver/dbe/dbe.c	2007-01-18 20:49:24.000000000 -0800
+@@ -55,6 +55,10 @@
+ #include "xf86_ansic.h"
+ #endif
+ 
++#if !defined(UINT32_MAX)
++#define UINT32_MAX 0xffffffffU
++#endif
++
+ /* GLOBALS */
+ 
+ /* Per-screen initialization functions [init'ed by DbeRegisterFunction()] */
+@@ -733,11 +737,14 @@ ProcDbeSwapBuffers(client)
+         return(Success);
+     }
+ 
++    if (nStuff > UINT32_MAX / sizeof(DbeSwapInfoRec))
++	    return BadAlloc;
++
+     /* Get to the swap info appended to the end of the request. */
+     dbeSwapInfo = (xDbeSwapInfo *)&stuff[1];
+ 
+     /* Allocate array to record swap information. */ 
+-    swapInfo = (DbeSwapInfoPtr)ALLOCATE_LOCAL(nStuff * sizeof(DbeSwapInfoRec));
++    swapInfo = (DbeSwapInfoPtr)Xalloc(nStuff * sizeof(DbeSwapInfoRec));
+     if (swapInfo == NULL)
+     {
+         return(BadAlloc);
+@@ -752,14 +759,14 @@ ProcDbeSwapBuffers(client)
+         if (!(pWin = SecurityLookupWindow(dbeSwapInfo[i].window, client,
+ 					  SecurityWriteAccess)))
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+ 	    return(BadWindow);
+         }
+ 
+         /* Each window must be double-buffered - BadMatch. */
+         if (DBE_WINDOW_PRIV(pWin) == NULL)
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(BadMatch);
+         }
+ 
+@@ -768,7 +775,7 @@ ProcDbeSwapBuffers(client)
+         {
+             if (dbeSwapInfo[i].window == dbeSwapInfo[j].window)
+             {
+-                DEALLOCATE_LOCAL(swapInfo);
++                Xfree(swapInfo);
+                 return(BadMatch);
+ 	    }
+         }
+@@ -779,7 +786,7 @@ ProcDbeSwapBuffers(client)
+             (dbeSwapInfo[i].swapAction != XdbeUntouched ) &&
+             (dbeSwapInfo[i].swapAction != XdbeCopied    ))
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(BadValue);
+         }
+ 
+@@ -809,12 +816,12 @@ ProcDbeSwapBuffers(client)
+         error = (*pDbeScreenPriv->SwapBuffers)(client, &nStuff, swapInfo);
+         if (error != Success)
+         {
+-            DEALLOCATE_LOCAL(swapInfo);
++            Xfree(swapInfo);
+             return(error);
+         }
+     }
+     
+-    DEALLOCATE_LOCAL(swapInfo);
++    Xfree(swapInfo);
+     return(Success);
+ 
+ } /* ProcDbeSwapBuffers() */
+@@ -898,10 +905,12 @@ ProcDbeGetVisualInfo(client)
+ 
+     REQUEST_AT_LEAST_SIZE(xDbeGetVisualInfoReq);
+ 
++    if (stuff->n > UINT32_MAX / sizeof(DrawablePtr))
++	    return BadAlloc;
+     /* Make sure any specified drawables are valid. */
+     if (stuff->n != 0)
+     {
+-        if (!(pDrawables = (DrawablePtr *)ALLOCATE_LOCAL(stuff->n *
++        if (!(pDrawables = (DrawablePtr *)Xalloc(stuff->n *
+                                                  sizeof(DrawablePtr))))
+         {
+             return(BadAlloc);
+@@ -914,7 +923,7 @@ ProcDbeGetVisualInfo(client)
+             if (!(pDrawables[i] = (DrawablePtr)SecurityLookupDrawable(
+ 				drawables[i], client, SecurityReadAccess)))
+             {
+-                DEALLOCATE_LOCAL(pDrawables);
++                Xfree(pDrawables);
+                 return(BadDrawable);
+             }
+         }
+@@ -926,7 +935,7 @@ ProcDbeGetVisualInfo(client)
+     {
+         if (pDrawables)
+         {
+-            DEALLOCATE_LOCAL(pDrawables);
++            Xfree(pDrawables);
+         }
+ 
+         return(BadAlloc);
+@@ -953,7 +962,7 @@ ProcDbeGetVisualInfo(client)
+             /* Free pDrawables if we needed to allocate it above. */
+             if (pDrawables)
+             {
+-                DEALLOCATE_LOCAL(pDrawables);
++                Xfree(pDrawables);
+             }
+ 
+             return(BadAlloc);
+@@ -1034,7 +1043,7 @@ ProcDbeGetVisualInfo(client)
+ 
+     if (pDrawables)
+     {
+-        DEALLOCATE_LOCAL(pDrawables);
++        Xfree(pDrawables);
+     }
+ 
+     return(client->noClientException);
+diff -pNur xc.orig/programs/Xserver/hw/xfree86/common/xf86Init.c xc/programs/Xserver/hw/xfree86/common/xf86Init.c
+--- xc.orig/programs/Xserver/hw/xfree86/common/xf86Init.c	2005-12-14 12:12:00.000000000 -0800
++++ xc/programs/Xserver/hw/xfree86/common/xf86Init.c	2007-01-18 20:48:35.000000000 -0800
+@@ -1376,7 +1376,7 @@ ddxProcessArgument(int argc, char **argv
+     }
+   
+   /* First the options that are only allowed for root */
+-  if (getuid() == 0 || geteuid != 0)
++  if (getuid() == 0 || geteuid() != 0)
+   {
+     if (!strcmp(argv[i], "-modulepath"))
+     {
+@@ -1679,7 +1679,7 @@ ddxProcessArgument(int argc, char **argv
+   }
+   if (!strcmp(argv[i], "-configure"))
+   {
+-    if (getuid() != 0 && geteuid == 0) {
++    if (getuid() != 0 && geteuid() == 0) {
+ 	ErrorF("The '-configure' option can only be used by root.\n");
+ 	exit(1);
+     }
+@@ -1905,7 +1905,11 @@ xf86RunVtInit(void)
+           FatalError("xf86RunVtInit: fork failed (%s)\n", strerror(errno));
+           break;
+       case 0:  /* child */
+-          setuid(getuid());
++	  if (setuid(getuid()) == -1) {
++	      xf86Msg(X_ERROR, "xf86RunVtInit: setuid failed (%s)\n",
++			 strerror(errno));
++	      exit(255);
++	  }
+           /* set stdin, stdout to the consoleFd */
+           for (i = 0; i < 2; i++) {
+             if (xf86Info.consoleFd != i) {
+diff -pNur xc.orig/programs/Xserver/hw/xfree86/os-support/shared/libc_wrapper.c xc/programs/Xserver/hw/xfree86/os-support/shared/libc_wrapper.c
+--- xc.orig/programs/Xserver/hw/xfree86/os-support/shared/libc_wrapper.c	2005-07-03 01:53:48.000000000 -0700
++++ xc/programs/Xserver/hw/xfree86/os-support/shared/libc_wrapper.c	2007-01-18 20:48:35.000000000 -0800
+@@ -1270,7 +1270,10 @@ xf86execl(const char *pathname, const ch
+ #ifndef SELF_CONTAINED_WRAPPER
+ 	xf86DisableIO();
+ #endif
+-        setuid(getuid());
++        if (setuid(getuid()) == -1) {
++		ErrorF("xf86Execl: setuid() failed: %s\n", strerror(errno));
++		exit(255);
++	}
+ #if !defined(SELF_CONTAINED_WRAPPER)
+         /* set stdin, stdout to the consoleFD, and leave stderr alone */
+         for (i = 0; i < 2; i++)
+diff -pNur xc.orig/programs/Xserver/hw/xfree86/parser/write.c xc/programs/Xserver/hw/xfree86/parser/write.c
+--- xc.orig/programs/Xserver/hw/xfree86/parser/write.c	2005-07-03 00:01:37.000000000 -0700
++++ xc/programs/Xserver/hw/xfree86/parser/write.c	2007-01-18 20:48:35.000000000 -0800
+@@ -170,7 +170,10 @@ xf86writeConfigFile (const char *filenam
+ 					strerror(errno));
+ 			return 0;
+ 		case 0: /* child */
+-			setuid(getuid());
++			if (setuid(getuid()) == -1) 
++			    FatalError("xf86writeConfigFile(): "
++				"setuid failed(%s)\n", 
++				strerror(errno));
+ 			ret = doWriteConfigFile(filename, cptr);
+ 			exit(ret);
+ 			break;
+diff -pNur xc.orig/programs/Xserver/os/utils.c xc/programs/Xserver/os/utils.c
+--- xc.orig/programs/Xserver/os/utils.c	2005-11-07 22:33:30.000000000 -0800
++++ xc/programs/Xserver/os/utils.c	2007-01-18 20:48:35.000000000 -0800
+@@ -1718,8 +1718,10 @@ System(char *command)
+     case -1:	/* error */
+ 	p = -1;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+ 	_exit(127);
+     default:	/* parent */
+@@ -1770,8 +1772,10 @@ Popen(char *command, char *type)
+ 	xfree(cur);
+ 	return NULL;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	if (*type == 'r') {
+ 	    if (pdes[1] != 1) {
+ 		/* stdout */
+@@ -1845,8 +1849,10 @@ Fopen(char *file, char *type)
+ 	xfree(cur);
+ 	return NULL;
+     case 0:	/* child */
+-	setgid(getgid());
+-	setuid(getuid());
++	if (setgid(getgid()) == -1)
++	    _exit(127);
++	if (setuid(getuid()) == -1)
++	    _exit(127);
+ 	if (*type == 'r') {
+ 	    if (pdes[1] != 1) {
+ 		/* stdout */
+diff -pNur xc.orig/programs/Xserver/render/mitri.c xc/programs/Xserver/render/mitri.c
+--- xc.orig/programs/Xserver/render/mitri.c	2005-07-03 00:02:08.000000000 -0700
++++ xc/programs/Xserver/render/mitri.c	2007-01-18 20:48:35.000000000 -0800
+@@ -145,7 +145,7 @@ miTriStrip (CARD8	    op,
+     if (npoint < 3)
+ 	return;
+     ntri = npoint - 2;
+-    tris = ALLOCATE_LOCAL (ntri & sizeof (xTriangle));
++    tris = ALLOCATE_LOCAL (ntri * sizeof (xTriangle));
+     if (!tris)
+ 	return;
+     for (tri = tris; npoint >= 3; npoint--, points++, tri++)
+@@ -177,7 +177,7 @@ miTriFan (CARD8		op,
+     if (npoint < 3)
+ 	return;
+     ntri = npoint - 2;
+-    tris = ALLOCATE_LOCAL (ntri & sizeof (xTriangle));
++    tris = ALLOCATE_LOCAL (ntri * sizeof (xTriangle));
+     if (!tris)
+ 	return;
+     first = points++;
+diff -pNur xc.orig/programs/Xserver/render/render.c xc/programs/Xserver/render/render.c
+--- xc.orig/programs/Xserver/render/render.c	2005-08-28 12:47:39.000000000 -0700
++++ xc/programs/Xserver/render/render.c	2007-01-18 20:49:24.000000000 -0800
+@@ -52,6 +52,10 @@
+ #include "xf86_ansic.h"
+ #endif
+ 
++#if !defined(UINT32_MAX)
++#define UINT32_MAX 0xffffffffU
++#endif
++
+ static int ProcRenderQueryVersion (ClientPtr pClient);
+ static int ProcRenderQueryPictFormats (ClientPtr pClient);
+ static int ProcRenderQueryPictIndexValues (ClientPtr pClient);
+@@ -1108,11 +1112,14 @@ ProcRenderAddGlyphs (ClientPtr client)
+     }
+ 
+     nglyphs = stuff->nglyphs;
++    if (nglyphs > UINT32_MAX / sizeof(GlyphNewRec))
++	    return BadAlloc;
++
+     if (nglyphs <= NLOCALGLYPH)
+ 	glyphsBase = glyphsLocal;
+     else
+     {
+-	glyphsBase = (GlyphNewPtr) ALLOCATE_LOCAL (nglyphs * sizeof (GlyphNewRec));
++	glyphsBase = (GlyphNewPtr) Xalloc (nglyphs * sizeof (GlyphNewRec));
+ 	if (!glyphsBase)
+ 	    return BadAlloc;
+     }
+@@ -1169,7 +1176,7 @@ ProcRenderAddGlyphs (ClientPtr client)
+     }
+ 
+     if (glyphsBase != glyphsLocal)
+-	DEALLOCATE_LOCAL (glyphsBase);
++	Xfree (glyphsBase);
+     return client->noClientException;
+ bail:
+     while (glyphs != glyphsBase)
+@@ -1178,7 +1185,7 @@ bail:
+ 	xfree (glyphs->glyph);
+     }
+     if (glyphsBase != glyphsLocal)
+-	DEALLOCATE_LOCAL (glyphsBase);
++	Xfree (glyphsBase);
+     return err;
+ }
+ 
+diff -pNur xc.orig/programs/xterm/main.c xc/programs/xterm/main.c
+--- xc.orig/programs/xterm/main.c	2005-12-14 15:28:27.000000000 -0800
++++ xc/programs/xterm/main.c	2007-01-18 20:48:35.000000000 -0800
+@@ -1592,8 +1592,10 @@ main(int argc, char *argv[]ENVP_ARG)
+     Window winToEmbedInto = None;
+ 
+ #ifdef DISABLE_SETUID
+-    seteuid(getuid());
+-    setuid(getuid());
++    if (seteuid(getuid()) == -1)
++	    exit(2);
++    if (setuid(getuid()) == -1)
++	    exit(2);
+ #endif
+ 
+     ProgramName = argv[0];
+@@ -1619,8 +1621,16 @@ main(int argc, char *argv[]ENVP_ARG)
+ 
+ #if defined(USE_UTMP_SETGID)
+     get_pty(NULL, NULL);
+-    seteuid(getuid());
+-    setuid(getuid());
++    if (seteuid(getuid()) == -1) {
++           fprintf(stderr,
++               "%s: unable to change back euid\n", ProgramName);
++           exit(1);
++    }
++    if (setuid(getuid()) == -1) {
++           fprintf(stderr,
++               "%s: unable to change back uid\n", ProgramName);
++           exit(1);
++    }
+ #define get_pty(pty, from) really_get_pty(pty, from)
+ #endif
+ 
+diff -pNur xc.orig/programs/xterm/misc.c xc/programs/xterm/misc.c
+--- xc.orig/programs/xterm/misc.c	2005-12-14 15:28:27.000000000 -0800
++++ xc/programs/xterm/misc.c	2007-01-18 20:48:35.000000000 -0800
+@@ -1094,8 +1094,10 @@ creat_as(uid_t uid, gid_t gid, Bool appe
+     pid = fork();
+     switch (pid) {
+     case 0:			/* child */
+-	setgid(gid);
+-	setuid(uid);
++	if (setgid(gid) == -1)
++	    _exit(ERROR_SETUID);
++	if (setuid(uid) == -1) 
++	    _exit(ERROR_SETUID);
+ 	fd = open(pathname,
+ 		  O_WRONLY | O_CREAT | (append ? O_APPEND : O_EXCL),
+ 		  mode);
+@@ -1262,8 +1264,10 @@ StartLog(TScreen * screen)
+ 	    signal(SIGCHLD, SIG_DFL);
+ 
+ 	    /* (this is redundant) */
+-	    setgid(screen->gid);
+-	    setuid(screen->uid);
++	    if (setgid(screen->gid) == -1)
++		exit(ERROR_SETUID);
++	    if (setuid(screen->uid) == -1)
++		exit(ERROR_SETUID);
+ 
+ 	    execl(shell, shell, "-c", &screen->logfile[1], (void *) 0);
+ 
+diff -pNur xc.orig/programs/xterm/print.c xc/programs/xterm/print.c
+--- xc.orig/programs/xterm/print.c	2005-08-05 09:13:04.000000000 -0700
++++ xc/programs/xterm/print.c	2007-01-18 20:48:35.000000000 -0800
+@@ -387,9 +387,11 @@ charToPrinter(int chr)
+ 		dup2(fileno(stderr), 2);
+ 		close(fileno(stderr));
+ 	    }
+-
+-	    setgid(screen->gid);	/* don't want privileges! */
+-	    setuid(screen->uid);
++	    /* don't want privileges! */
++	    if (setgid(screen->gid) == -1)
++		    exit(2);
++	    if (setuid(screen->uid) == -1)
++		    exit(2);
+ 
+ 	    Printer = popen(screen->printer_command, "w");
+ 	    input = fdopen(my_pipe[0], "r");

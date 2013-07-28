@@ -1,0 +1,35 @@
+Submitted By: Matthew Burgess <matthew at linuxfromscratch.org>
+Date: 2003-11-25
+Initial Package Version: 1.62.4
+Origin: IRC conversation with Norman Walsh detailed at http://www.linuxfromscratch.org/pipermail/lfs-dev/2003-November/040666.html
+Description: Fixes the case where URLs in chunked {X}HTML point to the base
+             directory instead of the directory specified in a <?dbhtml?>
+             processing instruction.  See the URL above for a detailed
+             description of how/why the fix works.  The fix is likely to be
+             commited shortly and therefore this patch should be redundant on
+             the next release of the stylesheets.
+        
+diff -Naur docbook-xsl-1.62.4.orig/html/chunk-common.xsl docbook-xsl-1.62.4/html/chunk-common.xsl
+--- docbook-xsl-1.62.4.orig/html/chunk-common.xsl	2003-09-28 20:21:31.000000000 +0000
++++ docbook-xsl-1.62.4/html/chunk-common.xsl	2003-11-25 22:58:58.000000000 +0000
+@@ -133,7 +133,7 @@
+     <xsl:apply-templates select="." mode="recursive-chunk-filename"/>
+   </xsl:variable>
+ 
+-  <xsl:if test="$ischunk != 0 and $fn != ''">
++  <xsl:if test="$fn != ''">
+     <xsl:call-template name="dbhtml-dir"/>
+   </xsl:if>
+ 
+diff -Naur docbook-xsl-1.62.4.orig/xhtml/chunk-common.xsl docbook-xsl-1.62.4/xhtml/chunk-common.xsl
+--- docbook-xsl-1.62.4.orig/xhtml/chunk-common.xsl	2003-09-28 20:22:35.000000000 +0000
++++ docbook-xsl-1.62.4/xhtml/chunk-common.xsl	2003-11-25 22:59:21.000000000 +0000
+@@ -110,7 +110,7 @@
+     <xsl:apply-templates select="." mode="recursive-chunk-filename"/>
+   </xsl:variable>
+ 
+-  <xsl:if test="$ischunk != 0 and $fn != ''">
++  <xsl:if test="$fn != ''">
+     <xsl:call-template name="dbhtml-dir"/>
+   </xsl:if>
+ 

@@ -1,0 +1,32 @@
+Submitted By: Andrew Benton
+Date: 2012-02-01
+Initial Package Version:sudo-1.8.0
+Upstream Status: From Upstream
+Origin: http://www.sudo.ws/sudo/alerts/sudo_debug.html
+Description: Fixes a vulnerability in the debugging code in sudo versions 1.8.0
+through 1.8.3p1 that can be used to crash sudo or potentially allow an
+unauthorized user to achieve root privileges.
+
+--- sudo-1.8.2/src/sudo.c~	2011-07-29 15:50:45.000000000 +0100
++++ sudo-1.8.2/src/sudo.c	2012-02-01 12:14:10.000000000 +0000
+@@ -1206,15 +1206,15 @@
+ sudo_debug(int level, const char *fmt, ...)
+ {
+     va_list ap;
+-    char *fmt2;
++    char *buf;
+ 
+     if (level > debug_level)
+ 	return;
+ 
+-    /* Backet fmt with program name and a newline to make it a single write */
+-    easprintf(&fmt2, "%s: %s\n", getprogname(), fmt);
++    /* Bracket fmt with program name and a newline to make it a single write */
+     va_start(ap, fmt);
+-    vfprintf(stderr, fmt2, ap);
++    evasprintf(&buf, fmt, ap);
+     va_end(ap);
+-    efree(fmt2);
++    fprintf(stderr, "%s: %s\n", getprogname(), buf);
++    efree(buf);
+ }

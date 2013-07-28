@@ -1,0 +1,122 @@
+Submitted By: Kristian Rainio (krikesoft@suomi24.fi)
+Date: 2004-09-13
+Initial Package Version: 1.5m2
+Origin:  NA
+Upstream Status: Not submitted
+Description: Adds functions to create parent directories for cat pages
+ 
+diff -Naur man-1.5m2.orig/src/man.c man-1.5m2/src/man.c
+--- man-1.5m2.orig/src/man.c	2003-09-05 09:49:13.000000000 +0000
++++ man-1.5m2/src/man.c	2004-09-13 10:56:19.422387512 +0000
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <libgen.h>
+ #include <ctype.h>
+ #include <string.h>
+ #include <stdlib.h>
+@@ -685,9 +686,14 @@
+      FILE *fp;
+      char *roff_command;
+      char *command = NULL;
++     char *catdir = dirname(my_strdup(cat_file));
+      struct stat statbuf;
+ 
+      /* _Before_ first, make sure we will write to a regular file. */
++     if (stat(catdir, &statbuf))
++        mkdir_parens(catdir, 0755);
++     free (catdir);
++
+      if (stat(cat_file, &statbuf) == 0) {
+ 	  if(!S_ISREG(statbuf.st_mode)) {
+ 	       if (debug)
+@@ -816,7 +822,6 @@
+      const char *ext;
+      int status;
+      int standards;
+-
+      ext = (do_compress ? getval("COMPRESS_EXT") : 0);
+ 
+      standards = (fhs ? FHS : 0) | (fsstnd ? FSSTND : 0) | (dohp ? DO_HP : 0);
+diff -Naur man-1.5m2.orig/src/util.c man-1.5m2/src/util.c
+--- man-1.5m2.orig/src/util.c	2003-09-05 09:48:13.000000000 +0000
++++ man-1.5m2/src/util.c	2004-09-13 10:56:19.423387360 +0000
+@@ -224,12 +224,63 @@
+ }
+ 
+ char *
++my_realloc (char *s, int n) {
++   if (! (s = realloc(s, n)))
++   {
++        fatal (OUT_OF_MEMORY, n);
++   }
++   return s;
++}
++
++char *
+ my_strdup (const char *s) {
+     char *t = my_malloc(strlen(s) + 1);
+     strcpy(t, s);
+     return t;
+ }
+ 
++char *my_strncat(char *dst, const char *src, int len)
++{
++   if (len < 0)
++     len = strlen(src);
++
++   if (dst == NULL)
++   {
++     dst = (char *)malloc(len + 1);
++     *dst = '\0';
++   }
++   else
++     dst = (char*)my_realloc(dst, (strlen(dst)+len+1) * sizeof(char));
++
++  return strncat(dst, src, len);
++} /*
++  my_strcat macro is defined in util.h.
++*/
++
++int mkdir_parens(const char *path, mode_t mode)
++{
++  char *p = NULL;
++  char *dir = NULL;
++  int retval = 0;
++  struct stat statbuf;
++
++  while ((p = strchr((p == NULL) ? path + 1 : path, '/')) != NULL)
++  {
++    dir = my_strncat(dir, path, (int)(p-path)+1);
++    if ((stat(dir, &statbuf)) && (retval = mkdir(dir, mode)))
++      break;
++    path = p + 1;
++  }
++  if (!retval)
++  {
++    dir = my_strncat(dir,  path, (int)(p - path));
++    if (stat(dir, &statbuf))
++      retval = mkdir(dir, mode);
++  }
++  return retval;
++}
++
++
+ /*
+  * Call: my_xsprintf(format,s1,s2,...) where format only contains %s/%S/%Q
+  * (or %d or %o) and all %s/%S/%Q parameters are strings.
+diff -Naur man-1.5m2.orig/src/util.h man-1.5m2/src/util.h
+--- man-1.5m2.orig/src/util.h	2003-09-05 09:48:13.000000000 +0000
++++ man-1.5m2/src/util.h	2004-09-13 10:56:19.424387208 +0000
+@@ -3,7 +3,10 @@
+ void get_permissions (void);
+ void no_privileges (void);
+ char *my_malloc (int n);
++char *my_realloc(char *s, int n);
++char *my_strncat(char *dst, const char *src, int len);
+ char *my_strdup (const char *s);
++int mkdir_parens(const char *path, mode_t mode);
+ const char *mkprogname (const char *s);
+ int is_newer (const char *fa, const char *fb);
+ int do_system_command (const char *cmd, int silent);

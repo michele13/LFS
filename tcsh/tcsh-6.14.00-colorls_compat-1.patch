@@ -1,0 +1,22 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2005-12-24
+Origin: Guenther Schwarz
+        http://archive.linuxfromscratch.org/mail-archives/blfs-dev/2005-November/012116.html
+Initial Package Version: 6.14.0
+Description: Fixes colorls settings when used with coreutils 5.93+.
+
+--- tcsh-6.14.00/tw.color.c	2005-03-03 16:40:53.000000000 +0000
++++ tcsh-6.14.99/tw.color.c	2005-11-21 00:52:21.000000000 +0000
+@@ -73,6 +73,11 @@
+     VAR(NOS, "fi", "0"),	/* Regular file */
+     VAR(NOS, "no", "0"),	/* Normal (non-filename) text */
+     VAR(NOS, "mi", ""),		/* Missing file (defaults to fi) */
++    VAR(NOS, "su", "37;41"),    /* Suid */
++    VAR(NOS, "sg", "30;43"),    /* Sgid */
++    VAR(NOS, "st", "37;44"),    /* Sticky */
++    VAR(NOS, "ow", "34;42"),    /* Other Writable */
++    VAR(NOS, "tw", "30;42"),    /* Sticky Other Writable */
+ #ifdef IS_ASCII
+     VAR(NOS, "lc", "\033["),	/* Left code (ASCII) */
+ #else
+

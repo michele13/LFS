@@ -1,0 +1,77 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: 2005-08-09
+Initial Package Version: 2.0.54
+Upstream Status: Unknown.
+Origin: debian
+Description: Fixes buffer overflow and http request smuggling.
+Debian's 043_CAN-2005-1268.patch and 044_CAN-2005-2088.patch
+(lead-in edited to apply with -p1)
+
+ CAN-2005-1268 off-by-one overflow in mod_ssl : to be exploited, server
+would need to be configured to use a malicious certificalte revocation
+list. This appears to have been made against an earlier version than
+2.0.54, but applies ok.
+
+ CAN-2005-2088 when acting as an http proxy, remote attacker can do
+"http request smuggling" - see 
+http://www.watchfire.com/resources/HTTP-Request-Smuggling.pdf
+
+--- apache2/modules/ssl/ssl_engine_kernel.c	2005/06/03 12:43:35	179780
++++ apache2/modules/ssl/ssl_engine_kernel.c	2005/06/03 12:54:53	179781
+@@ -1408,7 +1408,7 @@
+             BIO_printf(bio, ", nextUpdate: ");
+             ASN1_UTCTIME_print(bio, X509_CRL_get_nextUpdate(crl));
+ 
+-            n = BIO_read(bio, buff, sizeof(buff));
++            n = BIO_read(bio, buff, sizeof(buff) - 1);
+             buff[n] = '\0';
+ 
+             BIO_free(bio);
+
+
+--- apache2/modules/proxy/proxy_http.c	2005-02-04 20:21:18.000000000 +0000
++++ apache2/modules/proxy/proxy_http.c	2005-08-02 09:25:21.000000000 +0000
+@@ -768,8 +768,24 @@
+                 return r->status;
+ 
+             } else {
+-                /* strip connection listed hop-by-hop headers from response */
+                 const char *buf;
++
++                /* can't have both Content-Length and Transfer-Encoding */
++                if (apr_table_get(r->headers_out, "Transfer-Encoding")
++                    && apr_table_get(r->headers_out, "Content-Length")) {
++                    /* 2616 section 4.4, point 3: "if both Transfer-Encoding
++                     * and Content-Length are received, the latter MUST be
++                     * ignored"; so unset it here to prevent any confusion
++                     * later. */
++                    apr_table_unset(r->headers_out, "Content-Length");
++                    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0,
++                                 r->server,
++                                 "proxy: server %s returned Transfer-Encoding and Content-Length",
++                                 p_conn->name);
++                    p_conn->close += 1;
++                }
++                
++                /* strip connection listed hop-by-hop headers from response */
+                 p_conn->close += ap_proxy_liststr(apr_table_get(r->headers_out,
+                                                                 "Connection"),
+                                                   "close");
+--- apache2/server/protocol.c	2005-08-02 09:25:38.000000000 +0000
++++ apache2/server/protocol.c	2005-08-02 09:25:12.000000000 +0000
+@@ -885,6 +885,15 @@
+             apr_brigade_destroy(tmp_bb);
+             return r;
+         }
++
++        if (apr_table_get(r->headers_in, "Transfer-Encoding")
++            && apr_table_get(r->headers_in, "Content-Length")) {
++            /* 2616 section 4.4, point 3: "if both Transfer-Encoding
++             * and Content-Length are received, the latter MUST be
++             * ignored"; so unset it here to prevent any confusion
++             * later. */
++            apr_table_unset(r->headers_in, "Content-Length");
++        }
+     }
+     else {
+         if (r->header_only) {

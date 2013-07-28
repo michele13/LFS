@@ -1,0 +1,26 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-08-10
+Initial Package Version: 3.4.4
+Origin: Jim Gifford
+Upstream Status: LFS Specific
+Description: Sets GCC to 64 bit instead of n32
+ 
+--- gcc-3.4.4/gcc/config/mips/t-linux64.orig	2005-08-11 05:55:59.000000000 +0000
++++ gcc-3.4.4/gcc/config/mips/t-linux64	2005-08-11 05:56:47.000000000 +0000
+@@ -25,11 +25,11 @@
+ # instead of n32, that we want to use as the default post install.
+ SPECS = specs.install
+ specs: specs.install
+-	# Changing the build-time default ABI from n32 to o32
+-	# The post-install default ABI will remain n32
+-	@if test "x`grep '!mabi=\*:-mabi=n32' specs.install`" = \
+-		"x%{!mabi=*:-mabi=n32}"; then \
+-	  sed 's,\(!mabi=\*:-mabi\)=n32,\1=32,' < specs.install > $@ ; \
++	# Changing the build-time default ABI from n32 to 64
++	# The post-install default ABI will remain 64
++	@if test "x`grep '!mabi=\*:-mabi=64' specs.install`" = \
++		"x%{!mabi=*:-mabi=64}"; then \
++	  sed 's,\(!mabi=\*:-mabi\)=64,\1=32,' < specs.install > $@ ; \
+ 	else \
+ 	  echo failed, gcc/config/mips/t-linux64 needs updating >&2; \
+ 	  false; \

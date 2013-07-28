@@ -1,0 +1,517 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-30
+Initial Package Version: 4.1.2
+Upstream Status: From Upstream
+Origin:	http://gcc.gnu.org/ml/gcc-patches/2006-01/msg01920.html
+	http://gcc.gnu.org/viewcvs?view=rev&revision=110360
+	http://gcc.gnu.org/viewcvs?view=rev&revision=113836
+Description: This patch is a backport from gcc-4.2. It adds
+"-W[no]-overlength-strings", to deal with:
+warning: string length `WHATEVER' is greater than the length `509' ISO C89 \
+ compilers are required to support
+
+This warning is caused because GCC allows longer string lengths what is
+defined by C89. When building GCC with GCC this warning is not usefull.
+
+Now we can build GCC with --enable-werror and it won't die in fixinc/,
+and we can disable the specific warning instead of disabling -Werror
+entirely.
+
+zw
+in gcc/
+
+	* c.opt: Add -Wno-overlength-strings.
+	* c-opts.c (c_common_handle_option): -pedantic implies
+	-Wno-overlength-strings.
+	(c_common_post_options): If warn_overlength_strings is still -1,
+	set it to 0.  Always set it to 0 for C++.
+	* c-common.c (fix_string_type): Only issue warnings about length
+	of string when warn_overlength_strings is true.  Improve comments,
+	rearrange code a bit for clarity.
+	* doc/invoke.texi: Document -Wno-overlength-strings.
+	* configure.ac: Check for -Wno-overlength-strings as well when
+	deciding whether to enable -pedantic in stage 1.
+	* configure: Regenerate.
+	* Makefile.in (STRICT2_WARN): Add -Wno-overlength-strings.
+	(gcc.o-warn, insn-automata.o-warn, build/gencondmd.o-warn): Delete.
+	(build/gengtype-lex.o-warn): Change to -Wno-missing-prototypes.
+
+mrs
+in fixincludes/
+
+	* configure.ac: Add -Wno-overlength-strings.
+	* configure: Regenerate.
+
+diff -Naur gcc-4.1.2.orig/fixincludes/configure gcc-4.1.2/fixincludes/configure
+--- gcc-4.1.2.orig/fixincludes/configure	2005-07-16 14:17:51.000000000 +0000
++++ gcc-4.1.2/fixincludes/configure	2007-05-30 04:22:51.000000000 +0000
+@@ -2361,7 +2361,7 @@
+ save_CFLAGS="$CFLAGS"
+ for option in -W -Wall -Wwrite-strings -Wstrict-prototypes \
+ 			  -Wmissing-prototypes -Wold-style-definition \
+-			  -Wmissing-format-attribute; do
++			  -Wmissing-format-attribute -Wno-overlength-strings; do
+   as_acx_Woption=`echo "acx_cv_prog_cc_warning_$option" | $as_tr_sh`
+ 
+   echo "$as_me:$LINENO: checking whether $CC supports $option" >&5
+diff -Naur gcc-4.1.2.orig/fixincludes/configure.ac gcc-4.1.2/fixincludes/configure.ac
+--- gcc-4.1.2.orig/fixincludes/configure.ac	2005-07-16 14:17:51.000000000 +0000
++++ gcc-4.1.2/fixincludes/configure.ac	2007-05-30 04:22:35.000000000 +0000
+@@ -11,7 +11,7 @@
+ 
+ ACX_PROG_CC_WARNING_OPTS([-W -Wall -Wwrite-strings -Wstrict-prototypes \
+ 			  -Wmissing-prototypes -Wold-style-definition \
+-			  -Wmissing-format-attribute])
++			  -Wmissing-format-attribute -Wno-overlength-strings])
+ ACX_PROG_CC_WARNING_ALMOST_PEDANTIC([-Wno-long-long])
+ 
+ # Only enable with --enable-werror-always until existing warnings are
+diff -Naur gcc-4.1.2.orig/gcc/Makefile.in gcc-4.1.2/gcc/Makefile.in
+--- gcc-4.1.2.orig/gcc/Makefile.in	2006-11-01 14:40:44.000000000 +0000
++++ gcc-4.1.2/gcc/Makefile.in	2007-05-30 01:34:01.000000000 +0000
+@@ -176,7 +176,8 @@
+ STRICT_WARN = @strict1_warn@
+ WERROR_FLAGS = @WERROR@
+ STRICT2_WARN = -pedantic -Wno-long-long -Wno-variadic-macros \
+-  -Wold-style-definition -Wmissing-format-attribute $(WERROR_FLAGS)
++  -Wno-overlength-strings -Wold-style-definition -Wmissing-format-attribute \
++  $(WERROR_FLAGS)
+ 
+ # This is set by --enable-checking.  The idea is to catch forgotten
+ # "extern" tags in header files.
+@@ -194,14 +195,12 @@
+ build-warn = $(STRICT_WARN)
+ GCC_WARN_CFLAGS = $(LOOSE_WARN) $($(@D)-warn) $(NOCOMMON_FLAG) $($@-warn)
+ 
+-# These files are to have -Werror bypassed in stage2:
+-# These are very hard to completely clean due to target complexities.
+-gcc.o-warn = -Wno-error
+-build/insn-conditions.o-warn = -Wno-error
++# These files are to have specific diagnostics suppressed, or are not to
++# be subject to -Werror:
+ # Bison-1.75 output often yields (harmless) -Wtraditional warnings
+ build/gengtype-yacc.o-warn = -Wno-error
+ # flex output may yield harmless "no previous prototype" warnings
+-build/gengtype-lex.o-warn = -Wno-error
++build/gengtype-lex.o-warn = -Wno-missing-prototypes
+ # SYSCALLS.c misses prototypes
+ SYSCALLS.c.X-warn = -Wno-strict-prototypes -Wno-error
+ # These files need -Wno-error because the gimplifier triggers hard to fix
+diff -Naur gcc-4.1.2.orig/gcc/c-common.c gcc-4.1.2/gcc/c-common.c
+--- gcc-4.1.2.orig/gcc/c-common.c	2007-01-05 19:44:10.000000000 +0000
++++ gcc-4.1.2/gcc/c-common.c	2007-05-30 01:42:22.000000000 +0000
+@@ -840,7 +840,6 @@
+ {
+   const int wchar_bytes = TYPE_PRECISION (wchar_type_node) / BITS_PER_UNIT;
+   const int wide_flag = TREE_TYPE (value) == wchar_array_type_node;
+-  const int nchars_max = flag_isoc99 ? 4095 : 509;
+   int length = TREE_STRING_LENGTH (value);
+   int nchars;
+   tree e_type, i_type, a_type;
+@@ -848,11 +847,24 @@
+   /* Compute the number of elements, for the array type.  */
+   nchars = wide_flag ? length / wchar_bytes : length;
+ 
+-  if (pedantic && nchars - 1 > nchars_max && !c_dialect_cxx ())
+-    pedwarn ("string length %qd is greater than the length %qd ISO C%d compilers are required to support",
+-	     nchars - 1, nchars_max, flag_isoc99 ? 99 : 89);
++  /* C89 (section?), C99 5.2.4.1 (Translation limits).  The analogous
++     limit in C++98 Annex B is very large (65536) and is not normative,
++     so we do not diagnose it (warn_overlength_strings is forced off
++     in c_common_post_options).  */
++  if (warn_overlength_strings)
++    {
++      const int nchars_max = flag_isoc99 ? 4095 : 509;
++      const int relevant_std = flag_isoc99 ? 99 : 89;
++      if (nchars - 1 > nchars_max)
++       /* Translators: The %d after 'ISO C' will be 89 or 99.  Do not
++	  separate the %d from the 'C'.  'ISO' should not be
++	  translated, but it may be moved after 'C%d' in languages
++	  where modifiers follow nouns.  */
++       pedwarn ("string length %qd is greater than the length %qd "
++		"ISO C%d compilers are required to support",
++		nchars - 1, nchars_max, relevant_std);
++    }
+ 
+-  e_type = wide_flag ? wchar_type_node : char_type_node;
+   /* Create the array type for the string constant.  flag_const_strings
+      says make the string constant an array of const char so that
+      copying it to a non-const pointer will get a warning.  For C++,
+@@ -864,6 +876,7 @@
+      construct the matching unqualified array type first.  The C front
+      end does not require this, but it does no harm, so we do it
+      unconditionally.  */
++  e_type = wide_flag ? wchar_type_node : char_type_node;
+   i_type = build_index_type (build_int_cst (NULL_TREE, nchars - 1));
+   a_type = build_array_type (e_type, i_type);
+   if (flag_const_strings)
+diff -Naur gcc-4.1.2.orig/gcc/c-opts.c gcc-4.1.2/gcc/c-opts.c
+--- gcc-4.1.2.orig/gcc/c-opts.c	2007-01-05 15:55:45.000000000 +0000
++++ gcc-4.1.2/gcc/c-opts.c	2007-05-30 01:43:22.000000000 +0000
+@@ -883,6 +883,8 @@
+       cpp_opts->warn_endif_labels = 1;
+       if (warn_pointer_sign == -1)
+ 	warn_pointer_sign = 1;
++      if (warn_overlength_strings == -1)
++	warn_overlength_strings = 1;
+       break;
+ 
+     case OPT_print_objc_runtime_info:
+@@ -1013,6 +1015,12 @@
+   if (warn_pointer_sign == -1)
+     warn_pointer_sign = 0;
+ 
++  /* -Woverlength-strings is off by default, but is enabled by -pedantic.
++     It is never enabled in C++, as the minimum limit is not normative
++     in that standard.  */
++  if (warn_overlength_strings == -1 || c_dialect_cxx ())
++    warn_overlength_strings = 0;
++
+   /* Special format checking options don't work without -Wformat; warn if
+      they are used.  */
+   if (!warn_format)
+diff -Naur gcc-4.1.2.orig/gcc/c.opt gcc-4.1.2/gcc/c.opt
+--- gcc-4.1.2.orig/gcc/c.opt	2006-01-26 19:06:06.000000000 +0000
++++ gcc-4.1.2/gcc/c.opt	2007-05-30 01:28:39.000000000 +0000
+@@ -311,6 +311,10 @@
+ C ObjC Var(warn_old_style_definition)
+ Warn if an old-style parameter definition is used
+ 
++Woverlength-strings
++C ObjC C++ ObjC++ Var(warn_overlength_strings) Init(-1)
++Warn if a string is longer than the maximum portable length specified by the standard
++
+ Woverloaded-virtual
+ C++ ObjC++ Var(warn_overloaded_virtual)
+ Warn about overloaded virtual function names
+diff -Naur gcc-4.1.2.orig/gcc/configure gcc-4.1.2/gcc/configure
+--- gcc-4.1.2.orig/gcc/configure	2006-11-13 22:09:55.000000000 +0000
++++ gcc-4.1.2/gcc/configure	2007-05-30 03:11:04.000000000 +0000
+@@ -6058,6 +6058,7 @@
+ # We want to use -pedantic, but we don't want warnings about
+ # * 'long long'
+ # * variadic macros
++# * overlong strings
+ # So, we only use -pedantic if we can disable those warnings.
+ 
+ echo "$as_me:$LINENO: checking whether ${CC} accepts -Wno-long-long" >&5
+@@ -6162,10 +6163,62 @@
+ echo "$as_me:$LINENO: result: $ac_cv_prog_cc_w_no_variadic_macros" >&5
+ echo "${ECHO_T}$ac_cv_prog_cc_w_no_variadic_macros" >&6
+ 
++echo "$as_me:$LINENO: checking whether ${CC} accepts -Wno-overlength-strings" >&5
++echo $ECHO_N "checking whether ${CC} accepts -Wno-overlength-strings... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_w_no_overlength_strings+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  save_CFLAGS="$CFLAGS"
++  CFLAGS="-Wno-overlength-strings"
++  cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_w_no_overlength_strings=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++ac_cv_prog_cc_w_no_overlength_strings=no
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++  CFLAGS="$save_CFLAGS"
++
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_w_no_overlength_strings" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_w_no_overlength_strings" >&6
++
+ strict1_warn=
+ if test $ac_cv_prog_cc_w_no_long_long = yes \
+-   && test $ac_cv_prog_cc_w_no_variadic_macros = yes ; then
+-  strict1_warn="-pedantic -Wno-long-long -Wno-variadic-macros"
++   && test $ac_cv_prog_cc_w_no_variadic_macros = yes \
++   && test $ac_cv_prog_cc_w_no_overlength_strings = yes ; then
++  strict1_warn="-pedantic -Wno-long-long -Wno-variadic-macros -Wno-overlength-strings"
+ fi
+ 
+ # Add -Wold-style-definition if it's accepted
+@@ -7492,7 +7545,7 @@
+ else
+     ac_prog_version=`$MAKEINFO --version 2>&1 |
+                    sed -n 's/^.*GNU texinfo.* \([0-9][0-9.]*\).*$/\1/p'`
+-  echo "configure:7495: version of makeinfo is $ac_prog_version" >&5
++  echo "configure:7548: version of makeinfo is $ac_prog_version" >&5
+   case $ac_prog_version in
+     '')     gcc_cv_prog_makeinfo_modern=no;;
+     4.[2-9]*)
+diff -Naur gcc-4.1.2.orig/gcc/configure.ac gcc-4.1.2/gcc/configure.ac
+--- gcc-4.1.2.orig/gcc/configure.ac	2006-11-13 22:09:55.000000000 +0000
++++ gcc-4.1.2/gcc/configure.ac	2007-05-30 01:28:45.000000000 +0000
+@@ -301,6 +301,7 @@
+ # We want to use -pedantic, but we don't want warnings about
+ # * 'long long'
+ # * variadic macros
++# * overlong strings
+ # So, we only use -pedantic if we can disable those warnings.
+ 
+ AC_CACHE_CHECK(
+@@ -325,10 +326,22 @@
+   CFLAGS="$save_CFLAGS"
+   ])
+ 
++AC_CACHE_CHECK(
++  [whether ${CC} accepts -Wno-overlength-strings],
++  [ac_cv_prog_cc_w_no_overlength_strings],
++  [save_CFLAGS="$CFLAGS"
++  CFLAGS="-Wno-overlength-strings"
++  AC_COMPILE_IFELSE([AC_LANG_SOURCE([[]])],
++                    [ac_cv_prog_cc_w_no_overlength_strings=yes],
++                    [ac_cv_prog_cc_w_no_overlength_strings=no])
++  CFLAGS="$save_CFLAGS"
++  ])
++
+ strict1_warn=
+ if test $ac_cv_prog_cc_w_no_long_long = yes \
+-   && test $ac_cv_prog_cc_w_no_variadic_macros = yes ; then
+-  strict1_warn="-pedantic -Wno-long-long -Wno-variadic-macros"
++   && test $ac_cv_prog_cc_w_no_variadic_macros = yes \
++   && test $ac_cv_prog_cc_w_no_overlength_strings = yes ; then
++  strict1_warn="-pedantic -Wno-long-long -Wno-variadic-macros -Wno-overlength-strings"
+ fi
+ 
+ # Add -Wold-style-definition if it's accepted
+diff -Naur gcc-4.1.2.orig/gcc/doc/invoke.texi gcc-4.1.2/gcc/doc/invoke.texi
+--- gcc-4.1.2.orig/gcc/doc/invoke.texi	2006-09-25 21:21:58.000000000 +0000
++++ gcc-4.1.2/gcc/doc/invoke.texi	2007-05-30 01:28:45.000000000 +0000
+@@ -234,7 +234,7 @@
+ -Wmain  -Wmissing-braces  -Wmissing-field-initializers @gol
+ -Wmissing-format-attribute  -Wmissing-include-dirs @gol
+ -Wmissing-noreturn @gol
+--Wno-multichar  -Wnonnull  -Wpacked  -Wpadded @gol
++-Wno-multichar  -Wnonnull  -Woverlength-strings  -Wpacked  -Wpadded @gol
+ -Wparentheses  -Wpointer-arith  -Wno-pointer-to-int-cast @gol
+ -Wredundant-decls @gol
+ -Wreturn-type  -Wsequence-point  -Wshadow @gol
+@@ -3400,6 +3400,21 @@
+ This option is only active when @option{-fstack-protector} is active.  It
+ warns about functions that will not be protected against stack smashing.
+ 
++@item -Woverlength-strings
++@opindex Woverlength-strings
++Warn about string constants which are longer than the ``minimum
++maximum'' length specified in the C standard.  Modern compilers
++generally allow string constants which are much longer than the
++standard's minimum limit, but very portable programs should avoid
++using longer strings.
++
++The limit applies @emph{after} string constant concatenation, and does
++not count the trailing NUL@.  In C89, the limit was 509 characters; in
++C99, it was raised to 4095.  C++98 does not specify a normative
++minimum maximum, so we do not diagnose overlength strings in C++@.
++
++This option is implied by @option{-pedantic}, and can be disabled with
++@option{-Wno-overlength-strings}.
+ @end table
+ 
+ @node Debugging Options
+diff -Naur gcc-4.1.2.orig/gcc/genconditions.c gcc-4.1.2/gcc/genconditions.c
+--- gcc-4.1.2.orig/gcc/genconditions.c	2005-06-25 02:02:01.000000000 +0000
++++ gcc-4.1.2/gcc/genconditions.c	2007-05-30 03:37:13.000000000 +0000
+@@ -73,18 +73,16 @@
+    machine description file.  */\n\
+ \n\
+ #include \"bconfig.h\"\n\
+-#include \"insn-constants.h\"\n");
+-
+-  puts ("\
++#include \"insn-constants.h\"\n\
++\n\
+ /* Do not allow checking to confuse the issue.  */\n\
+ #undef ENABLE_CHECKING\n\
+ #undef ENABLE_TREE_CHECKING\n\
+ #undef ENABLE_RTL_CHECKING\n\
+ #undef ENABLE_RTL_FLAG_CHECKING\n\
+ #undef ENABLE_GC_CHECKING\n\
+-#undef ENABLE_GC_ALWAYS_COLLECT\n");
+-
+-  puts ("\
++#undef ENABLE_GC_ALWAYS_COLLECT\n\
++\n\
+ #include \"system.h\"\n\
+ /* If we don't have __builtin_constant_p, or it's not acceptable in array\n\
+    initializers, fall back to assuming that all conditions potentially\n\
+@@ -97,15 +95,13 @@
+ #include \"tm.h\"\n\
+ #include \"rtl.h\"\n\
+ #include \"tm_p.h\"\n\
+-#include \"function.h\"\n");
+-
+-  puts ("\
++#include \"function.h\"\n\
++\n\
+ /* Fake - insn-config.h doesn't exist yet.  */\n\
+ #define MAX_RECOG_OPERANDS 10\n\
+ #define MAX_DUP_OPERANDS 10\n\
+-#define MAX_INSNS_PER_SPLIT 5\n");
+-
+-  puts ("\
++#define MAX_INSNS_PER_SPLIT 5\n\
++\n\
+ #include \"regs.h\"\n\
+ #include \"recog.h\"\n\
+ #include \"real.h\"\n\
+@@ -154,11 +150,11 @@
+ 	putchar (*p);
+     }
+ 
+-  printf ("\",\n    __builtin_constant_p ");
++  fputs ("\",\n    __builtin_constant_p ", stdout);
+   print_c_condition (test->expr);
+-  printf ("\n    ? (int) ");
++  fputs ("\n    ? (int) ", stdout);
+   print_c_condition (test->expr);
+-  printf ("\n    : -1 },\n");
++  fputs ("\n    : -1 },\n", stdout);
+   return 1;
+ }
+ 
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89-no.c gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89-no.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89-no.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89-no.c	2007-05-30 01:28:45.000000000 +0000
+@@ -0,0 +1,19 @@
++/* -Woverlength-strings complains about string constants which are too long
++   for the C standard's "minimum maximum" limits.  It is off by default,
++   but implied by -pedantic.  */
++
++/* { dg-options "-std=c89 -pedantic -Wno-overlength-strings" } */
++
++#define TEN "xxxxxxxxxx"
++#define HUN TEN TEN TEN TEN TEN  TEN TEN TEN TEN TEN
++#define THO HUN HUN HUN HUN HUN  HUN HUN HUN HUN HUN
++
++/* C89's minimum-maximum is 509. */
++const char x510[] = HUN HUN HUN HUN HUN TEN;
++
++/* C99's minimum-maximum is 4095.  */
++const char x4096[] =                   \
++  THO THO THO THO     /* 4000 */       \
++  TEN TEN TEN TEN TEN /* 4050 */       \
++  TEN TEN TEN TEN     /* 4090 */       \
++  "123456";
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89.c gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c89.c	2007-05-30 01:28:45.000000000 +0000
+@@ -0,0 +1,19 @@
++/* -Woverlength-strings complains about string constants which are too long
++   for the C standard's "minimum maximum" limits.  It is off by default,
++   but implied by -pedantic.  */
++
++/* { dg-options "-std=c89 -pedantic" } */
++
++#define TEN "xxxxxxxxxx"
++#define HUN TEN TEN TEN TEN TEN  TEN TEN TEN TEN TEN
++#define THO HUN HUN HUN HUN HUN  HUN HUN HUN HUN HUN
++
++/* C89's minimum-maximum is 509. */
++const char x510[] = HUN HUN HUN HUN HUN TEN; /* { dg-warning "longer than" } */
++
++/* C99's minimum-maximum is 4095.  */
++const char x4096[] =                   \
++  THO THO THO THO     /* 4000 */       \
++  TEN TEN TEN TEN TEN /* 4050 */       \
++  TEN TEN TEN TEN     /* 4090 */       \
++  "123456";  /* { dg-warning "longer than" } */
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99-no.c gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99-no.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99-no.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99-no.c	2007-05-30 01:28:45.000000000 +0000
+@@ -0,0 +1,19 @@
++/* -Woverlength-strings complains about string constants which are too long
++   for the C standard's "minimum maximum" limits.  It is off by default,
++   but implied by -pedantic.  */
++
++/* { dg-options "-std=c99 -pedantic -Wno-overlength-strings" } */
++
++#define TEN "xxxxxxxxxx"
++#define HUN TEN TEN TEN TEN TEN  TEN TEN TEN TEN TEN
++#define THO HUN HUN HUN HUN HUN  HUN HUN HUN HUN HUN
++
++/* C89's minimum-maximum is 509. */
++const char x510[] = HUN HUN HUN HUN HUN TEN;
++
++/* C99's minimum-maximum is 4095.  */
++const char x4096[] =                   \
++  THO THO THO THO     /* 4000 */       \
++  TEN TEN TEN TEN TEN /* 4050 */       \
++  TEN TEN TEN TEN     /* 4090 */       \
++  "123456";
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99.c gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings-pedantic-c99.c	2007-05-30 01:28:45.000000000 +0000
+@@ -0,0 +1,19 @@
++/* -Woverlength-strings complains about string constants which are too long
++   for the C standard's "minimum maximum" limits.  It is off by default,
++   but implied by -pedantic.  */
++
++/* { dg-options "-std=c99 -pedantic" } */
++
++#define TEN "xxxxxxxxxx"
++#define HUN TEN TEN TEN TEN TEN  TEN TEN TEN TEN TEN
++#define THO HUN HUN HUN HUN HUN  HUN HUN HUN HUN HUN
++
++/* C89's minimum-maximum is 509. */
++const char x510[] = HUN HUN HUN HUN HUN TEN;
++
++/* C99's minimum-maximum is 4095.  */
++const char x4096[] =                   \
++  THO THO THO THO     /* 4000 */       \
++  TEN TEN TEN TEN TEN /* 4050 */       \
++  TEN TEN TEN TEN     /* 4090 */       \
++  "123456";  /* { dg-warning "longer than" } */
+diff -Naur gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings.c gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings.c
+--- gcc-4.1.2.orig/gcc/testsuite/gcc.dg/Woverlength-strings.c	1970-01-01 00:00:00.000000000 +0000
++++ gcc-4.1.2/gcc/testsuite/gcc.dg/Woverlength-strings.c	2007-05-30 01:28:45.000000000 +0000
+@@ -0,0 +1,19 @@
++/* -Woverlength-strings complains about string constants which are too long
++   for the C standard's "minimum maximum" limits.  It is off by default,
++   but implied by -pedantic.  */
++
++/* { dg-options "" } */
++
++#define TEN "xxxxxxxxxx"
++#define HUN TEN TEN TEN TEN TEN  TEN TEN TEN TEN TEN
++#define THO HUN HUN HUN HUN HUN  HUN HUN HUN HUN HUN
++
++/* C89's minimum-maximum is 509. */
++const char x510[] = HUN HUN HUN HUN HUN TEN;
++
++/* C99's minimum-maximum is 4095.  */
++const char x4096[] =                   \
++  THO THO THO THO     /* 4000 */       \
++  TEN TEN TEN TEN TEN /* 4050 */       \
++  TEN TEN TEN TEN     /* 4090 */       \
++  "123456";

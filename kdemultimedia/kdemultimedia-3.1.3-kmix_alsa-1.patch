@@ -1,0 +1,37 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Date: 2003-08-13
+Initial Package Version: 3.1.3
+Origin: Alexander E. Patrakov
+Description: Turn off the magic that kmix does to determine the 
+"master" volume control. Always assume that the zeroth control is 
+the master one. The line that I commented out is certainly incorrect. 
+This "fix" will not be accepted by the KDE team because it's 
+ideologically wrong, but they don't currently have a good one.
+http://bugs.kde.org/show_bug.cgi?id=61905
+
+Applies to owners of FM801-based soundcards, maybe others. You can 
+hard-code the relevant control number in the first m_masterDevice = ... anyway.
+
+diff -ur kdemultimedia-3.1.3/kmix/mixer_alsa9.cpp kdemultimedia-3.1.3.tweaked/kmix/mixer_alsa9.cpp
+--- kdemultimedia-3.1.3/kmix/mixer_alsa9.cpp	2003-05-07 17:46:50.000000000 +0600
++++ kdemultimedia-3.1.3.tweaked/kmix/mixer_alsa9.cpp	2003-07-31 21:06:57.000000000 +0600
+@@ -60,6 +60,7 @@
+ Mixer_ALSA::Mixer_ALSA( int device, int card ) :
+ 	Mixer( device, card ), handle(0)
+ {
++    m_masterDevice = 0;
+ }
+ 
+ Mixer_ALSA::~Mixer_ALSA()
+@@ -70,10 +71,9 @@
+ Mixer_ALSA::identify( snd_mixer_selem_id_t *sid )
+ {
+ 	QString name = snd_mixer_selem_id_get_name( sid );
+-
+ 	if ( name == "Master" )
+ 	{
+-		m_masterDevice = snd_mixer_selem_id_get_index( sid );
++//		m_masterDevice = snd_mixer_selem_id_get_index( sid );
+ 		return MixDevice::VOLUME;
+ 	}
+ 	if ( name == "Master Mono" ) return MixDevice::VOLUME;

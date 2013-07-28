@@ -1,0 +1,20 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2006-03-29
+Initial Package Version: 088
+Upstream Status: Submitted
+Origin: Jim Gifford
+Description: Fixes Cross-Compile Issue with volume_id in Extras
+
+--- udev-088/extras/volume_id/libvolume_id/Makefile.orig	2006-03-29 13:41:44.000000000 -0800
++++ udev-088/extras/volume_id/libvolume_id/Makefile	2006-03-29 13:42:17.000000000 -0800
+@@ -44,8 +44,8 @@
+ 	volume_id.h		\
+ 	util.h
+ 
+-AR = $(CROSS)ar
+-RANLIB = $(CROSS)ranlib
++AR = $(CROSS_COMPILE)ar
++RANLIB = $(CROSS_COMPILE)ranlib
+ 
+ all: $(LIBVOLUME_ID)
+ .PHONY: all

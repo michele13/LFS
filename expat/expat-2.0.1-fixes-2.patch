@@ -1,0 +1,43 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2010-11-26
+Initial Package Version: 2.0.1
+Upstream Status: Unknown
+Origin: Unknown
+Description: Fixes for CVE-2009-2625 (infinite loop and application hang via
+malformed XML) CVE-2009-3560 (DOS via buffer overrun caused by malformed UTF-8)
+and CVE-2009-3720 (DOS via buffer overrun caused by crafted UTF-8).
+
+diff -Naur expat-2.0.1.orig//lib/xmlparse.c expat-2.0.1/lib/xmlparse.c
+--- expat-2.0.1.orig//lib/xmlparse.c	2007-05-08 03:25:35.000000000 +0100
++++ expat-2.0.1/lib/xmlparse.c	2010-11-26 21:35:44.000000000 +0000
+@@ -2563,6 +2563,8 @@
+                               (int)(dataPtr - (ICHAR *)dataBuf));
+               if (s == next)
+                 break;
++              if (ps_parsing == XML_FINISHED || ps_parsing == XML_SUSPENDED)
++                break;
+               *eventPP = s;
+             }
+           }
+@@ -3703,6 +3705,9 @@
+         return XML_ERROR_UNCLOSED_TOKEN;
+       case XML_TOK_PARTIAL_CHAR:
+         return XML_ERROR_PARTIAL_CHAR;
++      case -XML_TOK_PROLOG_S:
++        tok = -tok;
++        break;
+       case XML_TOK_NONE:
+ #ifdef XML_DTD
+         /* for internal PE NOT referenced between declarations */
+diff -Naur expat-2.0.1.orig//lib/xmltok_impl.c expat-2.0.1/lib/xmltok_impl.c
+--- expat-2.0.1.orig//lib/xmltok_impl.c	2006-11-26 17:34:46.000000000 +0000
++++ expat-2.0.1/lib/xmltok_impl.c	2010-11-26 21:35:44.000000000 +0000
+@@ -1744,7 +1744,7 @@
+                        const char *end,
+                        POSITION *pos)
+ {
+-  while (ptr != end) {
++  while (ptr < end) {
+     switch (BYTE_TYPE(enc, ptr)) {
+ #define LEAD_CASE(n) \
+     case BT_LEAD ## n: \

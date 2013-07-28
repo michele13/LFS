@@ -1,0 +1,31 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-01-23
+Initial Package Version: 0.7
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Fixes compile issue on with Current Glibc 2.3.4 or 2.3.5
+ 
+--- atftp-0.7/argz.h.orig	2005-01-23 19:33:49 +0000
++++ atftp-0.7/argz.h	2005-01-23 19:44:22 +0000
+@@ -179,8 +179,8 @@
+ 
+ #ifdef __USE_EXTERN_INLINES
+ extern inline char *
+-__argz_next (__const char *__argz, size_t __argz_len,
+-	     __const char *__entry) __THROW
++__NTH (__argz_next (__const char *__argz, size_t __argz_len,
++	     __const char *__entry))
+ {
+   if (__entry)
+     {
+@@ -193,8 +193,8 @@
+     return __argz_len > 0 ? (char *) __argz : 0;
+ }
+ extern inline char *
+-argz_next (__const char *__argz, size_t __argz_len,
+-	   __const char *__entry) __THROW
++__NTH (argz_next (__const char *__argz, size_t __argz_len,
++	   __const char *__entry))
+ {
+   return __argz_next (__argz, __argz_len, __entry);
+ }

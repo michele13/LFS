@@ -1,0 +1,41 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2010-08-15
+Initial Package Version: 2.6.35.2
+Upstream Status:         From upstream
+Origin:                  Upstream - http://lkml.indiana.edu/hypermail/linux/kernel/1008.1/02462.html
+Description:             Fixes a locking bug that can cause boot failures
+
+diff -Naur linux-2.6.35.2.orig/mm/memory.c linux-2.6.35.2/mm/memory.c
+--- linux-2.6.35.2.orig/mm/memory.c	2010-08-13 20:44:56.000000000 +0000
++++ linux-2.6.35.2/mm/memory.c	2010-08-15 17:50:45.050350752 +0000
+@@ -2792,24 +2792,23 @@
+ 	spinlock_t *ptl;
+ 	pte_t entry;
+ 
+-	if (check_stack_guard_page(vma, address) < 0) {
+-		pte_unmap(page_table);
++	pte_unmap(page_table);
++
++	/* Check if we need to add a guard page to the stack */
++	if (check_stack_guard_page(vma, address) < 0)
+ 		return VM_FAULT_SIGBUS;
+-	}
+ 
++	/* Use the zero-page for reads */
+ 	if (!(flags & FAULT_FLAG_WRITE)) {
+ 		entry = pte_mkspecial(pfn_pte(my_zero_pfn(address),
+ 						vma->vm_page_prot));
+-		ptl = pte_lockptr(mm, pmd);
+-		spin_lock(ptl);
++		page_table = pte_offset_map_lock(mm, pmd, address, &ptl);
+ 		if (!pte_none(*page_table))
+ 			goto unlock;
+ 		goto setpte;
+ 	}
+ 
+ 	/* Allocate our own private page. */
+-	pte_unmap(page_table);
+-
+ 	if (unlikely(anon_vma_prepare(vma)))
+ 		goto oom;
+ 	page = alloc_zeroed_user_highpage_movable(vma, address);

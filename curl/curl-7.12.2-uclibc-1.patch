@@ -1,0 +1,21 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-12-19
+Initial Package Version: 7.12.2
+Upstream Status: Not submitted - Fixed in curl-7.12.3-snapshot.
+Origin: http://ftp.belnet.be/linux/gentoo-portage/net-misc/curl/files/\
+	7.12.0-no-fputc.patch
+Description: fputc is already defined by stdio.h. Without this patch
+Curl will not build against uclibc's headers.
+
+diff -Naur curl-7.12.2.orig/lib/mprintf.c curl-7.12.2/lib/mprintf.c
+--- curl-7.12.2.orig/lib/mprintf.c	2004-06-24 11:54:11.000000000 +0000
++++ curl-7.12.2/lib/mprintf.c	2004-12-19 11:59:48.220600768 +0000
+@@ -1133,7 +1133,7 @@
+   return retcode;
+ }
+ 
+-#ifndef WIN32 /* not needed on win32 */
++#if !(defined(WIN32) || defined(__UCLIBC__))
+ extern int fputc(int, FILE *);
+ #endif
+ 

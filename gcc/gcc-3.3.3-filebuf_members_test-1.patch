@@ -1,0 +1,59 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net?
+Date: 2004-03-24
+Initial Package Version: 3.3.3
+Upstream Status: not submitted, I don't understand the problem well enough.
+Origin: reverts a test to how it was in 3.3.2
+Description:  Some of us building gcc-3.3.3 have had problems with the
+chapter 5 testsuite.  This patch attempts to address the problem where
+the filebuf_members test hangs the build.  The problem seems to only
+happen when building from a recent system (e.g. LFS-5.0 or later), and
+may be related to using scripts to build with.
+
+http://archives.linuxfromscratch.org/mail-archives/lfs-dev/2004-February/042772.html
+ 
+ My current view is that this isn't an arch-specific problem, but we have
+a shortage of test data at the moment.  
+
+ I have seen occasional cases where this patch doesn't fix the problem,
+e.g. a _third_ build of identical versions of everything ( I needed to try
+a different hardware configuration).
+
+ Applying this patch to chapter 6 may make it easier to get a clean umount
+at the end of the build, or not, depending on the version of glibc.
+
+ Summary - the build with 3.3.3 can be somewhat problematic, this patch
+may help.
+
+diff -Naur gcc-3.3.3/libstdc++-v3/testsuite/27_io/filebuf_members.cc gcc-3.3.2/libstdc++-v3/testsuite/27_io/filebuf_members.cc
+--- gcc-3.3.3/libstdc++-v3/testsuite/27_io/filebuf_members.cc	2004-02-05 20:24:48.000000000 +0000
++++ gcc-3.3.2/libstdc++-v3/testsuite/27_io/filebuf_members.cc	2003-04-22 22:07:24.000000000 +0100
+@@ -217,10 +217,7 @@
+     }
+ 
+   std::filebuf fbuf;
+-  std::filebuf* r = fbuf.open(name,
+-			      std::ios_base::in
+-			      | std::ios_base::out
+-			      | std::ios_base::ate);
++  std::filebuf* r = fbuf.open(name, std::ios_base::out | std::ios_base::ate);
+   VERIFY( !fbuf.is_open() );
+   VERIFY( r == NULL );
+ }
+@@ -252,7 +249,7 @@
+   
+   filebuf fb;
+   sleep(1);
+-  filebuf* ret = fb.open(name, ios_base::in | ios_base::out);
++  filebuf* ret = fb.open(name, ios_base::out | ios_base::trunc);
+   VERIFY( ret != NULL );
+   VERIFY( fb.is_open() );
+ 
+@@ -260,7 +257,7 @@
+   fb.sputc('a');
+ 
+   ret = fb.close();
+-  VERIFY( ret != NULL );
++  VERIFY( ret == NULL );
+   VERIFY( !fb.is_open() );
+ }
+ 

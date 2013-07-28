@@ -1,0 +1,35 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2009-10-18
+Initial Package Version: 4.0
+Origin: Self
+Upstream Status:  Not Applicable (possibly breks build on other platforms)
+Description: This patch enables libxklavier to look in the X prefix share dir
+             for xkb rules files.
+
+--- libxklavier-4.0-orig/configure.in	2009-09-23 22:43:51.000000000 -0500
++++ libxklavier-4.0/configure.in	2009-09-23 22:44:43.000000000 -0500
+@@ -49,13 +49,23 @@
+ jm_LANGINFO_CODESET
+ AC_CHECK_FUNCS(setlocale)
+ AC_PATH_XTRA
++PKG_CHECK_MODULES(XKB, xkbfile >= 1.0.0)
++XKB_PREFIX=`$PKG_CONFIG --variable=prefix xkbfile`
+ AC_ARG_WITH( xkb_base,
+              [  --with-xkb-base=DIR        XKB base path (by default it is /usr/share/X11/xkb)],
+              xkb_base="$withval", 
+              if test -z "$x_libraries" ; then 
+                xkb_base="/usr/share/X11/xkb"
+              else
+-               xkb_base="$x_libraries/X11/xkb"
++               if test -d "$XKB_PREFIX/lib/X11/xkb/rules" ; then
++                 xkb_base="$XKB_PREFIX/lib/X11/xkb"
++               else
++                 if test -d "$XKB_PREFIX/share/X11/xkb/rules" ; then
++                   xkb_base="$XKB_PREFIX/share/X11/xkb"
++                 else dnl Last ditch attempt...
++                   xkb_base="$x_libraries/X11/xkb"
++                 fi
++               fi
+              fi )
+ 
+ AC_DEFINE_UNQUOTED(XKB_BASE,"${xkb_base}",Base for XKB configuration)

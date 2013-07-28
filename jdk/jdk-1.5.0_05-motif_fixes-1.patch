@@ -1,0 +1,40 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2006-03-04
+Initial Package Version: 1.5.0_05
+Origin: Previous motif mkmsgcat patch and cleanups for system Xm/XmIm.h.
+Description: Various fixes for motif-2.1 compilation.
+
+--- j2sdk-build-orig/motif/lib/Xm/util/mkmsgcat.c	2004-10-19 13:44:16.000000000 -0500
++++ j2sdk-build/motif/lib/Xm/util/mkmsgcat.c	2004-11-15 20:22:21.000000000 -0600
+@@ -14,7 +14,7 @@
+ #include <string.h>
+ char buf[1024];
+ 
+-char *OSF_COPYRIGHT = "$\n\
++char *OSF_COPYRIGHT = "\
+ $  @OSF_COPYRIGHT@\n\
+ $  COPYRIGHT NOTICE\n\
+ $  Copyright (c) 1990, 1991, 1992, 1993 Open Software Foundation, Inc.\n\
+@@ -28,7 +28,7 @@
+ $ (c) Copyright 1996 Novell, Inc. \n\
+ $ (c) Copyright 1996 FUJITSU LIMITED.\n\
+ $ (c) Copyright 1996 Hitachi.\n\
+-$";
++";
+ 
+ char *OSF_COPYRIGHT_C = "/*\n\
+  *\n\
+--- jdk-build-orig/j2se/src/solaris/native/sun/awt/awt_motif21.c	2006-02-19 14:11:34.000000000 -0600
++++ jdk-build/j2se/src/solaris/native/sun/awt/awt_motif21.c	2006-02-19 22:07:53.000000000 -0600
+@@ -16,11 +16,6 @@
+ #include "awt_Component.h"
+ 
+ #define XmPER_SHELL 0
+-extern XIC XmImGetXIC(
+-                                Widget          w,
+-                        uint32_t    input_policy,
+-                        ArgList         args,
+-                        Cardinal        num_args) ;
+ extern int32_t _XmImGetGeo(
+                         Widget vw) ;
+ 

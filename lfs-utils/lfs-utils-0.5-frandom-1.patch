@@ -1,0 +1,81 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-04-25
+Initial Package Version: 1.5
+Origin: None
+Description: This uses sysctl erandom instead of urandom for mktemp.
+Do not use the --with-libc configure option with this patch or it will
+not work.
+
+This patch depends on erandom sysctl from:
+http://frandom.sourceforge.net/
+http://www.linuxfromscratch.org/hints/downloads/files/entropy.txt
+Thanks to Eli Billauer
+
+This is the kernel patch, check for newer versions.
+http://www.linuxfromscratch.org/patches/downloads/linux/\
+linux-2.4.26-frandom-1.patch
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -Naur lfs-utils-0.5.orig/mktemp-1.5/configure lfs-utils-0.5.frandom/mktemp-1.5/configure
+--- lfs-utils-0.5.orig/mktemp-1.5/configure	2003-03-24 01:06:43.000000000 +0000
++++ lfs-utils-0.5.frandom/mktemp-1.5/configure	2004-04-26 07:15:06.000000000 +0000
+@@ -3643,7 +3643,7 @@
+ if test -n "$with_random"; then
+     mktemp_cv_dev_urandom="with_random=$with_random"
+ elif test -r /dev/urandom; then
+-    mktemp_cv_dev_urandom="with_random=/dev/urandom"
++    mktemp_cv_dev_urandom="with_random=erandom"
+ else
+     mktemp_cv_dev_urandom="with_random=no"
+ fi
+diff -Naur lfs-utils-0.5.orig/mktemp-1.5/configure.in lfs-utils-0.5.frandom/mktemp-1.5/configure.in
+--- lfs-utils-0.5.orig/mktemp-1.5/configure.in	2003-03-24 01:04:49.000000000 +0000
++++ lfs-utils-0.5.frandom/mktemp-1.5/configure.in	2004-04-26 07:15:06.000000000 +0000
+@@ -172,7 +172,7 @@
+ if test -n "$with_random"; then
+     mktemp_cv_dev_urandom="with_random=$with_random"
+ elif test -r /dev/urandom; then
+-    mktemp_cv_dev_urandom="with_random=/dev/urandom"
++    mktemp_cv_dev_urandom="with_random=erandom"
+ else
+     mktemp_cv_dev_urandom="with_random=no"
+ fi
+diff -Naur lfs-utils-0.5.orig/mktemp-1.5/random.c lfs-utils-0.5.frandom/mktemp-1.5/random.c
+--- lfs-utils-0.5.orig/mktemp-1.5/random.c	2001-10-01 00:21:34.000000000 +0000
++++ lfs-utils-0.5.frandom/mktemp-1.5/random.c	2004-04-26 07:15:16.000000000 +0000
+@@ -26,6 +26,7 @@
+  */
+ 
+ #include "config.h"
++#include <sys/sysctl.h>
+ 
+ #include <sys/types.h>
+ #if defined(TIME_WITH_SYS_TIME) || defined(HAVE_SYS_TIME_H)
+@@ -105,16 +106,17 @@
+ 	SEED_T seed;
+ 	struct timeval tv;
+ 
+-#ifdef _PATH_RANDOM
+-	int fd;
++        int i, mib[3];
++        size_t len;
++        mib[0] = CTL_KERN;
++        mib[1] = KERN_RANDOM;
++        mib[2] = RANDOM_ERANDOM;
++	len = sizeof(seed);
+ 
+-	if ((fd = open(_PATH_RANDOM, O_RDONLY)) != -1 &&
+-	    read_loop(fd, &seed, sizeof(seed)) == sizeof(seed)) {
+-		close(fd);
++	if (sysctl(mib, 3, &seed, &len, NULL, 0) != -1) {
+ 		SRAND(seed);
+-		return;
+-	}
+-#endif /* _PATH_RANDOM */
++                return;
++        }
+ 
+ 	/* Don't have /dev/random */
+ 	/* XXX - check for gettimeofday() and use time() if none? */

@@ -1,0 +1,235 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-26
+Initial Package Version: 0.93
+Origin: Grub CVS
+Description: Fixes Automake Errors
+	     Fixes memcpy Error
+
+ 
+diff -Naur grub-0.93.orig/configure.in grub-0.93/configure.in
+--- grub-0.93.orig/configure.in	2002-11-29 20:12:08.000000000 +0000
++++ grub-0.93/configure.in	2003-09-27 01:17:33.000000000 +0000
+@@ -54,8 +54,8 @@
+ _AM_DEPENDENCIES(CC)
+ 
+ dnl Because recent automake complains about AS, set it here.
+-AS="$CC"
+-AC_SUBST(AS)
++CCAS="$CC"
++AC_SUBST(CCAS)
+ 
+ AC_ARG_WITH(binutils,
+   [  --with-binutils=DIR     search the directory DIR to find binutils])
+@@ -619,9 +619,9 @@
+ AC_SUBST(NET_EXTRAFLAGS)
+ AC_SUBST(NETBOOT_DRIVERS)
+ 
+-dnl Because recent automake complains about ASFLAGS, set it here.
+-ASFLAGS='$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)'
+-AC_SUBST(ASFLAGS)
++dnl Because recent automake complains about CCASFLAGS, set it here.
++CCASFLAGS='$(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(CPPFLAGS) $(CFLAGS)'
++AC_SUBST(CCASFLAGS)
+ 
+ 
+ dnl Output.
+diff -Naur grub-0.93.orig/stage1/Makefile.am grub-0.93/stage1/Makefile.am
+--- grub-0.93.orig/stage1/Makefile.am	2002-09-08 01:58:08.000000000 +0000
++++ grub-0.93/stage1/Makefile.am	2003-09-27 01:17:33.000000000 +0000
+@@ -4,7 +4,7 @@
+ CLEANFILES = $(nodist_pkgdata_DATA)
+ 
+ # We can't use builtins or standard includes.
+-AM_ASFLAGS = $(STAGE1_CFLAGS) -fno-builtin -nostdinc
++AM_CCASFLAGS = $(STAGE1_CFLAGS) -fno-builtin -nostdinc
+ LDFLAGS = -nostdlib -Wl,-N,-Ttext,7C00
+ 
+ noinst_PROGRAMS = stage1.exec
+diff -Naur grub-0.93.orig/stage2/Makefile.am grub-0.93/stage2/Makefile.am
+--- grub-0.93.orig/stage2/Makefile.am	2002-11-29 18:00:53.000000000 +0000
++++ grub-0.93/stage2/Makefile.am	2003-09-27 01:17:33.000000000 +0000
+@@ -88,7 +88,7 @@
+ 	fsys_vstafs.c fsys_xfs.c gunzip.c hercules.c md5.c serial.c \
+ 	smp-imps.c stage2.c terminfo.c tparm.c
+ pre_stage2_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+-pre_stage2_exec_ASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
++pre_stage2_exec_CCASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS)
+ pre_stage2_exec_LDFLAGS = $(PRE_STAGE2_LINK)
+ 
+ if NETBOOT_SUPPORT
+@@ -109,7 +109,7 @@
+ 	echo "#define STAGE2_SIZE $$6" > stage2_size.h
+ 
+ start_exec_SOURCES = start.S
+-start_exec_ASFLAGS = $(STAGE2_COMPILE)
++start_exec_CCASFLAGS = $(STAGE2_COMPILE)
+ start_exec_LDFLAGS = $(START_LINK)
+ 
+ # XXX: automake doesn't provide a way to specify dependencies for object
+@@ -127,7 +127,7 @@
+ 	stage1_5.c fsys_ext2fs.c bios.c
+ e2fs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_EXT2FS=1 \
+ 	-DNO_BLOCK_FILES=1
+-e2fs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_EXT2FS=1 \
++e2fs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_EXT2FS=1 \
+ 	-DNO_BLOCK_FILES=1
+ e2fs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -136,7 +136,7 @@
+ 	stage1_5.c fsys_fat.c bios.c
+ fat_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FAT=1 \
+ 	-DNO_BLOCK_FILES=1
+-fat_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FAT=1 \
++fat_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FAT=1 \
+ 	-DNO_BLOCK_FILES=1
+ fat_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -145,7 +145,7 @@
+ 	stage1_5.c fsys_ffs.c bios.c
+ ffs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FFS=1 \
+ 	-DNO_BLOCK_FILES=1
+-ffs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FFS=1 \
++ffs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_FFS=1 \
+ 	-DNO_BLOCK_FILES=1
+ ffs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -154,7 +154,7 @@
+ 	stage1_5.c fsys_minix.c bios.c
+ minix_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_MINIX=1 \
+ 	-DNO_BLOCK_FILES=1
+-minix_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_MINIX=1 \
++minix_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_MINIX=1 \
+ 	-DNO_BLOCK_FILES=1
+ minix_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -163,7 +163,7 @@
+ 	disk_io.c stage1_5.c fsys_reiserfs.c bios.c
+ reiserfs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_REISERFS=1 \
+ 	-DNO_BLOCK_FILES=1
+-reiserfs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_REISERFS=1 \
++reiserfs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_REISERFS=1 \
+ 	-DNO_BLOCK_FILES=1
+ reiserfs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -172,7 +172,7 @@
+ 	disk_io.c stage1_5.c fsys_vstafs.c bios.c
+ vstafs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_VSTAFS=1 \
+ 	-DNO_BLOCK_FILES=1
+-vstafs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_VSTAFS=1 \
++vstafs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_VSTAFS=1 \
+ 	-DNO_BLOCK_FILES=1
+ vstafs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -181,7 +181,7 @@
+ 	disk_io.c stage1_5.c fsys_jfs.c bios.c
+ jfs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_JFS=1 \
+ 	-DNO_BLOCK_FILES=1
+-jfs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_JFS=1 \
++jfs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_JFS=1 \
+ 	-DNO_BLOCK_FILES=1
+ jfs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -190,7 +190,7 @@
+ 	disk_io.c stage1_5.c fsys_xfs.c bios.c
+ xfs_stage1_5_exec_CFLAGS = $(STAGE1_5_COMPILE) -DFSYS_XFS=1 \
+ 	-DNO_BLOCK_FILES=1
+-xfs_stage1_5_exec_ASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_XFS=1 \
++xfs_stage1_5_exec_CCASFLAGS = $(STAGE1_5_COMPILE) -DFSYS_XFS=1 \
+ 	-DNO_BLOCK_FILES=1
+ xfs_stage1_5_exec_LDFLAGS = $(STAGE1_5_LINK)
+ 
+@@ -198,7 +198,7 @@
+ diskless_exec_SOURCES = $(pre_stage2_exec_SOURCES)
+ diskless_exec_CFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS) \
+ 	-DSUPPORT_DISKLESS=1
+-diskless_exec_ASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS) \
++diskless_exec_CCASFLAGS = $(STAGE2_COMPILE) $(FSYS_CFLAGS) \
+ 	-DSUPPORT_DISKLESS=1
+ diskless_exec_LDFLAGS = $(PRE_STAGE2_LINK)
+ diskless_exec_LDADD = ../netboot/libdrivers.a
+@@ -210,7 +210,7 @@
+ 
+ # For nbloader target.
+ nbloader_exec_SOURCES = nbloader.S
+-nbloader_exec_ASFLAGS = $(STAGE2_COMPILE)
++nbloader_exec_CCASFLAGS = $(STAGE2_COMPILE)
+ nbloader_exec_LDFLAGS = $(NBLOADER_LINK)
+ 
+ # XXX: See the comment for start_exec-start.o.
+@@ -223,7 +223,7 @@
+ 
+ # For pxeloader target.
+ pxeloader_exec_SOURCES = pxeloader.S
+-pxeloader_exec_ASFLAGS = $(STAGE2_COMPILE)
++pxeloader_exec_CCASFLAGS = $(STAGE2_COMPILE)
+ pxeloader_exec_LDFLAGS = $(PXELOADER_LINK)
+ 
+ # XXX: See the comment for start_exec-start.o.
+diff -Naur grub-0.93.orig/stage2/builtins.c grub-0.93/stage2/builtins.c
+--- grub-0.93.orig/stage2/builtins.c	2002-12-04 04:41:57.000000000 +0000
++++ grub-0.93/stage2/builtins.c	2003-09-27 01:17:33.000000000 +0000
+@@ -4202,12 +4202,13 @@
+ 	  return errnum;
+ 	}
+ 
+-      ti_set_term (term);
++      ti_set_term (&term);
+     }
+   else
+     {
+       /* No option specifies printing out current settings.  */
+-      term = ti_get_term ();
++      struct terminfo* p = ti_get_term ();
++      grub_memmove(&term, p, sizeof term);
+ 
+       grub_printf ("name=%s\n", term.name);
+       grub_printf ("cursor_address=%s\n", term.cursor_address);
+diff -Naur grub-0.93.orig/stage2/terminfo.c grub-0.93/stage2/terminfo.c
+--- grub-0.93.orig/stage2/terminfo.c	2002-11-29 19:07:38.000000000 +0000
++++ grub-0.93/stage2/terminfo.c	2003-09-27 01:17:33.000000000 +0000
+@@ -29,6 +29,7 @@
+ #include "terminfo.h"
+ #include "tparm.h"
+ #include "serial.h"
++#include "shared.h"
+ 
+ /* Current terminal capabilities. Default is "vt100".  */
+ struct terminfo term =
+@@ -244,16 +245,18 @@
+ }
+ 
+ /* set the current terminal emulation to use */
+-void 
+-ti_set_term (struct terminfo new)
++void
++ti_set_term (struct terminfo* new)
+ {
+-  term = new;
++  if (new != 0) {
++    grub_memmove(&term, new, sizeof term);
++  }
+ }
+ 
+ /* return the current terminal emulation */
+-struct terminfo
++struct terminfo*
+ ti_get_term(void)
+ {
+-  return term;
++  return &term;
+ }
+ 
+diff -Naur grub-0.93.orig/stage2/terminfo.h grub-0.93/stage2/terminfo.h
+--- grub-0.93.orig/stage2/terminfo.h	2002-11-29 19:07:14.000000000 +0000
++++ grub-0.93/stage2/terminfo.h	2003-09-27 01:17:33.000000000 +0000
+@@ -40,8 +40,8 @@
+ char *ti_unescape_memory (const char *in, const char *end);
+ char *ti_unescape_string (const char *in);
+ 
+-void ti_set_term (struct terminfo term);
+-struct terminfo ti_get_term (void);
++void ti_set_term (struct terminfo* term);
++struct terminfo* ti_get_term (void);
+ 
+ void ti_cursor_address (int x, int y);
+ void ti_clear_screen (void);

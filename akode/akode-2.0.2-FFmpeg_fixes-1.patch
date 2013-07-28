@@ -1,0 +1,28 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2008-05-16
+Initial Package Version: 2.0.2
+Upstream Status:         Unknown
+Origin:                  BLFS-Dev submission: http://linuxfromscratch.org/pipermail/blfs-dev/2007-October/017837.html
+                         Modified by Randy McMurchy to remove the changes to
+                         the Makefile.am files as the -module in LDFLAGS
+                         is not necessary
+Description:             Allows Akode to build against the CVS version of
+                         FFmpeg used in the BLFS book
+
+
+diff -Naur akode-2.0.2-orig/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp akode-2.0.2/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp
+--- akode-2.0.2-orig/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp	2006-08-10 18:37:20.000000000 +0000
++++ akode-2.0.2/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp	2008-05-16 11:48:55.000000000 +0000
+@@ -26,9 +26,11 @@
+ #include "decoder.h"
+ 
+ #include <assert.h>
++extern "C" {
+ #include <ffmpeg/avcodec.h>
+ #include <ffmpeg/avformat.h>
+ #include <ffmpeg/avio.h>
++}
+ 
+ #include "ffmpeg_decoder.h"
+ #include <iostream>
+

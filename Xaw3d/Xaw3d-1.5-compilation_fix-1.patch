@@ -1,0 +1,32 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2004-01-25
+Initial Package Version: 1.5
+Origin: LFS Hint by Philipp Niemann <lfshints@azagtoth.de>
+Description: Fixes compilation. The first part adds a missing include.
+The second part removes an include file that is not present in LFS.
+diff -ur xc.orig/lib/Xaw3d/Imakefile xc/lib/Xaw3d/Imakefile
+--- xc.orig/lib/Xaw3d/Imakefile	1996-10-15 09:41:19.000000000 -0500
++++ xc/lib/Xaw3d/Imakefile	2004-01-25 02:41:11.000000000 -0600
+@@ -41,7 +41,7 @@
+ 
+ #  EXTRA_DEFINES = -DARROW_SCROLLBAR -DUSEGRAY
+ 
+-#  EXTRA_INCLUDES = -I.
++EXTRA_INCLUDES = -I./exports/include
+ 
+ HEADERS = \
+ 	AllWidgets.h \
+diff -ur xc.orig/lib/Xaw3d/XawI18n.h xc/lib/Xaw3d/XawI18n.h
+--- xc.orig/lib/Xaw3d/XawI18n.h	1996-10-15 09:41:26.000000000 -0500
++++ xc/lib/Xaw3d/XawI18n.h	2004-01-25 02:42:40.000000000 -0600
+@@ -29,10 +29,6 @@
+ 
+ #ifdef HAS_WCTYPE_H
+ #include <wctype.h>
+-#include <widec.h>
+-#define wcslen(c) wslen(c)
+-#define wcscpy(d,s) wscpy(d,s)
+-#define wcsncpy(d,s,l) wsncpy(d,s,l)
+ #endif
+ 
+ #ifdef HAS_WCHAR_H

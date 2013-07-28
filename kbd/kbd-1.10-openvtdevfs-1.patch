@@ -1,0 +1,99 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-01-03
+Initial Package Version: 1.10
+Origin: Richard Lightman <richard @ nezumi dot plus dot com>
+	Updated to 1.10 by Jim Gifford
+Description: Makes openvt work with devfs
+ 
+diff -Naur kbd-1.10.orig/openvt/openvt.c kbd-1.10/openvt/openvt.c
+--- kbd-1.10.orig/openvt/openvt.c	2004-01-03 16:05:17.000000000 +0000
++++ kbd-1.10/openvt/openvt.c	2004-01-03 18:09:44.000000000 +0000
+@@ -30,10 +30,10 @@
+ 
+ const char *version = "openvt 1.4b - (c) Jon Tombs 1994";
+ 
+-#ifndef VTNAME
++#ifndef VTNAME2
+ #error vt device name must be defined in openvt.h
+ #endif
+-
++#define MAXVT 63
+ 
+ int 
+ main(int argc, char *argv[])
+@@ -52,7 +52,7 @@
+    char direct_exec	= FALSE;
+    char do_wait	= FALSE;
+    char as_user = FALSE;
+-   char vtname[sizeof VTNAME + 2]; /* allow 999 possible VTs */
++   char vtname[sizeof VTNAME2 + 2]; /* allow 999 possible VTs */
+    char *cmd = NULL, *def_cmd = NULL, *username = NULL;
+ 
+    /*
+@@ -65,7 +65,7 @@
+ 	case 'c':
+ 	  optc = 1;		/* vtno was specified by the user */
+ 	  vtno = (int) atol(optarg);
+-	  if (vtno <= 0 || vtno > 63) {	  
++	  if (vtno <= 0 || vtno > MAXVT) {	  
+ 	    fprintf(stderr, _("openvt: %s: illegal vt number\n"), optarg); 
+ 	    return 5;
+ 	  }
+@@ -123,7 +123,7 @@
+         return(3);
+      }
+    } else if (!force) {
+-     if (vtno >= 16) {
++     if (vtno >= MAXVT) {
+         fprintf(stderr, _("openvt: cannot check whether vt %d is free\n"),
+ 		vtno);
+ 	fprintf(stderr, _("        use `openvt -f' to force.\n"));
+@@ -136,7 +136,7 @@
+      }
+    }
+ 
+-   sprintf(vtname, VTNAME, vtno);
++   sprintf(vtname, VTNAME2, vtno);
+ 
+    /* Can we open the vt we want? */
+    if ((fd = open(vtname, O_RDWR)) == -1) {
+@@ -145,18 +145,18 @@
+ 	      /* We found vtno ourselves - it is free according
+ 		 to the kernel, but we cannot open it. Maybe X
+ 		 used it and did a chown.  Try a few vt's more
+-		 before giving up. Note: the 16 is a kernel limitation. */
++		 before giving up. Note: the MAXVT is a kernel limitation. */
+ 	      int i;
+-	      for (i=vtno+1; i<16; i++) {
++	      for (i=vtno+1; i<=MAXVT; i++) {
+ 		      if((vtstat.v_state & (1<<i)) == 0) {
+-			      sprintf(vtname, VTNAME, i);
++			      sprintf(vtname, VTNAME2, i);
+ 			      if ((fd = open(vtname, O_RDWR)) >= 0) {
+ 				      vtno = i;
+ 				      goto got_vtno;
+ 			      }
+ 		      }
+ 	      }
+-	      sprintf(vtname, VTNAME, vtno);
++	      sprintf(vtname, VTNAME2, vtno);
+       }
+       fprintf(stderr, _("openvt: Unable to open %s: %s\n"),
+ 	      vtname, strerror(errsv));
+@@ -349,13 +349,13 @@
+ 	
+ 	/* get the current tty */
+ 	/* try /dev/ttyN, then /dev/vc/N */
+-	sprintf(filename, VTNAME, curvt);
++	sprintf(filename, VTNAME2, curvt);
+ 	if (stat(filename,&buf)) {
+ 		int errsv = errno;
+-		sprintf(filename, VTNAME2, curvt);
++		sprintf(filename, VTNAME, curvt);
+ 		if (stat(filename,&buf)) {
+ 			/* give error message for first attempt */
+-			sprintf(filename, VTNAME, curvt);
++			sprintf(filename, VTNAME2, curvt);
+ 			errno = errsv;
+ 			perror(filename);
+ 			exit(1);

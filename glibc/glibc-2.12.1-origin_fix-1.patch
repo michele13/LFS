@@ -1,0 +1,81 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2010-10-24
+Initial Package Version: 2.12.1
+Upstream Status:         From upstream
+Origin:                  http://sourceware.org/ml/libc-hacker/2010-10/msg00007.html
+Description:             Fixes a security vulnerability, described in detail at
+                         http://marc.info/?l=full-disclosure&m=128739684614072&w=2,
+                         which allows a local attacker to gain root if they can
+                         create a hard link to a setuid root binary.
+
+diff -Naur glibc-2.12.1.orig/elf/dl-load.c glibc-2.12.1/elf/dl-load.c
+--- glibc-2.12.1.orig/elf/dl-load.c	2010-07-27 11:34:39.000000000 +0000
++++ glibc-2.12.1/elf/dl-load.c	2010-10-24 16:05:54.825480309 +0000
+@@ -169,8 +169,7 @@
+ 
+ 
+ static size_t
+-is_dst (const char *start, const char *name, const char *str,
+-	int is_path, int secure)
++is_dst (const char *start, const char *name, const char *str, int is_path)
+ {
+   size_t len;
+   bool is_curly = false;
+@@ -199,11 +198,6 @@
+ 	   && (!is_path || name[len] != ':'))
+     return 0;
+ 
+-  if (__builtin_expect (secure, 0)
+-      && ((name[len] != '\0' && (!is_path || name[len] != ':'))
+-	  || (name != start + 1 && (!is_path || name[-2] != ':'))))
+-    return 0;
+-
+   return len;
+ }
+ 
+@@ -218,13 +212,12 @@
+     {
+       size_t len;
+ 
+-      /* $ORIGIN is not expanded for SUID/GUID programs (except if it
+-	 is $ORIGIN alone) and it must always appear first in path.  */
++      /* $ORIGIN is not expanded for SUID/GUID programs.  */
+       ++name;
+-      if ((len = is_dst (start, name, "ORIGIN", is_path,
+-			 INTUSE(__libc_enable_secure))) != 0
+-	  || (len = is_dst (start, name, "PLATFORM", is_path, 0)) != 0
+-	  || (len = is_dst (start, name, "LIB", is_path, 0)) != 0)
++      if (((len = is_dst (start, name, "ORIGIN", is_path)) != 0
++	   && !INTUSE(__libc_enable_secure))
++	  || (len = is_dst (start, name, "PLATFORM", is_path)) != 0
++	  || (len = is_dst (start, name, "LIB", is_path)) != 0)
+ 	++cnt;
+ 
+       name = strchr (name + len, '$');
+@@ -256,9 +249,12 @@
+ 	  size_t len;
+ 
+ 	  ++name;
+-	  if ((len = is_dst (start, name, "ORIGIN", is_path,
+-			     INTUSE(__libc_enable_secure))) != 0)
++	  if ((len = is_dst (start, name, "ORIGIN", is_path)) != 0)
+ 	    {
++	      /* Ignore this path element in SUID/SGID programs.  */
++	      if (INTUSE(__libc_enable_secure))
++		repl = (const char *) -1;
++	      else
+ #ifndef SHARED
+ 	      if (l == NULL)
+ 		repl = _dl_get_origin ();
+@@ -266,9 +262,9 @@
+ #endif
+ 		repl = l->l_origin;
+ 	    }
+-	  else if ((len = is_dst (start, name, "PLATFORM", is_path, 0)) != 0)
++	  else if ((len = is_dst (start, name, "PLATFORM", is_path)) != 0)
+ 	    repl = GLRO(dl_platform);
+-	  else if ((len = is_dst (start, name, "LIB", is_path, 0)) != 0)
++	  else if ((len = is_dst (start, name, "LIB", is_path)) != 0)
+ 	    repl = DL_DST_LIB;
+ 
+ 	  if (repl != NULL && repl != (const char *) -1)

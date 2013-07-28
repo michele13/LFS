@@ -1,0 +1,19 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2003-11-11
+Initial Package Version: 0.72
+Origin: Oliver Brakmann <obrakmann AT gmx DOT net>
+Description: Somewhere between gaim 0.69 and 0.71, a bug was introduced that
+             causes gaim to show a wrong message window in response to a
+             "return from idle" buddy pounce. This simple patch fixes this.
+
+--- gaim-0.72/src/pounce.c.orig	2003-11-01 21:10:49.000000000 +0100
++++ gaim-0.72/src/pounce.c	2003-11-01 21:12:07.000000000 +0100
+@@ -962,7 +962,7 @@
+ 						GINT_TO_POINTER(GAIM_POUNCE_IDLE));
+ 	gaim_signal_connect(blist_handle, "buddy-unidle",
+ 						handle, GAIM_CALLBACK(buddy_state_cb),
+-						GINT_TO_POINTER(GAIM_POUNCE_IDLE));
++						GINT_TO_POINTER(GAIM_POUNCE_IDLE_RETURN));
+ 	gaim_signal_connect(blist_handle, "buddy-away",
+ 						handle, GAIM_CALLBACK(buddy_state_cb),
+ 						GINT_TO_POINTER(GAIM_POUNCE_AWAY));

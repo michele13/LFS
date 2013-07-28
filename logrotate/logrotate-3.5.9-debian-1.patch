@@ -1,0 +1,459 @@
+Submitted By: Tyler Berry (loki at arete dot cc)
+Date: 2003-11-20
+Initial Package Version: 3.5.9
+Origin: http://packages.debian.org/stable/admin/logrotate.html
+Description: Adds a bunch of fixes from the Debian patch of logrotate
+             and also corrects compilation in recent versions of GCC
+             which do not allow multiline string constants.
+ 
+diff -Naur logrotate-3.5.9.orig/Makefile logrotate-3.5.9/Makefile
+--- logrotate-3.5.9.orig/Makefile	2001-06-21 18:17:52.000000000 +0000
++++ logrotate-3.5.9/Makefile	2003-11-20 18:03:22.100786055 +0000
+@@ -4,7 +4,7 @@
+ CFLAGS = -Wall -D_GNU_SOURCE -DVERSION=\"$(VERSION)\" $(RPM_OPT_FLAGS) $(LFS)
+ PROG = logrotate
+ BINDIR = /usr/sbin
+-MANDIR = /usr/man
++MANDIR = /usr/share/man
+ MAN = logrotate.8
+ LOADLIBES = -lpopt
+ 
+diff -Naur logrotate-3.5.9.orig/config.c logrotate-3.5.9/config.c
+--- logrotate-3.5.9.orig/config.c	2001-08-02 17:15:16.000000000 +0000
++++ logrotate-3.5.9/config.c	2003-11-20 18:03:22.103785377 +0000
+@@ -577,7 +577,7 @@
+ 
+ 		    while (*start) {
+ 			chptr = start;
+-			while (!isspace(*chptr) && *chptr != ',' && *chptr)
++			while (!isspace(*chptr) && /* *chptr != ',' && */ *chptr)
+ 			    chptr++;
+ 
+ 			tabooExts = realloc(tabooExts, sizeof(*tabooExts) * 
+@@ -589,7 +589,7 @@
+ 			tabooCount++;
+ 
+ 			start = chptr;
+-			if (*start == ',') start++;
++			/* if (*start == ',') start++; */
+ 			while (isspace(*start) && *start) start++;
+ 		    }
+ 
+diff -Naur logrotate-3.5.9.orig/logrotate.8 logrotate-3.5.9/logrotate.8
+--- logrotate-3.5.9.orig/logrotate.8	2001-08-02 17:13:32.000000000 +0000
++++ logrotate-3.5.9/logrotate.8	2003-11-20 18:03:22.106784699 +0000
+@@ -3,7 +3,8 @@
+ .SH NAME
+ logrotate \- rotates, compresses, and mails system logs
+ .SH SYNOPSIS
+-\fBlogrotate\fR [-dv] [-f|--force] [-s|--state \fIfile\fR] \fIconfig_file\fR+
++\fBlogrotate\fR [\fB\-dv\fR] [\fB\-f\fR|\fB\-\-force\fR]
++[\fB\-s\fR|\fB-\-state\ \fIstatefile\fR] \fIconfig_file\fR ..
+ .SH DESCRIPTION
+ \fBlogrotate\fR is designed to ease administration of systems that generate
+ large numbers of log files.  It allows automatic rotation, compression, 
+@@ -11,16 +12,16 @@
+ weekly, monthly, or when it grows too large.
+ .P
+ Normally, \fBlogrotate\fR is run as a daily cron job.  It will not modify
+-a log multiple times in one day unless the criterium for that log is
+-based on the log's size and \fBlogrotate\fR is being run multiple times
+-each day, or unless the \fB-f\fR or \fB-force\fR option is used. 
++a log more than once in one day unless the criterion for that log is
++based on the log's size and \fBlogrotate\fR is being run more than once
++each day, or unless the \fB-f\fR or \fB-\-force\fR option is used. 
+ .P
+ Any number of config files may be given on the command line. Later config
+ files may override the options given in earlier files, so the order
+-in which the \fBlogrotate\fR config files are listed in is important.
++in which the \fBlogrotate\fR config files are listed is important.
+ Normally, a single config file which includes any other config files
+ which are needed should be used.  See below for more information on how
+-to use the \fIinclude\fR directive to accomplish this.  If a directory
++to use the \fBinclude\fR directive to accomplish this.  If a directory
+ is given on the command line, every file in that directory is used as
+ a config file.
+ .P
+@@ -36,29 +37,35 @@
+ be made to the logs or to the \fBlogrotate\fR state file.
+ 
+ .TP
+-\fB-f, -\-force\fR
++\fB-f\fR, \fB-\-force\fR
+ Tells \fBlogrotate\fR to force the rotation, even if it doesn't think
+ this is necessary.  Sometimes this is useful after adding new entries to
+-\fBlogrotate\fR, or if old log files have been removed by hand, as the
+-new files will be created, and logging will continue correctly.
++a \fBlogrotate\fR config file, or if old log files have been removed
++by hand, as the new files will be created, and logging will continue
++correctly.
+ 
+ .TP
+-\fB-s, -\-state <statefile>\fR
++\fB-s\fR, \fB-\-state\fR \fIstatefile\fR
+ Tells \fBlogrotate\fR to use an alternate state file.  This is useful
+-if logrotate is being run as a different user for various sets of
+-log files.  The default state file is \fB/var/lib/logrotate.status\fR.
++if \fBlogrotate\fR is being run as different users for various sets of
++log files.  The default state file is \fI/var/lib/logrotate/status\fR.
+ 
+ .TP
+ \fB-\-usage\fR
+ Prints a short usage message.
+ 
++.TP
++\fB-v\fR, \fB--verbose\fR
++Display messages during rotation.
++
++
+ .SH CONFIGURATION FILE
+ 
+ \fBlogrotate\fR reads everything about the log files it should be handling
+ from the series of configuration files specified on the command line.  Each
+ configuration file can set global options (local definitions override
+ global ones, and later definitions override earlier ones) and specify
+-a logfile to rotate. A simple configuration file looks like this:
++some logfiles to rotate. A simple configuration file looks like this:
+ 
+ .nf
+ .ta +3i
+@@ -69,7 +76,7 @@
+     rotate 5
+     weekly
+     postrotate
+-	/sbin/killall -HUP syslogd
++        /sbin/killall -HUP syslogd
+     endscript
+ }
+ 
+@@ -79,7 +86,7 @@
+     size=100k
+     sharedscripts
+     postrotate
+-	/sbin/killall -HUP httpd
++        /sbin/killall -HUP httpd
+     endscript
+ }
+ 
+@@ -88,7 +95,7 @@
+     rotate 2
+     missingok
+     postrotate
+-	kill -HUP `cat /var/run/inn.pid`
++        kill -HUP `cat /var/run/inn.pid`
+     endscript
+     nocompress
+ }
+@@ -98,47 +105,51 @@
+ The first few lines set global options; in the example, logs are
+ compressed after they are rotated.  Note that comments may appear
+ anywhere in the config file as long as the first non-whitespace
+-character on the line is a #.
++character on the line is a \fB#\fR.
+ 
+-The next section of the config files defined how to handle the log file
++The next section of the config file defines how to handle the log file
+ \fI/var/log/messages\fR. The log will go through five weekly rotations before
+ being removed. After the log file has been rotated (but before the old
+ version of the log has been compressed), the command 
+ \fI/sbin/killall -HUP syslogd\fR will be executed.
+ 
+ The next section defines the parameters for both
+-\fI/var/log/httpd/access.log\fRand \fI/var/log/httpd/error.log\fR.
+-They are rotated whenever is grows over 100k is size, and the old logs
++\fI/var/log/httpd/access.log\fR and \fI/var/log/httpd/error.log\fR.
++Each is rotated whenever it grows over 100k in size, and the old logs
+ files are mailed (uncompressed) to www@my.org after going through 5
+ rotations, rather then being removed. The \fBsharedscripts\fR means that
+ the \fBpostrotate\fR script will only be run once, not once for each
+-log which is rotated. Note that the double quotes around the first filename
+-at the beginning of this section allows logrotate to rotate logs with
+-spaces in the name. Normal shell quoting rules apply, with ', ", and \\
++log which is rotated. Note that log file names may be enclosed in
++quotes (and that quotes are required if the name contains spaces).
++Normal shell quoting rules apply, with \fB'\fR, \fB"\fR, and \fB\\\fR
+ characters supported.
+ 
+-The last section definest the parameters for all of the files in
++The last section defines the parameters for all of the files in
+ \fI/var/log/news\fR. Each file is rotated on a monthly basis.  This is
+ considered a single rotation directive and if errors occur for more then
+ one file, the log files are not compressed.
+ 
++If the directory \fI/var/log/news\fR does not exist, this will cause 
++\fBlogrotate\fR to report an error. This error cannot be stopped with
++the \fBmissingok\fR directive.
++
+ Here is more information on the directives which may be included in
+ a \fBlogrotate\fR configuration file:
+ 
+ .TP
+ \fBcompress\fR
+-Old versions of log files are compressed with \fBgzip\fR by default. See also
+-\fBnocompress\fR. 
++Old versions of log files are compressed with \fBgzip\fR(1) by default.
++See also \fBnocompress\fR. 
+ 
+ .TP
+ \fBcompresscmd\fR
+ Specifies which command to use to compress log files.  The default is
+-\fBgzip\fR.  See also \fBcompress\fR.
++\fBgzip\fR(1).  See also \fBcompress\fR.
+ 
+ .TP
+ \fBuncompresscmd\fR
+ Specifies which command to use to uncompress log files.  The default is
+-\fBgunzip\fR.
++\fBgunzip\fR(1).
+ 
+ .TP
+ \fBcompressext\fR
+@@ -153,9 +164,9 @@
+ 
+ .TP
+ \fBcopytruncate\fR
+-Truncate the original log file in place after creating a copy,
+-instead of moving the old log file and optionally creating a new one,
+-It can be used when some program can not be told to close its logfile
++Truncate the original log file to zero size in place after creating a copy,
++instead of moving the old log file and optionally creating a new one.
++It can be used when some program cannot be told to close its logfile
+ and thus might continue writing (appending) to the previous log file forever.
+ Note that there is a very small time slice between copying the file and
+ truncating it, so some logging data might be lost.
+@@ -167,7 +178,7 @@
+ Immediately after rotation (before the \fBpostrotate\fR script is run)
+ the log file is created (with the same name as the log file just rotated).
+ \fImode\fR specifies the mode for the log file in octal (the same
+-as \fBchmod(2)\fR), \fIowner\fR specifies the user name who will own the
++as \fBchmod\fR(2)), \fIowner\fR specifies the user name who will own the
+ log file, and \fIgroup\fR specifies the group the log file will belong
+ to. Any of the log file attributes may be omitted, in which case those
+ attributes for the new file will use the same values as the original log
+@@ -181,20 +192,20 @@
+ .TP
+ \fBdelaycompress\fR
+ Postpone compression of the previous log file to the next rotation cycle.
+-This has only effect when used in combination with \fBcompress\fR.
+-It can be used when some program can not be told to close its logfile
++This only has effect when used in combination with \fBcompress\fR.
++It can be used when some program cannot be told to close its logfile
+ and thus might continue writing to the previous log file for some time.
+ 
+ .TP
+ \fBextension \fIext\fR
+ Log files are given the final extension \fIext\fR after rotation. If 
+-compression is used, the compression extension (normally \fB.gz\fR)
++compression is used, the compression extension (normally \fI.gz\fR)
+ appears after \fIext\fR.
+ 
+ .TP
+ \fBifempty\fR
+-Rotate the log file even if it is empty, overiding the \fBnotifempty\fR
+-option (ifempty is the default).
++Rotate the log file even if it is empty, overriding the \fBnotifempty\fR
++option (\fBifempty\fR is the default).
+ 
+ .TP
+ \fBinclude \fIfile_or_directory\fR
+@@ -204,12 +215,12 @@
+ continues. The only files which are ignored are files which are not regular
+ files (such as directories and named pipes) and files whose names end
+ with one of the taboo extensions, as specified by the \fBtabooext\fR
+-directive.  The \fBinclude\fR directive may not appear inside of a log
++directive.  The \fBinclude\fR directive may not appear inside a log
+ file definition.
+ 
+ .TP
+ \fBmail \fIaddress\fR
+-When a log is rotated out-of-existence, it is mailed to \fIaddress\fR. If
++When a log is rotated out of existence, it is mailed to \fIaddress\fR. If
+ no mail should be generated by a particular log, the \fBnomail\fR directive
+ may be used.
+ 
+@@ -235,8 +246,7 @@
+ 
+ .TP
+ \fBnocompress\fR
+-Old versions of log files are not compressed with \fBgzip\fR. See also
+-\fBcompress\fR. 
++Old versions of log files are not compressed. See also \fBcompress\fR. 
+ 
+ .TP
+ \fBnocopytruncate\fR
+@@ -254,7 +264,7 @@
+ 
+ .TP
+ \fBnomail\fR
+-Don't mail old log files to any address.
++Do not mail old log files to any address.
+ 
+ .TP
+ \fBnomissingok\fR
+@@ -262,12 +272,12 @@
+ 
+ .TP
+ \fBnoolddir\fR
+-Logs are rotated in the same directory the log normally resides in (this 
++Logs are rotated in the directory they normally reside in (this 
+ overrides the \fBolddir\fR option).
+ 
+ .TP
+ \fBnosharedscripts\fR
+-Run \fBprerotate\fR and \fBpostrotate\fR scripts for every script which
++Run \fBprerotate\fR and \fBpostrotate\fR scripts for every log that
+ is rotated (this is the default, and overrides the \fBsharedscripts\fR
+ option).
+ 
+@@ -280,74 +290,76 @@
+ Logs are moved into \fIdirectory\fR for rotation. The \fIdirectory\fR must
+ be on the same physical device as the log file being rotated. When this
+ option is used all old versions of the log end up in \fIdirectory\fR.  This
+-option may be overriden by the \fBnoolddir\fR option.
++option may be overridden by the \fBnoolddir\fR option.
+ 
+ .TP
+ \fBpostrotate\fR/\fBendscript\fR
+-The lines between \fIpostrotate\fR and \fIendscript\fR (both of which
++The lines between \fBpostrotate\fR and \fBendscript\fR (both of which
+ must appear on lines by themselves) are executed after the log file is
+-rotated. These directives may only appear inside of a log file definition.
+-See \fBprerotate\fR as well.
++rotated. These directives may only appear inside a log file definition.
++See also \fBprerotate\fR.
+ 
+ .TP
+ \fBprerotate\fR/\fBendscript\fR
+ The lines between \fBprerotate\fR and \fBendscript\fR (both of which
+ must appear on lines by themselves) are executed before the log file is
+-rotated. These directives may only appear inside of a log file definition.
+-See \fBpostrotate\fR as well.
++rotated. These directives may only appear inside a log file definition.
++See also \fBpostrotate\fR.
+ 
+ .TP
+ \fBrotate \fIcount\fR
+-Log files are rotated <count> times before being removed or mailed to the
++Log files are rotated \fIcount\fR times before being removed or mailed to the
+ address specified in a \fBmail\fR directive. If \fIcount\fR is 0, old versions
+ are removed rather then rotated.
+ 
+ .TP
+-\fBsize \fIsize\fR
+-Log files are rotated when they grow bigger then \fIsize\fR bytes. If
+-\fIsize\fR is followed by \fIM\fR, the size if assumed to be in megabytes.
+-If the \fIk\fR is used, the size is in kilobytes. So \fBsize 100\fR,
+-\fIsize 100k\fR, and \fIsize 100M\fR are all valid.
+-
+-.TP
+ \fBsharedscripts\fR
+-Normally, \fBprescript\fR and \fBpostscript\fR scripts are run for each
++Normally, \fBprerotate\fR and \fBpostrotate\fR scripts are run for each
+ log which is rotated, meaning that a single script may be run multiple
+ times for log file entries which match multiple files (such as the 
+-/var/log/news/* example). If \fBsharedscript\fR is specified, the scripts
++\fI/var/log/news/*\fR example). If \fBsharedscript\fR is specified, the scripts
+ are only run once, no matter how many logs match the wildcarded pattern.
+ A side effect of this option is that the scripts are always executed, even
+-if no logs are rotated (if it is not specified, the scripts are run only
+-if logs are actually rotated) (this overrides the \fbnosharedscripts\fR
+-option).
++if no logs are rotated. If this directive is not specified, the scripts
++are run only if logs are actually rotated. This overrides the
++\fBnosharedscripts\fR option.
++
++.TP
++\fBsize \fIsize\fR[\fBM\fR|\fBk\fR]
++Log files are rotated when they grow bigger than \fIsize\fR bytes. If
++\fIsize\fR is followed by \fBM\fR, the size is assumed to be in megabytes.
++If \fBk\fR is used, the size is in kilobytes. So \fBsize 100\fR,
++\fBsize 100k\fR, and \fBsize 100M\fR are all valid.
+ 
+ .TP
+-\fBtabooext\fR [+] \fIlist\fR
++\fBtabooext\fR [\fB+\fR] \fIlist\fR
+ The current taboo extension list is changed (see the \fBinclude\fR directive
+-for information on the taboo extensions). If a + precedes the list of
+-extensions, the current taboo extension list is augmented, otherwise it
+-is replaced. At startup, the taboo extension list 
+-contains .rpmorig, .rpmsave, ,v, .swp, .rpmnew, and ~.
++for information on the taboo extensions). If \fB+\fR precedes \fIlist\fR,
++the current taboo extension list is augmented by \fIlist\fR, otherwise 
++it is replaced. At startup, the taboo extension list 
++contains .rpmorig, .rpmsave, .dpkg-dist, .dpkg-old, .dpkg-new, .disabled,
++,v, .swp, .rpmnew, and ~. The members of the list are separated by spaces,
++not commas.
+ 
+ .TP
+ \fBweekly\fR
+-Log files are rotated if the current weekday is less then the weekday
+-of the last rotation or if more then a week has passed since the last
++Log files are rotated if the current weekday is less than the weekday
++of the last rotation or if more than a week has passed since the last
+ rotation. This is normally the same as rotating logs on the first day
+-of the week, but it works better if \fIlogrotate\fR is not run every
++of the week, but works better if \fBlogrotate\fR is not run every
+ night.
+ 
+ .SH FILES
+ .PD 0
+ .TP 27
+-\fI/var/lib/logrotate.status\fR
++\fI/var/lib/logrotate/status\fR
+ Default state file.
+ .TP 27
+ \fI/etc/logrotate.conf\fR
+ Configuration options.
+ 
+ .SH SEE ALSO
+-.IR gzip (1)
++.BR gzip (1)
+ 
+ .SH AUTHORS
+ .nf
+diff -Naur logrotate-3.5.9.orig/logrotate.c logrotate-3.5.9/logrotate.c
+--- logrotate-3.5.9.orig/logrotate.c	2001-08-02 17:08:23.000000000 +0000
++++ logrotate-3.5.9/logrotate.c	2003-11-20 18:11:03.310539677 +0000
+@@ -382,8 +382,8 @@
+ 	    if (log->pre && !(log->flags & LOG_FLAG_SHAREDSCRIPTS)) {
+ 		message(MESS_DEBUG, "running prerotate script\n");
+ 		if (runScript(log->files[logNum], log->pre)) {
+-		    fprintf(errorFile, "error running prerotate script -- 
+-				leaving old log in place\n");
++		    fprintf(errorFile, "error running prerotate script -- "
++				"leaving old log in place\n");
+ 		    hasErrors = 1;
+ 		}
+ 	    }
+@@ -586,8 +586,8 @@
+     if (log->pre && (log->flags & LOG_FLAG_SHAREDSCRIPTS)) {
+ 	message(MESS_DEBUG, "running shared prerotate script\n");
+ 	if (runScript(log->pattern, log->pre)) {
+-	    fprintf(stderr, "error running shared prerotate script for %s-- 
+-			leaving old logs in place\n", log->pattern);
++	    fprintf(stderr, "error running shared prerotate script for %s -- "
++			"leaving old logs in place\n", log->pattern);
+ 	    hasErrors = 1;
+ 	}
+     }
+diff -Naur logrotate-3.5.9.orig/logrotate.h logrotate-3.5.9/logrotate.h
+--- logrotate-3.5.9.orig/logrotate.h	2001-06-21 19:38:12.000000000 +0000
++++ logrotate-3.5.9/logrotate.h	2003-11-20 18:03:22.111783569 +0000
+@@ -13,7 +13,7 @@
+ #define LOG_FLAG_MAILFIRST	(1 << 6)
+ #define LOG_FLAG_SHAREDSCRIPTS	(1 << 7)
+ 
+-#define DEFAULT_MAIL_COMMAND "/bin/mail -s"
++#define DEFAULT_MAIL_COMMAND "/usr/bin/mail -s"
+ #define COMPRESS_COMMAND "/bin/gzip"
+ #define COMPRESS_OPTIONS "-9"
+ #define COMPRESS_EXT ".gz"
+@@ -22,7 +22,7 @@
+ #define NO_FORCE_ROTATE 0
+ #define FORCE_ROTATE    1
+ 
+-#define STATEFILE "/var/lib/logrotate.status"
++#define STATEFILE "/var/lib/logrotate/status"
+ 
+ typedef struct {
+     char * pattern;

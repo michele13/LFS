@@ -1,0 +1,17 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-02
+Initial Package Version: 1.0.2
+Origin: http://archive.linuxfromscratch.org/mail-archives/lfs-dev/2003-June/035234.html
+Description: Use mktemp instead of tempfile. tempfile is debian specific executable.
+diff -ur bzip2-1.0.2.orig/bzdiff bzip2-1.0.2/bzdiff
+--- bzip2-1.0.2.orig/bzdiff	2001-12-29 20:12:35.000000000 -0600
++++ bzip2-1.0.2/bzdiff	2003-06-07 09:32:54.000000000 -0500
+@@ -37,7 +37,7 @@
+ 	echo "Usage: $prog [${comp}_options] file [file]"
+ 	exit 1
+ fi
+-tmp=`tempfile -d /tmp -p bz` || {
++tmp=`mktemp -t -p /tmp bzXXXXXX` || {
+       echo 'cannot create a temporary file' >&2
+       exit 1
+ }

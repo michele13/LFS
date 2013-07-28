@@ -1,0 +1,112 @@
+Submitted by: Chris Staub (chris at linuxfromscratch dot org)
+Date: 2006-03-06
+Initial Package Version: 1.5.0.1
+Origin: Upstream
+        https://bugzilla.mozilla.org/show_bug.cgi?id=323853
+Upstream Status: Applied
+Description: This patch fixes a compilation error due to JB_BP not being
+             exported in glibc 2.4.
+
+diff -Naur mozilla.orig/xpcom/base/nsStackFrameUnix.cpp mozilla/xpcom/base/nsStackFrameUnix.cpp
+--- mozilla.orig/xpcom/base/nsStackFrameUnix.cpp	2004-04-18 10:18:12.000000000 -0400
++++ mozilla/xpcom/base/nsStackFrameUnix.cpp	2006-03-06 18:02:25.000000000 -0500
+@@ -83,25 +83,15 @@
+ }
+ 
+ 
+-#if defined(linux) && defined(__GLIBC__) && (defined(__i386) || defined(PPC)) // i386 or PPC Linux stackwalking code
++#if defined(linux) && defined(__GNUC__) && (defined(__i386) || defined(PPC)) // i386 or PPC Linux stackwalking code
+ 
+-#include <setjmp.h>
+-//
+ 
+ void DumpStackToFile(FILE* aStream)
+ {
+-  jmp_buf jb;
+-  setjmp(jb);
+-
+   // Stack walking code courtesy Kipp's "leaky".
+ 
+-  // Get the frame pointer out of the jmp_buf
+-  void **bp = (void**)
+-#if defined(__i386) 
+-    (jb[0].__jmpbuf[JB_BP]);
+-#elif defined(PPC)
+-    (jb[0].__jmpbuf[JB_GPR1]);
+-#endif
++  // Get the frame pointer
++  void **bp = (void**) __builtin_frame_address(0);
+ 
+   int skip = 2;
+   for ( ; (void**)*bp > bp; bp = (void**)*bp) {
+diff -Naur mozilla.orig/xpcom/base/nsTraceRefcntImpl.cpp mozilla/xpcom/base/nsTraceRefcntImpl.cpp
+--- mozilla.orig/xpcom/base/nsTraceRefcntImpl.cpp	2005-06-23 20:24:41.000000000 -0400
++++ mozilla/xpcom/base/nsTraceRefcntImpl.cpp	2006-03-06 18:02:25.000000000 -0500
+@@ -50,19 +50,6 @@
+ 
+ #if defined(_WIN32)
+ #include <windows.h>
+-#elif defined(linux) && defined(__GLIBC__) && (defined(__i386) || defined(PPC))
+-#include <setjmp.h>
+-
+-//
+-// On glibc 2.1, the Dl_info api defined in <dlfcn.h> is only exposed
+-// if __USE_GNU is defined.  I suppose its some kind of standards
+-// adherence thing.
+-//
+-#if (__GLIBC_MINOR__ >= 1) && !defined(__USE_GNU)
+-#define __USE_GNU
+-#endif
+-
+-#include <dlfcn.h>
+ #endif
+ 
+ #ifdef HAVE_LIBDL
+@@ -460,7 +447,7 @@
+ 
+ #endif /* NS_BUILD_REFCNT_LOGGING */
+ 
+-nsresult
++NS_COM nsresult
+ nsTraceRefcntImpl::DumpStatistics(StatisticsType type, FILE* out)
+ {
+   nsresult rv = NS_OK;
+@@ -537,7 +524,7 @@
+   return rv;
+ }
+ 
+-void
++NS_COM void
+ nsTraceRefcntImpl::ResetStatistics()
+ {
+ #ifdef NS_BUILD_REFCNT_LOGGING
+@@ -821,7 +808,7 @@
+ 
+ #if defined(_WIN32) && defined(_M_IX86) && !defined(WINCE) // WIN32 x86 stack walking code
+ #include "nsStackFrameWin.h"
+-void
++NS_COM void
+ nsTraceRefcntImpl::WalkTheStack(FILE* aStream)
+ {
+   DumpStackToFile(aStream);
+@@ -829,9 +816,9 @@
+ 
+ // WIN32 x86 stack walking code
+ // i386 or PPC Linux stackwalking code or Solaris
+-#elif (defined(linux) && defined(__GLIBC__) && (defined(__i386) || defined(PPC))) || (defined(__sun) && (defined(__sparc) || defined(sparc) || defined(__i386) || defined(i386)))
++#elif (defined(linux) && defined(__GNUC__) && (defined(__i386) || defined(PPC))) || (defined(__sun) && (defined(__sparc) || defined(sparc) || defined(__i386) || defined(i386)))
+ #include "nsStackFrameUnix.h"
+-void
++NS_COM void
+ nsTraceRefcntImpl::WalkTheStack(FILE* aStream)
+ {
+   DumpStackToFile(aStream);
+@@ -839,7 +826,7 @@
+ 
+ #else // unsupported platform.
+ 
+-void
++NS_COM void
+ nsTraceRefcntImpl::WalkTheStack(FILE* aStream)
+ {
+ 	fprintf(aStream, "write me, dammit!\n");

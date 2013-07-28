@@ -1,0 +1,40 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2005-11-04
+Initial Package Version: 4.0.11.1
+Origin: Tushar Teredesai
+Upstream Status: Not sent.
+Description: Improves on the naming conventions for usernames and groupnames.
+  * Allows usernames to contain Uppercase letters
+  * Increases the groupname length to 32 (same as the username)
+I created these primarily for the pkg_user hint which benefits from this
+relaxed (but not non-standard) naming conventions.
+
+diff -ur shadow-4.0.11.1/libmisc/chkname.c shadow-4.0.11.1-login_fixes/libmisc/chkname.c
+--- shadow-4.0.11.1/libmisc/chkname.c	2005-06-14 15:27:35.000000000 -0500
++++ shadow-4.0.11.1-login_fixes/libmisc/chkname.c	2005-08-14 11:22:23.000000000 -0500
+@@ -20,11 +20,15 @@
+ 	/*
+ 	 * User/group names must match [a-z_][a-z0-9_-]*
+ 	 */
+-	if (!*name || !((*name >= 'a' && *name <= 'z') || *name == '_'))
++	if (!*name ||
++	    !((*name >= 'a' && *name <= 'z') ||
++	      (*name >= 'A' && *name <= 'Z') ||
++	      *name == '_'))
+ 		return 0;
+ 
+ 	while (*++name) {
+ 		if (!((*name >= 'a' && *name <= 'z') ||
++		      (*name >= 'A' && *name <= 'Z') ||
+ 		      (*name >= '0' && *name <= '9') ||
+ 		      *name == '_' || *name == '-' ||
+ 		      (*name == '$' && *(name + 1) == '\0')))
+@@ -58,7 +62,7 @@
+ 	 * Arbitrary limit for group names - max 16
+ 	 * characters (same as on HP-UX 10).
+ 	 */
+-	if (strlen (name) > 16)
++	if (strlen (name) > 32)
+ 		return 0;
+ 
+ 	return good_name (name);

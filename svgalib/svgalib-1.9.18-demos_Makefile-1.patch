@@ -1,0 +1,23 @@
+Submitted By: Csaba Henk (ekho@math-inst.hu)
+Date: 2003-10-27
+Initial Package Version: 1.9.18
+Origin: Homebrew
+Description: This patch eliminates an inconsistency in the Makefile of svgalib
+             demos, thus making it possible to compile the demos without
+             systemwise installation of the shared libs. This situation occurs
+             when you follow the svnc-thinclient hint; in fact, this patch is
+             an attachment to the svnc-thinclient hint.
+ 
+
+diff -Naur old/svgalib-1.9.18/demos/Makefile svgalib-1.9.18/demos/Makefile
+--- old/svgalib-1.9.18/demos/Makefile	2003-10-04 10:47:22.000000000 +0000
++++ svgalib-1.9.18/demos/Makefile	2003-10-26 20:24:49.000000000 +0000
+@@ -58,7 +58,7 @@
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o linearspeed linearspeed.c memset.o $(LIBS)
+ 
+ buildcsr: $(OBJS) mkcur.o
+-	$(CC) -o buildcsr $(OBJS) $(FLAGS) mkcur.o -lvgagl -lvga
++	$(CC) -o buildcsr $(OBJS) $(FLAGS) mkcur.o $(LIBS) 
+ 
+ clean:	cleanbin
+ 	rm -f .depend *.o *~ *.bak core

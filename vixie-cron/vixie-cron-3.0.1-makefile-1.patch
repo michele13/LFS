@@ -1,0 +1,47 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-16
+Initial Package Version: 3.0.1
+Origin: Jim Gifford
+Description: Fixes Makefile
+	     Clean-up formatting a little bit
+	     Creates /var/spool/cron directory
+	     Creates /etc/cron.d directory
+ 
+diff -Naur vixie-cron-3.0.1.orig/Makefile vixie-cron-3.0.1/Makefile
+--- vixie-cron-3.0.1.orig/Makefile	2003-09-17 02:42:15.000000000 +0000
++++ vixie-cron-3.0.1/Makefile	2003-09-17 03:01:47.000000000 +0000
+@@ -57,7 +57,7 @@
+ #<<need getopt()>>
+ LIBS		=
+ #<<optimize or debug?>>
+-OPTIM		=	$(RPM_OPT_FLAGS)
++OPTIM		=	
+ #OPTIM		=	-g
+ #<<ATT or BSD or POSIX?>>
+ # (ATT untested)
+@@ -71,14 +71,14 @@
+ #<<want to use a nonstandard CC?>>
+ #CC		=	vcc
+ #<<manifest defines>>
+-DEFS		= -s
++DEFS		= 	-s
+ #(SGI IRIX systems need this)
+ #DEFS		=	-D_BSD_SIGNALS -Dconst=
+ #<<the name of the BSD-like install program>>
+ #INSTALL = installbsd
+ INSTALL = install
+ #<<any special load flags>>
+-LDFLAGS		= -s
++LDFLAGS		= 	-s
+ #################################### end configurable stuff
+ 
+ SHELL		=	/bin/sh
+@@ -113,6 +113,8 @@
+ 			$(CC) $(LDFLAGS) -o crontab $(CRONTAB_OBJ) $(LIBS)
+ 
+ install		:	all
++			$(INSTALL) -d /var/spool/cron -m 700
++			$(INSTALL) -d /etc/cron.d -m 755
+ 			$(INSTALL) -c -m 755 cron    $(DESTSBIN)/crond
+ 			$(INSTALL) -c -m 4755 crontab $(DESTBIN)/
+ 			sh putman.sh crontab.1 $(DESTMAN)

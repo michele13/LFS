@@ -1,0 +1,39 @@
+Submitted By: Greg Schafer <gschafer at zip dot com au>
+Date: 2003-10-19
+Initial Package Version: 6.0
+Origin: Me (but I first saw this on Debian)
+Description: Link against an installed readline
+             Best to do an "rm -rf readline" also.
+
+diff -Naur gdb-6.0.orig/gdb/Makefile.in gdb-6.0/gdb/Makefile.in
+--- gdb-6.0.orig/gdb/Makefile.in	2003-08-18 18:10:52.000000000 +0000
++++ gdb-6.0/gdb/Makefile.in	2003-10-18 21:44:02.134477880 +0000
+@@ -116,10 +116,10 @@
+ BFD_CFLAGS = -I$(BFD_DIR) -I$(BFD_SRC)
+ 
+ # Where is the READLINE library?  Typically in ../readline.
+-READLINE_DIR = ../readline
+-READLINE = $(READLINE_DIR)/libreadline.a
+-READLINE_SRC = $(srcdir)/$(READLINE_DIR)
+-READLINE_CFLAGS = -I$(READLINE_SRC)/..
++READLINE_DIR =
++READLINE = -lreadline
++READLINE_SRC = /usr/include/readline
++READLINE_CFLAGS =
+ 
+ WARN_CFLAGS = @WARN_CFLAGS@
+ WERROR_CFLAGS = @WERROR_CFLAGS@
+diff -Naur gdb-6.0.orig/gdb/doc/Makefile.in gdb-6.0/gdb/doc/Makefile.in
+--- gdb-6.0.orig/gdb/doc/Makefile.in	2003-08-08 18:00:07.000000000 +0000
++++ gdb-6.0/gdb/doc/Makefile.in	2003-10-18 21:46:57.962747920 +0000
+@@ -100,9 +100,7 @@
+ GDB_DOC_SOURCE_INCLUDES = \
+ 	$(srcdir)/fdl.texi \
+ 	$(srcdir)/gpl.texi \
+-	$(srcdir)/agentexpr.texi \
+-	$(READLINE_DIR)/rluser.texinfo \
+-	$(READLINE_DIR)/inc-hist.texinfo
++	$(srcdir)/agentexpr.texi
+ GDB_DOC_BUILD_INCLUDES = \
+ 	gdb-cfg.texi \
+ 	GDBvn.texi

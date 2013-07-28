@@ -1,0 +1,39 @@
+Submitted By: Robert Connolly <cendres at videotron dot ca> (ashes)
+Date: 2004-02-26
+Initial Package Version: 2.3.3
+Origin: http://www.openwall.com/Owl/
+http://www.gtlib.cc.gatech.edu/pub/gentoo/gentoo-x86-portage/sys-libs/glibc/\
+	files/2.3.3/glibc-2.3.3-owl-malloc-unlink-sanity-check.diff
+Description: A sanity fix from the Owl Linux Project.
+http://www.linuxfromscratch.org/~robert/winter/
+
+diff -Naur glibc-2.3.3-20040213.orig/malloc/malloc.c glibc-2.3.3-20040213/malloc/malloc.c
+--- glibc-2.3.3-20040213.orig/malloc/malloc.c	2003-12-17 23:31:28.000000000 +0000
++++ glibc-2.3.3-20040213/malloc/malloc.c	2004-02-26 09:08:49.000000000 +0000
+@@ -315,6 +315,11 @@
+ #define assert(x) ((void)0)
+ #endif
+ 
++/* needed for owl-malloc-unlink-sanity-check */
++#include <abort-instr.h>
++#ifndef ABORT_INSTRUCTION
++#define ABORT_INSTRUCTION
++#endif
+ 
+ /*
+   INTERNAL_SIZE_T is the word-size used for internal bookkeeping
+@@ -1954,6 +1959,14 @@
+ #define unlink(P, BK, FD) {                                            \
+   FD = P->fd;                                                          \
+   BK = P->bk;                                                          \
++  /* owl-malloc-unlink-sanity-check */                                 \
++  if (FD->bk != P || BK->fd != P)                                      \
++  {                                                                    \
++    ABORT_INSTRUCTION;                                                 \
++    _exit(127);                                                        \
++    while (1)                                                          \
++      ABORT_INSTRUCTION;                                               \
++  }                                                                    \
+   FD->bk = BK;                                                         \
+   BK->fd = FD;                                                         \
+ }

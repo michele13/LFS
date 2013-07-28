@@ -1,0 +1,70 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-08-17
+Initial Package Version: 5.2.1
+Origin: Jim Gifford and time.h based on Gentoo Patch
+Description: Fixes arc to Compile with linux
+
+diff -Naur arc-5.2.1.orig/arc.c arc-5.2.1/arc.c
+--- arc-5.2.1.orig/arc.c	1992-04-14 22:58:59.000000000 +0000
++++ arc-5.2.1/arc.c	2003-08-17 21:39:56.000000000 +0000
+@@ -110,7 +110,7 @@
+ 	VOID		upper();/* case conversion routine */
+ 	char	       *envfind();	/* environment searcher */
+ 	int		n;	/* index */
+-	char	       *arctemp2, *mktemp();
++	char	       *arctemp2;
+ #if	GEMDOS
+ 	VOID		exitpause();
+ 	int		append;
+@@ -220,7 +220,7 @@
+ #if	!MSDOS
+ 	{
+ 		static char tempname[] = "AXXXXXX";
+-		strcat(arctemp, mktemp(tempname));
++		strcat(arctemp, mkstemp(tempname));
+ 	}
+ #else
+ 	strcat(arctemp, "$ARCTEMP");
+diff -Naur arc-5.2.1.orig/arcdos.c arc-5.2.1/arcdos.c
+--- arc-5.2.1.orig/arcdos.c	1992-04-14 22:58:21.000000000 +0000
++++ arc-5.2.1/arcdos.c	2003-08-17 21:39:56.000000000 +0000
+@@ -32,6 +32,7 @@
+ #include <sys/stat.h>
+ #if	BSD
+ #include <sys/time.h>
++#include <time.h>
+ #else	
+ #include <time.h>		/* Sys V. Bleah. */
+ struct	timeval {
+diff -Naur arc-5.2.1.orig/marc.c arc-5.2.1/marc.c
+--- arc-5.2.1.orig/marc.c	1992-04-14 22:59:21.000000000 +0000
++++ arc-5.2.1/marc.c	2003-08-17 21:39:56.000000000 +0000
+@@ -50,7 +50,7 @@
+     char *makefnam();		       /* filename fixup routine */
+     char *envfind();
+ #if	!_MTS
+-    char *arctemp2, *mktemp();		/* temp file stuff */
++    char *arctemp2;		/* temp file stuff */
+ #endif
+ #if	GEMDOS
+     VOID exitpause();
+@@ -115,7 +115,7 @@
+ #if	!MSDOS
+ 	{
+ 		static char tempname[] = "AXXXXXX";
+-		strcat(arctemp, mktemp(tempname));
++		strcat(arctemp, mkstemp(tempname));
+ 	}
+ #else
+ 	strcat(arctemp, "$ARCTEMP");
+diff -Naur arc-5.2.1.orig/tmclock.c arc-5.2.1/tmclock.c
+--- arc-5.2.1.orig/tmclock.c	1992-04-14 22:58:50.000000000 +0000
++++ arc-5.2.1/tmclock.c	2003-08-17 21:39:56.000000000 +0000
+@@ -16,6 +16,7 @@
+ #define	CENTURY	19
+ #if	BSD
+ #include <sys/time.h>
++#include <time.h>
+ #else
+ #include <time.h>
+ extern long	timezone;	/* should be in <time.h>, but isn't on Sun */

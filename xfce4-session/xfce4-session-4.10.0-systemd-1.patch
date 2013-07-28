@@ -1,0 +1,1212 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2013-04-30
+Initial Package Version: 4.10.0
+Upstream Status:         Fixed Upstream
+Origin:                  Upstream
+Description:             Use Systemd for Shutdown/Reboot.
+
+--- a/config.h.in	2012-04-28 22:43:32.000000000 +0200
++++ b/config.h.in	2013-04-30 20:35:09.316220871 +0200
+@@ -111,6 +111,9 @@
+ /* Define to 1 if you have the `sync' function. */
+ #undef HAVE_SYNC
+ 
++/* Define if polkit-gobject-1 >= 0.100 present */
++#undef HAVE_SYSTEMD
++
+ /* Define to 1 if you have the <sys/param.h> header file. */
+ #undef HAVE_SYS_PARAM_H
+ 
+--- a/configure	2012-04-28 22:43:34.000000000 +0200
++++ b/configure	2013-04-30 20:35:09.326221056 +0200
+@@ -647,6 +647,12 @@
+ RM
+ XSESSION_PREFIX
+ ICEAUTH
++HAVE_SYSTEMD_FALSE
++HAVE_SYSTEMD_TRUE
++SYSTEMD_REQUIRED_VERSION
++SYSTEMD_LIBS
++SYSTEMD_CFLAGS
++SYSTEMD_VERSION
+ HAVE_GNOME_KEYRING_FALSE
+ HAVE_GNOME_KEYRING_TRUE
+ GNOME_KEYRING_REQUIRED_VERSION
+@@ -885,6 +891,7 @@
+ with_x
+ with_locales_dir
+ enable_libgnome_keyring
++enable_systemd
+ enable_debug
+ enable_linker_opts
+ with_xsession_prefix
+@@ -1543,6 +1550,9 @@
+   --disable-libgnome-keyring
+                           Disable checking for Extra gnome-keyring
+                           compatibility support
++  --enable-systemd        Enable checking for Systemd support (through polit)
++                          (default=[])
++  --disable-systemd       Disable checking for Systemd support (through polit)
+   --enable-debug[=no|minimum|yes|full]
+                           Build with debugging support
+                           [default=[minimum]]
+@@ -16699,6 +16709,242 @@
+ 
+ 
+ 
++
++
++  # Check whether --enable-systemd was given.
++if test "${enable_systemd+set}" = set; then :
++  enableval=$enable_systemd; xdt_cv_SYSTEMD_check=$enableval
++else
++  xdt_cv_SYSTEMD_check=yes
++fi
++
++
++  if test x"$xdt_cv_SYSTEMD_check" = x"yes"; then
++    if $PKG_CONFIG --exists "polkit-gobject-1 >= 0.100" >/dev/null 2>&1; then
++
++
++  # minimum supported version of pkg-config
++  xdt_cv_PKG_CONFIG_MIN_VERSION=0.9.0
++
++
++
++
++
++
++
++
++
++if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
++	if test -n "$ac_tool_prefix"; then
++  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
++set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_path_PKG_CONFIG+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  case $PKG_CONFIG in
++  [\\/]* | ?:[\\/]*)
++  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
++  ;;
++  *)
++  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++  ;;
++esac
++fi
++PKG_CONFIG=$ac_cv_path_PKG_CONFIG
++if test -n "$PKG_CONFIG"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $PKG_CONFIG" >&5
++$as_echo "$PKG_CONFIG" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++
++fi
++if test -z "$ac_cv_path_PKG_CONFIG"; then
++  ac_pt_PKG_CONFIG=$PKG_CONFIG
++  # Extract the first word of "pkg-config", so it can be a program name with args.
++set dummy pkg-config; ac_word=$2
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
++$as_echo_n "checking for $ac_word... " >&6; }
++if ${ac_cv_path_ac_pt_PKG_CONFIG+:} false; then :
++  $as_echo_n "(cached) " >&6
++else
++  case $ac_pt_PKG_CONFIG in
++  [\\/]* | ?:[\\/]*)
++  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
++  ;;
++  *)
++  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
++for as_dir in $PATH
++do
++  IFS=$as_save_IFS
++  test -z "$as_dir" && as_dir=.
++    for ac_exec_ext in '' $ac_executable_extensions; do
++  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
++    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
++    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
++    break 2
++  fi
++done
++  done
++IFS=$as_save_IFS
++
++  ;;
++esac
++fi
++ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
++if test -n "$ac_pt_PKG_CONFIG"; then
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_pt_PKG_CONFIG" >&5
++$as_echo "$ac_pt_PKG_CONFIG" >&6; }
++else
++  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++fi
++
++  if test "x$ac_pt_PKG_CONFIG" = x; then
++    PKG_CONFIG=""
++  else
++    case $cross_compiling:$ac_tool_warned in
++yes:)
++{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: using cross tools not prefixed with host triplet" >&5
++$as_echo "$as_me: WARNING: using cross tools not prefixed with host triplet" >&2;}
++ac_tool_warned=yes ;;
++esac
++    PKG_CONFIG=$ac_pt_PKG_CONFIG
++  fi
++else
++  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
++fi
++
++fi
++if test -n "$PKG_CONFIG"; then
++	_pkg_min_version=$xdt_cv_PKG_CONFIG_MIN_VERSION
++	{ $as_echo "$as_me:${as_lineno-$LINENO}: checking pkg-config is at least version $_pkg_min_version" >&5
++$as_echo_n "checking pkg-config is at least version $_pkg_min_version... " >&6; }
++	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
++		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++	else
++		{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++		PKG_CONFIG=""
++	fi
++fi
++
++      if test x"$PKG_CONFIG" = x""; then
++        echo
++        echo "*** Your version of pkg-config is too old. You need atleast"
++        echo "*** pkg-config $xdt_cv_PKG_CONFIG_MIN_VERSION or newer. You can download pkg-config"
++        echo "*** from the freedesktop.org software repository at"
++        echo "***"
++        echo "***    http://www.freedesktop.org/software/pkgconfig"
++        echo "***"
++        exit 1;
++      fi
++
++
++
++  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for polkit-gobject-1 >= 0.100" >&5
++$as_echo_n "checking for polkit-gobject-1 >= 0.100... " >&6; }
++  if $PKG_CONFIG "--atleast-version=0.100" "polkit-gobject-1" >/dev/null 2>&1; then
++    SYSTEMD_VERSION=`$PKG_CONFIG --modversion "polkit-gobject-1"`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SYSTEMD_VERSION" >&5
++$as_echo "$SYSTEMD_VERSION" >&6; }
++
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking SYSTEMD_CFLAGS" >&5
++$as_echo_n "checking SYSTEMD_CFLAGS... " >&6; }
++    SYSTEMD_CFLAGS=`$PKG_CONFIG --cflags "polkit-gobject-1"`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SYSTEMD_CFLAGS" >&5
++$as_echo "$SYSTEMD_CFLAGS" >&6; }
++
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking SYSTEMD_LIBS" >&5
++$as_echo_n "checking SYSTEMD_LIBS... " >&6; }
++    SYSTEMD_LIBS=`$PKG_CONFIG --libs "polkit-gobject-1"`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: $SYSTEMD_LIBS" >&5
++$as_echo "$SYSTEMD_LIBS" >&6; }
++
++    SYSTEMD_REQUIRED_VERSION=0.100
++
++
++
++
++
++
++
++
++$as_echo "#define HAVE_SYSTEMD 1" >>confdefs.h
++
++        SYSTEMD_FOUND="yes"
++
++  elif $PKG_CONFIG --exists "polkit-gobject-1" >/dev/null 2>&1; then
++    xdt_cv_version=`$PKG_CONFIG --modversion "polkit-gobject-1"`
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: found, but $xdt_cv_version" >&5
++$as_echo "found, but $xdt_cv_version" >&6; }
++
++
++      echo "*** The required package polkit-gobject-1 was found on your system,"
++      echo "*** but the installed version ($xdt_cv_version) is too old."
++      echo "*** Please upgrade polkit-gobject-1 to atleast version 0.100, or adjust"
++      echo "*** the PKG_CONFIG_PATH environment variable if you installed"
++      echo "*** the new version of the package in a nonstandard prefix so"
++      echo "*** pkg-config is able to find it."
++      exit 1
++
++  else
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++
++
++      echo "*** The required package polkit-gobject-1 was not found on your system."
++      echo "*** Please install polkit-gobject-1 (atleast version 0.100) or adjust"
++      echo "*** the PKG_CONFIG_PATH environment variable if you"
++      echo "*** installed the package in a nonstandard prefix so that"
++      echo "*** pkg-config is able to find it."
++      exit 1
++
++  fi
++
++    else
++      { $as_echo "$as_me:${as_lineno-$LINENO}: checking for optional package polkit-gobject-1 >= 0.100" >&5
++$as_echo_n "checking for optional package polkit-gobject-1 >= 0.100... " >&6; }
++      { $as_echo "$as_me:${as_lineno-$LINENO}: result: not found" >&5
++$as_echo "not found" >&6; }
++    fi
++  else
++    { $as_echo "$as_me:${as_lineno-$LINENO}: checking for optional package polkit-gobject-1" >&5
++$as_echo_n "checking for optional package polkit-gobject-1... " >&6; }
++    { $as_echo "$as_me:${as_lineno-$LINENO}: result: disabled" >&5
++$as_echo "disabled" >&6; }
++  fi
++
++   if test x"$SYSTEMD_FOUND" = x"yes"; then
++  HAVE_SYSTEMD_TRUE=
++  HAVE_SYSTEMD_FALSE='#'
++else
++  HAVE_SYSTEMD_TRUE='#'
++  HAVE_SYSTEMD_FALSE=
++fi
++
++
++
++
+     # Check whether --enable-debug was given.
+ if test "${enable_debug+set}" = set; then :
+   enableval=$enable_debug; enable_debug=$enableval
+@@ -17145,6 +17391,10 @@
+   as_fn_error $? "conditional \"HAVE_GNOME_KEYRING\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${HAVE_SYSTEMD_TRUE}" && test -z "${HAVE_SYSTEMD_FALSE}"; then
++  as_fn_error $? "conditional \"HAVE_SYSTEMD\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ 
+ : "${CONFIG_STATUS=./config.status}"
+ ac_write_fail=0
+--- a/configure.in	2012-04-28 22:43:29.000000000 +0200
++++ b/configure.in	2013-04-30 20:35:09.326221056 +0200
+@@ -106,6 +106,10 @@
+                            [libgnome-keyring],
+                            [Extra gnome-keyring compatibility support], [no])
+ 
++dnl Check for polkit / systemd integration
++XDT_CHECK_OPTIONAL_PACKAGE([SYSTEMD], [polkit-gobject-1], [0.100],
++                           [systemd], [Systemd support (through polit)])
++
+ dnl Check for debugging support
+ XDT_FEATURE_DEBUG([xfsm_debug_default])
+ 
+--- a/doc/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/doc/Makefile.in	2013-04-30 20:35:09.326221056 +0200
+@@ -208,6 +208,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/balou/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/balou/Makefile.in	2013-04-30 20:35:09.326221056 +0200
+@@ -307,6 +307,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/balou/scripts/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/balou/scripts/Makefile.in	2013-04-30 20:35:09.326221056 +0200
+@@ -236,6 +236,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/balou/themes/Default/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/balou/themes/Default/Makefile.in	2013-04-30 20:35:09.329554452 +0200
+@@ -236,6 +236,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/balou/themes/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/balou/themes/Makefile.in	2013-04-30 20:35:09.329554452 +0200
+@@ -246,6 +246,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/Makefile.in	2013-04-30 20:35:09.329554452 +0200
+@@ -246,6 +246,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/mice/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/mice/Makefile.in	2013-04-30 20:35:09.329554452 +0200
+@@ -276,6 +276,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/engines/simple/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/engines/simple/Makefile.in	2013-04-30 20:35:09.329554452 +0200
+@@ -267,6 +267,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/icons/128x128/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/icons/128x128/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -236,6 +236,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/icons/48x48/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/icons/48x48/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -236,6 +236,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/icons/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/icons/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -248,6 +248,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/icons/scalable/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/icons/scalable/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -236,6 +236,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/libxfsm/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/libxfsm/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -280,6 +280,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/Makefile.in	2012-04-28 22:43:34.000000000 +0200
++++ b/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -295,6 +295,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/scripts/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/scripts/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -240,6 +240,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/settings/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/settings/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -280,6 +280,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/xfce4-session/Makefile.am	2012-04-28 22:43:27.000000000 +0200
++++ b/xfce4-session/Makefile.am	2013-04-30 20:35:09.332887847 +0200
+@@ -38,8 +38,6 @@
+ 	xfsm-compat-gnome.h						\
+ 	xfsm-compat-kde.c						\
+ 	xfsm-compat-kde.h						\
+-	xfsm-consolekit.c						\
+-	xfsm-consolekit.h						\
+ 	xfsm-dns.c							\
+ 	xfsm-dns.h							\
+ 	xfsm-error.c							\
+@@ -65,6 +63,16 @@
+ 	xfsm-upower.c							\
+ 	xfsm-upower.h
+ 
++if HAVE_SYSTEMD
++xfce4_session_SOURCES +=						\
++	xfsm-systemd.c							\
++	xfsm-systemd.h
++else
++xfce4_session_SOURCES +=						\
++	xfsm-consolekit.c						\
++	xfsm-consolekit.h
++endif
++
+ xfce4_session_CFLAGS =							\
+ 	$(GNOME_KEYRING_CFLAGS)						\
+ 	$(LIBSM_CFLAGS)							\
+@@ -73,6 +81,7 @@
+ 	$(DBUS_CFLAGS)							\
+ 	$(DBUS_GLIB_CFLAGS)						\
+ 	$(LIBWNCK_CFLAGS)						\
++	$(SYSTEMD_CFLAGS)						\
+ 	$(XFCONF_CFLAGS)						\
+ 	$(GMODULE_CFLAGS)						\
+ 	$(PLATFORM_CFLAGS)
+@@ -92,6 +101,7 @@
+ 	$(DBUS_LIBS)							\
+ 	$(DBUS_GLIB_LIBS)						\
+ 	$(LIBWNCK_LIBS)							\
++	$(SYSTEMD_LIBS)							\
+ 	$(XFCONF_LIBS)							\
+ 	$(GNOME_KEYRING_LIBS)						\
+ 	-lm
+--- a/xfce4-session/Makefile.in	2012-04-28 22:43:34.000000000 +0200
++++ b/xfce4-session/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -52,6 +52,14 @@
+ build_triplet = @build@
+ host_triplet = @host@
+ bin_PROGRAMS = xfce4-session$(EXEEXT)
++@HAVE_SYSTEMD_TRUE@am__append_1 = \
++@HAVE_SYSTEMD_TRUE@	xfsm-systemd.c							\
++@HAVE_SYSTEMD_TRUE@	xfsm-systemd.h
++
++@HAVE_SYSTEMD_FALSE@am__append_2 = \
++@HAVE_SYSTEMD_FALSE@	xfsm-consolekit.c						\
++@HAVE_SYSTEMD_FALSE@	xfsm-consolekit.h
++
+ subdir = xfce4-session
+ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
+@@ -64,7 +72,25 @@
+ CONFIG_CLEAN_VPATH_FILES =
+ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(man1dir)"
+ PROGRAMS = $(bin_PROGRAMS)
++am__xfce4_session_SOURCES_DIST = xfsm-chooser-icon.h \
++	xfsm-client-dbus.h xfsm-manager-dbus.h xfsm-marshal.c \
++	xfsm-marshal.h ice-layer.c ice-layer.h main.c sm-layer.c \
++	sm-layer.h xfsm-chooser.c xfsm-chooser.h xfsm-client.c \
++	xfsm-client.h xfsm-compat-gnome.c xfsm-compat-gnome.h \
++	xfsm-compat-kde.c xfsm-compat-kde.h xfsm-dns.c xfsm-dns.h \
++	xfsm-error.c xfsm-error.h xfsm-fadeout.c xfsm-fadeout.h \
++	xfsm-global.c xfsm-global.h xfsm-legacy.c xfsm-legacy.h \
++	xfsm-logout-dialog.c xfsm-logout-dialog.h xfsm-manager.c \
++	xfsm-manager.h xfsm-properties.c xfsm-properties.h \
++	xfsm-shutdown.c xfsm-shutdown.h xfsm-splash-screen.c \
++	xfsm-splash-screen.h xfsm-startup.c xfsm-startup.h \
++	xfsm-upower.c xfsm-upower.h xfsm-systemd.c xfsm-systemd.h \
++	xfsm-consolekit.c xfsm-consolekit.h
+ am__objects_1 = xfce4_session-xfsm-marshal.$(OBJEXT)
++@HAVE_SYSTEMD_TRUE@am__objects_2 =  \
++@HAVE_SYSTEMD_TRUE@	xfce4_session-xfsm-systemd.$(OBJEXT)
++@HAVE_SYSTEMD_FALSE@am__objects_3 =  \
++@HAVE_SYSTEMD_FALSE@	xfce4_session-xfsm-consolekit.$(OBJEXT)
+ am_xfce4_session_OBJECTS = $(am__objects_1) \
+ 	xfce4_session-ice-layer.$(OBJEXT) xfce4_session-main.$(OBJEXT) \
+ 	xfce4_session-sm-layer.$(OBJEXT) \
+@@ -72,7 +98,6 @@
+ 	xfce4_session-xfsm-client.$(OBJEXT) \
+ 	xfce4_session-xfsm-compat-gnome.$(OBJEXT) \
+ 	xfce4_session-xfsm-compat-kde.$(OBJEXT) \
+-	xfce4_session-xfsm-consolekit.$(OBJEXT) \
+ 	xfce4_session-xfsm-dns.$(OBJEXT) \
+ 	xfce4_session-xfsm-error.$(OBJEXT) \
+ 	xfce4_session-xfsm-fadeout.$(OBJEXT) \
+@@ -84,7 +109,8 @@
+ 	xfce4_session-xfsm-shutdown.$(OBJEXT) \
+ 	xfce4_session-xfsm-splash-screen.$(OBJEXT) \
+ 	xfce4_session-xfsm-startup.$(OBJEXT) \
+-	xfce4_session-xfsm-upower.$(OBJEXT)
++	xfce4_session-xfsm-upower.$(OBJEXT) $(am__objects_2) \
++	$(am__objects_3)
+ xfce4_session_OBJECTS = $(am_xfce4_session_OBJECTS)
+ am__DEPENDENCIES_1 =
+ AM_V_lt = $(am__v_lt_@AM_V@)
+@@ -120,7 +146,7 @@
+ am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+ am__v_GEN_0 = @echo "  GEN   " $@;
+ SOURCES = $(xfce4_session_SOURCES)
+-DIST_SOURCES = $(xfce4_session_SOURCES)
++DIST_SOURCES = $(am__xfce4_session_SOURCES_DIST)
+ am__can_run_installinfo = \
+   case $$AM_UPDATE_INFO_DIR in \
+     n|no|NO) false;; \
+@@ -291,6 +317,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+@@ -382,49 +412,18 @@
+ 	xfsm-marshal.c							\
+ 	xfsm-marshal.h
+ 
+-xfce4_session_SOURCES = \
+-	$(xfce4_session_built_sources)					\
+-	ice-layer.c							\
+-	ice-layer.h							\
+-	main.c								\
+-	sm-layer.c							\
+-	sm-layer.h							\
+-	xfsm-chooser.c							\
+-	xfsm-chooser.h							\
+-	xfsm-client.c							\
+-	xfsm-client.h							\
+-	xfsm-client-dbus.h						\
+-	xfsm-compat-gnome.c						\
+-	xfsm-compat-gnome.h						\
+-	xfsm-compat-kde.c						\
+-	xfsm-compat-kde.h						\
+-	xfsm-consolekit.c						\
+-	xfsm-consolekit.h						\
+-	xfsm-dns.c							\
+-	xfsm-dns.h							\
+-	xfsm-error.c							\
+-	xfsm-error.h							\
+-	xfsm-fadeout.c							\
+-	xfsm-fadeout.h							\
+-	xfsm-global.c							\
+-	xfsm-global.h							\
+-	xfsm-legacy.c							\
+-	xfsm-legacy.h							\
+-	xfsm-logout-dialog.c						\
+-	xfsm-logout-dialog.h						\
+-	xfsm-manager.c							\
+-	xfsm-manager.h							\
+-	xfsm-properties.c						\
+-	xfsm-properties.h						\
+-	xfsm-shutdown.c							\
+-	xfsm-shutdown.h							\
+-	xfsm-splash-screen.c						\
+-	xfsm-splash-screen.h						\
+-	xfsm-startup.c							\
+-	xfsm-startup.h							\
+-	xfsm-upower.c							\
+-	xfsm-upower.h
+-
++xfce4_session_SOURCES = $(xfce4_session_built_sources) ice-layer.c \
++	ice-layer.h main.c sm-layer.c sm-layer.h xfsm-chooser.c \
++	xfsm-chooser.h xfsm-client.c xfsm-client.h xfsm-client-dbus.h \
++	xfsm-compat-gnome.c xfsm-compat-gnome.h xfsm-compat-kde.c \
++	xfsm-compat-kde.h xfsm-dns.c xfsm-dns.h xfsm-error.c \
++	xfsm-error.h xfsm-fadeout.c xfsm-fadeout.h xfsm-global.c \
++	xfsm-global.h xfsm-legacy.c xfsm-legacy.h xfsm-logout-dialog.c \
++	xfsm-logout-dialog.h xfsm-manager.c xfsm-manager.h \
++	xfsm-properties.c xfsm-properties.h xfsm-shutdown.c \
++	xfsm-shutdown.h xfsm-splash-screen.c xfsm-splash-screen.h \
++	xfsm-startup.c xfsm-startup.h xfsm-upower.c xfsm-upower.h \
++	$(am__append_1) $(am__append_2)
+ xfce4_session_CFLAGS = \
+ 	$(GNOME_KEYRING_CFLAGS)						\
+ 	$(LIBSM_CFLAGS)							\
+@@ -433,6 +432,7 @@
+ 	$(DBUS_CFLAGS)							\
+ 	$(DBUS_GLIB_CFLAGS)						\
+ 	$(LIBWNCK_CFLAGS)						\
++	$(SYSTEMD_CFLAGS)						\
+ 	$(XFCONF_CFLAGS)						\
+ 	$(GMODULE_CFLAGS)						\
+ 	$(PLATFORM_CFLAGS)
+@@ -452,6 +452,7 @@
+ 	$(DBUS_LIBS)							\
+ 	$(DBUS_GLIB_LIBS)						\
+ 	$(LIBWNCK_LIBS)							\
++	$(SYSTEMD_LIBS)							\
+ 	$(XFCONF_LIBS)							\
+ 	$(GNOME_KEYRING_LIBS)						\
+ 	-lm
+@@ -583,6 +584,7 @@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_session-xfsm-shutdown.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_session-xfsm-splash-screen.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_session-xfsm-startup.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_session-xfsm-systemd.Po@am__quote@
+ @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xfce4_session-xfsm-upower.Po@am__quote@
+ 
+ .c.o:
+@@ -718,20 +720,6 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-compat-kde.obj `if test -f 'xfsm-compat-kde.c'; then $(CYGPATH_W) 'xfsm-compat-kde.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-compat-kde.c'; fi`
+ 
+-xfce4_session-xfsm-consolekit.o: xfsm-consolekit.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-consolekit.o -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo -c -o xfce4_session-xfsm-consolekit.o `test -f 'xfsm-consolekit.c' || echo '$(srcdir)/'`xfsm-consolekit.c
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo $(DEPDIR)/xfce4_session-xfsm-consolekit.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-consolekit.c' object='xfce4_session-xfsm-consolekit.o' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-consolekit.o `test -f 'xfsm-consolekit.c' || echo '$(srcdir)/'`xfsm-consolekit.c
+-
+-xfce4_session-xfsm-consolekit.obj: xfsm-consolekit.c
+-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-consolekit.obj -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo -c -o xfce4_session-xfsm-consolekit.obj `if test -f 'xfsm-consolekit.c'; then $(CYGPATH_W) 'xfsm-consolekit.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-consolekit.c'; fi`
+-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo $(DEPDIR)/xfce4_session-xfsm-consolekit.Po
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-consolekit.c' object='xfce4_session-xfsm-consolekit.obj' libtool=no @AMDEPBACKSLASH@
+-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-consolekit.obj `if test -f 'xfsm-consolekit.c'; then $(CYGPATH_W) 'xfsm-consolekit.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-consolekit.c'; fi`
+-
+ xfce4_session-xfsm-dns.o: xfsm-dns.c
+ @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-dns.o -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-dns.Tpo -c -o xfce4_session-xfsm-dns.o `test -f 'xfsm-dns.c' || echo '$(srcdir)/'`xfsm-dns.c
+ @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-dns.Tpo $(DEPDIR)/xfce4_session-xfsm-dns.Po
+@@ -900,6 +888,34 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-upower.obj `if test -f 'xfsm-upower.c'; then $(CYGPATH_W) 'xfsm-upower.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-upower.c'; fi`
+ 
++xfce4_session-xfsm-systemd.o: xfsm-systemd.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-systemd.o -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-systemd.Tpo -c -o xfce4_session-xfsm-systemd.o `test -f 'xfsm-systemd.c' || echo '$(srcdir)/'`xfsm-systemd.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-systemd.Tpo $(DEPDIR)/xfce4_session-xfsm-systemd.Po
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-systemd.c' object='xfce4_session-xfsm-systemd.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-systemd.o `test -f 'xfsm-systemd.c' || echo '$(srcdir)/'`xfsm-systemd.c
++
++xfce4_session-xfsm-systemd.obj: xfsm-systemd.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-systemd.obj -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-systemd.Tpo -c -o xfce4_session-xfsm-systemd.obj `if test -f 'xfsm-systemd.c'; then $(CYGPATH_W) 'xfsm-systemd.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-systemd.c'; fi`
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-systemd.Tpo $(DEPDIR)/xfce4_session-xfsm-systemd.Po
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-systemd.c' object='xfce4_session-xfsm-systemd.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-systemd.obj `if test -f 'xfsm-systemd.c'; then $(CYGPATH_W) 'xfsm-systemd.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-systemd.c'; fi`
++
++xfce4_session-xfsm-consolekit.o: xfsm-consolekit.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-consolekit.o -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo -c -o xfce4_session-xfsm-consolekit.o `test -f 'xfsm-consolekit.c' || echo '$(srcdir)/'`xfsm-consolekit.c
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo $(DEPDIR)/xfce4_session-xfsm-consolekit.Po
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-consolekit.c' object='xfce4_session-xfsm-consolekit.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-consolekit.o `test -f 'xfsm-consolekit.c' || echo '$(srcdir)/'`xfsm-consolekit.c
++
++xfce4_session-xfsm-consolekit.obj: xfsm-consolekit.c
++@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -MT xfce4_session-xfsm-consolekit.obj -MD -MP -MF $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo -c -o xfce4_session-xfsm-consolekit.obj `if test -f 'xfsm-consolekit.c'; then $(CYGPATH_W) 'xfsm-consolekit.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-consolekit.c'; fi`
++@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/xfce4_session-xfsm-consolekit.Tpo $(DEPDIR)/xfce4_session-xfsm-consolekit.Po
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='xfsm-consolekit.c' object='xfce4_session-xfsm-consolekit.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xfce4_session_CFLAGS) $(CFLAGS) -c -o xfce4_session-xfsm-consolekit.obj `if test -f 'xfsm-consolekit.c'; then $(CYGPATH_W) 'xfsm-consolekit.c'; else $(CYGPATH_W) '$(srcdir)/xfsm-consolekit.c'; fi`
++
+ mostlyclean-libtool:
+ 	-rm -f *.lo
+ 
+--- a/xfce4-session/xfsm-shutdown.c	2012-04-28 22:43:27.000000000 +0200
++++ b/xfce4-session/xfsm-shutdown.c	2013-04-30 20:35:09.332887847 +0200
+@@ -66,10 +66,13 @@
+ #include <xfce4-session/xfsm-fadeout.h>
+ #include <xfce4-session/xfsm-global.h>
+ #include <xfce4-session/xfsm-legacy.h>
+-#include <xfce4-session/xfsm-consolekit.h>
+ #include <xfce4-session/xfsm-upower.h>
+ 
+-
++#ifdef HAVE_SYSTEMD
++#include <xfce4-session/xfsm-systemd.h>
++#else
++#include <xfce4-session/xfsm-consolekit.h>
++#endif
+ 
+ static void xfsm_shutdown_finalize  (GObject      *object);
+ static void xfsm_shutdown_sudo_free (XfsmShutdown *shutdown);
+@@ -93,7 +96,11 @@
+ {
+   GObject __parent__;
+ 
++#ifdef HAVE_SYSTEMD
++  XfsmSystemd    *systemd;
++#else
+   XfsmConsolekit *consolekit;
++#endif
+   XfsmUPower     *upower;
+ 
+   /* kiosk settings */
+@@ -131,7 +138,11 @@
+ {
+   XfceKiosk *kiosk;
+ 
++#ifdef HAVE_SYSTEMD
++  shutdown->systemd = xfsm_systemd_get ();
++#else
+   shutdown->consolekit = xfsm_consolekit_get ();
++#endif
+   shutdown->upower = xfsm_upower_get ();
+   shutdown->helper_state = SUDO_NOT_INITIAZED;
+   shutdown->helper_require_password = FALSE;
+@@ -150,7 +161,11 @@
+ {
+   XfsmShutdown *shutdown = XFSM_SHUTDOWN (object);
+ 
++#ifdef HAVE_SYSTEMD
++  g_object_unref (G_OBJECT (shutdown->systemd));
++#else
+   g_object_unref (G_OBJECT (shutdown->consolekit));
++#endif
+   g_object_unref (G_OBJECT (shutdown->upower));
+ 
+   /* close down helper */
+@@ -641,7 +656,11 @@
+   if (shutdown->helper_state == SUDO_AVAILABLE)
+     return xfsm_shutdown_sudo_try_action (shutdown, XFSM_SHUTDOWN_RESTART, error);
+   else
++#ifdef HAVE_SYSTEMD
++    return xfsm_systemd_try_restart (shutdown->systemd, error);
++#else
+     return xfsm_consolekit_try_restart (shutdown->consolekit, error);
++#endif
+ }
+ 
+ 
+@@ -658,7 +677,11 @@
+   if (shutdown->helper_state == SUDO_AVAILABLE)
+     return xfsm_shutdown_sudo_try_action (shutdown, XFSM_SHUTDOWN_SHUTDOWN, error);
+   else
++#ifdef HAVE_SYSTEMD
++    return xfsm_systemd_try_shutdown (shutdown->systemd, error);
++#else
+     return xfsm_consolekit_try_shutdown (shutdown->consolekit, error);
++#endif
+ }
+ 
+ 
+@@ -698,7 +721,11 @@
+       return TRUE;
+     }
+ 
++#ifdef HAVE_SYSTEMD
++  if (xfsm_systemd_can_restart (shutdown->systemd, can_restart, error))
++#else
+   if (xfsm_consolekit_can_restart (shutdown->consolekit, can_restart, error))
++#endif
+     return TRUE;
+ 
+   if (xfsm_shutdown_sudo_init (shutdown, error))
+@@ -725,7 +752,11 @@
+       return TRUE;
+     }
+ 
++#ifdef HAVE_SYSTEMD
++  if (xfsm_systemd_can_shutdown (shutdown->systemd, can_shutdown, error))
++#else
+   if (xfsm_consolekit_can_shutdown (shutdown->consolekit, can_shutdown, error))
++#endif
+     return TRUE;
+ 
+   if (xfsm_shutdown_sudo_init (shutdown, error))
+--- a/xfce4-session/xfsm-systemd.c	1970-01-01 01:00:00.000000000 +0100
++++ b/xfce4-session/xfsm-systemd.c	2013-04-30 20:35:09.332887847 +0200
+@@ -0,0 +1,229 @@
++/*-
++ * Copyright (C) 2012 Christian Hesse
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2, or (at your option)
++ * any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
++ * MA 02110-1301 USA.
++ */
++
++#include <config.h>
++
++#include <gio/gio.h>
++#include <polkit/polkit.h>
++#include <dbus/dbus-glib.h>
++#include <dbus/dbus-glib-lowlevel.h>
++
++#include <xfce4-session/xfsm-systemd.h>
++
++
++
++#define SYSTEMD_DBUS_NAME               "org.freedesktop.login1"
++#define SYSTEMD_DBUS_PATH               "/org/freedesktop/login1"
++#define SYSTEMD_DBUS_INTERFACE          "org.freedesktop.login1.Manager"
++#define SYSTEMD_REBOOT_ACTION           "Reboot"
++#define SYSTEMD_POWEROFF_ACTION         "PowerOff"
++#define SYSTEMD_REBOOT_TEST             "org.freedesktop.login1.reboot"
++#define SYSTEMD_POWEROFF_TEST           "org.freedesktop.login1.power-off"
++
++
++
++static void     xfsm_systemd_finalize     (GObject         *object);
++
++
++
++struct _XfsmSystemdClass
++{
++  GObjectClass __parent__;
++};
++
++struct _XfsmSystemd
++{
++  GObject __parent__;
++
++  PolkitAuthority *authority;
++  PolkitSubject   *subject;
++};
++
++
++
++G_DEFINE_TYPE (XfsmSystemd, xfsm_systemd, G_TYPE_OBJECT)
++
++
++
++static void
++xfsm_systemd_class_init (XfsmSystemdClass *klass)
++{
++  GObjectClass *gobject_class;
++
++  gobject_class = G_OBJECT_CLASS (klass);
++  gobject_class->finalize = xfsm_systemd_finalize;
++}
++
++
++
++static void
++xfsm_systemd_init (XfsmSystemd *systemd)
++{
++  systemd->authority = polkit_authority_get_sync (NULL, NULL);
++  systemd->subject = polkit_unix_process_new (getpid());
++}
++
++
++
++static void
++xfsm_systemd_finalize (GObject *object)
++{
++  XfsmSystemd *systemd = XFSM_SYSTEMD (object);
++
++  g_object_unref (G_OBJECT (systemd->authority));
++  g_object_unref (G_OBJECT (systemd->subject));
++
++  (*G_OBJECT_CLASS (xfsm_systemd_parent_class)->finalize) (object);
++}
++
++
++static gboolean
++xfsm_systemd_can_method (XfsmSystemd  *systemd,
++                         gboolean     *can_method,
++                         const gchar  *method,
++                         GError      **error)
++{
++  PolkitAuthorizationResult *res;
++  GError                    *local_error = NULL;
++
++  *can_method = FALSE;
++
++  res = polkit_authority_check_authorization_sync (systemd->authority,
++                                                   systemd->subject,
++                                                   method,
++                                                   NULL,
++                                                   POLKIT_CHECK_AUTHORIZATION_FLAGS_NONE,
++                                                   NULL,
++                                                   &local_error);
++
++  if (res == NULL)
++    {
++      g_propagate_error (error, local_error);
++      return FALSE;
++    }
++
++  *can_method = polkit_authorization_result_get_is_authorized (res)
++                || polkit_authorization_result_get_is_challenge (res);
++
++  g_object_unref (G_OBJECT (res));
++
++  return TRUE;
++}
++
++
++
++static gboolean
++xfsm_systemd_try_method (XfsmSystemd  *systemd,
++                         const gchar  *method,
++                         GError      **error)
++{
++  GDBusConnection *bus;
++  GError          *local_error = NULL;
++
++  bus = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, error);
++  if (G_UNLIKELY (bus == NULL))
++    return FALSE;
++
++  g_dbus_connection_call_sync (bus,
++                               SYSTEMD_DBUS_NAME,
++                               SYSTEMD_DBUS_PATH,
++                               SYSTEMD_DBUS_INTERFACE,
++                               method,
++                               g_variant_new ("(b)", TRUE),
++                               NULL, 0, G_MAXINT, NULL,
++                               &local_error);
++
++  g_object_unref (G_OBJECT (bus));
++
++  if (local_error != NULL)
++    {
++      g_propagate_error (error, local_error);
++      return FALSE;
++    }
++
++  return TRUE;
++}
++
++
++
++XfsmSystemd *
++xfsm_systemd_get (void)
++{
++  static XfsmSystemd *object = NULL;
++
++  if (G_LIKELY (object != NULL))
++    {
++      g_object_ref (G_OBJECT (object));
++    }
++  else
++    {
++      object = g_object_new (XFSM_TYPE_SYSTEMD, NULL);
++      g_object_add_weak_pointer (G_OBJECT (object), (gpointer) &object);
++    }
++
++  return object;
++}
++
++
++
++gboolean
++xfsm_systemd_try_restart (XfsmSystemd  *systemd,
++                          GError      **error)
++{
++  return xfsm_systemd_try_method (systemd,
++                                  SYSTEMD_REBOOT_ACTION,
++                                  error);
++}
++
++
++
++gboolean
++xfsm_systemd_try_shutdown (XfsmSystemd  *systemd,
++                           GError      **error)
++{
++  return xfsm_systemd_try_method (systemd,
++                                  SYSTEMD_POWEROFF_ACTION,
++                                  error);
++}
++
++
++
++gboolean
++xfsm_systemd_can_restart (XfsmSystemd  *systemd,
++                          gboolean     *can_restart,
++                          GError      **error)
++{
++  return xfsm_systemd_can_method (systemd,
++                                  can_restart,
++                                  SYSTEMD_REBOOT_TEST,
++                                  error);
++}
++
++
++
++gboolean
++xfsm_systemd_can_shutdown (XfsmSystemd  *systemd,
++                           gboolean     *can_shutdown,
++                           GError      **error)
++{
++  return xfsm_systemd_can_method (systemd,
++                                  can_shutdown,
++                                  SYSTEMD_POWEROFF_TEST,
++                                  error);
++}
+--- a/xfce4-session/xfsm-systemd.h	1970-01-01 01:00:00.000000000 +0100
++++ b/xfce4-session/xfsm-systemd.h	2013-04-30 20:35:09.332887847 +0200
+@@ -0,0 +1,55 @@
++/* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*-
++ *
++ * Copyright (C) 2012 Christian Hesse
++ *
++ * Licensed under the GNU General Public License Version 2
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
++ */
++
++#ifndef __XFSM_SYSTEMD_H__
++#define __XFSM_SYSTEMD_H__
++
++typedef struct _XfsmSystemdClass XfsmSystemdClass;
++typedef struct _XfsmSystemd      XfsmSystemd;
++
++#define XFSM_TYPE_SYSTEMD            (xfsm_systemd_get_type ())
++#define XFSM_SYSTEMD(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), XFSM_TYPE_SYSTEMD, XfsmSystemd))
++#define XFSM_SYSTEMD_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), XFSM_TYPE_SYSTEMD, XfsmSystemdClass))
++#define XFSM_IS_SYSTEMD(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), XFSM_TYPE_SYSTEMD))
++#define XFSM_IS_SYSTEMD_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), XFSM_TYPE_SYSTEMD))
++#define XFSM_SYSTEMD_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), XFSM_TYPE_SYSTEMD, XfsmSystemdClass))
++
++GType           xfsm_systemd_get_type     (void) G_GNUC_CONST;
++
++XfsmSystemd *xfsm_systemd_get          (void);
++
++gboolean     xfsm_systemd_try_restart  (XfsmSystemd  *systemd,
++                                        GError      **error);
++
++gboolean     xfsm_systemd_try_shutdown (XfsmSystemd  *systemd,
++                                        GError      **error);
++
++gboolean     xfsm_systemd_can_restart  (XfsmSystemd  *systemd,
++                                        gboolean     *can_restart,
++                                        GError      **error);
++
++gboolean     xfsm_systemd_can_shutdown (XfsmSystemd  *systemd,
++                                        gboolean     *can_shutdown,
++                                        GError      **error);
++
++G_END_DECLS
++
++#endif  /* __XFSM_SYSTEMD_H__ */
+--- a/xfce4-session-logout/Makefile.in	2012-04-28 22:43:33.000000000 +0200
++++ b/xfce4-session-logout/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -275,6 +275,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@
+--- a/xfsm-shutdown-helper/Makefile.in	2012-04-28 22:43:34.000000000 +0200
++++ b/xfsm-shutdown-helper/Makefile.in	2013-04-30 20:35:09.332887847 +0200
+@@ -242,6 +242,10 @@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
+ STRIP = @STRIP@
++SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
++SYSTEMD_LIBS = @SYSTEMD_LIBS@
++SYSTEMD_REQUIRED_VERSION = @SYSTEMD_REQUIRED_VERSION@
++SYSTEMD_VERSION = @SYSTEMD_VERSION@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+ XFCE_GLADE_CATALOG_PATH = @XFCE_GLADE_CATALOG_PATH@

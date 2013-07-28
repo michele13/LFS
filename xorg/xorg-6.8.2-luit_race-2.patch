@@ -1,0 +1,104 @@
+Submitted By: Alexander E. Patrakov
+Date: 2005-08-23
+Initial Package Version: 6.8.2
+Origin: https://bugs.freedesktop.org/show_bug.cgi?id=1400
+Upstream Status: unclear, see below
+Description: prevents the race condition and deadlock in luit. Should
+apply both to XOrg and XFree86.
+Testcase:
+
+(preferrably in Xnest - this will open 100 xterm windows)
+
+for a in `seq 1 100` ; do
+        ( xterm -lc -e info & ) ; sleep 0.2
+done
+
+Half of xterms will be blank without this patch.
+
+"killall luit" to close all xterms.
+
+Upstream discussion involves the following:
+http://bugs.xfree86.org/show_bug.cgi?id=1093
+https://bugs.freedesktop.org/show_bug.cgi?id=2443
+http://bugs.xfree86.org/show_bug.cgi?id=867
+https://bugs.freedesktop.org/show_bug.cgi?id=1400
+
+--- xc/programs/luit/luit.c	Fri Mar  5 01:48:51 2004
++++ xc/programs/luit/luit.c	Sun Jul 18 09:01:22 2004
+@@ -45,6 +45,8 @@
+ #include "charset.h"
+ #include "iso2022.h"
+ 
++static int p2c_waitpipe[2];
++static int c2p_waitpipe[2];
+ static Iso2022Ptr inputState = NULL, outputState = NULL;
+ 
+ static char *child_argv0 = NULL;
+@@ -462,6 +464,8 @@
+         exit(1);
+     }
+ 
++    pipe(p2c_waitpipe);
++    pipe(c2p_waitpipe);
+     pid = fork();
+     if(pid < 0) {
+         perror("Couldn't fork");
+@@ -470,8 +474,12 @@
+ 
+     if(pid == 0) {
+         close(pty);
++	close(p2c_waitpipe[1]);
++	close(c2p_waitpipe[0]);
+         child(line, path, child_argv);
+     } else {
++	close(p2c_waitpipe[0]);
++	close(c2p_waitpipe[1]);
+         free(child_argv);
+         free(path);
+         free(line);
+@@ -486,6 +494,7 @@
+ {
+     int tty;
+     int pgrp;
++    char tmp[10];
+ 
+     close(0);
+     close(1);
+@@ -501,6 +510,7 @@
+         kill(getppid(), SIGABRT);
+         exit(1);
+     }
++    write(c2p_waitpipe[1],"1",1);
+     
+     if(tty != 0)
+         dup2(tty, 0);
+@@ -512,6 +522,9 @@
+     if(tty > 2)
+         close(tty);
+     
++    read(p2c_waitpipe[0],tmp,1);
++    close(c2p_waitpipe[1]);
++    close(p2c_waitpipe[0]);
+     execvp(path, argv);
+     perror("Couldn't exec");
+     exit(1);
+@@ -535,7 +548,9 @@
+     int i;
+     int val;
+     int rc;
++    char tmp[10];
+ 
++    read(c2p_waitpipe[0],tmp,1);
+     if(verbose) {
+         reportIso2022(outputState);
+     }
+@@ -564,6 +579,9 @@
+ 
+     setWindowSize(0, pty);
+ 
++    write(p2c_waitpipe[1],"1",1);
++    close(c2p_waitpipe[0]);
++    close(p2c_waitpipe[1]);
+     for(;;) {
+         rc = waitForInput(0, pty);
+ 

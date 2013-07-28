@@ -1,0 +1,41 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-06-25
+Initial Package Version: 1.4
+Origin: CVS of M4
+Description: Fixes GCC 3.3.x compile errors
+
+diff -Naur m4-1.4.orig/src/builtin.c m4-1.4/src/builtin.c
+--- m4-1.4.orig/src/builtin.c	1994-08-31 09:45:12.000000000 -0000
++++ m4-1.4/src/builtin.c	2003-06-25 09:43:37.000000000 -0000
+@@ -1078,7 +1078,7 @@
+ {
+   if (bad_argc (argv[0], argc, 2, 2))
+     return;
+-  mktemp (ARG (1));
++  mkstemp (ARG (1));
+   obstack_grow (obs, ARG (1), strlen (ARG (1)));
+ }
+
+diff -Naur m4-1.4.orig/src/stackovf.c m4-1.4/src/stackovf.c
+--- m4-1.4.orig/src/stackovf.c	1994-09-23 06:06:26.000000000 -0000
++++ m4-1.4/src/stackovf.c	2003-06-25 09:47:38.000000000 -0000
+@@ -335,13 +335,13 @@
+ #if HAVE_SIGSTACK
+ 
+   {
+-    struct sigstack ss;
+-    char *stackbuf = xmalloc (2 * SIGSTKSZ);
++    stack_t ss;
+ 
+-    ss.ss_sp = stackbuf + SIGSTKSZ;
+-    ss.ss_onstack = 0;
+-    if (sigstack (&ss, NULL) < 0)
+-      error (1, errno, "sigstack");
++    ss.ss_size = SIGSTKSZ;
++    ss.ss_sp = xmalloc ((unsigned) ss.ss_size);
++    ss.ss_flags = 0;
++    if (sigaltstack (&ss, (stack_t *) 0) < 0)
++      error (1, errno, "sigaltstack");
+   }
+ 
+ #else /* not HAVE_SIGSTACK */

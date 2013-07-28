@@ -1,0 +1,221 @@
+Submitted By:            DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date:                    2007-03-22
+Initial Package Version: 2.2.8
+Upstream Status:         Applied
+Origin:                  Upstream SVN
+Description:             Allow the use of OpenSSL's SNI TLS extension in 
+                         mod_ssl.  Allows use of multiple virtual hosts, each
+                         with their own SSL certificate, on a single IP/port 
+                         pair.  Requires OpenSSL-0.9.8f or greater, and must
+                         be compiled with the Configure option 'enable-tlsext'.
+
+diff -Naur httpd-2.2.8-orig/modules/ssl/ssl_engine_init.c httpd-2.2.8/modules/ssl/ssl_engine_init.c
+--- httpd-2.2.8-orig/modules/ssl/ssl_engine_init.c	2007-12-08 08:05:12.000000000 -0600
++++ httpd-2.2.8/modules/ssl/ssl_engine_init.c	2008-03-22 18:42:06.853303574 -0500
+@@ -135,6 +135,88 @@
+     return OK;
+ }
+ 
++// Add SNI suppport RFC 4366
++#ifndef OPENSSL_NO_TLSEXT
++static int set_ssl_vhost(void *servername, conn_rec *c, server_rec *s) 
++{
++    SSLSrvConfigRec *sc;
++    SSL *ssl;
++    BOOL found = FALSE;
++    apr_array_header_t *names;
++    int i;
++
++    /* check ServerName */
++    if (!strcasecmp(servername, s->server_hostname))
++        found = TRUE;
++
++    /* if not matched yet, check ServerAlias entries */
++    if (!found) {
++        names = s->names;
++        if (names) {
++            char **name = (char **) names->elts;
++            for (i = 0; i < names->nelts; ++i) {
++                if(!name[i]) continue;
++                if (!strcasecmp(servername, name[i])) {
++                    found = TRUE;
++                    break;
++                }
++            }
++        }
++    }
++
++    /* if still no match, check ServerAlias entries with wildcards */
++    if (!found) {
++        names = s->wild_names;
++        if (names) {
++            char **name = (char **) names->elts;
++            for (i = 0; i < names->nelts; ++i) {
++                if(!name[i]) continue;
++                if (!ap_strcasecmp_match(servername, name[i])) {
++                    found = TRUE;
++                    break;
++                }
++            }
++        }
++    }
++
++    /* set SSL_CTX (if matched) */
++    if (found) {
++        if ((ssl = ((SSLConnRec *)myConnConfig(c))->ssl) == NULL) 
++            return 0;
++        if (!(sc = mySrvConfig(s)))
++            return 0;  
++        SSL_set_SSL_CTX(ssl,sc->server->ssl_ctx);
++        return 1;
++    }
++    return 0;
++}
++
++int ssl_set_vhost_ctx(SSL *ssl, const char *servername) 
++{
++    conn_rec *c;
++
++    if (servername == NULL)   /* should not occur. */
++        return 0;
++
++    SSL_set_SSL_CTX(ssl,NULL);
++
++    if (!(c = (conn_rec *)SSL_get_app_data(ssl))) 
++        return 0;
++
++    return ap_vhost_iterate_given_conn(c,set_ssl_vhost,servername);
++}
++
++int ssl_servername_cb(SSL *s, int *al, modssl_ctx_t *mctx)
++{
++    const char *servername = SSL_get_servername(s,TLSEXT_NAMETYPE_host_name);
++
++    if (servername) {
++        return ssl_set_vhost_ctx(s,servername)?SSL_TLSEXT_ERR_OK:SSL_TLSEXT_ERR_ALERT_FATAL;
++    }
++    return SSL_TLSEXT_ERR_NOACK;
++}
++#endif
++
+ /*
+  *  Per-module initialization
+  */
+@@ -355,6 +437,29 @@
+     }
+ }
+ 
++static void ssl_init_server_extensions(server_rec *s,
++                             apr_pool_t *p,
++                             apr_pool_t *ptemp,
++                             modssl_ctx_t *mctx)
++{
++    /*
++     * Configure TLS extensions support
++     */
++
++#ifndef OPENSSL_NO_TLSEXT
++    ap_log_error(APLOG_MARK, APLOG_DEBUG, 0, s,
++                 "Configuring TLS extensions facility");
++
++    if (!SSL_CTX_set_tlsext_servername_callback(mctx->ssl_ctx, ssl_servername_cb) ||
++        !SSL_CTX_set_tlsext_servername_arg(mctx->ssl_ctx, mctx)) {
++        ap_log_error(APLOG_MARK, APLOG_ERR, 0, s,
++                "Unable to initialize servername callback, bad openssl version.");
++        ssl_log_ssl_error(APLOG_MARK, APLOG_ERR, s);
++        ssl_die();
++    }
++#endif
++}
++
+ static void ssl_init_ctx_protocol(server_rec *s,
+                                   apr_pool_t *p,
+                                   apr_pool_t *ptemp,
+@@ -688,6 +793,8 @@
+         /* XXX: proxy support? */
+         ssl_init_ctx_cert_chain(s, p, ptemp, mctx);
+     }
++
++    ssl_init_server_extensions(s, p, ptemp, mctx);
+ }
+ 
+ static int ssl_server_import_cert(server_rec *s,
+@@ -1014,6 +1121,7 @@
+         }
+     }
+ 
++#ifdef OPENSSL_NO_TLSEXT
+     /*
+      * Give out warnings when more than one SSL-aware virtual server uses the
+      * same IP:port. This doesn't work because mod_ssl then will always use
+@@ -1058,6 +1166,7 @@
+                      "Init: You should not use name-based "
+                      "virtual hosts in conjunction with SSL!!");
+     }
++#endif
+ }
+ 
+ #ifdef SSLC_VERSION_NUMBER
+diff -Naur httpd-2.2.8-orig/modules/ssl/ssl_engine_kernel.c httpd-2.2.8/modules/ssl/ssl_engine_kernel.c
+--- httpd-2.2.8-orig/modules/ssl/ssl_engine_kernel.c	2006-07-11 22:38:44.000000000 -0500
++++ httpd-2.2.8/modules/ssl/ssl_engine_kernel.c	2008-03-22 18:45:05.326076434 -0500
+@@ -231,6 +231,19 @@
+      * the currently active one.
+      */
+ 
++#ifndef OPENSSL_NO_TLSEXT
++    /*
++     * We will switch to another virtualhost and to its ssl_ctx
++     * if changed, we will force a renegotiation.
++     */
++    if (r->hostname && !SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name)) {
++        SSL_CTX *ctx = SSL_get_SSL_CTX(ssl);
++        if (ssl_set_vhost_ctx(ssl,(char *)r->hostname) &&
++                      ctx != SSL_get_SSL_CTX(ssl))
++            renegotiate = TRUE;
++    }
++#endif
++
+     /*
+      * Override of SSLCipherSuite
+      *
+@@ -997,6 +1010,9 @@
+     SSLDirConfigRec *dc = myDirConfig(r);
+     apr_table_t *env = r->subprocess_env;
+     char *var, *val = "";
++#ifndef OPENSSL_NO_TLSEXT
++    const char* servername;
++#endif
+     STACK_OF(X509) *peer_certs;
+     SSL *ssl;
+     int i;
+@@ -1018,6 +1034,13 @@
+     /* the always present HTTPS (=HTTP over SSL) flag! */
+     apr_table_setn(env, "HTTPS", "on");
+ 
++#ifndef OPENSSL_NO_TLSEXT
++    /* add content of SNI TLS extension (if supplied with ClientHello) */
++    if (servername = SSL_get_servername(ssl, TLSEXT_NAMETYPE_host_name)) {
++        apr_table_set(env, "SSL_TLS_SNI", servername);
++    }
++#endif
++
+     /* standard SSL environment variables */
+     if (dc->nOptions & SSL_OPT_STDENVVARS) {
+         for (i = 0; ssl_hook_Fixup_vars[i]; i++) {
+diff -Naur httpd-2.2.8-orig/modules/ssl/ssl_toolkit_compat.h httpd-2.2.8/modules/ssl/ssl_toolkit_compat.h
+--- httpd-2.2.8-orig/modules/ssl/ssl_toolkit_compat.h	2007-12-08 08:05:12.000000000 -0600
++++ httpd-2.2.8/modules/ssl/ssl_toolkit_compat.h	2008-03-22 18:45:46.819746314 -0500
+@@ -264,6 +264,12 @@
+ #define SSL_SESS_CACHE_NO_INTERNAL  SSL_SESS_CACHE_NO_INTERNAL_LOOKUP
+ #endif
+ 
++#ifndef OPENSSL_NO_TLSEXT
++#ifndef SSL_CTRL_SET_TLSEXT_HOSTNAME
++#define OPENSSL_NO_TLSEXT
++#endif
++#endif
++
+ #endif /* SSL_TOOLKIT_COMPAT_H */
+ 
+ /** @} */

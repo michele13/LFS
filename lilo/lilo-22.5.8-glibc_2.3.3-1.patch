@@ -1,0 +1,43 @@
+Submitted By: Ken Moffat <ken at kenmoffat.uklinux.net>
+Date: 2004-02-22
+Initial Package Version: 22.5.8
+Upstream Status: Awaiting response
+Origin: Self
+Description: Enables lilo to compile with latest bleeding-edge versions
+of glibc (e.g. from February).  Without it, compile fails because PAGE_SIZE
+is undeclared.  /usr/include/a.out.h used to include /usr/include/linux/a.out.h
+and from there /usr/include/asm/page.h, but the latest glibc a.out.h breaks
+this.  Tested on both old and new glibc, works for me, but YMMV.
+
+Only needed by other heretics who still use lilo :)
+
+
+
+diff -u lilo-22.5.8/boot.c lilo-22.5.8.patched/boot.c
+--- lilo-22.5.8/boot.c	2003-10-08 21:10:34.000000000 +0100
++++ lilo-22.5.8.patched/boot.c	2004-02-21 21:52:49.000000000 +0000
+@@ -17,7 +17,7 @@
+ #include <ctype.h>
+ #include <fcntl.h>
+ #include <errno.h>
+-#include <a.out.h>
++#include <asm/page.h>
+ #include <sys/stat.h>
+ 
+ #include "config.h"
+Common subdirectories: lilo-22.5.8/diagnose and lilo-22.5.8.patched/diagnose
+Common subdirectories: lilo-22.5.8/doc and lilo-22.5.8.patched/doc
+Common subdirectories: lilo-22.5.8/manPages and lilo-22.5.8.patched/manPages
+diff -u lilo-22.5.8/partition.c lilo-22.5.8.patched/partition.c
+--- lilo-22.5.8/partition.c	2003-08-15 05:00:43.000000000 +0100
++++ lilo-22.5.8.patched/partition.c	2004-02-21 21:53:08.000000000 +0000
+@@ -17,7 +17,7 @@
+ #include <ctype.h>
+ #include <fcntl.h>
+ #include <errno.h>
+-#include <a.out.h>
++#include <asm/page.h>
+ #include <sys/stat.h>
+ #include <sys/types.h>
+ #include <asm/unistd.h>
+Common subdirectories: lilo-22.5.8/sample and lilo-22.5.8.patched/sample

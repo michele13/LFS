@@ -1,0 +1,32 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-01-13
+Initial Package Version: 2.6.9
+Origin: IRC Conversation - Matt, NeoCool, Jim, and Jamie Bennett
+Upstream Status: Sent
+Description: Fixes the following error message
+*** glibc detected *** free(): invalid next size (normal): 0x10001050 ***
+ 
+diff -Naur iproute2-2.6.9.orig/tc/normal.c iproute2-2.6.9/tc/normal.c
+--- iproute2-2.6.9.orig/tc/normal.c	2004-10-19 20:49:02.000000000 +0000
++++ iproute2-2.6.9/tc/normal.c	2005-01-13 21:07:59.728523848 +0000
+@@ -26,7 +26,7 @@
+ 	double x, *table;
+ 	int i, n;
+ 
+-	table = calloc(sizeof(double), TABLESIZE);
++	table = calloc(TABLESIZE+1, sizeof(double));
+ 	if (!table) {
+ 		fprintf(stderr, "Not enough memory\n");
+ 		return 1;
+diff -Naur iproute2-2.6.9.orig/tc/paretonormal.c iproute2-2.6.9/tc/paretonormal.c
+--- iproute2-2.6.9.orig/tc/paretonormal.c	2004-10-19 20:49:02.000000000 +0000
++++ iproute2-2.6.9/tc/paretonormal.c	2005-01-13 21:08:41.001249440 +0000
+@@ -54,7 +54,7 @@
+ 	double *table;
+ 	int i,n;
+ 
+-	table = calloc(TABLESIZE, sizeof(double));
++	table = calloc(TABLESIZE+1, sizeof(double));
+ 	if (!table) {
+ 		fprintf(stderr, "Out of memory!\n");
+ 		exit(1);

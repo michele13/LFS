@@ -1,0 +1,31 @@
+Submitted By: Dan Nicholson <dnicholson at linuxfromscratch dot org>
+Date: 2006-08-05
+Initial Package Version: 1.0.1
+Origin: http://xorg.freedesktop.org/releases/X11R7.1/patches/
+Upstream Status: Applied
+Description: Fixes a security vulnerability. See the following advisory:
+    http://lists.freedesktop.org/archives/xorg/2006-June/016146.html
+
+diff -pNur xf86dga-1.0.1.orig/dga.c xf86dga-1.0.1/dga.c
+--- xf86dga-1.0.1.orig/dga.c	2004-04-23 19:54:47.000000000 +0000
++++ xf86dga-1.0.1/dga.c	2006-08-05 16:32:09.000000000 +0000
+@@ -16,6 +16,7 @@
+ #include <X11/Xmd.h>
+ #include <X11/extensions/xf86dga.h>
+ #include <ctype.h>
++#include <errno.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <signal.h>
+@@ -141,7 +142,10 @@ main(int argc, char *argv[])
+ 
+ #ifndef __UNIXOS2__
+    /* Give up root privs */
+-   setuid(getuid());
++   if (setuid(getuid()) == -1) {
++      fprintf(stderr, "Unable to change uid: %s\n", strerror(errno));
++      exit(2);
++   }
+ #endif
+ 
+    XF86DGASetViewPort(dis, DefaultScreen(dis), 0, 0);

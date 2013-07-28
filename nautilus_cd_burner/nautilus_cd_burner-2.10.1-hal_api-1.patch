@@ -1,0 +1,2339 @@
+Submitted By: Joe Ciccone <joeciccone at crazyeyesoft dot com>
+Date: 2003-08-23
+Initial Package Version: 2.10.1
+Origin: Fedora Core CVS
+Description: Without this patch nautilus-cd-burner has problems compiling with some versions of hal
+
+diff -Naur nautilus-cd-burner-2.10.1.orig/nautilus-burn-drive.c nautilus-cd-burner-2.10.1/nautilus-burn-drive.c
+--- nautilus-cd-burner-2.10.1.orig/nautilus-burn-drive.c	2005-08-23 22:05:12.000000000 +0000
++++ nautilus-cd-burner-2.10.1/nautilus-burn-drive.c	2005-08-23 22:05:29.000000000 +0000
+@@ -145,18 +145,38 @@
+ get_hal_context (void)
+ {
+ 	static LibHalContext *ctx = NULL;
+-	LibHalFunctions       hal_functions = {
+-		NULL, /* mainloop integration */
+-		NULL, /* device_added */
+-		NULL, /* device_removed */
+-		NULL, /* device_new_capability */
+-		NULL, /* device_lost_capability */
+-		NULL, /* property_modified */
+-		NULL, /* device_condition */
+-	};
++	DBusError error;
++	DBusConnection *dbus_conn;
++
++	if (ctx == NULL) {
++		ctx = libhal_ctx_new ();
++		if (ctx == NULL) {
++			g_warning ("Could not create a HAL context\n");
++		} else { 
++			dbus_error_init (&error);
++			dbus_conn = dbus_bus_get (DBUS_BUS_SYSTEM, &error);
++
++			if (dbus_error_is_set (&error)) {
++				g_warning ("Could not connect to system bus: %s\n", error.message);
++				dbus_error_free (&error);
++				return NULL;
++			}
++
++			libhal_ctx_set_dbus_connection (ctx, dbus_conn);
++
++			if (!libhal_ctx_init (ctx, &error)) {
++				g_warning ("Could not initalize "
++					   "the HAL context: %s\n",
++					   error.message);
++
++				if (dbus_error_is_set (&error))
++					dbus_error_free (&error);
+ 
+-	if (ctx == NULL)
+-		ctx = hal_initialize (&hal_functions, FALSE);
++				libhal_ctx_free (ctx);
++				ctx = NULL;
++			}
++		}
++	}
+ 
+ 	return ctx;
+ }
+@@ -527,43 +547,66 @@
+ 		int                   num_devices;
+ 		NautilusBurnMediaType type;
+ 		char                 *hal_type;
++		DBusError error;
+ 		
+ 		ctx = get_hal_context ();
++
++		dbus_error_init (&error);
+ 		if (ctx != NULL) {
+-			device_names = hal_manager_find_device_string_match (ctx, 
+-									     "info.parent",
+-									     drive->priv->udi,
+-									     &num_devices);
+-			if (num_devices == 0) {
++			device_names = libhal_manager_find_device_string_match (ctx, 
++										"info.parent",
++										drive->priv->udi,
++										&num_devices,
++										&error);
++
++			if (dbus_error_is_set (&error)) {
++				g_warning ("%s\n", error.message);
++				dbus_error_free (&error);
+ 				return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
+ 			}
+ 
++			if (num_devices == 0)
++				return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++			
++
+ 			/* just look at the first child */
+-			if (hal_device_get_property_bool (ctx, 
+-							  device_names [0],
+-							  "volume.is_mounted")) {
++			if (libhal_device_get_property_bool (ctx, 
++							     device_names [0],
++							     "volume.is_mounted",
++							     NULL)) {
+ 				type = NAUTILUS_BURN_MEDIA_TYPE_BUSY;
+-			} else {		    
++			} else {
++			
+ 				if (is_rewritable)
+-					*is_rewritable = hal_device_get_property_bool (ctx, 
+-										       device_names [0],
+-										       "volume.disc.is_rewritable");
++					*is_rewritable = libhal_device_get_property_bool (ctx, 
++									 		  device_names [0],
++											  "volume.disc.is_rewritable",
++											  NULL);
++
+ 				if (is_blank)
+-					*is_blank = hal_device_get_property_bool (ctx, 
+-										  device_names [0],
+-										  "volume.disc.is_blank");
++					*is_blank = libhal_device_get_property_bool (ctx, 
++										     device_names [0],
++										     "volume.disc.is_blank",
++										     NULL);
++
+ 				if (has_data)
+-					*has_data = hal_device_get_property_bool (ctx, 
+-										  device_names [0],
+-										  "volume.disc.has_data");
++					*has_data = libhal_device_get_property_bool (ctx, 
++										     device_names [0],
++										     "volume.disc.has_data",
++										     NULL);
++
+ 				if (has_audio)
+-					*has_audio = hal_device_get_property_bool (ctx, 
+-										  device_names [0],
+-										  "volume.disc.has_audio");
++					*has_audio = libhal_device_get_property_bool (ctx, 
++										      device_names [0],
++										      "volume.disc.has_audio",
++										      NULL);
++
+ 				type = NAUTILUS_BURN_MEDIA_TYPE_BUSY;
+-				hal_type = hal_device_get_property_string (ctx, 
+-									   device_names [0],
+-									   "volume.disc.type");
++				hal_type = libhal_device_get_property_string (ctx, 
++									      device_names [0],
++									      "volume.disc.type",
++									      NULL);
++
+ 				if (hal_type == NULL || strcmp (hal_type, "unknown") == 0) {
+ 					type = NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
+ 				} else if (strcmp (hal_type, "cd_rom") == 0) {
+@@ -589,10 +632,10 @@
+ 				}
+ 				
+ 				if (hal_type != NULL)
+-					hal_free_string (hal_type);
++					libhal_free_string (hal_type);
+ 			}
+ 
+-			hal_free_string_array (device_names);
++			libhal_free_string_array (device_names);
+ 
+ 			return type;
+ 		}
+@@ -895,7 +938,7 @@
+ 
+ #ifdef USE_HAL
+ 
+-#define GET_BOOL_PROP(x) (hal_device_property_exists (ctx, device_names [i], x) && hal_device_get_property_bool (ctx, device_names [i], x))
++#define GET_BOOL_PROP(x) (libhal_device_property_exists (ctx, device_names [i], x, NULL) && libhal_device_get_property_bool (ctx, device_names [i], x, NULL))
+ 
+ static GList *
+ hal_scan (gboolean recorder_only)
+@@ -911,8 +954,10 @@
+ 		return NULL;
+ 	}
+ 
+-	device_names = hal_find_device_by_capability (ctx,
+-						      "storage.cdrom", &num_devices);
++	device_names = libhal_find_device_by_capability (ctx,
++						         "storage.cdrom", 
++							 &num_devices,
++							 NULL);
+ 
+ 	if (device_names == NULL)
+ 		return NULL;
+@@ -933,47 +978,61 @@
+ 		if (GET_BOOL_PROP ("storage.cdrom.cdrw")) {
+ 			drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER;
+ 		}
++
+ 		if (GET_BOOL_PROP ("storage.cdrom.dvd")) {
+ 			drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
+ 
+ 			if (GET_BOOL_PROP ("storage.cdrom.dvdram")) {
+ 				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER;
+ 			}
++
+ 			if (GET_BOOL_PROP ("storage.cdrom.dvdr")) {
+ 				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER;
+ 			}
++
+ 			if (GET_BOOL_PROP ("storage.cdrom.dvd")) {
+ 				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
+ 			}
++
+ 			if (GET_BOOL_PROP ("storage.cdrom.dvdplusr")) {
+ 				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_R_RECORDER;
+ 			}
++
+ 			if (GET_BOOL_PROP ("storage.cdrom.dvdplusrw")) {
+ 				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_RW_RECORDER;
+ 			}
++
+ 		}
+ 
+-		drive->device = hal_device_get_property_string (ctx,
+-								device_names [i], "block.device");
++		drive->device = libhal_device_get_property_string (ctx,
++								   device_names [i], 
++								   "block.device",
++								   NULL);
++
+ 		drive->cdrecord_id = g_strdup (drive->device);
+ 
+-		string = hal_device_get_property_string (ctx,
+-							 device_names [i], "storage.model");
++		string = libhal_device_get_property_string (ctx,
++							    device_names [i], 
++							    "storage.model",
++							    NULL);
++
+ 		if (string != NULL) {
+ 			drive->display_name = string;
+ 		} else {
+ 			drive->display_name = g_strdup_printf ("Unnamed Drive (%s)", drive->device);
+ 		}
+ 
+-		drive->max_speed_read = hal_device_get_property_int
+-			(ctx, device_names [i], "storage.cdrom.read_speed")
++		drive->max_speed_read = libhal_device_get_property_int
++			(ctx, device_names [i], "storage.cdrom.read_speed", NULL)
+ 			/ CD_ROM_SPEED;
+ 
+-		if (hal_device_property_exists (ctx, device_names [i], "storage.cdrom.write_speed")) {
+-			drive->max_speed_write = hal_device_get_property_int
++		if (libhal_device_property_exists (ctx, device_names [i], "storage.cdrom.write_speed", NULL)) {
++			drive->max_speed_write = libhal_device_get_property_int
+ 				(ctx, device_names [i],
+-				 "storage.cdrom.write_speed")
++				 "storage.cdrom.write_speed",
++				 NULL)
+ 				/ CD_ROM_SPEED;
++
+ 		}
+ 
+ 		add_whitelist (drive);
+@@ -987,7 +1046,7 @@
+ 		drive->priv->udi = g_strdup (device_names [i]);
+ 	}
+ 
+-	hal_free_string_array (device_names);
++	libhal_free_string_array (device_names);
+ 
+ 	drives = g_list_reverse (drives);
+ 
+@@ -1904,13 +1963,20 @@
+ 	if (drive->priv->udi != NULL) {
+ 		LibHalContext *ctx;
+ 		char *dbus_reason;
++		DBusError error;
+ 		
++		dbus_error_init (&error);
+ 		ctx = get_hal_context ();
+ 		if (ctx != NULL) {
+-			res = hal_device_lock (ctx, 
++			res = libhal_device_lock (ctx, 
+ 					       drive->priv->udi,
+ 					       reason,
+-					       &dbus_reason);
++					       &dbus_reason,
++					       &error);
++
++			if (dbus_error_is_set (&error))
++				dbus_error_free (&error);
++				
+ 			if (dbus_reason != NULL && 
+ 			    reason_for_failure != NULL)
+ 				*reason_for_failure = g_strdup (dbus_reason);
+@@ -1941,11 +2007,17 @@
+ #ifdef USE_HAL
+ 	if (drive->priv->udi != NULL) {
+ 		LibHalContext *ctx;
++		DBusError error;
+ 
++		dbus_error_init (&error);
+ 		ctx = get_hal_context ();
+ 		if (ctx != NULL) {
+-			res = hal_device_unlock (ctx, 
+-						 drive->priv->udi);
++			res = libhal_device_unlock (ctx, 
++						    drive->priv->udi,
++						    &error);
++
++			if (dbus_error_is_set (&error))
++				dbus_error_free (&error);
+ 		}
+ 	}
+ #endif
+diff -Naur nautilus-cd-burner-2.10.1.orig/nautilus-burn-drive.c~ nautilus-cd-burner-2.10.1/nautilus-burn-drive.c~
+--- nautilus-cd-burner-2.10.1.orig/nautilus-burn-drive.c~	1970-01-01 00:00:00.000000000 +0000
++++ nautilus-cd-burner-2.10.1/nautilus-burn-drive.c~	2005-03-29 01:09:59.000000000 +0000
+@@ -0,0 +1,2027 @@
++/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 8; tab-width: 8 -*-
++ *
++ * cd-drive.c: easy to use cd burner software
++ *
++ * Copyright (C) 2002-2004 Red Hat, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public
++ * License along with this program; if not, write to the
++ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
++ * Boston, MA 02111-1307, USA.
++ * 
++ * Authors: Alexander Larsson <alexl@redhat.com>
++ *          Bastien Nocera <hadess@hadess.net>
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <glib.h>
++#include <glib/gi18n.h>
++#include <gdk/gdk.h>
++
++#include <errno.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <sys/ioctl.h>
++#include <string.h>
++#include <unistd.h>
++#include <fcntl.h>
++#include <math.h>
++
++#ifndef INVALID_HANDLE
++#define INVALID_HANDLE (GINT_TO_POINTER(-1))
++#endif
++
++#ifdef USE_HAL
++#include <libhal.h>
++#endif /* USE_HAL */
++
++#ifdef __linux__
++#include <linux/cdrom.h>
++#include <scsi/scsi.h>
++#include <scsi/sg.h>
++#endif /* __linux__ */
++
++#ifdef __FreeBSD__
++#include <sys/cdio.h>
++#include <sys/cdrio.h>
++#include <camlib.h>
++#endif /* __FreeBSD__ */
++
++#include "nautilus-burn-drive.h"
++
++/* For dvd_plus_rw_utils.cpp */
++int    get_dvd_r_rw_profile (const char *name);
++int    get_mmc_profile      (int fd);
++int    get_disc_size_cd     (int fd);
++gint64 get_disc_size_dvd    (int fd, int mmc_profile);
++int    get_read_write_speed (int fd, int *read_speed, int *write_speed);
++int    get_disc_status      (int fd, int *empty, int *is_rewritable, int *is_blank);
++
++#define CD_ROM_SPEED 176
++
++static struct {
++	const char *name;
++	gboolean can_write_cdr;
++	gboolean can_write_cdrw;
++	gboolean can_write_dvdr;
++	gboolean can_write_dvdram;
++} recorder_whitelist [] = {
++	{ "IOMEGA - CDRW9602EXT-B", TRUE, TRUE, FALSE, FALSE },
++	{ "SONY - CD-R   CDU948S",  TRUE, FALSE, FALSE, FALSE },
++};
++
++typedef enum {
++	NAUTILUS_BURN_DRIVE_PROTOCOL_IDE,
++	NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI,
++} NautilusBurnDriveProtocolType;
++
++struct NautilusBurnDrivePriv {
++	NautilusBurnDriveProtocolType protocol;
++	char                         *udi;
++};
++
++#ifdef __FreeBSD__
++
++#define get_ioctl_handle_fd(x) (((struct cam_device *)x)->fd)
++
++static gpointer
++open_ioctl_handle (const char *device)
++{
++	struct cam_device *cam;
++
++	cam = cam_open_device (device, O_RDWR);
++
++	return (cam ? (gpointer)cam : INVALID_HANDLE);
++}
++
++static void
++close_ioctl_handle (gpointer handle)
++{
++	cam_close_device ((struct cam_device *)handle);
++}
++
++#else
++
++#define get_ioctl_handle_fd(x) (GPOINTER_TO_INT(x))
++
++static gpointer
++open_ioctl_handle (const char *device)
++{
++	int fd;
++
++ 	if ((fd = open (device, O_RDWR | O_EXCL | O_NONBLOCK)) < 0
++ 	    && (fd = open (device, O_RDONLY | O_EXCL | O_NONBLOCK)) < 0) {
++		return INVALID_HANDLE;
++	}
++
++	return GINT_TO_POINTER (fd);
++}
++
++static void
++close_ioctl_handle (gpointer handle)
++{
++	close (GPOINTER_TO_INT (handle));
++}
++
++#endif
++
++#ifdef USE_HAL
++static LibHalContext *
++get_hal_context (void)
++{
++	static LibHalContext *ctx = NULL;
++	LibHalFunctions       hal_functions = {
++		NULL, /* mainloop integration */
++		NULL, /* device_added */
++		NULL, /* device_removed */
++		NULL, /* device_new_capability */
++		NULL, /* device_lost_capability */
++		NULL, /* property_modified */
++		NULL, /* device_condition */
++	};
++
++	if (ctx == NULL)
++		ctx = hal_initialize (&hal_functions, FALSE);
++
++	return ctx;
++}
++#endif /* USE_HAL */
++
++static int
++get_device_max_write_speed (char *device)
++{
++	gpointer ioctl_handle;
++	int      fd;
++	int      max_speed;
++	int      read_speed, write_speed;
++
++	max_speed = -1;
++
++	ioctl_handle = open_ioctl_handle (device);
++	if (ioctl_handle == INVALID_HANDLE) {
++		return -1;
++	}
++
++	fd = get_ioctl_handle_fd (ioctl_handle);
++	get_read_write_speed (fd, &read_speed, &write_speed);
++	close_ioctl_handle (ioctl_handle);
++	max_speed = (int)floor  (write_speed) / CD_ROM_SPEED;
++
++	return max_speed;
++}
++
++/* Utility functions, be careful to have a match with what's use in the
++ * different bits of code */
++#if !defined (__linux__)
++
++static int
++get_device_max_read_speed (char *device)
++{
++	gpointer ioctl_handle;
++	int      fd;
++	int      max_speed;
++	int      read_speed, write_speed;
++
++	max_speed = -1;
++
++	ioctl_handle = open_ioctl_handle (device);
++	if (ioctl_handle == INVALID_HANDLE) {
++		return -1;
++	}
++
++	fd = get_ioctl_handle_fd (ioctl_handle);
++	get_read_write_speed (fd, &read_speed, &write_speed);
++	close_ioctl_handle (ioctl_handle);
++	max_speed = (int)floor (read_speed) / CD_ROM_SPEED;
++
++	return max_speed;
++}
++
++static char *
++cdrecord_get_stdout_for_id (char *id)
++{
++	int         max_speed, i;
++	const char *argv [20]; /* Shouldn't need more than 20 arguments */
++	char       *dev_str, *stdout_data;
++
++	max_speed = -1;
++
++	i = 0;
++	argv [i++] = "cdrecord";
++	argv [i++] = "-prcap";
++	dev_str = g_strdup_printf ("dev=%s", id);
++	argv [i++] = dev_str;
++	argv [i++] = NULL;
++
++	if (g_spawn_sync (NULL,
++			  (char **)argv,
++			  NULL,
++			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
++			  NULL, NULL,
++			  &stdout_data,
++			  NULL,
++			  NULL,
++			  NULL)) {
++		g_free (dev_str);
++		return stdout_data;
++	}
++
++	g_free (dev_str);
++	return NULL;
++}
++
++static void
++get_cd_properties (char                  *device,
++		   char                  *id,
++		   int                   *max_rd_speed,
++		   int                   *max_wr_speed,
++		   NautilusBurnDriveType *type)
++{
++	char *stdout_data, *drive_cap;
++
++	*max_rd_speed = -1;
++	*max_wr_speed = -1;
++	*type = 0;
++
++	*max_rd_speed = get_device_max_read_speed (device);
++	*max_wr_speed = get_device_max_write_speed (device);
++
++	stdout_data = cdrecord_get_stdout_for_id (id);
++	if (stdout_data == NULL) {
++		return;
++	}
++	drive_cap = strstr (stdout_data, "Does write DVD-RAM media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER;
++	}
++	drive_cap = strstr (stdout_data, "Does read DVD-R media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER;
++	}
++	drive_cap = strstr (stdout_data, "Does read DVD-ROM media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
++	}
++	drive_cap = strstr (stdout_data, "Does write CD-RW media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER;
++	}
++	drive_cap = strstr (stdout_data, "Does write CD-R media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER;
++	}
++	drive_cap = strstr (stdout_data, "Does read CD-R media");
++	if (drive_cap != NULL) {
++		*type |= NAUTILUS_BURN_DRIVE_TYPE_CD_DRIVE;
++	}
++	g_free (stdout_data);
++}
++#endif /* !__linux__ */
++
++#if !(defined (__linux__)) || (defined (__linux__) && (defined (USE_HAL)))
++static void
++add_whitelist (NautilusBurnDrive *drive)
++{
++	guint i;
++
++	for (i = 0; i < G_N_ELEMENTS (recorder_whitelist); i++) {
++		if (!strcmp (drive->display_name, recorder_whitelist [i].name)) {
++			if (recorder_whitelist [i].can_write_cdr) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER;
++			}
++			if (recorder_whitelist [i].can_write_cdrw) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER;
++			}
++			if (recorder_whitelist [i].can_write_dvdr) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER;
++			}
++			if (recorder_whitelist [i].can_write_dvdram) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER;
++			}
++		}
++	}
++}
++#endif /* !__linux__ */
++
++static void
++add_dvd_plus (NautilusBurnDrive *drive)
++{
++	int caps;
++
++	caps = get_dvd_r_rw_profile (drive->device);
++
++	if (caps == -1) {
++		return;
++	}
++
++	if (caps == 2) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_RW_RECORDER;
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_R_RECORDER;
++	} else if (caps == 0) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_R_RECORDER;
++	} else if (caps == 1) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_RW_RECORDER;
++	}
++}
++
++static gboolean
++nautilus_burn_drive_door_open (gboolean mmc_profile,
++			       int      fd)
++{
++#ifdef __linux__
++	{
++		int status;
++
++		status = ioctl (fd, CDROM_DRIVE_STATUS, CDSL_CURRENT);
++		if (status < 0) {
++			return FALSE;
++		}
++
++		return status == CDS_TRAY_OPEN;
++	}
++#else
++	if (mmc_profile == 0) {
++		return TRUE;
++	}
++
++	return FALSE;
++#endif
++}
++
++static NautilusBurnMediaType
++nautilus_burn_drive_get_media_type_from_path_full (const char *device,
++						   gboolean   *is_rewritable,
++						   gboolean   *is_blank,
++						   gboolean   *has_data,
++						   gboolean   *has_audio)
++{
++	gpointer ioctl_handle;
++	int      fd;
++	int      mmc_profile;
++
++	g_return_val_if_fail (device != NULL, NAUTILUS_BURN_MEDIA_TYPE_ERROR);
++
++	if (is_rewritable) *is_rewritable = FALSE;
++	if (is_blank) *is_blank = FALSE;
++	if (has_data) *has_data = FALSE;
++	if (has_audio) *has_audio = FALSE;
++
++	ioctl_handle = open_ioctl_handle (device);
++	if (ioctl_handle == INVALID_HANDLE) {
++		if (errno == EBUSY) {
++			return NAUTILUS_BURN_MEDIA_TYPE_BUSY;
++		}
++		return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++	}
++
++	fd = get_ioctl_handle_fd (ioctl_handle);
++	mmc_profile = get_mmc_profile (fd);
++
++	/* Couldn't get the data about the media */
++	if (mmc_profile < 0) {
++		gboolean opened;
++
++		opened = nautilus_burn_drive_door_open (mmc_profile, fd);
++
++		if (opened != FALSE) {
++			close_ioctl_handle (ioctl_handle);
++			return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++		} else {
++			int blank, rewrite, empty;
++			if (get_disc_status (fd, &empty, &rewrite, &blank) == 0) {
++				close_ioctl_handle (ioctl_handle);
++
++				if (is_rewritable)
++					*is_rewritable = rewrite;
++				if (is_blank)
++					*is_blank = blank;
++				if (has_data)
++					*has_data = !blank;
++				if (has_audio) {
++					/* FIXME */
++					*has_audio = FALSE;
++				}
++				if (empty)
++					return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++				else
++					return NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
++			}
++
++			close_ioctl_handle (ioctl_handle);
++
++			return NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
++		}
++	}
++
++	close_ioctl_handle (ioctl_handle);
++
++	if (is_blank)
++		*is_blank = mmc_profile & 0x10000;
++	if (has_data)
++		*has_data = !(mmc_profile & 0x10000);
++	if (has_audio) {
++		/* FIXME */
++		*has_audio = FALSE;
++	}
++
++	switch (mmc_profile & 0xFFFF) {
++	case -1:
++		g_assert_not_reached ();
++	case 0:		/* No Media */
++		return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++	case 0x8:	/* Commercial CDs and Audio CD	*/
++		return NAUTILUS_BURN_MEDIA_TYPE_CD;
++	case 0x9:	/* CD-R                         */
++		return NAUTILUS_BURN_MEDIA_TYPE_CDR;
++	case 0xa:	/* CD-RW			*/
++		*is_rewritable = TRUE;
++		return NAUTILUS_BURN_MEDIA_TYPE_CDRW;
++	case 0x10:	/* Commercial DVDs		*/
++		return NAUTILUS_BURN_MEDIA_TYPE_DVD;
++	case 0x11:      /* DVD-R                        */
++		return NAUTILUS_BURN_MEDIA_TYPE_DVDR;
++	case 0x13:      /* DVD-RW Restricted Overwrite  */
++	case 0x14:      /* DVD-RW Sequential            */
++		*is_rewritable = TRUE;
++		return NAUTILUS_BURN_MEDIA_TYPE_DVDRW;
++	case 0x1B:      /* DVD+R                        */
++		return NAUTILUS_BURN_MEDIA_TYPE_DVD_PLUS_R;
++	case 0x1A:      /* DVD+RW                       */
++		*is_rewritable = TRUE;
++		return NAUTILUS_BURN_MEDIA_TYPE_DVD_PLUS_RW;
++	case 0x12:      /* DVD-RAM                      */
++		return NAUTILUS_BURN_MEDIA_TYPE_DVD_RAM;
++	default:
++		return NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
++	}
++}
++
++/**
++ * nautilus_burn_drive_get_media_size_from_path:
++ * @device: Filename of drive device (eg. "/dev/hdb")
++ *
++ * Determine the capacity of the media in the drive at device @device.
++ *
++ * Return value: The capcity in bytes of the media in the drive or the
++ * following special values:
++ *
++ *    %NAUTILUS_BURN_MEDIA_SIZE_UNKNOWN if the size can not be determined
++ *    %NAUTILUS_BURN_MEDIA_SIZE_BUSY    if the device is busy
++ *    %NAUTILUS_BURN_MEDIA_SIZE_NA      if the device is unknown
++ **/
++NautilusBurnMediaType
++nautilus_burn_drive_get_media_type_from_path (const char *device)
++{
++	g_return_val_if_fail (device != NULL, NAUTILUS_BURN_MEDIA_TYPE_ERROR);
++
++	return nautilus_burn_drive_get_media_type_from_path_full (device, NULL, NULL, NULL, NULL);
++}
++
++/**
++ * nautilus_burn_drive_get_media_type:
++ * @drive: #NautilusBurnDrive
++ *
++ * Get the type of the specified drive.
++ *
++ * Return value: See nautilus_burn_drive_get_media_type_from_path() for details.
++ **/
++NautilusBurnMediaType
++nautilus_burn_drive_get_media_type (NautilusBurnDrive *drive)
++{
++	g_return_val_if_fail (drive != NULL, NAUTILUS_BURN_MEDIA_TYPE_ERROR);
++
++	return nautilus_burn_drive_get_media_type_full (drive, NULL, NULL, NULL, NULL);
++}
++
++#ifdef USE_HAL
++static NautilusBurnMediaType
++nautilus_burn_drive_hal_get_media_type_full (NautilusBurnDrive *drive,
++					     gboolean          *is_rewritable,
++					     gboolean          *is_blank,
++					     gboolean          *has_data,
++					     gboolean          *has_audio)
++{
++	if (is_rewritable) *is_rewritable = FALSE;
++	if (is_blank) *is_blank = FALSE;
++	if (has_data) *has_data = FALSE;
++	if (has_audio) *has_audio = FALSE;
++
++	if (drive->priv != NULL && drive->priv->udi != NULL) {
++		LibHalContext        *ctx;
++		char                **device_names;
++		int                   num_devices;
++		NautilusBurnMediaType type;
++		char                 *hal_type;
++		
++		ctx = get_hal_context ();
++		if (ctx != NULL) {
++			device_names = hal_manager_find_device_string_match (ctx, 
++									     "info.parent",
++									     drive->priv->udi,
++									     &num_devices);
++			if (num_devices == 0) {
++				return NAUTILUS_BURN_MEDIA_TYPE_ERROR;
++			}
++
++			/* just look at the first child */
++			if (hal_device_get_property_bool (ctx, 
++							  device_names [0],
++							  "volume.is_mounted")) {
++				type = NAUTILUS_BURN_MEDIA_TYPE_BUSY;
++			} else {		    
++				if (is_rewritable)
++					*is_rewritable = hal_device_get_property_bool (ctx, 
++										       device_names [0],
++										       "volume.disc.is_rewritable");
++				if (is_blank)
++					*is_blank = hal_device_get_property_bool (ctx, 
++										  device_names [0],
++										  "volume.disc.is_blank");
++				if (has_data)
++					*has_data = hal_device_get_property_bool (ctx, 
++										  device_names [0],
++										  "volume.disc.has_data");
++				if (has_audio)
++					*has_audio = hal_device_get_property_bool (ctx, 
++										  device_names [0],
++										  "volume.disc.has_audio");
++				type = NAUTILUS_BURN_MEDIA_TYPE_BUSY;
++				hal_type = hal_device_get_property_string (ctx, 
++									   device_names [0],
++									   "volume.disc.type");
++				if (hal_type == NULL || strcmp (hal_type, "unknown") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
++				} else if (strcmp (hal_type, "cd_rom") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_CD;
++				} else if (strcmp (hal_type, "cd_r") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_CDR;
++				} else if (strcmp (hal_type, "cd_rw") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_CDRW;
++				} else if (strcmp (hal_type, "dvd_rom") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVD;
++				} else if (strcmp (hal_type, "dvd_r") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVDR;
++				} else if (strcmp (hal_type, "dvd_ram") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVD_RAM;
++				} else if (strcmp (hal_type, "dvd_rw") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVDRW;
++				} else if (strcmp (hal_type, "dvd_plus_rw") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVD_PLUS_RW;
++				} else if (strcmp (hal_type, "dvd_plus_r") == 0) {
++					type = NAUTILUS_BURN_MEDIA_TYPE_DVD_PLUS_R;
++				} else {
++					type = NAUTILUS_BURN_MEDIA_TYPE_UNKNOWN;
++				}
++				
++				if (hal_type != NULL)
++					hal_free_string (hal_type);
++			}
++
++			hal_free_string_array (device_names);
++
++			return type;
++		}
++	}
++
++	return nautilus_burn_drive_get_media_type_from_path_full (drive->device,
++								  is_rewritable,
++								  is_blank,
++								  has_data,
++								  has_audio);
++}
++#endif
++
++/**
++ * nautilus_burn_drive_get_media_type_full:
++ * @drive: #NautilusBurnDrive
++ * @is_rewritable: set to TRUE if media is rewritable
++ * @is_blank: set to TRUE if media is blank
++ * @has_data: set to TRUE if media has data
++ * @has_audio: set to TRUE if media has audio
++ *
++ * Get the type of the specified drive.
++ *
++ * Return value: See nautilus_burn_drive_get_media_type_from_path() for details.
++ **/
++NautilusBurnMediaType
++nautilus_burn_drive_get_media_type_full (NautilusBurnDrive *drive,
++					 gboolean          *is_rewritable,
++					 gboolean          *is_blank,
++					 gboolean          *has_data,
++					 gboolean          *has_audio)
++{
++	g_return_val_if_fail (drive != NULL, NAUTILUS_BURN_MEDIA_TYPE_ERROR);
++
++#ifdef USE_HAL
++	return nautilus_burn_drive_hal_get_media_type_full (drive,
++							    is_rewritable,
++							    is_blank,
++							    has_data,
++							    has_audio);
++#else
++	return nautilus_burn_drive_get_media_type_from_path_full (drive->device,
++								  is_rewritable,
++								  is_blank,
++								  has_data,
++								  has_audio);
++#endif
++}
++
++/**
++ * nautilus_burn_drive_get_media_type_and_rewritable:
++ * @drive: #NautilusBurnDrive
++ * @is_rewritable: set to TRUE if drive is rewritable
++ *
++ * Get the type of the specified drive.
++ *
++ * Return value: See nautilus_burn_drive_get_media_type_from_path() for details.
++ **/
++NautilusBurnMediaType
++nautilus_burn_drive_get_media_type_and_rewritable (NautilusBurnDrive *drive,
++						   gboolean          *is_rewritable)
++{
++	g_return_val_if_fail (drive != NULL, NAUTILUS_BURN_MEDIA_TYPE_ERROR);
++
++	return nautilus_burn_drive_get_media_type_full (drive, is_rewritable, NULL, NULL, NULL);
++}
++
++gint64
++nautilus_burn_drive_get_media_size_from_path (const char *device)
++{
++	gpointer ioctl_handle;
++	int      fd;
++	int      secs;
++	int      mmc_profile;
++	gint64   size;
++
++	g_return_val_if_fail (device != NULL, NAUTILUS_BURN_MEDIA_SIZE_UNKNOWN);
++
++	secs = 0;
++
++	ioctl_handle = open_ioctl_handle (device);
++	if (ioctl_handle == INVALID_HANDLE) {
++		if (errno == EBUSY) {
++			return NAUTILUS_BURN_MEDIA_SIZE_BUSY;
++		}
++		return NAUTILUS_BURN_MEDIA_SIZE_UNKNOWN;
++	}
++
++	fd = get_ioctl_handle_fd (ioctl_handle);
++	mmc_profile = get_mmc_profile (fd);
++
++	/* See nautilus_burn_drive_get_media_type_from_path for details */
++	switch (mmc_profile & 0xFFFF) {
++	case 0x9:
++	case 0xa:
++		secs = get_disc_size_cd (fd);
++		size = (1 + secs * 7 / 48) * 1024 * 1024;
++		break;
++	case 0x11:
++	case 0x13:
++	case 0x14:
++	case 0x1B:
++	case 0x1A:
++	case 0x12:
++		size = get_disc_size_dvd (fd, mmc_profile);
++		break;
++	default:
++		size = NAUTILUS_BURN_MEDIA_SIZE_NA;
++	}
++
++	close_ioctl_handle (ioctl_handle);
++
++	return size;
++}
++
++/**
++ * nautilus_burn_drive_get_media_size:
++ * @drive: #NautilusBurnDrive
++ *
++ * Determine the capacity of the media in the specified drive.
++ *
++ * Return value: See #nautilus_burn_drive_get_media_size_from_path for details.
++ **/
++gint64
++nautilus_burn_drive_get_media_size (NautilusBurnDrive *drive)
++{
++	g_return_val_if_fail (drive != NULL, NAUTILUS_BURN_MEDIA_SIZE_UNKNOWN);
++
++	return nautilus_burn_drive_get_media_size_from_path (drive->device);
++}
++
++typedef struct {
++	gboolean    timeout;
++	gboolean    unmount_ok;
++	guint       timeout_tag;
++	GMainLoop  *loop;
++	char       *device;
++	const char *command;
++} UnmountData;
++
++static const char *umount_known_locations [] = {
++	"/sbin/umount",
++	"/bin/umount",
++	"/usr/sbin/umount",
++	"/usr/bin/umount",
++	NULL
++};
++
++static void
++free_unmount_data (UnmountData *unmount_data)
++{
++	g_free (unmount_data->device);
++	g_free (unmount_data);
++}
++
++static gboolean
++unmount_done (gpointer data)
++{
++	UnmountData *unmount_data;
++	unmount_data = data;
++	
++	if (unmount_data->timeout_tag != 0) {
++		g_source_remove (unmount_data->timeout_tag);
++	}
++
++	if (unmount_data->loop != NULL &&
++	    g_main_loop_is_running (unmount_data->loop)) {
++		g_main_loop_quit (unmount_data->loop);
++	}
++	
++	if (unmount_data->timeout) {
++		/* We timed out, so unmount_data wasn't freed
++		   at mainloop exit. */
++		free_unmount_data (unmount_data);
++	}
++	
++	return FALSE;
++}
++
++static gboolean
++unmount_timeout (gpointer data)
++{
++	UnmountData *unmount_data;
++	unmount_data = data;
++
++	/* We're sure, the callback hasn't been run, so just say
++	   we were interrupted and return from the mainloop */
++	
++	unmount_data->unmount_ok = FALSE;
++	unmount_data->timeout_tag = 0;
++	unmount_data->timeout = TRUE;
++	
++	if (g_main_loop_is_running (unmount_data->loop)) {
++		g_main_loop_quit (unmount_data->loop);
++	}
++	
++	return FALSE;
++}
++
++/* Returns the full path to the queried command */
++static const char *
++find_command (const char **known_locations)
++{
++	int i;
++
++	for (i = 0; known_locations [i]; i++){
++		if (g_file_test (known_locations [i], G_FILE_TEST_EXISTS))
++			return known_locations [i];
++	}
++	return NULL;
++}
++
++static void *
++unmount_thread_start (void *arg)
++{
++	UnmountData *data;
++	gint         exit_status;
++	char        *argv [5];
++	int          i;
++	char        *envp [] = {
++		"LC_ALL=C",
++		NULL
++	};
++
++	data = arg;
++
++	data->unmount_ok = TRUE;
++	
++	i = 0;
++	argv [i++] = (char *)data->command;
++	argv [i++] = data->device;
++	argv [i++] = NULL;
++	
++	if (g_spawn_sync (NULL,
++			  argv,
++			  envp,
++			  G_SPAWN_STDOUT_TO_DEV_NULL | G_SPAWN_STDERR_TO_DEV_NULL,
++			  NULL, NULL,
++			  NULL,
++			  NULL,
++			  &exit_status,
++			  NULL)) {
++		if (exit_status == 0) {
++			data->unmount_ok = TRUE;
++		} else {
++			data->unmount_ok = FALSE;
++		}
++
++		/* Delay a bit to make sure unmount finishes */
++		sleep (2);
++	} else {
++		/* spawn failure */
++		data->unmount_ok = FALSE;
++	}
++
++	g_idle_add (unmount_done, data);	
++	
++	g_thread_exit (NULL); 	
++	
++	return NULL;
++}
++
++gboolean
++nautilus_burn_drive_unmount (NautilusBurnDrive *drive)
++{
++	UnmountData *data;
++	gboolean     unmount_ok;
++	
++	if (drive->device == NULL)
++		return FALSE;
++	
++	unmount_ok = FALSE;
++
++	data = g_new0 (UnmountData, 1);
++	data->loop = g_main_loop_new (NULL, FALSE);
++
++	data->timeout_tag = g_timeout_add (5*1000,
++					   unmount_timeout,
++					   data);
++	data->command = find_command (umount_known_locations);
++	data->device = g_strdup (drive->device);
++	g_thread_create (unmount_thread_start, data, FALSE, NULL);
++	
++	GDK_THREADS_LEAVE ();
++	g_main_loop_run (data->loop);
++	GDK_THREADS_ENTER ();
++	
++	g_main_loop_unref (data->loop);
++	data->loop = NULL;
++
++	unmount_ok = data->unmount_ok;
++
++	if (!data->timeout) {
++		/* Don't free data if mount operation still running. */
++		free_unmount_data (data);
++	}
++	
++	return unmount_ok;
++}
++
++#ifdef USE_HAL
++
++#define GET_BOOL_PROP(x) (hal_device_property_exists (ctx, device_names [i], x) && hal_device_get_property_bool (ctx, device_names [i], x))
++
++static GList *
++hal_scan (gboolean recorder_only)
++{
++	GList         *drives = NULL;
++	int            i;
++	int            num_devices;
++	char**         device_names;
++	LibHalContext *ctx;
++
++	ctx = get_hal_context ();
++	if (ctx == NULL) {
++		return NULL;
++	}
++
++	device_names = hal_find_device_by_capability (ctx,
++						      "storage.cdrom", &num_devices);
++
++	if (device_names == NULL)
++		return NULL;
++
++	for (i = 0; i < num_devices; i++) {
++		NautilusBurnDrive *drive;
++		char              *string;
++		gboolean           is_cdr;
++
++		/* Is it a CD burner? */
++		is_cdr = GET_BOOL_PROP ("storage.cdrom.cdr");
++
++		drive = nautilus_burn_drive_new ();
++		drive->type = NAUTILUS_BURN_DRIVE_TYPE_CD_DRIVE;
++		if (is_cdr != FALSE) {
++			drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER;
++		}
++		if (GET_BOOL_PROP ("storage.cdrom.cdrw")) {
++			drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER;
++		}
++		if (GET_BOOL_PROP ("storage.cdrom.dvd")) {
++			drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
++
++			if (GET_BOOL_PROP ("storage.cdrom.dvdram")) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER;
++			}
++			if (GET_BOOL_PROP ("storage.cdrom.dvdr")) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER;
++			}
++			if (GET_BOOL_PROP ("storage.cdrom.dvd")) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
++			}
++			if (GET_BOOL_PROP ("storage.cdrom.dvdplusr")) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_R_RECORDER;
++			}
++			if (GET_BOOL_PROP ("storage.cdrom.dvdplusrw")) {
++				drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_PLUS_RW_RECORDER;
++			}
++		}
++
++		drive->device = hal_device_get_property_string (ctx,
++								device_names [i], "block.device");
++		drive->cdrecord_id = g_strdup (drive->device);
++
++		string = hal_device_get_property_string (ctx,
++							 device_names [i], "storage.model");
++		if (string != NULL) {
++			drive->display_name = string;
++		} else {
++			drive->display_name = g_strdup_printf ("Unnamed Drive (%s)", drive->device);
++		}
++
++		drive->max_speed_read = hal_device_get_property_int
++			(ctx, device_names [i], "storage.cdrom.read_speed")
++			/ CD_ROM_SPEED;
++
++		if (hal_device_property_exists (ctx, device_names [i], "storage.cdrom.write_speed")) {
++			drive->max_speed_write = hal_device_get_property_int
++				(ctx, device_names [i],
++				 "storage.cdrom.write_speed")
++				/ CD_ROM_SPEED;
++		}
++
++		add_whitelist (drive);
++
++		if (recorder_only && !(drive->type & NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER)) {
++			nautilus_burn_drive_free (drive);
++		} else {
++			drives = g_list_prepend (drives, drive);
++		}
++
++		drive->priv->udi = g_strdup (device_names [i]);
++	}
++
++	hal_free_string_array (device_names);
++
++	drives = g_list_reverse (drives);
++
++	return drives;
++}
++#endif /* USE_HAL */
++
++#if defined (__linux__)
++
++static char **
++read_lines (char *filename)
++{
++	char      *contents;
++	gsize      len;
++	char      *p, *n;
++	GPtrArray *array;
++	
++	if (g_file_get_contents (filename,
++				 &contents,
++				 &len, NULL)) {
++		
++		array = g_ptr_array_new ();
++		
++		p = contents;
++		while ((n = memchr (p, '\n', len - (p - contents))) != NULL) {
++			*n = 0;
++			g_ptr_array_add (array, g_strdup (p));
++			p = n + 1;
++		}
++		if ((gsize)(p - contents) < len) {
++			g_ptr_array_add (array, g_strndup (p, len - (p - contents)));
++		}
++
++		g_ptr_array_add (array, NULL);
++		
++		g_free (contents);
++		return (char **)g_ptr_array_free (array, FALSE);
++	}
++	return NULL;
++}
++
++struct scsi_unit {
++	char *vendor;
++	char *model;
++	char *rev;
++	int   bus;
++	int   id;
++	int   lun;
++	int   type;
++};
++
++struct drive_unit {
++	NautilusBurnDriveProtocolType protocol;
++	char                         *device;
++	char                         *display_name;
++	int                           speed;
++	gboolean                      can_write_cdr;
++	gboolean                      can_write_cdrw;
++	gboolean                      can_write_dvdr;
++	gboolean                      can_write_dvdram;
++	gboolean                      can_read_dvd;
++};
++
++static char *drive_get_name (struct drive_unit *drive, struct scsi_unit *scsi_units, int n_scsi_units);
++
++static void
++linux_add_whitelist (struct drive_unit *drive_s,
++		     struct scsi_unit  *scsi_units,
++		     int                n_scsi_units)
++{
++	guint i;
++
++	for (i = 0; i < G_N_ELEMENTS (recorder_whitelist); i++) {
++		if (drive_s->display_name == NULL) {
++			continue;
++		}
++
++		if (!strcmp (drive_s->display_name, recorder_whitelist [i].name)) {
++			drive_s->can_write_cdr =
++				recorder_whitelist [i].can_write_cdr;
++			drive_s->can_write_cdrw =
++				recorder_whitelist [i].can_write_cdrw;
++			drive_s->can_write_dvdr =
++				recorder_whitelist [i].can_write_dvdr;
++			drive_s->can_write_dvdram =
++				recorder_whitelist [i].can_write_dvdram;
++		}
++	}
++}
++
++static void
++get_scsi_units (char            **device_str,
++		char            **devices,
++		struct scsi_unit *scsi_units)
++{
++	char vendor [9], model [17], rev [5];
++	int  host_no, access_count, queue_depth, device_busy, online, channel;
++	int  scsi_id, scsi_lun, scsi_type;
++	int  i, j;
++
++	j = 0;
++
++	for (i = 0; device_str [i] != NULL && devices[i] != NULL; i++) {
++		if (strcmp (device_str [i], "<no active device>") == 0) {
++			continue;
++		}
++		if (sscanf (devices [i], "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d",
++			    &host_no,
++			    &channel, &scsi_id, &scsi_lun, &scsi_type, &access_count, &queue_depth,
++			    &device_busy, &online) != 9) {
++		
++			g_warning ("Couldn't match line in /proc/scsi/sg/devices\n");
++			continue;
++		}
++		if (scsi_type == 5) { /* TYPE_ROM (include/scsi/scsi.h) */
++			if (sscanf (device_str [i], "%8c\t%16c\t%4c", 
++				    vendor, model, rev) != 3) {
++				g_warning ("Couldn't match line /proc/scsi/sg/device_strs\n");
++				continue;
++			}
++			vendor [8] = '\0'; model [16] = '\0'; rev [4] = '\0';
++
++			scsi_units [j].vendor = g_strdup (g_strstrip (vendor));
++			scsi_units [j].model = g_strdup (g_strstrip (model));
++			scsi_units [j].rev = g_strdup (g_strstrip (rev));
++			scsi_units [j].bus = host_no;
++			scsi_units [j].id = scsi_id;
++			scsi_units [j].lun = scsi_lun; 
++			scsi_units [j].type = scsi_type;
++			
++			j++;
++		}
++	}
++}
++
++static int
++count_strings (char *p)
++{
++	int n_strings;
++
++	n_strings = 0;
++	while (*p != 0) {
++		n_strings++;
++		while (*p != '\t' && *p != 0) {
++			p++;
++		}
++		if (*p == '\t') {
++			p++;
++		}
++	}
++	return n_strings;
++}
++
++static int
++get_cd_scsi_id (const char *dev,
++		int        *bus,
++		int        *id,
++		int        *lun)
++{
++	int   fd;
++	char *devfile;
++	struct {
++		long mux4;
++		long hostUniqueId;
++	} m_idlun;
++	
++	devfile = g_strdup_printf ("/dev/%s", dev);
++	fd = open (devfile, O_RDWR | O_NONBLOCK);
++	if (fd < 0)
++		fd = open (devfile, O_RDONLY | O_NONBLOCK);
++
++	g_free (devfile);
++
++	/* Avoid problems with Valgrind */
++	memset (&m_idlun, 0, sizeof (m_idlun));
++	*bus = *id = *lun = -1;
++
++	if (fd < 0) {
++		g_warning ("Failed to open cd device %s\n", dev);
++		return 0;
++	}
++
++	if (ioctl (fd, SCSI_IOCTL_GET_BUS_NUMBER, bus) < 0 || *bus < 0) {
++		g_warning ("Failed to get scsi bus nr\n");
++		close (fd);
++		return 0;
++	}
++
++	if (ioctl (fd, SCSI_IOCTL_GET_IDLUN, &m_idlun) < 0) {
++		g_warning ("Failed to get scsi id and lun\n");
++		close(fd);
++		return 0;
++	}
++	*id = m_idlun.mux4 & 0xFF;
++	*lun = (m_idlun.mux4 >> 8)  & 0xFF;
++
++	close(fd);
++	return 1;
++}
++
++static struct scsi_unit *
++lookup_scsi_unit (int               bus,
++		  int               id,
++		  int               lun,
++		  struct scsi_unit *scsi_units,
++		  int               n_scsi_units)
++{
++	int i;
++
++	for (i = 0; i < n_scsi_units; i++) {
++		if (scsi_units [i].bus == bus &&
++		    scsi_units [i].id == id &&
++		    scsi_units [i].lun == lun) {
++			return &scsi_units [i];
++		}
++	}
++	return NULL;
++}
++
++static char *
++get_scsi_cd_name (int               bus,
++		  int               id,
++		  int               lun,
++		  const char       *dev,
++		  struct scsi_unit *scsi_units,
++		  int               n_scsi_units)
++{
++	struct scsi_unit *scsi_unit;
++
++	scsi_unit = lookup_scsi_unit (bus, id, lun, scsi_units, n_scsi_units);
++	if (scsi_unit == NULL) {
++		return g_strdup_printf (_("Unnamed SCSI Drive (%s)"), dev);
++	}
++
++	return g_strdup_printf ("%s - %s",
++				scsi_unit->vendor,
++				scsi_unit->model);
++}
++
++static char *
++drive_get_name (struct drive_unit *drive,
++		struct scsi_unit  *scsi_units,
++		int                n_scsi_units)
++{
++	char *filename, *line, *retval;
++	char  stdname [4], devfsname [15];
++	int   bus, id, lun, i;
++
++	g_return_val_if_fail (drive != NULL, FALSE);
++
++	/* clean up the string again if we have devfs */
++	i = sscanf(drive->device, "%4s %14s", stdname, devfsname);
++	if (i < 1) { /* should never happen */
++		g_warning("drive_get_name: drive->device string broken!");
++		return NULL;
++	}
++	if (i == 2) {
++		g_free (drive->device);
++		drive->device = g_strdup(devfsname);
++	}
++	stdname [3] = '\0'; devfsname [14] = '\0'; /* just in case */
++	
++	if (drive->protocol == NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI) {
++		get_cd_scsi_id (drive->device, &bus, &id, &lun);
++		retval = get_scsi_cd_name (bus, id, lun, drive->device, scsi_units,
++					   n_scsi_units);
++	} else {
++		filename = g_strdup_printf ("/proc/ide/%s/model", stdname);
++		if (!g_file_get_contents (filename, &line, NULL, NULL) ||
++		    line == NULL) {
++			g_free (filename);
++			return NULL;
++		}
++		g_free (filename);
++
++		i = strlen (line);
++		if (line [i-1] != '\n') {
++			retval = g_strdup (line);
++		} else {
++			retval = g_strndup (line, i - 1);
++		}
++
++		g_free (line);
++	}
++
++	return retval;
++}
++
++static GList *
++add_linux_cd_recorder (GList             *drives,
++		       gboolean           recorder_only,
++		       struct drive_unit *drive_s,
++		       struct scsi_unit  *scsi_units,
++		       int                n_scsi_units)
++{
++	int                bus, id, lun;
++	NautilusBurnDrive *drive;
++
++	drive = nautilus_burn_drive_new ();
++
++	drive->type = NAUTILUS_BURN_DRIVE_TYPE_CD_DRIVE;
++	drive->display_name = g_strdup (drive_s->display_name);
++
++	if (drive_s->protocol == NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI) {
++		drive->priv->protocol = NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI;
++		if (!get_cd_scsi_id (drive_s->device, &bus, &id, &lun)) {
++			g_free (drive->display_name);
++			g_free (drive);
++			return drives;
++		}
++		drive->cdrecord_id = g_strdup_printf ("%d,%d,%d",
++						      bus, id, lun);
++	} else {
++		drive->priv->protocol = NAUTILUS_BURN_DRIVE_PROTOCOL_IDE;
++		/* kernel >=2.5 can write cd w/o ide-scsi */
++		drive->cdrecord_id = g_strdup_printf ("/dev/%s",
++						      drive_s->device);
++	}
++
++	if (recorder_only) {
++		drive->max_speed_write = get_device_max_write_speed
++			(drive->device);
++		if (drive->max_speed_write == -1) {
++			drive->max_speed_write = drive_s->speed;
++		}
++	} else {
++		/* Have a wild guess, the drive should actually correct us */
++		drive->max_speed_write = drive_s->speed;
++	}
++
++	drive->device = g_strdup_printf ("/dev/%s", drive_s->device);
++	drive->max_speed_read = drive_s->speed;
++	if (drive_s->can_write_dvdr) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER;
++	}
++
++	if (drive_s->can_write_dvdram) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER;
++	}
++
++	if (drive_s->can_write_cdr) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER;
++	}
++	if (drive_s->can_write_cdrw) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER;
++	}
++	if (drive_s->can_read_dvd) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
++		add_dvd_plus (drive);
++	}
++
++	return g_list_append (drives, drive);
++}
++
++static GList *
++add_linux_cd_drive (GList             *drives,
++		    struct drive_unit *drive_s,
++		    struct scsi_unit  *scsi_units,
++		    int                n_scsi_units)
++{
++	NautilusBurnDrive *drive;
++
++	drive = nautilus_burn_drive_new ();
++	drive->type = NAUTILUS_BURN_DRIVE_TYPE_CD_DRIVE;
++	drive->cdrecord_id = NULL;
++	drive->display_name = g_strdup (drive_s->display_name);
++	drive->device = g_strdup_printf ("/dev/%s", drive_s->device);
++	drive->max_speed_write = 0; /* Can't write */
++	drive->max_speed_read = drive_s->speed;
++	if (drive_s->can_read_dvd) {
++		drive->type |= NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE;
++	}
++
++	return g_list_append (drives, drive);
++}
++
++static char *
++get_cd_device_file (const char *str)
++{
++	char *devname;
++	
++	if (str [0] == 's') {
++		devname = g_strdup_printf ("/dev/scd%c", str [2]);
++		if (g_file_test (devname, G_FILE_TEST_EXISTS)) {
++			g_free (devname);
++			return g_strdup_printf ("scd%c", str [2]);
++		}
++		g_free (devname);
++	}
++	return 	g_strdup (str);
++}
++
++static GList *
++linux_scan (gboolean recorder_only)
++{
++	char             **device_str, **devices;
++	char             **drive_info;
++	struct scsi_unit  *scsi_units;
++	struct drive_unit *drives;
++	char              *p, *t;
++	int                n_drives, maj, min, i, j;
++	int                n_scsi_units;
++	int                fd;
++	FILE              *file;
++	GList             *drives_list;
++	gboolean           have_devfs;
++
++	/* devfs creates and populates the /dev/cdroms directory when its mounted
++	 * the 'old style names' are matched with devfs names below.
++	 * The cdroms.device string gets cleaned up again in drive_get_name()
++	 * we need the oldstyle name to get device->display_name for ide.
++	 */
++	have_devfs = FALSE;
++	if (g_file_test ("/dev/.devfsd", G_FILE_TEST_EXISTS)) {
++		have_devfs = TRUE;
++	}
++	
++	drive_info = read_lines ("/proc/sys/dev/cdrom/info");
++	if (drive_info == NULL || drive_info [0] == NULL || drive_info [1] == NULL) {
++		g_warning ("Couldn't read /proc/sys/dev/cdrom/info");
++		return NULL;
++	}
++	if (!g_str_has_prefix (drive_info [2], "drive name:\t")) {
++		return NULL;
++	}
++	p = drive_info [2] + strlen ("drive name:\t");
++	while (*p == '\t') {
++		p++;
++	}
++	n_drives = count_strings (p);
++	drives = g_new0 (struct drive_unit, n_drives);
++
++	for (j = 0; j < n_drives; j++) {
++		t = strchr (p, '\t');
++		if (t != NULL) {
++			*t = 0;
++		}
++		drives [j].device = get_cd_device_file (p);
++		/* Assume its an IDE device for now */
++		drives [j].protocol = NAUTILUS_BURN_DRIVE_PROTOCOL_IDE;
++		if (t != NULL) {
++			p = t + 1;
++		}
++	}
++
++	/* we only have to check the first char, since only ide or scsi 	
++	 * devices are listed in /proc/sys/dev/cdrom/info. It will always
++	 * be 'h' or 's'
++	 */
++	n_scsi_units = 0;
++	for (i = 0; i < n_drives; i++) {
++		if (drives [i].device[0] == 's') {
++			drives [i].protocol = NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI;
++			n_scsi_units++;
++		}
++	}
++
++	if (n_scsi_units > 0) {
++		/* open /dev/sg0 to force loading of the sg module if not loaded yet */
++		fd = open ("/dev/sg0", O_RDWR);
++		if (fd >= 0) {
++			close (fd);
++		}
++		
++		devices = read_lines ("/proc/scsi/sg/devices");
++		device_str = read_lines ("/proc/scsi/sg/device_strs");
++		if (device_str == NULL) {
++			g_warning ("Can't read /proc/scsi/sg/device_strs");
++			g_strfreev (devices);
++			return NULL;
++		}
++
++		scsi_units = g_new0 (struct scsi_unit, n_scsi_units);
++		get_scsi_units (device_str, devices, scsi_units);
++
++		g_strfreev (device_str);
++		g_strfreev (devices);
++	} else {
++		scsi_units = NULL;
++	}
++
++	for (i = 3; drive_info [i] != NULL; i++) {
++		if (g_str_has_prefix (drive_info [i], "Can write CD-R:")) {
++			p = drive_info [i] + strlen ("Can write CD-R:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++				drives [j].can_write_cdr = *p++ == '1';
++
++				/* Skip tab */
++				p++;
++			}
++		}
++		if (g_str_has_prefix (drive_info [i], "Can write CD-RW:")) {
++			p = drive_info [i] + strlen ("Can write CD-RW:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++				drives [j].can_write_cdrw = *p++ == '1';
++
++				/* Skip tab */
++				p++;
++			}
++		}
++		if (g_str_has_prefix (drive_info [i], "Can write DVD-R:")) {
++			p = drive_info [i] + strlen ("Can write DVD-R:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++				drives [j].can_write_dvdr = *p++ == '1';
++
++				/* Skip tab */
++				p++;
++			}
++		}
++		if (g_str_has_prefix (drive_info [i], "Can write DVD-RAM:")) {
++			p = drive_info [i] + strlen ("Can write DVD-RAM:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++				drives [j].can_write_dvdram = *p++ == '1';
++
++				/* Skip tab */
++				p++;
++			}
++		}
++		if (g_str_has_prefix (drive_info [i], "Can read DVD:")) {
++			p = drive_info [i] + strlen ("Can read DVD:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++				drives [j].can_read_dvd = *p++ == '1';
++
++				/* Skip tab */
++				p++;
++			}
++		}
++		if (g_str_has_prefix (drive_info [i], "drive speed:")) {
++			p = drive_info [i] + strlen ("drive speed:");
++			while (*p == '\t') {
++				p++;
++			}
++			for (j = 0; j < n_drives; j++) {
++  				drives [j].speed = atoi (p);
++
++				/* Skip tab */
++				p++;
++			}
++		}
++	}
++	g_strfreev (drive_info);
++
++	/* get kernel major.minor version */
++	file = fopen("/proc/sys/kernel/osrelease", "r");
++	if (file == NULL || fscanf(file, "%d.%d", &maj, &min) != 2) {
++		g_warning("Could not get kernel version.");
++		maj = min = 0;
++	}
++	fclose(file);
++
++	drives_list = NULL;
++	for (i = n_drives - 1, j = 0; i >= 0; i--, j++) {
++		if (have_devfs) {
++			char *s;
++			s = g_strdup_printf("%s cdroms/cdrom%d",
++					    drives [i].device,  j);
++			g_free (drives [i].device);
++			drives [i].device = s;
++		}
++		drives [i].display_name = drive_get_name (&drives [i],
++							  scsi_units, n_scsi_units);
++		linux_add_whitelist (&drives [i], scsi_units, n_scsi_units);
++
++		if ((drives [i].can_write_cdr ||
++		     drives [i].can_write_cdrw ||
++		     drives [i].can_write_dvdr ||
++		     drives [i].can_write_dvdram) &&
++		    (drives [i].protocol == NAUTILUS_BURN_DRIVE_PROTOCOL_SCSI ||
++		     (maj > 2) || (maj == 2 && min >= 5))) {
++			drives_list = add_linux_cd_recorder (drives_list,
++							     recorder_only, &drives [i],
++							     scsi_units, n_scsi_units);
++		} else if (!recorder_only) {
++			drives_list = add_linux_cd_drive (drives_list,
++							  &drives [i], scsi_units, n_scsi_units);
++		}
++	}
++
++	for (i = n_drives - 1; i >= 0; i--) {
++		g_free (drives [i].display_name);
++		g_free (drives [i].device);
++	}
++	g_free (drives);
++
++	for (i = n_scsi_units - 1; i >= 0; i--) {
++		g_free (scsi_units [i].vendor);
++		g_free (scsi_units [i].model);
++		g_free (scsi_units [i].rev);
++	}
++	g_free (scsi_units);
++
++	return drives_list;
++}
++
++#elif defined (__FreeBSD__)
++
++static GList *
++freebsd_scan (gboolean recorder_only)
++{
++	GList      *drives_list = NULL;
++	const char *dev_type = "cd";
++	int         speed = 16; /* XXX Hardcode the write speed for now. */
++	int         i = 0;
++	int         cnode = 1; /* Use the CD device's 'c' node. */
++
++	while (1) {
++		NautilusBurnDrive *drive;
++		gchar             *cam_path;
++		struct cam_device *cam_dev;
++
++		cam_path = g_strdup_printf ("/dev/%s%dc", dev_type, i);
++
++		if (!g_file_test (cam_path, G_FILE_TEST_EXISTS)) {
++			g_free (cam_path);
++			cam_path = g_strdup_printf ("/dev/%s%d", dev_type, i);
++			cnode = 0;
++			if (!g_file_test (cam_path, G_FILE_TEST_EXISTS)) {
++				g_free (cam_path);
++				break;
++			}
++		}
++
++		if ((cam_dev = cam_open_spec_device (dev_type, i, O_RDWR, NULL)) == NULL) {
++			i++;
++			g_free (cam_path);
++			continue;
++		}
++
++		drive = nautilus_burn_drive_new ();
++		drive->display_name = g_strdup_printf ("%s %s", cam_dev->inq_data.vendor, cam_dev->inq_data.revision);
++		drive->device = g_strdup (cam_path);
++		drive->cdrecord_id = g_strdup_printf ("%d,%d,%d", cam_dev->path_id, cam_dev->target_id, cam_dev->target_lun);
++		/* Attempt to get more specific information from
++		 * this drive by using cdrecord.
++		 */
++		get_cd_properties (drive->device, drive->cdrecord_id,
++				   &(drive->max_speed_read),
++				   &(drive->max_speed_write),
++				   &(drive->type));
++		if (drive->type & NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER
++		    || !recorder_only) {
++
++			if (drive->max_speed_read == -1) {
++		    		drive->max_speed_read = speed;
++			}
++			if (drive->max_speed_write == -1) {
++			    	drive->max_speed_write = speed;
++			}
++
++			if (drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE) {
++				add_dvd_plus (drive);
++			}
++
++			drives_list = g_list_append (drives_list, drive);
++		} else {
++		    	nautilus_burn_drive_free (drive);
++		}
++
++		g_free (cam_path);
++		free (cam_dev);
++
++		i++;
++	}
++
++	return drives_list;
++}
++
++#else
++
++static char *
++cdrecord_scan_get_stdout (void)
++{
++	int         max_speed, i;
++	const char *argv [20]; /* Shouldn't need more than 20 arguments */
++	char       *stdout_data;
++
++	max_speed = -1;
++
++	i = 0;
++	argv [i++] = "cdrecord";
++	argv [i++] = "-scanbus";
++	argv [i++] = NULL;
++
++	if (g_spawn_sync (NULL,
++			  (char **)argv,
++			  NULL,
++			  G_SPAWN_SEARCH_PATH | G_SPAWN_STDERR_TO_DEV_NULL,
++			  NULL, NULL,
++			  &stdout_data,
++			  NULL,
++			  NULL,
++			  NULL)) {
++		return stdout_data;
++	}
++
++	return NULL;
++}
++
++#define DEFAULT_SPEED 2
++
++static GList *
++cdrecord_scan (gboolean recorder_only)
++{
++	GList             *drives_list;
++	NautilusBurnDrive *drive;
++	char              *stdout_data, **lines, vendor [9], model [17];
++	int                i, bus, id, lun, index;
++
++	drives_list = NULL;
++
++	stdout_data = cdrecord_scan_get_stdout ();
++	if (stdout_data == NULL) {
++		return drives_list;
++	}
++
++	lines = g_strsplit (stdout_data, "\n", 0);
++	g_free (stdout_data);
++
++	for (i = 0; lines [i] != NULL; i++) {
++		if (sscanf (lines [i], "\t%d,%d,%d\t  %d) '%8c' '%16c'",
++			    &bus, &id, &lun, &index,
++			    vendor, model) != 6) {
++			continue;
++		}
++
++		vendor [8] = '\0'; model [16] = '\0';
++
++		drive = nautilus_burn_drive_new ();
++		drive->display_name = g_strdup_printf ("%s - %s",
++						       g_strstrip (vendor), g_strstrip (model));
++		drive->cdrecord_id = g_strdup_printf ("%d,%d,%d", bus, id, lun);
++		/* FIXME we don't have any way to guess the real device
++		 * from the info we get from CDRecord */
++		drive->device = g_strdup_printf ("/dev/pg%d", index);
++		get_cd_properties (drive->device, drive->cdrecord_id,
++				   &(drive->max_speed_read),
++				   &(drive->max_speed_write),
++				   &(drive->type));
++		add_whitelist (drive);
++		if (drive->type & NAUTILUS_BURN_DRIVE_TYPE_CD_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_CDRW_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_RAM_RECORDER
++		    || drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_RW_RECORDER
++		    || !recorder_only) {
++
++			if (drive->max_speed_read == -1) {
++		    		drive->max_speed_read = DEFAULT_SPEED;
++			}
++			if (drive->max_speed_write == -1) {
++			    	drive->max_speed_write = DEFAULT_SPEED;
++			}
++
++			if (drive->type & NAUTILUS_BURN_DRIVE_TYPE_DVD_DRIVE) {
++				add_dvd_plus (drive);
++			}
++
++			drives_list = g_list_append (drives_list, drive);
++		} else {
++		    	nautilus_burn_drive_free (drive);
++		}
++	}
++
++	g_strfreev (lines);
++
++	return drives_list;
++}
++
++#endif
++
++/**
++ * nautilus_burn_drive_get_file_image:
++ *
++ * Create a new %NAUTILUS_BURN_DRIVE_TYPE_FILE #NautilusBurnDrive.
++ *
++ * Return value: A new drive.
++ **/
++NautilusBurnDrive *
++nautilus_burn_drive_get_file_image (void)
++{
++	NautilusBurnDrive *drive;
++
++	drive = nautilus_burn_drive_new ();
++	drive->display_name = g_strdup (_("File image"));
++	drive->max_speed_read = 0;
++	drive->max_speed_write = 0;
++	drive->type = NAUTILUS_BURN_DRIVE_TYPE_FILE;
++
++	return drive;
++}
++
++/* This is used for testing different configurations */
++#if 0
++static GList*
++test_cdroms (void)
++{
++	GList   *list = NULL;
++	CDDrive *drive = g_new0 (CDDrive, 1);
++
++	drive->type = CDDRIVE_TYPE_CD_DRIVE | CDDRIVE_TYPE_DVD_DRIVE;
++	drive->display_name = g_strdup ("HL-DT-STDVD-ROM");
++	drive->device = g_strdup ("/dev/hdc");
++	list = g_list_append (list, drive);
++	drive = g_new0 (CDDrive, 1);
++	drive->type = CDDRIVE_TYPE_CD_DRIVE | CDDRIVE_TYPE_DVD_DRIVE | CDDRIVE_TYPE_CD_RECORDER;
++	drive->display_name = g_strdup ("_NEC DVD_RW ND-2500A");
++	drive->device = g_strdup ("/dev/hdd");
++	list = g_list_append (list, drive);
++	return list;
++}
++#endif
++
++/**
++ * nautilus_burn_drive_get_list:
++ * @recorder_only: Include only devices capable of recording
++ * @add_image: Include a file image device
++ *
++ * Find media devices on the system.
++ *
++ * Return value: List of media drives available.
++ **/
++GList *
++nautilus_burn_drive_get_list (gboolean recorder_only,
++			      gboolean add_image)
++{
++	GList *drives = NULL;
++
++#ifdef USE_HAL
++	drives = hal_scan (recorder_only);
++#endif
++
++	if (drives == NULL) {
++#if defined (__linux__)
++		drives = linux_scan (recorder_only);
++#elif defined (__FreeBSD__)
++		drives = freebsd_scan (recorder_only);
++#else
++		drives = cdrecord_scan (recorder_only);
++#endif
++	}
++
++	if (add_image) {
++		NautilusBurnDrive *drive;
++		drive = nautilus_burn_drive_get_file_image ();
++		drives = g_list_append (drives, drive);
++	}
++
++	return drives;
++}
++
++/**
++ * nautilus_burn_drive_free:
++ * @drive: #NautilusBurnDrive to be freed
++ *
++ * Free @drive.
++ **/
++void
++nautilus_burn_drive_free (NautilusBurnDrive *drive)
++{
++	g_return_if_fail (drive != NULL);
++
++	if (drive->priv) {
++		g_free (drive->priv->udi);
++		g_free (drive->priv);
++	}
++
++	g_free (drive->display_name);
++	g_free (drive->cdrecord_id);
++	g_free (drive->device);
++	g_free (drive);
++}
++
++/**
++ * nautilus_burn_drive_lock:
++ * @drive: Pointer to a #NautilusBurnDrive
++ * @reason:
++ * @reason_for_failure:
++ *
++ * Lock a #NautilusBurnDrive
++ *
++ * Return value: %TRUE if the drive was sucessfully locked, %FALSE otherwise.
++ *
++ * Since: 2.8
++ **/
++gboolean
++nautilus_burn_drive_lock (NautilusBurnDrive *drive,
++			  const char        *reason,
++			  char             **reason_for_failure) 
++{
++	gboolean res;
++
++	if (reason_for_failure != NULL)
++		*reason_for_failure = NULL;
++
++	res = TRUE;
++#ifdef USE_HAL
++	if (drive->priv->udi != NULL) {
++		LibHalContext *ctx;
++		char *dbus_reason;
++		
++		ctx = get_hal_context ();
++		if (ctx != NULL) {
++			res = hal_device_lock (ctx, 
++					       drive->priv->udi,
++					       reason,
++					       &dbus_reason);
++			if (dbus_reason != NULL && 
++			    reason_for_failure != NULL)
++				*reason_for_failure = g_strdup (dbus_reason);
++			if (dbus_reason != NULL)
++				dbus_free (dbus_reason);
++		}
++	}
++#endif
++	return res;
++}
++
++/**
++ * nautilus_burn_drive_unlock:
++ * @drive: Pointer to a #NautilusBurnDrive
++ *
++ * Unlock a #NautilusBurnDrive
++ *
++ * Return value: %TRUE if the drive was sucessfully unlocked, %FALSE otherwise.
++ *
++ * Since: 2.8
++ **/
++gboolean 
++nautilus_burn_drive_unlock (NautilusBurnDrive *drive)
++{
++	gboolean res;
++
++	res = TRUE;
++#ifdef USE_HAL
++	if (drive->priv->udi != NULL) {
++		LibHalContext *ctx;
++
++		ctx = get_hal_context ();
++		if (ctx != NULL) {
++			res = hal_device_unlock (ctx, 
++						 drive->priv->udi);
++		}
++	}
++#endif
++	return res;
++}
++
++/**
++ * nautilus_burn_drive_new:
++ *
++ * Create a new #NautilusBurnDrive.
++ *
++ * Return value: The new drive.
++ *
++ * Since: 2.8
++ **/
++NautilusBurnDrive *
++nautilus_burn_drive_new (void)
++{
++	NautilusBurnDrive *drive;
++
++	drive = g_new0 (NautilusBurnDrive, 1);
++	drive->priv = g_new0 (NautilusBurnDrivePriv, 1);
++	return drive;
++}
++
++/**
++ * nautilus_burn_drive_copy:
++ * @drive: Pointer to the #NautilusBurnDrive to be copied
++ *
++ * Return vale: Copy of specified #NautilusBurnDrive.
++ *
++ * Since: 2.8
++ **/
++NautilusBurnDrive *
++nautilus_burn_drive_copy (NautilusBurnDrive *drive)
++{
++	NautilusBurnDrive *drive_copy;
++
++	drive_copy = nautilus_burn_drive_new ();
++	drive_copy->type = drive->type;
++	drive_copy->display_name = g_strdup (drive->display_name);
++	drive_copy->max_speed_write = drive->max_speed_write;
++	drive_copy->max_speed_read = drive->max_speed_read;
++	drive_copy->cdrecord_id = g_strdup (drive->cdrecord_id);
++	drive_copy->device = g_strdup (drive->device);
++	drive_copy->priv->protocol = drive->priv->protocol;
++	drive_copy->priv->udi = g_strdup (drive->priv->udi);
++
++	return drive_copy;
++}
++
++/**
++ * nautilus_burn_drive_equal:
++ * @a: First #NautilusBurnDrive struct to compare
++ * @b: Second #NautilusBurnDrive struct to compare
++ *
++ * Compare the two cd drives, return %TRUE if they match exactly
++ * the same drive.
++ *
++ * Returns: %TRUE if the two #NautilusBurnDrives are equal, otherwise return %FALSE.
++ *
++ * Since: 2.8
++ **/
++gboolean
++nautilus_burn_drive_equal (NautilusBurnDrive *a,
++			   NautilusBurnDrive *b)
++{
++	if (!a || !b)
++		return FALSE;
++
++	if ((a->type & NAUTILUS_BURN_DRIVE_TYPE_FILE)
++	    && (b->type & NAUTILUS_BURN_DRIVE_TYPE_FILE))
++		return TRUE;
++
++	if (!a->device || !b->device)
++		return FALSE;
++
++	return strcmp (a->device, b->device) == 0;
++}

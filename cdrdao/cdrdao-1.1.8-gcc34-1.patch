@@ -1,0 +1,338 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-04-27
+Initial Package Version: 1.1.8
+Origin: Jim Gifford
+Upstream Status: To be included in 1.1.9
+Description: Fixes Compile Issues with GCC 3.4
+ 
+diff -Naur cdrdao-1.1.8.orig/dao/CDD2600.cc cdrdao-1.1.8/dao/CDD2600.cc
+--- cdrdao-1.1.8.orig/dao/CDD2600.cc	2002-01-20 20:43:36.000000000 +0000
++++ cdrdao-1.1.8/dao/CDD2600.cc	2004-04-28 00:15:03.820545232 +0000
+@@ -446,7 +446,7 @@
+ {
+   unsigned char cmd[10];
+   unsigned long dataLen = 2 * blockLength_;
+-  unsigned char *data = new (unsigned char)[dataLen];
++  unsigned char *data = new unsigned char[dataLen];
+ 
+ 
+   // read sub channel information
+@@ -666,7 +666,7 @@
+ 
+   message(5, "Raw toc data len: %d", dataLen);
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   
+   // read disk toc
+   cmd[7] = dataLen >> 8;
+diff -Naur cdrdao-1.1.8.orig/dao/CDD2600Base.cc cdrdao-1.1.8/dao/CDD2600Base.cc
+--- cdrdao-1.1.8.orig/dao/CDD2600Base.cc	2001-01-28 10:37:15.000000000 +0000
++++ cdrdao-1.1.8/dao/CDD2600Base.cc	2004-04-28 00:15:03.815546120 +0000
+@@ -190,7 +190,7 @@
+ 	  indexCount, dataLen);
+   */
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   memset(data, 0, dataLen);
+   tp = data;
+ 
+diff -Naur cdrdao-1.1.8.orig/dao/CdTextEncoder.cc cdrdao-1.1.8/dao/CdTextEncoder.cc
+--- cdrdao-1.1.8.orig/dao/CdTextEncoder.cc	2001-01-28 10:37:15.000000000 +0000
++++ cdrdao-1.1.8/dao/CdTextEncoder.cc	2004-04-28 00:15:03.869536537 +0000
+@@ -439,7 +439,7 @@
+     return;
+   }
+ 
+-  subChannels_ = new (PWSubChannel96*)[subChannelCount_];
++  subChannels_ = new PWSubChannel96*[subChannelCount_];
+   
+   prun = packs_;
+ 
+diff -Naur cdrdao-1.1.8.orig/dao/CdrDriver.cc cdrdao-1.1.8/dao/CdrDriver.cc
+--- cdrdao-1.1.8.orig/dao/CdrDriver.cc	2004-02-12 01:13:30.000000000 +0000
++++ cdrdao-1.1.8/dao/CdrDriver.cc	2004-04-28 00:15:03.812546652 +0000
+@@ -878,10 +878,10 @@
+ 
+   scsiMaxDataLen_ = scsiIf_->maxDataLen();
+ 
+-  transferBuffer_ = new (unsigned char)[scsiMaxDataLen_];
++  transferBuffer_ = new unsigned char[scsiMaxDataLen_];
+ 
+   maxScannedSubChannels_ = scsiMaxDataLen_ / (AUDIO_BLOCK_LEN + PW_SUBCHANNEL_LEN);
+-  scannedSubChannels_ = new (SubChannel*)[maxScannedSubChannels_];
++  scannedSubChannels_ = new SubChannel*[maxScannedSubChannels_];
+ 
+   paranoia_ = NULL;
+   paranoiaDrive_ = NULL;
+@@ -1343,7 +1343,7 @@
+   unsigned char cmd[10];
+   long dataLen = bufLen + 8/*mode parameter header*/ + 
+                           100/*spare for block descriptors*/;
+-  unsigned char *data = new (unsigned char)[dataLen];
++  unsigned char *data = new unsigned char[dataLen];
+ 
+   memset(cmd, 0, 10);
+   memset(data, 0, dataLen);
+@@ -1407,7 +1407,7 @@
+   if (blockDesc != NULL)
+     dataLen += 8;
+ 
+-  unsigned char *data = new (unsigned char)[dataLen];
++  unsigned char *data = new unsigned char[dataLen];
+ 
+   memset(cmd, 0, 10);
+   memset(data, 0, dataLen);
+@@ -1466,7 +1466,7 @@
+   unsigned char cmd[6];
+   long dataLen = bufLen + 4/*mode parameter header*/ + 
+                           100/*spare for block descriptors*/;
+-  unsigned char *data = new (unsigned char)[dataLen];
++  unsigned char *data = new unsigned char[dataLen];
+ 
+   memset(cmd, 0, 6);
+   memset(data, 0, dataLen);
+@@ -1529,7 +1529,7 @@
+   if (blockDesc != NULL)
+     dataLen += 8;
+ 
+-  unsigned char *data = new (unsigned char)[dataLen];
++  unsigned char *data = new unsigned char[dataLen];
+ 
+   memset(cmd, 0, 6);
+   memset(data, 0, dataLen);
+@@ -1602,7 +1602,7 @@
+     dataLen = (100 * 8) + 4;
+   }
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   memset(data, 0, dataLen);
+ 
+   // read disk toc
+@@ -2940,7 +2940,7 @@
+     return NULL;
+   }
+ 
+-  data = new (unsigned char)[len];
++  data = new unsigned char[len];
+ 
+   cmd[7] = len >> 8;
+   cmd[8] = len;
+@@ -3677,7 +3677,7 @@
+   blocking = scsiMaxDataLen_ / (AUDIO_BLOCK_LEN + PW_SUBCHANNEL_LEN);
+   assert(blocking > 0);
+ 
+-  buf = new (unsigned char)[blocking * blockLen];
++  buf = new unsigned char[blocking * blockLen];
+ 
+   lba = lastLba = start;
+   burst = blocking;
+diff -Naur cdrdao-1.1.8.orig/dao/GenericMMC.cc cdrdao-1.1.8/dao/GenericMMC.cc
+--- cdrdao-1.1.8.orig/dao/GenericMMC.cc	2004-02-12 01:13:30.000000000 +0000
++++ cdrdao-1.1.8/dao/GenericMMC.cc	2004-04-28 00:15:03.837542215 +0000
+@@ -747,7 +747,7 @@
+     len += t->nofIndices(); // entry for each index increment
+   }
+ 
+-  cueSheet = new (unsigned char)[len * 8];
++  cueSheet = new unsigned char[len * 8];
+   n = 0;
+ 
+   if (toc_->leadInMode() == TrackData::AUDIO) {
+@@ -1872,7 +1872,7 @@
+   if (len > bufLen)
+     len = bufLen;
+ 
+-  data = new (unsigned char)[len + 8];
++  data = new unsigned char[len + 8];
+ 
+   cmd[7] = (len + 8) >> 8;
+   cmd[8] = (len + 8);
+@@ -2014,7 +2014,7 @@
+   
+   message(4, "Raw toc data len: %d", dataLen);
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   
+   // read disk toc
+   cmd[7] = dataLen >> 8;
+diff -Naur cdrdao-1.1.8.orig/dao/GenericMMCraw.cc cdrdao-1.1.8/dao/GenericMMCraw.cc
+--- cdrdao-1.1.8.orig/dao/GenericMMCraw.cc	2002-11-24 17:25:16.000000000 +0000
++++ cdrdao-1.1.8/dao/GenericMMCraw.cc	2004-04-28 00:15:03.845540796 +0000
+@@ -498,10 +498,10 @@
+   // allocate buffer for sub-channel encoding
+   n = blocksPerWrite_ * blockLength_;
+   delete[] encodeBuffer_;
+-  encodeBuffer_ = new (unsigned char)[n];
++  encodeBuffer_ = new unsigned char[n];
+ 
+   delete[] encSubChannel_;
+-  encSubChannel_ = new (unsigned char)[blocksPerWrite_ * subChannel_->dataLength()];
++  encSubChannel_ = new unsigned char[blocksPerWrite_ * subChannel_->dataLength()];
+ 
+   /*
+   SessionInfo sessInfo;
+diff -Naur cdrdao-1.1.8.orig/dao/PQChannelEncoder.cc cdrdao-1.1.8/dao/PQChannelEncoder.cc
+--- cdrdao-1.1.8.orig/dao/PQChannelEncoder.cc	2001-09-03 17:37:42.000000000 +0000
++++ cdrdao-1.1.8/dao/PQChannelEncoder.cc	2004-04-28 00:15:03.841541506 +0000
+@@ -106,7 +106,7 @@
+ 
+   // create PQ sub channels for toc in lead-in
+   tocLen_ = lastTrackNr_ - firstTrackNr_ + 1 + 3/*A0, A1, A2*/;
+-  toc_ = new (SubChannel*)[tocLen_];
++  toc_ = new SubChannel*[tocLen_];
+ 
+   for (i = 0; i < tocLen_; i++) {
+     toc_[i] = subChannel_->makeSubChannel(SubChannel::QMODE1TOC);
+diff -Naur cdrdao-1.1.8.orig/dao/PlextorReader.cc cdrdao-1.1.8/dao/PlextorReader.cc
+--- cdrdao-1.1.8.orig/dao/PlextorReader.cc	2002-12-03 21:35:36.000000000 +0000
++++ cdrdao-1.1.8/dao/PlextorReader.cc	2004-04-28 00:15:03.826544168 +0000
+@@ -453,7 +453,7 @@
+ 
+   message(4, "Raw toc data len: %d", dataLen);
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   
+   // read disk toc
+   cmd[7] = dataLen >> 8;
+@@ -685,7 +685,7 @@
+ 
+   int overspeed,cai=-1;
+ 
+-  data = new (unsigned char)[blocksPerRead * blockLength];  
++  data = new unsigned char[blocksPerRead * blockLength];  
+ 
+   fat = startTrack;
+   lat = endTrack;
+diff -Naur cdrdao-1.1.8.orig/dao/SonyCDU920.cc cdrdao-1.1.8/dao/SonyCDU920.cc
+--- cdrdao-1.1.8.orig/dao/SonyCDU920.cc	2002-01-20 20:43:36.000000000 +0000
++++ cdrdao-1.1.8/dao/SonyCDU920.cc	2004-04-28 00:15:03.866537069 +0000
+@@ -250,7 +250,7 @@
+     len += t->nofIndices(); // entry for each index increment
+   }
+ 
+-  cueSheet = new (unsigned char)[len * 8];
++  cueSheet = new unsigned char[len * 8];
+   n = 0;
+ 
+   // entry for lead-in
+@@ -803,7 +803,7 @@
+   
+   message(4, "Raw toc data len: %d", dataLen);
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   
+   // read disk toc
+   cmd[7] = dataLen >> 8;
+diff -Naur cdrdao-1.1.8.orig/dao/TeacCdr55.cc cdrdao-1.1.8/dao/TeacCdr55.cc
+--- cdrdao-1.1.8.orig/dao/TeacCdr55.cc	2002-01-20 20:43:36.000000000 +0000
++++ cdrdao-1.1.8/dao/TeacCdr55.cc	2004-04-28 00:15:03.857538666 +0000
+@@ -1291,7 +1291,7 @@
+   if (dataLen == 4)
+     return NULL;
+ 
+-  data = new (unsigned char)[dataLen];
++  data = new unsigned char[dataLen];
+   
+   // read disk toc
+   cmd[7] = dataLen >> 8;
+diff -Naur cdrdao-1.1.8.orig/dao/YamahaCDR10x.cc cdrdao-1.1.8/dao/YamahaCDR10x.cc
+--- cdrdao-1.1.8.orig/dao/YamahaCDR10x.cc	2002-01-20 20:43:36.000000000 +0000
++++ cdrdao-1.1.8/dao/YamahaCDR10x.cc	2004-04-28 00:15:03.850539908 +0000
+@@ -291,7 +291,7 @@
+     len += t->nofIndices(); // entry for each index increment
+   }
+ 
+-  cueSheet = new (unsigned char)[len * 8];
++  cueSheet = new unsigned char[len * 8];
+   n = 0;
+ 
+   if (toc_->leadInMode() == TrackData::AUDIO)
+diff -Naur cdrdao-1.1.8.orig/trackdb/CdTextItem.cc cdrdao-1.1.8/trackdb/CdTextItem.cc
+--- cdrdao-1.1.8.orig/trackdb/CdTextItem.cc	2002-01-20 20:43:36.000000000 +0000
++++ cdrdao-1.1.8/trackdb/CdTextItem.cc	2004-04-28 00:15:03.791550379 +0000
+@@ -36,7 +36,7 @@
+ 
+   dataLen_ = strlen(data) + 1;
+ 
+-  data_ = new (unsigned char)[dataLen_];
++  data_ = new unsigned char[dataLen_];
+ 
+   strcpy((char *)data_, data);
+ }
+@@ -56,7 +56,7 @@
+   dataLen_ = len;
+ 
+   if (len > 0) {
+-    data_ = new (unsigned char)[len];
++    data_ = new unsigned char[len];
+     memcpy(data_, data, len);
+   }
+   else {
+@@ -80,7 +80,7 @@
+   if (description != NULL)
+     dataLen_ += strlen(description) + 1;
+ 
+-  data_ = new (unsigned char)[dataLen_];
++  data_ = new unsigned char[dataLen_];
+   data_[0] = genreCode1;
+   data_[1] = genreCode2;
+ 
+@@ -99,7 +99,7 @@
+   dataLen_ = obj.dataLen_;
+ 
+   if (dataLen_ > 0) {
+-    data_ = new (unsigned char)[dataLen_];
++    data_ = new unsigned char[dataLen_];
+     memcpy(data_, obj.data_, dataLen_);
+   }
+   else {
+diff -Naur cdrdao-1.1.8.orig/trackdb/Cddb.cc cdrdao-1.1.8/trackdb/Cddb.cc
+--- cdrdao-1.1.8.orig/trackdb/Cddb.cc	2001-09-03 17:37:42.000000000 +0000
++++ cdrdao-1.1.8/trackdb/Cddb.cc	2004-04-28 00:15:03.780552331 +0000
+@@ -590,7 +590,7 @@
+ 
+   nargs = ntracks + 5;
+ 
+-  args = new (const char*)[nargs];
++  args = new const char*[nargs];
+   arg = 0;
+ 
+   args[arg++] = "cddb";
+@@ -1244,8 +1244,8 @@
+   cddbEntry_->diskArtist = NULL;
+   cddbEntry_->diskExt = NULL;
+   cddbEntry_->ntracks = ntracks;
+-  cddbEntry_->trackTitles = new (char*)[ntracks];
+-  cddbEntry_->trackExt = new (char*)[ntracks];
++  cddbEntry_->trackTitles = new char*[ntracks];
++  cddbEntry_->trackExt = new char*[ntracks];
+ 
+   for (i = 0; i < ntracks; i++) {
+     cddbEntry_->trackTitles[i] = NULL;
+diff -Naur cdrdao-1.1.8.orig/trackdb/Track.cc cdrdao-1.1.8/trackdb/Track.cc
+--- cdrdao-1.1.8.orig/trackdb/Track.cc	2002-10-13 11:03:08.000000000 +0000
++++ cdrdao-1.1.8/trackdb/Track.cc	2004-04-28 00:15:03.788550911 +0000
+@@ -41,7 +41,7 @@
+   subTracks_ = lastSubTrack_ = NULL;
+ 
+   nofIndices_ = 0;
+-  index_ = new Msf[98](0);
++  index_ = new Msf[98];
+ 
+   isrcValid_ = 0;
+ 
+@@ -75,7 +75,7 @@
+   }
+ 
+   nofIndices_ = obj.nofIndices_;
+-  index_ = new Msf[98](0);
++  index_ = new Msf[98];
+   for (i = 0; i < nofIndices_; i++) {
+     index_[i] = obj.index_[i];
+   }

@@ -1,0 +1,103 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2012-01-17
+Initial Package Version: 3.10.2
+Upstream Status: Not applied, supposedly fixed by a change to configure.
+Origin: http://sourceforge.net/tracker/index.php?func=detail&aid=3369480&group_id=204472&atid=989750
+Modified by: Andy <andy@benton.eu.com>
+Description: Fixes compiling with recent releases of ffmpeg.
+
+diff -Naur opal-3.10.2-orig/plugins/video/H.263-1998/h263-1998.cxx opal-3.10.2/plugins/video/H.263-1998/h263-1998.cxx
+--- opal-3.10.2-orig/plugins/video/H.263-1998/h263-1998.cxx	2011-08-23 00:45:47.000000000 +0100
++++ opal-3.10.2/plugins/video/H.263-1998/h263-1998.cxx	2012-06-21 20:00:02.913023311 +0100
+@@ -311,6 +311,19 @@
+     return;
+   }
+
++  #ifndef CODEC_FLAG_OBMC
++  #define CODEC_FLAG_OBMC           0x00000001
++  #endif
++  #ifndef CODEC_FLAG_H263P_AIV
++  #define CODEC_FLAG_H263P_AIV      0x00000008
++  #endif
++  #ifndef CODEC_FLAG_H263P_UMV
++  #define CODEC_FLAG_H263P_UMV      0x02000000
++  #endif
++  #ifndef CODEC_FLAG_H263P_SLICE_STRUCT
++  #define CODEC_FLAG_H263P_SLICE_STRUCT 0x10000000
++  #endif
++
+   if (STRCMPI(option, H263_ANNEX_D) == 0) {
+     // Annex D: Unrestructed Motion Vectors
+     // Level 2+
+@@ -494,7 +507,7 @@
+
+     // Need to copy to local buffer to guarantee 16 byte alignment
+     memcpy(m_inputFrame->data[0], OPAL_VIDEO_FRAME_DATA_PTR(header), header->width*header->height*3/2);
+-    m_inputFrame->pict_type = (flags & PluginCodec_CoderForceIFrame) ? FF_I_TYPE : FF_P_TYPE;
++    m_inputFrame->pict_type = (flags & PluginCodec_CoderForceIFrame) ? AV_PICTURE_TYPE_I : AV_PICTURE_TYPE_P;
+
+     /*
+     m_inputFrame->pts = (int64_t)srcRTP.GetTimestamp()*m_context->time_base.den/m_context->time_base.num/VIDEO_CLOCKRATE;
+diff -Naur opal-3.10.2-orig/plugins/video/H.264/h264pipe_unix.cxx opal-3.10.2/plugins/video/H.264/h264pipe_unix.cxx
+--- opal-3.10.2-orig/plugins/video/H.264/h264pipe_unix.cxx	2011-08-23 00:45:46.000000000 +0100
++++ opal-3.10.2/plugins/video/H.264/h264pipe_unix.cxx	2012-06-21 20:00:02.913023311 +0100
+@@ -34,6 +34,7 @@
+ #include "h264pipe_unix.h"
+ #include <string.h>
+ #include <codec/opalplugin.hpp>
++#include <unistd.h>
+
+ #define HAVE_MKFIFO 1
+ #define GPL_PROCESS_FILENAME "h264_video_pwplugin_helper"
+diff -Naur opal-3.10.2-orig/plugins/video/MPEG4-ffmpeg/mpeg4.cxx opal-3.10.2/plugins/video/MPEG4-ffmpeg/mpeg4.cxx
+--- opal-3.10.2-orig/plugins/video/MPEG4-ffmpeg/mpeg4.cxx	2011-08-23 00:45:48.000000000 +0100
++++ opal-3.10.2/plugins/video/MPEG4-ffmpeg/mpeg4.cxx	2012-06-21 20:00:02.913023311 +0100
+@@ -536,6 +536,16 @@
+ // unchanged through the duration of the encoding context.
+ //
+
++#ifndef CODEC_FLAG_H263P_UMV
++#define CODEC_FLAG_H263P_UMV      0x02000000
++#endif
++#ifndef CODEC_FLAG_H263P_SLICE_STRUCT
++#define CODEC_FLAG_H263P_SLICE_STRUCT 0x10000000
++#endif
++#ifndef CODEC_FLAG_PART
++#define CODEC_FLAG_PART   0x0080
++#endif
++
+ void MPEG4EncoderContext::SetStaticEncodingParams(){
+     m_avcontext->pix_fmt = PIX_FMT_YUV420P;
+     m_avcontext->mb_decision = FF_MB_DECISION_SIMPLE;    // high quality off
+@@ -802,11 +812,21 @@
+         // Should the next frame be an I-Frame?
+         if ((flags & PluginCodec_CoderForceIFrame) || (m_frameNum == 0))
+         {
+-            m_avpicture->pict_type = FF_I_TYPE;
++            m_avpicture->pict_type = AV_PICTURE_TYPE_I;
+         }
+         else // No IFrame requested, let avcodec decide what to do
+         {
++        #if (LIBAVUTIL_VERSION_MAJOR < 51 || (LIBAVUTIL_VERSION_MAJOR == 51 && LIBAVUTIL_VERSION_MINOR == 0))
+             m_avpicture->pict_type = 0;
++        #elif (LIBAVUTIL_VERSION_MAJOR == 51 && LIBAVUTIL_VERSION_MINOR > 0 && LIBAVUTIL_VERSION_MINOR <= 10)
++        // in ffmpeg git commit bebe72f4a05d338e04ae9ca1e9c6b72749b488aa the AVPictureType
++        // has been introduced along with minor version bump, so cast accordingly
++        m_avpicture->pict_type = (AVPictureType) 0;
++        #elif (LIBAVUTIL_VERSION_MAJOR > 51 || (LIBAVUTIL_VERSION_MAJOR == 51 && LIBAVUTIL_VERSION_MINOR > 10))
++        // a new enum has been added for ffmpeg > 0.8 in git commit 512933671409f9f88cc9fdfc8f29525d32240bab
++        // with subsequent minor version bump in git commit 5a931a158fbe2ea413dcf28c43c4d6bace3514a1
++        m_avpicture->pict_type = AV_PICTURE_TYPE_NONE;
++        #endif
+         }
+
+         // Encode a frame
+@@ -1337,7 +1357,7 @@
+     if (m_doError) {
+         int errors = 0;
+         MpegEncContext *s = (MpegEncContext *) m_avcontext->priv_data;
+-        if (s->error_count && m_avcontext->coded_frame->pict_type == FF_I_TYPE) {
++        if (s->error_count && m_avcontext->coded_frame->pict_type == AV_PICTURE_TYPE_I) {
+             const uint8_t badflags = AC_ERROR | DC_ERROR | MV_ERROR;
+             for (int i = 0; i < s->mb_num && errors < threshold; ++i) {
+                 if (s->error_status_table[s->mb_index2xy[i]] & badflags)

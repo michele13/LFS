@@ -1,0 +1,961 @@
+Submitted By: Bruce Dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2006-05-12
+Initial Package Version: autofs-4.1.4
+Origin: http://ftp.kernel.org/pub/linux/daemons/autofs/v4/
+Upstream Status: In place
+Description: A consolidation of nine upstram packages.
+
+=========
+This patch provides a configure option to disable the use of a lock
+file when calling mount from autofs. It also adds a patch to the
+"patches" directory that needs to be used for mount to (hopefuully)
+prevent /etc/mtab corruption when rapidly mounting filesystems
+when autofs does not use locking.
+
+To disable the locking add the configure option --disable-mount-locking.
+
+diff -Nurp autofs-4.1.4.orig/configure autofs-4.1.4/configure
+--- autofs-4.1.4.orig/configure	2005-04-06 23:24:37.000000000 +0800
++++ autofs-4.1.4/configure	2005-10-23 11:33:44.000000000 +0800
+@@ -842,6 +842,7 @@ Optional Features:
+   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
+   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+ --disable-ext-env          disable search in environment for substitution variable
++--disable-mount-locking          disable use of locking when spawning mount command
+ 
+ Optional Packages:
+   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+@@ -4308,6 +4309,23 @@ _ACEOF
+ fi
+ 
+ #
++# Disable use of locking when spawning mount command
++#
++# Check whether --enable-mount-locking or --disable-mount-locking was given.
++if test "${enable_mount_locking+set}" = set; then
++  enableval="$enable_mount_locking"
++
++else
++  enableval=yes
++fi;
++if test x$enable_mount_locking = xyes -o x$enableval = xyes; then
++	cat >>confdefs.h <<\_ACEOF
++#define ENABLE_MOUNT_LOCKING 1
++_ACEOF
++
++fi
++
++#
+ # Write Makefile.conf and include/config.h
+ #
+           ac_config_headers="$ac_config_headers include/config.h"
+diff --git a/samples/auto.smb b/samples/auto.smb
+index ad44fc0..d0abcd7 100755
+--- a/samples/auto.smb
++++ b/samples/auto.smb
+@@ -5,7 +5,7 @@
+ # This file must be executable to work! chmod 755!
+ 
+ key="$1"
+-opts="-fstype=smbfs"
++opts="-fstype=cifs"
+ 
+ for P in /bin /sbin /usr/bin /usr/sbin
+ do
+@@ -20,7 +20,7 @@ done
+ 
+ $SMBCLIENT -gNL $key 2>/dev/null| awk -v key="$key" -v opts="$opts" -F'|' -- '
+ 	BEGIN	{ ORS=""; first=1 }
+-	/Disk/	{ if (first) { print opts; first=0 }; print " \\\n\t /" $2, "://" key "/" $2 }
++	/Disk/	{ if (first) { print opts; first=0 }; sub(/ /, "\\ ", $2); print " \\\n\t /" $2, "://" key "/" $2 }
+ 	END 	{ if (!first) print "\n"; else exit 1 }
+ 	'
+ 
+diff -Nurp autofs-4.1.4.orig/samples/auto.net autofs-4.1.4/samples/auto.net
+--- autofs-4.1.4.orig/samples/auto.net	2006-04-11 09:24:17.000000000 -0400
++++ autofs-4.1.4/samples/auto.net	2006-04-11 09:27:24.000000000 -0400
+@@ -42,4 +42,4 @@ $SHOWMOUNT | LC_ALL=C sort -k 1 | \
+ 	BEGIN	{ ORS=""; first=1 }
+ 		{ if (first) { print opts; first=0 }; print " \\\n\t" $1, key ":" $1 }
+ 	END	{ if (!first) print "\n"; else exit 1 }
+-	'
++	' | sed 's/#/\\#/g'
+
+diff -Nurp autofs-4.1.4.orig/configure.in autofs-4.1.4/configure.in
+--- autofs-4.1.4.orig/configure.in	2005-04-06 23:24:37.000000000 +0800
++++ autofs-4.1.4/configure.in	2005-10-23 11:33:35.000000000 +0800
+@@ -167,6 +167,16 @@ if test x$enable_ext_env = xyes; then
+ fi
+ 
+ #
++# Disable use of locking when spawning mount command
++#
++AC_ARG_ENABLE(mount-locking,
++--disable-mount-locking          disable use of locking when spawning mount command,,
++	enableval=yes)
++if test x$enable_mount_locking = xyes -o x$enableval = xyes; then
++	AC_DEFINE(ENABLE_MOUNT_LOCKING, 1)
++fi
++
++#
+ # Write Makefile.conf and include/config.h
+ #
+ AC_CONFIG_HEADER(include/config.h)
+diff -Nurp autofs-4.1.4.orig/daemon/spawn.c autofs-4.1.4/daemon/spawn.c
+--- autofs-4.1.4.orig/daemon/spawn.c	2005-02-10 20:56:53.000000000 +0800
++++ autofs-4.1.4/daemon/spawn.c	2005-10-23 10:51:10.000000000 +0800
+@@ -322,6 +322,7 @@ int spawnl(int logpri, const char *prog,
+ 	return do_spawn(logpri, 0, prog, (const char **) argv);
+ }
+ 
++#ifdef ENABLE_MOUNT_LOCKING
+ int spawnll(int logpri, const char *prog, ...)
+ {
+ 	va_list arg;
+@@ -342,3 +343,4 @@ int spawnll(int logpri, const char *prog
+ 
+ 	return do_spawn(logpri, 1, prog, (const char **) argv);
+ }
++#endif
+diff -Nurp autofs-4.1.4.orig/include/automount.h autofs-4.1.4/include/automount.h
+--- autofs-4.1.4.orig/include/automount.h	2005-01-26 21:03:02.000000000 +0800
++++ autofs-4.1.4/include/automount.h	2005-10-23 10:51:10.000000000 +0800
+@@ -121,9 +121,13 @@ extern struct autofs_point ap; 
+ 
+ int aquire_lock(void);
+ void release_lock(void);
+-int spawnll(int logpri, const char *prog, ...);
+ int spawnl(int logpri, const char *prog, ...);
+-int spawnv(int logpri, const char *prog, const char *const *argv);
++#ifdef ENABLE_MOUNT_LOCKING
++int spawnll(int logpri, const char *prog, ...);
++#else
++#define spawnll	spawnl
++#endif
++int spawnv(int ogpri, const char *prog, const char *const *argv);
+ void reset_signals(void);
+ void ignore_signals(void);
+ void discard_pending(int sig);
+diff -Nurp autofs-4.1.4.orig/include/config.h.in autofs-4.1.4/include/config.h.in
+--- autofs-4.1.4.orig/include/config.h.in	2004-02-03 23:23:21.000000000 +0800
++++ autofs-4.1.4/include/config.h.in	2005-10-23 10:51:10.000000000 +0800
+@@ -25,3 +25,5 @@
+ #undef HAVE_SLOPPY_MOUNT
+ 
+ #undef ENABLE_EXT_ENV
++
++#undef ENABLE_MOUNT_LOCKING
+diff -Nurp autofs-4.1.4.orig/patches/util-linux-2.12a-flock.patch autofs-4.1.4/patches/util-linux-2.12a-flock.patch
+--- autofs-4.1.4.orig/patches/util-linux-2.12a-flock.patch	1970-01-01 08:00:00.000000000 +0800
++++ autofs-4.1.4/patches/util-linux-2.12a-flock.patch	2005-10-23 10:51:10.000000000 +0800
+@@ -0,0 +1,30 @@
++--- util-linux-2.12a/mount/fstab.c.flock	2005-09-17 01:36:03.000000000 +0800
+++++ util-linux-2.12a/mount/fstab.c	2005-09-17 01:41:12.000000000 +0800
++@@ -488,7 +488,7 @@ lock_mtab (void) {
++ 				}
++ 				/* proceed anyway */
++ 			}
++-			we_created_lockfile = 1;
+++			we_created_lockfile = fd;
++ 		} else {
++ 			static int tries = 0;
++ 
++@@ -510,9 +510,8 @@ lock_mtab (void) {
++ 					     MOUNTED_LOCK);
++ 				sleep(1);
++ 			}
+++			close(fd);
++ 		}
++-
++-		close(fd);
++ 	}
++ }
++ 
++@@ -520,6 +519,7 @@ lock_mtab (void) {
++ void
++ unlock_mtab (void) {
++ 	if (we_created_lockfile) {
+++		close(we_created_lockfile);
++ 		unlink (MOUNTED_LOCK);
++ 		we_created_lockfile = 0;
++ 	}
+diff -Nurp autofs-4.1.4.orig/patches/util-linux-2.12q-flock.patch autofs-4.1.4/patches/util-linux-2.12q-flock.patch
+--- autofs-4.1.4.orig/patches/util-linux-2.12q-flock.patch	1970-01-01 08:00:00.000000000 +0800
++++ autofs-4.1.4/patches/util-linux-2.12q-flock.patch	2005-10-23 10:51:10.000000000 +0800
+@@ -0,0 +1,29 @@
++--- util-linux-2.12q/mount/fstab.c.flock	2005-09-17 01:10:37.000000000 +0800
+++++ util-linux-2.12q/mount/fstab.c	2005-09-17 01:16:51.000000000 +0800
++@@ -417,6 +417,7 @@
++ unlock_mtab (void) {
++ 	if (we_created_lockfile) {
++ 		unlink (MOUNTED_LOCK);
+++		close(we_created_lock_file);
++ 		we_created_lockfile = 0;
++ 	}
++ }
++@@ -528,6 +529,7 @@
++ 				}
++ 				/* proceed anyway */
++ 			}
+++			we_created_lock_file = fd;
++ 		} else {
++ 			static int tries = 0;
++ 
++@@ -549,9 +551,8 @@
++ 					     MOUNTED_LOCK);
++ 				sleep(1);
++ 			}
+++			close(fd);
++ 		}
++-
++-		close(fd);
++ 	}
++ }
++ 
+
+This patch defines the LDAP_DEPRICATED macro to the compile flags.
+
+This prevents a SIGSEGV when using the depricated LDAP calls on x86_64
+archictecture. A word of warning - as far as I know this should function
+ok with recent versions of openldap but I don't know if it will behave
+as expected on older versions, so use with caution.
+
+diff -Nurp autofs-4.1.4.orig/aclocal.m4 autofs-4.1.4/aclocal.m4
+--- autofs-4.1.4.orig/aclocal.m4	2003-09-29 16:22:35.000000000 +0800
++++ autofs-4.1.4/aclocal.m4	2006-01-25 11:06:23.000000000 +0800
+@@ -9,8 +9,8 @@ dnl ------------------------------------
+ AC_DEFUN(AF_PATH_INCLUDE,
+ [AC_PATH_PROGS($1,$2,$3,$4)
+ if test -n "$$1"; then
+-  AC_DEFINE(HAVE_$1)
+-  AC_DEFINE_UNQUOTED(PATH_$1, "$$1")
++  AC_DEFINE(HAVE_$1,1,[define if you have $1])
++  AC_DEFINE_UNQUOTED(PATH_$1, "$$1", [define if you have $1])
+   HAVE_$1=1
+ else
+   HAVE_$1=0
+@@ -28,7 +28,7 @@ AC_DEFUN(AF_SLOPPY_MOUNT,
+ [if test -n "$MOUNT" ; then
+   AC_MSG_CHECKING([if mount accepts the -s option])
+   if "$MOUNT" -s > /dev/null 2>&1 ; then
+-    AC_DEFINE(HAVE_SLOPPY_MOUNT)
++    AC_DEFINE(HAVE_SLOPPY_MOUNT, 1, [define if the mount command supports the -s option])
+     AC_MSG_RESULT(yes)
+   else
+     AC_MSG_RESULT(no)
+diff -Nurp autofs-4.1.4.orig/configure autofs-4.1.4/configure
+--- autofs-4.1.4.orig/configure	2006-01-25 11:04:56.000000000 +0800
++++ autofs-4.1.4/configure	2006-01-25 11:06:41.000000000 +0800
+@@ -1359,11 +1359,13 @@ done
+ test -n "$MOUNT" || MOUNT="/bin/mount"
+ 
+ if test -n "$MOUNT"; then
+-  cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_MOUNT 1
+ _ACEOF
+ 
+-  cat >>confdefs.h <<_ACEOF
++
++cat >>confdefs.h <<_ACEOF
+ #define PATH_MOUNT "$MOUNT"
+ _ACEOF
+ 
+@@ -1418,11 +1420,13 @@ done
+ test -n "$UMOUNT" || UMOUNT="/bin/umount"
+ 
+ if test -n "$UMOUNT"; then
+-  cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_UMOUNT 1
+ _ACEOF
+ 
+-  cat >>confdefs.h <<_ACEOF
++
++cat >>confdefs.h <<_ACEOF
+ #define PATH_UMOUNT "$UMOUNT"
+ _ACEOF
+ 
+@@ -1476,11 +1480,13 @@ fi
+ done
+ 
+ if test -n "$E2FSCK"; then
+-  cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_E2FSCK 1
+ _ACEOF
+ 
+-  cat >>confdefs.h <<_ACEOF
++
++cat >>confdefs.h <<_ACEOF
+ #define PATH_E2FSCK "$E2FSCK"
+ _ACEOF
+ 
+@@ -1534,11 +1540,13 @@ fi
+ done
+ 
+ if test -n "$E3FSCK"; then
+-  cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_E3FSCK 1
+ _ACEOF
+ 
+-  cat >>confdefs.h <<_ACEOF
++
++cat >>confdefs.h <<_ACEOF
+ #define PATH_E3FSCK "$E3FSCK"
+ _ACEOF
+ 
+@@ -1556,7 +1564,8 @@ if test -n "$MOUNT" ; then
+   echo "$as_me:$LINENO: checking if mount accepts the -s option" >&5
+ echo $ECHO_N "checking if mount accepts the -s option... $ECHO_C" >&6
+   if "$MOUNT" -s > /dev/null 2>&1 ; then
+-    cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define HAVE_SLOPPY_MOUNT 1
+ _ACEOF
+ 
+@@ -3403,6 +3412,7 @@ if test "${with_openldap+set}" = set; th
+ fi;
+ if test -z "$HAVE_LDAP"; then
+ 	HAVE_LDAP=0
++	LDAP_FLAGS="$LDAP_FLAGS -DLDAP_DEPRECATED=1"
+ 	echo "$as_me:$LINENO: checking for ldap_init in -lldap" >&5
+ echo $ECHO_N "checking for ldap_init in -lldap... $ECHO_C" >&6
+ if test "${ac_cv_lib_ldap_ldap_init+set}" = set; then
+@@ -4302,7 +4312,8 @@ else
+   enableval=yes
+ fi;
+ if test x$enable_ext_env = xyes; then
+-	cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define ENABLE_EXT_ENV 1
+ _ACEOF
+ 
+@@ -4319,7 +4330,8 @@ else
+   enableval=yes
+ fi;
+ if test x$enable_mount_locking = xyes -o x$enableval = xyes; then
+-	cat >>confdefs.h <<\_ACEOF
++
++cat >>confdefs.h <<\_ACEOF
+ #define ENABLE_MOUNT_LOCKING 1
+ _ACEOF
+ 
+diff -Nurp autofs-4.1.4.orig/configure.in autofs-4.1.4/configure.in
+--- autofs-4.1.4.orig/configure.in	2006-01-25 11:04:56.000000000 +0800
++++ autofs-4.1.4/configure.in	2006-01-25 11:06:23.000000000 +0800
+@@ -118,6 +118,7 @@ AC_ARG_WITH(openldap,
+ )
+ if test -z "$HAVE_LDAP"; then
+ 	HAVE_LDAP=0
++	LDAP_FLAGS="$LDAP_FLAGS -DLDAP_DEPRECATED=1"
+ 	AC_CHECK_LIB(ldap, ldap_init, HAVE_LDAP=1 LIBLDAP="$LIBLDAP -lldap -llber -lresolv", ,
+ 		     -llber -lresolv $LIBS)
+ fi
+@@ -163,7 +164,7 @@ AC_ARG_ENABLE(ext-env,
+ --disable-ext-env          disable search in environment for substitution variable,,
+ 	enableval=yes)
+ if test x$enable_ext_env = xyes; then
+-	AC_DEFINE(ENABLE_EXT_ENV, 1)
++	AC_DEFINE(ENABLE_EXT_ENV, 1, [leave this alone])
+ fi
+ 
+ #
+@@ -173,7 +174,7 @@ AC_ARG_ENABLE(mount-locking,
+ --disable-mount-locking          disable use of locking when spawning mount command,,
+ 	enableval=yes)
+ if test x$enable_mount_locking = xyes -o x$enableval = xyes; then
+-	AC_DEFINE(ENABLE_MOUNT_LOCKING, 1)
++	AC_DEFINE(ENABLE_MOUNT_LOCKING, 1, [disable mount table locking -- use this if your maps contain recursive mounts -- EXPERIMENTAL])
+ fi
+ 
+ #
+diff -Nurp autofs-4.1.4.orig/include/config.h.in autofs-4.1.4/include/config.h.in
+--- autofs-4.1.4.orig/include/config.h.in	2006-01-25 11:04:56.000000000 +0800
++++ autofs-4.1.4/include/config.h.in	2006-01-25 11:06:43.000000000 +0800
+@@ -1,29 +1,80 @@
+-#ident "$Id: config.h.in,v 1.4 2004/02/03 15:23:21 raven Exp $"
+-/* -*- c -*-
+- *
+- * config.h.in: Pattern file for autofs to be filled in by configure
+- *
+- */
++/* include/config.h.in.  Generated from configure.in by autoheader.  */
+ 
+-/* Program paths */
++/* leave this alone */
++#undef ENABLE_EXT_ENV
++
++/* disable mount table locking -- use this if your maps contain recursive
++   mounts -- EXPERIMENTAL */
++#undef ENABLE_MOUNT_LOCKING
++
++/* define if you have E2FSCK */
++#undef HAVE_E2FSCK
++
++/* define if you have E3FSCK */
++#undef HAVE_E3FSCK
++
++/* Define to 1 if you have the <inttypes.h> header file. */
++#undef HAVE_INTTYPES_H
++
++/* Define to 1 if you have the <memory.h> header file. */
++#undef HAVE_MEMORY_H
++
++/* define if you have MOUNT */
+ #undef HAVE_MOUNT
+-#undef PATH_MOUNT
+ 
++/* define if the mount command supports the -s option */
++#undef HAVE_SLOPPY_MOUNT
++
++/* Define to 1 if you have the <stdint.h> header file. */
++#undef HAVE_STDINT_H
++
++/* Define to 1 if you have the <stdlib.h> header file. */
++#undef HAVE_STDLIB_H
++
++/* Define to 1 if you have the <strings.h> header file. */
++#undef HAVE_STRINGS_H
++
++/* Define to 1 if you have the <string.h> header file. */
++#undef HAVE_STRING_H
++
++/* Define to 1 if you have the <sys/stat.h> header file. */
++#undef HAVE_SYS_STAT_H
++
++/* Define to 1 if you have the <sys/types.h> header file. */
++#undef HAVE_SYS_TYPES_H
++
++/* define if you have UMOUNT */
+ #undef HAVE_UMOUNT
+-#undef PATH_UMOUNT
+ 
+-#undef HAVE_SMBMOUNT
+-#undef PATH_SMBMOUNT
++/* Define to 1 if you have the <unistd.h> header file. */
++#undef HAVE_UNISTD_H
+ 
+-#undef HAVE_E2FSCK
++/* Define to the address where bug reports for this package should be sent. */
++#undef PACKAGE_BUGREPORT
++
++/* Define to the full name of this package. */
++#undef PACKAGE_NAME
++
++/* Define to the full name and version of this package. */
++#undef PACKAGE_STRING
++
++/* Define to the one symbol short name of this package. */
++#undef PACKAGE_TARNAME
++
++/* Define to the version of this package. */
++#undef PACKAGE_VERSION
++
++/* define if you have E2FSCK */
+ #undef PATH_E2FSCK
+ 
+-#undef HAVE_E3FSCK
++/* define if you have E3FSCK */
+ #undef PATH_E3FSCK
+ 
+-/* Define this option if mount(8) supports the -s (sloppy) option */
+-#undef HAVE_SLOPPY_MOUNT
++/* define if you have MOUNT */
++#undef PATH_MOUNT
+ 
+-#undef ENABLE_EXT_ENV
++/* define if you have UMOUNT */
++#undef PATH_UMOUNT
+ 
+-#undef ENABLE_MOUNT_LOCKING
++/* Define to 1 if you have the ANSI C header files. */
++#undef STDC_HEADERS
+
+This patch fixes two things.
+
+First, sloppy error handling when spawning a sub task.
+
+Second, if the process receives a signal while waiting on the lock
+file it will return a "timed out" error after only a little more
+than a tenth of a second. This was due to the wait time variable
+not being reset after each tenth of a second wait.
+
+diff -Nurp autofs-4.1.4.orig/daemon/spawn.c autofs-4.1.4/daemon/spawn.c
+--- autofs-4.1.4.orig/daemon/spawn.c	2005-02-10 20:56:53.000000000 +0800
++++ autofs-4.1.4/daemon/spawn.c	2005-11-01 18:36:35.000000000 +0800
+@@ -214,14 +214,15 @@ static int do_spawn(int logpri, int use_
+ 	sigfillset(&allsignals);
+ 	sigprocmask(SIG_BLOCK, &allsignals, &oldsig);
+ 
+-	if (pipe(pipefd))
++	if (pipe(pipefd)) {
++		if (use_lock)
++			release_lock();
++		sigprocmask(SIG_SETMASK, &oldsig, NULL);
+ 		return -1;
++	}
+ 
+ 	f = fork();
+-	if (f < 0) {
+-		sigprocmask(SIG_SETMASK, &oldsig, NULL);
+-		return -1;
+-	} else if (f == 0) {
++	if (f == 0) {
+ 		reset_signals();
+ 		close(pipefd[0]);
+ 		dup2(pipefd[1], STDOUT_FILENO);
+@@ -243,6 +244,8 @@ static int do_spawn(int logpri, int use_
+ 
+ 		if (f < 0) {
+ 			close(pipefd[0]);
++			if (use_lock)
++				release_lock();
+ 			sigprocmask(SIG_SETMASK, &oldsig, NULL);
+ 			return -1;
+ 		}
+@@ -287,11 +290,11 @@ static int do_spawn(int logpri, int use_
+ 		if (waitpid(f, &status, 0) != f)
+ 			status = -1;	/* waitpid() failed */
+ 
+-		sigprocmask(SIG_SETMASK, &oldsig, NULL);
+-
+ 		if (use_lock)
+ 			release_lock();
+ 
++		sigprocmask(SIG_SETMASK, &oldsig, NULL);
++
+ 		return status;
+ 	}
+ }
+diff -Nurp autofs-4.1.4.orig/lib/lock.c autofs-4.1.4/lib/lock.c
+--- autofs-4.1.4.orig/lib/lock.c	2005-01-17 23:09:28.000000000 +0800
++++ autofs-4.1.4/lib/lock.c	2005-11-01 20:12:28.000000000 +0800
+@@ -208,9 +208,6 @@ void release_lock(void)
+  */
+ static int wait_for_lockf(const char *lockf)
+ {
+-	struct timespec t = { 0, WAIT_INTERVAL };
+-	struct timespec r;
+-	int ts_size = sizeof(struct timespec);
+ 	int tries = WAIT_TRIES;
+ 	int status = 0;
+ 	struct stat st;
+@@ -218,10 +215,13 @@ static int wait_for_lockf(const char *lo
+ 	while (tries-- && !status) {
+ 		status = stat(lockf, &st);
+ 		if (!status) {
++			struct timespec t = { 0, WAIT_INTERVAL };
++			struct timespec r;
++
+ 			while (nanosleep(&t, &r) == -1 && errno == EINTR) {
+ 				if (got_term)
+ 					return 0;
+-				memcpy(&t, &r, ts_size);
++				memcpy(&t, &r, sizeof(struct timespec));
+ 			}
+ 		}
+ 	}
+diff -Nurp autofs-4.1.4.orig/lib/cache.c autofs-4.1.4/lib/cache.c
+--- autofs-4.1.4.orig/lib/cache.c	2005-02-06 14:00:53.000000000 +0800
++++ autofs-4.1.4/lib/cache.c	2005-05-07 17:29:21.000000000 +0800
+@@ -337,8 +337,10 @@ void cache_clean(const char *root, time_
+ 		if (!path)
+ 			return;
+ 
+-		if (is_mounted(_PATH_MOUNTED, path))
++		if (is_mounted(_PATH_MOUNTED, path)) {
++			free(path);
+ 			continue;
++		}
+ 
+ 		if (me->age < age) {
+ 			mapent_hash[i] = me->next;
+diff -Nurp autofs-4.1.4.orig/modules/lookup_file.c autofs-4.1.4/modules/lookup_file.c
+--- autofs-4.1.4.orig/modules/lookup_file.c	2005-04-06 23:14:23.000000000 +0800
++++ autofs-4.1.4/modules/lookup_file.c	2005-05-07 17:27:30.000000000 +0800
+@@ -157,6 +157,10 @@ static int read_one(FILE *f, char *key, 
+ 			break;
+ 
+ 		case st_compare:
++			if (kptr - key > KEY_MAX_LEN) {
++				state = st_badent;
++				break;
++			}
+ 			if (ch == '\n')
+ 				state = st_begin;
+ 			else if (isspace(ch) && !escape) {
+diff -Nurp autofs-4.1.4.orig/modules/parse_sun.c autofs-4.1.4/modules/parse_sun.c
+--- autofs-4.1.4.orig/modules/parse_sun.c	2005-05-07 17:39:44.000000000 +0800
++++ autofs-4.1.4/modules/parse_sun.c	2005-05-07 17:35:27.000000000 +0800
+@@ -680,6 +680,10 @@ static int sun_mount(const char *root, c
+ 	    "mounting root %s, mountpoint %s, what %s, fstype %s, options %s\n",
+ 	    root, mountpoint, what, fstype, options);
+ 
++	/* A malformed entry of the form key /xyz will trigger this case */
++	if (!what || *what == '\0')
++		return 1;
++
+ 	if (!strcmp(fstype, "nfs")) {
+ 		rv = mount_nfs->mount_mount(root, mountpoint, strlen(mountpoint),
+ 					    what, fstype, options, mount_nfs->context);
+@@ -695,6 +699,18 @@ static int sun_mount(const char *root, c
+ 	return rv;
+ }
+ 
++static int key_exists(struct multi_mnt *list, char *path, int pathlen)
++{
++	struct multi_mnt *mmptr = list;
++
++	while (mmptr && pathlen == strlen(mmptr->path)) {
++		if (!strncmp(mmptr->path, path, pathlen))
++			return 1;
++		mmptr = mmptr->next;
++	}
++	return 0;
++}
++
+ /*
+  * Build list of mounts in shortest -> longest order.
+  * Pass in list head and return list head.
+@@ -725,6 +741,12 @@ struct multi_mnt *multi_add_list(struct 
+ 		mmptr = mmptr->next;
+ 	}
+ 
++	/* if a multimount entry has duplicate keys, it is invalid */
++	if (key_exists(mmptr, path, plen)) {
++		free(new);
++		return NULL;
++	}
++
+ 	if (old)
+ 		old->next = new;
+ 	new->next = mmptr;
+diff -Nurp autofs-4.1.4.orig/modules/parse_sun.c autofs-4.1.4/modules/parse_sun.c
+--- autofs-4.1.4.orig/modules/parse_sun.c	2005-04-05 20:42:42.000000000 +0800
++++ autofs-4.1.4/modules/parse_sun.c	2005-04-25 10:00:13.000000000 +0800
+@@ -766,7 +766,16 @@ static int check_is_multi(const char *ma
+ {
+ 	const char *p = (char *) mapent;
+ 	int multi = 0;
+-	int first_chunk = 0;
++	int not_first_chunk = 0;
++
++	if (!p) {
++		crit("check_is_multi: unexpected NULL map entry pointer");
++		return 0;
++	}
++	
++	/* If first character is "/" it's a multi-mount */
++	if (*p == '/')
++		return 1;
+ 
+ 	while (*p) {
+ 		p = skipspace(p);
+@@ -779,7 +788,7 @@ static int check_is_multi(const char *ma
+ 		 * path that begins with '/' indicates a mutil-mount
+ 		 * entry.
+ 		 */
+-		if (first_chunk) {
++		if (not_first_chunk) {
+ 			if (*p == '/' || *p == '-') {
+ 				multi = 1;
+ 				break;
+@@ -796,7 +805,7 @@ static int check_is_multi(const char *ma
+ 		 * after which it's a multi mount.
+ 		 */
+ 		p += chunklen(p, check_colon(p));
+-		first_chunk++;
++		not_first_chunk++;
+ 	}
+ 
+ 	return multi;
+@@ -883,7 +892,12 @@ int parse_mount(const char *root, const 
+ 				return 1;
+ 			}
+ 
+-			path = dequote(p, l = chunklen(p, 0));
++			if (*p != '/') {
++				l = 0;
++				path = dequote("/", 1);
++			} else
++				 path = dequote(p, l = chunklen(p, 0));
++
+ 			if (!path) {
+ 				error(MODPREFIX "out of memory");
+ 				free(myoptions);
+--- autofs-4.1.4/daemon/automount.c.no-unlink	2005-07-11 13:28:57.000000000 -0500
++++ autofs-4.1.4/daemon/automount.c	2005-07-11 13:50:46.000000000 -0500
+@@ -216,16 +216,38 @@ static int walk_tree(const char *base, i
+ static int rm_unwanted_fn(const char *file, const struct stat *st, int when, void *arg)
+ {
+ 	int rmsymlink = *(int *) arg;
++	struct stat newst;
+ 
+ 	if (when == 0) {
+ 		if (st->st_dev != ap.dev)
+ 			return 0;
+-	} else {
+-		info("rm_unwanted: %s\n", file);
+-		if (S_ISDIR(st->st_mode))
+-			rmdir(file);
+-		else if (!S_ISLNK(st->st_mode) || rmsymlink)
+-			unlink(file);
++		return 1;
++	}
++
++	if (lstat(file, &newst)) {
++		crit ("rm_unwanted: unable to stat file, possible race "
++		      "condition.");
++		return 0;
++	}
++
++	if (newst.st_dev != ap.dev) {
++		crit ("rm_unwanted: file %s has the wrong device, possible "
++		      "race condition.",file);
++		return 0;
++	}
++
++	if (S_ISDIR(newst.st_mode)) {
++		if (rmdir(file)) {
++			info ("rm_unwanted: unable to remove directory"
++			      " %s", file);
++			return 0;
++		}
++	} else if (S_ISREG(newst.st_mode)) {
++		crit ("rm_unwanted: attempting to remove files from a mounted "
++		      "directory.");
++		return 0;
++	} else if (S_ISLNK(newst.st_mode) && rmsymlink) {
++		unlink(file);
+ 	}
+ 
+ 	return 1;
+diff -Nurp autofs-4.1.4.orig/modules/mount_nfs.c autofs-4.1.4/modules/mount_nfs.c
+--- autofs-4.1.4.orig/modules/mount_nfs.c	2005-04-25 10:55:27.000000000 +0800
++++ autofs-4.1.4/modules/mount_nfs.c	2005-04-25 10:56:15.000000000 +0800
+@@ -31,6 +31,7 @@
+ #include <netinet/in.h>
+ #include <linux/nfs.h>
+ #include <linux/nfs2.h>
++#include <ctype.h>
+ 
+ #define MODULE_MOUNT
+ #include "automount.h"
+@@ -105,28 +106,117 @@ int is_local_addr(const char *host, cons
+ 	
+ 	return 1;
+ }
++
++/*
++ * If the entry doesn't contain a ',' or doesn't contain more than
++ * one ':' then @what is not a replicated server entry.
++ */
++static int inline is_replicated_entry(char *what)
++{
++	return strchr(what, ',') ||
++		(strchr(what, ':') != strrchr(what, ':'));
++}
++
++/*
++ *  Check to see if the 'host:path' or 'host' is on the local machine
++ *  Returns < 0 if there is a host lookup problem, otherwise returns 0
++ *  if it's not a local mount, and returns > 0 if it is a local mount.
++ */
++int is_local_mount(const char *hostpath)
++{
++	struct hostent *he;
++	char **haddr;
++	char *delim;
++	char *hostname;
++	int hostnamelen;
++	int local = 0;
++
++	debug(MODPREFIX "is_local_mount: %s", hostpath);
++	delim = strpbrk(hostpath,":");
++
++	if (delim) 
++		hostnamelen = delim - hostpath; 
++	else 
++		hostnamelen = strlen(hostpath);
++
++	hostname = malloc(hostnamelen+1);
++	strncpy(hostname, hostpath, hostnamelen);
++	hostname[hostnamelen] = '\0';
++	he = gethostbyname(hostname);
++	if (!he) {
++		error(MODPREFIX "host %s: lookup failure", hostname);
++		return -1;
++	}
++
++	for (haddr = he->h_addr_list; *haddr; haddr++) {
++		local = is_local_addr(hostname, *haddr, he->h_length);
++		if (local < 0) 
++			return local;
++ 		if (local) {
++			debug(MODPREFIX "host %s: is localhost",
++					hostname);
++			return local;
++		}
++	}
++	return 0;
++}
++
+ /*
+  * Given a mount string, return (in the same string) the
+- * best mount to use based on weight/locality/rpctime
++ * best mount to use based on locality/weight/rpctime.
++ *
++ * If longtimeout is set to 0 then we only do 100 ms pings to hosts.  In
++ * the event that this fails, we call ourself recursively with the
++ * longtimeout option set to 1.  In this case we ping for up to 10s and
++ * skip logic for detecting if a localhost has been passed. (if a local
++ * host had been passed, we would have returned that mount as the best
++ * mount.  The skipping of local maps in this case is an optimization).
++ *
+  * - return -1 and what = '\0' on error,
+  *           1 and what = local mount path if local bind,
+  *     else  0 and what = remote mount path
+  */
+-int get_best_mount(char *what, const char *original, int longtimeout, int skiplocal)
++int get_best_mount(char *what, const char *original, int longtimeout)
+ {
+ 	char *p = what;
+ 	char *winner = NULL;
+ 	int winner_weight = INT_MAX, local = 0;
+ 	double winner_time = 0;
+-	char *delim;
++	char *delim, *pstrip;
+ 	int sec = (longtimeout) ? 10 : 0;
+ 	int micros = (longtimeout) ? 0 : 100000;
++	int skiplocal = longtimeout; /* clearly local is not available */
+ 
+ 	if (!p) {
+ 		*what = '\0';
+ 		return -1;
+ 	}
+ 
++	/*
++	 *  If only one mountpoint has been passed in, we don't need to
++	 *  do anything except strip whitespace from the end of the string.
++	 */
++	if (!is_replicated_entry(p)) {
++		for (pstrip = p+strlen(p) - 1; pstrip >= p; pstrip--) 
++			if (isspace(*pstrip))
++				*pstrip = '\0';
++
++		/* Check if the host is the localhost */
++		if (is_local_mount(p) > 0) {
++			debug(MODPREFIX "host %s: is localhost", p);
++
++			/* Strip off hostname and ':' */
++			delim = strchr(p,':');
++			while (delim && *delim != '\0') {
++				delim++;
++				*what = *delim;
++				what++;
++			}
++			return 1;
++		}
++		return 0;
++	}
++
+ 	while (p && *p) {
+ 		char *next;
+ 		unsigned int ping_stat = 0;
+@@ -171,37 +261,17 @@ int get_best_mount(char *what, const cha
+ 		/* p points to a server, "next is our next parse point */
+ 		if (!skiplocal) {
+ 			/* Check if it's localhost */
+-			struct hostent *he;
+-			char **haddr;
+-
+-			he = gethostbyname(p);
+-			if (!he) {
+-				error(MODPREFIX "host %s: lookup failure", p);
+-				p = next;
+-				continue;
+-			}
+-
+-			/* Check each host in round robin list */
+-			for (haddr = he->h_addr_list; *haddr; haddr++) {
+-				local = is_local_addr(p, *haddr, he->h_length);
+-
+-				if (local < 0)
+-					continue;
+-
+-				if (local) {
+-					winner = p;
+-					break;
+-				}
+-			}
+-			
++			local = is_local_mount(p);
+ 			if (local < 0) {
+ 				local = 0;
+ 				p = next;
+ 				continue;
+ 			}
+ 
+-			if (local)
++			if (local) {
++				winner = p;
+ 				break;
++			}
+ 		}
+ 
+ 		/* ping each (or the) entry to see if it's alive. */
+@@ -214,6 +284,7 @@ int get_best_mount(char *what, const cha
+ 		/* First unweighted or only host is alive so set winner */
+ 		if (!winner) {
+ 			winner = p;
++			winner_time = 1;
+ 			/* No more to check, return it */
+ 			if (!next || !*next)
+ 				break;
+@@ -256,7 +327,7 @@ int get_best_mount(char *what, const cha
+ 	 */
+ 	if (!local && winner_weight == INT_MAX) {
+ 		/* We had more than one contender and none responded in time */
+-		if (winner_time != 0 && winner_time > 500) {
++		if (winner_time == 0 || winner_time > 500) {
+ 			/* We've already tried a longer timeout */
+ 			if (!longtimeout) {
+ 				/* Reset string and try again */
+@@ -267,16 +338,14 @@ int get_best_mount(char *what, const cha
+ 				      "retrying with longer timeout",
+ 				      original);
+ 
+-				return get_best_mount(what, original, 1, 1);
++				return get_best_mount(what, original, 1);
+ 			}
+ 		}
+ 	}
+ 
+-	/* No winner found so bail */
+-	if (!winner) {
+-		*what = '\0';
+-		return 0;
+-	}
++	/* No winner found so return first */
++	if (!winner)
++		winner = what;
+ 
+ 	/*
+ 	 * We now have our winner, copy it to the front of the string,
+@@ -395,7 +464,7 @@ int mount_mount(const char *root, const 
+ 		/* No colon, take this as a bind (local) entry */
+ 		local = 1;
+ 	} else if (!nosymlink) {
+-		local = get_best_mount(whatstr, what, 0, 0);
++		local = get_best_mount(whatstr, what, 0);
+ 		if (!*whatstr) {
+ 			warn(MODPREFIX "no host elected");
+ 			return 1;

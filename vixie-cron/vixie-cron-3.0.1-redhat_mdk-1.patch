@@ -1,0 +1,164 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-16
+Initial Package Version: 3.0.1
+Origin: Mandrake SPECS CVS 
+Description: Setup cron for Redhat and Mandrake systems.
+
+You can go to http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/%7echeckout%7e/SPECS/vixie-cron
+to get information on the specific patches.
+
+diff -Naur vixie-cron-3.0.1.orig/Makefile vixie-cron-3.0.1/Makefile
+--- vixie-cron-3.0.1.orig/Makefile	1995-05-31 21:37:20.000000000 +0000
++++ vixie-cron-3.0.1/Makefile	2003-09-16 16:14:17.000000000 +0000
+@@ -50,35 +50,35 @@
+ DESTROOT	=	$(DESTDIR)/usr
+ DESTSBIN	=	$(DESTROOT)/sbin
+ DESTBIN		=	$(DESTROOT)/bin
+-DESTMAN		=	$(DESTROOT)/share/man
++DESTMAN		=	$(DESTROOT)/man
+ #<<need bitstring.h>>
+ INCLUDE		=	-I.
+ #INCLUDE	=
+ #<<need getopt()>>
+ LIBS		=
+ #<<optimize or debug?>>
+-#OPTIM		=	-O
+-OPTIM		=	-g
++OPTIM		=	$(RPM_OPT_FLAGS)
++#OPTIM		=	-g
+ #<<ATT or BSD or POSIX?>>
+ # (ATT untested)
+ #COMPAT		=	-DATT
+ #(BSD is only needed if <sys/params.h> does not define it, as on ULTRIX)
+ #COMPAT		=	-DBSD
+ # (POSIX)
+-#COMPAT		=	-DPOSIX
++COMPAT		=	-DPOSIX
+ #<<lint flags of choice?>>
+ LINTFLAGS	=	-hbxa $(INCLUDE) $(COMPAT) $(DEBUGGING)
+ #<<want to use a nonstandard CC?>>
+ #CC		=	vcc
+ #<<manifest defines>>
+-DEFS		=
++DEFS		= -s
+ #(SGI IRIX systems need this)
+ #DEFS		=	-D_BSD_SIGNALS -Dconst=
+ #<<the name of the BSD-like install program>>
+ #INSTALL = installbsd
+ INSTALL = install
+ #<<any special load flags>>
+-LDFLAGS		=
++LDFLAGS		= -s
+ #################################### end configurable stuff
+ 
+ SHELL		=	/bin/sh
+@@ -113,13 +113,19 @@
+ 			$(CC) $(LDFLAGS) -o crontab $(CRONTAB_OBJ) $(LIBS)
+ 
+ install		:	all
+-			$(INSTALL) -c -m  111 -o root -s cron    $(DESTSBIN)/
+-			$(INSTALL) -c -m 4111 -o root -s crontab $(DESTBIN)/
++			$(INSTALL) -c -m 755 cron    $(DESTSBIN)/crond
++			$(INSTALL) -c -m 4755 crontab $(DESTBIN)/
+ 			sh putman.sh crontab.1 $(DESTMAN)
++			chmod 644 $(DESTMAN)/man1/crontab.1
+ 			sh putman.sh cron.8    $(DESTMAN)
++			chmod 644 $(DESTMAN)/man8/cron.8
++			rm -f $(DESTMAN)/man8/crond.8
++			ln -sf cron.8 $(DESTMAN)/man8/crond.8
+ 			sh putman.sh crontab.5 $(DESTMAN)
++			chmod 644 $(DESTMAN)/man5/crontab.5
+ 
+-clean		:;	rm -f *.o cron crontab a.out core tags *~ #*
++clean		:
++			rm -f *.o cron crontab a.out core tags *~ #*
+ 
+ kit		:	$(SHAR_SOURCE)
+ 			makekit -m -s99k $(SHAR_SOURCE)
+diff -Naur vixie-cron-3.0.1.orig/config.h vixie-cron-3.0.1/config.h
+--- vixie-cron-3.0.1.orig/config.h	1995-05-31 21:37:20.000000000 +0000
++++ vixie-cron-3.0.1/config.h	2003-09-16 16:14:17.000000000 +0000
+@@ -29,7 +29,7 @@
+  */
+ 
+ #ifndef DEBUGGING
+-#define DEBUGGING 1	/* 1 or 0 -- do you want debugging code built in? */
++#define DEBUGGING 0	/* 1 or 0 -- do you want debugging code built in? */
+ #endif
+ 
+ 			/*
+@@ -83,4 +83,4 @@
+ 			 * are both defined, then logging will go to both
+ 			 * places.
+ 			 */
+-#define SYSLOG	 			/*-*/
++/*#define SYSLOG	 			/*-*/
+diff -Naur vixie-cron-3.0.1.orig/cron.8 vixie-cron-3.0.1/cron.8
+--- vixie-cron-3.0.1.orig/cron.8	1995-05-31 21:37:20.000000000 +0000
++++ vixie-cron-3.0.1/cron.8	2003-09-16 16:14:17.000000000 +0000
+@@ -29,7 +29,7 @@
+ so you don't need to start it with '&'.
+ .PP
+ .I Cron
+-searches /var/cron/tabs for crontab files which are named after accounts in
++searches /var/spool/cron for crontab files which are named after accounts in
+ /etc/passwd; crontabs found are loaded into memory.
+ .I Cron
+ also searches for /etc/crontab which is in a different format (see
+diff -Naur vixie-cron-3.0.1.orig/crontab.1 vixie-cron-3.0.1/crontab.1
+--- vixie-cron-3.0.1.orig/crontab.1	1995-05-31 21:37:21.000000000 +0000
++++ vixie-cron-3.0.1/crontab.1	2003-09-16 16:14:17.000000000 +0000
+@@ -83,8 +83,8 @@
+ crontab(5), cron(8)
+ .SH FILES
+ .nf
+-/var/cron/allow
+-/var/cron/deny
++/etc/cron.allow
++/etc/cron.deny
+ .fi
+ .SH STANDARDS
+ The
+diff -Naur vixie-cron-3.0.1.orig/pathnames.h vixie-cron-3.0.1/pathnames.h
+--- vixie-cron-3.0.1.orig/pathnames.h	1995-05-31 21:37:21.000000000 +0000
++++ vixie-cron-3.0.1/pathnames.h	2003-09-16 16:14:17.000000000 +0000
+@@ -28,7 +28,7 @@
+ 			 * to; SPOOL_DIR, ALLOW_FILE, DENY_FILE, and LOG_FILE
+ 			 * are all relative to this directory.
+ 			 */
+-#define CRONDIR		"/var/cron"
++#define CRONDIR		"/var/spool"
+ #endif
+ 
+ 			/* SPOOLDIR is where the crontabs live.
+@@ -39,7 +39,7 @@
+ 			 * newer than they were last time around (or which
+ 			 * didn't exist last time around...)
+ 			 */
+-#define SPOOL_DIR	"tabs"
++#define SPOOL_DIR	"cron"
+ 
+ 			/* undefining these turns off their features.  note
+ 			 * that ALLOW_FILE and DENY_FILE must both be defined
+@@ -47,9 +47,9 @@
+ 			 * LOG_FILE or SYSLOG is defined, we don't log.  If
+ 			 * both are defined, we log both ways.
+ 			 */
+-#define	ALLOW_FILE	"allow"		/*-*/
+-#define DENY_FILE	"deny"		/*-*/
+-#define LOG_FILE	"log"		/*-*/
++#define	ALLOW_FILE	"/etc/cron.allow"		/*-*/
++#define DENY_FILE	"/etc/cron.deny"		/*-*/
++#define LOG_FILE	"/var/log/cron"		/*-*/
+ 
+ 			/* where should the daemon stick its PID?
+ 			 */
+@@ -58,7 +58,7 @@
+ #else
+ # define PIDDIR "/etc/"
+ #endif
+-#define PIDFILE		"%scron.pid"
++#define PIDFILE		"%scrond.pid"
+ 
+ 			/* 4.3BSD-style crontab */
+ #define SYSCRONTAB	"/etc/crontab"

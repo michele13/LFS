@@ -1,0 +1,258 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-01-14
+Initial Package Version: 4.0.14
+Upstream Status: Not submitted
+Origin: http://www.openwall.com/crypt/contrib/\
+        shadow-4.0.3-crypt_blowfish.diff.gz
+Thanks to Stephen Leaf for update.
+Description: Adds blowfish passwords to shadow. This depends on a blowfish
+library.
+
+There's a hint for this patch here:
+http://www.linuxfromscratch.org/hints/downloads/files/blowfish-passwords.txt
+
+diff -Naur shadow-4.0.14/etc/login.defs shadow-4.0.14.new/etc/login.defs
+--- shadow-4.0.14/etc/login.defs	2005-09-03 05:20:20.000000000 -0500
++++ shadow-4.0.14.new/etc/login.defs	2006-01-14 11:07:58.000000000 -0600
+@@ -242,13 +242,6 @@
+ PASS_ALWAYS_WARN	yes
+
+ #
+-# Number of significant characters in the password for crypt().
+-# Default is 8, don't change unless your crypt() is better.
+-# Ignored if MD5_CRYPT_ENAB set to "yes".
+-#
+-#PASS_MAX_LEN		8
+-
+-#
+ # Require password before chfn/chsh can make any changes.
+ #
+ CHFN_AUTH		yes
+@@ -268,15 +261,60 @@
+ # to use the default which is just "Password: ".
+ #LOGIN_STRING		"%s's Password: "
+
+-#
+-# Only works if compiled with MD5_CRYPT defined:
+-# If set to "yes", new passwords will be encrypted using the MD5-based
+-# algorithm compatible with the one used by recent releases of FreeBSD.
+-# It supports passwords of unlimited length and longer salt strings.
+-# Set to "no" if you need to copy encrypted passwords to other systems
+-# which don't understand the new algorithm.  Default is "no".
+-#
+-#MD5_CRYPT_ENAB	no
++# Each password entry contains a prefix that specifies the hashing algorithm
++# used to create the remaining characters/bytes. Use this setting to specify
++# which hashing algorithm is used to create new passwords.
++#
++# The default here is to use the Blowfish-based algorithm, (which currently
++# requires you to be running a patched version of glibc). To use the slightly
++# more compatible MD5-based algorithm, you would set this to $1$. To be
++# completely backwards compatible and use the traditional DES-based hashing,
++# you should set this value to an empty string, but be warned, passwords using
++# this algorithm offer very little security.
++#
++CRYPT_PREFIX   "$2a$"
++
++#
++# For hashing algorithms that can alter their complexity, use this setting to
++# achieve a balance between the security of the password and performance on the
++# host system.
++#
++# This value is interpreted by each algorithm in specific ways. With the
++# Blowfish algorithm, it specifies the number of rounds as a base-2 logarithm
++# of the actual iteration count, so 12 actually refers to 2^12. Altering the
++# value to 11 would therefore halve the number of iterations used to 2^11.
++#
++# Make sure that if you alter the above setting, this setting is also
++# appropriate. For algorithms that have fixed iteration counts, or to
++# enforce the use of a low default value, use a setting of 0.
++#
++CRYPT_ROUNDS   12
++
++# All algorithms require varying amounts of random bytes known as salt. For
++# example the DES-based algorithm requires only 12-bits, (1 bytes), whereas
++# the Blowfish-based algorithm requires 128-bits, (16 bytes).
++#
++# If an algorithm doesn't receive enough salt, more will be collected from
++# /dev/urandom, a byte at a time until it's satisfied. If you know how much
++# is enough to satisfy even the most hungry of algorithms locally available,
++# setting it here will speed up the generation of passwords.
++#
++# A maximum is also provided to enforce an upper limit on this to prevent a
++# wayward algorithm munching all the randomness unnecessarily.
++#
++CRYPT_MINSALT  16
++CRYPT_MAXSALT  32
++
++# Number of significant characters in the password for crypt(). MD5 can
++# effectively cope with unlimited length passwords, but a limit of ~127 is
++# reasonable. Blowfish can handle up to 72 characters, and the DES algorithm
++# can only handle 8.
++#
++# This setting is used in some of the obscure checks, and also to inform the
++# user on how big their new password should be, so it should be set in
++# accordance to the choice of algorithm.
++PASS_MAX_LEN   72
++
+
+ #
+ # List of groups to add to the user's supplementary group set
+diff -Naur shadow-4.0.14/lib/getdef.c shadow-4.0.14.new/lib/getdef.c
+--- shadow-4.0.14/lib/getdef.c	2005-12-02 17:23:34.000000000 -0600
++++ shadow-4.0.14.new/lib/getdef.c	2006-01-14 11:19:15.000000000 -0600
+@@ -51,6 +51,10 @@
+ 	{"CONSOLE_GROUPS", NULL},
+ 	{"CONSOLE", NULL},
+ 	{"CREATE_HOME", NULL},
++	{"CRYPT_MAXSALT", NULL },
++	{"CRYPT_MINSALT", NULL },
++	{"CRYPT_PREFIX", NULL },
++	{"CRYPT_ROUNDS", NULL },
+ 	{"DEFAULT_HOME", NULL},
+ 	{"ENV_PATH", NULL},
+ 	{"ENV_SUPATH", NULL},
+@@ -68,7 +72,9 @@
+ 	{"LOG_UNKFAIL_ENAB", NULL},
+ 	{"MAIL_DIR", NULL},
+ 	{"MAIL_FILE", NULL},
++#if 0
+ 	{"MD5_CRYPT_ENAB", NULL},
++#endif
+ 	{"PASS_MAX_DAYS", NULL},
+ 	{"PASS_MIN_DAYS", NULL},
+ 	{"PASS_WARN_AGE", NULL},
+diff -Naur shadow-4.0.14/libmisc/obscure.c shadow-4.0.14.new/libmisc/obscure.c
+--- shadow-4.0.14/libmisc/obscure.c	2005-08-31 12:24:57.000000000 -0500
++++ shadow-4.0.14.new/libmisc/obscure.c	2006-01-14 11:07:58.000000000 -0600
+@@ -233,8 +233,10 @@
+ 	   Example: "password$%^&*123".  So check it again, this time
+ 	   truncated to the maximum length.  Idea from npasswd.  --marekm */
+
++#if 0
+ 	if (getdef_bool ("MD5_CRYPT_ENAB"))
+ 		return NULL;	/* unlimited password length */
++#endif
+
+ 	maxlen = getdef_num ("PASS_MAX_LEN", 8);
+ 	if (oldlen <= maxlen && newlen <= maxlen)
+diff -Naur shadow-4.0.14/libmisc/salt.c shadow-4.0.14.new/libmisc/salt.c
+--- shadow-4.0.14/libmisc/salt.c	2005-08-31 12:24:58.000000000 -0500
++++ shadow-4.0.14.new/libmisc/salt.c	2006-01-14 11:07:58.000000000 -0600
+@@ -20,6 +20,7 @@
+  * (magic) and pw_encrypt() will execute the MD5-based FreeBSD-compatible
+  * version of crypt() instead of the standard one.
+  */
++#if 0
+ char *crypt_make_salt (void)
+ {
+ 	struct timeval tv;
+@@ -44,3 +45,93 @@
+
+ 	return result;
+ }
++#endif
++
++/* Soopa-doopa salt generation function. There isn't anything algorithm
++ * specific in here, although it does require the Openwall-patched glibc to
++ * provide the crypt_gensalt() function, as well as make use of Blowfish-based
++ * hashing.
++ *
++ * All parameters can be customised from the /etc/login.defs file
++ *
++ * Written by Matt Dainty <madmatt@bits.bris.ac.uk>
++ */
++#include <errno.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <fcntl.h>
++#include <crypt.h>
++
++#define RANDOM_FILE "/dev/random"
++
++char *
++crypt_make_salt(void)
++{
++	char *result, *salt;
++	int fd, offset, minsalt, maxsalt, count;
++
++	minsalt = getdef_num( "CRYPT_MINSALT", 16 );
++	maxsalt = getdef_num( "CRYPT_MAXSALT", 32 );
++
++	if( minsalt > maxsalt ) {
++		fprintf( stderr, "Check the CRYPT_MINSALT and CRYPT_MAXSALT settings!\n" );
++		exit(1);
++	}
++
++	if( ( salt = ( char * ) malloc( maxsalt ) ) == NULL ) {
++		fprintf( stderr, "Can't allocate %d bytes of memory\n", maxsalt );
++		exit(1);
++	}
++
++	if( ( fd = open( RANDOM_FILE, O_RDONLY ) ) < 0 ) {
++		fprintf( stderr, "Can't open %s for reading\n", RANDOM_FILE );
++		free( salt );
++		exit(1);
++	}
++
++	offset = 0;
++	result = NULL;
++
++	while( !result ) {
++		while( offset < minsalt ) {
++			count = read( fd, &salt[offset], minsalt - offset );
++			if( count <= 0 ) {
++				if( errno == EINTR )
++					continue;
++				goto finish;
++			}
++			offset += count;
++		}
++		result = crypt_gensalt( getdef_str( "CRYPT_PREFIX" ),
++					getdef_num( "CRYPT_ROUNDS", 0 ),
++					salt, minsalt );
++
++		if( !result && errno == EINVAL ) {
++			if( minsalt < maxsalt ) {
++				minsalt++;
++			} else {
++				fprintf( stderr, "CRYPT_PREFIX or CRYPT_ROUNDS is set incorrectly\n" );
++				goto finish;
++			}
++		}
++	}
++
++finish:
++	if( salt )
++		free( salt );
++	if( fd )
++		close( fd );
++
++	/* XXX  If we return the salt string as NULL, crypt will currently
++	 *      segfault, so if have we a NULL salt string, exit here.
++	 *      Otherwise, every invocation of crypt_make_salt() will have to
++	 *      check for a NULL return value.
++	 *
++	 *      This way, I don't muck up any more code! :-)
++	 */
++	if( result )
++		return result;
++
++	exit(1);
++}
++
+diff -Naur shadow-4.0.14/src/passwd.c shadow-4.0.14.new/src/passwd.c
+--- shadow-4.0.14/src/passwd.c	2005-12-06 15:25:00.000000000 -0600
++++ shadow-4.0.14.new/src/passwd.c	2006-01-14 11:07:58.000000000 -0600
+@@ -236,9 +236,11 @@
+ 	 * for strength, unless it is the root user. This provides an escape
+ 	 * for initial login passwords.
+ 	 */
++#if 0
+ 	if (getdef_bool ("MD5_CRYPT_ENAB"))
+ 		pass_max_len = 127;
+ 	else
++#endif
+ 		pass_max_len = getdef_num ("PASS_MAX_LEN", 8);
+
+ 	if (!qflg)

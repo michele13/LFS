@@ -1,0 +1,35 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-13
+Initial Package Version: 2.7
+Origin: Rawhide
+Description: Fixes buffer underruns
+
+diff -Naur cracklib,2.7.orig/cracklib/fascist.c cracklib,2.7/cracklib/fascist.c
+--- cracklib,2.7.orig/cracklib/fascist.c	1997-12-31 10:26:46.000000000 +0000
++++ cracklib,2.7/cracklib/fascist.c	2003-09-13 09:50:47.000000000 +0000
+@@ -11,6 +11,7 @@
+ #include "packer.h"
+ #include <sys/types.h>
+ #include <pwd.h>
++#include <string.h>
+ 
+ #define ISSKIP(x) (isspace(x) || ispunct(x))
+ 
+@@ -659,7 +660,7 @@
+ 	return ("it does not contain enough DIFFERENT characters");
+     }
+ 
+-    strcpy(password, Lowercase(password));
++    strcpy(password, (char *)Lowercase(password));
+ 
+     Trim(password);
+ 
+@@ -722,7 +723,7 @@
+ 	}
+     }
+ 
+-    strcpy(password, Reverse(password));
++    strcpy(password, (char *)Reverse(password));
+ 
+     for (i = 0; r_destructors[i]; i++)
+     {

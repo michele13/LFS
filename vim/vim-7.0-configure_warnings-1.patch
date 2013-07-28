@@ -1,0 +1,227 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-12
+Initial Package Version: 7.0
+Upstream Status: Submitted
+Origin: None
+Description: The patch fixes some compiler warnings from the ./configure scripts.
+
+diff -Naur vim70.orig/src/auto/configure vim70/src/auto/configure
+--- vim70.orig/src/auto/configure	2006-05-04 10:46:19.000000000 +0000
++++ vim70/src/auto/configure	2006-10-12 11:16:22.000000000 +0000
+@@ -7527,9 +7527,9 @@
+ 
+ #include <gtk/gtk.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+-int
+-main ()
++int main()
+ {
+ int major, minor, micro;
+ char *tmp_version;
+@@ -7677,9 +7677,9 @@
+ 
+ #include <gtk/gtk.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+-int
+-main ()
++int main()
+ {
+ int major, minor, micro;
+ char *tmp_version;
+@@ -9284,7 +9284,8 @@
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+ #include <ctype.h>
+-main() { exit(toupper('A') == 'A' && tolower('z') == 'z'); }
++#include <stdlib.h>
++int main() { exit(toupper('A') == 'A' && tolower('z') == 'z'); }
+ _ACEOF
+ rm -f conftest$ac_exeext
+ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+@@ -11649,7 +11650,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main() {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(0); }
++#include <stdlib.h>
++int main() {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(0); }
+ _ACEOF
+ rm -f conftest$ac_exeext
+ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+@@ -11762,7 +11764,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main()
++#include <stdlib.h>
++int main()
+ {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(!strcmp(s==0 ? "" : s, "1")); }
+ _ACEOF
+ rm -f conftest$ac_exeext
+@@ -11811,7 +11814,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main()
++#include <stdlib.h>
++int main()
+ {char s[10000]; int res = tgetent(s, "thisterminaldoesnotexist"); exit(res != 0); }
+ _ACEOF
+ rm -f conftest$ac_exeext
+@@ -12327,7 +12331,8 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <stdio.h>
+-main()
++#include <stdlib.h>
++int main()
+ {
+   struct stat sb;
+   char *x,*ttyname();
+@@ -12554,7 +12559,7 @@
+ /* end confdefs.h.  */
+ 
+ char *dagger[] = { "IFS=pwd", 0 };
+-main()
++int main()
+ {
+   char buffer[500];
+   extern char **environ;
+@@ -12818,7 +12823,8 @@
+ /* end confdefs.h.  */
+ #include <sys/types.h>
+ #include <sys/stat.h>
+-main() {struct stat st;  exit(stat("configure/", &st) != 0); }
++#include <stdlib.h>
++int main() {struct stat st;  exit(stat("configure/", &st) != 0); }
+ _ACEOF
+ rm -f conftest$ac_exeext
+ if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+@@ -13761,7 +13767,8 @@
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+ #include <stdio.h>
+-		main()
++#include <stdlib.h>
++		int main()
+ 		{
+ 		  FILE *f=fopen("conftestval", "w");
+ 		  if (!f) exit(1);
+@@ -13803,7 +13810,8 @@
+ echo "$as_me:$LINENO: checking whether memmove/bcopy/memcpy handle overlaps" >&5
+ echo $ECHO_N "checking whether memmove/bcopy/memcpy handle overlaps... $ECHO_C" >&6
+ bcopy_test_prog='
+-main() {
++#include <stdlib.h>
++int main() {
+   char buf[10];
+   strcpy(buf, "abcdefghi");
+   mch_memmove(buf, buf + 2, 3);
+diff -Naur vim70.orig/src/configure.in vim70/src/configure.in
+--- vim70.orig/src/configure.in	2006-05-04 10:46:11.000000000 +0000
++++ vim70/src/configure.in	2006-10-12 11:15:23.000000000 +0000
+@@ -1387,9 +1387,9 @@
+       AC_TRY_RUN([
+ #include <gtk/gtk.h>
+ #include <stdio.h>
++#include <stdlib.h>
+ 
+-int
+-main ()
++int main()
+ {
+ int major, minor, micro;
+ char *tmp_version;
+@@ -1975,7 +1975,8 @@
+ 
+ AC_MSG_CHECKING(quality of toupper)
+ AC_TRY_RUN([#include <ctype.h>
+-main() { exit(toupper('A') == 'A' && tolower('z') == 'z'); }],
++#include <stdlib.h>
++int main() { exit(toupper('A') == 'A' && tolower('z') == 'z'); }],
+ 	AC_DEFINE(BROKEN_TOUPPER) AC_MSG_RESULT(bad),
+ 	AC_MSG_RESULT(good), AC_MSG_ERROR(failed to compile test program))
+ 
+@@ -2164,7 +2165,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main() {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(0); }],
++#include <stdlib.h>
++int main() {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(0); }],
+ 			  res="OK", res="FAIL", res="FAIL")
+       if test "$res" = "OK"; then
+ 	break
+@@ -2193,7 +2195,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main()
++#include <stdlib.h>
++int main()
+ {char *s; s=(char *)tgoto("%p1%d", 0, 1); exit(!strcmp(s==0 ? "" : s, "1")); }],
+ 	  AC_MSG_RESULT([no -- we are in termcap land]),
+ 	  AC_MSG_RESULT([yes -- terminfo spoken here]); AC_DEFINE(TERMINFO),
+@@ -2205,7 +2208,8 @@
+ #ifdef HAVE_TERMCAP_H
+ # include <termcap.h>
+ #endif
+-main()
++#include <stdlib.h>
++int main()
+ {char s[10000]; int res = tgetent(s, "thisterminaldoesnotexist"); exit(res != 0); }],
+ 	  AC_MSG_RESULT(zero); AC_DEFINE(TGETENT_ZERO_ERR, 0),
+ 	  AC_MSG_RESULT(non-zero),
+@@ -2325,7 +2329,8 @@
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <stdio.h>
+-main()
++#include <stdlib.h>
++int main()
+ {
+   struct stat sb;
+   char *x,*ttyname();
+@@ -2393,7 +2398,7 @@
+ AC_MSG_CHECKING(getcwd implementation)
+ AC_TRY_RUN([
+ char *dagger[] = { "IFS=pwd", 0 };
+-main()
++int main()
+ {
+   char buffer[500];
+   extern char **environ;
+@@ -2431,7 +2436,8 @@
+ AC_TRY_RUN(
+ [#include <sys/types.h>
+ #include <sys/stat.h>
+-main() {struct stat st;  exit(stat("configure/", &st) != 0); }],
++#include <stdlib.h>
++int main() {struct stat st;  exit(stat("configure/", &st) != 0); }],
+ 	AC_MSG_RESULT(yes); AC_DEFINE(STAT_IGNORES_SLASH),
+ 	AC_MSG_RESULT(no), AC_MSG_ERROR(failed to compile test program))
+ 
+@@ -2603,7 +2609,8 @@
+ AC_MSG_CHECKING(size of int)
+ AC_CACHE_VAL(ac_cv_sizeof_int,
+ 	[AC_TRY_RUN([#include <stdio.h>
+-		main()
++#include <stdlib.h>
++		int main()
+ 		{
+ 		  FILE *f=fopen("conftestval", "w");
+ 		  if (!f) exit(1);
+@@ -2618,7 +2625,8 @@
+ 
+ AC_MSG_CHECKING(whether memmove/bcopy/memcpy handle overlaps)
+ [bcopy_test_prog='
+-main() {
++#include <stdlib.h>
++int main() {
+   char buf[10];
+   strcpy(buf, "abcdefghi");
+   mch_memmove(buf, buf + 2, 3);

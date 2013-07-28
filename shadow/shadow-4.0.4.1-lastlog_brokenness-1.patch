@@ -1,0 +1,28 @@
+Submitted By: Kristian Rainio (krikesoft@suomi24.fi)
+Date: 2004-09-13
+Initial Package Version: 4.0.4.1
+Origin: NA
+Upstream Status: Not submitted
+Description: This fixes lastlog brokenness in my case. I use glibc-2.3.2
+ 
+diff -Naur shadow-4.0.4.1.orig/libmisc/log.c shadow-4.0.4.1/libmisc/log.c
+--- shadow-4.0.4.1.orig/libmisc/log.c	2003-12-17 12:52:25.000000000 +0000
++++ shadow-4.0.4.1/libmisc/log.c	2004-09-13 10:46:21.356307376 +0000
+@@ -55,7 +55,6 @@
+ 	int fd;
+ 	off_t offset;
+ 	struct lastlog newlog;
+-	time_t ll_time;
+ 
+ 	/*
+ 	 * If the file does not exist, don't create it.
+@@ -87,8 +86,7 @@
+ 	if (ll)
+ 		*ll = newlog;
+ 
+-	ll_time = newlog.ll_time;
+-	time (&ll_time);
++	time (&newlog.ll_time);
+ 	strncpy (newlog.ll_line, line, sizeof newlog.ll_line);
+ #if HAVE_LL_HOST
+ 	strncpy (newlog.ll_host, host, sizeof newlog.ll_host);

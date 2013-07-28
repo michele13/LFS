@@ -1,0 +1,168 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-01-22
+Initial Package Version: 6.1
+Upstream Status: Not submitted.
+Origin: Based on blfs-bootscripts templates.
+Description: This patch adds bootscripts for frandom, openntpd, and rdate.
+
+diff -Naur blfs-bootscripts-6.1.orig/Makefile blfs-bootscripts-6.1.patched/Makefile
+--- blfs-bootscripts-6.1.orig/Makefile	2005-08-15 15:12:26.000000000 +0000
++++ blfs-bootscripts-6.1.patched/Makefile	2006-01-22 06:06:53.000000000 +0000
+@@ -270,6 +270,16 @@
+ 	ln -sf  ../init.d/openldap ${EXTDIR}/rc.d/rc5.d/S25openldap
+ 	ln -sf  ../init.d/openldap ${EXTDIR}/rc.d/rc6.d/K46openldap
+ 
++install-openntpd: create-dirs
++	install -m ${MODE} blfs/init.d/openntpd  ${EXTDIR}/rc.d/init.d/openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc0.d/K46openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc1.d/K46openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc2.d/K46openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc3.d/S26openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc4.d/S26openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc5.d/S26openntpd
++	ln -sf  ../init.d/openntpd ${EXTDIR}/rc.d/rc6.d/K46openntpd
++
+ install-portmap: create-dirs
+ 	install -m ${MODE} blfs/init.d/portmap    ${EXTDIR}/rc.d/init.d/
+ 	ln -sf  ../init.d/portmap ${EXTDIR}/rc.d/rc0.d/K49portmap
+@@ -320,6 +330,12 @@
+ 	ln -sf  ../init.d/random ${EXTDIR}/rc.d/rc5.d/S25random
+ 	ln -sf  ../init.d/random ${EXTDIR}/rc.d/rc6.d/K45random
+ 
++install-rdate: create-dirs
++	install -m ${MODE} blfs/init.d/rdate     ${EXTDIR}/rc.d/init.d/
++	ln -sf  ../init.d/rdate ${EXTDIR}/rc.d/rc3.d/S25rdate
++	ln -sf  ../init.d/rdate ${EXTDIR}/rc.d/rc4.d/S25rdate
++	ln -sf  ../init.d/rdate ${EXTDIR}/rc.d/rc5.d/S25rdate
++
+ install-rsyncd: create-dirs
+ 	install -m ${MODE} blfs/init.d/rsyncd     ${EXTDIR}/rc.d/init.d/
+ 	ln -sf  ../init.d/rsyncd ${EXTDIR}/rc.d/rc0.d/K30rsyncd
+diff -Naur blfs-bootscripts-6.1.orig/blfs/init.d/openntpd blfs-bootscripts-6.1.patched/blfs/init.d/openntpd
+--- blfs-bootscripts-6.1.orig/blfs/init.d/openntpd	1970-01-01 00:00:00.000000000 +0000
++++ blfs-bootscripts-6.1.patched/blfs/init.d/openntpd	2006-01-22 06:06:53.000000000 +0000
+@@ -0,0 +1,37 @@
++#!/bin/sh
++# Begin $rc_base/init.d/openntp
++
++#$LastChangedBy: robert $
++#$Date: 2005-01-18 $
++
++. /etc/sysconfig/rc
++. $rc_functions
++
++case "$1" in
++	start)
++		echo "Starting OpenNTPD..."
++		loadproc /usr/sbin/ntpd -s
++		;;
++
++	stop)
++		echo "Stopping OpenNTPD..."
++		killproc /usr/sbin/ntpd
++		;;
++
++	restart)
++		$0 stop
++		sleep 1
++		$0 start
++		;;
++
++	status)
++		statusproc /usr/sbin/ntpd
++		;;
++
++	*)
++		echo "Usage: $0 {start|stop|restart|status}"
++		exit 1
++		;;
++esac
++
++# End $rc_base/init.d/openntp
+diff -Naur blfs-bootscripts-6.1.orig/blfs/init.d/random blfs-bootscripts-6.1.patched/blfs/init.d/random
+--- blfs-bootscripts-6.1.orig/blfs/init.d/random	2005-08-01 19:29:19.000000000 +0000
++++ blfs-bootscripts-6.1.patched/blfs/init.d/random	2006-01-22 06:10:00.000000000 +0000
+@@ -4,9 +4,10 @@
+ # Based on sysklogd script from LFS-3.1 and earlier.
+ # Rewritten by Gerard Beekmans  - gerard@linuxfromscratch.org
+ # Random script elements by Larry Lawrence
++# Added frandom and changed to use /etc/random-seed by Robert Connolly
+ 
+-#$LastChangedBy: bdubbs $
+-#$Date: 2005-08-01 13:29:19 -0600 (Mon, 01 Aug 2005) $
++#$LastChangedBy: robert $
++#$Date: 2006-01-22 (Sun, 22 Jan 2006) $
+ 
+ . /etc/sysconfig/rc
+ . $rc_functions
+@@ -14,18 +15,34 @@
+ case "$1" in
+ 	start)
+ 		boot_mesg "Initializing kernel random number generator..."
+-		if [ -f /var/tmp/random-seed ]; then
+-			/bin/cat /var/tmp/random-seed >/dev/urandom
++		if [ -f /etc/random-seed ]; then
++			/bin/cat /etc/random-seed >/dev/urandom
++		fi
++		/bin/install -m0600 -o0 /dev/null /etc/random-seed
++		if [ -r /proc/sys/kernel/random/poolsize ]; then
++			dd if=/dev/urandom of=/etc/random-seed count=1 \
++				bs=$(cat /proc/sys/kernel/random/poolsize) 2> /dev/null
++		else
++			dd if=/dev/urandom of=/etc/random-seed \
++				count=1 bs=512 2> /dev/null
++		fi
++		if [ -c /dev/frandom ]; then
++			/bin/dd if=/dev/frandom of=/dev/null \
++				count=1 2>/dev/null
+ 		fi
+-		/bin/dd if=/dev/urandom of=/var/tmp/random-seed \
+-			count=1 &>/dev/null
+ 		evaluate_retval
+ 		;;
+ 
+ 	stop)
+ 		boot_mesg "Saving random seed..."
+-		/bin/dd if=/dev/urandom of=/var/tmp/random-seed \
+-			count=1 &>/dev/null
++		/bin/install -m0600 -o0 /dev/null /etc/random-seed
++		if [ -r /proc/sys/kernel/random/poolsize ]; then
++			dd if=/dev/urandom of=/etc/random-seed count=1 \
++				bs=$(cat /proc/sys/kernel/random/poolsize) 2> /dev/null
++		else
++			dd if=/dev/urandom of=/etc/random-seed \
++				count=1 bs=512 2> /dev/null
++		fi
+ 		evaluate_retval
+ 		;;
+ 
+diff -Naur blfs-bootscripts-6.1.orig/blfs/init.d/rdate blfs-bootscripts-6.1.patched/blfs/init.d/rdate
+--- blfs-bootscripts-6.1.orig/blfs/init.d/rdate	1970-01-01 00:00:00.000000000 +0000
++++ blfs-bootscripts-6.1.patched/blfs/init.d/rdate	2006-01-22 06:06:53.000000000 +0000
+@@ -0,0 +1,26 @@
++#!/bin/sh
++# Begin $rc_base/init.d/rdate
++
++#$LastChangedBy: robert $
++#$Date: 2005-01-21 $
++
++. /etc/sysconfig/rc
++. $rc_functions
++
++case "$1" in
++	start)
++		echo "Running rdate..."
++		if [ -f /etc/rdate.conf ]; then
++		. /etc/rdate.conf
++		loadproc /usr/bin/rdate ${RDATEOPTIONS} ${RDATESERVERS}
++		else
++		echo "/etc/rdate.conf is missing. No servers are configured."
++		fi
++		;;
++	*)
++		echo "Usage: $0 start"
++		exit 1
++		;;
++esac
++
++# End $rc_base/init.d/rdate

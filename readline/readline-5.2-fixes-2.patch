@@ -1,0 +1,45 @@
+Submitted By: Matt Burgess (matthew at linuxfromscratch dot org)
+Date: 2007-03-23
+Initial Package Version: 5.2
+Upstream Status: From Upstream
+Origin: http://ftp.gnu.org/gnu/readline/readline-5.2-patches/
+Description: A combined patch containing patches 001 and 002 from upstream.
+
+diff -Npur readline-5.2.orig/display.c readline-5.2/display.c
+--- readline-5.2.orig/display.c	2006-09-14 18:20:12.000000000 +0000
++++ readline-5.2/display.c	2007-03-24 05:18:54.000000000 +0000
+@@ -561,6 +561,17 @@ rl_redisplay ()
+       wrap_offset = prompt_invis_chars_first_line = 0;
+     }
+ 
++#if defined (HANDLE_MULTIBYTE)
++#define CHECK_INV_LBREAKS() \
++      do { \
++	if (newlines >= (inv_lbsize - 2)) \
++	  { \
++	    inv_lbsize *= 2; \
++	    inv_lbreaks = (int *)xrealloc (inv_lbreaks, inv_lbsize * sizeof (int)); \
++	    _rl_wrapped_line = (int *)xrealloc (_rl_wrapped_line, inv_lbsize * sizeof (int)); \
++	  } \
++      } while (0)
++#else
+ #define CHECK_INV_LBREAKS() \
+       do { \
+ 	if (newlines >= (inv_lbsize - 2)) \
+@@ -569,6 +580,7 @@ rl_redisplay ()
+ 	    inv_lbreaks = (int *)xrealloc (inv_lbreaks, inv_lbsize * sizeof (int)); \
+ 	  } \
+       } while (0)
++#endif /* HANDLE_MULTIBYTE */
+ 
+ #if defined (HANDLE_MULTIBYTE)	  
+ #define CHECK_LPOS() \
+@@ -2380,6 +2392,8 @@ _rl_col_width (str, start, end)
+ 
+   if (end <= start)
+     return 0;
++  if (MB_CUR_MAX == 1 || rl_byte_oriented)
++    return (end - start);
+ 
+   memset (&ps, 0, sizeof (mbstate_t));
+ 

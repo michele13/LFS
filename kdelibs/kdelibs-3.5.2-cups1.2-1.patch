@@ -1,0 +1,31 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2006-05-20
+Initial Package Version: 3.5.2
+Upstream Status:         In upstream CVS
+Origin:                  BLFS BOOK contribution from Matthew Carson
+Description:             Fixes a compilation issue if using CUPS >= 1.2.0
+
+$Id$
+
+
+diff -Naur kdelibs-3.5.2-orig/kdeprint/cups/ipprequest.cpp kdelibs-3.5.2/kdeprint/cups/ipprequest.cpp
+--- kdelibs-3.5.2-orig/kdeprint/cups/ipprequest.cpp	2005-10-10 15:06:30.000000000 +0000
++++ kdelibs-3.5.2/kdeprint/cups/ipprequest.cpp	2006-05-20 19:32:42.000000000 +0000
+@@ -511,6 +511,11 @@
+ 	cupsFreeOptions(n, options);
+ 
+ 	// find an remove that annoying "document-format" attribute
++#if CUPS_VERSION_MAJOR == 1 && CUPS_VERSION_MINOR >= 2
++	ipp_attribute_t *attr = ippFindAttribute(request_, "document-format", IPP_TAG_NAME);
++	ippDeleteAttribute(request_, attr);
++#else
++	// (can't use IppDeleteAttribute as older cups doesn't have that)
+ 	ipp_attribute_t	*attr = request_->attrs;
+ 	while (attr)
+ 	{
+@@ -523,4 +528,5 @@
+ 		}
+ 		attr = attr->next;
+ 	}
++#endif
+ }

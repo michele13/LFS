@@ -1,0 +1,118 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2003-10-12
+Initial Package Version: 2.2.4
+Origin: Unknown (read as: I don't remember)
+Description: A mod to the file selection dialog. Nice.
+
+diff -Naur gtk+-2.2.4.orig/gtk/gtkfilesel.c gtk+-2.2.4/gtk/gtkfilesel.c
+--- gtk+-2.2.4.orig/gtk/gtkfilesel.c	2003-08-14 18:30:36.000000000 -0400
++++ gtk+-2.2.4/gtk/gtkfilesel.c	2003-10-12 17:58:09.000000000 -0400
+@@ -416,6 +416,7 @@
+ static void gtk_file_selection_create_dir  (GtkWidget *widget, gpointer data);
+ static void gtk_file_selection_delete_file (GtkWidget *widget, gpointer data);
+ static void gtk_file_selection_rename_file (GtkWidget *widget, gpointer data);
++static void gtk_file_selection_up_dir      (GtkWidget *widget, gpointer data);
+ 
+ static void free_selected_names (GPtrArray *names);
+ 
+@@ -667,6 +668,8 @@
+ 
+   dialog = GTK_DIALOG (filesel);
+ 
++  gtk_window_set_default_size (GTK_WINDOW(dialog), 450, 400);
++
+   filesel->cmpl_state = cmpl_init_state ();
+ 
+   /* The dialog-sized vertical box  */
+@@ -684,14 +687,31 @@
+   gtk_file_selection_show_fileop_buttons (filesel);
+ 
+   /* hbox for pulldown menu */
+-  pulldown_hbox = gtk_hbox_new (TRUE, 5);
++  pulldown_hbox = gtk_hbox_new (FALSE, 6);
+   gtk_box_pack_start (GTK_BOX (filesel->main_vbox), pulldown_hbox, FALSE, FALSE, 0);
+   gtk_widget_show (pulldown_hbox);
++
++  /* folder up button */
++  filesel->folder_up_button = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
++  g_signal_connect (filesel->folder_up_button, "clicked",
++			  G_CALLBACK (gtk_file_selection_up_dir)
++			  ,filesel);
++  gtk_widget_show (filesel->folder_up_button);
++  gtk_box_pack_start (GTK_BOX (pulldown_hbox), filesel->folder_up_button, FALSE, FALSE, 0);
+   
+   /* Pulldown menu */
+   filesel->history_pulldown = gtk_option_menu_new ();
+   gtk_widget_show (filesel->history_pulldown);
+   gtk_box_pack_start (GTK_BOX (pulldown_hbox), filesel->history_pulldown, 
++		      TRUE, TRUE, 0);
++
++  /* New folder button */
++  filesel->folder_new_button = gtk_button_new_with_mnemonic (_("_New Folder"));
++  g_signal_connect (filesel->folder_new_button, "clicked",
++		G_CALLBACK (gtk_file_selection_create_dir),
++		filesel);
++  gtk_widget_show (filesel->folder_new_button);
++  gtk_box_pack_start (GTK_BOX (pulldown_hbox), filesel->folder_new_button,
+ 		      FALSE, FALSE, 0);
+     
+   /*  The horizontal box containing the directory and file listboxes  */
+@@ -1107,7 +1127,7 @@
+   g_return_if_fail (GTK_IS_FILE_SELECTION (filesel));
+     
+   /* delete, create directory, and rename */
+-  if (!filesel->fileop_c_dir) 
++  /*if (!filesel->fileop_c_dir) 
+     {
+       filesel->fileop_c_dir = gtk_button_new_with_mnemonic (_("_New Folder"));
+       g_signal_connect (filesel->fileop_c_dir, "clicked",
+@@ -1139,6 +1159,7 @@
+ 			  filesel->fileop_ren_file, TRUE, TRUE, 0);
+       gtk_widget_show (filesel->fileop_ren_file);
+     }
++  */
+   
+   gtk_file_selection_update_fileops (filesel);
+   
+@@ -1532,6 +1553,13 @@
+ }
+ 
+ static void
++gtk_file_selection_up_dir (GtkWidget *widget, gpointer data)
++{
++  GtkFileSelection *fs = data;
++  gtk_file_selection_populate (fs, "../" , FALSE, FALSE);
++}
++
++static void
+ gtk_file_selection_delete_file_response (GtkDialog *dialog, 
+                                          gint       response_id,
+                                          gpointer   data)
+@@ -2128,10 +2156,11 @@
+   gtk_list_store_clear (file_model);
+ 
+   /* Set the dir list to include ./ and ../ */
+-  gtk_list_store_append (dir_model, &iter);
++  /*gtk_list_store_append (dir_model, &iter);
+   gtk_list_store_set (dir_model, &iter, DIR_COLUMN, "." G_DIR_SEPARATOR_S, -1);
+   gtk_list_store_append (dir_model, &iter);
+   gtk_list_store_set (dir_model, &iter, DIR_COLUMN, ".." G_DIR_SEPARATOR_S, -1);
++  */
+ 
+   while (poss)
+     {
+diff -Naur gtk+-2.2.4.orig/gtk/gtkfilesel.h gtk+-2.2.4/gtk/gtkfilesel.h
+--- gtk+-2.2.4.orig/gtk/gtkfilesel.h	2003-01-04 15:44:43.000000000 -0500
++++ gtk+-2.2.4/gtk/gtkfilesel.h	2003-10-12 17:58:32.000000000 -0400
+@@ -69,7 +69,10 @@
+   GtkWidget *fileop_entry;
+   gchar     *fileop_file;
+   gpointer   cmpl_state;
+-  
++
++  GtkWidget *folder_up_button;
++  GtkWidget *folder_new_button;
++
+   GtkWidget *fileop_c_dir;
+   GtkWidget *fileop_del_file;
+   GtkWidget *fileop_ren_file;

@@ -1,0 +1,108 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-10-08
+Initial Package Version: 7.1
+Upstream Status: Not Submitted
+Origin: Owl Linux's vim-6.4-owl-tmp.diff
+Description: Use mktemp(1) and mkstemp(3), and exit if they fail.
+
+diff -Naur vim71.orig/runtime/tools/vimspell.sh vim71/runtime/tools/vimspell.sh
+--- vim71.orig/runtime/tools/vimspell.sh	2005-02-03 17:20:48.000000000 +0000
++++ vim71/runtime/tools/vimspell.sh	2007-10-08 15:44:22.000000000 +0000
+@@ -16,7 +16,7 @@
+ 
+ INFILE=$1
+ tmp="${TMPDIR-/tmp}"
+-OUTFILE=`mktemp -t vimspellXXXXXX || tempfile -p vimspell || echo none`
++OUTFILE="`mktemp -t vimspell.XXXXXXXXXX`" || exit
+ # If the standard commands failed then create the file
+ # since we cannot create a directory (we cannot remove it on exit)
+ # create a file in the safest way possible.
+diff -Naur vim71.orig/src/configure.in vim71/src/configure.in
+--- vim71.orig/src/configure.in	2007-10-08 15:44:07.000000000 +0000
++++ vim71/src/configure.in	2007-10-08 15:44:22.000000000 +0000
+@@ -640,7 +640,7 @@
+ 	dnl    see what the interpreter is built from
+ 	AC_CACHE_VAL(vi_cv_path_python_plibs,
+ 	[
+-	    tmp_mkf="/tmp/Makefile-conf$$"
++	    tmp_mkf="`pwd`/Makefile-conf$$"
+ 	    cat ${PYTHON_CONFDIR}/Makefile - <<'eof' >${tmp_mkf}
+ __:
+ 	@echo "python_MODLIBS='$(MODLIBS)'"
+diff -Naur vim71.orig/src/fileio.c vim71/src/fileio.c
+--- vim71.orig/src/fileio.c	2007-10-08 15:44:07.000000000 +0000
++++ vim71/src/fileio.c	2007-10-08 15:44:22.000000000 +0000
+@@ -3394,26 +3394,16 @@
+ 		/*
+ 		 * Check if we can create a file and set the owner/group to
+ 		 * the ones from the original file.
+-		 * First find a file name that doesn't exist yet (use some
+-		 * arbitrary numbers).
+ 		 */
+-		STRCPY(IObuff, fname);
+-		for (i = 4913; ; i += 123)
+-		{
+-		    sprintf((char *)gettail(IObuff), "%d", i);
+-		    if (mch_lstat((char *)IObuff, &st) < 0)
+-			break;
+-		}
+-		fd = mch_open((char *)IObuff,
+-				    O_CREAT|O_WRONLY|O_EXCL|O_NOFOLLOW, perm);
++		sprintf((char *)IObuff, "%s.XXXXXX", fname);
++		fd = mkstemp((char *)IObuff);
+ 		if (fd < 0)	/* can't write in directory */
+ 		    backup_copy = TRUE;
+ 		else
+ 		{
+ # ifdef UNIX
+-#  ifdef HAVE_FCHOWN
+-		    fchown(fd, st_old.st_uid, st_old.st_gid);
+-#  endif
++		    if (fchown(fd, st_old.st_uid, st_old.st_gid) == 0)
++			fchmod(fd, perm);
+ 		    if (mch_stat((char *)IObuff, &st) < 0
+ 			    || st.st_uid != st_old.st_uid
+ 			    || st.st_gid != st_old.st_gid
+diff -Naur vim71.orig/src/vimtutor vim71/src/vimtutor
+--- vim71.orig/src/vimtutor	2007-10-08 15:44:07.000000000 +0000
++++ vim71/src/vimtutor	2007-10-08 15:44:22.000000000 +0000
+@@ -10,34 +10,14 @@
+ xx=$1
+ export xx
+ 
+-# We need a temp file for the copy.  First try using a standard command.
+-tmp="${TMPDIR-/tmp}"
+-TUTORCOPY=`mktemp $tmp/tutorXXXXXX || tempfile -p tutor || echo none`
+-
+-# If the standard commands failed then create a directory to put the copy in.
+-# That is a secure way to make a temp file.
+-if test "$TUTORCOPY" = none; then
+-	tmpdir=$tmp/vimtutor$$
+-	OLD_UMASK=`umask`
+-	umask 077
+-	getout=no
+-	mkdir $tmpdir || getout=yes
+-	umask $OLD_UMASK
+-	if test $getout = yes; then
+-		echo "Could not create directory for tutor copy, exiting."
+-		exit 1
+-	fi
+-	TUTORCOPY=$tmpdir/tutorcopy
+-	touch $TUTORCOPY
+-	TODELETE=$tmpdir
+-else
+-	TODELETE=$TUTORCOPY
+-fi
+-
++# We need a temp file for the copy.
++TUTORCOPY="`mktemp -t vimtutor.XXXXXXXXXX`" || exit
+ export TUTORCOPY
+ 
+ # remove the copy of the tutor on exit
+-trap "rm -rf $TODELETE" 0 1 2 3 9 11 13 15
++trap 'rm -f -- "$TUTORCOPY"' EXIT
++trap 'trap - EXIT; rm -f -- "$TUTORCOPY"; exit 1' HUP INT QUIT TERM
++
+ 
+ # Vim could be called "vim" or "vi".  Also check for "vimN", for people who
+ # have Vim installed with its version number.

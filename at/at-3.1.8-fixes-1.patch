@@ -1,0 +1,1508 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-18
+Initial Package Version: 3.1.8
+Origin: Rawhide SRC RPM
+Description: Fixes known issues with the at daemon
+ 
+diff -Naur at-3.1.8.orig/Makefile.in at-3.1.8/Makefile.in
+--- at-3.1.8.orig/Makefile.in	2002-01-18 06:55:33.000000000 +0000
++++ at-3.1.8/Makefile.in	2003-09-19 01:17:27.000000000 +0000
+@@ -51,6 +51,8 @@
+ 
+ OTHERS		= parsetime.l parsetime.y
+ 
++TEST_VERBOSE	= 0
++
+ DOCS =  Problems Copyright README ChangeLog timespec
+ 
+ MISC =  COPYING  Makefile.in configure acconfig.h install-sh \
+@@ -87,11 +89,11 @@
+ 	$(CC) -c $(CFLAGS) $(DEFS) $*.c
+ 
+ install: all
+-	$(INSTALL) -g root -o root -m 755 -d $(IROOT)$(etcdir)
+-	$(INSTALL) -g root -o root -m 755 -d $(IROOT)$(bindir)
+-	$(INSTALL) -g root -o root -m 755 -d $(IROOT)$(sbindir)
+-	$(INSTALL) -g root -o root -m 755 -d $(IROOT)$(docdir)
+-	$(INSTALL) -g root -o root -m 755 -d $(IROOT)$(atdocdir)
++	$(INSTALL) -m 755 -d $(IROOT)$(etcdir)
++	$(INSTALL) -m 755 -d $(IROOT)$(bindir)
++	$(INSTALL) -m 755 -d $(IROOT)$(sbindir)
++	$(INSTALL) -m 755 -d $(IROOT)$(docdir)
++	$(INSTALL) -m 755 -d $(IROOT)$(atdocdir)
+ 	$(INSTALL) -m 755 -d $(IROOT)$(ATJOB_DIR)
+ 	$(INSTALL) -g $(DAEMON_GROUPNAME) -o $(DAEMON_USERNAME) -m 755 -d $(IROOT)$(ATSPOOL_DIR)
+ 	chmod 700 $(IROOT)$(ATJOB_DIR) $(IROOT)$(ATSPOOL_DIR)
+@@ -99,25 +101,25 @@
+ 	touch $(IROOT)$(LFILE)
+ 	chmod 600 $(IROOT)$(LFILE)
+ 	chown $(DAEMON_USERNAME):$(DAEMON_GROUPNAME) $(IROOT)$(LFILE)
+-	test -f $(IROOT)$(etcdir)/at.allow || test -f $(IROOT)$(etcdir)/at.deny || $(INSTALL) -o root -m 600 at.deny $(IROOT)$(etcdir)/
+-	$(INSTALL) -g root -o root -m 4755 -s at $(IROOT)$(bindir)
++	test -f $(IROOT)$(etcdir)/at.allow || test -f $(IROOT)$(etcdir)/at.deny || $(INSTALL)  -m 600 at.deny $(IROOT)$(etcdir)/
++	$(INSTALL)   -m 4755 -s at $(IROOT)$(bindir)
+ 	$(LN_S) -f at $(IROOT)$(bindir)/atq
+ 	$(LN_S) -f at $(IROOT)$(bindir)/atrm
+-	$(INSTALL) -g root -o root -m 755 batch $(IROOT)$(bindir)
+-	$(INSTALL) -d -o root -g root -m 755 $(IROOT)$(man1dir)
+-	$(INSTALL) -d -o root -g root -m 755 $(IROOT)$(man5dir)
+-	$(INSTALL) -d -o root -g root -m 755 $(IROOT)$(man8dir)
+-	$(INSTALL) -g root -o root -m 755 -s atd $(IROOT)$(sbindir)
+-	$(INSTALL) -g root -o root -m 755 atrun $(IROOT)$(sbindir)
+-	$(INSTALL) -g root -o root -m 644 at.1 $(IROOT)$(man1dir)/
++	$(INSTALL)   -m 755 batch $(IROOT)$(bindir)
++	$(INSTALL) -d   -m 755 $(IROOT)$(man1dir)
++	$(INSTALL) -d   -m 755 $(IROOT)$(man5dir)
++	$(INSTALL) -d   -m 755 $(IROOT)$(man8dir)
++	$(INSTALL)   -m 755 -s atd $(IROOT)$(sbindir)
++	$(INSTALL)   -m 755 atrun $(IROOT)$(sbindir)
++	$(INSTALL)   -m 644 at.1 $(IROOT)$(man1dir)/
+ 	cd $(IROOT)$(man1dir) && $(LN_S) -f at.1 atq.1 && $(LN_S) -f at.1 batch.1 && $(LN_S) -f at.1 atrm.1
+-	$(INSTALL) -g root -o root -m 644 atd.8 $(IROOT)$(man8dir)/
++	$(INSTALL)   -m 644 atd.8 $(IROOT)$(man8dir)/
+ 	sed "s,\$${exec_prefix},$(exec_prefix),g" <atrun.8>tmpman
+-	$(INSTALL) -g root -o root -m 644 tmpman $(IROOT)$(man8dir)/atrun.8
++	$(INSTALL)   -m 644 tmpman $(IROOT)$(man8dir)/atrun.8
+ 	rm -f tmpman
+-	$(INSTALL) -g root -o root -m 644 at_allow.5 $(IROOT)$(man5dir)/
++	$(INSTALL)   -m 644 at_allow.5 $(IROOT)$(man5dir)/
+ 	cd $(IROOT)$(man5dir) && $(LN_S) -f at_allow.5 at_deny.5 
+-	$(INSTALL) -g root -o root -m 644 $(DOCS) $(IROOT)$(atdocdir)
++	$(INSTALL)   -m 644 $(DOCS) $(IROOT)$(atdocdir)
+ 	rm -f $(IROOT)$(mandir)/cat1/at.1* $(IROOT)$(mandir)/cat1/batch.1* \
+ 		$(IROOT)$(mandir)/cat1/atq.1*
+ 	rm -f $(IROOT)$(mandir)/cat1/atd.8*
+@@ -151,6 +153,9 @@
+ parsetest: lex.yy.c y.tab.c
+ 	$(CC) -o parsetest $(CFLAGS) $(DEFS) -DTEST_PARSER -DNEED_YYWRAP lex.yy.c y.tab.c
+ 
++test: parsetest
++	PERL_DL_NONLAZY=1 perl -e 'use Test::Harness qw(&runtests $$verbose); $$verbose=$(TEST_VERBOSE); runtests @ARGV;' test.pl
++
+ .depend: $(CSRCS)
+ 	gcc $(CFLAGS) $(DEFS) -MM $(CSRCS) > .depend
+ 
+diff -Naur at-3.1.8.orig/at.1.in at-3.1.8/at.1.in
+--- at-3.1.8.orig/at.1.in	2002-01-18 07:44:26.000000000 +0000
++++ at-3.1.8/at.1.in	2003-09-19 01:17:35.000000000 +0000
+@@ -1,4 +1,4 @@
+-.Id $Id: at-3.1.8-fixes-1.patch,v 1.1 2003/10/05 21:39:07 jim Exp $
++.Id $Id: at.1.in,v 1.8 1997/09/28 20:00:25 ig25 Exp 
+ .TH AT 1 "Nov 1996" local "Linux Programmer's Manual"
+ .SH NAME
+ at, batch, atq, atrm \- queue, examine or delete jobs for later execution
+@@ -39,7 +39,10 @@
+ and
+ .B batch
+ read commands from standard input or a specified file which are to
+-be executed at a later time, using
++be executed at a later time, using the shell set by the user's environment
++variable
++.BR SHELL
++or
+ .BR /bin/sh .
+ .TP 8
+ .BR at
+@@ -117,7 +120,7 @@
+ .B at 1am tomorrow.
+ .PP
+ The exact definition of the time specification can be found in
+-.IR @prefix@/share/doc/at/timespec .
++.IR @prefix@/share/doc/at-@VERSION@/timespec .
+ .PP
+ For both
+ .BR at " and " batch ,
+diff -Naur at-3.1.8.orig/at.c at-3.1.8/at.c
+--- at-3.1.8.orig/at.c	2002-01-18 04:15:27.000000000 +0000
++++ at-3.1.8/at.c	2003-09-19 01:17:35.000000000 +0000
+@@ -199,7 +199,7 @@
+ 	fscanf(fid, "%5lx", &jobno);
+ 	rewind(fid);
+     } else {
+-	fid = fopen(ATJOB_DIR "/.SEQ", "w");
++	fid = fopen(LFILE, "w");
+ 	if (fid == NULL)
+ 	    return EOF;
+     }
+@@ -231,6 +231,7 @@
+     pid_t pid;
+     int istty;
+     int kill_errno;
++    char *sh, *shell;
+ 
+ /* Install the signal handler for SIGINT; terminate after removing the
+  * spool file if necessary
+@@ -343,8 +344,11 @@
+ 	if (fpin == NULL)
+ 	    perr("Cannot open input file %.500s", atinput);
+     }
+-    fprintf(fp, "#!/bin/sh\n# atrun uid=%d gid=%d\n# mail %8s %d\n",
+-	    real_uid, real_gid, mailname, send_mail);
++    sh = (char *) getenv ("SHELL");
++    shell = (sh ? sh : "/bin/sh");
++
++    fprintf(fp, "#!%s\n# atrun uid=%d gid=%d\n# mail %8s %d\n",
++	    shell, real_uid, real_gid, mailname, send_mail);
+ 
+     /* Write out the umask at the time of invocation
+      */
+@@ -357,24 +361,27 @@
+      */
+     for (atenv = environ; *atenv != NULL; atenv++) {
+ 	int export = 1;
+-	char *eqp;
++	char *pch;
++       char * eqp = *atenv;
++       char * valp = *atenv;
+ 
+-	eqp = strchr(*atenv, '=');
+-	if (ap == NULL)
+-	    eqp = *atenv;
+-	else {
++	if ((pch = strchr(*atenv, '=')) != 0) {
+ 	    unsigned int i;
++
++            eqp = pch;
++            valp = pch + 1;
+ 	    for (i = 0; i < sizeof(no_export) / sizeof(no_export[0]); i++) {
+ 		export = export
+ 		    && (strncmp(*atenv, no_export[i],
+ 				(size_t) (eqp - *atenv)) != 0);
+ 	    }
+-	    eqp++;
+-	}
++	} else {
++            continue; /* no '=', so bail on this one */
++        }
+ 
+ 	if (export) {
+-	    fwrite(*atenv, sizeof(char), eqp - *atenv, fp);
+-	    for (ap = eqp; *ap != '\0'; ap++) {
++	    fwrite(*atenv, sizeof(char), valp - *atenv, fp);
++	    for (ap = valp; *ap != '\0'; ap++) {
+ 		if (*ap == '\n')
+ 		    fprintf(fp, "\"\n\"");
+ 		else {
+@@ -405,7 +412,7 @@
+ 		}
+ 	    }
+ 	    fputs("; export ", fp);
+-	    fwrite(*atenv, sizeof(char), eqp - *atenv - 1, fp);
++	    fwrite(*atenv, sizeof(char), eqp - *atenv, fp);
+ 	    fputc('\n', fp);
+ 
+ 	}
+@@ -851,10 +858,11 @@
+ 	/* POSIX.2 allows the shell specified by the user's SHELL environment
+ 	   variable, the login shell from the user's password database entry,
+ 	   or /bin/sh to be the command interpreter that processes the at-job.
+-	   It also alows a warning diagnostic to be printed.  Because of the
++	   It also allows a warning diagnostic to be printed.  Because of the
+ 	   possible variance, we always output the diagnostic. */
+ 
+-	fprintf(stderr, "warning: commands will be executed using /bin/sh\n");
++/* 	fprintf(stderr, "warning: commands will be executed using /bin/sh\n");
++ */
+ 
+ 	writefile(timer, queue);
+ 	break;
+diff -Naur at-3.1.8.orig/atd.c at-3.1.8/atd.c
+--- at-3.1.8.orig/atd.c	2002-01-18 04:15:27.000000000 +0000
++++ at-3.1.8/atd.c	2003-09-19 01:17:35.000000000 +0000
+@@ -113,7 +113,7 @@
+ static char rcsid[] = "$Id: at-3.1.8-fixes-1.patch,v 1.1 2003/10/05 21:39:07 jim Exp $";
+ static double load_avg = LOADAVG_MX;
+ static time_t now;
+-static time_t last_chg;
++//static time_t last_chg;
+ static int nothing_to_do;
+ unsigned int batch_interval;
+ static int run_as_daemon = 0;
+@@ -188,7 +188,7 @@
+ #endif
+ 
+ static void
+-run_file(const char *filename, uid_t uid, gid_t gid)
++run_file(char *filename, uid_t uid, gid_t gid)
+ {
+ /* Run a file by by spawning off a process which redirects I/O,
+  * spawns a subshell, then waits for it to complete and sends
+@@ -196,9 +196,9 @@
+  */
+     pid_t pid;
+     int fd_out, fd_in;
+-    char mailbuf[9], jobbuf[9];
++    char mailbuf[256], jobbuf[9];
+     char *mailname = NULL;
+-    char *newname;
++    char newname[256];
+     FILE *stream;
+     int send_mail = 0;
+     struct stat buf, lbuf;
+@@ -209,17 +209,24 @@
+     int ngid;
+     char queue;
+     unsigned long jobno;
++    char *shell;
+ 
+     sscanf(filename, "%c%5lx", &queue, &jobno);
+ 
+     sprintf(jobbuf, "%8lu", jobno);
+ 
+-    if ((newname = malloc(strlen(filename) + 1)) == NULL)
+-	pabort("Job %8lu : out of virtual memory", jobno);
++    if( strlen( filename ) >= sizeof( newname ) - 1 )
++    	pabort("File name too long: %s", filename );
+ 
+     strcpy(newname, filename);
++    
++    newname[0] = '!';
++    
++    if( rename( filename, newname ) < 0 )
++    	perr( "Error renaming job file." );
+ 
+-    newname[0] = '=';
++    filename[0] = '!';
++    newname[0] = '=';    
+ 
+     /* We try to make a hard link to lock the file.  If we fail, then
+      * somebody else has already locked it (a second atd?); log the
+@@ -234,13 +241,15 @@
+ 	}
+     }
+     /* If something goes wrong between here and the unlink() call,
+-     * the job gets restarted as soon as the "=" entry is cleared
+-     * by the main atd loop.
+-     */
++     * the job will remain in the "!" queue.
++     * no point in retrying, and need glaring proof that something went wrong
++     */     
+ 
+     pid = fork();
+-    if (pid == -1)
++    if (pid == -1) {
++        unlink( newname );
+ 	perr("Cannot fork");
++    }
+ 
+     else if (pid != 0) {
+ 	return;
+@@ -252,6 +261,7 @@
+ 
+     pentry = getpwuid(uid);
+     if (pentry == NULL) {
++        unlink( newname );
+ 	pabort("Userid %lu not found - aborting job %8lu (%.500s)",
+ 	       (unsigned long) uid, jobno, filename);
+     }
+@@ -261,34 +271,49 @@
+ 
+     PRIV_END
+ 
+-    if (stream == NULL)
++    if (stream == NULL) {
++    	unlink( newname );
+ 	perr("Cannot open input file");
++    }
+ 
+-    if ((fd_in = dup(fileno(stream))) < 0)
++    if ((fd_in = dup(fileno(stream))) < 0) {
++    	unlink( newname );
+ 	perr("Error duplicating input file descriptor");
++    }
+ 
+-    if (fstat(fd_in, &buf) == -1)
++    if (fstat(fd_in, &buf) == -1) {
++    	unlink( newname );
+ 	perr("Error in fstat of input file descriptor");
++    }
+ 
+-    if (lstat(filename, &lbuf) == -1)
++    if (lstat(filename, &lbuf) == -1) {
++    	unlink( newname );
+ 	perr("Error in fstat of input file");
++    }
+ 
+-    if (S_ISLNK(lbuf.st_mode))
++    if (S_ISLNK(lbuf.st_mode)) {
++    	unlink( newname );
+ 	perr("Symbolic link encountered in job %8lu (%.500s) - aborting",
+ 	     jobno, filename);
++    }			     
+ 
+     if ((lbuf.st_dev != buf.st_dev) || (lbuf.st_ino != buf.st_ino) ||
+ 	(lbuf.st_uid != buf.st_uid) || (lbuf.st_gid != buf.st_gid) ||
+-	(lbuf.st_size != buf.st_size))
++	(lbuf.st_size != buf.st_size)) {
++	unlink( newname );
+ 	perr("Somebody changed files from under us for job %8lu (%.500s) - "
+ 	     "aborting", jobno, filename);
++    }	    
+ 
+     if (buf.st_nlink > 2) {
+-	perr("Someboy is trying to run a linked script for job %8lu (%.500s)",
++    	unlink( newname );
++	perr("Somebody is trying to run a linked script for job %8lu (%.500s)",
+ 	     filename);
+     }
+-    if ((fflags = fcntl(fd_in, F_GETFD)) < 0)
++    if ((fflags = fcntl(fd_in, F_GETFD)) < 0) {
++    	unlink( newname );
+ 	perr("Error in fcntl");
++    }		
+ 
+     fcntl(fd_in, F_SETFD, fflags & ~FD_CLOEXEC);
+ 
+@@ -299,33 +324,48 @@
+      * NFS and works with local file systems.  It's not clear where
+      * the bug is located.  -Joey
+      */
+-    if (fscanf(stream, "#!/bin/sh\n# atrun uid=%d gid=%d\n# mail %8s %d",
+-	       &nuid, &ngid, mailbuf, &send_mail) != 4)
++    if (fscanf(stream, "#!%as\n# atrun uid=%d gid=%d\n# mail %255s %d",
++	       &shell, &nuid, &ngid, mailbuf, &send_mail) != 5) {
++	unlink( newname );
+ 	pabort("File %.500s is in wrong format - aborting",
+ 	       filename);
++    }	       
++    mailbuf[255] = '\0';
+ 
+-    if (mailbuf[0] == '-')
++    if (mailbuf[0] == '-') {
++    	unlink( newname );
+ 	pabort("illegal mail name %.300s in job %8lu (%.300s)", mailbuf,
+ 	       jobno, filename);
++    }	       
+ 
+     mailname = mailbuf;
+-    if (nuid != uid)
++    if (nuid != uid) {
++    	unlink( newname );
+ 	pabort("Job %8lu (%.500s) - userid %d does not match file uid %d",
+ 	       jobno, filename, nuid, uid);
++    }	       
+ 
+-    if (ngid != gid)
++    if (ngid != gid) {
++    	unlink( newname );
+ 	pabort("Job %8lu %.500s - groupid %d does not match file gid %d",
+ 	       jobno, filename, ngid, gid);
++    }	       
+ 
+     /* We are now committed to executing this script.  Unlink the
+      * original.
+      */
+ 
+     unlink(filename);
++    
++    /* If we bail out from now on, the job gets stuck in "="
++     * The main loop should take care of that.
++     */
+ 
+     fclose(stream);
+     if (chdir(ATSPOOL_DIR) < 0)
+ 	perr("Cannot chdir to " ATSPOOL_DIR);
++	
++    filename[0] = queue;	
+ 
+     /* Create a file to hold the output of the job we are about to run.
+      * Write the mail header.  Complain in case 
+@@ -394,10 +434,15 @@
+ 	    if (setuid(uid) < 0)
+ 		perr("Cannot set user id");
+ 
++	    if (SIG_ERR == signal(SIGCHLD, SIG_DFL))
++		perr("Cannot reset signal handler to default");
++
+ 	    chdir("/");
+ 
+-	    if (execle("/bin/sh", "sh", (char *) NULL, nenvp) != 0)
+-		perr("Exec failed for /bin/sh");
++	    if (execle(shell, shell, (char *) NULL, nenvp) != 0)
++		perr("Exec failed for %s", shell);
++
++	    free (shell);
+ 
+ 	PRIV_END
+     }
+@@ -413,19 +458,21 @@
+     waitpid(pid, (int *) NULL, 0);
+ 
+     /* Send mail.  Unlink the output file after opening it, so it
+-     * doesn't hang around after the run.
++     * doesn't hang around after the run (if we are to send mail)
+      */
+-    stat(filename, &buf);
+-    if (open(filename, O_RDONLY) != STDIN_FILENO)
+-	perr("Open of jobfile failed");
++     
++    if( send_mail != -1 ) {
++      stat(filename, &buf);
++      if (open(filename, O_RDONLY) != STDIN_FILENO)
++	  perr("Open of jobfile failed");
+ 
+-    unlink(filename);
++      unlink(filename);
++    }
+ 
+     /* The job is now finished.  We can delete its input file.
+      */
+     chdir(ATJOB_DIR);
+     unlink(newname);
+-    free(newname);
+ 
+     if (((send_mail != -1) && (buf.st_size != size)) || (send_mail == 1)) {
+ 
+@@ -449,7 +496,8 @@
+ #elif  defined(MAILX)
+ 	    execl(MAILX, "mailx", mailname, (char *) NULL);
+ #else
+-#error      "No mail command specified."
++/*#error      "No mail command specified."*/
++	perr("No mail command specified.");
+ #endif
+ 	    perr("Exec failed for mail command");
+ 
+@@ -458,6 +506,8 @@
+     exit(EXIT_SUCCESS);
+ }
+ 
++#define CHECK_INTERVAL_5MIN	300
++
+ static time_t
+ run_loop()
+ {
+@@ -487,7 +537,7 @@
+      * atrun.
+      */
+ 
+-    next_job = now + CHECK_INTERVAL;
++    next_job = now + CHECK_INTERVAL_5MIN;
+     if (next_batch == 0)
+ 	next_batch = now;
+ 
+@@ -498,11 +548,11 @@
+ 
+     if (stat(".", &buf) == -1)
+ 	perr("Cannot stat " ATJOB_DIR);
+-
++/*
+     if (nothing_to_do && buf.st_mtime <= last_chg)
+ 	return next_job;
+     last_chg = buf.st_mtime;
+-
++*/    
+     if ((spool = opendir(".")) == NULL)
+ 	perr("Cannot read " ATJOB_DIR);
+ 
+@@ -558,6 +608,7 @@
+ 		 * Let's remove the lockfile and reschedule.
+ 		 */
+ 		strncpy(lock_name, dirent->d_name, sizeof(lock_name));
++		lock_name[sizeof(lock_name)-1] = '\0';
+ 		lock_name[0] = '=';
+ 		unlink(lock_name);
+ 		next_job = now;
+@@ -574,7 +625,7 @@
+ 	nothing_to_do = 0;
+ 
+ 	/* There's a job for later.  Note its execution time if it's
+-	 * the earlierst so far.
++	 * the earliest so far.
+ 	 */
+ 	if (run_time > now) {
+ 	    if (next_job > run_time) {
+@@ -592,6 +643,7 @@
+ 	    run_batch++;
+ 	    if (strcmp(batch_name, dirent->d_name) > 0) {
+ 		strncpy(batch_name, dirent->d_name, sizeof(batch_name));
++		batch_name[sizeof(batch_name)-1] = '\0';
+ 		batch_uid = buf.st_uid;
+ 		batch_gid = buf.st_gid;
+ 		batch_queue = queue;
+@@ -628,7 +680,7 @@
+ int
+ main(int argc, char *argv[])
+ {
+-/* Browse through  ATJOB_DIR, checking all the jobfiles wether they should
++/* Browse through  ATJOB_DIR, checking all the jobfiles whether they should
+  * be executed and or deleted. The queue is coded into the first byte of
+  * the job filename, the date (in minutes since Eon) as a hex number in the
+  * following eight bytes, followed by a dot and a serial number.  A file
+diff -Naur at-3.1.8.orig/atrun.8.in at-3.1.8/atrun.8.in
+--- at-3.1.8.orig/atrun.8.in	2002-01-18 04:15:27.000000000 +0000
++++ at-3.1.8/atrun.8.in	2003-09-19 01:17:36.000000000 +0000
+@@ -11,7 +11,7 @@
+ .B atrun
+ runs jobs queued by
+ .BR at(1) .
+-It is a shell script containing invoking
++It is a shell script invoking
+ .B @sbindir@/atd
+ with the
+ .I -s
+diff -Naur at-3.1.8.orig/batch.in at-3.1.8/batch.in
+--- at-3.1.8.orig/batch.in	1997-03-12 23:57:40.000000000 +0000
++++ at-3.1.8/batch.in	2003-09-19 01:17:25.000000000 +0000
+@@ -1,4 +1,42 @@
+ #! /bin/sh
+ prefix=@prefix@
+ exec_prefix=@exec_prefix@
+-exec @bindir@/at -qb now "$@"
++
++# Set defaults
++OPT_f=""
++OPT_m=""
++OPT_q="-q b"
++OPT_v=""
++OPT_V=""
++time_date_arg="now"
++
++# Note that we use `"$@"' to let each command-line parameter expand to a 
++# separate word. The quotes around `$@' are essential!
++# We need TEMP as the `eval set --' would nuke the return value of getopt.
++TEMP=`@GETOPT@ 'f:mq:vV' "$@"`
++
++if [ $? != 0 ] ; then
++    echo "batch: error parsing command-line arguments" >&2
++    exit 1
++fi
++
++# Note the quotes around `$TEMP': they are essential!
++eval set -- "$TEMP"
++
++while true ; do
++    case "$1" in
++        -f) OPT_f="-f $2" ; shift 2 ;;
++        -m) OPT_m="-m"; shift ;;
++        -q) OPT_q="-q $2"; shift 2 ;;
++        -v) OPT_v="-v"; shift ;;
++        -V) OPT_V="-V"; shift ;;
++        --) shift ; break ;;
++        *) echo "batch: internal parsing error" >&2 ; exit 1 ;;
++    esac
++done
++
++if [ ! -z "$*" ] ; then
++    time_date_arg="$*"
++fi
++
++exec @bindir@/at $OPT_f $OPT_m $OPT_q $OPT_v $OPT_V $time_date_arg
+diff -Naur at-3.1.8.orig/configure.in at-3.1.8/configure.in
+--- at-3.1.8.orig/configure.in	2002-01-18 08:07:02.000000000 +0000
++++ at-3.1.8/configure.in	2003-09-19 01:17:25.000000000 +0000
+@@ -90,6 +90,11 @@
+ MAIL_CMD="$ac_cv_path_SENDMAIL"
+ fi
+ 
++AC_PATH_PROG(GETOPT, getopt, , $PATH:/bin:/usr/bin:/usr/local/bin )
++if test "$ac_cv_path_GETOPT" != "" ; then
++AC_DEFINE_UNQUOTED(GETOPT,"$ac_cv_path_GETOPT")
++fi
++
+ AC_SUBST(MAIL_CMD)
+ 
+ AC_MSG_CHECKING(etcdir)
+diff -Naur at-3.1.8.orig/parsetime.l at-3.1.8/parsetime.l
+--- at-3.1.8.orig/parsetime.l	1997-09-28 18:26:30.000000000 +0000
++++ at-3.1.8/parsetime.l	2003-09-19 01:17:26.000000000 +0000
+@@ -32,7 +32,6 @@
+     } while(0)
+ %}
+ 
+-WORD		[a-z][a-z0-9]+
+ %%
+ 
+ now		{ COPY_TOK ; return NOW; }
+@@ -57,6 +56,7 @@
+ day(s)?		{ COPY_TOK ; return DAY; }
+ week(s)?	{ COPY_TOK ; return WEEK; }
+ month(s)?	{ COPY_TOK ; return MONTH; }
++year(s)?	{ COPY_TOK ; return YEAR; }
+ jan(uary)?	{ COPY_TOK ; return JAN; }
+ feb(ruary)?	{ COPY_TOK ; return FEB; }
+ mar(ch)?	{ COPY_TOK ; return MAR; }
+@@ -69,9 +69,16 @@
+ oct(ober)?	{ COPY_TOK ; return OCT; }
+ nov(ember)?	{ COPY_TOK ; return NOV; }
+ dec(ember)?	{ COPY_TOK ; return DEC; }
++utc		{ COPY_TOK ; return UTC; }
++[0-9]{1}	{ COPY_TOK ; COPY_VAL; return INT1DIGIT; }
++[0-9]{2}	{ COPY_TOK ; COPY_VAL; return INT2DIGIT; }
++[0-9]{4}	{ COPY_TOK ; COPY_VAL; return INT4DIGIT; }
++[0-9]{5,8}	{ COPY_TOK ; COPY_VAL; return INT5_8DIGIT; }
+ [0-9]+		{ COPY_TOK ; COPY_VAL; return INT; }
++[0-9]{1,2}\.[0-9]{1,2}\.[0-9]{2}([0-9]{2})?	{ COPY_TOK ; COPY_VAL; return DOTTEDDATE; }
++[0-9]{2}([0-9]{2})?-[0-9]{1,2}-[0-9]{1,2}	{ COPY_TOK ; COPY_VAL; return HYPHENDATE; }
++[012]?[0-9][:'h,.][0-9]{2}	{ COPY_TOK ; COPY_VAL; return HOURMIN; }
+ [ \t\n]		;
+-{WORD}		{ COPY_TOK ; COPY_VAL; return WORD; }
+ .		{ COPY_TOK ; return yytext[0]; }
+ 
+ %%
+diff -Naur at-3.1.8.orig/parsetime.y at-3.1.8/parsetime.y
+--- at-3.1.8.orig/parsetime.y	2002-01-18 04:15:27.000000000 +0000
++++ at-3.1.8/parsetime.y	2003-09-19 01:17:26.000000000 +0000
+@@ -22,6 +22,13 @@
+ 	int		intval;
+ }
+ 
++%token  <charval> DOTTEDDATE
++%token  <charval> HYPHENDATE
++%token  <charval> HOURMIN
++%token  <charval> INT1DIGIT
++%token  <charval> INT2DIGIT
++%token  <charval> INT4DIGIT
++%token  <charval> INT5_8DIGIT
+ %token  <charval> INT
+ %token  NOW
+ %token  AM PM
+@@ -31,48 +38,61 @@
+ %token  NEXT
+ %token  MINUTE HOUR DAY WEEK MONTH YEAR
+ %token  JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC
+-%token  <charval> WORD
++%token  UTC
+ 
+-%type <intval> inc_period
+-%type <intval> inc_number
++%type <charval> concatenated_date
++%type <charval> hr24clock_hr_min
++%type <charval> int1_2digit
++%type <charval> int2_or_4digit
++%type <charval> integer
++%type <intval> inc_dec_period
++%type <intval> inc_dec_number
+ %type <intval> day_of_week
+ 
+ %start timespec
+ %%
+-timespec        : date
++timespec        : spec_base
++		| spec_base inc_or_dec
++		    {
++			time_only = 0;
++
++		    }
++                ;
++
++spec_base	: date
+ 		| time
+ 		    {
+ 			time_only = 1;
+ 		    }
+                 | time date
+-                | time_or_not inc_or_dec
+-                | time_or_not date inc_or_dec
+-                | nowspec
+-                ;
++                | NOW
++		;
+ 
+-nowspec         : now
+-                | now inc_or_dec
++time		: time_base
++		| time_base timezone_name
+                 ;
+ 
+-now		: NOW 
+-                | TOMORROW
+-		   {
+-			add_date(1, DAY);
+-		   }
+-		;
+-
+-time_or_not     : time
+-		|
++time_base	: hr24clock_hr_min
++		    {
++			exectm.tm_min = -1;
++			exectm.tm_hour = -1;
++			sscanf($1, "%2d %2d", &exectm.tm_hour,
++			    &exectm.tm_min);
++			free($1);
+ 
+-time            : hr24clock_hr_min
+-                | hr24clock_hr_min timezone_name
+-                | hr24clock_hour time_sep minute
+-                | hr24clock_hour time_sep minute timezone_name
+-                | hr24clock_hour am_pm
+-                | hr24clock_hour am_pm timezone_name
+-                | hr24clock_hour time_sep minute am_pm
+-                | hr24clock_hour time_sep minute am_pm timezone_name
+-                | NOON
++			if (exectm.tm_min > 60 || exectm.tm_min < 0) {
++			    yyerror("Problem in minutes specification");
++			    YYERROR;
++			}
++			if (exectm.tm_hour > 24 || exectm.tm_hour < 0) {
++			    yyerror("Problem in hours specification");
++			    YYERROR;
++		        }
++		    }
++		| time_hour am_pm
++		| time_hour_min
++		| time_hour_min am_pm
++		| NOON
+ 		    {
+ 			exectm.tm_hour = 12;
+ 			exectm.tm_min = 0;
+@@ -81,128 +101,23 @@
+ 		    {
+ 			exectm.tm_hour = 0;
+ 			exectm.tm_min = 0;
+-			add_date(1, DAY);
+ 		    }
+ 		| TEATIME
+ 		    {
+ 			exectm.tm_hour = 16;
+ 			exectm.tm_min = 0;
+ 		    }
+-                ;
+-
+-date            : month_name day_number
+-                | month_name day_number year_number
+-                | month_name day_number ',' year_number
+-                | day_of_week
+-		   {
+-		       add_date ((6 + $1 - exectm.tm_wday) %7 + 1, DAY);
+-		   }
+-                | TODAY
+-                | TOMORROW
+-		   {
+-			add_date(1, DAY);
+-		   }
+-		| year_number '-' month_number '-' day_number
+-		| day_number '.' month_number '.' year_number
+-		| day_number '.' month_number
+-		| day_number month_name
+-		| day_number month_name year_number
+-		| month_number '/' day_number '/' year_number
+-                ;
+-
+-inc_or_dec	: increment
+-		| decrement
+-
+-increment       : '+' inc_number inc_period
+-		    {
+-		        add_date($2, $3);
+-		    }
+-                | NEXT inc_period		
+-		    {
+-			add_date(1, $2);
+-		    }
+-		| NEXT day_of_week
+-		    {
+-			add_date ((6 + $2 - exectm.tm_wday) %7 +1, DAY);
+-		    }
+-                ;
+-
+-decrement	: '-' inc_number inc_period
+-		    {
+-			add_date(-$2, $3);
+-		    }
+ 		;
+ 
+-inc_period      : MINUTE { $$ = MINUTE ; }
+-                | HOUR	 { $$ = HOUR ; }
+-                | DAY	 { $$ = DAY ; }
+-                | WEEK   { $$ = WEEK ; }
+-                | MONTH  { $$ = MONTH ; }
+-                | YEAR   { $$ = YEAR ; }
+-                ;
++hr24clock_hr_min: INT4DIGIT
++		;
+ 
+-hr24clock_hr_min: INT
++time_hour	: int1_2digit
+ 		    {
+-			if (strlen($1) == 4) {
+-			    exectm.tm_min = -1;
+-			    exectm.tm_hour = -1;
+-			    sscanf($1, "%2d %2d", &exectm.tm_hour,
+-				&exectm.tm_min);
+-			} else if (strlen($1) >= 5 && strlen($1) <= 8) {
+-				/* Ok, this is a kluge.  I hate design errors...  -Joey */
+-				char shallot[5];
+-				char *onion;
+-
+-				onion=$1;
+-				memset (shallot, 0, sizeof (shallot));
+-				if (strlen($1) == 5 || strlen($1) == 7) {
+-				    strncpy (shallot,onion,1);
+-				    onion++;
+-				} else {
+-				    strncpy (shallot,onion,2);
+-				    onion+=2;
+-				}
+-				sscanf(shallot, "%d", &exectm.tm_mon);
+-
+-				if (exectm.tm_mon < 1 || exectm.tm_mon > 12) {
+-				    yyerror("Error in month number");
+-				    YYERROR;
+-				}
+-				exectm.tm_mon--;
+-
+-				memset (shallot, 0, sizeof (shallot));
+-				strncpy (shallot,onion,2);
+-			    	sscanf(shallot, "%d", &exectm.tm_mday);
+-				if (exectm.tm_mday < 0 || exectm.tm_mday > 31)
+-				{
+-				    yyerror("Error in day of month");
+-				    YYERROR;
+-				}
+-
+-				onion+=2;
+-				memset (shallot, 0, sizeof (shallot));
+-				strncpy (shallot,onion,4);
+-				if ( sscanf(shallot, "%d", &exectm.tm_year) != 1) {
+-				    yyerror("Error in year");
+-				    YYERROR;
+-				}
+-				if (exectm.tm_year < 70) {
+-				    exectm.tm_year += 100;
+-				}
+-				else if (exectm.tm_year > 1900) {
+-				    exectm.tm_year -= 1900;
+-				}
+-			}
+-			else {
+-			    sscanf($1, "%d", &exectm.tm_hour);
+-			    exectm.tm_min = 0;
+-			}
++			sscanf($1, "%d", &exectm.tm_hour);
++			exectm.tm_min = 0;
+ 			free($1);
+ 
+-			if (exectm.tm_min > 60 || exectm.tm_min < 0) {
+-			    yyerror("Problem in minutes specification");
+-			    YYERROR;
+-			}
+ 			if (exectm.tm_hour > 24 || exectm.tm_hour < 0) {
+ 			    yyerror("Problem in hours specification");
+ 			    YYERROR;
+@@ -210,29 +125,22 @@
+ 		    }
+ 		;
+ 
+-timezone_name	: WORD
++time_hour_min	: HOURMIN
+ 		    {
+-			if (strcasecmp($1,"utc") == 0) {
+-			    isgmt = 1;
+-			}
+-			else {
+-			    yyerror("Only UTC timezone is supported");
+-			    YYERROR;
+-			}
++			exectm.tm_min = -1;
++			exectm.tm_hour = -1;
++			sscanf($1, "%d %*c %d", &exectm.tm_hour,
++			    &exectm.tm_min);
+ 			free($1);
+-		    }
+-		;
+-
+-hr24clock_hour	: hr24clock_hr_min
+-		;
+ 
+-minute		: INT
+-                    {
+-			if (sscanf($1, "%d", &exectm.tm_min) != 1) {
+-			    yyerror("Error in minute");
++			if (exectm.tm_min > 60 || exectm.tm_min < 0) {
++			    yyerror("Problem in minutes specification");
++			    YYERROR;
++			}
++			if (exectm.tm_hour > 24 || exectm.tm_hour < 0) {
++			    yyerror("Problem in hours specification");
+ 			    YYERROR;
+ 		        }
+-			free($1);
+ 		    }
+ 		;
+ 
+@@ -243,7 +151,7 @@
+ 			    YYERROR;
+ 			}
+ 			else if (exectm.tm_hour == 12) {
+-			    exectm.tm_hour = 0;
++			    exectm.tm_hour -=12;
+ 			}
+ 		    }
+ 		| PM
+@@ -258,6 +166,171 @@
+ 		    }
+ 		;
+ 
++timezone_name	: UTC
++		    {
++			isgmt = 1;
++		    }
++		;
++
++date            : month_name day_number
++                | month_name day_number year_number
++                | month_name day_number ',' year_number
++                | day_of_week
++		   {
++		       add_date ((6 + $1 - exectm.tm_wday) %7 + 1, DAY);
++		   }
++                | TODAY
++                | TOMORROW
++		   {
++			add_date(1, DAY);
++		   }
++		| HYPHENDATE
++		   {
++			int ynum = -1;
++			int mnum = -1;
++			int dnum = -1;
++
++			if (sscanf($1, "%d %*c %d %*c %d", &ynum, &mnum, &dnum) != 3) {
++			    yyerror("Error in hypenated date");
++			    YYERROR;
++			}
++
++			if (mnum < 1 || mnum > 12) {
++			    yyerror("Error in month number");
++			    YYERROR;
++			}
++			exectm.tm_mon = mnum -1;
++
++			if (ynum < 70) {
++			    ynum += 100;
++			}
++			else if (ynum > 1900) {
++			    ynum -= 1900;
++			}
++			exectm.tm_year = ynum ;
++
++			if (   dnum < 0
++			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
++			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
++				 mnum == 12) && dnum > 31)
++			    || ((mnum ==  4 || mnum ==  6 || mnum ==  9 ||
++			         mnum == 11) && dnum > 30)
++			    || (mnum ==  2 && dnum > 29 &&  __isleap(ynum+1900))
++			    || (mnum ==  2 && dnum > 28 && !__isleap(ynum+1900))
++			   )
++			{
++			    yyerror("Error in day of month");
++			    YYERROR; 
++			}
++			exectm.tm_mday = dnum;
++
++			free($1);
++		   }
++		| DOTTEDDATE
++		   {
++			int ynum = -1;
++			int mnum = -1;
++			int dnum = -1;
++
++			if (sscanf($1, "%d %*c %d %*c %d", &dnum, &mnum, &ynum) != 3) {
++			    yyerror("Error in dotted date");
++			    YYERROR;
++			}
++
++			if (mnum < 1 || mnum > 12) {
++			    yyerror("Error in month number");
++			    YYERROR;
++			}
++			exectm.tm_mon = mnum -1;
++
++			if (ynum < 70) {
++			    ynum += 100;
++			}
++			else if (ynum > 1900) {
++			    ynum -= 1900;
++			}
++			exectm.tm_year = ynum ;
++
++			if (   dnum < 0
++			    || ((mnum ==  1 || mnum ==  3 || mnum ==  5 ||
++			         mnum ==  7 || mnum ==  8 || mnum == 10 ||
++				 mnum == 12) && dnum > 31)
++			    || ((mnum ==  4 || mnum ==  6 || mnum ==  9 ||
++			         mnum == 11) && dnum > 30)
++			    || (mnum ==  2 && dnum > 29 &&  __isleap(ynum+1900))
++			    || (mnum ==  2 && dnum > 28 && !__isleap(ynum+1900))
++			   )
++			{
++			    yyerror("Error in day of month");
++			    YYERROR; 
++			}
++			exectm.tm_mday = dnum;
++
++			free($1);
++		   }
++		| day_number month_name
++		| day_number month_name year_number
++		| month_number '/' day_number '/' year_number
++		| concatenated_date
++		    {
++			/* Ok, this is a kluge.  I hate design errors...  -Joey */
++			char shallot[5];
++			char *onion;
++
++			onion=$1;
++			memset (shallot, 0, sizeof (shallot));
++			if (strlen($1) == 5 || strlen($1) == 7) {
++			    strncpy (shallot,onion,1);
++			    onion++;
++			} else {
++			    strncpy (shallot,onion,2);
++			    onion+=2;
++			}
++			sscanf(shallot, "%d", &exectm.tm_mon);
++
++			if (exectm.tm_mon < 1 || exectm.tm_mon > 12) {
++			    yyerror("Error in month number");
++			    YYERROR;
++			}
++			exectm.tm_mon--;
++
++			memset (shallot, 0, sizeof (shallot));
++			strncpy (shallot,onion,2);
++		    	sscanf(shallot, "%d", &exectm.tm_mday);
++			if (exectm.tm_mday < 0 || exectm.tm_mday > 31)
++			{
++			    yyerror("Error in day of month");
++			    YYERROR;
++			}
++
++			onion+=2;
++			memset (shallot, 0, sizeof (shallot));
++			strncpy (shallot,onion,4);
++			if ( sscanf(shallot, "%d", &exectm.tm_year) != 1) {
++			    yyerror("Error in year");
++			    YYERROR;
++			}
++			if (exectm.tm_year < 70) {
++			    exectm.tm_year += 100;
++			}
++			else if (exectm.tm_year > 1900) {
++			    exectm.tm_year -= 1900;
++			}
++
++			free ($1);
++		    }
++                | NEXT inc_dec_period		
++		    {
++			add_date(1, $2);
++		    }
++		| NEXT day_of_week
++		    {
++			add_date ((6 + $2 - exectm.tm_wday) %7 +1, DAY);
++		    }
++                ;
++
++concatenated_date: INT5_8DIGIT
++		;
+ 
+ month_name	: JAN { exectm.tm_mon = 0; }
+ 		| FEB { exectm.tm_mon = 1; }
+@@ -273,7 +346,7 @@
+ 		| DEC { exectm.tm_mon =11; }
+ 		;
+ 
+-month_number	: INT
++month_number	: int1_2digit
+ 		    {
+ 			{
+ 			    int mnum = -1;
+@@ -287,7 +360,9 @@
+ 			    free($1);
+ 			}
+ 		    }
+-day_number	: INT
++		;
++
++day_number	: int1_2digit
+                      {
+ 			exectm.tm_mday = -1;
+ 			sscanf($1, "%d", &exectm.tm_mday);
+@@ -300,7 +375,7 @@
+ 		     }
+ 		;
+ 
+-year_number	: INT
++year_number	: int2_or_4digit
+ 		    { 
+ 			{
+ 			    int ynum;
+@@ -322,7 +397,6 @@
+ 		    }
+ 		;
+ 
+-
+ day_of_week	: SUN { $$ = 0; }
+ 		| MON { $$ = 1; }
+ 		| TUE { $$ = 2; }
+@@ -332,7 +406,23 @@
+ 		| SAT { $$ = 6; }
+ 		;
+ 
+-inc_number	: INT
++inc_or_dec	: increment
++		| decrement
++		;
++
++increment       : '+' inc_dec_number inc_dec_period
++		    {
++		        add_date($2, $3);
++		    }
++                ;
++
++decrement	: '-' inc_dec_number inc_dec_period
++		    {
++			add_date(-$2, $3);
++		    }
++		;
++
++inc_dec_number	: integer
+ 		    {
+ 			if (sscanf($1, "%d", &$$) != 1) {
+ 			    yyerror("Unknown increment");
+@@ -342,11 +432,27 @@
+ 		    }
+ 		;
+ 
+-time_sep	: ':'
+-		| '\''
+-		| '.'
+-		| 'h'
+-		| ','
++inc_dec_period	: MINUTE { $$ = MINUTE ; }
++		| HOUR	 { $$ = HOUR   ; }
++		| DAY	 { $$ = DAY    ; }
++		| WEEK   { $$ = WEEK   ; }
++		| MONTH  { $$ = MONTH  ; }
++		| YEAR   { $$ = YEAR   ; }
++		;
++
++int1_2digit	: INT1DIGIT
++		| INT2DIGIT
++		;
++
++int2_or_4digit	: INT2DIGIT
++		| INT4DIGIT
++		;
++
++integer		: INT
++		| INT1DIGIT
++		| INT2DIGIT
++		| INT4DIGIT
++		| INT5_8DIGIT
+ 		;
+ 
+ %%
+@@ -370,10 +476,7 @@
+ 	if (exectime == (time_t)-1)
+ 	    return 0;
+ 	if (isgmt) {
+-	    exectime += timezone;
+-	    if (daylight) {
+-		exectime -= 3600;
+-	    }
++	    exectime -= timezone;
+ 	}
+ 	if (time_only && (currtime > exectime)) {
+ 	    exectime += 24*3600;
+@@ -386,39 +489,29 @@
+ }
+ 
+ #ifdef TEST_PARSER
+-/*
+-
+-Here are some lines to test:
+-
+-./parsetest 7AM Mar 24 2000
+-./parsetest 7AM Mar 24 00
+-./parsetest 7AM 032400
+-./parsetest 7AM 03/24/00
+-./parsetest 7AM 24.03.00
+-./parsetest 7AM Mar 24
+-
+-./parsetest 03242000
+-./parsetest noon 03242000
+-./parsetest 5:30
+-./parsetest 4pm + 3 days
+-./parsetest 10am Jul 31
+-
+- */
++ 
+ int
+ main(int argc, char **argv)
+ {
++    int retval = 1;
+     time_t res;
+     res = parsetime(argc-1, &argv[1]);
++    if (time_only) {
++	fprintf(stderr, "time_only = 1\n");
++    }
+     if (res > 0) {
+ 	printf("%s",ctime(&res));
++	retval = 0;
+     }
+     else {
+ 	printf("Ooops...\n");
++	retval = 1;
+     }
+-    return 0;
++    return retval;
+ }
+ 
+ #endif
++
+ int yyerror(char *s)
+ {
+     if (last_token == NULL)
+@@ -430,12 +523,36 @@
+ void
+ add_seconds(struct tm *tm, long numsec)
+ {
++    struct tm basetm = *tm;
+     time_t timeval;
++
+     timeval = mktime(tm);
+     if (timeval == (time_t)-1)
+         timeval = (time_t)0;
+     timeval += numsec;
+     *tm = *localtime(&timeval);
++
++    /*
++     * Adjust +-1 hour when moving in or out of DST
++     */
++
++    if (daylight > 0)	/* Only check if DST is used here */
++    {
++	/* Set tm_isdst on &basetm and tm */
++	(void) mktime(&basetm);
++	(void) mktime(tm);
++
++	if      (basetm.tm_isdst > 0 && tm->tm_isdst < 1)
++	{   /* DST to no DST */
++	    timeval += 3600l;
++	    *tm = *localtime(&timeval);
++	}
++	else if (basetm.tm_isdst < 1 && tm->tm_isdst > 0)
++	{   /* no DST to DST */
++	    timeval -= 3600l;
++	    *tm = *localtime(&timeval);
++	}
++    }
+ }
+ 
+ int
+@@ -468,6 +585,10 @@
+ 	    }
+ 	    exectm.tm_mon = newmonth % 12;
+ 	    number += newmonth / 12 ;
++
++	    /* Recalculate tm_isdst so we don't get a +-1 hour creep */
++	    exectm.tm_isdst = -1;
++	    (void) mktime(&exectm);
+ 	}
+ 	if (number == 0) {
+ 	    break;
+@@ -476,6 +597,9 @@
+ 
+     case YEAR:
+ 	exectm.tm_year += number;
++	/* Recalculate tm_isdst so we don't get a +-1 hour creep */
++	exectm.tm_isdst = -1;
++	(void) mktime(&exectm);
+ 	break;
+ 
+     default:
+@@ -483,5 +607,6 @@
+ 	fprintf(stderr,"Unexpected case %d\n", period);
+ 	abort();
+     }
++
+     return 0;
+ }
+diff -Naur at-3.1.8.orig/timespec at-3.1.8/timespec
+--- at-3.1.8.orig/timespec	1997-03-12 18:11:05.000000000 +0000
++++ at-3.1.8/timespec	2003-09-19 01:17:26.000000000 +0000
+@@ -2,6 +2,13 @@
+  * Abbreviated version of the yacc grammar used by at(1).
+  */
+ 
++%token  <charval> DOTTEDDATE
++%token  <charval> HYPHENDATE
++%token  <charval> HOURMIN
++%token  <charval> INT1DIGIT
++%token  <charval> INT2DIGIT
++%token  <charval> INT4DIGIT
++%token  <charval> INT5_8DIGIT
+ %token  <charval> INT
+ %token  NOW
+ %token  AM PM
+@@ -11,100 +18,115 @@
+ %token  NEXT
+ %token  MINUTE HOUR DAY WEEK MONTH YEAR
+ %token  JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC
+-%token  <charval> WORD
++%token  UTC
+ 
+-%type <intval> inc_period
+-%type <intval> inc_number
++%type <charval> concatenated_date
++%type <charval> hr24clock_hr_min
++%type <charval> int1_2digit
++%type <charval> int2_or_4digit
++%type <charval> integer
++%type <intval> inc_dec_period
++%type <intval> inc_dec_number
+ %type <intval> day_of_week
+ 
+ %start timespec
+ %%
+-timespec        : time
+-                | time date
+-                | time increment
+-                | time date increment
+-		| time decrement
+-		| time date decrement
+-                | nowspec
+-                ;
+-
+-nowspec         : now
+-                | now increment
+-		| now decrement
++timespec        : spec_base
++		| spec_base inc_or_dec
+                 ;
+ 
+-now		: NOW 
++spec_base	: date
++		| time
++                | time date
++                | NOW
+ 		;
+ 
+-time            : hr24clock_hr_min
+-                | hr24clock_hr_min timezone_name
+-                | hr24clock_hour time_sep minute
+-                | hr24clock_hour time_sep minute timezone_name
+-                | hr24clock_hour am_pm
+-                | hr24clock_hour am_pm timezone_name
+-                | hr24clock_hour time_sep minute am_pm
+-                | hr24clock_hour time_sep minute am_pm timezone_name
+-                | NOON
++time		: time_base
++		| time_base timezone_name
++                ;
++
++time_base	: hr24clock_hr_min
++		| time_hour am_pm
++		| time_hour_min
++		| time_hour_min am_pm
++		| NOON
+                 | MIDNIGHT
+ 		| TEATIME
+-                ;
++		;
++
++hr24clock_hr_min: INT4DIGIT
++		;
++
++time_hour	: int1_2digit
++		;
++
++time_hour_min	: HOURMIN
++		;
++
++am_pm		: AM
++		| PM
++		;
++
++timezone_name	: UTC
++		;
+ 
+ date            : month_name day_number
++                | month_name day_number year_number
+                 | month_name day_number ',' year_number
+                 | day_of_week
+                 | TODAY
+                 | TOMORROW
+-		| year_number '-' month_number '-' day_number
+-		| day_number '.' month_number '.' year_number
+-		| day_number '.' month_number
++		| HYPHENDATE
++		| DOTTEDDATE
+ 		| day_number month_name
+ 		| day_number month_name year_number
+ 		| month_number '/' day_number '/' year_number
+-                ;
+-
+-increment       : '+' inc_number inc_period
+-                | NEXT inc_period		
++		| concatenated_date
++                | NEXT inc_dec_period		
+ 		| NEXT day_of_week
+                 ;
+ 
+-decrement	: '-' inc_number inc_period
++concatenated_date: INT5_8DIGIT
+ 		;
+ 
+-inc_period      : MINUTE | HOUR | DAY | WEEK | MONTH | YEAR
++month_name	: JAN | FEB | MAR | APR | MAY | JUN
++		| JUL | AUG | SEP | OCT | NOV | DEC
+ 		;
+ 
+-hr24clock_hr_min: INT
++month_number	: int1_2digit
+ 		;
+ 
+-timezone_name	: WORD
++day_number	: int1_2digit
+ 		;
+ 
+-hr24clock_hour	: hr24clock_hr_min
++year_number	: int2_or_4digit
+ 		;
+ 
+-minute		: INT
++day_of_week	: SUN | MON | TUE | WED | THU | FRI | SAT
+ 		;
+ 
+-am_pm		: AM | PM
++inc_or_dec	: increment | decrement
+ 		;
+ 
+-month_name	: JAN | FEB | MAR | APR | MAY | JUN | JUL
+-		| AUG | SEP | OCT | NOV | DEC
+-		;
++increment       : '+' inc_dec_number inc_dec_period
++                ;
+ 
+-month_number	: INT
++decrement	: '-' inc_dec_number inc_dec_period
+ 		;
+-day_number	: INT
++
++inc_dec_number	: integer
+ 		;
+ 
+-year_number	: INT
++inc_dec_period	: MINUTE | HOUR | DAY | WEEK | MONTH | YEAR
+ 		;
+ 
+-day_of_week	: SUN | MON | TUE | WED | THU | FRI | SAT
++int1_2digit	: INT1DIGIT | INT2DIGIT
+ 		;
+ 
+-inc_number	: INT
++int2_or_4digit	: INT2DIGIT | INT4DIGIT
+ 		;
+ 
+-time_sep	: ':' | '\'' | '.' | 'h' | ','
++integer		: INT | INT1DIGIT | INT2DIGIT | INT4DIGIT | INT5_8DIGIT
+ 		;
++
++%%

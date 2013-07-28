@@ -1,0 +1,675 @@
+Patch Name:              nss_db-2.2-update-2.patch
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-10-27
+Initial Package Version: 2.2
+Upstream Status:         N/A
+Origin:                  Randy McMurchy and Red Hat Development CVS
+Description:             Fixes building against Glibc-2.3.x
+                         Updates DB calls to use Berkeley DB-4.x
+                         Allows using --localstatedir to point db file location
+                         Requires running the following auto-tools before building:
+                            aclocal
+                            automake -a
+                            libtoolize -f
+                            autoconf
+
+
+diff -Naur nss_db-2.2-orig/INSTALL nss_db-2.2/INSTALL
+--- nss_db-2.2-orig/INSTALL	1999-01-24 20:59:16.000000000 +0000
++++ nss_db-2.2/INSTALL	2005-10-27 02:14:45.000000000 +0000
+@@ -1,6 +1,39 @@
+ Basic Installation
+ ==================
+ 
++####################################################################
++Modifications made by Randy McMurchy <LFS-User_at_mcmurchy_dot_com>:
++
++--localstatedir is used to create the database files (passwd.db,
++group.db, etc.) in a desired location. The recommended location is
++/var/lib/nss_db. If --localstatedir is not passed to the configure
++command, then the default of /var/db is used.
++
++A Makefile will be installed in the --localstatedir directory. To
++create the db files, issue the following command:
++
++make -f /localstatedir_path/Makefile
++
++Examples:
++
++make -f /var/lib/nss_db/Makefile
++make -f /var/db/Makefile
++
++Update the db files at any time using the same command.
++
++The autotools included in the package are quite dated, and the package
++won't build as is. Run the following commands to update the autotools:
++
++  aclocal
++  automake -a
++  libtoolize -f
++  autoconf
++
++You may safely disregard any warnings producted by the above commands.
++
++End modification Note
++####################################################################
++
+    These are generic installation instructions.
+ 
+    The `configure' shell script attempts to guess correct values for
+
+diff -Naur nss_db-2.2-orig/Makefile.am nss_db-2.2/Makefile.am
+--- nss_db-2.2-orig/Makefile.am	2000-08-15 14:18:16.000000000 +0000
++++ nss_db-2.2/Makefile.am	2005-10-27 02:14:45.000000000 +0000
+@@ -14,7 +14,7 @@
+ 
+ noinst_HEADERS = db-compat.h netgroup.h nss_db.h
+ 
+-INCLUDES = @DB_CFLAGS@ -D_LIBC -D_GNU_SOURCE
++INCLUDES = @DB_CFLAGS@ -D_GNU_SOURCE
+ 
+ slib_LTLIBRARIES = libnss_db.la
+ libnss_db_la_SOURCES = db-alias.c db-ethers.c db-netgrp.c db-grp.c db-proto.c \
+@@ -27,21 +27,38 @@
+ libnss_db_la_LIBADD = @DB_LIBS@ -lnss_files
+ 
+ bin_PROGRAMS = makedb
+-makedb_SOURCES = makedb.c db-compat.c
++makedb_SOURCES = makedb.c db-compat-copy-makedb.c
+ makedb_LDADD = @DB_LIBS@
++db-compat-copy-makedb.c: db-compat.c
++	cp $^ $@
++	chmod -w $@
++
+ 
+ # To mimmick the old glibc installation as closely as possible, we
+ # shuffle the installed library and the links to it around a bit,
+ # removing all traces from libtool in the process.
+ install-data-local:
+ 	$(mkinstalldirs) $(DESTDIR)$(libdir)
+-	rm $(DESTDIR)$(slibdir)/libnss_db.la
+-	rm $(DESTDIR)$(slibdir)/libnss_db.so
+-	mv $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE).0.0 \
+-		$(DESTDIR)$(slibdir)/libnss_db-$(VERSION).so
+-	rm $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE)
++	if test -f $(DESTDIR)$(slibdir)/libnss_db.la; then \
++	        rm $(DESTDIR)$(slibdir)/libnss_db.la; fi
++	if test -f $(DESTDIR)$(slibdir)/libnss_db.so; then \
++	        rm $(DESTDIR)$(slibdir)/libnss_db.so; fi
++	if test -f $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE).0.0; then \
++	        mv $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE).0.0 \
++		$(DESTDIR)$(slibdir)/libnss_db-$(VERSION).so; fi
++	if test -f $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE); then \
++	        rm $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE); fi
+ 	$(srcdir)/rellns-sh $(DESTDIR)$(slibdir)/libnss_db-$(VERSION).so \
+ 		$(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE)
+-	rm -f $(DESTDIR)$(libdir)/libnss_db.so
++	if test -f $(DESTDIR)$(libdir)/libnss_db.so; then \
++	        rm -f $(DESTDIR)$(libdir)/libnss_db.so; fi
+ 	$(srcdir)/rellns-sh $(DESTDIR)$(slibdir)/libnss_db.so.$(INTERFACE) \
+ 		$(DESTDIR)$(libdir)/libnss_db.so
++	cp db-Makefile db-Makefile.orig
++	if test "$(localstatedir)" = '$(prefix)/var'; then \
++		install -m 644 -D db-Makefile /var/db/Makefile; \
++	else \
++		sed -i -e "s@/var/db@$(localstatedir)@" db-Makefile; \
++		install -m 644 -D db-Makefile $(localstatedir)/Makefile; fi
++	cp db-Makefile.orig db-Makefile
++
+
+diff -Naur nss_db-2.2-orig/Makefile.in nss_db-2.2/Makefile.in
+--- nss_db-2.2-orig/Makefile.in	2000-08-15 14:18:26.000000000 +0000
++++ nss_db-2.2/Makefile.in	2005-10-27 02:14:45.000000000 +0000
+@@ -86,7 +86,7 @@
+ 
+ noinst_HEADERS = db-compat.h netgroup.h nss_db.h
+ 
+-INCLUDES = @DB_CFLAGS@ -D_LIBC -D_GNU_SOURCE
++INCLUDES = @DB_CFLAGS@ -D_GNU_SOURCE
+ 
+ slib_LTLIBRARIES = libnss_db.la
+ libnss_db_la_SOURCES = db-alias.c db-ethers.c db-netgrp.c db-grp.c db-proto.c 	db-pwd.c db-rpc.c db-service.c db-spwd.c db-compat.c db-open.c
+
+diff -Naur nss_db-2.2-orig/configure.in nss_db-2.2/configure.in
+--- nss_db-2.2-orig/configure.in	2000-11-10 00:56:04.000000000 +0000
++++ nss_db-2.2/configure.in	2005-10-27 02:14:45.000000000 +0000
+@@ -94,6 +94,14 @@
+   slibdir='${libdir}'
+ fi
+ 
++echo '#define _PATH_VARDB     "DBDIR"' >dbdir.h
++
++if test "$localstatedir" = '${prefix}/var'; then
++  sed -i -e "s@DBDIR@/var/db/@" dbdir.h
++else
++  sed -i -e "s@DBDIR@${localstatedir}/@" dbdir.h
++fi
++
+ AC_SUBST(DB_CFLAGS)
+ AC_SUBST(DB_LIBS)
+ AC_SUBST(slibdir)
+
+diff -Naur nss_db-2.2-orig/db-XXX.c nss_db-2.2/db-XXX.c
+--- nss_db-2.2-orig/db-XXX.c	2000-08-09 13:46:39.000000000 +0000
++++ nss_db-2.2/db-XXX.c	2005-10-27 02:15:57.000000000 +0000
+@@ -21,11 +21,10 @@
+ #include <ctype.h>
+ #include <db.h>
+ #include <netdb.h>
++#include <pthread.h>
+ #include <stdio.h>
+ #include <string.h>
+ 
+-#include <bits/libc-lock.h>
+-
+ #include "nss_db.h"
+ 
+ /* These symbols are defined by the including source file:
+@@ -40,6 +39,10 @@
+ #define ENTNAME_r	CONCAT(ENTNAME,_r)
+ 
+ #include <paths.h>
++
++#undef _PATH_VARDB
++#include "dbdir.h"
++
+ #define	DBFILE		_PATH_VARDB DATABASE ".db"
+ 
+ #ifdef NEED_H_ERRNO
+@@ -53,7 +56,7 @@
+ #endif
+ 
+ /* Locks the static variables in this file.  */
+-__libc_lock_define_initialized (static, lock)
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+ 
+ /* Maintenance of the shared handle open on the database.  */
+ 
+@@ -68,7 +71,7 @@
+ {
+   enum nss_status status;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   status = internal_setent (DBFILE, &db);
+ 
+@@ -78,7 +81,7 @@
+   /* Reset the sequential index.  */
+   entidx = 0;
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+@@ -88,14 +91,14 @@
+ enum nss_status
+ CONCAT(_nss_db_end,ENTNAME) (void)
+ {
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   internal_endent (&db);
+ 
+   /* Reset STAYOPEN flag.  */
+   keep_db = 0;
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return NSS_STATUS_SUCCESS;
+ }
+@@ -103,7 +106,7 @@
+ /* Do a database lookup for KEY.  */
+ static enum nss_status
+ lookup (DBT *key, struct STRUCTURE *result,
+-	void *buffer, size_t buflen, int *errnop H_ERRNO_PROTO EXTRA_ARGS_DECL)
++	void *buffer, size_t buflen H_ERRNO_PROTO EXTRA_ARGS_DECL)
+ {
+   char *p;
+   enum nss_status status;
+@@ -116,7 +119,6 @@
+       status = internal_setent (DBFILE, &db);
+       if (status != NSS_STATUS_SUCCESS)
+ 	{
+-	  *errnop = errno;
+ 	  H_ERRNO_SET (NETDB_INTERNAL);
+ 	  return status;
+ 	}
+@@ -129,7 +131,7 @@
+     {
+       if (err > 0)
+ 	{
+-	  *errnop = err;
++	  errno = err;
+ 	  H_ERRNO_SET (NETDB_INTERNAL);
+ 	  status = NSS_STATUS_UNAVAIL;
+ 	}
+@@ -152,7 +154,7 @@
+   else if (buflen < value.size)
+     {
+       /* No room to copy the data to.  */
+-      *errnop = ERANGE;
++      errno = ERANGE;
+       H_ERRNO_SET (NETDB_INTERNAL);
+       status = NSS_STATUS_TRYAGAIN;
+     }
+@@ -165,7 +167,7 @@
+       while (isspace (*p))
+ 	++p;
+ 
+-      err = parse_line (p, result, buffer, buflen, errnop EXTRA_ARGS);
++      err = parse_line (p, result, buffer, buflen EXTRA_ARGS);
+ 
+       if (err == 0)
+ 	{
+@@ -219,18 +221,18 @@
+ enum nss_status								      \
+ _nss_db_get##name##_r (proto,						      \
+ 		       struct STRUCTURE *result,			      \
+-		       char *buffer, size_t buflen, int *errnop H_ERRNO_PROTO)\
++		       char *buffer, size_t buflen H_ERRNO_PROTO)	      \
+ {									      \
+   DBT key;								      \
+   enum nss_status status;						      \
+   const size_t size = (keysize) + 1;					      \
++  memset(&key, 0, sizeof(key));						      \
+   key.data = alloca (size);						      \
+   key.size = KEYPRINTF keypattern;					      \
+   key.flags = 0;							      \
+-  __libc_lock_lock (lock);						      \
+-  status = lookup (&key, result, buffer, buflen, errnop H_ERRNO_ARG	      \
+-		   EXTRA_ARGS_VALUE);					      \
+-  __libc_lock_unlock (lock);						      \
++  pthread_mutex_lock (&lock);                                                 \
++  status = lookup (&key, result, buffer, buflen H_ERRNO_ARG EXTRA_ARGS_VALUE);\
++  pthread_mutex_unlock (&lock);                                               \
+   return status;							      \
+ }
+ 
+@@ -242,14 +244,14 @@
+ /* Return the next entry from the database file, doing locking.  */
+ enum nss_status
+ CONCAT(_nss_db_get,ENTNAME_r) (struct STRUCTURE *result, char *buffer,
+-			       size_t buflen, int *errnop H_ERRNO_PROTO)
++			       size_t buflen H_ERRNO_PROTO)
+ {
+   /* Return next entry in host file.  */
+   enum nss_status status;
+   char buf[20];
+   DBT key;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   /* Loop until we find a valid entry or hit EOF.  See above for the
+      special meaning of the status value.  */
+@@ -257,20 +259,19 @@
+     {
+       key.size = snprintf (key.data = buf, sizeof buf, "0%u", entidx++);
+       key.flags = 0;
+-      status = lookup (&key, result, buffer, buflen, errnop H_ERRNO_ARG
+-		       EXTRA_ARGS_VALUE);
++      status = lookup (&key, result, buffer, buflen H_ERRNO_ARG EXTRA_ARGS_VALUE);
+       if (status == NSS_STATUS_TRYAGAIN
+ #ifdef NEED_H_ERRNO
+ 	  && *herrnop == NETDB_INTERNAL
+ #endif
+-	  && *errnop == ERANGE)
++	  && errno == ERANGE)
+ 	/* Give the user a chance to get the same entry with a larger
+ 	   buffer.  */
+ 	--entidx;
+     }
+   while (status == NSS_STATUS_RETURN);
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+
+diff -Naur nss_db-2.2-orig/db-alias.c nss_db-2.2/db-alias.c
+--- nss_db-2.2-orig/db-alias.c	2000-08-08 16:47:33.000000000 +0000
++++ nss_db-2.2/db-alias.c	2005-10-27 02:14:45.000000000 +0000
+@@ -23,15 +23,17 @@
+ #include <ctype.h>
+ #include <errno.h>
+ #include <paths.h>
++#include <pthread.h>
+ #include <stdio.h>
+ #include <string.h>
+ 
+-#include <bits/libc-lock.h>
+-
+ #include "nss_db.h"
+ 
++#undef _PATH_VARDB
++#include "dbdir.h"
++
+ /* Locks the static variables in this file.  */
+-__libc_lock_define_initialized (static, lock)
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+ 
+ /* Maintenance of the shared handle open on the database.  */
+ 
+@@ -46,7 +48,7 @@
+ {
+   enum nss_status status;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   status = internal_setent (_PATH_VARDB "aliases.db", &db);
+ 
+@@ -57,7 +59,7 @@
+   /* Reset the sequential index.  */
+   entidx = 0;
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+@@ -67,14 +69,14 @@
+ enum nss_status
+ _nss_db_endaliasent (void)
+ {
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   internal_endent (&db);
+ 
+   /* Reset STAYOPEN flag.  */
+   keep_db = 0;
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return NSS_STATUS_SUCCESS;
+ }
+@@ -85,7 +87,7 @@
+    the result.  */
+ static enum nss_status
+ lookup (DBT *key, struct aliasent *result, char *buffer,
+-	size_t buflen, int *errnop)
++	size_t buflen)
+ {
+   enum nss_status status;
+   DBT value;
+@@ -95,10 +97,7 @@
+     {
+       status = internal_setent (_PATH_VARDB "aliases.db", &db);
+       if (status != NSS_STATUS_SUCCESS)
+-	{
+-	  *errnop = errno;
+-	  return status;
+-	}
++	return status;
+     }
+ 
+   value.flags = 0;
+@@ -114,7 +113,7 @@
+       if (buflen < key->size + 1)
+ 	{
+ 	no_more_room:
+-	  *errnop = ERANGE;
++	  __set_errno(ERANGE);
+ 	  return NSS_STATUS_TRYAGAIN;
+ 	}
+ 
+@@ -172,22 +171,18 @@
+ }
+ 
+ enum nss_status
+-_nss_db_getaliasent_r (struct aliasent *result, char *buffer, size_t buflen,
+-		       int *errnop)
++_nss_db_getaliasent_r (struct aliasent *result, char *buffer, size_t buflen)
+ {
+   /* Return next entry in alias file.  */
+   enum nss_status status;
+   char buf[20];
+   DBT key;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+   key.size = snprintf (key.data = buf, sizeof buf, "0%u", entidx++);
+   key.flags = 0;
+-  status = lookup (&key, result, buffer, buflen, errnop);
+-  if (status == NSS_STATUS_TRYAGAIN && *errnop == ERANGE)
+-    /* Give the user a chance to get the same entry with a larger buffer.  */
+-    --entidx;
+-  __libc_lock_unlock (lock);
++  status = lookup (&key, result, buffer, buflen);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+@@ -195,7 +190,7 @@
+ 
+ enum nss_status
+ _nss_db_getaliasbyname_r (const char *name, struct aliasent *result,
+-			  char *buffer, size_t buflen, int *errnop)
++			  char *buffer, size_t buflen)
+ {
+   DBT key;
+   enum nss_status status;
+@@ -207,9 +202,9 @@
+   memcpy (&((char *) key.data)[1], name, key.size - 1);
+   key.flags = 0;
+ 
+-  __libc_lock_lock (lock);
+-  status = lookup (&key, result, buffer, buflen, errnop);
+-  __libc_lock_unlock (lock);
++  pthread_mutex_lock (&lock);
++  status = lookup (&key, result, buffer, buflen);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+
+diff -Naur nss_db-2.2-orig/db-compat.c nss_db-2.2/db-compat.c
+--- nss_db-2.2-orig/db-compat.c	2000-08-09 13:29:06.000000000 +0000
++++ nss_db-2.2/db-compat.c	2005-10-27 02:14:45.000000000 +0000
+@@ -39,7 +39,11 @@
+   if (err)
+     return err;
+ 
++#if (DB_VERSION_MAJOR > 4) || ((DB_VERSION_MAJOR == 4) && (DB_VERSION_MINOR >= 1))
++  err = db->open (db, NULL, file, NULL, type, flags, mode);
++#else
+   err = db->open (db, file, NULL, type, flags, mode);
++#endif
+   if (err)
+     {
+       db->close (db, 0);
+
+diff -Naur nss_db-2.2-orig/db-netgrp.c nss_db-2.2/db-netgrp.c
+--- nss_db-2.2-orig/db-netgrp.c	2000-08-08 17:05:01.000000000 +0000
++++ nss_db-2.2/db-netgrp.c	2005-10-27 02:16:18.000000000 +0000
+@@ -21,18 +21,20 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <netgroup.h>
++#include <pthread.h>
+ #include <string.h>
+-#include <bits/libc-lock.h>
+ #include <paths.h>
+ 
+ #include "nss_db.h"
+ 
++#undef _PATH_VARDB
++#include "dbdir.h"
+ 
+ #define DBFILE		_PATH_VARDB "netgroup.db"
+ 
+ 
+ /* Locks the static variables in this file.  */
+-__libc_lock_define_initialized (static, lock)
++static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+ 
+ /* Maintenance of the shared handle open on the database.  */
+ static DB *db;
+@@ -44,7 +46,7 @@
+ {
+   enum nss_status status;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   status = internal_setent (DBFILE, &db);
+ 
+@@ -60,7 +62,7 @@
+ 	cursor = entry = value.data;
+     }
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ 
+@@ -70,11 +72,11 @@
+ enum nss_status
+ _nss_db_endnetgrent (void)
+ {
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+   internal_endent (&db);
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return NSS_STATUS_SUCCESS;
+ }
+@@ -82,20 +84,18 @@
+ 
+ extern enum nss_status _nss_netgroup_parseline (char **cursor,
+ 						struct __netgrent *result,
+-						char *buffer, size_t buflen,
+-						int *errnop);
++						char *buffer, size_t buflen);
+ 
+ enum nss_status
+-_nss_db_getnetgrent_r (struct __netgrent *result, char *buffer, size_t buflen,
+-		       int *errnop)
++_nss_db_getnetgrent_r (struct __netgrent *result, char *buffer, size_t buflen)
+ {
+   int status;
+ 
+-  __libc_lock_lock (lock);
++  pthread_mutex_lock (&lock);
+ 
+-  status = _nss_netgroup_parseline (&cursor, result, buffer, buflen, errnop);
++  status = _nss_netgroup_parseline (&cursor, result, buffer, buflen);
+ 
+-  __libc_lock_unlock (lock);
++  pthread_mutex_unlock (&lock);
+ 
+   return status;
+ }
+
+diff -Naur nss_db-2.2-orig/db-open.c nss_db-2.2/db-open.c
+--- nss_db-2.2-orig/db-open.c	2000-08-09 13:54:14.000000000 +0000
++++ nss_db-2.2/db-open.c	2005-10-27 02:14:45.000000000 +0000
+@@ -26,6 +26,10 @@
+ 
+ #include "nss_db.h"
+ 
++#ifndef __set_errno
++#define __set_errno(x) errno = x
++#endif
++
+ /* Set the `FD_CLOEXEC' flag of FD.  Return 0 on success, or -1 on
+    error with `errno' set. */
+ static int
+@@ -58,7 +62,7 @@
+   if (err != 0)
+     {
+       if (err > 0)
+-	__set_errno (err);
++	errno = err;
+       return NSS_STATUS_UNAVAIL;
+     }
+ 
+@@ -75,7 +79,7 @@
+  fail:
+   db->close (db, 0);
+   if (err > 0)
+-    __set_errno (err);
++    errno = err;
+   return NSS_STATUS_UNAVAIL;
+ }
+ 
+
+diff -Naur nss_db-2.2-orig/files-parse.c nss_db-2.2/files-parse.c
+--- nss_db-2.2-orig/files-parse.c	2000-07-23 20:44:22.000000000 +0000
++++ nss_db-2.2/files-parse.c	2005-10-27 02:14:45.000000000 +0000
+@@ -79,7 +79,7 @@
+ 
+ /* The parser is defined in a different module.  */
+ extern int parse_line (char *line, struct STRUCTURE *result,
+-		       struct parser_data *data, size_t datalen, int *errnop
++		       struct parser_data *data, size_t datalen
+ 		       EXTRA_ARGS_DECL);
+ 
+ # define LINE_PARSER(EOLSET, BODY) /* Do nothing */
+@@ -91,7 +91,7 @@
+ # define LINE_PARSER(EOLSET, BODY)					      \
+ parser_stclass int							      \
+ parse_line (char *line, struct STRUCTURE *result,			      \
+-	    struct parser_data *data, size_t datalen, int *errnop	      \
++	    struct parser_data *data, size_t datalen			      \
+ 	    EXTRA_ARGS_DECL)						      \
+ {									      \
+   ENTDATA_DECL (data)							      \
+@@ -160,7 +160,7 @@
+ 
+ #  define TRAILING_LIST_PARSER						      \
+ {									      \
+-  char **list = parse_list (line, data, datalen, errnop);		      \
++  char **list = parse_list (line, data, datalen);			      \
+   if (list)								      \
+     result->TRAILING_LIST_MEMBER = list;				      \
+   else 									      \
+@@ -168,7 +168,7 @@
+ }
+ 
+ static inline char **
+-parse_list (char *line, struct parser_data *data, size_t datalen, int *errnop)
++parse_list (char *line, struct parser_data *data, size_t datalen)
+ {
+   char *eol, **list, **p;
+ 
+@@ -195,7 +195,7 @@
+       if ((size_t) ((char *) &p[1] - (char *) data) > datalen)
+ 	{
+ 	  /* We cannot fit another pointer in the buffer.  */
+-	  *errnop = ERANGE;
++	  __set_errno(ERANGE);
+ 	  return NULL;
+ 	}
+       if (*line == '\0')
+
+diff -Naur nss_db-2.2-orig/netgroup.h nss_db-2.2/netgroup.h
+--- nss_db-2.2-orig/netgroup.h	1997-12-08 02:33:09.000000000 +0000
++++ nss_db-2.2/netgroup.h	2005-10-27 02:14:45.000000000 +0000
+@@ -65,6 +65,6 @@
+ extern void __internal_endnetgrent (struct __netgrent *datap);
+ extern int __internal_getnetgrent_r (char **hostp, char **userp,
+ 				     char **domainp, struct __netgrent *datap,
+-				     char *buffer, size_t buflen, int *errnop);
++				     char *buffer, size_t buflen);
+ 
+ #endif /* netgroup.h */
+
+diff -Naur nss_db-2.2-orig/rellns-sh nss_db-2.2/rellns-sh
+--- nss_db-2.2-orig/rellns-sh	1999-12-18 23:40:25.000000000 +0000
++++ nss_db-2.2/rellns-sh	2005-10-27 02:14:45.000000000 +0000
+@@ -71,4 +71,4 @@
+   from=`echo $from | sed 's%^[^/]*/*%%'`
+ done
+ 
+-ln -s $rfrom$to $2
++ln -sf $rfrom$to $2

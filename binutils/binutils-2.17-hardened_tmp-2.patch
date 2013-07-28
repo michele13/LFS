@@ -1,0 +1,381 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2006-10-11
+Initial Package Version: 2.17
+Upstream Status: Submitted - http://sourceware.org/bugzilla/show_bug.cgi?id=2876
+Origin: OpenBSD-cvs src/gnu/usr.bin/binutils/binutils/
+        'diff -D "19990913" -D "19990915"'
+Description: This patch uses mkstemp(3) and mkdtemp(3) for temporary file creation,
+if they are available, rather than the default mktemp(3). This is safer and removes
+some compiler warnings.
+
+diff -Naur binutils-2.17.orig/binutils/bucomm.c binutils-2.17/binutils/bucomm.c
+--- binutils-2.17.orig/binutils/bucomm.c	2006-03-13 22:27:22.000000000 +0000
++++ binutils-2.17/binutils/bucomm.c	2006-10-11 20:01:02.000000000 +0000
+@@ -386,12 +386,18 @@
+   fprintf (file, "%s\n", bfd_get_filename (abfd));
+ }
+ 
+-/* Return the name of a temporary file in the same directory as FILENAME.  */
++/* Return the name of a created temporary file in the same directory as
++   FILENAME.  */
+ 
+ char *
+ make_tempname (char *filename)
+ {
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++  static char template[] = "stXXXXXXXXXX";
++  int fd;
++#else
+   static char template[] = "stXXXXXX";
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+   char *tmpname;
+   char *slash = strrchr (filename, '/');
+ 
+@@ -423,14 +429,68 @@
+ #endif
+       strcat (tmpname, "/");
+       strcat (tmpname, template);
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++      fd = mkstemp (tmpname);
++#else
+       mktemp (tmpname);
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+       *slash = c;
+     }
+   else
+     {
+       tmpname = xmalloc (sizeof (template));
+       strcpy (tmpname, template);
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++      fd = mkstemp (tmpname);
++    }
++  if (fd == -1)
++    return NULL;
++  else
++    close(fd);
++  return tmpname;
++}
++
++/* Return the name of a created temporary dir in the same directory as
++   FILENAME.  */
++
++char *
++make_tempdir (filename)
++     char *filename;
++{
++  static char template[] = "stXXXXXXXXXX";
++  char *tmpname;
++  char *slash = strrchr (filename, '/');
++
++  if (slash != (char *) NULL)
++    {
++      char c;
++
++      c = *slash;
++      *slash = 0;
++      tmpname = xmalloc (strlen (filename) + sizeof (template) + 1);
++      strcpy (tmpname, filename);
++#ifdef HAVE_DOS_BASED_FILE_SYSTEM
++      /* If tmpname is "X:", appending a slash will make it a root
++         directory on drive X, which is NOT the same as the current
++         directory on drive X.  */
++      if (tmpname[1] == ':' && tmpname[2] == '\0')
++        strcat (tmpname, ".");
++#endif
++      strcat (tmpname, "/");
++      strcat (tmpname, template);
++      if (mkdtemp (tmpname) != 0)
++	fatal ("Failed at mkdtemp");
++      *slash = c;
++   }
++  else
++    {
++      tmpname = xmalloc (sizeof (template));
++      strcpy (tmpname, template);
++      if (mkdtemp (tmpname) != 0)
++	fatal ("Failed at mkdtemp");
++#else
+       mktemp (tmpname);
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+     }
+   return tmpname;
+ }
+diff -Naur binutils-2.17.orig/binutils/bucomm.h binutils-2.17/binutils/bucomm.h
+--- binutils-2.17.orig/binutils/bucomm.h	2006-02-09 11:49:53.000000000 +0000
++++ binutils-2.17/binutils/bucomm.h	2006-10-11 19:56:03.000000000 +0000
+@@ -200,6 +200,9 @@
+ void print_arelt_descr (FILE *, bfd *, bfd_boolean);
+ 
+ char *make_tempname (char *);
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++char *make_tempdir (char *);
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+ 
+ bfd_vma parse_vma (const char *, const char *);
+ 
+diff -Naur binutils-2.17.orig/binutils/config.in binutils-2.17/binutils/config.in
+--- binutils-2.17.orig/binutils/config.in	2006-02-14 08:59:10.000000000 +0000
++++ binutils-2.17/binutils/config.in	2006-10-11 19:56:03.000000000 +0000
+@@ -108,6 +108,12 @@
+ /* Define to 1 if you have the <memory.h> header file. */
+ #undef HAVE_MEMORY_H
+ 
++/* Define to 1 if you have the `mkdtemp' function. */
++#undef HAVE_MKDTEMP
++
++/* Define to 1 if you have the `mkstemp' function. */
++#undef HAVE_MKSTEMP
++
+ /* Define to 1 if you have a working `mmap' system call. */
+ #undef HAVE_MMAP
+ 
+diff -Naur binutils-2.17.orig/binutils/configure binutils-2.17/binutils/configure
+--- binutils-2.17.orig/binutils/configure	2006-04-06 21:49:29.000000000 +0000
++++ binutils-2.17/binutils/configure	2006-10-11 19:56:03.000000000 +0000
+@@ -9387,6 +9387,203 @@
+ done
+ 
+ 
++echo "$as_me:$LINENO: checking for mkstemp" >&5
++echo $ECHO_N "checking for mkstemp... $ECHO_C" >&6
++if test "${ac_cv_func_mkstemp+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++/* Define mkstemp to an innocuous variant, in case <limits.h> declares mkstemp.
++   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
++#define mkstemp innocuous_mkstemp
++
++/* System header to define __stub macros and hopefully few prototypes,
++    which can conflict with char mkstemp (); below.
++    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
++    <limits.h> exists even on freestanding compilers.  */
++
++#ifdef __STDC__
++# include <limits.h>
++#else
++# include <assert.h>
++#endif
++
++#undef mkstemp
++
++/* Override any gcc2 internal prototype to avoid an error.  */
++#ifdef __cplusplus
++extern "C"
++{
++#endif
++/* We use char because int might match the return type of a gcc2
++   builtin and then its argument prototype would still apply.  */
++char mkstemp ();
++/* The GNU C library defines this for functions which it implements
++    to always fail with ENOSYS.  Some functions are actually named
++    something starting with __ and the normal name is an alias.  */
++#if defined (__stub_mkstemp) || defined (__stub___mkstemp)
++choke me
++#else
++char (*f) () = mkstemp;
++#endif
++#ifdef __cplusplus
++}
++#endif
++
++int
++main ()
++{
++return f != mkstemp;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_func_mkstemp=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++ac_cv_func_mkstemp=no
++fi
++rm -f conftest.err conftest.$ac_objext \
++      conftest$ac_exeext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_func_mkstemp" >&5
++echo "${ECHO_T}$ac_cv_func_mkstemp" >&6
++if test $ac_cv_func_mkstemp = yes; then
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_MKSTEMP 1
++_ACEOF
++
++fi
++
++echo "$as_me:$LINENO: checking for mkdtemp" >&5
++echo $ECHO_N "checking for mkdtemp... $ECHO_C" >&6
++if test "${ac_cv_func_mkdtemp+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++/* Define mkdtemp to an innocuous variant, in case <limits.h> declares mkdtemp.
++   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
++#define mkdtemp innocuous_mkdtemp
++
++/* System header to define __stub macros and hopefully few prototypes,
++    which can conflict with char mkdtemp (); below.
++    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
++    <limits.h> exists even on freestanding compilers.  */
++
++#ifdef __STDC__
++# include <limits.h>
++#else
++# include <assert.h>
++#endif
++
++#undef mkdtemp
++
++/* Override any gcc2 internal prototype to avoid an error.  */
++#ifdef __cplusplus
++extern "C"
++{
++#endif
++/* We use char because int might match the return type of a gcc2
++   builtin and then its argument prototype would still apply.  */
++char mkdtemp ();
++/* The GNU C library defines this for functions which it implements
++    to always fail with ENOSYS.  Some functions are actually named
++    something starting with __ and the normal name is an alias.  */
++#if defined (__stub_mkdtemp) || defined (__stub___mkdtemp)
++choke me
++#else
++char (*f) () = mkdtemp;
++#endif
++#ifdef __cplusplus
++}
++#endif
++
++int
++main ()
++{
++return f != mkdtemp;
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"
++			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_func_mkdtemp=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++ac_cv_func_mkdtemp=no
++fi
++rm -f conftest.err conftest.$ac_objext \
++      conftest$ac_exeext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_func_mkdtemp" >&5
++echo "${ECHO_T}$ac_cv_func_mkdtemp" >&6
++if test $ac_cv_func_mkdtemp = yes; then
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_MKDTEMP 1
++_ACEOF
++
++fi
++
++
+ # Check whether fopen64 is available and whether _LARGEFILE64_SOURCE
+ # needs to be defined for it
+ echo "$as_me:$LINENO: checking for fopen64" >&5
+diff -Naur binutils-2.17.orig/binutils/configure.in binutils-2.17/binutils/configure.in
+--- binutils-2.17.orig/binutils/configure.in	2006-04-06 21:49:29.000000000 +0000
++++ binutils-2.17/binutils/configure.in	2006-10-11 19:56:03.000000000 +0000
+@@ -84,6 +84,13 @@
+ AC_FUNC_ALLOCA
+ AC_CHECK_FUNCS(sbrk utimes setmode getc_unlocked strcoll)
+ 
++AC_CHECK_FUNC([mkstemp],
++	      AC_DEFINE([HAVE_MKSTEMP], 1,
++	      [Define to 1 if you have the `mkstemp' function.]))
++AC_CHECK_FUNC([mkdtemp],
++              AC_DEFINE([HAVE_MKDTEMP], 1,
++              [Define to 1 if you have the `mkdtemp' function.]))
++
+ # Check whether fopen64 is available and whether _LARGEFILE64_SOURCE
+ # needs to be defined for it
+ AC_MSG_CHECKING([for fopen64])
+diff -Naur binutils-2.17.orig/binutils/objcopy.c binutils-2.17/binutils/objcopy.c
+--- binutils-2.17.orig/binutils/objcopy.c	2006-02-28 16:09:01.000000000 +0000
++++ binutils-2.17/binutils/objcopy.c	2006-10-11 19:56:03.000000000 +0000
+@@ -1707,12 +1707,22 @@
+     } *list, *l;
+   bfd **ptr = &obfd->archive_head;
+   bfd *this_element;
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++char *dir = make_tempdir (bfd_get_filename (obfd));
++#else
+   char *dir = make_tempname (bfd_get_filename (obfd));
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+ 
+   /* Make a temp directory to hold the contents.  */
++#if defined(HAVE_MKSTEMP) && defined(HAVE_MKDTEMP)
++  if (dir == 0)
++      fatal ("cannot create tempdir for archive copying (error: %s)",
++	   strerror (errno));
++#else
+   if (MKDIR (dir, 0700) != 0)
+     fatal (_("cannot mkdir %s for archive copying (error: %s)"),
+ 	   dir, strerror (errno));
++#endif /* HAVE_MKSTEMP && HAVE_MKDTEMP */
+ 
+   obfd->has_armap = ibfd->has_armap;
+ 

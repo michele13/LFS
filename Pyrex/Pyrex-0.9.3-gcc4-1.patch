@@ -1,0 +1,80 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-09-09
+Initial Package Version: 0.9.3
+Upstream Status:         Unknown
+Origin:                  http://people.redhat.com/johnp/files/pyrex-0.9.2.1-gcc4.patch
+Description:             Modifies some of the Python code to work when
+                         compiled using GCC-4.0.x
+
+
+diff -Naur Pyrex-0.9.3-orig/Pyrex/Compiler/Code.py Pyrex-0.9.3/Pyrex/Compiler/Code.py
+--- Pyrex-0.9.3-orig/Pyrex/Compiler/Code.py	2003-07-08 08:31:27.000000000 +0000
++++ Pyrex-0.9.3/Pyrex/Compiler/Code.py	2005-09-09 17:06:00.000000000 +0000
+@@ -218,14 +218,19 @@
+         for entry in entries:
+             self.put_var_xdecref_clear(entry)
+     
+-    def put_init_to_py_none(self, cname):
+-        self.putln("%s = Py_None; Py_INCREF(%s);" % (cname, cname))
++    def put_init_to_py_none(self, cast, cname):
++        if cast:
++            self.putln("%s = Py_None; Py_INCREF(%s %s);" % (cname, cast, cname))
++        else:
++            self.putln("%s = Py_None; Py_INCREF(%s);" % (cname, cname))            
+     
+     def put_init_var_to_py_none(self, entry, template = "%s"):
+         code = template % entry.cname
+         if entry.type.is_extension_type:
+-            code = "((PyObject*)%s)" % code
+-        self.put_init_to_py_none(code)
++            cast = "(PyObject *)"
++        else:
++            cast = None
++        self.put_init_to_py_none(cast, code)
+ 
+     def put_pymethoddef(self, entry, term):
+         if entry.doc:
+
+diff -Naur Pyrex-0.9.3-orig/Pyrex/Compiler/ExprNodes.py Pyrex-0.9.3/Pyrex/Compiler/ExprNodes.py
+--- Pyrex-0.9.3-orig/Pyrex/Compiler/ExprNodes.py	2004-05-01 10:15:07.000000000 +0000
++++ Pyrex-0.9.3/Pyrex/Compiler/ExprNodes.py	2005-09-09 17:06:00.000000000 +0000
+@@ -806,7 +806,7 @@
+             if self.type.is_pyobject:
+                 rhs.make_owned_reference(code)
+                 code.put_decref(self.result, self.type)
+-            code.putln('%s = %s;' % (self.result, rhs.result))
++            code.putln('%s = %s;' % (self.entry.cname, rhs.result))
+             if debug_disposal_code:
+                 print "NameNode.generate_assignment_code:"
+                 print "...generating post-assignment code for", rhs
+
+diff -Naur Pyrex-0.9.3-orig/Pyrex/Compiler/Nodes.py Pyrex-0.9.3/Pyrex/Compiler/Nodes.py
+--- Pyrex-0.9.3-orig/Pyrex/Compiler/Nodes.py	2004-07-11 07:26:29.000000000 +0000
++++ Pyrex-0.9.3/Pyrex/Compiler/Nodes.py	2005-09-09 17:06:00.000000000 +0000
+@@ -484,9 +484,9 @@
+         self.generate_self_cast(scope, code)
+         type = scope.parent_type
+         if type.vtabslot_cname:
+-            code.putln("(struct %s *)p->%s = %s;" % (
+-                type.vtabstruct_cname,
++            code.putln("p->%s = (struct %s *)%s;" % (
+                 type.vtabslot_cname,
++                type.vtabstruct_cname,
+                 type.vtabptr_cname))
+         for entry in scope.var_entries:
+             if entry.type.is_pyobject:
+@@ -1685,10 +1685,11 @@
+         code.putln("")
+         if self.return_type.is_pyobject:
+             if self.return_type.is_extension_type:
+-                lhs = "(PyObject *)%s" % Naming.retval_cname
++                cast = "(PyObject *)"
+             else:
+-                lhs = Naming.retval_cname
+-            code.put_init_to_py_none(lhs)
++                cast = None
++            lhs = Naming.retval_cname
++            code.put_init_to_py_none(cast, lhs)
+         else:
+             val = self.return_type.default_value
+             if val:

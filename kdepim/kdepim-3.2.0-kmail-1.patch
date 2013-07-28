@@ -1,0 +1,84 @@
+Submitted By: BLFS Book <blfs-book at linuxfromscratch dot org>
+Date: 2004-02-15
+Initial Package Version: 3.2.0
+Origin: http://www.kde.org/info/3.2.php
+Description: Fixes two problems with KMail which can lead to
+             mail loss.
+
+--- kdepim-3.2.0/kmail/kmfolderimap.cpp.orig	2004-02-15 12:39:50.000000000 +0000
++++ kdepim-3.2.0/kmail/kmfolderimap.cpp	2004-02-15 12:40:13.000000000 +0000
+@@ -1207,7 +1207,16 @@
+ {
+   KURL url = mAccount->getUrl();
+   KMFolderImap *msg_parent = static_cast<KMFolderImap*>(msg->parent());
+-  url.setPath(msg_parent->imapPath() + ";UID=" + msg->headerField("X-UID"));
++  QString uid = msg->headerField("X-UID");
++  /* If the uid is empty the delete job below will nuke all mail in the
++     folder, so we better safeguard against that. See ::expungeFolder, as
++     to why. :( */
++  if ( uid.isEmpty() ) {
++     kdDebug( 5006 ) << "KMFolderImap::deleteMessage: Attempt to delete "
++                        "an empty UID. Aborting."  << endl;
++     return;
++  }
++  url.setPath(msg_parent->imapPath() + ";UID=" + uid );
+   if ( mAccount->makeConnection() != ImapAccountBase::Connected )
+     return;
+   KIO::SimpleJob *job = KIO::file_delete(url, FALSE);
+@@ -1228,7 +1237,11 @@
+   KMFolderImap *msg_parent = static_cast<KMFolderImap*>(msgList.first()->parent());
+   for ( QStringList::Iterator it = sets.begin(); it != sets.end(); ++it )
+   {
+-    url.setPath(msg_parent->imapPath() + ";UID=" + *it);
++    QString uid = *it;
++    // Don't delete with no uid, that nukes the folder. Should not happen, but
++    // better safe than sorry.
++    if ( uid.isEmpty() ) continue;
++    url.setPath(msg_parent->imapPath() + ";UID=" + uid);
+     if ( mAccount->makeConnection() != ImapAccountBase::Connected )
+       return;
+     KIO::SimpleJob *job = KIO::file_delete(url, FALSE);
+--- kdepim-3.2.0/kmail/kmfilter.cpp.orig	2004-02-15 12:39:58.000000000 +0000
++++ kdepim-3.2.0/kmail/kmfilter.cpp	2004-02-15 12:40:13.000000000 +0000
+@@ -147,9 +147,18 @@
+   // that the pattern is purified.
+   mPattern.readConfig(config);
+ 
+-  if (bPopFilter)
++  if (bPopFilter) {
+     // get the action description...
+-    mAction = (KMPopFilterAction) config->readNumEntry( "action" );
++    QString action = config->readEntry( "action" );
++    if ( action == "down" )
++      mAction = Down;
++    else if ( action == "later" )
++      mAction = Later;
++    else if ( action == "delete" )
++      mAction = Delete;
++    else
++      mAction = NoAction;
++  }
+   else {
+     QStringList sets = config->readListEntry("apply-on");
+     if ( sets.isEmpty() && !config->hasKey("apply-on") ) {
+@@ -210,7 +219,19 @@
+   mPattern.writeConfig(config);
+ 
+   if (bPopFilter) {
+-    config->writeEntry( "action", mAction );
++    switch ( mAction ) {
++    case Down:
++      config->writeEntry( "action", "down" );
++      break;
++    case Later:
++      config->writeEntry( "action", "later" );
++      break;
++    case Delete:
++      config->writeEntry( "action", "delete" );
++      break;
++    default:
++      config->writeEntry( "action", "" );
++    }
+   } else {
+     QStringList sets;
+     if ( bApplyOnInbound )

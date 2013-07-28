@@ -1,0 +1,19 @@
+Submitted By: Martin Schaffner <schaffner@gmx.li>
+Date: 2004-04-02
+Initial Package Version: 2.4.23
+Upstream Status: Ignored on LKML
+Origin: Martin Schaffner
+Description: Avoids the GNU-specific "length" operator of the "expr" command, which isn't in POSIX-conform. Enables compilation on systems without GNU expr, e.g. Mac OS X.
+
+diff -ur linux-2.4.23-old/Makefile linux-2.4.23/Makefile
+--- a/Makefile	2003-12-09 14:27:56.000000000 +0100
++++ b/Makefile	2003-12-09 14:28:37.000000000 +0100
+@@ -353,7 +353,7 @@
+ 	@rm -f .ver1
+ 
+ include/linux/version.h: ./Makefile
+-	@expr length "$(KERNELRELEASE)" \<= $(uts_len) > /dev/null || \
++	@expr "$(KERNELRELEASE)" : '.*' \<= $(uts_len) > /dev/null || \
+ 	  (echo KERNELRELEASE \"$(KERNELRELEASE)\" exceeds $(uts_len) characters >&2; false)
+ 	@echo \#define UTS_RELEASE \"$(KERNELRELEASE)\" > .ver
+ 	@echo \#define LINUX_VERSION_CODE `expr $(VERSION) \\* 65536 + $(PATCHLEVEL) \\* 256 + $(SUBLEVEL)` >> .ver

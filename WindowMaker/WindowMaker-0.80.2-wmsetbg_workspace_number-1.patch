@@ -1,0 +1,99 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2003-11-11
+Initial Package Version: 0.80.2
+Origin: http://www.jmknoble.net/WindowMaker/patches/#wmsetbg
+	Adjusted for 0.80.2 by Oliver Brakmann <obrakmann AT gmx DOT net>
+Description: Makes workspace numbering by the wmsetbg tool start at 1 instead
+             of 0, just like it does for the rest of Windowmaker.
+
+diff -Naur WindowMaker-0.80.2-orig/util/wmsetbg.c WindowMaker-0.80.2/util/wmsetbg.c
+--- WindowMaker-0.80.2-orig/util/wmsetbg.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/util/wmsetbg.c	2003-11-05 00:05:15.000000000 +0100
+@@ -1211,11 +1211,15 @@
+ 
+ 
+ void
+-changeTextureForWorkspace(char *domain, char *texture, int workspace)
++changeTextureForWorkspace(char *domain, char *texture, unsigned int workspace)
+ {
+     WMPropList *array, *val;
+     char *value;
+-    int j;
++    unsigned int j;
++
++    if (0 == workspace) {
++	return;
++    }
+     
+     val = WMCreatePropListFromDescription(texture);
+     if (!val) {
+@@ -1230,18 +1234,24 @@
+     }
+ 
+     j = WMGetPropListItemCount(array);
+-    if (workspace >= j) {
+-	WMPropList *empty;
+-
+-	empty = WMCreatePLArray(NULL, NULL);
+-
+-	while (j++ < workspace-1) {
+-	    WMAddToPLArray(array, empty);
++        if (j < workspace) {
++            if (++j < workspace) {
++              WMPropList *empty;
++  
++              empty = WMCreatePLArray(NULL, NULL);
++  
++              for (; j < workspace; ++j) {
++                  WMAddToPLArray(array, empty);
++              }
+ 	}
+ 	WMAddToPLArray(array, val);
+     } else {
+-	WMDeleteFromPLArray(array, workspace);
+-	WMInsertInPLArray(array, workspace, val);
++        /* Workspace number is 1-origin.
++       * PL array manipulation functions are 0-origin.
++       */
++        j = workspace - 1;
++        WMInsertInPLArray(array, j, val);
++        WMDeleteFromPLArray(array, j+1);
+     }
+ 
+     value = WMGetPropListDescription(array, False);
+@@ -1262,7 +1272,7 @@
+     char *domain = "WindowMaker";
+     int update=0, cpc=4, render_mode=RDitheredRendering, obey_user=0;
+     char *texture = NULL;
+-    int workspace = -1;
++    unsigned int workspace = 0;		/* Workspace number is 1-origin. */
+     
+     signal(SIGINT, SIG_DFL);
+     signal(SIGTERM, SIG_DFL);
+@@ -1356,7 +1366,7 @@
+ 		wfatal("too few arguments for %s\n", argv[i-1]);
+ 		exit(1);
+ 	    }
+-	    if (sscanf(argv[i], "%i", &workspace)!=1) {
++	    if ((sscanf(argv[i], "%u", &workspace)!=1) || (0 == workspace)) {
+ 		wfatal("bad value for workspace number: \"%s\"", 
+ 			argv[i]);
+ 		exit(1);
+@@ -1454,7 +1464,7 @@
+ 	    texture = (char*)buffer;
+ 	}
+ 
+-	if (update && workspace < 0) {
++	if (update && (0 == workspace)) {
+ 	    updateDomain(domain, "WorkspaceBack", texture);
+ 	}
+ 
+@@ -1462,7 +1472,7 @@
+ 	if (!tex)
+ 	    exit(1);
+ 
+-	if (workspace<0)
++	if (0 == workspace)
+ 	    changeTexture(tex);
+ 	else {
+ 	    /* always update domain */

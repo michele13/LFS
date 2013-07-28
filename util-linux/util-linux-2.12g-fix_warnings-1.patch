@@ -1,0 +1,39 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-09-16
+Initial Package Version: 2.12d
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Removes header warning on io.h
+	     Also removes GCC warning about -mcpu
+ 
+--- util-linux-2.12d/hwclock/cmos.c.orig	2004-09-17 15:26:29.521524328 +0000
++++ util-linux-2.12d/hwclock/cmos.c	2004-09-17 15:26:57.085333992 +0000
+@@ -46,11 +46,16 @@
+ 
+ #include <unistd.h>		/* for geteuid() */
+ #include <fcntl.h>		/* for O_RDWR */
++#include <linux/version.h>
+ 
+ #include "nls.h"
+ 
+ #if defined(__i386__)
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
+ #include <asm/io.h>		/* for inb, outb */
++#else
++#include <sys/io.h>		/* for inb, outb */
++#endif
+ #elif defined(__alpha__)
+ /* <asm/io.h> fails to compile, probably because of u8 etc */
+ extern unsigned int     inb(unsigned long port);
+ 
+--- util-linux-2.12d/MCONFIG.orig	2004-09-17 17:48:22.707323368 +0000
++++ util-linux-2.12d/MCONFIG	2004-09-17 17:48:42.217357392 +0000
+@@ -112,7 +112,7 @@
+   ifeq "$(HAVE_OLD_GCC)" "yes"
+     CPUHEAD=-m
+   else
+-    CPUHEAD=-mcpu=i
++    CPUHEAD=-march=i
+   endif
+   ifeq "$(CPU)" "i386"
+     CPUTAIL=386

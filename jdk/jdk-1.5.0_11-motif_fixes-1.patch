@@ -1,0 +1,63 @@
+Submitted By:            DJ Lucas <dj AT linuxfromscratch DOT org>
+Date:                    2006-03-04
+Initial Package Version: 1.5.0_05
+Origin:                  Previous motif mkmsgcat patch and cleanups for system Xm/XmIm.h
+                         Rediffed for 1.5.0.11 by Randy McMurchy
+Description:             Various fixes for motif-2.1 compilation
+
+
+diff -Naur jdk-1.5.0.11-orig/j2se/make/sun/awt/mawt.gmk jdk-1.5.0.11/j2se/make/sun/awt/mawt.gmk
+--- jdk-1.5.0.11-orig/j2se/make/sun/awt/mawt.gmk	2007-03-19 03:59:26.000000000 +0000
++++ jdk-1.5.0.11/j2se/make/sun/awt/mawt.gmk	2007-03-19 04:16:20.000000000 +0000
+@@ -132,9 +132,9 @@
+ 	ifeq ($(ARCH_DATA_MODEL), 64)
+             LIBXT = -lXt
+         else
+-	    LIBXT = /usr/X11R6/lib/libXt.a
+-	    LIBSM = /usr/X11R6/lib/libSM.a
+-	    LIBICE = /usr/X11R6/lib/libICE.a
++	    LIBXT = -lXt
++	    LIBSM =
++	    LIBICE =
+ 	endif
+     endif
+ else
+
+
+diff -Naur jdk-1.5.0.11-orig/j2se/src/solaris/native/sun/awt/awt_motif21.c jdk-1.5.0.11/j2se/src/solaris/native/sun/awt/awt_motif21.c
+--- jdk-1.5.0.11-orig/j2se/src/solaris/native/sun/awt/awt_motif21.c	2007-03-19 03:59:37.000000000 +0000
++++ jdk-1.5.0.11/j2se/src/solaris/native/sun/awt/awt_motif21.c	2007-03-19 04:16:20.000000000 +0000
+@@ -16,11 +16,6 @@
+ #include "awt_Component.h"
+ 
+ #define XmPER_SHELL 0
+-extern XIC XmImGetXIC(
+-                                Widget          w,
+-                        uint32_t    input_policy,
+-                        ArgList         args,
+-                        Cardinal        num_args) ;
+ extern int32_t _XmImGetGeo(
+                         Widget vw) ;
+ 
+
+diff -Naur jdk-1.5.0.11-orig/motif/lib/Xm/util/mkmsgcat.c jdk-1.5.0.11/motif/lib/Xm/util/mkmsgcat.c
+--- jdk-1.5.0.11-orig/motif/lib/Xm/util/mkmsgcat.c	2007-03-19 03:59:39.000000000 +0000
++++ jdk-1.5.0.11/motif/lib/Xm/util/mkmsgcat.c	2007-03-19 04:16:20.000000000 +0000
+@@ -14,7 +14,7 @@
+ #include <string.h>
+ char buf[1024];
+ 
+-char *OSF_COPYRIGHT = "$\n\
++char *OSF_COPYRIGHT = "\
+ $  @OSF_COPYRIGHT@\n\
+ $  COPYRIGHT NOTICE\n\
+ $  Copyright (c) 1990, 1991, 1992, 1993 Open Software Foundation, Inc.\n\
+@@ -28,7 +28,7 @@
+ $ (c) Copyright 1996 Novell, Inc. \n\
+ $ (c) Copyright 1996 FUJITSU LIMITED.\n\
+ $ (c) Copyright 1996 Hitachi.\n\
+-$";
++";
+ 
+ char *OSF_COPYRIGHT_C = "/*\n\
+  *\n\

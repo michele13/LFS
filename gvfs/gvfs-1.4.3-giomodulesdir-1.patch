@@ -1,0 +1,23 @@
+Submitted By: DJ Lucas <dj at linuxfromscratch dot org>
+Date: 2010-02-18
+Initial Package Version: 1.4.3
+Upstream Status: Submitted
+Origin: self
+Description: Adds proper autodetection of gio modules directory, and adds a
+             switch to overide so that 'make distcheck' passes for DESTDIR
+             installations (which is why upstream repeatedly breaks every
+             single release after it has been fixed so many times prior).
+
+diff -Naur gvfs-1.4.3-orig/configure.ac gvfs-1.4.3/configure.ac
+--- gvfs-1.4.3-orig/configure.ac	2009-12-14 02:31:02.000000000 -0600
++++ gvfs-1.4.3/configure.ac	2010-02-07 11:47:01.000000000 -0600
+@@ -57,7 +57,8 @@
+ DBUS_SERVICE_DIR=$with_dbus_service_dir
+ AC_SUBST(DBUS_SERVICE_DIR)
+ 
+-giomodulesdir=$libdir/gio/modules
++AC_ARG_WITH(gio_modules_dir, [  --with-gio-modules-dir=PATH choose directory for gio modules, [default=auto]], with_gio_modules_dir="$withval", with_gio_modules_dir=$($PKG_CONFIG --variable=giomoduledir gio-2.0))
++giomodulesdir=$with_gio_modules_dir
+ AC_SUBST(giomodulesdir)
+ 
+ dnl ****************************

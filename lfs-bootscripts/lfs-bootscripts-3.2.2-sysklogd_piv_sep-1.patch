@@ -1,0 +1,45 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-25
+Initial Package Version: 3.2.2
+Upstream Status: Not Submitted
+Origin: None
+Description: Use Sysklogd privilege separation from the sysklogd-priv_sep patch.
+
+diff -Naur lfs-bootscripts-3.2.2.orig/lfs/init.d/sysklogd lfs-bootscripts-3.2.2/lfs/init.d/sysklogd
+--- lfs-bootscripts-3.2.2.orig/lfs/init.d/sysklogd	2005-03-30 17:40:46.000000000 +0000
++++ lfs-bootscripts-3.2.2/lfs/init.d/sysklogd	2007-05-25 07:30:47.000000000 +0000
+@@ -18,23 +18,25 @@
+ case "${1}" in
+ 	start)
+ 		boot_mesg "Starting system log daemon..."
+-		loadproc syslogd -m 0
++		loadproc /usr/sbin/syslogd -m 0 -u syslogd -j /var/lib/syslogd
+ 
+ 		boot_mesg "Starting kernel log daemon..."
+-		loadproc klogd
++		/usr/bin/mkfifo -m 700 /var/tmp/kmsg
++		/bin/chown klogd:klogd /var/tmp/kmsg
++		env -i /bin/sh -c -- \
++			'/bin/dd bs=1 if=/proc/kmsg of=/var/tmp/kmsg &'
++		loadproc /usr/sbin/klogd -x -u klogd -j /var/lib/klogd \
++			-P /var/tmp/kmsg
+ 		;;
+ 
+ 	stop)
+ 		boot_mesg "Stopping kernel log daemon..."
+-		killproc klogd
++		killproc /usr/sbin/klogd
++		/bin/fuser -s -k /var/tmp/kmsg
++		/bin/rm -f /var/tmp/kmsg
+ 
+ 		boot_mesg "Stopping system log daemon..."
+-		killproc syslogd
+-		;;
+-
+-	reload)
+-		boot_mesg "Reloading system log daemon config file..."
+-		reloadproc syslogd 1
++		killproc /usr/sbin/syslogd
+ 		;;
+ 
+ 	restart)

@@ -1,0 +1,22 @@
+Submitted By: Dan Nicholson <dnicholson AT linuxfromscratch DOT org>
+Date: 2007-07-08
+Initial Package Version: 1.1.2
+Upstream Status: Applied
+Origin: https://bugs.freedesktop.org/show_bug.cgi?id=11222
+Description: Recent refactoring of libX11 inadvertantly swapped the argument
+  order in XGetMotionEvents().
+
+diff -pNur libX11-1.1.2.orig/src/GetMoEv.c libX11-1.1.2/src/GetMoEv.c
+--- libX11-1.1.2.orig/src/GetMoEv.c	2007-06-02 10:46:55.000000000 -0700
++++ libX11-1.1.2/src/GetMoEv.c	2007-07-08 10:37:03.000000000 -0700
+@@ -33,9 +33,9 @@ in this Software without prior written a
+ 
+ XTimeCoord *XGetMotionEvents(
+     register Display *dpy,
++    Window w,
+     Time start, 
+     Time stop,
+-    Window w,
+     int *nEvents)  /* RETURN */
+ {       
+     xGetMotionEventsReply rep;

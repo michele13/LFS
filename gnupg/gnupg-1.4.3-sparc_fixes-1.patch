@@ -1,0 +1,98 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2006-05-01
+Initial Package Version: 1.4.3
+Origin: Rene Rebe
+Upstream Status: Unknown
+Description: Fixes Sparc ABI Compliance Issue
+ 
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32/mpih-add1.S gnupg-1.4.3/mpi/sparc32/mpih-add1.S
+--- gnupg-1.4.3.orig/mpi/sparc32/mpih-add1.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32/mpih-add1.S	2006-05-02 02:57:01.000000000 +0000
+@@ -40,6 +40,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ 	.text
+ 	.align	4
+ 	.global C_SYMBOL_NAME(mpihelp_add_n)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32/mpih-lshift.S gnupg-1.4.3/mpi/sparc32/mpih-lshift.S
+--- gnupg-1.4.3.orig/mpi/sparc32/mpih-lshift.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32/mpih-lshift.S	2006-05-02 02:57:01.000000000 +0000
+@@ -30,6 +30,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ 	.text
+ 	.align	4
+ 	.global C_SYMBOL_NAME(mpihelp_lshift)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32/mpih-rshift.S gnupg-1.4.3/mpi/sparc32/mpih-rshift.S
+--- gnupg-1.4.3.orig/mpi/sparc32/mpih-rshift.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32/mpih-rshift.S	2006-05-02 02:57:01.000000000 +0000
+@@ -29,6 +29,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ 	.text
+ 	.align	4
+ 	.global C_SYMBOL_NAME(mpihelp_rshift)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32/udiv.S gnupg-1.4.3/mpi/sparc32/udiv.S
+--- gnupg-1.4.3.orig/mpi/sparc32/udiv.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32/udiv.S	2006-05-02 02:57:01.000000000 +0000
+@@ -39,6 +39,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ 	.text
+ 	.align 4
+ 	.global C_SYMBOL_NAME(__udiv_qrnnd)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul1.S gnupg-1.4.3/mpi/sparc32v8/mpih-mul1.S
+--- gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul1.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32v8/mpih-mul1.S	2006-05-02 02:57:01.000000000 +0000
+@@ -40,6 +40,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ .text
+ 	.align	8
+ 	.global C_SYMBOL_NAME(mpihelp_mul_1)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul2.S gnupg-1.4.3/mpi/sparc32v8/mpih-mul2.S
+--- gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul2.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32v8/mpih-mul2.S	2006-05-02 02:57:01.000000000 +0000
+@@ -40,6 +40,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ .text
+ 	.align 4
+ 	.global C_SYMBOL_NAME(mpihelp_addmul_1)
+diff -Naur gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul3.S gnupg-1.4.3/mpi/sparc32v8/mpih-mul3.S
+--- gnupg-1.4.3.orig/mpi/sparc32v8/mpih-mul3.S	2005-07-27 11:28:29.000000000 +0000
++++ gnupg-1.4.3/mpi/sparc32v8/mpih-mul3.S	2006-05-02 02:57:01.000000000 +0000
+@@ -39,6 +39,9 @@
+ 
+ #include "sysdep.h"
+ 
++	.register %g2,#scratch
++	.register %g3,#scratch
++
+ .text
+ 	.align 4
+ 	.global C_SYMBOL_NAME(mpihelp_submul_1)

@@ -1,0 +1,117 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2004-10-28
+Initial Package Version: 4.0.5
+Origin: Ronald Hummelink
+Upstream Status: Not submitted - LFS specific
+Description: Prevent installation of the groups program and manpages which
+    are provided by coreutils.
+
+diff -Naur shadow-4.0.5-orig/man/Makefile.in shadow-4.0.5/man/Makefile.in
+--- shadow-4.0.5-orig/man/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/Makefile.in	2004-10-28 20:57:34.000000000 +0200
+@@ -199,7 +199,6 @@
+ 	groupadd.8 \
+ 	groupdel.8 \
+ 	groupmod.8 \
+-	groups.1 \
+ 	grpck.8 \
+ 	grpconv.8 \
+ 	grpunconv.8 \
+diff -Naur shadow-4.0.5-orig/man/de/Makefile.in shadow-4.0.5/man/de/Makefile.in
+--- shadow-4.0.5-orig/man/de/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/de/Makefile.in	2004-10-28 20:56:07.000000000 +0200
+@@ -173,7 +173,6 @@
+ man_MANS = \
+ 	chsh.1 \
+ 	chfn.1 \
+-	groups.1 \
+ 	login.1 \
+ 	passwd.1
+ 
+diff -Naur shadow-4.0.5-orig/man/fr/Makefile.in shadow-4.0.5/man/fr/Makefile.in
+--- shadow-4.0.5-orig/man/fr/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/fr/Makefile.in	2004-10-28 20:56:24.000000000 +0200
+@@ -179,7 +179,6 @@
+ 	chsh.1 \
+ 	faillog.5 \
+ 	gpasswd.1 \
+-	groups.1 \
+ 	newgrp.1 \
+ 	passwd.1 \
+ 	passwd.5 \
+diff -Naur shadow-4.0.5-orig/man/hu/Makefile.in shadow-4.0.5/man/hu/Makefile.in
+--- shadow-4.0.5-orig/man/hu/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/hu/Makefile.in	2004-10-28 20:56:33.000000000 +0200
+@@ -173,7 +173,6 @@
+ man_MANS = \
+ 	chsh.1 \
+ 	gpasswd.1 \
+-	groups.1 \
+ 	login.1 \
+ 	newgrp.1 \
+ 	passwd.1 \
+diff -Naur shadow-4.0.5-orig/man/it/Makefile.in shadow-4.0.5/man/it/Makefile.in
+--- shadow-4.0.5-orig/man/it/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/it/Makefile.in	2004-10-28 20:56:42.000000000 +0200
+@@ -180,7 +180,6 @@
+ 	groupadd.8 \
+ 	groupdel.8 \
+ 	groupmod.8 \
+-	groups.1 \
+ 	grpck.8 \
+ 	grpconv.8 \
+ 	grpunconv.8 \
+diff -Naur shadow-4.0.5-orig/man/ja/Makefile.in shadow-4.0.5/man/ja/Makefile.in
+--- shadow-4.0.5-orig/man/ja/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/ja/Makefile.in	2004-10-28 20:56:51.000000000 +0200
+@@ -185,7 +185,6 @@
+ 	groupadd.8 \
+ 	groupdel.8 \
+ 	groupmod.8 \
+-	groups.1 \
+ 	grpck.8 \
+ 	grpconv.8 \
+ 	grpunconv.8 \
+diff -Naur shadow-4.0.5-orig/man/ko/Makefile.in shadow-4.0.5/man/ko/Makefile.in
+--- shadow-4.0.5-orig/man/ko/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/ko/Makefile.in	2004-10-28 20:56:56.000000000 +0200
+@@ -174,7 +174,6 @@
+ man_MANS = \
+ 	chfn.1 \
+ 	chsh.1 \
+-	groups.1 \
+ 	login.1 \
+ 	newgrp.1 \
+ 	passwd.5
+diff -Naur shadow-4.0.5-orig/man/pl/Makefile.in shadow-4.0.5/man/pl/Makefile.in
+--- shadow-4.0.5-orig/man/pl/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/man/pl/Makefile.in	2004-10-28 20:57:01.000000000 +0200
+@@ -185,7 +185,6 @@
+ 	groupadd.8 \
+ 	groupdel.8 \
+ 	groupmod.8 \
+-	groups.1 \
+ 	grpck.8 \
+ 	grpconv.8 \
+ 	grpunconv.8 \
+diff -Naur shadow-4.0.5-orig/src/Makefile.in shadow-4.0.5/src/Makefile.in
+--- shadow-4.0.5-orig/src/Makefile.in	2004-10-28 20:49:04.000000000 +0200
++++ shadow-4.0.5/src/Makefile.in	2004-10-28 21:03:09.000000000 +0200
+@@ -38,7 +38,7 @@
+ POST_UNINSTALL = :
+ build_triplet = @build@
+ host_triplet = @host@
+-bin_PROGRAMS = groups$(EXEEXT) login$(EXEEXT) su$(EXEEXT)
++bin_PROGRAMS = login$(EXEEXT) su$(EXEEXT)
+ ubin_PROGRAMS = faillog$(EXEEXT) lastlog$(EXEEXT) chage$(EXEEXT) \
+ 	chfn$(EXEEXT) chsh$(EXEEXT) expiry$(EXEEXT) gpasswd$(EXEEXT) \
+ 	newgrp$(EXEEXT) passwd$(EXEEXT)
+@@ -48,7 +48,7 @@
+ 	newusers$(EXEEXT) pwck$(EXEEXT) pwconv$(EXEEXT) \
+ 	pwunconv$(EXEEXT) useradd$(EXEEXT) userdel$(EXEEXT) \
+ 	usermod$(EXEEXT) vipw$(EXEEXT)
+-noinst_PROGRAMS = id$(EXEEXT) sulogin$(EXEEXT)
++noinst_PROGRAMS = groups$(EXEEXT) id$(EXEEXT) sulogin$(EXEEXT)
+ subdir = src
+ DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4

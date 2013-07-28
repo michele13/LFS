@@ -1,0 +1,61 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-03-03
+Initial Package Version: 3.3.3
+Origin: unknown
+Description: Fix a silent mis-compilation of the kernel.  The following
+	message explains in full detail:
+
+Hello,
+
+in the appended testcase (obtained from linux kernel), the following
+bug occurred: load motion decides to optimize non-volatile instance
+of src_pte, and not to take volatile instance into account.  When
+checking for availability, we however consider these instances to be equal,
+which causes us to believe that the second load of pte is redundant.
+
+The patch fixes it.
+
+Zdenek
+
+typedef struct { unsigned long pte_low; } pte_t;
+static inline void clear_bit(int nr, volatile void * addr)
+{
+	__asm__ __volatile__(
+		"btrl %1,%0"
+		:"=m" ((*(volatile long *) addr))
+		:"Ir" (nr));
+}
+static inline void ptep_set_wrprotect(pte_t *ptep) { clear_bit(1, ptep); }
+int copy_page_range(void)
+{
+	pte_t * src_pte;
+	pte_t pte = *src_pte;
+
+	if (pte.pte_low) {
+		ptep_set_wrprotect(src_pte);
+		pte = *src_pte;
+	}
+
+	foo (pte);
+
+	return 0;
+}
+
+Changelog:
+	* gcse.c (expr_equiv_p): Don't consider anything to be equal to
+	volatile mem.
+
+diff -Naur gcc-3.3.3.orig/gcc/gcse.c gcc-3.3.3/gcc/gcse.c
+--- gcc-3.3.3.orig/gcc/gcse.c	2004-03-03 17:57:52.453395000 -0500
++++ gcc-3.3.3/gcc/gcse.c	2004-03-03 17:59:42.586652872 -0500
+@@ -1838,6 +1838,10 @@
+ 	 due to it being set with the different alias set.  */
+       if (MEM_ALIAS_SET (x) != MEM_ALIAS_SET (y))
+ 	return 0;
++
++      /* A volatile mem should not be considered equivalent to any other.  */
++      if (MEM_VOLATILE_P (x) || MEM_VOLATILE_P (y))
++	return 0;
+       break;
+ 
+     /*  For commutative operations, check both orders.  */

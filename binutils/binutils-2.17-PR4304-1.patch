@@ -1,0 +1,58 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-30
+Initial Package Version: 2.17
+Upstream Status: From Upstream
+Origin:	http://sourceware.org/ml/binutils-cvs/2007-04/msg00021.html
+	http://sourceware.org/bugzilla/show_bug.cgi?id=4304
+Description: 'ld --warn-shared-textrel --fatal-warnings' is not fatal in
+Binutils-2.17. This is the bugfix.
+
+2007-04-05  H.J. Lu  <hongjiu.lu@intel.com>
+
+	PR ld/4304
+	* bfd/elflink.c (bfd_elf_final_link): Call einfo callback in
+	bfd_link_info instead of _bfd_error_handler for DT_TEXTREL
+	warning.
+	* ld/testsuite/ld-i386/i386.exp: Run "warn1".
+	* ld/testsuite/ld-i386/warn1.d: New file.
+	* ld/testsuite/ld-i386/warn1.s: Likewise.
+
+diff -Naur binutils-2.17.orig/bfd/elflink.c binutils-2.17/bfd/elflink.c
+--- binutils-2.17.orig/bfd/elflink.c	2006-05-22 15:06:36.000000000 +0000
++++ binutils-2.17/bfd/elflink.c	2007-04-05 17:49:27.000000000 +0000
+@@ -8670,8 +8670,8 @@
+ 
+ 	      if (dyn.d_tag == DT_TEXTREL)
+ 		{
+-		  _bfd_error_handler
+-		    (_("warning: creating a DT_TEXTREL in a shared object."));
++		 info->callbacks->einfo 
++		    (_("%P: warning: creating a DT_TEXTREL in a shared object.\n"));
+ 		  break;
+ 		}
+ 	    }
+diff -Naur binutils-2.17.orig/ld/testsuite/ld-i386/i386.exp binutils-2.17/ld/testsuite/ld-i386/i386.exp
+--- binutils-2.17.orig/ld/testsuite/ld-i386/i386.exp	2006-03-03 09:32:01.000000000 +0000
++++ binutils-2.17/ld/testsuite/ld-i386/i386.exp	2007-04-05 17:50:02.000000000 +0000
+@@ -113,3 +113,4 @@
+ run_dump_test "abs"
+ run_dump_test "pcrel8"
+ run_dump_test "pcrel16"
++run_dump_test "warn1"
+diff -Naur binutils-2.17.orig/ld/testsuite/ld-i386/warn1.d binutils-2.17/ld/testsuite/ld-i386/warn1.d
+--- binutils-2.17.orig/ld/testsuite/ld-i386/warn1.d	1970-01-01 00:00:00.000000000 +0000
++++ binutils-2.17/ld/testsuite/ld-i386/warn1.d	2007-04-05 17:49:27.000000000 +0000
+@@ -0,0 +1,4 @@
++#name: --warn-shared-textrel --fatal-warnings
++#as: --32
++#ld: -shared -melf_i386 --warn-shared-textrel --fatal-warnings
++#error: .*warning: creating a DT_TEXTREL in a shared object.
+diff -Naur binutils-2.17.orig/ld/testsuite/ld-i386/warn1.s binutils-2.17/ld/testsuite/ld-i386/warn1.s
+--- binutils-2.17.orig/ld/testsuite/ld-i386/warn1.s	1970-01-01 00:00:00.000000000 +0000
++++ binutils-2.17/ld/testsuite/ld-i386/warn1.s	2007-04-05 17:49:27.000000000 +0000
+@@ -0,0 +1,5 @@
++	.text
++	.globl foo
++	.type	foo, @function
++foo:
++	movl	bar, %eax

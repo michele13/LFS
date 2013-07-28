@@ -1,0 +1,107 @@
+Submitted By: Edgar Alwers <edgaralwers at gmx dot de>
+Date: 2009-04-22
+Initial Package Version: libofx-0.9.1
+Upstream Status: submitted upstream
+Origin: Debian https://launchpad.net/debian/squeeze/+source/libofx/1:0.9.0-3
+Description: libofx-9.0.1.tar.gz does not compile under gcc-4.3. This patch is an adaptation from the Debian one,
+	     with the Debian specifics removed
+
+diff -rBau libofx-0.9.1/lib/ofx_container_transaction.cpp libofx-0.9.1-neu/lib/ofx_container_transaction.cpp
+--- libofx-0.9.1/lib/ofx_container_transaction.cpp	2007-11-10 00:13:21.000000000 +0100
++++ libofx-0.9.1-neu/lib/ofx_container_transaction.cpp	2009-04-22 12:31:26.907506319 +0200
+@@ -21,6 +21,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <cstdlib>
+ #include <string>
+ #include "messages.hh"
+ #include "libofx.h"
+diff -rBau libofx-0.9.1/lib/ofx_request.cpp libofx-0.9.1-neu/lib/ofx_request.cpp
+--- libofx-0.9.1/lib/ofx_request.cpp	2007-10-28 04:01:38.000000000 +0100
++++ libofx-0.9.1-neu/lib/ofx_request.cpp	2009-04-22 12:31:26.907506319 +0200
+@@ -20,7 +20,7 @@
+ #ifdef HAVE_CONFIG_H
+ #include <config.h>
+ #endif
+-
++#include <cstring>
+ #include <string>
+ #include "messages.hh"
+ #include "libofx.h"
+diff -rBau libofx-0.9.1/lib/ofx_request_accountinfo.cpp libofx-0.9.1-neu/lib/ofx_request_accountinfo.cpp
+--- libofx-0.9.1/lib/ofx_request_accountinfo.cpp	2007-10-28 04:01:38.000000000 +0100
++++ libofx-0.9.1-neu/lib/ofx_request_accountinfo.cpp	2009-04-22 12:31:26.907506319 +0200
+@@ -21,6 +21,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <cstdlib>
+ #include <string>
+ #include "libofx.h"
+ #include "ofx_request_accountinfo.hh"
+diff -rBau libofx-0.9.1/lib/ofx_request_statement.cpp libofx-0.9.1-neu/lib/ofx_request_statement.cpp
+--- libofx-0.9.1/lib/ofx_request_statement.cpp	2007-10-28 04:01:38.000000000 +0100
++++ libofx-0.9.1-neu/lib/ofx_request_statement.cpp	2009-04-22 12:31:26.907506319 +0200
+@@ -21,6 +21,7 @@
+ #include <config.h>
+ #endif
+ 
++#include <cstdlib>
+ #include <string>
+ #include "libofx.h"
+ #include "ofx_utilities.hh"
+diff -rBau libofx-0.9.1/lib/ofx_utilities.cpp libofx-0.9.1-neu/lib/ofx_utilities.cpp
+--- libofx-0.9.1/lib/ofx_utilities.cpp	2007-10-27 14:15:58.000000000 +0200
++++ libofx-0.9.1-neu/lib/ofx_utilities.cpp	2009-04-22 12:31:26.907506319 +0200
+@@ -16,12 +16,14 @@
+  *                                                                         *
+  ***************************************************************************/
+ #include <config.h>
++#include <cstdlib>
+ #include <iostream>
+ #include <assert.h>
+ 
+ #include "ParserEventGeneratorKit.h"
+ #include "SGMLApplication.h"
+ #include <time.h>
++#include <ctime>
+ #include <string>
+ #include <locale.h>
+ #include "messages.hh"
+diff -rBau libofx-0.9.1/ofxconnect/ofxconnect.cpp libofx-0.9.1-neu/ofxconnect/ofxconnect.cpp
+--- libofx-0.9.1/ofxconnect/ofxconnect.cpp	2007-01-09 09:04:37.000000000 +0100
++++ libofx-0.9.1-neu/ofxconnect/ofxconnect.cpp	2009-04-22 12:31:26.919516811 +0200
+@@ -31,6 +31,7 @@
+ #include <iostream>
+ #include <fstream>
+ #include <string>
++#include <cstring>
+ #include "libofx.h"
+ #include <config.h>		/* Include config constants, e.g., VERSION TF */
+ #include <stdio.h>
+diff -rBau libofx-0.9.1/ofxconnect/ofxpartner.cpp libofx-0.9.1-neu/ofxconnect/ofxpartner.cpp
+--- libofx-0.9.1/ofxconnect/ofxpartner.cpp	2006-03-26 06:49:54.000000000 +0200
++++ libofx-0.9.1-neu/ofxconnect/ofxpartner.cpp	2009-04-22 12:31:26.919516811 +0200
+@@ -34,7 +34,9 @@
+ 
+ #include <iostream>
+ #include <string>
++#include <cstring>
+ #include <vector>
++#include <algorithm>
+ 
+ using std::string;
+ using std::vector;
+diff -rBau libofx-0.9.1/ofxdump/ofxdump.cpp libofx-0.9.1-neu/ofxdump/ofxdump.cpp
+--- libofx-0.9.1/ofxdump/ofxdump.cpp	2006-08-02 06:19:22.000000000 +0200
++++ libofx-0.9.1-neu/ofxdump/ofxdump.cpp	2009-04-22 12:31:26.919516811 +0200
+@@ -27,6 +27,8 @@
+  *   (at your option) any later version.                                   *
+  *                                                                         *
+  ***************************************************************************/
++#include <cstring>
++#include <cstdlib>
+ #include <iostream>
+ #include <iomanip>
+ #include <string>

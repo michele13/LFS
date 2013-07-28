@@ -1,0 +1,40 @@
+Submitted By: Dan Nicholson <dnicholson at linuxfromscratch dot org>
+Date: 2006-08-05
+Initial Package Version: 1.0.1
+Origin: http://xorg.freedesktop.org/releases/X11R7.1/patches/
+Upstream Status: Applied
+Description: Fixes a security vulnerability. See the following advisory:
+    http://lists.freedesktop.org/archives/xorg/2006-June/016146.html
+
+diff -pNur xload-1.0.1.orig/xload.c xload-1.0.1/xload.c
+--- xload-1.0.1.orig/xload.c	2004-04-23 19:54:57.000000000 +0000
++++ xload-1.0.1/xload.c	2006-08-05 16:35:56.000000000 +0000
+@@ -34,7 +34,7 @@ from the X Consortium.
+  * xload - display system load average in a window
+  */
+ 
+-
++#include <errno.h>
+ #include <stdio.h> 
+ #include <stdlib.h>
+ #include <unistd.h>
+@@ -162,8 +162,17 @@ main(int argc, char **argv)
+     /* For security reasons, we reset our uid/gid after doing the necessary
+        system initialization and before calling any X routines. */
+     InitLoadPoint();
+-    setgid(getgid());		/* reset gid first while still (maybe) root */
+-    setuid(getuid());
++    /* reset gid first while still (maybe) root */
++    if (setgid(getgid()) == -1) {
++	    fprintf(stderr, "%s: setgid failed: %s\n", 
++		ProgramName, strerror(errno));
++	    exit(1);
++    }
++    if (setuid(getuid()) == -1) {
++	    fprintf(stderr, "%s: setuid failed: %s\n", 
++		ProgramName, strerror(errno));
++	    exit(1);
++    }
+ 
+     XtSetLanguageProc(NULL, (XtLanguageProc) NULL, NULL);
+ 

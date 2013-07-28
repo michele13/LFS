@@ -1,0 +1,32 @@
+Submitted By: Ken Moffat (ken at linuxfromscratch dot org)
+Origin: fedora
+Date: 2005-11-22
+Initial package version: 4.0.2
+Description: In a native ppc64 build, this fixes a linkage failure while
+installing a 32-bit nof/ (no -hardware- floating point) library, and also gets
+rid of 1500 failures in the g++ testsuite.  From fedora gcc-4.0.1, rediffed to
+apply with -p1.
+
+diff -Naur gcc-4.0.2-vanilla/gcc/config/rs6000/t-linux64 gcc-4.0.2/gcc/config/rs6000/t-linux64
+--- gcc-4.0.2-vanilla/gcc/config/rs6000/t-linux64	2005-11-22 13:16:44.000000000 +0000
++++ gcc-4.0.2/gcc/config/rs6000/t-linux64	2005-11-22 13:17:50.000000000 +0000
+@@ -8,13 +8,13 @@
+ 
+ SHLIB_MAPFILES += $(srcdir)/config/rs6000/libgcc-ppc64.ver
+ 
+-MULTILIB_OPTIONS        = m64/m32 msoft-float
+-MULTILIB_DIRNAMES       = 64 32 nof
++MULTILIB_OPTIONS        = m64/m32
++MULTILIB_DIRNAMES       = 64 32
+ MULTILIB_EXTRA_OPTS     = fPIC mstrict-align
+-MULTILIB_EXCEPTIONS     = m64/msoft-float
+-MULTILIB_EXCLUSIONS     = m64/!m32/msoft-float
+-MULTILIB_OSDIRNAMES	= ../lib64 ../lib nof
+-MULTILIB_MATCHES        = $(MULTILIB_MATCHES_FLOAT)
++MULTILIB_EXCEPTIONS     =
++MULTILIB_EXCLUSIONS     =
++MULTILIB_OSDIRNAMES	= ../lib64 ../lib
++MULTILIB_MATCHES        =
+ 
+ # We want fine grained libraries, so use the new code to build the
+ # floating point emulation libraries.

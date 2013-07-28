@@ -1,0 +1,391 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2005-11-07
+Initial Package Version: 2.0.0
+Origin: ooo-build and self
+Description: Fixes compilation with jdk-1.5.0
+Upstream Status:  Targeted in issuezilla for 2.0.1
+
+diff -Naur OOo_2.0.0-orig/XmlSearch/src/com/sun/xmlsearch/db/VectorBtree.java OOo_2.0.0/XmlSearch/src/com/sun/xmlsearch/db/VectorBtree.java
+--- OOo_2.0.0-orig/XmlSearch/src/com/sun/xmlsearch/db/VectorBtree.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/XmlSearch/src/com/sun/xmlsearch/db/VectorBtree.java	2005-10-19 19:52:45.000000000 -0500
+@@ -248,10 +248,10 @@
+     return accessBlock(bl.integerAt(index*4));
+   }
+ 
+-  public static void assert(boolean assertion) {
++  /*public static void assert(boolean assertion) {
+     if (assertion == false)
+       System.err.println("assertion failed");
+-  }
++  }*/
+ 
+   public int getIteratorBufferLength() {
+     return _blockSize + _vecLen*2;
+diff -Naur OOo_2.0.0-orig/beanshell/bsh-2.0b4-src.patch OOo_2.0.0/beanshell/bsh-2.0b4-src.patch
+--- OOo_2.0.0-orig/beanshell/bsh-2.0b4-src.patch	1969-12-31 18:00:00.000000000 -0600
++++ OOo_2.0.0/beanshell/bsh-2.0b4-src.patch	2005-10-19 19:52:45.000000000 -0500
+@@ -0,0 +1,95 @@
++--- misc/build/BeanShell/build.xml	2003-12-19 17:04:47.000000000 +0000
+++++ misc/build/BeanShell/build.xml	2003-12-19 17:53:18.000000000 +0000
++@@ -17,7 +17,7 @@
++ 		up the build dir!  It has to be done manually the first time (or put
++ 		in the jar file). There must be a way to fix this...
++ -->
++-<project name="beanshell" default="compile" basedir=".">
+++<project name="beanshell" default="jarall" basedir=".">
++ 
++ <!-- Project Configuration -->
++ 
++@@ -81,6 +84,9 @@
++ 		value="bsh/servlet/*"/>
++ 	-->
++ 
+++	<property name="exclude-servlet" 
+++		value="bsh/servlet/*"/>
+++
++ 	<!-- Legacy excludes.  Comment this *out* to build these legacy items -->
++ 	<property name="legacy-excludes" 
++ 		value="bsh/JThis.java"/>
++--- misc/build/BeanShell/makefile.mk	1970-01-01 01:00:00.000000000 +0100
+++++ misc/build/BeanShell/makefile.mk	2003-12-19 17:04:47.000000000 +0000
++@@ -1 +1,70 @@
++-dummy
+++#*************************************************************************
+++#
+++#   $RCSfile: bsh-2.0b1-src.patch,v $
+++#
+++#   $Revision: 1.2 $
+++#
+++#   last change: $Author: kz $ $Date: 2005/03/01 13:13:04 $
+++#
+++#   The Contents of this file are made available subject to the terms of
+++#   either of the following licenses
+++#
+++#          - GNU Lesser General Public License Version 2.1
+++#          - Sun Industry Standards Source License Version 1.1
+++#
+++#   Sun Microsystems Inc., October, 2000
+++#
+++#   GNU Lesser General Public License Version 2.1
+++#   =============================================
+++#   Copyright 2000 by Sun Microsystems, Inc.
+++#   901 San Antonio Road, Palo Alto, CA 94303, USA
+++#
+++#   This library is free software; you can redistribute it and/or
+++#   modify it under the terms of the GNU Lesser General Public
+++#   License version 2.1, as published by the Free Software Foundation.
+++#
+++#   This library is distributed in the hope that it will be useful,
+++#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+++#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+++#   Lesser General Public License for more details.
+++#
+++#   You should have received a copy of the GNU Lesser General Public
+++#   License along with this library; if not, write to the Free Software
+++#   Foundation, Inc., 59 Temple Place, Suite 330, Boston,
+++#   MA  02111-1307  USA
+++#
+++#
+++#   Sun Industry Standards Source License Version 1.1
+++#   =================================================
+++#   The contents of this file are subject to the Sun Industry Standards
+++#   Source License Version 1.1 (the "License"); You may not use this file
+++#   except in compliance with the License. You may obtain a copy of the
+++#   License at http://www.openoffice.org/license.html.
+++#
+++#   Software provided under this License is provided on an "AS IS" basis,
+++#   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+++#   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+++#   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+++#   See the License for the specific provisions governing your rights and
+++#   obligations concerning the Software.
+++#
+++#   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+++#
+++#   Copyright: 2000 by Sun Microsystems, Inc.
+++#
+++#   All Rights Reserved.
+++#
+++#   Contributor(s): _______________________________________
+++#
+++#
+++#
+++#*************************************************************************
+++
+++PRJ=..$/..$/..$/..
+++PRJNAME=ooo_beanshell
+++TARGET=jarall
+++
+++.INCLUDE : ant.mk
+++
+++ALLTAR : ANTBUILD
+++
+diff -Naur OOo_2.0.0-orig/beanshell/makefile.mk OOo_2.0.0/beanshell/makefile.mk
+--- OOo_2.0.0-orig/beanshell/makefile.mk	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/beanshell/makefile.mk	2005-10-19 19:52:45.000000000 -0500
+@@ -45,9 +45,9 @@
+ 
+ # --- Files --------------------------------------------------------
+ 
+-TARFILE_NAME=bsh-2.0b1-src
++TARFILE_NAME=bsh-2.0b4-src
+ TARFILE_ROOTDIR=BeanShell
+-PATCH_FILE_NAME=bsh-2.0b1-src.patch
++PATCH_FILE_NAME=bsh-2.0b4-src.patch
+ 
+ ADDITIONAL_FILES=makefile.mk
+ 
+diff -Naur OOo_2.0.0-orig/beanshell/prj/d.lst OOo_2.0.0/beanshell/prj/d.lst
+--- OOo_2.0.0-orig/beanshell/prj/d.lst	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/beanshell/prj/d.lst	2005-10-19 19:52:45.000000000 -0500
+@@ -1 +1 @@
+-..\%__SRC%\misc\build\BeanShell\dist\bsh-2.0b1.jar %_DEST%\bin%_EXT%\bsh.jar
++..\%__SRC%\misc\build\BeanShell\dist\bsh-2.0b4.jar %_DEST%\bin%_EXT%\bsh.jar
+diff -Naur OOo_2.0.0-orig/filter/source/config/fragments/makefile.mk OOo_2.0.0/filter/source/config/fragments/makefile.mk
+--- OOo_2.0.0-orig/filter/source/config/fragments/makefile.mk	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/filter/source/config/fragments/makefile.mk	2005-10-19 19:52:45.000000000 -0500
+@@ -152,7 +152,7 @@
+ .IF "$(JDK)" == "gcj"
+ PACKLANG := $(JAVA) $(JAVACPS) $(SOLARBINDIR)/xalan.jar org.apache.xalan.xslt.Process -XSL langfilter.xsl
+ .ELSE
+-PACKLANG := $(JAVA) org.apache.xalan.xslt.Process -XSL langfilter.xsl
++PACKLANG := $(JAVA) $(JAVACPS) $(SOLARVERSION)/$(INPATH)/bin/xalan.jar org.apache.xalan.xslt.Process -XSL langfilter.xsl
+ .ENDIF
+ .ENDIF
+ 
+diff -Naur OOo_2.0.0-orig/jurt/com/sun/star/comp/servicemanager/ServiceManager.java OOo_2.0.0/jurt/com/sun/star/comp/servicemanager/ServiceManager.java
+--- OOo_2.0.0-orig/jurt/com/sun/star/comp/servicemanager/ServiceManager.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/jurt/com/sun/star/comp/servicemanager/ServiceManager.java	2005-10-19 19:52:45.000000000 -0500
+@@ -470,10 +470,10 @@
+         throws com.sun.star.uno.RuntimeException
+     {
+         if (eventListener != null) {
+-            java.util.Enumeration enum = eventListener.elements();
++            java.util.Enumeration enumer = eventListener.elements();
+             
+-            while (enum.hasMoreElements()) {
+-                XEventListener listener = (XEventListener) enum.nextElement();
++            while (enumer.hasMoreElements()) {
++                XEventListener listener = (XEventListener) enumer.nextElement();
+                 listener.disposing(new com.sun.star.lang.EventObject(this));
+             }
+         }
+@@ -702,16 +702,16 @@
+     public XEnumeration createContentEnumeration( String serviceName )
+                 throws com.sun.star.uno.RuntimeException
+     {
+-        XEnumeration enum = null;
++        XEnumeration enumer = null;
+         
+         java.util.Vector serviceList = (java.util.Vector) factoriesByServiceNames.get(serviceName);
+         
+         if (serviceList != null)
+-            enum = new ServiceEnumerationImpl( serviceList.elements() );
++            enumer = new ServiceEnumerationImpl( serviceList.elements() );
+         else 
+-            enum = new ServiceEnumerationImpl();
++            enumer = new ServiceEnumerationImpl();
+             
+-        return enum;
++        return enumer;
+ 	}
+ 	  
+ 	/**
+@@ -779,11 +779,11 @@
+ 		/**
+ 		 * Constructs a new instance with a given enumeration.
+ 		 * <p>
+-		 * @param	enum	is the enumeration which should been wrapped.
++		 * @param	enumer	is the enumeration which should been wrapped.
+ 		 * @see		com.sun.star.container.XEnumeration
+ 		 */
+-        public ServiceEnumerationImpl(java.util.Enumeration enum) {
+-            enumeration = enum;
++        public ServiceEnumerationImpl(java.util.Enumeration enumer) {
++            enumeration = enumer;
+         }
+             
+ 		/**
+diff -Naur OOo_2.0.0-orig/rhino/rhino1_5R4.patch OOo_2.0.0/rhino/rhino1_5R4.patch
+--- OOo_2.0.0-orig/rhino/rhino1_5R4.patch	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/rhino/rhino1_5R4.patch	2005-10-19 19:52:45.000000000 -0500
+@@ -2610,3 +2610,23 @@
+ !      */
+ !     public void setValueAt(Object aValue, Object node, int column);
+ ! }
++--- misc/rhino1_5R4/toolsrc/org/mozilla/javascript/tools/shell/JavaPolicySecurity.java	2005-03-22 06:20:49.000000000 -0600
+++++ misc/build/rhino1_5R4/toolsrc/org/mozilla/javascript/tools/shell/JavaPolicySecurity.java	2005-06-07 18:04:42.000000000 -0500
++@@ -124,7 +124,7 @@
++ 
++     public JavaPolicySecurity() {
++         // To trigger error on jdk-1.1 with lazy load
++-        new CodeSource(null, null);
+++        new CodeSource(null, (java.security.cert.Certificate[])null);
++     }
++ 
++     protected void callProcessFileSecure(final Context cx,
++@@ -167,7 +167,7 @@
++     }
++ 
++     private ProtectionDomain getUrlDomain(URL url) {
++-        CodeSource cs = new CodeSource(url, null);
+++        CodeSource cs = new CodeSource(url, (java.security.cert.Certificate[])null);
++         PermissionCollection pc = Policy.getPolicy().getPermissions(cs);
++         return new ProtectionDomain(cs, pc);
++     }
+diff -Naur OOo_2.0.0-orig/sj2/stardiv/app/AppletProps.java OOo_2.0.0/sj2/stardiv/app/AppletProps.java
+--- OOo_2.0.0-orig/sj2/stardiv/app/AppletProps.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/sj2/stardiv/app/AppletProps.java	2005-10-19 19:52:45.000000000 -0500
+@@ -112,7 +112,7 @@
+ 		if (System.getProperty("http.proxyHost") != null) {
+ 			proxyHost.setText(System.getProperty("http.proxyHost"));
+ 			proxyPort.setText(System.getProperty("http.proxyPort"));
+-			HttpClient.proxyPort = Integer.valueOf(System.getProperty("http.proxyPort")).intValue();
++			// HttpClient.proxyPort = Integer.valueOf(System.getProperty("http.proxyPort")).intValue();
+ 		} 
+ 		else {
+ 			proxyHost.setText("");
+diff -Naur OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpIndexer.java OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpIndexer.java
+--- OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpIndexer.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpIndexer.java	2005-10-19 19:52:45.000000000 -0500
+@@ -212,11 +212,11 @@
+ 			table.close(0);
+ 
+ 			System.out.println("Indexing...");
+-			Enumeration enum = _hashDocInfo.elements();
++			Enumeration enumer = _hashDocInfo.elements();
+ 			int cut = 0;
+-			while (enum.hasMoreElements() && cut < 100000000) {
++			while (enumer.hasMoreElements() && cut < 100000000) {
+ 				try {
+-					DocInfo info = (DocInfo) enum.nextElement();
++					DocInfo info = (DocInfo) enumer.nextElement();
+ 					String url = info.getURL();
+ 					if (url == null) {
+ 						System.out.println(
+@@ -396,11 +396,11 @@
+ 		}
+ 
+ 		void dump() {
+-			Enumeration enum = _hash.keys();
++			Enumeration enumer = _hash.keys();
+ 			int j = 0;
+ 			String[] list = new String[_hash.size()];
+-			while (enum.hasMoreElements()) {
+-				list[j++] = (String) enum.nextElement();
++			while (enumer.hasMoreElements()) {
++				list[j++] = (String) enumer.nextElement();
+ 			}
+ 
+ 			Db table;
+@@ -431,11 +431,11 @@
+ 	}
+ 
+ 	void dumpHelptext() {
+-		Enumeration enum = _hashHelptext.keys();
++		Enumeration enumer = _hashHelptext.keys();
+ 		int j = 0;
+ 		String[] list = new String[_hashHelptext.size()];
+-		while (enum.hasMoreElements()) {
+-			list[j++] = (String) enum.nextElement();
++		while (enumer.hasMoreElements()) {
++			list[j++] = (String) enumer.nextElement();
+ 		}
+ 
+ 		Db table;
+diff -Naur OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpKeyword.java OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpKeyword.java
+--- OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpKeyword.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpKeyword.java	2005-10-19 19:52:45.000000000 -0500
+@@ -59,11 +59,11 @@
+ 	}
+ 
+ 	void dump(Db table) {
+-		Enumeration enum = _hash.keys();
++		Enumeration enumer = _hash.keys();
+ 		int j = 0;
+ 		String[] list = new String[_hash.size()];
+-		while (enum.hasMoreElements()) {
+-			list[j++] = (String) enum.nextElement();
++		while (enumer.hasMoreElements()) {
++			list[j++] = (String) enumer.nextElement();
+ 		}
+ 
+ 		for (int i = 0; i < list.length; ++i) {
+diff -Naur OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpLinker.java OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpLinker.java
+--- OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpLinker.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpLinker.java	2005-10-19 19:52:45.000000000 -0500
+@@ -547,10 +547,10 @@
+ 				baos = streamTable1.get("default/keywords");
+ 			if (baos != null) {
+ 				Hashtable anchorToLL = (Hashtable) baos;
+-				Enumeration enum = anchorToLL.keys();
++				Enumeration enumer = anchorToLL.keys();
+ 				String fakedHid = URLEncoder.encode(documentPath);
+-				while (enum.hasMoreElements()) {
+-					String anchor = (String) enum.nextElement();
++				while (enumer.hasMoreElements()) {
++					String anchor = (String) enumer.nextElement();
+ 					addBookmark(
+ 						dbBase,
+ 						documentPath,
+@@ -640,9 +640,9 @@
+ 		// last, all files which should be copied into the jarFile
+ 		/////////////////////////////////////////////////////////////////////////
+ 
+-		Enumeration enum = additionalFiles.keys();
+-		while (enum.hasMoreElements()) {
+-			String additionalFileKey = (String) enum.nextElement();
++		Enumeration enumer = additionalFiles.keys();
++		while (enumer.hasMoreElements()) {
++			String additionalFileKey = (String) enumer.nextElement();
+ 			String additionalFileName =
+ 				(String) additionalFiles.get(additionalFileKey);
+ 			copyFileToJarfile(additionalFileName, null, additionalFileKey);
+diff -Naur OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpTransformer.java OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpTransformer.java
+--- OOo_2.0.0-orig/xmlhelp/source/com/sun/star/help/HelpTransformer.java	2005-10-19 20:21:40.000000000 -0500
++++ OOo_2.0.0/xmlhelp/source/com/sun/star/help/HelpTransformer.java	2005-10-19 19:52:45.000000000 -0500
+@@ -14,11 +14,11 @@
+ 	{
+ 		String styleName;
+ 		Hashtable styles;
+-		Enumeration enum = defs.getTable().keys();
++		Enumeration enumer = defs.getTable().keys();
+ 		
+-		while( enum.hasMoreElements() )
++		while( enumer.hasMoreElements() )
+ 		{
+-			styleName = ( String ) enum.nextElement();
++			styleName = ( String ) enumer.nextElement();
+ 			styles = defs.getEffectiveStyle( styleName );
+ 			
+ 			Enumeration styleOptions = styles.keys();
+@@ -112,11 +112,11 @@
+ 		while( it.hasNext() )
+ 		{
+ 			Hashtable curr;
+-			Enumeration enum = (curr = ( Hashtable )it.next()).keys();
+-			while( enum.hasMoreElements() )
++			Enumeration enumer = (curr = ( Hashtable )it.next()).keys();
++			while( enumer.hasMoreElements() )
+ 			{
+ 				String str;
+-				if( result.get( str = ( String ) enum.nextElement() ) == null )
++				if( result.get( str = ( String ) enumer.nextElement() ) == null )
+ 					result.put( str,curr.get( str ) );
+ 			}
+ 		}
+@@ -129,11 +129,11 @@
+ 	{
+ 		String str;
+ 		Hashtable a = getEffectiveStyle( "p.def1" );
+-		Enumeration enum = a.keys();
++		Enumeration enumer = a.keys();
+ 		
+-		while( enum.hasMoreElements() )
++		while( enumer.hasMoreElements() )
+ 		{
+-			System.out.println( (str = ( String ) enum.nextElement()) + " : " + ((String)a.get(str)) );
++			System.out.println( (str = ( String ) enumer.nextElement()) + " : " + ((String)a.get(str)) );
+ 		}
+ 	}
+ 	

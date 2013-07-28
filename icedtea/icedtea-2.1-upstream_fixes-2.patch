@@ -1,0 +1,300 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2012-04-13
+Initial Package Version: 2.1
+Upstream Status: Submitted
+Origin: GIT
+Description: Allows the build to complete with GLib > 2.28, GCC > 4.7, and
+             allows the scripting support to build as intended.
+
+diff -Naurp icedtea-2.1-orig/ChangeLog icedtea-2.1/ChangeLog
+--- icedtea-2.1-orig/ChangeLog	2012-05-14 02:58:35.000000000 +0000
++++ icedtea-2.1/ChangeLog	2012-05-14 03:26:54.000000000 +0000
+@@ -1,3 +1,46 @@
++2012-05-13  DJ Lucas <dj@linuxfromscratch.org>
++
++	* Makefile.am:
++	(JDK_CHANGESET): Bump to allow build with GCC-4.7.
++	(JDK_SHA256SUM): Likewise.
++
++2012-04-11  Xerxes RÃ¥nby  <xerxes@zafena.se>
++
++	* Makefile.am:
++	(HOTSPOT_CHANGESET): Sync to HEAD.
++	(HOTSPOT_SHA256SUM): Likewise.
++
++2012-04-06  Andrew John Hughes  <ahughes@redhat.com>
++
++	* acinclude.m4:
++	(IT_CHECK_FOR_GTK): Work with glib >= 2.32
++	by explicitly asking for gthread.
++
++2012-04-06  Andrew John Hughes  <ahughes@redhat.com>
++
++	* Makefile.am:
++	(JDK_CHANGESET): Bump to include generalied crypto tests.
++	(JDK_SHA256SUM): Likewise.
++
++2012-04-06  Andrew John Hughes  <ahughes@redhat.com>
++
++	* acinclude.m4:
++	(IT_CHECK_FOR_GTK): Work with glib >= 2.32
++	by explicitly asking for gthread.
++
++2012-03-29  Andrew John Hughes  <ahughes@redhat.com>
++
++	* Makefile.am:
++	 (HOTSPOT_CHANGESET): Sync to HEAD.
++	 (JDK_CHANGESET): Likewise.
++	 (HOTSPOT_SHA256SUM): Likewise.
++	 (JDK_SHA256SUM): Likewise.
++
++2012-02-24  Deepak Bhole <dbhole@redhat.com>
++
++	PR885: IcedTea7 does not build scripting support
++	* patches/rhino.patch: Added 'script' to list of modules built.
++
+ 2012-02-15  Andrew John Hughes  <ahughes@redhat.com>
+ 
+ 	* Makefile.am:
+diff -Naurp icedtea-2.1-orig/Makefile.am icedtea-2.1/Makefile.am
+--- icedtea-2.1-orig/Makefile.am	2012-05-14 02:58:35.000000000 +0000
++++ icedtea-2.1/Makefile.am	2012-05-14 03:17:47.000000000 +0000
+@@ -5,18 +5,18 @@ JDK_UPDATE_VERSION = 03
+ COMBINED_VERSION = $(JDK_UPDATE_VERSION)-$(OPENJDK_VERSION)
+ 
+ CORBA_CHANGESET = 5617f6c5cc94
+-HOTSPOT_CHANGESET = 0e651e004747
++HOTSPOT_CHANGESET = 26f5d8596931
+ JAXP_CHANGESET = 1cf75c0e2c96
+ JAXWS_CHANGESET = 7edfbfe974f2
+-JDK_CHANGESET = 50f6f276a06c
++JDK_CHANGESET = 7ceda3124828
+ LANGTOOLS_CHANGESET = b534c4c6cd9b
+ OPENJDK_CHANGESET = 22cc03983e20
+ 
+ CORBA_SHA256SUM = 963915483530f311ff313635f79ed11ea7ce5a1c0dbee5d1acb1994132857fa3
+-HOTSPOT_SHA256SUM = d68455e5cdb14280cd61155a4e9d531e90b073607f4367e93ead0fcf34476ae1
++HOTSPOT_SHA256SUM = 3bf8b0a93105a0a6dbc657eaf7c95b5dd9a8dc478544e75b9e90571632f6a522
+ JAXP_SHA256SUM = 8ce48c704f38285207ee6dc56c45b2d214083b4d4d36be02901401b594ce701e
+ JAXWS_SHA256SUM = 823ca6b8fd780bf1b1565a90cfc8ec6f0ee422a5d25ffb20b1ce0272dc4955aa
+-JDK_SHA256SUM = 5f8b5edbebb358730425e64a31eaa11c346467ba10ffe1848f2d2ad2ea53bc3d
++JDK_SHA256SUM = b95f5b01e3a692c240b80507b793f75cc831d114ded8e93eb056abf37db9eaeb
+ LANGTOOLS_SHA256SUM = c77dd42d83f06d18fa8aa65c93d137608a2e02cf24b68fc10d7b1c0bcc12a93c
+ OPENJDK_SHA256SUM = ada790b4754f521ebfad0dd909ea29b92b2b3c1b84b2e99d32673343727d95d7
+ 
+diff -Naurp icedtea-2.1-orig/NEWS icedtea-2.1/NEWS
+--- icedtea-2.1-orig/NEWS	2012-05-14 02:58:35.000000000 +0000
++++ icedtea-2.1/NEWS	2012-05-14 03:27:31.000000000 +0000
+@@ -10,6 +10,10 @@ LPX - https://bugs.launchpad.net/bugs/X
+ 
+ CVE-XXXX-YYYY: http://www.cve.mitre.org/cgi-bin/cvename.cgi?name=XXXX-YYYY
+ 
++ New in release 2.2 (2012-XX-XX):
++* Bug fixes
++  - PR885: IcedTea7 does not build scripting support
++
+ New in release 2.1 (2012-02-14):
+ 
+ * Security fixes
+diff -Naurp icedtea-2.1-orig/acinclude.m4 icedtea-2.1/acinclude.m4
+--- icedtea-2.1-orig/acinclude.m4	2012-05-14 02:58:35.000000000 +0000
++++ icedtea-2.1/acinclude.m4	2012-05-14 03:04:42.000000000 +0000
+@@ -2011,7 +2011,7 @@ AC_DEFUN_ONCE([IT_CHECK_FOR_GTK],
+   AC_MSG_RESULT(${ENABLE_SYSTEM_GTK})
+   if test x"${ENABLE_SYSTEM_GTK}" = "xyes"; then
+     dnl Check for Gtk+ headers and libraries.
+-    PKG_CHECK_MODULES(GTK, gtk+-2.0,[GTK_FOUND=yes],[GTK_FOUND=no])
++    PKG_CHECK_MODULES(GTK, gtk+-2.0 gthread-2.0,[GTK_FOUND=yes],[GTK_FOUND=no])
+     if test "x${GTK_FOUND}" = xno
+     then
+       AC_MSG_ERROR([Could not find Gtk+; install Gtk+ or build with --disable-system-gtk to use the in-tree headers.])
+diff -Naurp icedtea-2.1-orig/patches/rhino.patch icedtea-2.1/patches/rhino.patch
+--- icedtea-2.1-orig/patches/rhino.patch	2012-05-14 02:58:35.000000000 +0000
++++ icedtea-2.1/patches/rhino.patch	2012-05-14 03:28:24.000000000 +0000
+@@ -1,6 +1,18 @@
+---- openjdk/jdk/make/com/sun/Makefile.orig
+-+++ openjdk/jdk/make/com/sun/Makefile
+-@@ -31,13 +31,6 @@
++diff -up openjdk/jdk/make/common/Release.gmk.orig openjdk/jdk/make/common/Release.gmk
++--- openjdk/jdk/make/common/Release.gmk.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/make/common/Release.gmk	2012-02-24 19:34:56.303117368 -0500
++@@ -766,6 +766,7 @@ initial-image-jre:: initial-image-jre-se
++ 	$(CP) $(RT_JAR) $(JRE_IMAGE_DIR)/lib/rt.jar
++ 	$(CP) $(RESOURCES_JAR) $(JRE_IMAGE_DIR)/lib/resources.jar
++ 	$(CP) $(JSSE_JAR) $(JRE_IMAGE_DIR)/lib/jsse.jar
+++	$(CP) $(RHINO_JAR) $(JRE_IMAGE_DIR)/lib/rhino.jar
++ 	@# Generate meta-index to make boot and extension class loaders lazier
++ 	$(CD) $(JRE_IMAGE_DIR)/lib && \
++ 	    $(BOOT_JAVA_CMD) -jar $(BUILDMETAINDEX_JARFILE) \
++diff -up openjdk/jdk/make/com/sun/Makefile.orig openjdk/jdk/make/com/sun/Makefile
++--- openjdk/jdk/make/com/sun/Makefile.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/make/com/sun/Makefile	2012-02-24 19:34:56.303117368 -0500
++@@ -31,13 +31,6 @@ BUILDDIR = ../..
+  PRODUCT = sun
+  include $(BUILDDIR)/common/Defs.gmk
+  
+@@ -14,9 +26,19 @@
+  # jarsigner is part of JRE
+  SUBDIRS = java security net/ssl jarsigner
+  
+---- openjdk/jdk/make/com/sun/script/Makefile.orig
+-+++ openjdk/jdk/make/com/sun/script/Makefile
+-@@ -31,6 +31,8 @@
++@@ -45,7 +38,7 @@ SUBDIRS_management = jmx
++ SUBDIRS_desktop    = image
++ SUBDIRS_enterprise = crypto/provider jndi \
++                      org rowset net/httpserver
++-SUBDIRS_misc       = $(SCRIPT_SUBDIR) tracing servicetag nio demo
+++SUBDIRS_misc       = script tracing servicetag nio demo
++ 
++ # Omit mirror since it's built with the apt tool.
++ SUBDIRS_tools      = tools
++diff -up openjdk/jdk/make/com/sun/script/Makefile.orig openjdk/jdk/make/com/sun/script/Makefile
++--- openjdk/jdk/make/com/sun/script/Makefile.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/make/com/sun/script/Makefile	2012-02-24 19:34:56.303117368 -0500
++@@ -31,6 +31,8 @@ include $(BUILDDIR)/common/Defs.gmk
+  
+  AUTO_FILES_JAVA_DIRS = com/sun/script
+  
+@@ -25,18 +47,9 @@
+  #
+  # Files that need to be copied
+  #
+---- openjdk/jdk/make/common/Release.gmk.orig
+-+++ openjdk/jdk/make/common/Release.gmk
+-@@ -766,6 +766,7 @@
+- 	$(CP) $(RT_JAR) $(JRE_IMAGE_DIR)/lib/rt.jar
+- 	$(CP) $(RESOURCES_JAR) $(JRE_IMAGE_DIR)/lib/resources.jar
+- 	$(CP) $(JSSE_JAR) $(JRE_IMAGE_DIR)/lib/jsse.jar
+-+	$(CP) $(RHINO_JAR) $(JRE_IMAGE_DIR)/lib/rhino.jar
+- 	@# Generate meta-index to make boot and extension class loaders lazier
+- 	$(CD) $(JRE_IMAGE_DIR)/lib && \
+- 	    $(BOOT_JAVA_CMD) -jar $(BUILDMETAINDEX_JARFILE) \
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/ExternalScriptable.java	2012-02-24 19:34:56.304117351 -0500
+ @@ -24,7 +24,7 @@
+   */
+  
+@@ -46,30 +59,33 @@
+  import javax.script.*;
+  import java.util.*;
+  
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java
+-@@ -25,7 +25,7 @@
+- 
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java	2012-02-24 19:34:56.304117351 -0500
++@@ -26,7 +26,7 @@
+  package com.sun.script.javascript;
+  
++ import javax.script.Invocable;
+ -import sun.org.mozilla.javascript.internal.*;
+ +import sun.org.mozilla.javascript.*;
+- import java.util.*;
+  
+  /**
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/JavaAdapter.java
+-@@ -26,7 +26,7 @@
++  * This class implements Rhino-like JavaAdapter to help implement a Java
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/JSAdapter.java	2012-02-24 19:34:56.304117351 -0500
++@@ -25,7 +25,7 @@
++ 
+  package com.sun.script.javascript;
+  
+- import javax.script.Invocable;
+ -import sun.org.mozilla.javascript.internal.*;
+ +import sun.org.mozilla.javascript.*;
++ import java.util.*;
+  
+  /**
+-  * This class implements Rhino-like JavaAdapter to help implement a Java
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoClassShutter.java	2012-02-24 19:34:56.305117334 -0500
+ @@ -26,7 +26,7 @@
+  package com.sun.script.javascript;
+  
+@@ -79,8 +95,9 @@
+  
+  /**
+   * This class prevents script access to certain sensitive classes.
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoCompiledScript.java	2012-02-24 19:34:56.305117334 -0500
+ @@ -25,7 +25,7 @@
+  
+  package com.sun.script.javascript;
+@@ -90,30 +107,33 @@
+  
+  /**
+   * Represents compiled JavaScript code.
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java	2012-02-24 19:34:56.305117334 -0500
+ @@ -26,7 +26,7 @@
+  package com.sun.script.javascript;
+- import com.sun.script.util.*;
+  import javax.script.*;
++ import java.util.*;
+ -import sun.org.mozilla.javascript.internal.*;
+ +import sun.org.mozilla.javascript.*;
+- import java.lang.reflect.Method;
+- import java.io.*;
+- import java.security.*;
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngineFactory.java
++ import com.sun.script.util.*;
++ 
++ /**
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoScriptEngine.java	2012-02-24 19:34:56.305117334 -0500
+ @@ -26,7 +26,7 @@
+  package com.sun.script.javascript;
++ import com.sun.script.util.*;
+  import javax.script.*;
+- import java.util.*;
+ -import sun.org.mozilla.javascript.internal.*;
+ +import sun.org.mozilla.javascript.*;
+- import com.sun.script.util.*;
+- 
+- /**
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java
++ import java.lang.reflect.Method;
++ import java.io.*;
++ import java.security.*;
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoTopLevel.java	2012-02-24 19:34:56.306117317 -0500
+ @@ -25,7 +25,7 @@
+  
+  package com.sun.script.javascript;
+@@ -123,9 +143,10 @@
+  import java.security.AccessControlContext;
+  import javax.script.*;
+  import java.security.AccessControlContext;
+---- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java.orig
+-+++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java
+-@@ -27,7 +27,7 @@
++diff -up openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java.orig openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java
++--- openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java.orig	2011-11-11 07:17:51.000000000 -0500
+++++ openjdk/jdk/src/share/classes/com/sun/script/javascript/RhinoWrapFactory.java	2012-02-24 19:34:56.306117317 -0500
++@@ -27,7 +27,7 @@ package com.sun.script.javascript;
+  
+  import java.lang.reflect.*;
+  import static sun.security.util.SecurityConstants.*;

@@ -1,0 +1,22 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-19
+Initial Package Version: 1.5
+Origin: Mandrake CVS
+Description: Adds support for Virtual Domains
+ 
+diff -Naur OpenSP-1.5.orig/lib/URLStorage.cxx OpenSP-1.5/lib/URLStorage.cxx
+--- OpenSP-1.5.orig/lib/URLStorage.cxx	2001-02-22 21:42:26.000000000 +0000
++++ OpenSP-1.5/lib/URLStorage.cxx	2003-09-20 06:43:46.000000000 +0000
+@@ -479,6 +479,12 @@
+   }
+   request.append("\r\n", 2);
+   request.append("Accept: */*\r\n", 13);
++
++  // Host header as required by virtual domains.
++  request.append("Host: ", 6);
++  request.append((const char *)hostStr_.data(), hostStr_.size());
++  request.append("\r\n", 2);
++
+   request.append("\r\n", 2);
+ 
+   // FIXME check length of write

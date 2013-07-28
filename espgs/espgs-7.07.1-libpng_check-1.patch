@@ -1,0 +1,24 @@
+Submitted By: Anderson Lizardo <lizardo@linuxfromscratch.org>
+Date: 2004-02-27
+Initial Package Version: 7.07.1
+Origin: backported from ESP Ghostscript CVS
+Description: Fix configure bug related to libpng detection. See
+    http://www.cups.org/str.php?L396. As a side-effect, this patch exposes a
+    bug on the compilation of gdevpng.c. A workaround is to compile the
+    shared library using the "make CFLAGS_SO='-fPIC $(ACDEFS)' so" command.
+    See http://www.cups.org/str.php?L602 for more details. Note that this
+    patch modifies the configure.ac file, so you need to run "autoconf" to
+    rebuild a fixed configure script.
+
+diff -Naur espgs-7.07.1.orig/configure.ac espgs-7.07.1/configure.ac
+--- espgs-7.07.1.orig/configure.ac	2003-08-29 18:02:37.000000000 +0000
++++ espgs-7.07.1/configure.ac	2004-02-26 05:11:15.000000000 +0000
+@@ -194,7 +194,7 @@
+ 		SHARE_LIBPNG=0
+ 		AC_MSG_NOTICE([disabling png output devices])
+ 		PNG_DEVS=''
+-	])
++	], -lz)
+ fi
+ AC_SUBST(SHARE_LIBPNG)
+ AC_SUBST(LIBPNGDIR)

@@ -1,0 +1,69 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-29
+Initial Package Version: 2.1.11
+Origin: Mandrake CVS
+Description: Fixes all Compile Variable Issues
+ 
+diff -Naur pciutils-2.1.11.orig/lib/access.c pciutils-2.1.11/lib/access.c
+--- pciutils-2.1.11.orig/lib/access.c	2003-01-04 11:04:39.000000000 +0000
++++ pciutils-2.1.11/lib/access.c	2003-09-29 16:37:36.000000000 +0000
+@@ -116,7 +116,7 @@
+ }
+ 
+ static void
+-pci_null_debug(char * UNUSED msg, ...)
++pci_null_debug(char * msg UNUSED, ...)
+ {
+ }
+ 
+diff -Naur pciutils-2.1.11.orig/lib/dump.c pciutils-2.1.11/lib/dump.c
+--- pciutils-2.1.11.orig/lib/dump.c	2002-03-30 15:39:25.000000000 +0000
++++ pciutils-2.1.11/lib/dump.c	2003-09-29 16:37:36.000000000 +0000
+@@ -70,12 +70,12 @@
+ }
+ 
+ static void
+-dump_cleanup(struct pci_access * UNUSED a)
++dump_cleanup(struct pci_access * a UNUSED)
+ {
+ }
+ 
+ static void
+-dump_scan(struct pci_access * UNUSED a)
++dump_scan(struct pci_access * a UNUSED)
+ {
+ }
+ 
+@@ -97,7 +97,7 @@
+ }
+ 
+ static int
+-dump_write(struct pci_dev * UNUSED d, int UNUSED pos, byte * UNUSED buf, int UNUSED len)
++dump_write(struct pci_dev * d UNUSED, int pos UNUSED, byte * buf UNUSED, int len UNUSED)
+ {
+   d->access->error("Writing to dump files is not supported.");
+   return 0;
+diff -Naur pciutils-2.1.11.orig/lib/filter.c pciutils-2.1.11/lib/filter.c
+--- pciutils-2.1.11.orig/lib/filter.c	2002-03-30 15:39:25.000000000 +0000
++++ pciutils-2.1.11/lib/filter.c	2003-09-29 16:37:36.000000000 +0000
+@@ -14,7 +14,7 @@
+ #include "internal.h"
+ 
+ void
+-pci_filter_init(struct pci_access * UNUSED a, struct pci_filter *f)
++pci_filter_init(struct pci_access * a UNUSED, struct pci_filter *f)
+ {
+   f->bus = f->slot = f->func = -1;
+   f->vendor = f->device = -1;
+diff -Naur pciutils-2.1.11.orig/lib/i386-ports.c pciutils-2.1.11/lib/i386-ports.c
+--- pciutils-2.1.11.orig/lib/i386-ports.c	2002-03-30 15:39:25.000000000 +0000
++++ pciutils-2.1.11/lib/i386-ports.c	2003-09-29 16:37:36.000000000 +0000
+@@ -36,7 +36,7 @@
+ }
+ 
+ static void
+-conf12_cleanup(struct pci_access * UNUSED a)
++conf12_cleanup(struct pci_access * a UNUSED)
+ {
+   iopl(3);
+   intel_iopl_set = -1;

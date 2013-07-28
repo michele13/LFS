@@ -1,0 +1,261 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-04
+Initial Package Version: 2.12q
+Upstream Status: Not submitted
+Origin: None
+Description: Check for gcc -fpie, -fpic, -fstack-protector, and ld -pie,
+-z relro, -z now. Use whatever works.
+
+See:
+http://www.linuxfromscratch.org/~robert/Homogenic/
+
+diff -Naur util-linux-2.12q.orig/MCONFIG util-linux-2.12q/MCONFIG
+--- util-linux-2.12q.orig/MCONFIG	2005-02-04 18:36:36.428647272 +0000
++++ util-linux-2.12q/MCONFIG	2005-02-04 18:36:43.938571992 +0000
+@@ -226,6 +226,28 @@
+ NLSFLAGS = -DDISABLE_NLS
+ endif
+ 
++EXE_CFLAGS :=
++EXE_LDFLAGS :=
++EXTRA_CFLAGS :=
++EXTRA_LDFLAGS :=
++
++ifeq "$(HAVE_PIE)" "yes"
++EXE_CFLAGS += -pie -fpie
++EXE_LDFLAGS += -pie
++endif
++
++ifeq "$(HAVE_SSP)" "yes"
++EXTRA_CFLAGS += -fstack-protector-all
++endif
++
++ifeq "$(HAVE_RELRO)" "yes"
++EXTRA_LDFLAGS += -z relro
++endif
++
++ifeq "$(HAVE_NOW)" "yes"
++EXTRA_LDFLAGS += -z now
++endif
++
+ CFLAGS := $(OPT) -I$(LIB) $(WARNFLAGS) \
+ 			$(CURSESFLAGS) $(SLANGFLAGS) $(NLSFLAGS) \
+ 			-D_FILE_OFFSET_BITS=64 \
+@@ -234,8 +256,9 @@
+ 			-DLOGDIR=\"$(LOG_DIR)\" \
+ 			-DVARPATH=\"$(VAR_PATH)\" \
+ 			-DLOCALEDIR=\"$(LOCALE_DIR)\" \
+-			$(CFLAGS)
++			$(EXTRA_CFLAGS) $(CFLAGS)
+ 
++LDFLAGS := $(EXTRA_LDFLAGS) $(LDFLAGS)
+ 
+ %.o: %.c
+ 	$(CC) -c $(CFLAGS) $< -o $@
+diff -Naur util-linux-2.12q.orig/configure util-linux-2.12q/configure
+--- util-linux-2.12q.orig/configure	2005-02-04 18:36:36.429646120 +0000
++++ util-linux-2.12q/configure	2005-02-04 18:40:00.939623280 +0000
+@@ -747,3 +747,89 @@
+         echo "You don't have blkid"
+ fi
+ rm -f conftest conftest.c
++
++#
++# 16. Do we have -pie -fpie?
++#
++echo '
++#include <stdio.h>
++int main(){ exit(0); }
++' > conftest.c
++ORIG_CFLAGS=${CFLAGS}
++CFLAGS="${CFLAGS} -pie -fpie -Wl,-pie"
++eval $compile
++CFLAGS=${ORIG_CFLAGS}
++if test -s conftest; then
++        echo "HAVE_PIE=yes" >> make_include
++        echo "Your compiler accepts -pie -fpie"
++else
++        echo "HAVE_PIE=no" >> make_include
++        echo "Your compiler does not accept -pie -fpie"
++fi
++unset ORIG_CFLAGS
++rm -f conftest conftest.c
++
++#
++# 17. Do we have -fstack-protector-all?
++#
++echo '
++#include <stdio.h>
++int main(){ exit(0); }
++' > conftest.c
++ORIG_CFLAGS=${CFLAGS}
++CFLAGS="${CFLAGS} -fstack-protector-all"
++eval $compile
++CFLAGS=${ORIG_CFLAGS}
++if test -s conftest; then
++        echo "HAVE_SSP=yes" >> make_include
++        echo "Your compiler accepts -fstack-protector-all"
++else
++        echo "HAVE_SSP=no" >> make_include
++        echo "Your compiler does not accept -fstack-protector-all"
++fi
++unset ORIG_CFLAGS
++rm -f conftest conftest.c
++
++
++#
++# 18. Do we have -z relro?
++#
++echo '
++#include <stdio.h>
++int main(){ exit(0); }
++' > conftest.c
++ORIG_CFLAGS=${CFLAGS}
++CFLAGS="${CFLAGS} -Wl,-z,relro"
++eval $compile
++CFLAGS=${ORIG_CFLAGS}
++if test -s conftest; then
++        echo "HAVE_RELRO=yes" >> make_include
++        echo "Your linker accepts -z relro"
++else
++        echo "HAVE_RELRO=no" >> make_include
++        echo "Your linker does not accept -z relro"
++fi
++unset ORIG_CFLAGS
++rm -f conftest conftest.c
++
++#
++# 19. Do we have -z now?
++#
++echo '
++#include <stdio.h>
++int main(){ exit(0); }
++' > conftest.c
++ORIG_CFLAGS=${CFLAGS}
++CFLAGS="${CFLAGS} -Wl,-z,now"
++eval $compile
++CFLAGS=${ORIG_CFLAGS}
++if test -s conftest; then
++        echo "HAVE_NOW=yes" >> make_include
++        echo "Your linker accepts -z now"
++else
++        echo "HAVE_NOW=no" >> make_include
++        echo "Your linker does not accept -z now"
++fi
++unset ORIG_CFLAGS
++rm -f conftest conftest.c
++
+diff -Naur util-linux-2.12q.orig/disk-utils/Makefile util-linux-2.12q/disk-utils/Makefile
+--- util-linux-2.12q.orig/disk-utils/Makefile	2005-02-04 18:36:36.436638056 +0000
++++ util-linux-2.12q/disk-utils/Makefile	2005-02-04 18:36:43.943571232 +0000
+@@ -6,6 +6,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ # Where to put man pages?
+ 
+ MAN8= 	blockdev.8 fdformat.8 isosize.8 mkfs.8 mkswap.8 elvtune.8 \
+diff -Naur util-linux-2.12q.orig/fdisk/Makefile util-linux-2.12q/fdisk/Makefile
+--- util-linux-2.12q.orig/fdisk/Makefile	2005-02-04 18:36:36.456615016 +0000
++++ util-linux-2.12q/fdisk/Makefile	2005-02-04 18:36:43.945570928 +0000
+@@ -6,6 +6,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ MAN8=
+ SBIN=
+ CFDISK=cfdisk
+diff -Naur util-linux-2.12q.orig/hwclock/Makefile util-linux-2.12q/hwclock/Makefile
+--- util-linux-2.12q.orig/hwclock/Makefile	2005-02-04 18:36:36.486580456 +0000
++++ util-linux-2.12q/hwclock/Makefile	2005-02-04 18:36:43.947570624 +0000
+@@ -3,6 +3,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ # Where to put man pages?
+ 
+ MAN8= 		hwclock.8
+diff -Naur util-linux-2.12q.orig/login-utils/Makefile util-linux-2.12q/login-utils/Makefile
+--- util-linux-2.12q.orig/login-utils/Makefile	2005-02-04 18:36:36.501563176 +0000
++++ util-linux-2.12q/login-utils/Makefile	2005-02-04 18:36:43.950570168 +0000
+@@ -9,6 +9,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ # Where to put man pages?
+ 
+ MAN1.MISC=	last.1 mesg.1 wall.1
+diff -Naur util-linux-2.12q.orig/misc-utils/Makefile util-linux-2.12q/misc-utils/Makefile
+--- util-linux-2.12q.orig/misc-utils/Makefile	2005-02-04 18:36:36.525535528 +0000
++++ util-linux-2.12q/misc-utils/Makefile	2005-02-04 18:36:43.952569864 +0000
+@@ -7,6 +7,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ # scriptreplay not added yet
+ 
+ # Where to put man pages?
+diff -Naur util-linux-2.12q.orig/mount/Makefile util-linux-2.12q/mount/Makefile
+--- util-linux-2.12q.orig/mount/Makefile	2005-02-04 18:36:36.546511336 +0000
++++ util-linux-2.12q/mount/Makefile	2005-02-04 18:36:43.954569560 +0000
+@@ -1,6 +1,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ DEFINES = -DHAVE_NFS $(BLKID_DEFINE)
+ 
+ RPCSVCDIR = rpcsvc
+diff -Naur util-linux-2.12q.orig/partx/Makefile util-linux-2.12q/partx/Makefile
+--- util-linux-2.12q.orig/partx/Makefile	2005-02-04 18:36:36.575477928 +0000
++++ util-linux-2.12q/partx/Makefile	2005-02-04 18:36:43.956569256 +0000
+@@ -1,3 +1,6 @@
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ OBJ = bsd.o dos.o partx.o solaris.o unixware.o gpt.o crc32.o
+ CFLAGS += -Wall
+ 
+diff -Naur util-linux-2.12q.orig/sys-utils/Makefile util-linux-2.12q/sys-utils/Makefile
+--- util-linux-2.12q.orig/sys-utils/Makefile	2005-02-04 18:36:36.676361576 +0000
++++ util-linux-2.12q/sys-utils/Makefile	2005-02-04 18:36:43.958568952 +0000
+@@ -6,6 +6,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ # Where to put man pages?
+ 
+ MAN1=		arch.1 flock.1 readprofile.1
+diff -Naur util-linux-2.12q.orig/text-utils/Makefile util-linux-2.12q/text-utils/Makefile
+--- util-linux-2.12q.orig/text-utils/Makefile	2005-02-04 18:36:36.693341992 +0000
++++ util-linux-2.12q/text-utils/Makefile	2005-02-04 18:36:43.960568648 +0000
+@@ -6,6 +6,9 @@
+ include ../make_include
+ include ../MCONFIG
+ 
++CFLAGS := $(EXE_CFLAGS) $(CFLAGS)
++LDFLAGS := $(EXE_LDFLAGS) $(LDFLAGS)
++
+ MAN1= 		col.1 colcrt.1 colrm.1 column.1 hexdump.1 rev.1 line.1 tailf.1
+ 
+ USRBIN=		col colcrt colrm column hexdump rev line tailf

@@ -1,0 +1,31 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-07-03
+Initial Package Version: 2.6.11.2
+Origin: Jbit and MDH
+Upstream Status: Sent
+Description: Remove unistd.h, conflicts with the silo builds
+ 
+diff -Naur linux-libc-headers-2.6.11.2.orig/include/asm-sparc/page.h linux-libc-headers-2.6.11.2/include/asm-sparc/page.h
+--- linux-libc-headers-2.6.11.2.orig/include/asm-sparc/page.h	2004-10-31 19:54:25.000000000 +0000
++++ linux-libc-headers-2.6.11.2/include/asm-sparc/page.h	2005-07-03 04:06:21.000000000 +0000
+@@ -8,8 +8,6 @@
+ #ifndef _SPARC_PAGE_H
+ #define _SPARC_PAGE_H
+ 
+-#include <unistd.h>
+-
+ #define PAGE_SIZE ((unsigned long)getpagesize())
+ #define PAGE_SHIFT ((PAGE_SIZE > 65536) ? -1 : ((unsigned long[]){12,13,14,-1,15,-1,-1,-1,16}[PAGE_SIZE>>13]))
+ #define PAGE_MASK    (~(PAGE_SIZE-1))
+diff -Naur linux-libc-headers-2.6.11.2.orig/include/asm-sparc64/page.h linux-libc-headers-2.6.11.2/include/asm-sparc64/page.h
+--- linux-libc-headers-2.6.11.2.orig/include/asm-sparc64/page.h	2004-10-31 19:56:28.000000000 +0000
++++ linux-libc-headers-2.6.11.2/include/asm-sparc64/page.h	2005-07-03 04:11:47.000000000 +0000
+@@ -1,8 +1,6 @@
+ #ifndef _SPARC64_PAGE_H
+ #define _SPARC64_PAGE_H
+ 
+-#include <unistd.h>
+-
+ #define PAGE_SIZE ((unsigned long)getpagesize())
+ #define PAGE_SHIFT ((PAGE_SIZE > 65536) ? -1 : ((unsigned long[]){12,13,14,-1,15,-1,-1,-1,16}[PAGE_SIZE>>13]))
+ #define PAGE_MASK    (~(PAGE_SIZE-1))

@@ -1,0 +1,52 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-02-19
+Initial Package Version: 2.10.4
+Upstream Status: not submitted, arguably a flex issue
+Origin: self
+Description: Allows it to compile with flex-2.5.34.
+
+Flex-2.5.34, like some earlier versions, doesn't like comments that start
+in the second column, at least in certain parts of the file.
+
+--- lm_sensors-2.10.4.orig/lib/conf-lex.l	2007-07-17 05:53:06.000000000 +0100
++++ lm_sensors-2.10.4/lib/conf-lex.l	2008-02-13 22:29:14.000000000 +0000
+@@ -48,33 +48,33 @@
+ 
+ %}
+ 
+- /* Scanner for configuration files */
++/* Scanner for configuration files */
+ 
+ %option nodefault
+ %option noyywrap
+ %option nounput
+ 
+- /* All states are exclusive */
++/* All states are exclusive */
+ 
+ %x MIDDLE
+ %x STRING
+ %x ERR
+ 
+- /* Any whitespace-like character */
++/* Any whitespace-like character */
+ 
+ BLANK		[ \f\t\v]
+ 
+ IDCHAR		[[:alnum:]_]
+ 
+- /* Note: `10', `10.4' and `.4' are valid, `10.' is not */
++/* Note: `10', `10.4' and `.4' are valid, `10.' is not */
+ 
+ FLOAT   [[:digit:]]*\.?[[:digit:]]+
+ 
+- /* Only positive whole numbers are recognized here */
++/* Only positive whole numbers are recognized here */
+ 
+ NUM	0|([1-9][[:digit:]]*)
+ 
+- /* Only number between 1 and 255, octally represented. */
++/* Only number between 1 and 255, octally represented. */
+ 
+ OCTESC		(1[0-7]{0,2})|([2-7][0-7]?)|(0[1-7][0-7]?)|(00[1-7])
+ 

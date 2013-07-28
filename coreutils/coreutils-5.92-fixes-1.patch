@@ -1,0 +1,63 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-11-03
+Initial Package Version: 5.9.2
+Origin: Coreutils CVS
+Upstream Status: Already Applied
+Description: Various Fixes
+	http://lists.gnu.org/archive/html/bug-coreutils/2005-10/msg00275.html
+	fixes installation of locales into /locale
+
+	http://lists.gnu.org/archive/html/bug-coreutils/2005-10/msg00301.html	
+	fixes md5sum adds backwards compatibility
+
+	http://lists.gnu.org/archive/html/bug-coreutils/2005-10/msg00268.html
+	fixes dircolors adds missing ,	
+ 
+diff -Naur coreutils-5.92.orig/po/Makefile.in.in coreutils-5.92/po/Makefile.in.in
+--- coreutils-5.92.orig/po/Makefile.in.in	2004-01-12 22:58:36.000000000 +0000
++++ coreutils-5.92/po/Makefile.in.in	2005-11-03 17:05:17.000000000 +0000
+@@ -23,6 +23,7 @@
+ prefix = @prefix@
+ exec_prefix = @exec_prefix@
+ datadir = @datadir@
++datarootdir = @datarootdir@
+ localedir = $(datadir)/locale
+ gettextsrcdir = $(datadir)/gettext/po
+ 
+diff -Naur coreutils-5.92.orig/src/dircolors.c coreutils-5.92/src/dircolors.c
+--- coreutils-5.92.orig/src/dircolors.c	2005-10-19 07:22:47.000000000 +0000
++++ coreutils-5.92/src/dircolors.c	2005-11-03 17:06:13.000000000 +0000
+@@ -62,7 +62,6 @@
+    variable.  */
+ static struct obstack lsc_obstack;
+ 
+-/* FIXME: associate with ls_codes? */
+ static const char *const slack_codes[] =
+ {
+   "NORMAL", "NORM", "FILE", "DIR", "LNK", "LINK",
+@@ -75,9 +74,11 @@
+ static const char *const ls_codes[] =
+ {
+   "no", "no", "fi", "di", "ln", "ln", "ln", "or", "mi", "pi", "pi",
+-  "so", "bd", "bd", "cd", "cd", "do", "ex", "lc", "lc", "rc", "rc", "ec", "ec"
++  "so", "bd", "bd", "cd", "cd", "do", "ex", "lc", "lc", "rc", "rc", "ec", "ec",
+   "su", "su", "sg", "sg", "st", "ow", "ow", "tw", "tw", NULL
+ };
++#define array_len(Array) (sizeof (Array) / sizeof *(Array))
++verify (array_len (slack_codes) == array_len (ls_codes));
+ 
+ static struct option const long_options[] =
+   {
+diff -Naur coreutils-5.92.orig/src/md5sum.c coreutils-5.92/src/md5sum.c
+--- coreutils-5.92.orig/src/md5sum.c	2005-08-14 15:13:28.000000000 +0000
++++ coreutils-5.92/src/md5sum.c	2005-11-03 17:09:40.000000000 +0000
+@@ -612,6 +612,9 @@
+       usage (EXIT_FAILURE);
+     }
+ 
++  if (!O_BINARY && binary < 0)
++    binary = 0;
++
+   if (optind == argc)
+     argv[argc++] = "-";
+ 

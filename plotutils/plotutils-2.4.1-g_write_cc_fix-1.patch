@@ -1,0 +1,26 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2004-10-31
+Initial Package Version: 2.4.1
+Upstream Status:         Not submitted (too much of a hack)
+Origin:                  http://lists.gnu.org/archive/html/bug-gnu-utils/2003-01/msg00207.html
+Description:             Fixes C++ error using GCC >= 3.x.x
+                         Note: This patch is not meant to be used directly. It
+                         is called by libplotter/Makefile which is created
+                         with a patched Makefile.in. You'll also need:
+                         plotutils-2.4.1-libplotter_Makefile-1.patch
+                         plotutils-2.4.1-n_write_cc_fix-1.patch
+                         plotutils-2.4.1-z_write_cc_fix-1.patch
+                         plotutils-2.4.1-i_rle_cc_fix-1.patch
+
+diff -Naur ../../plotutils-2.4.1-orig/libplot/g_write.c ./g_write.cc
+--- ../../plotutils-2.4.1-orig/libplot/g_write.c        2000-05-19 16:10:01.000000000 +0000
++++ ./g_write.cc        2004-10-31 18:25:44.044756104 +0000
+@@ -40,7 +40,7 @@
+     }
+ #ifdef LIBPLOTTER
+   else if (data->outstream)
+-    data->outstream->write(c, n);
++    data->outstream->write(reinterpret_cast<const char*>(c), n);
+ #endif
+ }
+

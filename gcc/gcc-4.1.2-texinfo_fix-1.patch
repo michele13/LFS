@@ -1,0 +1,20 @@
+Submitted By: Robert Connolly <robert@linuxfromscratch.org> (ashes)
+Date: 2008-02-21
+Initial Package Version: 4.1.2
+Upstream Status: From Upstream
+Origin: http://gcc.gnu.org/viewcvs/trunk/configure?r1=128495&r2=128497&diff_format=h
+Description: Fixes the configure script to correctly dictate Texinfo > 4.9.
+The diff was modified so texinfo-4.2 would still work.
+
+diff -Naur gcc-4.1.2.orig/configure gcc-4.1.2/configure
+--- gcc-4.1.2.orig/configure	2006-11-21 17:48:36.000000000 +0000
++++ gcc-4.1.2/configure	2008-02-22 03:04:26.000000000 +0000
+@@ -3549,7 +3549,7 @@
+     # For an installed makeinfo, we require it to be from texinfo 4.2 or
+     # higher, else we use the "missing" dummy.
+     if ${MAKEINFO} --version \
+-       | egrep 'texinfo[^0-9]*([1-3][0-9]|4\.[2-9]|[5-9])' >/dev/null 2>&1; then
++       | egrep 'texinfo[^0-9]*(4\.([2-9]|[1-9][0-9])|[5-9]|[1-9][0-9])' >/dev/null 2>&1; then
+       :
+     else
+       MAKEINFO="$MISSING makeinfo"

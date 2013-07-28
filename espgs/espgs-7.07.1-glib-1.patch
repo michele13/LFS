@@ -1,0 +1,17 @@
+Submitted By: BLFS Book <blfs-book at linuxfromscratch dot org>
+Date: 2004-02-05
+Initial Package Version: 7.07.1
+Origin: blfs.support
+Description: Fixes compilation of OMNI drivers.
+
+--- espgs-7.07.1/src/contrib.mak.orig	2004-02-05 10:44:49.000000000 +0000
++++ espgs-7.07.1/src/contrib.mak	2004-02-05 10:45:03.000000000 +0000
+@@ -602,7 +602,7 @@
+ 	$(SETPDEV) $(DD)omni $(GLOBJ)gomni.$(OBJ)
+ 
+ $(GLOBJ)gomni.$(OBJ) : $(GLSRC)gomni.c $(epclr_h1) $(PDEVH)
+-	$(GLCC) $(GLO_)gomni.$(OBJ) $(C_) $(GLSRC)gomni.c
++	$(GLCC) -I/usr/include/glib-1.2 -I/usr/lib/glib/include $(GLO_)gomni.$(OBJ) $(C_) $(GLSRC)gomni.c
+ 
+ ### --------------- Ugly/Update -> Unified Printer Driver ---------------- ###
+ ### For questions about this driver, please contact:                       ###

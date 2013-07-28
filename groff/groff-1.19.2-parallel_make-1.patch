@@ -1,0 +1,55 @@
+Submitted By: Joe Ciccone <jciccone@linuxfromscratch.org>
+Date: 2006-06-22
+Initial Package Version: 1.19.2
+Upstream Status: In CVS
+Origin: Gentoo Portage
+Description: This patch fixes the dependencies in the groff Makefile so
+             parallel builds are possible.
+
+diff -Naur groff-1.19.2.orig/Makefile.in groff-1.19.2/Makefile.in
+--- groff-1.19.2.orig/Makefile.in	2005-08-07 04:03:33.000000000 -0400
++++ groff-1.19.2/Makefile.in	2006-06-22 10:54:14.000000000 -0400
+@@ -598,7 +598,7 @@
+ 	  -f $(top_srcdir)/Makefile.comm \
+ 	  -f $(top_srcdir)/Makefile.sub $(do)
+ 
+-$(LIBDIRS): FORCE
++$(LIBDIRS): FORCE $(INCDIRS) $(PROGDEPDIRS)
+ 	@$(ENVSETUP); \
+ 	if test $(srcdir) = .; then \
+ 	  srcdir=.; \
+@@ -614,7 +614,7 @@
+ 	  -f $(top_srcdir)/Makefile.lib \
+ 	  -f Makefile.dep $(do)
+ 
+-$(CPROGDIRS): FORCE
++$(CPROGDIRS): FORCE $(LIBDIRS)
+ 	@$(ENVSETUP); \
+ 	if test $(srcdir) = .; then \
+ 	  srcdir=.; \
+@@ -630,7 +630,7 @@
+ 	  -f $(top_srcdir)/Makefile.cpg \
+ 	  -f Makefile.dep $(do)
+ 
+-$(CCPROGDIRS): FORCE
++$(CCPROGDIRS): FORCE $(LIBDIRS)
+ 	@$(ENVSETUP); \
+ 	if test $(srcdir) = .; then \
+ 	  srcdir=.; \
+@@ -646,7 +646,7 @@
+ 	  -f $(top_srcdir)/Makefile.ccpg \
+ 	  -f Makefile.dep $(do)
+ 
+-$(DEVDIRS) $(XDEVDIRS) $(OTHERDEVDIRS) $(TTYDEVDIRS): FORCE
++$(DEVDIRS) $(XDEVDIRS) $(OTHERDEVDIRS) $(TTYDEVDIRS): FORCE $(PROGDIRS)
+ 	@$(ENVSETUP); \
+ 	if test $(srcdir) = .; then \
+ 	  srcdir=.; \
+@@ -660,6 +660,7 @@
+ 	  -f $$srcdir/Makefile.sub \
+ 	  -f $(top_srcdir)/Makefile.dev $(do)
+ 
++$(OTHERDIRS): $(PROGDIRS)
+ $(INCDIRS) $(PROGDEPDIRS) $(OTHERDIRS): FORCE
+ 	@$(ENVSETUP); \
+ 	if test $(srcdir) = .; then \

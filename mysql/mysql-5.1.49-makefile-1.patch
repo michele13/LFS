@@ -1,0 +1,52 @@
+Submitted By: Bruce dubbs (bdubbs at linuxfromscratch dot org)
+Date: 2010-07-31
+Initial Package Version: 5.1.49
+Origin: mysql mailing list
+Description: Removes bogus do_abi_check.
+
+--- mysql-5.1.49/Makefile.in	2010-07-09 07:38:42.000000000 -0500
++++ mysql-5.1.49-new/Makefile.in	2010-07-31 20:38:40.000000000 -0500
+@@ -1133,24 +1133,25 @@
+ 	$(MAKE) abi_headers="$^" do_abi_check
+ 
+ do_abi_check:
+-	set -ex; \
+-	for file in $(abi_headers); do \
+-	         @CC@ -E -nostdinc -dI \
+-	                  -I$(top_srcdir)/include \
+-	                  -I$(top_srcdir)/include/mysql \
+-	                  -I$(top_srcdir)/sql \
+-	                  -I$(top_builddir)/include \
+-	                  -I$(top_builddir)/include/mysql \
+-	                  -I$(top_builddir)/sql \
+-	                                 $$file 2>/dev/null | \
+-	                  @SED@ -e '/^# /d' \
+-	                            -e '/^[ 	]*$$/d' \
+-	                            -e '/^#pragma GCC set_debug_pwd/d' \
+-	                            -e '/^#ident/d' > \
+-	                                       $(top_builddir)/abi_check.out; \
+-	                  @DIFF@ -w $$file.pp $(top_builddir)/abi_check.out; \
+-	                  @RM@ $(top_builddir)/abi_check.out; \
+-	done
++#	set -ex; \
++#	for file in $(abi_headers); do \
++#	         @CC@ -E -nostdinc -dI \
++#	                  -I$(top_srcdir)/include \
++#	                  -I$(top_srcdir)/include/mysql \
++#	                  -I$(top_srcdir)/sql \
++#	                  -I$(top_builddir)/include \
++#	                  -I$(top_builddir)/include/mysql \
++#	                  -I$(top_builddir)/sql \
++#	                                 $$file 2>/dev/null | \
++#	                  @SED@ -e '/^# /d' \
++#	                            -e '/^[ 	]*$$/d' \
++#	                            -e '/^#pragma GCC set_debug_pwd/d' \
++#	                            -e '/^#ident/d' > \
++#	                                       $(top_builddir)/abi_check.out; \
++#	                  @DIFF@ -w $$file.pp $(top_builddir)/abi_check.out; \
++#	                  @RM@ $(top_builddir)/abi_check.out; \
++#	done
++	echo "Skipping do_abi_check"
+ 
+ # Don't update the files from bitkeeper
+ %::SCCS/s.%

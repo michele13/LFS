@@ -1,0 +1,63 @@
+Submitted By: Kevin P. Fleming <kpfleming@linuxfromscratch.org>
+Date: 2004-09-16
+Initial Package Version: 032
+Origin: http://linuxfromscratch.org/pipermail/lfs-hackers/2004-September/002263.html
+Upstream Status: Submitted Upstream
+Description: correct udev's Makefile and template config file
+to respect the "prefix=" setting supplied when it is built; also
+build etc/udev/udev.conf at "make" time, not "make install" time
+
+diff -ur udev-orig/Makefile udev-032/Makefile
+--- udev-orig/Makefile	Mon Sep 13 22:55:34 2004
++++ udev-032/Makefile	Thu Sep 16 17:48:48 2004
+@@ -172,7 +172,10 @@
+ 
+ CFLAGS += -I$(PWD)/libsysfs
+ 
+-all: $(ROOT) $(SENDER) $(DAEMON) $(INFO) $(TESTER)
++# config files automatically generated
++GEN_CONFIGS =	$(LOCAL_CFG_DIR)/udev.conf
++
++all: $(ROOT) $(SENDER) $(DAEMON) $(INFO) $(TESTER) $(GEN_CONFIGS)
+ 	@extras="$(EXTRAS)" ; for target in $$extras ; do \
+ 		echo $$target ; \
+ 		$(MAKE) prefix=$(prefix) \
+@@ -239,12 +242,9 @@
+ 	@echo \#define UDEV_BIN			\"$(DESTDIR)$(sbindir)/udev\" >> $@
+ 	@echo \#define UDEVD_BIN		\"$(DESTDIR)$(sbindir)/udevd\" >> $@
+ 
+-# config files automatically generated
+-GEN_CONFIGS =	$(LOCAL_CFG_DIR)/udev.conf
+-
+ # Rules on how to create the generated config files
+ $(LOCAL_CFG_DIR)/udev.conf:
+-	sed -e "s:@udevdir@:$(udevdir):" < $(LOCAL_CFG_DIR)/udev.conf.in > $@
++	sed -e "s:@udevdir@:$(udevdir):" -e "s:@configdir@:$(configdir):" < $(LOCAL_CFG_DIR)/udev.conf.in > $@
+ 
+ GEN_MANPAGES   = udev.8
+ GEN_MANPAGESIN = udev.8.in
+@@ -338,7 +338,7 @@
+ 		$(INSTALL_DATA) -D etc/init.d/udev.debian $(DESTDIR)$(initdir)/udev; \
+ 	fi
+ 
+-install-config: $(GEN_CONFIGS)
++install-config:
+ 	$(INSTALL) -d $(DESTDIR)$(configdir)/rules.d
+ 	$(INSTALL) -d $(DESTDIR)$(configdir)/permissions.d
+ 	@if [ ! -r $(DESTDIR)$(configdir)/udev.conf ]; then \
+diff -ur udev-orig/etc/udev/udev.conf.in udev-032/etc/udev/udev.conf.in
+--- udev-orig/etc/udev/udev.conf.in	Mon Sep 13 22:55:36 2004
++++ udev-032/etc/udev/udev.conf.in	Thu Sep 16 17:48:19 2004
+@@ -12,10 +12,10 @@
+ udev_db="@udevdir@/.udev.tdb"
+ 
+ # udev_rules - The name and location of the udev rules file
+-udev_rules="/etc/udev/rules.d/"
++udev_rules="@configdir@/rules.d/"
+ 
+ # udev_permissions - The name and location of the udev permission file
+-udev_permissions="/etc/udev/permissions.d/"
++udev_permissions="@configdir@/permissions.d/"
+ 
+ # default_mode - set the default mode for all nodes that have no
+ #                explicit match in the permissions file

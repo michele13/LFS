@@ -1,0 +1,38 @@
+Submitted By: John Burrell <john underscore burrell at hotmail dot com>
+Date: 2012-01-18
+Initial Package Version: 5.12 or earlier
+Upstream Status: unknown
+Origin: Found at opensuse
+Description: If configured with --enable-static=no, the build will fail
+because the static libopts.a is not built, although the code assumes
+it is present.  Normally this switch would merely prevent the static
+library being installed.
+
+ Note: if you build with --enable-static=no you will not be able to
+run most of the testsuite.
+
+diff -Naur autogen-5.12.orig/doc/mk-agen-texi-in autogen-5.12/doc/mk-agen-texi-in
+--- autogen-5.12.orig/doc/mk-agen-texi-in	2011-04-20 19:54:22.000000000 +0100
++++ autogen-5.12/doc/mk-agen-texi-in	2012-01-18 17:46:49.000000000 +0000
+@@ -98,9 +98,9 @@
+   srcdir=`cd @srcdir@ ; pwd`
+   PATH=${top_builddir}/columns:${PATH}
+   timer=`expr @AG_TIMEOUT@ '*' 5`
+-  d=`find ${top_builddir}/autoopts -type f -name libopts.a -print`
+-  test -f "$d" || die "Cannot locate libopts.a"
+-  LIBS="$d ${LIBS}"
++  d=`find ${top_builddir}/autoopts -type f -name libopts.a -o -name libopts.so | head -n 1`
++  LIBS="-L`dirname \"$d\"` -lopts ${LIBS}"
++  LD_LIBRARY_PATH="`dirname \"$d\"`:$LD_LIBRARY_PATH"
+ 
+   eval `egrep '^AG_[A-Z_]*' ${top_srcdir}/VERSION`
+ 
+@@ -222,7 +222,7 @@
+ sanity_check
+ run_getdefs
+ 
+-env >&2
++${VERBOSE} && env | sort >&2
+ exec 3> ${tmp_dir}/ag.ini
+ cat >&3 <<- _EOF_
+ 	timeout     ${timer}

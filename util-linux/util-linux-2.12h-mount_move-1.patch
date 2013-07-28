@@ -1,0 +1,35 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2004-10-23
+Initial Package Version: 2.12h
+Origin: http://marc.theaimsgroup.com/?l=linux-kernel&m=107651253813454&w=2
+Description: Fix /etc/mtab updating when using mount --move.
+
+--- util-linux-2.12h/mount/fstab.c.orig	2004-09-28 13:55:50.000000000 +0200
++++ util-linux-2.12h/mount/fstab.c	2004-10-23 15:36:29.000000000 +0200
+@@ -599,8 +599,12 @@
+ 				free(mc);
+ 			}
+ 		} else {
+-			/* A remount */
++			/* A remount or move */
+ 			mc->m.mnt_opts = instead->mnt_opts;
++			if (!streq(mc->m.mnt_dir, instead->mnt_dir)) {
++				free(mc->m.mnt_dir);
++				mc->m.mnt_dir = xstrdup(instead->mnt_dir);
++			}
+ 		}
+ 	} else if (instead) {
+ 		/* not found, add a new entry */
+--- util-linux-2.12h/mount/mount.c.orig	2004-10-13 22:54:39.000000000 +0200
++++ util-linux-2.12h/mount/mount.c	2004-10-23 15:40:17.000000000 +0200
+@@ -623,7 +623,9 @@
+ 		print_one (&mnt);
+ 
+ 	if (!nomtab && mtab_is_writable()) {
+-		if (flags & MS_REMOUNT)
++		if (flags & MS_MOVE)
++			update_mtab (mnt.mnt_fsname, &mnt);
++		else if (flags & MS_REMOUNT)
+ 			update_mtab (mnt.mnt_dir, &mnt);
+ 		else {
+ 			mntFILE *mfp;

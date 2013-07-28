@@ -1,0 +1,51 @@
+Submitted By: Wayne Blaszczyk
+Date: 2009-10-31
+Initial Package Version: 2.28.1
+Origin: Wayne Blaszczyk
+Upstream Status: Unknown
+Description: Removed hardcoded /etc/gconf paths.
+             Removed hardcoded /usr/lib path from polkit-gnome-authentication-agent-1.desktop.in*
+
+diff -Naur a/data/gconf.path b/data/gconf.path
+--- a/data/gconf.path	2009-10-20 09:12:45.000000000 +1100
++++ b/data/gconf.path	2009-10-31 14:32:54.000000000 +1100
+@@ -1,5 +1,5 @@
+ # treat system-wide settings as mandatory
+-xml:readonly:/etc/gconf/gconf.xml.system
++xml:readonly:@sysconfdir@/gconf/gconf.xml.system
+ 
+ # override some settings
+ # we treat settings in this location as
+diff -Naur a/data/greeter-autostart/polkit-gnome-authentication-agent-1.desktop.in.in b/data/greeter-autostart/polkit-gnome-authentication-agent-1.desktop.in.in
+--- a/data/greeter-autostart/polkit-gnome-authentication-agent-1.desktop.in.in	1970-01-01 10:00:00.000000000 +1000
++++ b/data/greeter-autostart/polkit-gnome-authentication-agent-1.desktop.in.in	2009-10-31 14:39:30.000000000 +1100
+@@ -0,0 +1,5 @@
++[Desktop Entry]
++Type=Application
++_Name=PolicyKit Authentication Agent
++Exec=@LIBEXECDIR@/polkit-gnome-authentication-agent-1
++OnlyShowIn=GNOME;
+diff -Naur a/data/Makefile.am b/data/Makefile.am
+--- a/data/Makefile.am	2009-10-20 09:12:45.000000000 +1100
++++ b/data/Makefile.am	2009-10-31 14:37:53.000000000 +1100
+@@ -216,7 +216,7 @@
+ 		chown root:gdm $(DESTDIR)$(cachedir) || : ; \
+ 	fi
+ 
+-	$(INSTALL_DATA) $(srcdir)/gconf.path $(DESTDIR)$(workingdir)/.gconf.path
++	sed -e 's,[@]sysconfdir[@],$(sysconfdir),g' < $(srcdir)/gconf.path > $(DESTDIR)$(workingdir)/.gconf.path
+ 	gconftool-2 --direct --config-source=xml:merged:$(DESTDIR)$(workingdir)/.gconf.mandatory --recursive-unset /
+ 	gconftool-2 --direct --config-source=xml:merged:$(DESTDIR)$(workingdir)/.gconf.mandatory --load $(srcdir)/session-setup.entries
+ 	chown -R root:gdm $(DESTDIR)$(workingdir)/.gconf.mandatory || :
+diff -Naur a/data/Makefile.in b/data/Makefile.in
+--- a/data/Makefile.in	2009-10-20 10:50:54.000000000 +1100
++++ b/data/Makefile.in	2009-10-31 14:38:13.000000000 +1100
+@@ -872,7 +872,7 @@
+ 		chown root:gdm $(DESTDIR)$(cachedir) || : ; \
+ 	fi
+ 
+-	$(INSTALL_DATA) $(srcdir)/gconf.path $(DESTDIR)$(workingdir)/.gconf.path
++	sed -e 's,[@]sysconfdir[@],$(sysconfdir),g' < $(srcdir)/gconf.path > $(DESTDIR)$(workingdir)/.gconf.path
+ 	gconftool-2 --direct --config-source=xml:merged:$(DESTDIR)$(workingdir)/.gconf.mandatory --recursive-unset /
+ 	gconftool-2 --direct --config-source=xml:merged:$(DESTDIR)$(workingdir)/.gconf.mandatory --load $(srcdir)/session-setup.entries
+ 	chown -R root:gdm $(DESTDIR)$(workingdir)/.gconf.mandatory || :

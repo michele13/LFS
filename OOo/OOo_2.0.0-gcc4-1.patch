@@ -1,0 +1,225 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2005-11-07
+Origin: OOo CVS, ooo-build, and RedHat
+Initial Package Version: 2.0.0
+Description: Fixes build issues with gcc-4.
+
+--- OOo_2.0.0-orig/moz/mozilla-source-1.7.5.patch	2005-09-22 08:35:49.000000000 -0500
++++ OOo_2.0.0/moz/mozilla-source-1.7.5.patch	2005-10-19 20:55:19.000000000 -0500
+@@ -7098,3 +7098,14 @@
+   #ifndef NSSPKI1T_H
+   #include "nsspki1t.h"
+   #endif /* NSSPKI1T_H */
++--- misc/mozilla/xpcom/reflect/xptinfo/public/xptinfo.h	2005-10-19 20:52:38.000000000 -0500
+++++ misc/build/mozilla/xpcom/reflect/xptinfo/public/xptinfo.h	2005-10-19 20:53:16.000000000 -0500
++@@ -152,7 +152,7 @@
++     uint8 TagPart() const
++         {return (uint8) (flags & XPT_TDP_TAGMASK);}
++ 
++-    enum
+++    enum xptinfo_enum_1
++     {
++         T_I8                = TD_INT8             ,
++         T_I16               = TD_INT16            ,
+--- OOo_2.0.0-orig/connectivity/source/drivers/mozab/bootstrap/MNSProfile.cxx	2005-09-08 01:24:31.000000000 -0500
++++ OOo_2.0.0/connectivity/source/drivers/mozab/bootstrap/MNSProfile.cxx	2005-10-19 20:47:07.000000000 -0500
+@@ -370,7 +370,7 @@
+     
+     // if shutDownType is not a well know value, skip the notifications
+     // see DoOnShutdown() in nsAppRunner.cpp for where we use this behaviour to our benefit
+-    if (shutDownType == SHUTDOWN_PERSIST || shutDownType == SHUTDOWN_CLEANSE) {
++    if (shutDownType == PRUint32(SHUTDOWN_PERSIST) || shutDownType == PRUint32(SHUTDOWN_CLEANSE)) {
+       nsCOMPtr<nsIObserverService> observerService = 
+         do_GetService("@mozilla.org/observer-service;1", &rv);
+       NS_ENSURE_TRUE(observerService, NS_ERROR_FAILURE);
+@@ -379,7 +379,7 @@
+       
+       NS_NAMED_LITERAL_STRING(cleanseString, "shutdown-cleanse");
+       NS_NAMED_LITERAL_STRING(persistString, "shutdown-persist");
+-      const nsAFlatString& context = (shutDownType == SHUTDOWN_CLEANSE) ? cleanseString : persistString;
++      const nsAFlatString& context = (shutDownType == PRUint32(SHUTDOWN_CLEANSE)) ? cleanseString : persistString;
+       
+       // Phase 1: See if anybody objects to the profile being changed.
+       mProfileChangeVetoed = PR_FALSE;        
+--- OOo_2.0.0-orig/connectivity/source/drivers/mozab/mozillasrc/MNSMozabProxy.cxx	2005-09-08 01:28:06.000000000 -0500
++++ OOo_2.0.0/connectivity/source/drivers/mozab/mozillasrc/MNSMozabProxy.cxx	2005-10-19 20:48:41.000000000 -0500
+@@ -303,7 +303,7 @@
+     case nsILDAPMessage::RES_BIND:
+         rv = aMessage->GetErrorCode(&errCode);
+         // if the login failed
+-        if (errCode != nsILDAPErrors::SUCCESS) {
++        if (errCode != PRInt32(nsILDAPErrors::SUCCESS)) {
+             setConnectionStatus( sal_False );
+         }
+         else
+--- OOo_2.0.0-orig/sd/source/ui/app/optsitem.cxx	2005-09-08 22:43:01.000000000 -0500
++++ OOo_2.0.0/sd/source/ui/app/optsitem.cxx	2005-10-25 22:51:14.000000000 -0500
+@@ -126,8 +126,8 @@
+ {
+ 	if( !mbInit )
+ 	{
+-		SdOptionsGeneric* pThis	= (SdOptionsGeneric*) this;
+-
++//		SdOptionsGeneric* pThis	= (SdOptionsGeneric*) this;
++		SdOptionsGeneric* pThis = const_cast<SdOptionsGeneric*>(this);
+ 		if( !mpCfgItem )
+ 			pThis->mpCfgItem = new SdOptionsItem( *this, maSubTree );
+ 
+@@ -379,7 +379,10 @@
+ int SdOptionsLayoutItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==( rAttr ), "unterschiedliche Typen" );
+-	return( (SdOptionsLayout&) *this == (const SdOptionsLayout&)(const SdOptionsLayoutItem&) rAttr );
++//	return( (SdOptionsLayout&) *this == (const SdOptionsLayout&)(const SdOptionsLayoutItem&) rAttr );
++	const SdOptionsLayoutItem& rRHS =
++		dynamic_cast<const SdOptionsLayoutItem&>(rAttr);
++	return SdOptionsLayout::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -522,7 +525,10 @@
+ int SdOptionsContentsItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==(rAttr), "unterschiedliche Typen" );
+-	return( (SdOptionsContents&) *this == (const SdOptionsContents&)(const SdOptionsContentsItem&) rAttr );
++//	return( (SdOptionsContents&) *this == (const SdOptionsContents&)(const SdOptionsContentsItem&) rAttr );
++	const SdOptionsContentsItem& rRHS =
++		dynamic_cast<const SdOptionsContentsItem&>(rAttr);
++	return SdOptionsContents::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -850,7 +856,10 @@
+ int SdOptionsMiscItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==(rAttr), "unterschiedliche Typen" );
+-	return( (SdOptionsMisc&) *this == (const SdOptionsMisc&)(const SdOptionsMiscItem&) rAttr );
++//	return( (SdOptionsMisc&) *this == (const SdOptionsMisc&)(const SdOptionsMiscItem&) rAttr );
++	const SdOptionsMiscItem& rRHS =
++		dynamic_cast<const SdOptionsMiscItem&>(rAttr);
++	return SdOptionsMisc::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -1060,7 +1069,10 @@
+ int SdOptionsSnapItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==(rAttr), "unterschiedliche Typen" );
+-	return( (SdOptionsSnap&) *this == (const SdOptionsSnap&)(const SdOptionsSnapItem&) rAttr );
++//	return( (SdOptionsSnap&) *this == (const SdOptionsSnap&)(const SdOptionsSnapItem&) rAttr );
++	const SdOptionsSnapItem& rRHS =
++		dynamic_cast<const SdOptionsSnapItem&>(rAttr);
++	return SdOptionsSnap::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -1195,7 +1207,10 @@
+ int SdOptionsZoomItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==(rAttr), "unterschiedliche Typen" );
+-	return( (SdOptionsZoom&) *this == (const SdOptionsZoom&)(const SdOptionsZoomItem&) rAttr );
++//	return( (SdOptionsZoom&) *this == (const SdOptionsZoom&)(const SdOptionsZoomItem&) rAttr );
++	const SdOptionsZoomItem& rRHS =
++		dynamic_cast<const SdOptionsZoomItem&>(rAttr);
++	return SdOptionsZoom::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+@@ -1686,7 +1701,10 @@
+ int SdOptionsPrintItem::operator==( const SfxPoolItem& rAttr ) const
+ {
+ 	DBG_ASSERT( SfxPoolItem::operator==(rAttr), "unterschiedliche Typen" );
+-	return( (SdOptionsPrint&) *this == (const SdOptionsPrint&)(const SdOptionsPrintItem&) rAttr );
++//	return( (SdOptionsPrint&) *this == (const SdOptionsPrint&)(const SdOptionsPrintItem&) rAttr );
++	const SdOptionsPrintItem& rRHS =
++		dynamic_cast<const SdOptionsPrintItem&>(rAttr);
++	return SdOptionsPrint::operator==(rRHS);
+ }
+ 
+ // -----------------------------------------------------------------------
+--- OOo_2.0.0-orig/svx/source/editeng/forbiddencharacterstable.cxx	2005-09-08 17:32:46.000000000 -0500
++++ OOo_2.0.0/svx/source/editeng/forbiddencharacterstable.cxx	2005-10-25 19:31:45.000000000 -0500
+@@ -62,8 +62,14 @@
+ 	ForbiddenCharactersInfo* pInf = Get( nLanguage );
+ 	if ( !pInf && bGetDefault && mxMSF.is() )
+ 	{
++		const SvxForbiddenCharactersTableImpl *pConstImpl = 
++			dynamic_cast<const SvxForbiddenCharactersTableImpl*>(this);
++		SvxForbiddenCharactersTableImpl* pImpl = 
++			const_cast<SvxForbiddenCharactersTableImpl*>(pConstImpl);
+ 		pInf = new ForbiddenCharactersInfo;
+-		((SvxForbiddenCharactersTableImpl*)this)->Insert( nLanguage, pInf );
++
++//		((SvxForbiddenCharactersTableImpl*)this)->Insert( nLanguage, pInf );
++		pImpl->Insert( nLanguage, pInf );
+ 		pInf->bTemporary = TRUE;
+ 		LocaleDataWrapper aWrapper( mxMSF, SvxCreateLocale( nLanguage ) );
+ 		pInf->aForbiddenChars = aWrapper.getForbiddenCharacters();
+--- OOo_2.0.0-orig/svx/source/unoedit/unotext2.cxx	2005-09-08 20:12:37.000000000 -0500
++++ OOo_2.0.0/svx/source/unoedit/unotext2.cxx	2005-10-25 20:12:07.000000000 -0500
+@@ -69,7 +69,8 @@
+ SvxUnoTextContentEnumeration::SvxUnoTextContentEnumeration( const SvxUnoTextBase& _rText ) throw()
+ : rText( _rText )
+ {
+-	xParentText =  (text::XText*)&_rText;
++//	xParentText =  (text::XText*)&_rText;
++	xParentText = const_cast<SvxUnoTextBase*>(&rText);
+ 	if( rText.GetEditSource() )
+ 		pEditSource = rText.GetEditSource()->Clone();
+ 	else
+@@ -150,7 +151,8 @@
+ 	aDisposeListeners(aDisposeContainerMutex),
+ 	bDisposing( sal_False )
+ {
+-	xParentText =  (text::XText*)&rText;
++//	xParentText =  (text::XText*)&rText;
++	xParentText = const_cast<SvxUnoTextBase*>(&rText);
+ 	if( GetEditSource() && GetEditSource()->GetTextForwarder() )
+ 		SetSelection( ESelection( nParagraph,0, nParagraph, GetEditSource()->GetTextForwarder()->GetTextLen( nParagraph ) ) );
+ }
+@@ -417,7 +419,8 @@
+ // ====================================================================
+ 
+ SvxUnoTextRangeEnumeration::SvxUnoTextRangeEnumeration( const SvxUnoTextBase& rText, sal_uInt16 nPara ) throw()
+-:	xParentText(  (text::XText*)&rText ),
++//:	xParentText(  (text::XText*)&rText ),
++:	xParentText(  const_cast<SvxUnoTextBase*>(&rText) ),
+ 	rParentText( rText ),
+ 	nParagraph( nPara ),
+ 	nNextPortion( 0 )
+@@ -508,7 +511,8 @@
+ 
+ SvxUnoTextCursor::SvxUnoTextCursor( const SvxUnoTextBase& rText ) throw()
+ :	SvxUnoTextRangeBase(rText),
+-	xParentText( (text::XText*)&rText)
++//	xParentText( (text::XText*)&rText)
++	xParentText(  const_cast<SvxUnoTextBase*>(&rText))
+ {
+ }
+ 
+--- OOo_2.0.0-orig/svx/source/editeng/impedit2.cxx	2005-09-08 17:33:36.000000000 -0500
++++ OOo_2.0.0/svx/source/editeng/impedit2.cxx	2005-10-25 20:04:08.000000000 -0500
+@@ -33,6 +33,8 @@
+  *
+  ************************************************************************/
+ 
++#include <stdio.h>
++
+ #include <eeng_pch.hxx>
+ 
+ #pragma hdrstop
+@@ -1631,7 +1633,13 @@
+ 		}
+ 
+ 		if ( rTypes[0].nScriptType == i18n::ScriptType::WEAK )
+-			rTypes[0].nScriptType = ( rTypes.Count() > 1 ) ? rTypes[1].nScriptType : GetI18NScriptTypeOfLanguage( GetDefaultLanguage() );
++//			rTypes[0].nScriptType = ( rTypes.Count() > 1 ) ? rTypes[1].nScriptType : GetI18NScriptTypeOfLanguage( GetDefaultLanguage() );
++		{
++			if ( rTypes.Count() > 1 )
++				rTypes[0].nScriptType = rTypes[1].nScriptType;
++			else
++				rTypes[0].nScriptType = GetI18NScriptTypeOfLanguage( GetDefaultLanguage() );
++		}
+ 	}
+ }
+ 

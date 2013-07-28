@@ -1,0 +1,37 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-11-08
+Initial Package Version: firefox-3.0.3 with xulrunner-1.9.0.3
+Upstream Status: not offered, this will probably break gnomevfs in builds of firefox without xulrunner
+Origin: self
+Description: Allows firefox3 to build against a xulrunner where gnomevfs has been enabled.
+N.B. this is NOT required if you build firefox without xulrunner, or if you disabled gnomevfs
+in xulrunner.
+
+diff -Naur mozilla.orig/browser/components/build/Makefile.in mozilla/browser/components/build/Makefile.in
+--- mozilla.orig/browser/components/build/Makefile.in	2008-03-13 18:34:13.000000000 +0000
++++ mozilla/browser/components/build/Makefile.in	2008-11-03 22:50:33.000000000 +0000
+@@ -67,9 +67,9 @@
+ endif
+ 
+ EXTRA_DSO_LDOPTS += \
+-	$(call EXPAND_LIBNAME_PATH,unicharutil_external_s,$(LIBXUL_DIST)/lib) \
+-	$(LIBXUL_DIST)/lib/$(LIB_PREFIX)mozreg_s.$(LIB_SUFFIX) \
+-	$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
++	$(call EXPAND_LIBNAME_PATH,unicharutil_external_s,$(LIBXUL_DIST)/sdk/lib) \
++	$(LIBXUL_DIST)/sdk/lib/$(LIB_PREFIX)mozreg_s.$(LIB_SUFFIX) \
++	$(LIBXUL_DIST)/sdk/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) \
+ 	$(MOZ_COMPONENT_LIBS) \
+ 	$(NULL)
+ 
+diff -Naur mozilla.orig/configure mozilla/configure
+--- mozilla.orig/configure	2008-08-14 11:01:02.000000000 +0100
++++ mozilla/configure	2008-11-03 22:49:53.000000000 +0000
+@@ -5144,7 +5144,7 @@
+ MOZ_FIX_LINK_PATHS='-Wl,-rpath-link,$(LIBXUL_DIST)/bin'
+ XPCOM_FROZEN_LDOPTS='-L$(LIBXUL_DIST)/bin -lxpcom'
+ LIBXUL_LIBS='$(XPCOM_FROZEN_LDOPTS) -lxul'
+-XPCOM_GLUE_LDOPTS='$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) $(XPCOM_FROZEN_LDOPTS)'
++XPCOM_GLUE_LDOPTS='$(LIBXUL_DIST)/sdk/lib/$(LIB_PREFIX)xpcomglue_s.$(LIB_SUFFIX) $(XPCOM_FROZEN_LDOPTS)'
+ XPCOM_STANDALONE_GLUE_LDOPTS='$(LIBXUL_DIST)/lib/$(LIB_PREFIX)xpcomglue.$(LIB_SUFFIX)'
+ 
+ MOZ_COMPONENT_NSPR_LIBS='-L$(LIBXUL_DIST)/bin $(NSPR_LIBS)'

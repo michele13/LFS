@@ -1,0 +1,360 @@
+Submitted By: Zack Winkles <winkie AT linuxfromscratch DOT org>
+Date: 2004-03-26
+Initial Package Version: 1.13.93
+Origin: Savannah
+Upstream Status: In CVS
+Description: Fix detection of iconv().
+
+diff -Naur tar-1.13.93.orig/configure tar-1.13.93/configure
+--- tar-1.13.93.orig/configure	2004-02-23 04:15:01.000000000 -0500
++++ tar-1.13.93/configure	2004-03-26 15:01:13.211669672 -0500
+@@ -19453,6 +19453,246 @@
+ 
+ # Iconv
+ 
++
++
++
++
++          am_save_CPPFLAGS="$CPPFLAGS"
++
++  for element in $INCICONV; do
++    haveit=
++    for x in $CPPFLAGS; do
++
++  acl_save_prefix="$prefix"
++  prefix="$acl_final_prefix"
++  acl_save_exec_prefix="$exec_prefix"
++  exec_prefix="$acl_final_exec_prefix"
++  eval x=\"$x\"
++  exec_prefix="$acl_save_exec_prefix"
++  prefix="$acl_save_prefix"
++
++      if test "X$x" = "X$element"; then
++        haveit=yes
++        break
++      fi
++    done
++    if test -z "$haveit"; then
++      CPPFLAGS="${CPPFLAGS}${CPPFLAGS:+ }$element"
++    fi
++  done
++
++
++  echo "$as_me:$LINENO: checking for iconv" >&5
++echo $ECHO_N "checking for iconv... $ECHO_C" >&6
++if test "${am_cv_func_iconv+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++
++    am_cv_func_iconv="no, consider installing GNU libiconv"
++    am_cv_lib_iconv=no
++    cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <stdlib.h>
++#include <iconv.h>
++int
++main ()
++{
++iconv_t cd = iconv_open("","");
++       iconv(cd,NULL,NULL,NULL,NULL);
++       iconv_close(cd);
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  am_cv_func_iconv=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++fi
++rm -f conftest.err conftest.$ac_objext \
++      conftest$ac_exeext conftest.$ac_ext
++    if test "$am_cv_func_iconv" != yes; then
++      am_save_LIBS="$LIBS"
++      LIBS="$LIBS $LIBICONV"
++      cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <stdlib.h>
++#include <iconv.h>
++int
++main ()
++{
++iconv_t cd = iconv_open("","");
++         iconv(cd,NULL,NULL,NULL,NULL);
++         iconv_close(cd);
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  am_cv_lib_iconv=yes
++        am_cv_func_iconv=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++fi
++rm -f conftest.err conftest.$ac_objext \
++      conftest$ac_exeext conftest.$ac_ext
++      LIBS="$am_save_LIBS"
++    fi
++
++fi
++echo "$as_me:$LINENO: result: $am_cv_func_iconv" >&5
++echo "${ECHO_T}$am_cv_func_iconv" >&6
++  if test "$am_cv_func_iconv" = yes; then
++
++cat >>confdefs.h <<\_ACEOF
++#define HAVE_ICONV 1
++_ACEOF
++
++  fi
++  if test "$am_cv_lib_iconv" = yes; then
++    echo "$as_me:$LINENO: checking how to link with libiconv" >&5
++echo $ECHO_N "checking how to link with libiconv... $ECHO_C" >&6
++    echo "$as_me:$LINENO: result: $LIBICONV" >&5
++echo "${ECHO_T}$LIBICONV" >&6
++  else
++            CPPFLAGS="$am_save_CPPFLAGS"
++    LIBICONV=
++    LTLIBICONV=
++  fi
++
++
++
++  if test "$am_cv_func_iconv" = yes; then
++    echo "$as_me:$LINENO: checking for iconv declaration" >&5
++echo $ECHO_N "checking for iconv declaration... $ECHO_C" >&6
++    if test "${am_cv_proto_iconv+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++
++      cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++#include <stdlib.h>
++#include <iconv.h>
++extern
++#ifdef __cplusplus
++"C"
++#endif
++#if defined(__STDC__) || defined(__cplusplus)
++size_t iconv (iconv_t cd, char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);
++#else
++size_t iconv();
++#endif
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++	 { ac_try='test -z "$ac_c_werror_flag"			 || test ! -s conftest.err'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; } &&
++	 { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  am_cv_proto_iconv_arg1=""
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++am_cv_proto_iconv_arg1="const"
++fi
++rm -f conftest.err conftest.$ac_objext conftest.$ac_ext
++      am_cv_proto_iconv="extern size_t iconv (iconv_t cd, $am_cv_proto_iconv_arg1 char * *inbuf, size_t *inbytesleft, char * *outbuf, size_t *outbytesleft);"
++fi
++
++    am_cv_proto_iconv=`echo "$am_cv_proto_iconv" | tr -s ' ' | sed -e 's/( /(/'`
++    echo "$as_me:$LINENO: result: ${ac_t:-
++         }$am_cv_proto_iconv" >&5
++echo "${ECHO_T}${ac_t:-
++         }$am_cv_proto_iconv" >&6
++
++cat >>confdefs.h <<_ACEOF
++#define ICONV_CONST $am_cv_proto_iconv_arg1
++_ACEOF
++
++  fi
++
++
+ for ac_header in iconv.h
+ do
+ as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
+@@ -19669,82 +19909,6 @@
+ done
+ 
+ 
+-
+-echo "$as_me:$LINENO: checking for iconv in -liconv" >&5
+-echo $ECHO_N "checking for iconv in -liconv... $ECHO_C" >&6
+-if test "${ac_cv_lib_iconv_iconv+set}" = set; then
+-  echo $ECHO_N "(cached) $ECHO_C" >&6
+-else
+-  ac_check_lib_save_LIBS=$LIBS
+-LIBS="-liconv  $LIBS"
+-cat >conftest.$ac_ext <<_ACEOF
+-/* confdefs.h.  */
+-_ACEOF
+-cat confdefs.h >>conftest.$ac_ext
+-cat >>conftest.$ac_ext <<_ACEOF
+-/* end confdefs.h.  */
+-
+-/* Override any gcc2 internal prototype to avoid an error.  */
+-#ifdef __cplusplus
+-extern "C"
+-#endif
+-/* We use char because int might match the return type of a gcc2
+-   builtin and then its argument prototype would still apply.  */
+-char iconv ();
+-int
+-main ()
+-{
+-iconv ();
+-  ;
+-  return 0;
+-}
+-_ACEOF
+-rm -f conftest.$ac_objext conftest$ac_exeext
+-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+-  (eval $ac_link) 2>conftest.er1
+-  ac_status=$?
+-  grep -v '^ *+' conftest.er1 >conftest.err
+-  rm -f conftest.er1
+-  cat conftest.err >&5
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); } &&
+-	 { ac_try='test -z "$ac_c_werror_flag"
+-			 || test ! -s conftest.err'
+-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+-  (eval $ac_try) 2>&5
+-  ac_status=$?
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); }; } &&
+-	 { ac_try='test -s conftest$ac_exeext'
+-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+-  (eval $ac_try) 2>&5
+-  ac_status=$?
+-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+-  (exit $ac_status); }; }; then
+-  ac_cv_lib_iconv_iconv=yes
+-else
+-  echo "$as_me: failed program was:" >&5
+-sed 's/^/| /' conftest.$ac_ext >&5
+-
+-ac_cv_lib_iconv_iconv=no
+-fi
+-rm -f conftest.err conftest.$ac_objext \
+-      conftest$ac_exeext conftest.$ac_ext
+-LIBS=$ac_check_lib_save_LIBS
+-fi
+-echo "$as_me:$LINENO: result: $ac_cv_lib_iconv_iconv" >&5
+-echo "${ECHO_T}$ac_cv_lib_iconv_iconv" >&6
+-if test $ac_cv_lib_iconv_iconv = yes; then
+-  cat >>confdefs.h <<_ACEOF
+-#define HAVE_LIBICONV 1
+-_ACEOF
+-
+-  LIBS="-liconv $LIBS"
+-
+-fi
+-
+-
+-
+                                                                                 ac_config_files="$ac_config_files Makefile doc/Makefile lib/Makefile po/Makefile.in scripts/Makefile src/Makefile tests/Makefile tests/preset"
+ cat >confcache <<\_ACEOF
+ # This file is a shell script that caches the results of configure
+diff -Naur tar-1.13.93.orig/configure.ac tar-1.13.93/configure.ac
+--- tar-1.13.93.orig/configure.ac	2004-02-23 03:54:51.000000000 -0500
++++ tar-1.13.93/configure.ac	2004-03-26 15:01:07.256574984 -0500
+@@ -273,15 +273,13 @@
+ AM_GNU_GETTEXT_VERSION(0.12.1)
+ 
+ # Iconv
++AM_ICONV
+ AC_CHECK_HEADERS(iconv.h,
+                  [AC_CHECK_TYPE(iconv_t,:,
+                                 AC_DEFINE(iconv_t, int,
+                                           [Conversion descriptor type]),
+                                 [#include <iconv.h>])])
+ 
+-AC_CHECK_LIB(iconv, iconv)
+-
+-
+ AC_OUTPUT([Makefile\
+            doc/Makefile\
+            lib/Makefile\

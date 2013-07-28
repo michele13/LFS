@@ -1,0 +1,162 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-09-02
+Initial Package Version: 4.7
+Origin: Jim Gifford
+Upstream Status: Already Fixed
+Description: Fixes segfault: to test for segfault 
+	     info info select Expert then hit del key
+ 
+diff -Naur texinfo-4.7.orig/info/echo-area.c texinfo-4.7/info/echo-area.c
+--- texinfo-4.7.orig/info/echo-area.c	2004-03-14 00:57:29.000000000 +0000
++++ texinfo-4.7/info/echo-area.c	2004-09-02 18:12:43.435998416 +0000
+@@ -936,7 +936,7 @@
+       printf_to_message_buffer (completions_found_index == 1
+                                 ? (char *) _("One completion:\n")
+                                 : (char *) _("%d completions:\n"),
+-				(void *) completions_found_index, NULL, NULL);
++				(void*)((intptr_t)completions_found_index), NULL, NULL);
+ 
+       /* Find the maximum length of a label. */
+       for (i = 0; i < completions_found_index; i++)
+@@ -1499,13 +1499,14 @@
+    for input or a couple of seconds, whichever comes first.  Then flush the
+    informational message that was printed. */
+ void
+-inform_in_echo_area (char *message)
++inform_in_echo_area (const char *message)
+ {
+-  register int i;
++  int i;
+   char *text;
++  int avail = EA_MAX_INPUT + 1 - input_line_end;
+ 
+   text = xstrdup (message);
+-  for (i = 0; text[i] && text[i] != '\n'; i++)
++  for (i = 0; text[i] && text[i] != '\n' && i < avail; i++)
+     ;
+   text[i] = 0;
+ 
+diff -Naur texinfo-4.7.orig/info/echo-area.h texinfo-4.7/info/echo-area.h
+--- texinfo-4.7.orig/info/echo-area.h	2004-03-14 00:57:29.000000000 +0000
++++ texinfo-4.7/info/echo-area.h	2004-09-02 18:12:43.437998112 +0000
+@@ -33,7 +33,7 @@
+    killed some text. */
+ extern int echo_area_last_command_was_kill;
+ 
+-extern void inform_in_echo_area (char *message);
++extern void inform_in_echo_area (const char *message);
+ extern void echo_area_inform_of_deleted_window (WINDOW *window);
+ extern void echo_area_prep_read (void);
+ extern VFunction *ea_last_executed_command;
+diff -Naur texinfo-4.7.orig/info/filesys.c texinfo-4.7/info/filesys.c
+--- texinfo-4.7.orig/info/filesys.c	2004-03-14 00:57:29.000000000 +0000
++++ texinfo-4.7/info/filesys.c	2004-09-02 18:15:39.281265872 +0000
+@@ -281,13 +281,13 @@
+   if (!string || i >= strlen (string))
+     return NULL;
+ 
++  if (!string[i]) /* end of string */
++    return NULL;
++
+   /* Advance to next PATH_SEP.  */
+   while (string[i] && string[i] != PATH_SEP[0])
+     i++;
+ 
+-  if (!string[i] && i == start) /* end of string, and didn't advance */
+-    return NULL;
+-
+   {
+     char *value = xmalloc ((i - start) + 1);
+     strncpy (value, &string[start], (i - start));
+diff -Naur texinfo-4.7.orig/info/infokey.c texinfo-4.7/info/infokey.c
+--- texinfo-4.7.orig/info/infokey.c	2004-03-14 00:57:29.000000000 +0000
++++ texinfo-4.7/info/infokey.c	2004-09-02 18:16:08.536818352 +0000
+@@ -639,7 +639,7 @@
+ 		{
+ 		  syntax_error (filename, lnum,
+                       (char *) _("NUL character (^%c) not permitted"),
+-                      (void *) c, NULL, NULL, NULL);
++                      (void *)((intptr_t)c), NULL, NULL, NULL);
+ 		  error = 1;
+ 		}
+ 	      seqstate = normal;
+@@ -663,7 +663,7 @@
+ 	      if (alen == 0)
+ 		{
+ 		  syntax_error (filename, lnum, (char *) _("missing action name"),
+-                      (void *) c, NULL, NULL, NULL);
++                      (void *)((intptr_t)c), NULL, NULL, NULL);
+ 		  error = 1;
+ 		}
+ 	      else
+diff -Naur texinfo-4.7.orig/info/infomap.c texinfo-4.7/info/infomap.c
+--- texinfo-4.7.orig/info/infomap.c	2004-03-14 00:57:29.000000000 +0000
++++ texinfo-4.7/info/infomap.c	2004-09-02 18:16:46.945979272 +0000
+@@ -704,8 +704,8 @@
+   map['H'].function = info_get_help_window;
+   map['i'].function = info_index_search;
+   map['I'].function = info_goto_invocation_node;
+-  map['j'].function = info_down_line;
+-  map['k'].function = info_up_line;
++  map['j'].function = info_next_line;
++  map['k'].function = info_prev_line;
+   map['l'].function = info_history_node;
+   map['m'].function = info_menu_item;
+   map['n'].function = info_search_next;
+@@ -1182,8 +1182,8 @@
+ 	'H', NUL,			A_info_get_help_window,
+ 	'i', NUL,			A_info_index_search,
+ 	'I', NUL,			A_info_goto_invocation_node,
+-	'j', NUL,			A_info_down_line,
+-	'k', NUL,			A_info_up_line,
++	'j', NUL,			A_info_next_line,
++	'k', NUL,			A_info_prev_line,
+ 	'l', NUL,			A_info_history_node,
+ 	'm', NUL,			A_info_menu_item,
+ 	'n', NUL,			A_info_search_next,
+diff -Naur texinfo-4.7.orig/info/session.c texinfo-4.7/info/session.c
+--- texinfo-4.7.orig/info/session.c	2004-04-06 22:58:25.000000000 +0000
++++ texinfo-4.7/info/session.c	2004-09-02 18:18:10.391293656 +0000
+@@ -962,7 +962,7 @@
+                      same as the first menu item found in this node. */
+                   window_message_in_echo_area
+                     ((char *) _("Moving Up %d time(s), then Next."),
+-                     (void *) up_counter, NULL);
++                     (void *)((intptr_t)up_counter), NULL);
+ 
+                   info_handle_pointer ("Next", window);
+                   return;
+@@ -1944,7 +1944,7 @@
+ DECLARE_INFO_COMMAND (info_menu_digit, _("Select this menu item"))
+ {
+   register int i, item;
+-  register REFERENCE *entry = NULL, **menu;
++  register REFERENCE **menu;
+ 
+   menu = info_menu_of_node (window->node);
+ 
+@@ -1962,7 +1962,7 @@
+     for (i = 0; menu[i + 1]; i++);
+   else
+     {
+-      for (i = 0; (entry = menu[i]); i++)
++      for (i = 0; menu[i]; i++)
+         if (i == item - 1)
+           break;
+     }
+@@ -1970,12 +1970,12 @@
+   if (menu[i])
+     {
+       info_select_reference (window, menu[i]);
+-      if (entry->line_number > 0)
+-        info_next_line (window, entry->line_number - 1, key);
++      if (menu[i]->line_number > 0)
++        info_next_line (window, menu[i]->line_number - 1, key);
+     }
+   else
+     info_error ((char *) _("There aren't %d items in this menu."),
+-        (void *) item, NULL);
++        (void *)((intptr_t)item), NULL);
+ 
+   info_free_references (menu);
+   return;

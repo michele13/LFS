@@ -1,0 +1,65 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-02-26
+Initial Package Version: 2.3.3
+Upstream Status: Rejected Upstream
+Origin: This is the combination of the following patches:
+	glibc-2.3.3-owl-malloc-unlink-sanity-check.diff
+	glibc-2.3.3-got-fix.diff
+Description: Optional security fixes.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -Naur glibc-2.3.3.orig/malloc/malloc.c glibc-2.3.3.security_fixes/malloc/malloc.c
+--- glibc-2.3.3.orig/malloc/malloc.c	2003-09-30 02:06:48.000000000 +0000
++++ glibc-2.3.3.security_fixes/malloc/malloc.c	2004-08-30 15:22:02.000000000 +0000
+@@ -315,6 +315,11 @@
+ #define assert(x) ((void)0)
+ #endif
+ 
++/* needed for owl-malloc-unlink-sanity-check */
++#include <abort-instr.h>
++#ifndef ABORT_INSTRUCTION
++#define ABORT_INSTRUCTION
++#endif
+ 
+ /*
+   INTERNAL_SIZE_T is the word-size used for internal bookkeeping
+@@ -1954,6 +1959,14 @@
+ #define unlink(P, BK, FD) {                                            \
+   FD = P->fd;                                                          \
+   BK = P->bk;                                                          \
++  /* owl-malloc-unlink-sanity-check */                                 \
++  if (FD->bk != P || BK->fd != P)                                      \
++  {                                                                    \
++    ABORT_INSTRUCTION;                                                 \
++    _exit(127);                                                        \
++    while (1)                                                          \
++      ABORT_INSTRUCTION;                                               \
++  }                                                                    \
+   FD->bk = BK;                                                         \
+   BK->fd = FD;                                                         \
+ }
+diff -Naur glibc-2.3.3.orig/sysdeps/i386/elf/start.S glibc-2.3.3.security_fixes/sysdeps/i386/elf/start.S
+--- glibc-2.3.3.orig/sysdeps/i386/elf/start.S	2003-05-28 19:37:45.000000000 +0000
++++ glibc-2.3.3.security_fixes/sysdeps/i386/elf/start.S	2004-08-30 15:21:57.000000000 +0000
+@@ -73,16 +73,13 @@
+ 	addl $_GLOBAL_OFFSET_TABLE_, %ebx
+ 
+ 	/* Push address of our own entry points to .fini and .init.  */
+-	leal __libc_csu_fini@GOTOFF(%ebx), %eax
+-	pushl %eax
+-	leal __libc_csu_init@GOTOFF(%ebx), %eax
+-	pushl %eax
++	pushl __libc_csu_fini@GOT(%ebx)
++	pushl __libc_csu_init@GOT(%ebx)
+ 
+ 	pushl %ecx		/* Push second argument: argv.  */
+ 	pushl %esi		/* Push first argument: argc.  */
+ 
+-	leal BP_SYM (main)@GOTOFF(%ebx), %eax
+-	pushl %eax
++	pushl BP_SYM (main)@GOT(%ebx)
+ 
+ 	/* Call the user's main function, and exit with its value.
+ 	   But let the libc call main.    */

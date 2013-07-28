@@ -1,0 +1,20 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-09-11
+Initial Package Version: 6.8.0
+Origin: Jim Gifford
+Upstream Status: BLFS Patch
+Description: Fixes Compile Issues with 2.6 Kernel
+
+--- xc/extras/drm/shared/drm.h.orig	2004-09-11 17:59:13.202070288 +0000
++++ xc/extras/drm/shared/drm.h	2004-09-11 18:00:18.635122952 +0000
+@@ -38,7 +38,10 @@
+ #define _DRM_H_
+ 
+ #if defined(__linux__)
++#include <linux/version.h>
++#if LINUX_VERSION_CODE < KERNEL_VERSION(2, 6, 0)
+ #include <linux/config.h>
++#endif
+ #include <asm/ioctl.h>		/* For _IO* macros */
+ #define DRM_IOCTL_NR(n)		_IOC_NR(n)
+ #define DRM_IOC_VOID		_IOC_NONE

@@ -1,0 +1,28 @@
+Submitted By: Jim Gifford <jim at linuxfromscratch dot org>
+Date: 2006-07-04
+Initial Package Version: 1.1.17
+Origin: Various
+Description: Make xslt-config Multilib Friendly
+
+diff -Naur libxslt-1.1.17.orig/xslt-config.in libxslt-1.1.17/xslt-config.in
+--- libxslt-1.1.17.orig/xslt-config.in	2005-10-02 02:25:21.000000000 -0700
++++ libxslt-1.1.17/xslt-config.in	2006-07-04 13:11:48.853025559 -0700
+@@ -4,7 +4,17 @@
+ exec_prefix=@exec_prefix@
+ exec_prefix_set=no
+ includedir=@includedir@
+-libdir=@libdir@
++if [ "`ldd /bin/sh | grep lib64`" = "" ]
++then
++       if [ "`ldd /bin/sh | grep lib32`" = "" ]
++       then
++           libdir=${exec_prefix}/lib
++       else
++       libdir=${exec_prefix}/lib32
++       fi
++else
++    libdir=${exec_prefix}/lib64
++fi
+ 
+ usage()
+ {

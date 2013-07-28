@@ -1,0 +1,62 @@
+Submitted by: Jim Gifford <patches@jg555.com>
+Date: 2006-08-18
+Initial Package Version: 2.0.5
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Fixes the installation to be more like other 
+	     packages
+
+Submitted by: Jim Gifford <patches@jg555.com>
+Date: 2006-05-03
+Initial Package Version: 2.0.4
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Fixes the installation to be more like other
+             packages
+
+diff -Naur vsftpd-2.0.4.orig/Makefile vsftpd-2.0.4/Makefile
+--- vsftpd-2.0.4.orig/Makefile  2005-06-28 15:24:03.000000000 -0700
++++ vsftpd-2.0.4/Makefile       2006-05-03 15:23:28.236417776 -0700
+@@ -1,7 +1,9 @@
+ # Makefile for systems with GNU tools
++DESTDIR =
++PREFIX  =      /usr/local
+ CC     =       gcc
+ INSTALL        =       install
+-IFLAGS  = -idirafter dummyinc
++IFLAGS  =      -idirafter dummyinc
+ #CFLAGS = -g
+ CFLAGS =       -O2 -Wall -W -Wshadow #-pedantic -Werror -Wconversion
+
+@@ -24,21 +26,15 @@
+        $(CC) -o vsftpd $(OBJS) $(LINK) $(LIBS) $(LDFLAGS)
+
+ install:
+-       if [ -x /usr/local/sbin ]; then \
+-               $(INSTALL) -m 755 vsftpd /usr/local/sbin/vsftpd; \
+-       else \
+-               $(INSTALL) -m 755 vsftpd /usr/sbin/vsftpd; fi
+-       if [ -x /usr/local/man ]; then \
+-               $(INSTALL) -m 644 vsftpd.8 /usr/local/man/man8/vsftpd.8; \
+-               $(INSTALL) -m 644 vsftpd.conf.5 /usr/local/man/man5/vsftpd.conf.5; \
+-       elif [ -x /usr/share/man ]; then \
+-               $(INSTALL) -m 644 vsftpd.8 /usr/share/man/man8/vsftpd.8; \
+-               $(INSTALL) -m 644 vsftpd.conf.5 /usr/share/man/man5/vsftpd.conf.5; \
+-       else \
+-               $(INSTALL) -m 644 vsftpd.8 /usr/man/man8/vsftpd.8; \
+-               $(INSTALL) -m 644 vsftpd.conf.5 /usr/man/man5/vsftpd.conf.5; fi
+-       if [ -x /etc/xinetd.d ]; then \
+-               $(INSTALL) -m 644 xinetd.d/vsftpd /etc/xinetd.d/vsftpd; fi
++       $(INSTALL) -d -m 755 $(DESTDIR)$(PREFIX)/{man/{man5,man8},sbin}
++       $(INSTALL) -d -m 755 $(DESTDIR)/etc
++       $(INSTALL) -m 755 vsftpd $(DESTDIR)$(PREFIX)/sbin/vsftpd
++       $(INSTALL) -m 644 vsftpd.8 $(DESTDIR)$(PREFIX)/man/man8/vsftpd.8
++       $(INSTALL) -m 644 vsftpd.conf.5 $(DESTDIR)$(PREFIX)/man/man5/vsftpd.conf.5
++       if ! [ -e $(DESTDIR)/etc/vsftpd.conf ]; then \
++               $(INSTALL) -m 644 vsftpd.conf $(DESTDIR)/etc/vsftpd.conf; fi
++       if [ -x $(DESTDIR)/etc/xinetd.d ]; then \
++               $(INSTALL) -m 644 xinetd.d/vsftpd $(DESTDIR)/etc/xinetd.d/vsftpd; fi
+
+ clean:
+        rm -f *.o *.swp vsftpd
+

@@ -1,0 +1,38 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-02-21
+Initial Package Version: 4.4.2
+Origin: Jim Gifford
+Upstream Status: N/A
+Description: Fixes Posix Issues
+	     changes head -1 to head -n 1
+ 
+--- rpm-4.4.2/autogen.sh.orig	2005-02-22 00:23:26.039782920 +0000
++++ rpm-4.4.2/autogen.sh	2005-02-22 00:23:41.000000000 +0000
+@@ -26,9 +26,9 @@
+     esac
+ esac
+ 
+-[ "`$libtoolize --version | head -1`" != "$LTV" ] && echo "$USAGE" && exit 1
+-[ "`autoconf --version | head -1`" != "$ACV" ] && echo "$USAGE" && exit 1
+-[ "`automake --version | head -1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" # && exit 1
++[ "`$libtoolize --version | head -n 1`" != "$LTV" ] && echo "$USAGE" && exit 1
++[ "`autoconf --version | head -n 1`" != "$ACV" ] && echo "$USAGE" && exit 1
++[ "`automake --version | head -n 1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" # && exit 1
+ 
+ myopts=
+ if [ X"$@" = X  -a "X`uname -s`" = "XDarwin" -a -d /opt/local ]; then
+--- rpm-4.4.2/file/autogen.sh.orig	2005-02-22 00:23:53.000000000 +0000
++++ rpm-4.4.2/file/autogen.sh	2005-02-22 00:24:06.000000000 +0000
+@@ -26,9 +26,9 @@
+     esac
+ esac
+ 
+-[ "`$libtoolize --version | head -1`" != "$LTV" ] && echo "$USAGE" && exit 1
+-[ "`autoconf --version | head -1`" != "$ACV" ] && echo "$USAGE" && exit 1
+-[ "`automake --version | head -1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" # && exit 1
++[ "`$libtoolize --version | head -n 1`" != "$LTV" ] && echo "$USAGE" && exit 1
++[ "`autoconf --version | head -n 1`" != "$ACV" ] && echo "$USAGE" && exit 1
++[ "`automake --version | head -n 1 | sed -e 's/1\.4[a-z]/1.4/'`" != "$AMV" ] && echo "$USAGE" # && exit 1
+ 
+ $libtoolize --copy --force
+ aclocal

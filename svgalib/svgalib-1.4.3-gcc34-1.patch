@@ -1,0 +1,27 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-04-24
+Initial Package Version: 1.4.3
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Fixes Compile Issues with GCC 3.4
+ 
+--- svgalib-1.4.3/src/mach32.c.orig	2004-04-24 19:20:19.025771780 +0000
++++ svgalib-1.4.3/src/mach32.c	2004-04-24 19:24:46.236305473 +0000
+@@ -1545,6 +1545,7 @@
+ 	    printf("mach32: Notice: new EEPROM file >%s< succesful created.\n",
+ 		   eeprom_fname);
+ 	  finish_w_eeprom:
++	     ((void)0);
+ 	}
+ 	/* Change eeprom contents if requested: */
+ 	if (!(eeprom_option & EEPROM_USE_MEMCFG))
+--- svgalib-1.4.3/src/s3.c.orig	2004-04-24 19:25:14.915082747 +0000
++++ svgalib-1.4.3/src/s3.c	2004-04-24 19:25:32.447891527 +0000
+@@ -475,6 +475,7 @@
+ 	    return old_values;
+ 	}
+     default:
++      break;
+     }
+     return 0;
+ }

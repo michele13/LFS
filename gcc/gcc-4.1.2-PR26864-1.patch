@@ -1,0 +1,35 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-08-10
+Initial Package Version: 4.1.2
+Upstream Status: From Upstream
+Origin: http://gcc.gnu.org/viewcvs?view=rev&revision=113179
+Description: This patch fixes a bug with multithreaded libmudflap.
+Also see:
+http://gcc.gnu.org/bugzilla/show_bug.cgi?id=26864
+
+diff -Naur gcc-4.1.2.orig/gcc/common.opt gcc-4.1.2/gcc/common.opt
+--- gcc-4.1.2.orig/gcc/common.opt	2006-05-17 18:38:58.000000000 +0000
++++ gcc-4.1.2/gcc/common.opt	2007-08-10 17:39:08.000000000 +0000
+@@ -583,7 +583,7 @@
+ Add mudflap bounds-checking instrumentation for single-threaded program
+ 
+ fmudflapth
+-Common RejectNegative Report Var(flag_mudflap_threads)
++Common RejectNegative Report VarExists Var(flag_mudflap,2)
+ Add mudflap bounds-checking instrumentation for multi-threaded program
+ 
+ fmudflapir
+diff -Naur gcc-4.1.2.orig/gcc/tree-mudflap.c gcc-4.1.2/gcc/tree-mudflap.c
+--- gcc-4.1.2.orig/gcc/tree-mudflap.c	2006-04-20 16:01:05.000000000 +0000
++++ gcc-4.1.2/gcc/tree-mudflap.c	2007-08-10 17:39:08.000000000 +0000
+@@ -48,6 +48,10 @@
+ 
+ /* Internal function decls */
+ 
++
++/* Options.  */
++#define flag_mudflap_threads (flag_mudflap == 2)
++
+ /* Helpers.  */
+ static tree mf_build_string (const char *string);
+ static tree mf_varname_tree (tree);

@@ -1,0 +1,80 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-06-11
+Initial Package Version: 4.1.2
+Upstream Status: Not Submitted
+Origin: me
+Description: This patch makes '-D_FORTIFY_SOURCE=2' the default. This only
+works with optimization, so if no optimization is given then -O is added.
+
+uClibc does not have _FORTIFY_SOURCE support yet, but libssp does. So for
+uClibc the libssp library is linked. If you are building a Glibc prior to
+version 2.4, you will also need to link to libssp... replace "__UCLIBC__"
+with "TRUE".
+
+Disable with -U_FORTIFY_SOURCE.
+
+diff -Naur gcc-4.1.2.orig/gcc/gcc.c gcc-4.1.2/gcc/gcc.c
+--- gcc-4.1.2.orig/gcc/gcc.c	2006-11-07 14:26:21.000000000 +0000
++++ gcc-4.1.2/gcc/gcc.c	2007-06-11 07:20:29.000000000 +0000
+@@ -724,12 +724,18 @@
+ # define SYSROOT_HEADERS_SUFFIX_SPEC ""
+ #endif
+ 
++#ifdef __UCLIBC__
++#define LINK_FORTIFY_SPEC "%{!U_FORTIFY_SOURCE:-lssp_nonshared -lssp}"
++#else
++#define LINK_FORTIFY_SPEC ""
++#endif
++
+ static const char *asm_debug;
+ static const char *cpp_spec = CPP_SPEC;
+ static const char *cc1_spec = CC1_SPEC;
+ static const char *cc1plus_spec = CC1PLUS_SPEC;
+ static const char *link_gcc_c_sequence_spec = LINK_GCC_C_SEQUENCE_SPEC;
+-static const char *link_ssp_spec = LINK_SSP_SPEC;
++static const char *link_ssp_spec = LINK_SSP_SPEC " " LINK_FORTIFY_SPEC;
+ static const char *asm_spec = ASM_SPEC;
+ static const char *asm_final_spec = ASM_FINAL_SPEC;
+ static const char *link_spec = LINK_SPEC;
+@@ -764,7 +770,8 @@
+    therefore no dependency entry, confuses make into thinking a .o
+    file that happens to exist is up-to-date.  */
+ static const char *cpp_unique_options =
+-"%{C|CC:%{!E:%eGCC does not support -C or -CC without -E}}\
++"%{!D_FORTIFY_SOURCE=*:-D_FORTIFY_SOURCE=2}\
++ %{C|CC:%{!E:%eGCC does not support -C or -CC without -E}}\
+  %{!Q:-quiet} %{nostdinc*} %{C} %{CC} %{v} %{I*&F*} %{P} %I\
+  %{MD:-MD %{!o:%b.d}%{o*:%.d%*}}\
+  %{MMD:-MMD %{!o:%b.d}%{o*:%.d%*}}\
+@@ -801,7 +808,8 @@
+  %{!fsyntax-only:%{S:%W{o*}%{!o*:-o %b.s}}}\
+  %{fsyntax-only:-o %j} %{-param*}\
+  %{fmudflap|fmudflapth:-fno-builtin -fno-merge-constants}\
+- %{coverage:-fprofile-arcs -ftest-coverage}";
++ %{coverage:-fprofile-arcs -ftest-coverage}\
++ %{!O*:-O}";
+ 
+ static const char *asm_options =
+ "%a %Y %{c:%W{o*}%{!o*:-o %w%b%O}}%{!c:-o %d%w%u%O}";
+diff -Naur gcc-4.1.2.orig/libssp/Makefile.am gcc-4.1.2/libssp/Makefile.am
+--- gcc-4.1.2.orig/libssp/Makefile.am	2006-02-28 00:29:00.000000000 +0000
++++ gcc-4.1.2/libssp/Makefile.am	2007-06-11 07:10:34.000000000 +0000
+@@ -7,6 +7,7 @@
+ AUTOMAKE_OPTIONS = 1.9.5 foreign
+ ACLOCAL_AMFLAGS = -I .. -I ../config
+ MAINT_CHARSET = latin1
++AM_CPPFLAGS= -U_FORTIFY_SOURCE
+ 
+ # May be used by various substitution variables.
+ gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
+diff -Naur gcc-4.1.2.orig/libssp/Makefile.in gcc-4.1.2/libssp/Makefile.in
+--- gcc-4.1.2.orig/libssp/Makefile.in	2006-09-29 21:27:38.000000000 +0000
++++ gcc-4.1.2/libssp/Makefile.in	2007-06-11 07:10:34.000000000 +0000
+@@ -214,6 +214,7 @@
+ AUTOMAKE_OPTIONS = 1.9.5 foreign
+ ACLOCAL_AMFLAGS = -I .. -I ../config
+ MAINT_CHARSET = latin1
++AM_CPPFLAGS = -U_FORTIFY_SOURCE
+ 
+ # May be used by various substitution variables.
+ gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)

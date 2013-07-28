@@ -1,0 +1,296 @@
+Submitted By: Archaic (archaic at linuxfromscratch dot org)
+Date: 2004-04-18
+Initial Package Version: 0.45.4
+Upstream Status: If someone knows the autotools & wants to refine it...
+Origin: Archaic
+Description: Adds the option --with-cacheowner=<some user>. This prevents the
+             heavy-handed use of user "bin" by giving a choice. Courier assumes
+             that the owner and the group are the same name (bin:bin) and this
+             patch doesn't attempt to modify that, so don't try to choose a user
+             that doesn't belong to a group by the same name (ex. if user bin
+             only belongs to group wheel it wouldn't work).
+
+diff -Naur courier-0.45.4.orig/authlib/Makefile.in courier-0.45.4/authlib/Makefile.in
+--- courier-0.45.4.orig/authlib/Makefile.in	2004-03-13 16:47:21.000000000 +0000
++++ courier-0.45.4/authlib/Makefile.in	2004-05-14 20:34:34.000000000 +0000
+@@ -180,6 +180,7 @@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localcacheowner = @localcacheowner@
+ localstatedir = @localstatedir@
+ manFILES = @manFILES@
+ manLINKS = @manLINKS@
+@@ -1527,7 +1528,7 @@
+ 		for f in $(man_LINKS) "" ; do \
+ 			test "$$f" = "" && continue ; \
+ 			rm -f $$f; $(LN_S) authlib.7 $$f ; \
+-			test -w /etc && chown bin $$f && chgrp bin $$f ; \
++			test -w /etc && chown @localcacheowner@ $$f && chgrp @localcacheowner@ $$f ; \
+ 			done ; exit 0
+ 
+ uninstall-local: uninstall-authldaprc uninstall-authdaemonrc uninstall-authmysqlrc uninstall-authpgsqlrc
+diff -Naur courier-0.45.4.orig/authlib/configure courier-0.45.4/authlib/configure
+--- courier-0.45.4.orig/authlib/configure	2004-03-13 16:44:24.000000000 +0000
++++ courier-0.45.4/authlib/configure	2004-05-14 20:34:34.000000000 +0000
+@@ -308,7 +308,7 @@
+ # include <unistd.h>
+ #endif"
+ 
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LN_S RANLIB ac_ct_RANLIB SYSCONFTOOL_PERL SYSCONFTOOL PERL EXPECT PASSWD manFILES manLINKS MD5LIB HAVE_MD5_TRUE HAVE_MD5_FALSE SHA1LIB HAVE_SHA1_TRUE HAVE_SHA1_FALSE HMACLIB HAVE_HMACLIB_TRUE HAVE_HMACLIB_FALSE NETLIBS USE_GDBM USE_DB dblibrary LIBGDBM LIBDB AUTHUSERDB userdb HAVE_AUTHUSERDB_TRUE HAVE_AUTHUSERDB_FALSE authchangepwdir EGREP LIBDL HAVE_PAM HAVE_PAM_TRUE HAVE_PAM_FALSE AUTHPAMCRYPT authldaprc LDAPLIBS HAVE_LDAP_TRUE HAVE_LDAP_FALSE SHADOWLIBS HAVE_SHADOW_TRUE HAVE_SHADOW_FALSE HAVE_PWD_TRUE HAVE_PWD_FALSE vpopmail_home VPOPMAILLIBS HAVE_VCHKPW_TRUE HAVE_VCHKPW_FALSE authpgsqlrc PG_CONFIG PGSQL_LIBS AUTHPGSQL HAVE_AUTHPGSQL_TRUE HAVE_AUTHPGSQL_FALSE authmysqlrc MYSQL_CONFIG MYSQL_LIBS AUTHMYSQL HAVE_AUTHMYSQL_TRUE HAVE_AUTHMYSQL_FALSE HAVE_AUTHCRAM_TRUE HAVE_AUTHCRAM_FALSE HAVE_CUSTOM_TRUE HAVE_CUSTOM_FALSE CRYPTLIBS authdaemonrc HAVE_AUTHDAEMON_TRUE HAVE_AUTHDAEMON_FALSE PWPROGS PWSCRIPTS authdaemonvar authdaemondprog AUTHDAEMONMODULELIST DAEMON_STATIC_LIST NONDAEMONAUTHMODULES AUTHMODULES_PROGS AUTHMODULES LIBAUTH INSTALLAUTHMODULES INSTALLAUTHSCRIPTS LIBM STATIC_LIST HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CPP LN_S RANLIB ac_ct_RANLIB SYSCONFTOOL_PERL SYSCONFTOOL PERL EXPECT PASSWD manFILES manLINKS MD5LIB HAVE_MD5_TRUE HAVE_MD5_FALSE SHA1LIB HAVE_SHA1_TRUE HAVE_SHA1_FALSE HMACLIB HAVE_HMACLIB_TRUE HAVE_HMACLIB_FALSE NETLIBS USE_GDBM USE_DB dblibrary LIBGDBM LIBDB AUTHUSERDB userdb HAVE_AUTHUSERDB_TRUE HAVE_AUTHUSERDB_FALSE authchangepwdir EGREP LIBDL HAVE_PAM HAVE_PAM_TRUE HAVE_PAM_FALSE AUTHPAMCRYPT authldaprc LDAPLIBS HAVE_LDAP_TRUE HAVE_LDAP_FALSE SHADOWLIBS HAVE_SHADOW_TRUE HAVE_SHADOW_FALSE HAVE_PWD_TRUE HAVE_PWD_FALSE vpopmail_home VPOPMAILLIBS HAVE_VCHKPW_TRUE HAVE_VCHKPW_FALSE authpgsqlrc PG_CONFIG PGSQL_LIBS AUTHPGSQL HAVE_AUTHPGSQL_TRUE HAVE_AUTHPGSQL_FALSE authmysqlrc MYSQL_CONFIG MYSQL_LIBS AUTHMYSQL HAVE_AUTHMYSQL_TRUE HAVE_AUTHMYSQL_FALSE HAVE_AUTHCRAM_TRUE HAVE_AUTHCRAM_FALSE HAVE_CUSTOM_TRUE HAVE_CUSTOM_FALSE CRYPTLIBS authdaemonrc HAVE_AUTHDAEMON_TRUE HAVE_AUTHDAEMON_FALSE PWPROGS PWSCRIPTS authdaemonvar authdaemondprog AUTHDAEMONMODULELIST DAEMON_STATIC_LIST NONDAEMONAUTHMODULES AUTHMODULES_PROGS AUTHMODULES LIBAUTH INSTALLAUTHMODULES INSTALLAUTHSCRIPTS LIBM STATIC_LIST HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS localcacheowner'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -876,6 +876,7 @@
+                                     the listening socket is created
+  --with-authdaemon                  Include the authdaemon module
+ --without-authdaemon               Do not include the authdaemon module
++ --with-cacheowner=user     Owner of the cache directory (default: bin)
+ 
+ Some influential environment variables:
+   CC          C compiler command
+@@ -4514,6 +4515,19 @@
+ 
+ 
+ 
++# Check whether --with-cacheowner or --without-cacheowner was given.
++if test "${with_cacheowner+set}" = set; then
++  withval="$with_cacheowner"
++  localcacheowner="$withval"
++else
++  localcacheowner="bin"
++fi;
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define LOCALCACHEOWNER "$localcacheowner"
++_ACEOF
+ 
+ 
+ 
+@@ -9174,6 +9188,7 @@
+ s,@HAVE_SGML_FALSE@,$HAVE_SGML_FALSE,;t t
+ s,@LIBOBJS@,$LIBOBJS,;t t
+ s,@LTLIBOBJS@,$LTLIBOBJS,;t t
++s,@localcacheowner@,$localcacheowner,;t t
+ CEOF
+ 
+ _ACEOF
+diff -Naur courier-0.45.4.orig/courier/doc/Makefile.in courier-0.45.4/courier/doc/Makefile.in
+--- courier-0.45.4.orig/courier/doc/Makefile.in	2004-01-11 04:26:58.000000000 +0000
++++ courier-0.45.4/courier/doc/Makefile.in	2004-05-14 20:34:34.000000000 +0000
+@@ -88,6 +88,7 @@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localcacheowner = @localcacheowner@
+ localstatedir = @localstatedir@
+ mailgroup = @mailgroup@
+ mailuser = @mailuser@
+@@ -1073,13 +1074,13 @@
+ 	for f in $(man5) ; do test -f $(DESTDIR)$(man5dir)/$$f && chmod 644 $(DESTDIR)$(man5dir)/$$f ; done ; exit 0
+ 	for f in $(man7) ; do test -f $(DESTDIR)$(man7dir)/$$f && chmod 644 $(DESTDIR)$(man7dir)/$$f ; done ; exit 0
+ 	for f in $(man8) ; do test -f $(DESTDIR)$(man8dir)/$$f && chmod 644 $(DESTDIR)$(man8dir)/$$f ; done ; exit 0
+-	test -w /etc || exit 0 ; for f in $(mandir) $(man1dir) $(man5dir) $(man7dir) $(man8dir) ; do test -d $(DESTDIR)$$f && chown bin $(DESTDIR)$$f && chgrp bin $(DESTDIR)$$f ; done ; exit 0
+-	test -w /etc || exit 0 ; for f in $(man1) ; do test -f $(DESTDIR)$(man1dir)/$$f && chown bin $(DESTDIR)$(man1dir)/$$f && chgrp bin $(DESTDIR)$(man1dir)/$$f ; done ; exit 0
+-	test -w /etc || exit 0 ; for f in $(man5) ; do test -f $(DESTDIR)$(man5dir)/$$f && chown bin $(DESTDIR)$(man5dir)/$$f && chgrp bin $(DESTDIR)$(man5dir)/$$f ; done ; exit 0
+-	test -w /etc || exit 0 ; for f in $(man7) ; do test -f $(DESTDIR)$(man7dir)/$$f && chown bin $(DESTDIR)$(man7dir)/$$f && chgrp bin $(DESTDIR)$(man7dir)/$$f ; done ; exit 0
+-	test -w /etc || exit 0 ; for f in $(man8) ; do test -f $(DESTDIR)$(man8dir)/$$f && chown bin $(DESTDIR)$(man8dir)/$$f && chgrp bin $(DESTDIR)$(man8dir)/$$f ; done ; exit 0
++	test -w /etc || exit 0 ; for f in $(mandir) $(man1dir) $(man5dir) $(man7dir) $(man8dir) ; do test -d $(DESTDIR)$$f && chown @localcacheowner@ $(DESTDIR)$$f && chgrp @localcacheowner@ $(DESTDIR)$$f ; done ; exit 0
++	test -w /etc || exit 0 ; for f in $(man1) ; do test -f $(DESTDIR)$(man1dir)/$$f && chown @localcacheowner@ $(DESTDIR)$(man1dir)/$$f && chgrp @localcacheowner@ $(DESTDIR)$(man1dir)/$$f ; done ; exit 0
++	test -w /etc || exit 0 ; for f in $(man5) ; do test -f $(DESTDIR)$(man5dir)/$$f && chown @localcacheowner@ $(DESTDIR)$(man5dir)/$$f && chgrp @localcacheowner@ $(DESTDIR)$(man5dir)/$$f ; done ; exit 0
++	test -w /etc || exit 0 ; for f in $(man7) ; do test -f $(DESTDIR)$(man7dir)/$$f && chown @localcacheowner@ $(DESTDIR)$(man7dir)/$$f && chgrp @localcacheowner@ $(DESTDIR)$(man7dir)/$$f ; done ; exit 0
++	test -w /etc || exit 0 ; for f in $(man8) ; do test -f $(DESTDIR)$(man8dir)/$$f && chown @localcacheowner@ $(DESTDIR)$(man8dir)/$$f && chgrp @localcacheowner@ $(DESTDIR)$(man8dir)/$$f ; done ; exit 0
+ 	for f in $(htmldoc_DATA) ; do chmod 444 $(DESTDIR)$(htmldocdir)/$$f ; done
+-	test -w /etc || exit 0; for f in $(htmldoc_DATA) ; do chown bin $(DESTDIR)$(htmldocdir)/$$f ; chgrp bin $(DESTDIR)$(htmldocdir)/$$f ; done
++	test -w /etc || exit 0; for f in $(htmldoc_DATA) ; do chown @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; chgrp @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; done
+ 
+ status.html: config.status
+ 
+diff -Naur courier-0.45.4.orig/courier/doc/configure courier-0.45.4/courier/doc/configure
+--- courier-0.45.4.orig/courier/doc/configure	2003-11-15 20:13:46.000000000 +0000
++++ courier-0.45.4/courier/doc/configure	2004-05-14 20:34:34.000000000 +0000
+@@ -271,7 +271,7 @@
+ PACKAGE_BUGREPORT=
+ 
+ ac_unique_file="index.html"
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot mailuser mailgroup version extension PERL LN_S HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot mailuser mailgroup version extension PERL LN_S HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS localcacheowner'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -791,6 +791,7 @@
+ --with-mailgroup=group    Specify mail group name (defaults to mail)
+ --with-extension=prefix     Read $HOME/.prefix and .prefix-foo
+                             for delivery instructions
++  --with-cacheowner=user     Owner of the cache directory (default: bin)
+ 
+ _ACEOF
+ fi
+@@ -1586,6 +1587,19 @@
+ # some platforms.
+ 
+ 
++# Check whether --with-cacheowner or --without-cacheowner was given.
++if test "${with_cacheowner+set}" = set; then
++  withval="$with_cacheowner"
++  localcacheowner="$withval"
++else
++  localcacheowner="bin"
++fi;
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define LOCALCACHEOWNER "$localcacheowner"
++_ACEOF
+ 
+ 
+ 
+@@ -2371,6 +2385,7 @@
+ s,@AWK@,$AWK,;t t
+ s,@SET_MAKE@,$SET_MAKE,;t t
+ s,@am__leading_dot@,$am__leading_dot,;t t
++s,@localcacheowner@,$localcacheowner,;t t
+ s,@mailuser@,$mailuser,;t t
+ s,@mailgroup@,$mailgroup,;t t
+ s,@version@,$version,;t t
+diff -Naur courier-0.45.4.orig/courier/filters/Makefile.in courier-0.45.4/courier/filters/Makefile.in
+--- courier-0.45.4.orig/courier/filters/Makefile.in	2003-11-15 21:05:41.000000000 +0000
++++ courier-0.45.4/courier/filters/Makefile.in	2004-05-14 20:34:34.000000000 +0000
+@@ -107,6 +107,7 @@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localcacheowner = @localcacheowner@
+ localstatedir = @localstatedir@
+ mailgid = @mailgid@
+ mailgroup = @mailgroup@
+@@ -838,7 +839,7 @@
+ 	cd $(DESTDIR)$(man8dir) || exit 0; \
+ 		rm -f filterctl.8; $(LN_S) courierfilter.8 filterctl.8
+ 	for f in $(htmldoc_DATA); do chmod 444 $(DESTDIR)$(htmldocdir)/$$f ; done
+-	test -w /etc || exit 0; for f in $(htmldoc_DATA); do chown bin $(DESTDIR)$(htmldocdir)/$$f ; chgrp bin $(DESTDIR)$(htmldocdir)/$$f ; done
++	test -w /etc || exit 0; for f in $(htmldoc_DATA); do chown @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; chgrp @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; done
+ 	chmod 755 $(DESTDIR)$(filterbindir)/dupfilter
+ 	test -w /etc || exit 0; chown @mailuser@ $(DESTDIR)$(filterbindir)/dupfilter; chgrp @mailgroup@ $(DESTDIR)$(filterbindir)/dupfilter
+ 
+diff -Naur courier-0.45.4.orig/courier/filters/configure courier-0.45.4/courier/filters/configure
+--- courier-0.45.4.orig/courier/filters/configure	2003-11-15 20:13:50.000000000 +0000
++++ courier-0.45.4/courier/filters/configure	2004-05-14 20:34:34.000000000 +0000
+@@ -309,7 +309,7 @@
+ #endif"
+ 
+ ac_subdirs_all="$ac_subdirs_all libfilter perlfilter"
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S RANLIB ac_ct_RANLIB PERL CPP EGREP NETLIBS piddir mailuid mailgid mailuser mailgroup subdirs HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S RANLIB ac_ct_RANLIB PERL CPP EGREP NETLIBS piddir mailuid mailgid mailuser mailgroup subdirs HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS localcacheowner'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -852,6 +852,7 @@
+   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
+   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+   --with-piddir         Directory where PID files are located
++  --with-cacheowner=user     Owner of the cache directory (default: bin)
+ 
+ 
+ Some influential environment variables:
+@@ -4452,6 +4453,20 @@
+   piddir=/var/run
+ fi;
+ 
++# Check whether --with-cacheowner or --without-cacheowner was given.
++if test "${with_cacheowner+set}" = set; then
++  withval="$with_cacheowner"
++  localcacheowner="$withval"
++else
++  localcacheowner="bin"
++fi;
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define LOCALCACHEOWNER "$localcacheowner"
++_ACEOF
++
+ 
+ 
+ test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
+@@ -5290,6 +5305,7 @@
+ s,@EGREP@,$EGREP,;t t
+ s,@NETLIBS@,$NETLIBS,;t t
+ s,@piddir@,$piddir,;t t
++s,@localcacheowner@,$localcacheowner,;t t
+ s,@mailuid@,$mailuid,;t t
+ s,@mailgid@,$mailgid,;t t
+ s,@mailuser@,$mailuser,;t t
+diff -Naur courier-0.45.4.orig/courier/module.uucp/Makefile.in courier-0.45.4/courier/module.uucp/Makefile.in
+--- courier-0.45.4.orig/courier/module.uucp/Makefile.in	2003-11-15 20:55:43.000000000 +0000
++++ courier-0.45.4/courier/module.uucp/Makefile.in	2004-05-14 20:34:34.000000000 +0000
+@@ -142,6 +142,7 @@
+ install_sh = @install_sh@
+ libdir = @libdir@
+ libexecdir = @libexecdir@
++localcacheowner = @localcacheowner@
+ localstatedir = @localstatedir@
+ mailgroup = @mailgroup@
+ mailuser = @mailuser@
+@@ -786,7 +787,7 @@
+ 	rm -f $(DESTDIR)$(man8dir)/makeuucpneighbors.8
+ 	$(LN_S) courieruucp.8 $(DESTDIR)$(man8dir)/makeuucpneighbors.8
+ 	for f in $(htmldoc_DATA); do chmod 444 $(DESTDIR)$(htmldocdir)/$$f ; done
+-	test -w /etc || exit 0; for f in $(htmldoc_DATA); do chown bin $(DESTDIR)$(htmldocdir)/$$f ; chgrp bin $(DESTDIR)$(htmldocdir)/$$f ; done
++	test -w /etc || exit 0; for f in $(htmldoc_DATA); do chown @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; chgrp @localcacheowner@ $(DESTDIR)$(htmldocdir)/$$f ; done
+ 
+ @MODULE_SHARED_TRUE@config: librewrite.la courier.config
+ @MODULE_SHARED_TRUE@	@cat $(srcdir)/courier.config >config.new
+diff -Naur courier-0.45.4.orig/courier/module.uucp/configure courier-0.45.4/courier/module.uucp/configure
+--- courier-0.45.4.orig/courier/module.uucp/configure	2003-11-15 20:14:46.000000000 +0000
++++ courier-0.45.4/courier/module.uucp/configure	2004-05-14 20:34:34.000000000 +0000
+@@ -462,7 +462,7 @@
+ # include <unistd.h>
+ #endif"
+ 
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LN_S version DLPREOPEN dblibrary LIBGDBM LIBDB NAME STATICLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL PERL UUX MODULE_SHARED_TRUE MODULE_SHARED_FALSE courierdir mailuser mailgroup SYSCONFDIR HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LN_S version DLPREOPEN dblibrary LIBGDBM LIBDB NAME STATICLIB build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL PERL UUX MODULE_SHARED_TRUE MODULE_SHARED_FALSE courierdir mailuser mailgroup SYSCONFDIR HAVE_SGML_TRUE HAVE_SGML_FALSE LIBOBJS LTLIBOBJS localcacheowner'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -1045,6 +1045,7 @@
+ --with-courierdir         Location of courier source code (main directory)
+ --with-mailuser=user      Specify mail user name (defaults to mail)
+ --with-mailgroup=group    Specify mail group name (defaults to mail)
++--with-cacheowner=user     Owner of the cache directory (default: bin)
+ 
+ Some influential environment variables:
+   CC          C compiler command
+@@ -19147,6 +19148,19 @@
+ 
+ CFLAGS="-I$srcdir/$courierdir -I$courierdir -I$srcdir/$courierdir/courier -I$courierdir/courier -I$srcdir/$courierdir/courier/libs $CFLAGS"
+ 
++# Check whether --with-cacheowner or --without-cacheowner was given.
++if test "${with_cacheowner+set}" = set; then
++  withval="$with_cacheowner"
++  localcacheowner="$withval"
++else
++  localcacheowner="bin"
++fi;
++
++
++
++cat >>confdefs.h <<_ACEOF
++#define LOCALCACHEOWNER "$localcacheowner"
++_ACEOF
+ 
+ 
+ # Check whether --with-mailuser or --without-mailuser was given.
+@@ -19933,6 +19947,7 @@
+ s,@MODULE_SHARED_TRUE@,$MODULE_SHARED_TRUE,;t t
+ s,@MODULE_SHARED_FALSE@,$MODULE_SHARED_FALSE,;t t
+ s,@courierdir@,$courierdir,;t t
++s,@localcacheowner@,$localcacheowner,;t t
+ s,@mailuser@,$mailuser,;t t
+ s,@mailgroup@,$mailgroup,;t t
+ s,@SYSCONFDIR@,$SYSCONFDIR,;t t

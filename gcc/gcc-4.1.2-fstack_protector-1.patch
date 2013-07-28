@@ -1,0 +1,259 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-06-11
+Initial Package Version: 4.1.2
+Upstream Status: Not Submitted
+Origin: me
+Description: This patch makes '-fstack-protector-all -Wstack-protector' the
+default for C, C++, ObjC, and ObjC++, reduces the minimum array size from 8
+to 4 bytes for '-fstack-protector', and modifies the documentation to match.
+This patch also modifies gcc/configure to detect libc support for
+__stack_chk_fail from libc.a, and works with uClibc and Glibc regardless of
+whether they are installed to /tools or /usr. If you do not have a libc.a,
+then use 'make gcc_cv_libc_provides_ssp=yes' if your libc has
+__stack_chk_fail.
+
+If your libc does not provide SSP, then libssp will be linked automatically.
+
+diff -Naur gcc-4.1.2.orig/gcc/Makefile.in gcc-4.1.2/gcc/Makefile.in
+--- gcc-4.1.2.orig/gcc/Makefile.in	2006-11-01 14:40:44.000000000 +0000
++++ gcc-4.1.2/gcc/Makefile.in	2007-06-10 16:38:22.000000000 +0000
+@@ -536,7 +536,7 @@
+ #
+ LIBGCC2_DEBUG_CFLAGS = -g
+ LIBGCC2_CFLAGS = -O2 $(LIBGCC2_INCLUDES) $(GCC_CFLAGS) $(TARGET_LIBGCC2_CFLAGS) \
+-		 $(LIBGCC2_DEBUG_CFLAGS) $(GTHREAD_FLAGS) \
++		 $(LIBGCC2_DEBUG_CFLAGS) $(GTHREAD_FLAGS) -fno-stack-protector \
+ 		 -DIN_LIBGCC2 -D__GCC_FLOAT_NOT_NEEDED \
+ 		 $(INHIBIT_LIBC_CFLAGS)
+ 
+@@ -549,7 +549,7 @@
+ 
+ # Options to use when compiling crtbegin/end.
+ CRTSTUFF_CFLAGS = -O2 $(GCC_CFLAGS) $(INCLUDES) $(MULTILIB_CFLAGS) -g0 \
+-  -finhibit-size-directive -fno-inline-functions -fno-exceptions \
++  -finhibit-size-directive -fno-inline-functions -fno-exceptions -fno-stack-protector \
+   -fno-zero-initialized-in-bss -fno-unit-at-a-time \
+   $(INHIBIT_LIBC_CFLAGS)
+ 
+diff -Naur gcc-4.1.2.orig/gcc/common.opt gcc-4.1.2/gcc/common.opt
+--- gcc-4.1.2.orig/gcc/common.opt	2006-05-17 18:38:58.000000000 +0000
++++ gcc-4.1.2/gcc/common.opt	2007-06-10 16:38:22.000000000 +0000
+@@ -114,7 +114,7 @@
+ Warn when one local variable shadows another
+ 
+ Wstack-protector
+-Common Var(warn_stack_protect)
++Common Var(warn_stack_protect) Init(1)
+ Warn when not issuing stack smashing protection for some reason
+ 
+ Wstrict-aliasing
+@@ -821,7 +821,7 @@
+ Use propolice as a stack protection method
+ 
+ fstack-protector-all
+-Common Report RejectNegative Var(flag_stack_protect, 2) VarExists
++Common Report RejectNegative Var(flag_stack_protect, 2) Init(2)
+ Use a stack protection method for every function
+ 
+ fstrength-reduce
+diff -Naur gcc-4.1.2.orig/gcc/configure gcc-4.1.2/gcc/configure
+--- gcc-4.1.2.orig/gcc/configure	2006-11-13 22:09:55.000000000 +0000
++++ gcc-4.1.2/gcc/configure	2007-06-10 16:38:22.000000000 +0000
+@@ -16165,46 +16165,34 @@
+ 
+ fi
+ 
++if test x$host != x$target || test "x$TARGET_SYSTEM_ROOT" != x; then
++ if test "x$with_sysroot" = x; then
++  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-include"
++ elif test "x$with_sysroot" = xyes; then
++  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-root/usr/include"
++ else
++  glibc_header_dir="${with_sysroot}/usr/include"
++ fi
++else
++ glibc_header_dir=/usr/include
++fi
++
+ # Test for stack protector support in target C library.
+-case "$target" in
+-  *-*-linux*)
+-    echo "$as_me:$LINENO: checking __stack_chk_fail in target GNU C library" >&5
++echo "$as_me:$LINENO: checking __stack_chk_fail in target GNU C library" >&5
+ echo $ECHO_N "checking __stack_chk_fail in target GNU C library... $ECHO_C" >&6
+ if test "${gcc_cv_libc_provides_ssp+set}" = set; then
+   echo $ECHO_N "(cached) $ECHO_C" >&6
+ else
+   gcc_cv_libc_provides_ssp=no
+-      if test x$host != x$target || test "x$TARGET_SYSTEM_ROOT" != x; then
+-	if test "x$with_sysroot" = x; then
+-	  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-include"
+-	elif test "x$with_sysroot" = xyes; then
+-	  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-root/usr/include"
+-	else
+-	  glibc_header_dir="${with_sysroot}/usr/include"
+-	fi
+-      else
+-	glibc_header_dir=/usr/include
+-      fi
+-      # glibc 2.4 and later provides __stack_chk_fail and
+-      # either __stack_chk_guard, or TLS access to stack guard canary.
+-      if test -f $glibc_header_dir/features.h \
+-	 && $EGREP '^[ 	]*#[ 	]*define[ 	]+__GNU_LIBRARY__[ 	]+([1-9][0-9]|[6-9])' \
+-	    $glibc_header_dir/features.h > /dev/null; then
+-	if $EGREP '^[ 	]*#[ 	]*define[ 	]+__GLIBC__[ 	]+([1-9][0-9]|[3-9])' \
+-	   $glibc_header_dir/features.h > /dev/null; then
+-	  gcc_cv_libc_provides_ssp=yes
+-	elif $EGREP '^[ 	]*#[ 	]*define[ 	]+__GLIBC__[ 	]+2' \
+-	     $glibc_header_dir/features.h > /dev/null \
+-	     && $EGREP '^[ 	]*#[ 	]*define[ 	]+__GLIBC_MINOR__[ 	]+([1-9][0-9]|[4-9])' \
+-	     $glibc_header_dir/features.h > /dev/null; then
+-	  gcc_cv_libc_provides_ssp=yes
+-	fi
+-      fi
++  if $gcc_cv_nm $($CC -print-file-name=libc.a) 2>&1 | \
++      grep '__stack_chk_fail' > /dev/null; then
++        gcc_cv_libc_provides_ssp=yes
++  else
++      gcc_cv_libc_provides_ssp=no
++  fi
+ fi
+ echo "$as_me:$LINENO: result: $gcc_cv_libc_provides_ssp" >&5
+-echo "${ECHO_T}$gcc_cv_libc_provides_ssp" >&6 ;;
+-  *) gcc_cv_libc_provides_ssp=no ;;
+-esac
++echo "${ECHO_T}$gcc_cv_libc_provides_ssp" >&6
+ if test x$gcc_cv_libc_provides_ssp = xyes; then
+ 
+ cat >>confdefs.h <<\_ACEOF
+diff -Naur gcc-4.1.2.orig/gcc/configure.ac gcc-4.1.2/gcc/configure.ac
+--- gcc-4.1.2.orig/gcc/configure.ac	2006-11-13 22:09:55.000000000 +0000
++++ gcc-4.1.2/gcc/configure.ac	2007-06-10 16:38:22.000000000 +0000
+@@ -3091,40 +3091,28 @@
+ [Define to PREFIX/include if cpp should also search that directory.])
+ fi
+ 
++if test x$host != x$target || test "x$TARGET_SYSTEM_ROOT" != x; then
++ if test "x$with_sysroot" = x; then
++  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-include"
++ elif test "x$with_sysroot" = xyes; then
++  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-root/usr/include"
++ else
++  glibc_header_dir="${with_sysroot}/usr/include"
++ fi
++else
++ glibc_header_dir=/usr/include
++fi
++
+ # Test for stack protector support in target C library.
+-case "$target" in
+-  *-*-linux*)
+-    AC_CACHE_CHECK(__stack_chk_fail in target GNU C library,
+-      gcc_cv_libc_provides_ssp,
+-      [gcc_cv_libc_provides_ssp=no
+-      if test x$host != x$target || test "x$TARGET_SYSTEM_ROOT" != x; then
+-	if test "x$with_sysroot" = x; then
+-	  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-include"
+-	elif test "x$with_sysroot" = xyes; then
+-	  glibc_header_dir="${exec_prefix}/${target_noncanonical}/sys-root/usr/include"
+-	else
+-	  glibc_header_dir="${with_sysroot}/usr/include"
+-	fi
+-      else
+-	glibc_header_dir=/usr/include
+-      fi
+-      # glibc 2.4 and later provides __stack_chk_fail and
+-      # either __stack_chk_guard, or TLS access to stack guard canary.
+-      if test -f $glibc_header_dir/features.h \
+-	 && $EGREP '^@<:@ 	@:>@*#[ 	]*define[ 	]+__GNU_LIBRARY__[ 	]+([1-9][0-9]|[6-9])' \
+-	    $glibc_header_dir/features.h > /dev/null; then
+-	if $EGREP '^@<:@ 	@:>@*#[ 	]*define[ 	]+__GLIBC__[ 	]+([1-9][0-9]|[3-9])' \
+-	   $glibc_header_dir/features.h > /dev/null; then
+-	  gcc_cv_libc_provides_ssp=yes
+-	elif $EGREP '^@<:@ 	@:>@*#[ 	]*define[ 	]+__GLIBC__[ 	]+2' \
+-	     $glibc_header_dir/features.h > /dev/null \
+-	     && $EGREP '^@<:@ 	@:>@*#[ 	]*define[ 	]+__GLIBC_MINOR__[ 	]+([1-9][0-9]|[4-9])' \
+-	     $glibc_header_dir/features.h > /dev/null; then
+-	  gcc_cv_libc_provides_ssp=yes
+-	fi
+-      fi]) ;;
+-  *) gcc_cv_libc_provides_ssp=no ;;
+-esac
++AC_CACHE_CHECK(__stack_chk_fail in target GNU C library,
++  gcc_cv_libc_provides_ssp,
++  [gcc_cv_libc_provides_ssp=no
++  if $gcc_cv_nm $($CC -print-file-name=libc.a) 2>&1 | \
++      grep '__stack_chk_fail' > /dev/null; then
++        gcc_cv_libc_provides_ssp=yes
++  else
++      gcc_cv_libc_provides_ssp=no
++  fi])
+ if test x$gcc_cv_libc_provides_ssp = xyes; then
+   AC_DEFINE(TARGET_LIBC_PROVIDES_SSP, 1,
+ 	    [Define if your target C library provides stack protector support])
+diff -Naur gcc-4.1.2.orig/gcc/doc/invoke.texi gcc-4.1.2/gcc/doc/invoke.texi
+--- gcc-4.1.2.orig/gcc/doc/invoke.texi	2006-09-25 21:21:58.000000000 +0000
++++ gcc-4.1.2/gcc/doc/invoke.texi	2007-06-10 16:38:22.000000000 +0000
+@@ -5696,12 +5696,13 @@
+ Emit extra code to check for buffer overflows, such as stack smashing
+ attacks.  This is done by adding a guard variable to functions with
+ vulnerable objects.  This includes functions that call alloca, and
+-functions with buffers larger than 8 bytes.  The guards are initialized
++functions with buffers larger than 4 bytes.  The guards are initialized
+ when a function is entered and then checked when the function exits.
+ If a guard check fails, an error message is printed and the program exits.
+ 
+ @item -fstack-protector-all
+ Like @option{-fstack-protector} except that all functions are protected.
++This is the default. Disable this option with @option{-fno-stack-protector}.
+ 
+ @item --param @var{name}=@var{value}
+ @opindex param
+diff -Naur gcc-4.1.2.orig/gcc/gcc.c gcc-4.1.2/gcc/gcc.c
+--- gcc-4.1.2.orig/gcc/gcc.c	2006-11-07 14:26:21.000000000 +0000
++++ gcc-4.1.2/gcc/gcc.c	2007-06-10 16:40:51.000000000 +0000
+@@ -674,7 +674,7 @@
+ #ifdef TARGET_LIBC_PROVIDES_SSP
+ #define LINK_SSP_SPEC "%{fstack-protector:}"
+ #else
+-#define LINK_SSP_SPEC "%{fstack-protector|fstack-protector-all:-lssp_nonshared -lssp}"
++#define LINK_SSP_SPEC "%{!fno-stack-protector:-lssp_nonshared -lssp}"
+ #endif
+ #endif
+ 
+diff -Naur gcc-4.1.2.orig/gcc/params.def gcc-4.1.2/gcc/params.def
+--- gcc-4.1.2.orig/gcc/params.def	2006-04-27 14:24:15.000000000 +0000
++++ gcc-4.1.2/gcc/params.def	2007-06-10 16:38:22.000000000 +0000
+@@ -532,7 +532,7 @@
+ DEFPARAM (PARAM_SSP_BUFFER_SIZE,
+ 	  "ssp-buffer-size",
+ 	  "The lower bound for a buffer to be considered for stack smashing protection",
+-	  8, 1, 0)
++	  4, 1, 0)
+ 
+ /* When we thread through a block we have to make copies of the
+    statements within the block.  Clearly for large blocks the code
+diff -Naur gcc-4.1.2.orig/libssp/Makefile.am gcc-4.1.2/libssp/Makefile.am
+--- gcc-4.1.2.orig/libssp/Makefile.am	2006-02-28 00:29:00.000000000 +0000
++++ gcc-4.1.2/libssp/Makefile.am	2007-06-10 16:38:22.000000000 +0000
+@@ -19,7 +19,7 @@
+ version_dep =
+ endif
+ 
+-AM_CFLAGS = -Wall
++AM_CFLAGS = -Wall -fno-stack-protector
+ 
+ toolexeclib_LTLIBRARIES = libssp.la libssp_nonshared.la
+ 
+diff -Naur gcc-4.1.2.orig/libssp/Makefile.in gcc-4.1.2/libssp/Makefile.in
+--- gcc-4.1.2.orig/libssp/Makefile.in	2006-09-29 21:27:38.000000000 +0000
++++ gcc-4.1.2/libssp/Makefile.in	2007-06-10 16:38:22.000000000 +0000
+@@ -221,7 +221,7 @@
+ @LIBSSP_USE_SYMVER_TRUE@version_arg = -Wl,--version-script=$(srcdir)/ssp.map
+ @LIBSSP_USE_SYMVER_FALSE@version_dep = 
+ @LIBSSP_USE_SYMVER_TRUE@version_dep = $(srcdir)/ssp.map
+-AM_CFLAGS = -Wall
++AM_CFLAGS = -Wall -fno-stack-protector
+ toolexeclib_LTLIBRARIES = libssp.la libssp_nonshared.la
+ libsubincludedir = $(libdir)/gcc/$(target_noncanonical)/$(gcc_version)/include
+ nobase_libsubinclude_HEADERS = ssp/ssp.h ssp/string.h ssp/stdio.h ssp/unistd.h

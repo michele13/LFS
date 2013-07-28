@@ -1,0 +1,73 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-04-25
+Initial Package Version: 3.3
+Origin: None
+Description: This patch must be used after the gcc pie patch. This patch
+will enable gcc -pie by default for x86.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+http://www.linuxfromscratch.org/~robert/winter/winter.txt
+
+diff -Naur gcc-3.3.pie/gcc/config/i386/linux.h gcc-3.3.autopie/gcc/config/i386/linux.h
+--- gcc-3.3.pie/gcc/config/i386/linux.h	2002-11-15 14:57:12.000000000 +0000
++++ gcc-3.3.autopie/gcc/config/i386/linux.h	2004-04-25 20:44:48.000000000 +0000
+@@ -94,11 +94,12 @@
+ #ifdef USE_GNULIBC_1
+ #define CPP_SPEC "%{posix:-D_POSIX_SOURCE}"
+ #else
+-#define CPP_SPEC "%{posix:-D_POSIX_SOURCE} %{pthread:-D_REENTRANT}"
++#define CPP_SPEC "%{posix:-D_POSIX_SOURCE} %{pthread:-D_REENTRANT} \
++%{!D__KERNEL__:%{!static:%{!no-pie:-D__PIC__ -DPIC}}}"
+ #endif
+ 
+ #undef CC1_SPEC
+-#define CC1_SPEC "%(cc1_cpu) %{profile:-p}"
++#define CC1_SPEC "%(cc1_cpu) %{profile:-p} %{!D__KERNEL__:%{!no-pie:%{!static: -fPIC}}}"
+ 
+ /* Provide a LINK_SPEC appropriate for Linux.  Here we provide support
+    for the special GCC options -static and -shared, which allow us to
+diff -Naur gcc-3.3.pie/gcc/config/linux.h gcc-3.3.autopie/gcc/config/linux.h
+--- gcc-3.3.pie/gcc/config/linux.h	2004-04-25 20:44:01.000000000 +0000
++++ gcc-3.3.autopie/gcc/config/linux.h	2004-04-25 20:44:48.000000000 +0000
+@@ -56,12 +56,11 @@
+ #else
+ #if defined HAVE_LD_PIE
+ #define STARTFILE_SPEC \
+-  "%{!shared: \
+-     %{pg:gcrt1.o%s} %{!pg:%{p:gcrt1.o%s} \
+-		       %{!p:%{profile:gcrt1.o%s} \
+-			 %{!profile:%{pie:Scrt1.o%s}%{!pie:crt1.o%s}}}}} \
+-   crti.o%s %{static:crtbeginT.o%s}\
+-   %{!static:%{!shared:%{!pie:crtbegin.o%s}} %{shared|pie:crtbeginS.o%s}}"
++  "%{!shared: %{pg: gcrt1.o%s} %{!pg: %{p: gcrt1.o%s} \
++%{!p: %{profile: gcrt1.o%s} %{!profile: %{!D__KERNEL__:%{!static:%{!no-pie: Scrt1.o%s}}} \
++%{static:crt1.o%s} %{!D__KERNEL__:%{!static:%{no-pie: crt1.o%s}}}} }}} crti.o%s \
++%{static:crtbeginT.o%s} %{!static:%{!shared:%{no-pie:crtbegin.o%s}}} \
++%{!D__KERNEL__:%{!static:%{!no-pie:crtbeginS.o%s}}}"
+ #else
+ #define STARTFILE_SPEC \
+   "%{!shared: \
+@@ -81,7 +80,8 @@
+ 
+ #undef	ENDFILE_SPEC
+ #define ENDFILE_SPEC \
+-  "%{!shared:%{!pie:crtend.o%s}} %{shared|pie:crtendS.o%s} crtn.o%s"
++  "%{static:crtend.o%s} %{!static:%{no-pie:crtend.o%s}} \
++%{!D__KERNEL__:%{!static:%{!no-pie:crtendS.o%s}}} crtn.o%s"
+ 
+ /* This is for -profile to use -lc_p instead of -lc.  */
+ #ifndef CC1_SPEC
+diff -Naur gcc-3.3.pie/gcc/gcc.c gcc-3.3.autopie/gcc/gcc.c
+--- gcc-3.3.pie/gcc/gcc.c	2004-04-25 20:44:01.000000000 +0000
++++ gcc-3.3.autopie/gcc/gcc.c	2004-04-25 20:44:48.000000000 +0000
+@@ -624,7 +624,8 @@
+ 
+ #ifndef LINK_PIE_SPEC
+ #ifdef HAVE_LD_PIE
+-#define LINK_PIE_SPEC "%{pie:-pie} "
++#define LINK_PIE_SPEC "%{!D__KERNEL__:%{!no-pie: %{!static: %{!shared: %{!Bshareable: \
++%{!i: %{!r: -pie -z combreloc -z now} } } } } } } "
+ #else
+ #define LINK_PIE_SPEC "%{pie:} "
+ #endif

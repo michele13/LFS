@@ -1,0 +1,17 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-09-23
+Initial Package Version: 2.12g
+Origin: Greg Schafer
+Upstream Status: Sent
+Description: Fixes Compile Issue with GCC 3.4.x
+
+--- util-linux-2.12g/fdisk/sfdisk.c.orig	2004-09-19 13:02:25.000000000 +0000
++++ util-linux-2.12g/fdisk/sfdisk.c	2004-09-23 16:53:07.884474104 +0000
+@@ -145,6 +145,7 @@
+  */
+ #if !defined (__alpha__) && !defined (__ia64__) && !defined (__x86_64__) && !defined (__s390x__)
+ static
++__attribute__ ((used))
+ _syscall5(int,  _llseek,  unsigned int,  fd, ulong, hi, ulong, lo,
+        loff_t *, res, unsigned int, wh);
+ #endif

@@ -1,0 +1,69 @@
+Submitted By: Archaic (archaic -aT- linuxfromscratch -DoT- org)
+Date: 2005-10-08
+Initial Package Version: 4.8
+Origin: http://gentoo.kems.net/gentoo-portage/sys-apps/texinfo/files/texinfo-4.8-tempfile.patch
+Upstream Status: A few patches are floating around in Debian BZ #328365 of which
+                 upstream hasn't made a full commitment on yet.
+Description: (CAN-2005-3011) texindex in texinfo 4.8 and earlier allows local
+             users to overwrite arbitrary files via a symlink attack on
+             temporary files.
+
+diff -Naur texinfo-4.8.orig/util/texindex.c texinfo-4.8/util/texindex.c
+--- texinfo-4.8.orig/util/texindex.c	2004-04-11 17:56:47.000000000 +0000
++++ texinfo-4.8/util/texindex.c	2005-10-08 17:35:12.000000000 +0000
+@@ -99,6 +99,9 @@
+ /* Directory to use for temporary files.  On Unix, it ends with a slash.  */
+ char *tempdir;
+ 
++/* Basename for temp files inside of tempdir.  */
++char *tempbase;
++
+ /* Number of last temporary file.  */
+ int tempcount;
+ 
+@@ -190,6 +193,11 @@
+ 
+   decode_command (argc, argv);
+ 
++  /* XXX mkstemp not appropriate, as we need to have somewhat predictable
++   * names. But race condition was fixed, see maketempname. 
++   */
++  tempbase = mktemp ("txidxXXXXXX");
++
+   /* Process input files completely, one by one.  */
+ 
+   for (i = 0; i < num_infiles; i++)
+@@ -389,21 +397,21 @@
+ static char *
+ maketempname (int count)
+ {
+-  static char *tempbase = NULL;
+   char tempsuffix[10];
+-
+-  if (!tempbase)
+-    {
+-      int fd;
+-      tempbase = concat (tempdir, "txidxXXXXXX");
+-
+-      fd = mkstemp (tempbase);
+-      if (fd == -1)
+-        pfatal_with_name (tempbase);
+-    }
++  char *name, *tmp_name;
++  int fd;
+ 
+   sprintf (tempsuffix, ".%d", count);
+-  return concat (tempbase, tempsuffix);
++  tmp_name = concat (tempdir, tempbase);
++  name = concat (tmp_name, tempsuffix);
++  free(tmp_name);
++
++  fd = open (name, O_CREAT|O_EXCL|O_WRONLY, 0600);
++  if (fd == -1)
++    pfatal_with_name (name);
++
++  close(fd);
++  return name;
+ }
+ 
+ 

@@ -1,0 +1,33 @@
+Submitted By: DJ Lucas (dj_at_lucasit_dot_com)
+Date: 2003-08-17
+Initial Package Version: 1.13.25
+Origin: DJ Lucas (dj_at_lucasit_dot_com)
+Description: Adds -y as a valid switch for bzip2 compression.  This was
+  common on older versions of  Mandrake Linux as well as others.  The
+  patch does not remove the -j option.  It's only for those of us who
+  just can't quit adding 'y' as a switch.
+
+diff -Naur tar-1.13.25-orig/src/tar.c tar-1.13.25/src/tar.c
+--- tar-1.13.25-orig/src/tar.c	2001-09-21 00:11:27.000000000 +0000
++++ tar-1.13.25/src/tar.c	2003-08-17 18:53:06.000000000 +0000
+@@ -382,6 +382,7 @@
+   -o, --old-archive, --portability   write a V7 format archive\n\
+       --posix                        write a POSIX format archive\n\
+   -j, --bzip2                        filter the archive through bzip2\n\
++  -y                                 same as -j, added for compatibility\n\
+   -z, --gzip, --ungzip               filter the archive through gzip\n\
+   -Z, --compress, --uncompress       filter the archive through compress\n\
+       --use-compress-program=PROG    filter through PROG (must accept -d)\n"),
+@@ -876,10 +877,8 @@
+ 	break;
+ 
+       case 'y':
+-	USAGE_ERROR ((0, 0,
+-		      _("Warning: the -y option is not supported;"
+-			" perhaps you meant -j?")));
+-	break;
++        set_use_compress_program_option ("bzip2");
++        break;
+ 
+       case 'z':
+ 	set_use_compress_program_option ("gzip");

@@ -1,0 +1,31 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2008-03-09
+Initial Package Version: 1.4.14
+Upstream Status: Not offered, would be rejected as bogus
+Origin: Self - revert one line of the 1.4.14 changes
+Description: Possible fix for https://bugzilla.mozilla.org/show_bug.cgi?id=413583
+(render bug, e.g. on certain png images).  Before version 1.4.14, the test always
+enabled the workaround for buggy repeat with recent xorg because they had reset
+the version number to 1.  Among other things, the wrokaround slows down the
+rendering.
+
+The bug has been reported by users of ati-6.7.19x video, sis 0.9.3, i810.  The
+common factor seems to be that all the reporters were using xorg-server-1.3.0.0 -
+that was shipped by e.g. fedora, ubuntu but wasn't the released version for 7.2
+or 7.3.  For myself, I cannot replicate it with ati-6.7.196 on server 1.4.0.90,
+and that driver does not build for server 1.2.0 which was the 7.2 version.
+
+Totally untested.
+
+diff -Naur cairo-1.4.14/src/cairo-xlib-surface.c cairo-1.4.12/src/cairo-xlib-surface.c
+--- cairo-1.4.14/src/cairo-xlib-surface.c	2008-01-14 23:23:07.000000000 +0000
++++ cairo-1.4.12/src/cairo-xlib-surface.c	2007-11-27 06:20:12.000000000 +0000
+@@ -2024,7 +2023,7 @@
+ 
+     surface->buggy_repeat = FALSE;
+     if (strstr (ServerVendor (dpy), "X.Org") != NULL) {
+-	if (VendorRelease (dpy) >= 60700000 && VendorRelease (dpy) <= 60802000)
++	if (VendorRelease (dpy) <= 60802000)
+ 	    surface->buggy_repeat = TRUE;
+     } else if (strstr (ServerVendor (dpy), "XFree86") != NULL) {
+ 	if (VendorRelease (dpy) <= 40500000)

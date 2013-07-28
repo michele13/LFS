@@ -1,0 +1,69 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Date: 2003-08-13
+Initial Package Version: 3.1.3
+Origin: http://bugs.kde.org/show_bug.cgi?id=55484
+Description: Fix the problem "Bug 55484 - Wordwrap doesn't respect
+white space" . To reproduce: type words in Kate, until wordwrap happens
+twice. Add a word to the first line. One of the spaces between
+previously typed words disappears.
+Notes:
+1) This patch should go into the book.
+2) Watch for updated information at http://bugs.kde.org/show_bug.cgi?id=55484 
+since this fix is not 100% correct.
+
+diff -ur kdelibs-3.1.3/kate/part/katedocument.cpp kdelibs-3.1.3.tweaked/kate/part/katedocument.cpp
+--- kdelibs-3.1.3/kate/part/katedocument.cpp	2003-07-14 01:27:37.000000000 +0600
++++ kdelibs-3.1.3.tweaked/kate/part/katedocument.cpp	2003-07-30 18:16:22.000000000 +0600
+@@ -916,23 +916,41 @@
+     {
+       const QChar *text = l->text();
+ 
+-      for (z=col; z>0; z--)
+-      {
+-        if (z < 1) break;
++      const QChar aSpace = ' ';
++      uint eolPosition = l->length()-1;
++      uint searchStart = col;
++      //If where we are wrapping is an end of line and is a space we don't
++      //want to wrap there
++      if (col == eolPosition && text[col].isSpace())
++       searchStart--;
++
++      // Scan backwards looking for a place to break the line
++      // We are not interested in breaking at the first char
++      // of the line (if it is a space), but we are at the second
++      for (z=searchStart; z>0; z--)
+         if (text[z].isSpace()) break;
+-      }
+ 
+-      if (!(z < 1))
++      if (z > 0)
+       {
++       //We found a space in which to wrap so break just after it
+         z++; // (anders: avoid the space at the beginning of the line)
+-        editWrapLine (line, z, true);
+-        endLine++;
++
++       // If the last character of the line is not a space, but we
++        // are going to break on a previous space, then we assume that the
++        // line is broken into words and we need to add a space so that when th
++        // back end of the line is inserted into the next line there is
++        // a word boundary.
++        if (!text[eolPosition].isSpace())
++         l->insertText(eolPosition+1,1,&aSpace);
++
+       }
+       else
+-      {
+-        editWrapLine (line, col, true);
+-        endLine++;
+-      }
++       //There was no space to break at so break at full line
++       //and don't try and add any white space for the break
++       z= col;
++
++      editWrapLine (line, z, true);
++      endLine++;
+     }
+ 
+     line++;

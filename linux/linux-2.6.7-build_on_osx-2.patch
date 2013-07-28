@@ -1,0 +1,91 @@
+Submitted By: Martin Schaffner <schaffner@gmx.li>
+Date: 2004-06-19
+Initial Package Version: 2.6.7
+Upstream Status: Not submitted
+Origin: Martin Schaffner
+Description:
+Various small things to enables cross-compilation on Mac OS X.
+Version 2 makes it possible to build with gcc-3.3.3 + binutils-2.15, by always passing -many to the assembler.
+
+diff -ur linux-2.6.6/Makefile l266mod/Makefile
+--- linux-2.6.6/Makefile	Mon May 10 03:32:53 2004
++++ l266mod/Makefile	Fri May 21 17:07:37 2004
+@@ -195,7 +195,7 @@
+ 
+ HOSTCC  	= gcc
+ HOSTCXX  	= g++
+-HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
++HOSTCFLAGS	= -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -idirafter `$(CC) -print-file-name=include`/../../../../../?????*/include/ # for elf.h
+ HOSTCXXFLAGS	= -O2
+ 
+ # 	Decide whether to build built-in, modular, or both.
+@@ -310,8 +310,8 @@
+ 		   $(if $(KBUILD_SRC),-Iinclude2 -I$(srctree)/include)
+ 
+ CFLAGS 		:= -Wall -Wstrict-prototypes -Wno-trigraphs \
+-	  	   -fno-strict-aliasing -fno-common
+-AFLAGS		:= -D__ASSEMBLY__
++	  	   -fno-strict-aliasing -fno-common -Wa,-many
++AFLAGS		:= -D__ASSEMBLY__ -Wa,-many
+ 
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+diff -ur linux-2.6.6/scripts/Makefile.build l266mod/scripts/Makefile.build
+--- linux-2.6.6/scripts/Makefile.build	Mon May 10 03:33:13 2004
++++ l266mod/scripts/Makefile.build	Fri May 21 16:48:09 2004
+@@ -343,15 +343,17 @@
+ 
+ # Compile .c file, create position independent .o file
+ # host-cshobjs -> .o
+-quiet_cmd_host-cshobjs	= HOSTCC  -fPIC $@
+-      cmd_host-cshobjs	= $(HOSTCC) $(hostc_flags) -fPIC -c -o $@ $<
++quiet_cmd_host-cshobjs	= HOSTCC -fPIC -fno-common $@
++      cmd_host-cshobjs	= $(HOSTCC) $(hostc_flags) -fPIC -fno-common -c -o $@ $<
+ $(host-cshobjs): %.o: %.c FORCE
+ 	$(call if_changed_dep,host-cshobjs)
+ 
+ # Link a shared library, based on position independent .o files
+ # *.o -> .so shared library (host-cshlib)
++SHARED_SWITCH = `if $(HOSTCC) -dM -E - < /dev/null | grep -q APPLE; \
++		then echo "-dynamiclib"; else echo "-shared"; fi`
+ quiet_cmd_host-cshlib	= HOSTLLD -shared $@
+-      cmd_host-cshlib	= $(HOSTCC) $(HOSTLDFLAGS) -shared -o $@ \
++      cmd_host-cshlib	= $(HOSTCC) $(HOSTLDFLAGS) $(SHARED_SWITCH) -o $@ \
+ 			  $(addprefix $(obj)/,$($(@F:.so=-objs))) \
+ 			  $(HOST_LOADLIBES) $(HOSTLOADLIBES_$(@F))
+ $(host-cshlib): %: $(host-cshobjs) FORCE
+diff -ur linux-2.6.6/scripts/sumversion.c l266mod/scripts/sumversion.c
+--- linux-2.6.6/scripts/sumversion.c	Mon May 10 03:32:54 2004
++++ l266mod/scripts/sumversion.c	Fri May 21 16:11:28 2004
+@@ -1,4 +1,6 @@
++#ifndef __APPLE__
+ #include <netinet/in.h>
++#endif
+ #include <stdint.h>
+ #include <ctype.h>
+ #include <errno.h>
+diff -ur linux-2.6.6/scripts/genksyms/parse.c_shipped l266mod/scripts/genksyms/parse.c_shipped
+--- linux-2.6.6/scripts/genksyms/parse.c_shipped       Mon May 10 04:33:13 2004
++++ l266mod/scripts/genksyms/parse.c_shipped        Fri Jun 18 23:09:42 2004
+@@ -49,7 +49,9 @@
+ 
+ 
+ #include <assert.h>
++#ifndef __APPLE__
+ #include <malloc.h>
++#endif
+ #include "genksyms.h"
+ 
+ static int is_typedef;
+diff -ur linux-2.6.7/arch/ppc/defconfig l266mod/arch/ppc/defconfig
+--- linux-2.6.7/arch/ppc/defconfig     Fri Jun 18 22:51:23 2004
++++ l266mod/arch/ppc/defconfig      Fri Jun 18 23:55:23 2004
+@@ -425,7 +425,7 @@
+ #
+ # CONFIG_IP_VS is not set
+ # CONFIG_IPV6 is not set
+-CONFIG_NETFILTER=y
++CONFIG_NETFILTER=n
+ # CONFIG_NETFILTER_DEBUG is not set
+ 
+ #

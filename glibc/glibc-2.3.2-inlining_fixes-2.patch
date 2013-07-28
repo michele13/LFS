@@ -1,0 +1,417 @@
+Submitted By: Greg Schafer <gschafer at zip dot com dot au>
+Date: 2003-10-20
+Initial Package Version: 2.3.2
+Origin: I backported these fixes directly from Glibc CVS HEAD.
+Description: Dramatically reduce the number of "inlining failed" type warnings.
+
+This patch, when combined with -finline-limit=2000, reduces the number of
+"inlining failed" type warnings from 3878 down to 28 (unique 309 down to 6). At
+the time Glibc-2.3.2 was released, Gcc-3.2.x was the preferred compiler.
+Gcc-3.3.x introduced a new inliner which showed up a number of areas in the
+Glibc source that needed reviewing.
+
+Glibc is largely maintained by 3 RH employees. Those guys know what they're
+doing and have seen fit to include the -finline-limit=2000 flag in the RH spec
+file for quite some time now. Thus there can be no doubts about the validity of
+using this flag in my view. If using this patch, be sure to add it to your
+CFLAGS, for example:
+
+CFLAGS="-g -O2 -finline-limit=2000" ./configure..............
+
+I tested this by compiling Glibc-2.3.2 with Gcc-3.3.2. Glibc test suite passed.
+
+
+diff -Naur glibc-2.3.2.orig/elf/dl-load.c glibc-2.3.2/elf/dl-load.c
+--- glibc-2.3.2.orig/elf/dl-load.c	2003-01-16 18:14:41.000000000 +0000
++++ glibc-2.3.2/elf/dl-load.c	2003-10-19 11:11:18.583018456 +0000
+@@ -353,7 +353,7 @@
+ 
+ static size_t max_dirnamelen;
+ 
+-static inline struct r_search_path_elem **
++static struct r_search_path_elem **
+ fillin_rpath (char *rpath, struct r_search_path_elem **result, const char *sep,
+ 	      int check_trusted, const char *what, const char *where)
+ {
+diff -Naur glibc-2.3.2.orig/elf/do-lookup.h glibc-2.3.2/elf/do-lookup.h
+--- glibc-2.3.2.orig/elf/do-lookup.h	2002-04-13 07:32:17.000000000 +0000
++++ glibc-2.3.2/elf/do-lookup.h	2003-10-19 11:11:45.474930264 +0000
+@@ -28,7 +28,7 @@
+ /* Inner part of the lookup functions.  We return a value > 0 if we
+    found the symbol, the value 0 if nothing is found and < 0 if
+    something bad happened.  */
+-static inline int
++static int
+ FCT (const char *undef_name, unsigned long int hash, const ElfW(Sym) *ref,
+      struct sym_val *result, struct r_scope_elem *scope, size_t i, ARG,
+      struct link_map *skip, int type_class)
+diff -Naur glibc-2.3.2.orig/iconv/gconv_conf.c glibc-2.3.2/iconv/gconv_conf.c
+--- glibc-2.3.2.orig/iconv/gconv_conf.c	2002-12-16 04:26:02.000000000 +0000
++++ glibc-2.3.2/iconv/gconv_conf.c	2003-10-19 11:31:32.327501248 +0000
+@@ -125,7 +125,7 @@
+ 
+ 
+ /* Add new alias.  */
+-static inline void
++static void
+ add_alias (char *rp, void *modules)
+ {
+   /* We now expect two more string.  The strings are normalized
+@@ -178,7 +178,7 @@
+ 
+ 
+ /* Insert a data structure for a new module in the search tree.  */
+-static inline void
++static void
+ internal_function
+ insert_module (struct gconv_module *newp, int tobefreed)
+ {
+diff -Naur glibc-2.3.2.orig/iconv/loop.c glibc-2.3.2/iconv/loop.c
+--- glibc-2.3.2.orig/iconv/loop.c	2003-01-16 06:30:13.000000000 +0000
++++ glibc-2.3.2/iconv/loop.c	2003-10-19 10:51:18.255495976 +0000
+@@ -257,6 +257,7 @@
+ 
+ /* The function returns the status, as defined in gconv.h.  */
+ static inline int
++__attribute ((always_inline))
+ FCTNAME (LOOPFCT) (struct __gconv_step *step,
+ 		   struct __gconv_step_data *step_data,
+ 		   const unsigned char **inptrp, const unsigned char *inend,
+@@ -342,6 +343,7 @@
+ # define SINGLE(fct) SINGLE2 (fct)
+ # define SINGLE2(fct) fct##_single
+ static inline int
++__attribute ((always_inline))
+ SINGLE(LOOPFCT) (struct __gconv_step *step,
+ 		 struct __gconv_step_data *step_data,
+ 		 const unsigned char **inptrp, const unsigned char *inend,
+diff -Naur glibc-2.3.2.orig/iconvdata/cns11643.h glibc-2.3.2/iconvdata/cns11643.h
+--- glibc-2.3.2.orig/iconvdata/cns11643.h	2002-04-20 07:31:30.000000000 +0000
++++ glibc-2.3.2/iconvdata/cns11643.h	2003-10-19 11:07:43.240755456 +0000
+@@ -40,6 +40,7 @@
+ 
+ 
+ static inline uint32_t
++__attribute ((always_inline))
+ cns11643_to_ucs4 (const char **s, size_t avail, unsigned char offset)
+ {
+   unsigned char ch = *(*s);
+@@ -140,6 +141,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_cns11643 (uint32_t wch, char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+diff -Naur glibc-2.3.2.orig/iconvdata/cns11643l1.h glibc-2.3.2/iconvdata/cns11643l1.h
+--- glibc-2.3.2.orig/iconvdata/cns11643l1.h	2001-07-07 19:20:59.000000000 +0000
++++ glibc-2.3.2/iconvdata/cns11643l1.h	2003-10-19 11:08:23.728600368 +0000
+@@ -26,6 +26,7 @@
+ 
+ 
+ static inline uint32_t
++__attribute ((always_inline))
+ cns11643l1_to_ucs4 (const unsigned char **s, size_t avail,
+ 		    unsigned char offset)
+ {
+@@ -71,6 +72,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_cns11643l1 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+diff -Naur glibc-2.3.2.orig/iconvdata/euc-kr.c glibc-2.3.2/iconvdata/euc-kr.c
+--- glibc-2.3.2.orig/iconvdata/euc-kr.c	2002-12-02 21:26:10.000000000 +0000
++++ glibc-2.3.2/iconvdata/euc-kr.c	2003-10-19 22:18:06.629870848 +0000
+@@ -25,6 +25,7 @@
+ 
+ 
+ static inline void
++__attribute ((always_inline))
+ euckr_from_ucs4 (uint32_t ch, unsigned char *cp)
+ {
+   if (ch > 0x9f)
+diff -Naur glibc-2.3.2.orig/iconvdata/gb2312.h glibc-2.3.2/iconvdata/gb2312.h
+--- glibc-2.3.2.orig/iconvdata/gb2312.h	2001-07-07 19:20:59.000000000 +0000
++++ glibc-2.3.2/iconvdata/gb2312.h	2003-10-19 11:30:16.671002784 +0000
+@@ -67,6 +67,7 @@
+ extern const char __gb2312_from_ucs4_tab9[][2];
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_gb2312 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+diff -Naur glibc-2.3.2.orig/iconvdata/jis0201.h glibc-2.3.2/iconvdata/jis0201.h
+--- glibc-2.3.2.orig/iconvdata/jis0201.h	2001-07-07 19:21:02.000000000 +0000
++++ glibc-2.3.2/iconvdata/jis0201.h	2003-10-19 21:45:00.833757744 +0000
+@@ -38,6 +38,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_jisx0201 (uint32_t wch, char *s)
+ {
+   char ch;
+diff -Naur glibc-2.3.2.orig/iconvdata/jis0208.h glibc-2.3.2/iconvdata/jis0208.h
+--- glibc-2.3.2.orig/iconvdata/jis0208.h	2001-07-07 19:21:02.000000000 +0000
++++ glibc-2.3.2/iconvdata/jis0208.h	2003-10-19 21:45:34.129695992 +0000
+@@ -70,6 +70,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_jisx0208 (uint32_t wch, char *s, size_t avail)
+ {
+   unsigned int ch = (unsigned int) wch;
+diff -Naur glibc-2.3.2.orig/iconvdata/jis0212.h glibc-2.3.2/iconvdata/jis0212.h
+--- glibc-2.3.2.orig/iconvdata/jis0212.h	2001-07-07 19:21:02.000000000 +0000
++++ glibc-2.3.2/iconvdata/jis0212.h	2003-10-19 21:45:55.678420088 +0000
+@@ -77,6 +77,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_jisx0212 (uint32_t wch, char *s, size_t avail)
+ {
+   const struct jisx0212_idx *rp = __jisx0212_from_ucs_idx;
+diff -Naur glibc-2.3.2.orig/iconvdata/jisx0213.h glibc-2.3.2/iconvdata/jisx0213.h
+--- glibc-2.3.2.orig/iconvdata/jisx0213.h	2002-04-20 07:41:04.000000000 +0000
++++ glibc-2.3.2/iconvdata/jisx0213.h	2003-10-19 21:46:48.384407560 +0000
+@@ -32,6 +32,7 @@
+ #define NELEMS(arr) (sizeof (arr) / sizeof (arr[0]))
+ 
+ static inline uint32_t
++__attribute ((always_inline))
+ jisx0213_to_ucs4 (unsigned int row, unsigned int col)
+ {
+   uint32_t val;
+diff -Naur glibc-2.3.2.orig/iconvdata/ksc5601.h glibc-2.3.2/iconvdata/ksc5601.h
+--- glibc-2.3.2.orig/iconvdata/ksc5601.h	2001-07-07 19:21:02.000000000 +0000
++++ glibc-2.3.2/iconvdata/ksc5601.h	2003-10-19 21:49:34.964083600 +0000
+@@ -85,6 +85,7 @@
+ }
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_ksc5601_hangul (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   int l = 0;
+@@ -116,6 +117,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_ksc5601_hanja (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   int l = 0;
+@@ -146,6 +148,7 @@
+ }
+ 
+ static inline  size_t
++__attribute ((always_inline))
+ ucs4_to_ksc5601_sym (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   int l = 0;
+@@ -177,6 +180,7 @@
+ 
+ 
+ static inline size_t
++__attribute ((always_inline))
+ ucs4_to_ksc5601 (uint32_t wch, unsigned char *s, size_t avail)
+ {
+   if (wch >= 0xac00 && wch <= 0xd7a3)
+diff -Naur glibc-2.3.2.orig/iconvdata/utf-7.c glibc-2.3.2/iconvdata/utf-7.c
+--- glibc-2.3.2.orig/iconvdata/utf-7.c	2002-06-28 19:43:39.000000000 +0000
++++ glibc-2.3.2/iconvdata/utf-7.c	2003-10-19 21:50:34.483035344 +0000
+@@ -93,7 +93,7 @@
+ 
+ 
+ /* Converts a value in the range 0..63 to a base64 encoded char.  */
+-static inline unsigned char
++static unsigned char
+ base64 (unsigned int i)
+ {
+   if (i < 26)
+diff -Naur glibc-2.3.2.orig/io/ftw.c glibc-2.3.2/io/ftw.c
+--- glibc-2.3.2.orig/io/ftw.c	2003-02-08 18:25:54.000000000 +0000
++++ glibc-2.3.2/io/ftw.c	2003-10-19 11:14:39.444482872 +0000
+@@ -258,6 +258,7 @@
+ 
+ 
+ static inline int
++__attribute ((always_inline))
+ open_dir_stream (struct ftw_data *data, struct dir_data *dirp)
+ {
+   int result = 0;
+@@ -348,7 +349,8 @@
+ }
+ 
+ 
+-static inline int
++static int
++internal_function
+ process_entry (struct ftw_data *data, struct dir_data *dir, const char *name,
+ 	       size_t namlen)
+ {
+diff -Naur glibc-2.3.2.orig/linuxthreads/spinlock.h glibc-2.3.2/linuxthreads/spinlock.h
+--- glibc-2.3.2.orig/linuxthreads/spinlock.h	2001-05-24 23:23:00.000000000 +0000
++++ glibc-2.3.2/linuxthreads/spinlock.h	2003-10-19 21:23:52.703542840 +0000
+@@ -196,7 +196,7 @@
+ }
+ 
+ 
+-static inline void
++static inline __attribute__((always_inline)) void
+ __pthread_set_own_extricate_if (pthread_descr self, pthread_extricate_if *peif)
+ {
+   /* Only store a non-null peif if the thread has cancellation enabled.
+diff -Naur glibc-2.3.2.orig/locale/setlocale.c glibc-2.3.2/locale/setlocale.c
+--- glibc-2.3.2.orig/locale/setlocale.c	2002-12-04 09:53:49.000000000 +0000
++++ glibc-2.3.2/locale/setlocale.c	2003-10-19 21:22:09.697202184 +0000
+@@ -128,7 +128,7 @@
+ 
+ 
+ /* Construct a new composite name.  */
+-static inline char *
++static char *
+ new_composite_name (int category, const char *newnames[__LC_LAST])
+ {
+   size_t last_len = 0;
+diff -Naur glibc-2.3.2.orig/locale/weight.h glibc-2.3.2/locale/weight.h
+--- glibc-2.3.2.orig/locale/weight.h	2001-07-07 19:21:04.000000000 +0000
++++ glibc-2.3.2/locale/weight.h	2003-10-19 10:52:58.192303272 +0000
+@@ -19,6 +19,7 @@
+ 
+ /* Find index of weight.  */
+ static inline int32_t
++__attribute ((always_inline))
+ findidx (const unsigned char **cpp)
+ {
+   int_fast32_t i = table[*(*cpp)++];
+diff -Naur glibc-2.3.2.orig/locale/weightwc.h glibc-2.3.2/locale/weightwc.h
+--- glibc-2.3.2.orig/locale/weightwc.h	2001-08-07 04:23:14.000000000 +0000
++++ glibc-2.3.2/locale/weightwc.h	2003-10-19 10:53:09.349607104 +0000
+@@ -19,6 +19,7 @@
+ 
+ /* Find index of weight.  */
+ static inline int32_t
++__attribute ((always_inline))
+ findidx (const wint_t **cpp)
+ {
+   int32_t i;
+diff -Naur glibc-2.3.2.orig/nss/nss_files/files-parse.c glibc-2.3.2/nss/nss_files/files-parse.c
+--- glibc-2.3.2.orig/nss/nss_files/files-parse.c	2002-08-10 18:09:07.000000000 +0000
++++ glibc-2.3.2/nss/nss_files/files-parse.c	2003-10-19 10:54:27.942659144 +0000
+@@ -171,6 +171,7 @@
+ }
+ 
+ static inline char **
++__attribute ((always_inline))
+ parse_list (char *line, struct parser_data *data, size_t datalen, int *errnop)
+ {
+   char *eol, **list, **p;
+diff -Naur glibc-2.3.2.orig/posix/regcomp.c glibc-2.3.2/posix/regcomp.c
+--- glibc-2.3.2.orig/posix/regcomp.c	2003-02-21 01:17:47.000000000 +0000
++++ glibc-2.3.2/posix/regcomp.c	2003-10-19 21:21:08.193552160 +0000
+@@ -2544,6 +2544,7 @@
+      Return the value if succeeded, UINT_MAX otherwise.  */
+ 
+   static inline unsigned int
++  __attribute ((always_inline))
+   lookup_collation_sequence_value (br_elem)
+ 	 bracket_elem_t *br_elem;
+     {
+diff -Naur glibc-2.3.2.orig/stdlib/grouping.h glibc-2.3.2/stdlib/grouping.h
+--- glibc-2.3.2.orig/stdlib/grouping.h	2001-07-07 19:21:18.000000000 +0000
++++ glibc-2.3.2/stdlib/grouping.h	2003-10-19 22:21:58.705589976 +0000
+@@ -29,7 +29,7 @@
+    satisfies the grouping rules.  It is assumed that at least one digit
+    follows BEGIN directly.  */
+ 
+-static inline const STRING_TYPE *
++static const STRING_TYPE *
+ correctly_grouped_prefix (const STRING_TYPE *begin, const STRING_TYPE *end,
+ #ifdef USE_WIDE_CHAR
+ 			  wchar_t thousands,
+diff -Naur glibc-2.3.2.orig/stdlib/strtod.c glibc-2.3.2/stdlib/strtod.c
+--- glibc-2.3.2.orig/stdlib/strtod.c	2003-02-22 09:10:31.000000000 +0000
++++ glibc-2.3.2/stdlib/strtod.c	2003-10-19 10:58:40.388281576 +0000
+@@ -205,7 +205,7 @@
+ 
+ /* Return a floating point number of the needed type according to the given
+    multi-precision number after possible rounding.  */
+-static inline FLOAT
++static FLOAT
+ round_and_return (mp_limb_t *retval, int exponent, int negative,
+ 		  mp_limb_t round_limb, mp_size_t round_bit, int more_bits)
+ {
+@@ -300,7 +300,7 @@
+    character od the string that is not part of the integer as the function
+    value.  If the EXPONENT is small enough to be taken as an additional
+    factor for the resulting number (see code) multiply by it.  */
+-static inline const STRING_TYPE *
++static const STRING_TYPE *
+ str_to_mpn (const STRING_TYPE *str, int digcnt, mp_limb_t *n, mp_size_t *nsize,
+ 	    int *exponent
+ #ifndef USE_WIDE_CHAR
+diff -Naur glibc-2.3.2.orig/sysdeps/generic/ldsodefs.h glibc-2.3.2/sysdeps/generic/ldsodefs.h
+--- glibc-2.3.2.orig/sysdeps/generic/ldsodefs.h	2003-01-03 20:42:47.000000000 +0000
++++ glibc-2.3.2/sysdeps/generic/ldsodefs.h	2003-10-19 10:59:57.025630928 +0000
+@@ -166,7 +166,7 @@
+ 
+ /* Test whether given NAME matches any of the names of the given object.  */
+ static __inline int
+-__attribute__ ((unused))
++__attribute__ ((unused, always_inline))
+ _dl_name_match_p (const char *__name, struct link_map *__map)
+ {
+   int __found = strcmp (__name, __map->l_name) == 0;
+diff -Naur glibc-2.3.2.orig/sysdeps/generic/unwind-dw2-fde.c glibc-2.3.2/sysdeps/generic/unwind-dw2-fde.c
+--- glibc-2.3.2.orig/sysdeps/generic/unwind-dw2-fde.c	2002-05-14 23:46:28.000000000 +0000
++++ glibc-2.3.2/sysdeps/generic/unwind-dw2-fde.c	2003-10-19 11:02:36.861332208 +0000
+@@ -574,7 +574,7 @@
+     }
+ }
+ 
+-static inline void
++static void
+ end_fde_sort (struct object *ob, struct fde_accumulator *accu, size_t count)
+ {
+   fde_compare_t fde_compare;
+diff -Naur glibc-2.3.2.orig/sysdeps/posix/sprofil.c glibc-2.3.2/sysdeps/posix/sprofil.c
+--- glibc-2.3.2.orig/sysdeps/posix/sprofil.c	2002-12-16 04:26:25.000000000 +0000
++++ glibc-2.3.2/sysdeps/posix/sprofil.c	2003-10-19 11:03:34.315597832 +0000
+@@ -104,7 +104,7 @@
+   return pc;
+ }
+ 
+-static inline void
++static void
+ profil_count (void *pcp, int prof_uint)
+ {
+   struct region *region, *r = prof_info.last;
+diff -Naur glibc-2.3.2.orig/sysdeps/unix/sysv/linux/i386/dl-procinfo.h glibc-2.3.2/sysdeps/unix/sysv/linux/i386/dl-procinfo.h
+--- glibc-2.3.2.orig/sysdeps/unix/sysv/linux/i386/dl-procinfo.h	2002-09-24 00:00:49.000000000 +0000
++++ glibc-2.3.2/sysdeps/unix/sysv/linux/i386/dl-procinfo.h	2003-10-19 11:05:10.587962208 +0000
+@@ -97,7 +97,7 @@
+ };
+ 
+ static inline int
+-__attribute__ ((unused))
++__attribute__ ((unused, always_inline))
+ _dl_string_hwcap (const char *str)
+ {
+   int i;
+@@ -112,7 +112,7 @@
+ 
+ 
+ static inline int
+-__attribute__ ((unused))
++__attribute__ ((unused, always_inline))
+ _dl_string_platform (const char *str)
+ {
+   int i;

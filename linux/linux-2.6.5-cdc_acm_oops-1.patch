@@ -1,0 +1,47 @@
+Submitted By: Miguel Bazdresch <lfs-01@thewizardstower.org>
+Date: 2004-04-12
+Initial Package Version: 2.6.5
+Upstream Status: accepted into the -mm tree
+Origin: The linux-usb-devel mailing list
+        See: http://marc.theaimsgroup.com/?l=linux-usb-devel&m=108024624628198&w=2
+        The patch referenced above was made against a 2.6.5 release
+        candidate and applies cleanly except for an offset. The patch
+        below was created by me against 2.6.5 final and eliminates the
+        offset.
+Description: Changes in the usb code in 2.6.5 causes some usb drivers to
+             oops. In particular, the 1.9.6 driver for Eagle chip-based ADSL
+             modems doesn't work with 2.6.5. The consensus seems to be
+             that it's a kernel problem, and this patch fixes it.
+             For more info see:
+             http://forum.eagle-usb.org/viewtopic.php?t=1998&postdays=0&postorder=asc&start=0
+
+diff -Naur linux-2.6.5.orig/drivers/usb/core/message.c linux-2.6.5/drivers/usb/core/message.c
+--- linux-2.6.5.orig/drivers/usb/core/message.c	2004-04-04 03:36:46.000000000 +0000
++++ linux-2.6.5/drivers/usb/core/message.c	2004-04-11 21:13:55.000000000 +0000
+@@ -1172,10 +1172,24 @@
+ 				 configuration,
+ 				 alt->desc.bInterfaceNumber);
+ 			dev_dbg (&dev->dev,
++				"initializing %s (config #%d, interface %d)\n",
++				intf->dev.bus_id, configuration,
++				intf->cur_altsetting->desc.bInterfaceNumber);
++			device_initialize (&intf->dev);			
++		}
++		
++		/* all interfaces are initialized, we can now 
++		 * register them
++		 */
++		for (i = 0; i < cp->desc.bNumInterfaces; ++i) {
++			struct usb_interface *intf = cp->interface[i];
++			dev_dbg (&dev->dev,
+ 				"registering %s (config #%d, interface %d)\n",
+ 				intf->dev.bus_id, configuration,
+-				alt->desc.bInterfaceNumber);
+-			device_register (&intf->dev);
++				intf->cur_altsetting->desc.bInterfaceNumber);
++			if ((ret = device_add (&intf->dev)) < 0)
++				goto out;
++				
+ 			usb_create_driverfs_intf_files (intf);
+ 		}
+ 	}

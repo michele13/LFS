@@ -1,0 +1,36 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2004-09-07
+Initial Package Version: 2.0.5
+Upstream Status:         Not submitted 
+Origin:                  Randy McMurchy
+Description:             Fixes GCC-3.4.x build issues
+
+--- libsigc++-2.0.5-orig/sigc++/adaptors/lambda/group.h	2004-07-23 14:57:33.000000000 +0000
++++ libsigc++-2.0.5/sigc++/adaptors/lambda/group.h	2004-09-08 02:26:35.941537144 +0000
+@@ -76,7 +76,7 @@
+ 
+   template <class T_arg1=void,class T_arg2=void,class T_arg3=void,class T_arg4=void,class T_arg5=void,class T_arg6=void,class T_arg7=void>
+   struct deduce_result_type
+-    { typedef typename functor_type::deduce_result_type<
++    { typedef typename sigc::adaptor_trait<T_functor, sigc::is_base_and_derived<sigc::adaptor_base, T_functor>::value>::adaptor_type::template deduce_result_type<
+           typename value1_type::template deduce_result_type<
+             typename type_trait<T_arg1>::pass,typename type_trait<T_arg2>::pass,typename type_trait<T_arg3>::pass,typename type_trait<T_arg4>::pass,typename type_trait<T_arg5>::pass,typename type_trait<T_arg6>::pass,typename type_trait<T_arg7>::pass>::type
+         >::type type; };
+@@ -242,7 +242,7 @@
+ 
+   template <class T_arg1=void,class T_arg2=void,class T_arg3=void,class T_arg4=void,class T_arg5=void,class T_arg6=void,class T_arg7=void>
+   struct deduce_result_type
+-    { typedef typename functor_type::deduce_result_type<
++    { typedef typename sigc::adaptor_trait<T_functor, sigc::is_base_and_derived<sigc::adaptor_base, T_functor>::value>::adaptor_type::template deduce_result_type<
+           typename value1_type::template deduce_result_type<
+             typename type_trait<T_arg1>::pass,typename type_trait<T_arg2>::pass,typename type_trait<T_arg3>::pass,typename type_trait<T_arg4>::pass,typename type_trait<T_arg5>::pass,typename type_trait<T_arg6>::pass,typename type_trait<T_arg7>::pass>::type,
+           typename value2_type::template deduce_result_type<
+@@ -455,7 +455,7 @@
+ 
+   template <class T_arg1=void,class T_arg2=void,class T_arg3=void,class T_arg4=void,class T_arg5=void,class T_arg6=void,class T_arg7=void>
+   struct deduce_result_type
+-    { typedef typename functor_type::deduce_result_type<
++    { typedef typename sigc::adaptor_trait<T_functor, sigc::is_base_and_derived<sigc::adaptor_base, T_functor>::value>::adaptor_type::template deduce_result_type<
+           typename value1_type::template deduce_result_type<
+             typename type_trait<T_arg1>::pass,typename type_trait<T_arg2>::pass,typename type_trait<T_arg3>::pass,typename type_trait<T_arg4>::pass,typename type_trait<T_arg5>::pass,typename type_trait<T_arg6>::pass,typename type_trait<T_arg7>::pass>::type,
+           typename value2_type::template deduce_result_type<

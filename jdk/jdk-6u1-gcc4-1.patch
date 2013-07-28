@@ -1,0 +1,77 @@
+Submitted By: DJ Lucas <dj AT linuxfromscratch DOT org>
+Date: 2006-06-25
+Initial Package Version: 6u1 
+Upstream Status: Not applicable
+Origin: Prvious JDK-1.5.0_xx gcc4 patches as supplied by Bernard Leak, Randy
+        McMurchy, various upstream sources, and self.  vm.make patch acquired
+        from upstream JDK-7 source tree.
+Description: Enable compilation with GCC-4.1+.
+
+--- jdk-build-orig/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c	2007-02-10 15:23:41.000000000 -0600
++++ jdk-build/j2se/src/solaris/hpi/native_threads/src/interrupt_md.c	2007-02-09 18:51:35.000000000 -0600
+@@ -110,8 +110,8 @@
+ }
+ 
+ #ifndef HAVE_SIGIGNORE
+-static int							
+-sigignore(int sig)		
++/* static int */							
++int sigignore(int sig)		
+ {				
+     struct sigaction action;
+     sigset_t set;
+--- jdk-build-orig/j2se/src/solaris/bin/java_md.c	2007-02-10 15:23:39.000000000 -0600
++++ jdk-build/j2se/src/solaris/bin/java_md.c	2007-02-09 19:07:38.000000000 -0600
+@@ -1137,7 +1137,7 @@
+                     : /* Inputs */
+                     "m" (arg)
+                     : /* Clobbers */
+-                    "%eax", "%ebx", "%ecx", "%edx"
++                    "%eax", "%ecx", "%edx"
+                     );
+   *eaxp = value_of_eax;
+   *ebxp = value_of_ebx;
+--- jdk-build-orig/j2se/src/solaris/native/sun/awt/awt_dnd.c	2007-02-10 15:23:42.000000000 -0600
++++ jdk-build/j2se/src/solaris/native/sun/awt/awt_dnd.c	2007-02-09 22:00:02.000000000 -0600
+@@ -169,7 +169,7 @@
+     return awt_root_window;
+ }
+ 
+-static unsigned char xerror_code = Success;
++unsigned char xerror_code = Success;
+ 
+ static int 
+ xerror_handler(Display *dpy, XErrorEvent *err) {
+--- jdk-build-orig/deploy/src/javaws/share/native/launchFile.c	2007-02-10 15:22:16.000000000 -0600
++++ jdk-build/deploy/src/javaws/share/native/launchFile.c	2007-02-10 06:16:51.000000000 -0600
+@@ -63,7 +63,7 @@
+ static char **securePropertyKeys = NULL;
+ static int securePropertiesCount = -1;
+ 
+-static int isSecureProperty(char *key) {
++int isSecureProperty(char *key) {
+     int i;
+     extern int isDefaultSecureProperty(char *key);
+ 
+--- jdk-build-orig/deploy/src/javaws/share/native/xmlparser.c	2007-02-10 15:22:16.000000000 -0600
++++ jdk-build/deploy/src/javaws/share/native/xmlparser.c	2007-02-10 06:43:40.000000000 -0600
+@@ -50,7 +50,7 @@
+  *                               10   | bits  6-11
+  *                               10   | bits  0-5
+  */
+-static void RemoveNonAsciiUTF8FromBuffer(char *buf) {
++void RemoveNonAsciiUTF8FromBuffer(char *buf) {
+     char* p;
+     char* q;
+     char c;
+--- jdk-build-orig/hotspot/build/linux/makefiles/vm.make	2007-06-14 19:55:23.000000000 +0000
++++ jdk-build/hotspot/build/linux/makefiles/vm.make	2007-06-14 19:55:59.000000000 +0000
+@@ -128,7 +128,7 @@
+ $(LD_SCRIPT): $(LIBJVM_MAPFILE)
+ 	$(QUIETLY) {                                                \
+ 	  rm -rf $@;                                                \
+-	  $(LINK_VM) -Wl,--verbose $(LFLAGS_VM) 2>&1 > /dev/null |  \
++	  $(LINK_VM) -Wl,--verbose $(LFLAGS_VM) 2>&1 |              \
+ 	    sed -e '/^======/,/^======/!d'                          \
+ 		-e '/^======/d'                                     \
+ 		-e 's/0\( + SIZEOF_HEADERS\)/$(JVM_BASE_ADDR)\1/'   \

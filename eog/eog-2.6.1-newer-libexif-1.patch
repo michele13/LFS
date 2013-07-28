@@ -1,0 +1,85 @@
+Submitted By: Nico R. <n-roeser@gmx.net>
+Date: 2004-09-15
+Initial Package Version: 2.6.1
+Upstream Status: From Upstream
+Origin: GNOME CVS HEAD, committed 2004-07-23T06:02:53+0000
+Description: This is the patch from upstream CVS HEAD, backported by me to
+             eog-2.6.1 and modified a bit.
+             Thanks to Jürg Billeter for providing the original patch in
+             <URL:http://archives.linuxfromscratch.org/mail-archives/blfs-dev/2004-August/007319.html>.
+             Run autoconf after applying this patch.
+
+diff -Naur eog-2.6.1.orig/configure.in eog-2.6.1/configure.in
+--- eog-2.6.1.orig/configure.in	2004-04-21 18:02:40.000000000 +0000
++++ eog-2.6.1/configure.in	2004-09-15 16:38:08.000000000 +0000
+@@ -62,13 +62,20 @@
+ 
+ AC_ARG_WITH(libexif, [  --without-libexif	  disable special EXIF support])
+ have_exif=no
++have_old_libexif=no
+ if test x$with_libexif != xno; then
+     PKG_CHECK_MODULES(EXIF, libexif >= $LIBEXIF_REQUIRED, have_exif=yes, have_exif=no)
++    PKG_CHECK_MODULES(EXIF, libexif > $LIBEXIF_REQUIRED, have_old_libexif=no, have_old_libexif=yes)
+ fi 
+ 
+ if test "x$have_exif" = "xyes"; then
+   AC_DEFINE(HAVE_EXIF,1)
+-  EOG_MODULES="$EOG_MODULES libexif >= $LIBEXIF_REQUIRED"
++  if test "x$have_old_libexif" = "xyes"; then
++    AC_DEFINE(HAVE_OLD_LIBEXIF,1)
++    EOG_MODULES="$EOG_MODULES libexif = $LIBEXIF_REQUIRED"
++  else
++    EOG_MODULES="$EOG_MODULES libexif >= $LIBEXIF_REQUIRED"
++  fi
+ fi
+ 
+ dnl ============== semi optional libjpeg support ====================
+@@ -222,6 +229,7 @@
+ 	Compiler:		  ${CC} 
+ 
+ 	Extra Compiler Warnings:  ${WARN_CFLAGS}
+-	Use libexif:              ${have_exif}
++	Special EXIF support:     ${have_exif}
++	Use libexif = 0.5.12:     ${have_old_libexif}
+ 	Special JPEG support:     ${have_jpeg}
+ "
+diff -Naur eog-2.6.1.orig/libeog/eog-info-view.c eog-2.6.1/libeog/eog-info-view.c
+--- eog-2.6.1.orig/libeog/eog-info-view.c	2004-02-15 15:33:11.000000000 +0000
++++ eog-2.6.1/libeog/eog-info-view.c	2004-09-15 16:38:08.000000000 +0000
+@@ -4,6 +4,7 @@
+ #include <libgnomevfs/gnome-vfs-utils.h>
+ #if HAVE_EXIF
+ #include <libexif/exif-entry.h>
++#include <libexif/exif-utils.h>
+ #include <libexif/exif-data.h>
+ #endif
+ 
+@@ -246,6 +247,7 @@
+ 	EogInfoView *view;
+ 	EogInfoViewPrivate *priv;
+ 	char *path;
++	char b[1024];
+ 
+ 	view = EOG_INFO_VIEW (data);
+ 	priv = view->priv;
+@@ -255,11 +257,20 @@
+ 	path = g_hash_table_lookup (priv->id_path_hash, GINT_TO_POINTER (entry->tag));
+ 
+ 	if (path != NULL) {
++#ifdef HAVE_OLD_LIBEXIF
+ 		set_row_data (store, path, exif_tag_get_name (entry->tag), exif_entry_get_value (entry));	
++#else
++		set_row_data (store, path, exif_tag_get_name (entry->tag), exif_entry_get_value (entry, b, sizeof(b)));	
++#endif
+ 	}
+ 	else {
++#ifdef HAVE_OLD_LIBEXIF
+ 		path = set_row_data (store, NULL, 
+ 				     exif_tag_get_name (entry->tag), exif_entry_get_value (entry));	
++#else
++		path = set_row_data (store, NULL,
++				     exif_tag_get_name (entry->tag), exif_entry_get_value (entry, b, sizeof(b)));	
++#endif
+ 
+ 		g_hash_table_insert (priv->id_path_hash,
+ 				     GINT_TO_POINTER (entry->tag),

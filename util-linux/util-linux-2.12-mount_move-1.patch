@@ -1,0 +1,37 @@
+Submitted By: Zack Winkles <winkie@linuxfromscratch.org>
+Date: 2004-02-11
+Initial Package Version: 2.12
+Origin: http://marc.theaimsgroup.com/?l=linux-kernel&m=107651253813454&w=2
+Description: Fix /etc/mtab updating when using mount --move.
+
+diff -Naur util-linux-2.12.orig/mount/fstab.c util-linux-2.12/mount/fstab.c
+--- util-linux-2.12.orig/mount/fstab.c	2003-07-15 17:14:41.000000000 -0400
++++ util-linux-2.12/mount/fstab.c	2004-02-11 12:18:26.596945648 -0500
+@@ -573,8 +573,12 @@
+ 				mc->nxt->prev = mc->prev;
+ 			}
+ 		} else {
+-			/* A remount */
++			/* A remount or move */
+ 			mc->m.mnt_opts = instead->mnt_opts;
++			if (!streq(mc->m.mnt_dir, instead->mnt_dir)) {
++				free(mc->m.mnt_dir);
++				mc->m.mnt_dir = xstrdup(instead->mnt_dir);
++			}
+ 		}
+ 	} else if (instead) {
+ 		/* not found, add a new entry */
+diff -Naur util-linux-2.12.orig/mount/mount.c util-linux-2.12/mount/mount.c
+--- util-linux-2.12.orig/mount/mount.c	2003-07-15 17:38:48.000000000 -0400
++++ util-linux-2.12/mount/mount.c	2004-02-11 12:18:26.598945344 -0500
+@@ -639,7 +639,9 @@
+ 	    print_one (&mnt);
+ 
+     if (!nomtab && mtab_is_writable()) {
+-	if (flags & MS_REMOUNT)
++	if (flags & MS_MOVE)
++	    update_mtab (mnt.mnt_fsname, &mnt);
++	else if (flags & MS_REMOUNT)
+ 	    update_mtab (mnt.mnt_dir, &mnt);
+ 	else {
+ 	    mntFILE *mfp;

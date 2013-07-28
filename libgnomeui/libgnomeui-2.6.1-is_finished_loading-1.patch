@@ -1,0 +1,22 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: 2004-04-26
+Initial Package Version: 2.6.1
+Upstream Status: Not submitted. 
+Origin: As described on the garnome list.
+Description: A recently added callback fails to build. Patch as
+suggested in
+http:/lists.gnome.org/archives/garnome-list/2004-April/msg00153.html
+
+
+
+--- libgnomeui-2.6.1/file-chooser/gtkfilesystemgnomevfs.c~	2004-04-26 17:02:28.730919503 +0100
++++ libgnomeui-2.6.1/file-chooser/gtkfilesystemgnomevfs.c	2004-04-26 17:03:28.439831855 +0100
+@@ -1762,7 +1762,7 @@
+ {
+   iface->get_info = gtk_file_folder_gnome_vfs_get_info;
+   iface->list_children = gtk_file_folder_gnome_vfs_list_children;
+-  iface->is_finished_loading = gtk_file_folder_gnome_vfs_is_finished_loading;
++  /* iface->is_finished_loading = gtk_file_folder_gnome_vfs_is_finished_loading; */
+ }
+ 
+ static void

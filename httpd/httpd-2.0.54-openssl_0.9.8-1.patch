@@ -1,0 +1,23 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-09-06
+Initial Package Version: 2.0.54
+Origin: http://forums.devside.net/viewtopic.php?t=740
+Upstream Status: Fixed
+Description: Allows Apache 2 to be compiled with OpenSSL 0.9.8
+ 
+diff -Naur httpd-2.0.54.orig/modules/ssl/ssl_toolkit_compat.h httpd-2.0.54/modules/ssl/ssl_toolkit_compat.h
+--- httpd-2.0.54.orig/modules/ssl/ssl_toolkit_compat.h	2005-02-04 20:21:18.000000000 +0000
++++ httpd-2.0.54/modules/ssl/ssl_toolkit_compat.h	2005-09-07 02:26:08.000000000 +0000
+@@ -24,6 +24,12 @@
+ 
+ #ifdef OPENSSL_VERSION_NUMBER
+ 
++#if (OPENSSL_VERSION_NUMBER >= 0x0090800fL)
++#ifndef PEM_F_DEF_CALLBACK
++#define PEM_F_DEF_CALLBACK PEM_F_PEM_DEF_CALLBACK 
++#endif
++#endif
++
+ /*
+  * rsa sslc uses incomplete types for most structures
+  * so we macroize for OpenSSL those which cannot be dereferenced

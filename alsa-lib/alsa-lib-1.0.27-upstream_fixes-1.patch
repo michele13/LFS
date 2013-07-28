@@ -1,0 +1,365 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2013-05-12
+Initial Package Version: 1.0.27
+Upstream Status:         Fixed upstream
+Origin:                  Upstream
+Description:             Various fixes from upstream repository.
+
+From e1e40c25535af35fa5cdf7ffc95a01fbff098ddd Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Mon, 15 Apr 2013 18:12:17 +0200
+Subject: [PATCH] Fix doubly call of dlclose() in dlobj caching code
+
+When multiple dlobj_cache items point to the same dlobj, dlclose() may
+be called wrongly multiple times when these items are cleared, because
+we manage the dlobj_cache list as a flat list.  This results in a bad
+segfault we've seen in openal-soft, for example.
+
+For fixing this, we need the refcounting of dlobj itself.  But, in
+this case, we don't have to manage yet another list,  since dlopen()
+does a proper refcounting by itself.  That is, we can just call always
+dlopen() at each time a new function is assigned, and also call
+dlclose() for each released dlobj_cache item at cleanup.
+
+Bugzilla: https://bugzilla.novell.com/show_bug.cgi?id=814250
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ src/dlmisc.c | 31 +++++++++++--------------------
+ 1 file changed, 11 insertions(+), 20 deletions(-)
+
+diff --git a/src/dlmisc.c b/src/dlmisc.c
+index 3788382..2de0234 100644
+--- a/src/dlmisc.c
++++ b/src/dlmisc.c
+@@ -208,8 +208,7 @@ void *snd_dlobj_cache_get(const char *lib, const char *name,
+ {
+ 	struct list_head *p;
+ 	struct dlobj_cache *c;
+-	void *func, *dlobj = NULL;
+-	int dlobj_close = 0;
++	void *func, *dlobj;
+ 
+ 	snd_dlobj_lock();
+ 	list_for_each(p, &pcm_dlobj_list) {
+@@ -220,7 +219,6 @@ void *snd_dlobj_cache_get(const char *lib, const char *name,
+ 			continue;
+ 		if (!lib && c->lib)
+ 			continue;
+-		dlobj = c->dlobj;
+ 		if (strcmp(c->name, name) == 0) {
+ 			c->refcnt++;
+ 			func = c->func;
+@@ -228,17 +226,16 @@ void *snd_dlobj_cache_get(const char *lib, const char *name,
+ 			return func;
+ 		}
+ 	}
++
++	dlobj = snd_dlopen(lib, RTLD_NOW);
+ 	if (dlobj == NULL) {
+-		dlobj = snd_dlopen(lib, RTLD_NOW);
+-		if (dlobj == NULL) {
+-			if (verbose)
+-				SNDERR("Cannot open shared library %s",
++		if (verbose)
++			SNDERR("Cannot open shared library %s",
+ 						lib ? lib : "[builtin]");
+-			snd_dlobj_unlock();
+-			return NULL;
+-		}
+-		dlobj_close = 1;
++		snd_dlobj_unlock();
++		return NULL;
+ 	}
++
+ 	func = snd_dlsym(dlobj, name, version);
+ 	if (func == NULL) {
+ 		if (verbose)
+@@ -257,8 +254,7 @@ void *snd_dlobj_cache_get(const char *lib, const char *name,
+ 		free((void *)c->lib);
+ 		free(c);
+ 	      __err:
+-		if (dlobj_close)
+-			snd_dlclose(dlobj);
++		snd_dlclose(dlobj);
+ 		snd_dlobj_unlock();
+ 		return NULL;
+ 	}
+@@ -298,16 +294,11 @@ void snd_dlobj_cache_cleanup(void)
+ 	struct list_head *p, *npos;
+ 	struct dlobj_cache *c;
+ 
+-	/* clean up caches only when really no user is present */
+ 	snd_dlobj_lock();
+-	list_for_each(p, &pcm_dlobj_list) {
+-		c = list_entry(p, struct dlobj_cache, list);
+-		if (c->refcnt)
+-			goto unlock;
+-	}
+-
+ 	list_for_each_safe(p, npos, &pcm_dlobj_list) {
+ 		c = list_entry(p, struct dlobj_cache, list);
++		if (c->refcnt)
++			continue;
+ 		list_del(p);
+ 		snd_dlclose(c->dlobj);
+ 		free((void *)c->name); /* shut up gcc warning */
+-- 
+1.7.11.7
+
+From 30122df4faf7ccc79b9525db95f55c5a8ed6fe4d Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Thu, 25 Apr 2013 09:52:33 +0200
+Subject: [PATCH] Use __inline__ for exported headers
+
+Some programs are still using C90.
+
+Bugzilla: https://bugzilla.novell.com/show_bug.cgi?id=817077
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ include/control.h     |  4 ++--
+ include/iatomic.h     | 14 +++++++-------
+ include/pcm.h         |  2 +-
+ include/pcm_extplug.h |  4 ++--
+ include/use-case.h    |  4 ++--
+ 5 files changed, 14 insertions(+), 14 deletions(-)
+
+diff --git a/include/control.h b/include/control.h
+index 27fe2ac..5fdf379 100644
+--- a/include/control.h
++++ b/include/control.h
+@@ -234,7 +234,7 @@ int snd_ctl_open_lconf(snd_ctl_t **ctl, const char *name, int mode, snd_config_t
+ int snd_ctl_open_fallback(snd_ctl_t **ctl, snd_config_t *root, const char *name, const char *orig_name, int mode);
+ int snd_ctl_close(snd_ctl_t *ctl);
+ int snd_ctl_nonblock(snd_ctl_t *ctl, int nonblock);
+-static inline int snd_ctl_abort(snd_ctl_t *ctl) { return snd_ctl_nonblock(ctl, 2); }
++static __inline__ int snd_ctl_abort(snd_ctl_t *ctl) { return snd_ctl_nonblock(ctl, 2); }
+ int snd_async_add_ctl_handler(snd_async_handler_t **handler, snd_ctl_t *ctl, 
+ 			      snd_async_callback_t callback, void *private_data);
+ snd_ctl_t *snd_async_handler_get_ctl(snd_async_handler_t *handler);
+@@ -532,7 +532,7 @@ int snd_hctl_open(snd_hctl_t **hctl, const char *name, int mode);
+ int snd_hctl_open_ctl(snd_hctl_t **hctlp, snd_ctl_t *ctl);
+ int snd_hctl_close(snd_hctl_t *hctl);
+ int snd_hctl_nonblock(snd_hctl_t *hctl, int nonblock);
+-static inline int snd_hctl_abort(snd_hctl_t *hctl) { return snd_hctl_nonblock(hctl, 2); }
++static __inline__ int snd_hctl_abort(snd_hctl_t *hctl) { return snd_hctl_nonblock(hctl, 2); }
+ int snd_hctl_poll_descriptors_count(snd_hctl_t *hctl);
+ int snd_hctl_poll_descriptors(snd_hctl_t *hctl, struct pollfd *pfds, unsigned int space);
+ int snd_hctl_poll_descriptors_revents(snd_hctl_t *ctl, struct pollfd *pfds, unsigned int nfds, unsigned short *revents);
+diff --git a/include/iatomic.h b/include/iatomic.h
+index e92dbfd..5711fe8 100644
+--- a/include/iatomic.h
++++ b/include/iatomic.h
+@@ -980,7 +980,7 @@ static __inline__ int atomic_dec_and_test(volatile atomic_t *v)
+ 	return result;
+ }
+ 
+-static inline int atomic_add_negative(int i, volatile atomic_t *v)
++static __inline__ int atomic_add_negative(int i, volatile atomic_t *v)
+ {
+ 	unsigned long flags;
+ 	int result;
+@@ -1160,36 +1160,36 @@ typedef struct {
+ 
+ void snd_atomic_read_wait(snd_atomic_read_t *t);
+ 
+-static inline void snd_atomic_write_init(snd_atomic_write_t *w)
++static __inline__ void snd_atomic_write_init(snd_atomic_write_t *w)
+ {
+ 	w->begin = 0;
+ 	w->end = 0;
+ }
+ 
+-static inline void snd_atomic_write_begin(snd_atomic_write_t *w)
++static __inline__ void snd_atomic_write_begin(snd_atomic_write_t *w)
+ {
+ 	w->begin++;
+ 	wmb();
+ }
+ 
+-static inline void snd_atomic_write_end(snd_atomic_write_t *w)
++static __inline__ void snd_atomic_write_end(snd_atomic_write_t *w)
+ {
+ 	wmb();
+ 	w->end++;
+ }
+ 
+-static inline void snd_atomic_read_init(snd_atomic_read_t *r, snd_atomic_write_t *w)
++static __inline__ void snd_atomic_read_init(snd_atomic_read_t *r, snd_atomic_write_t *w)
+ {
+ 	r->write = w;
+ }
+ 
+-static inline void snd_atomic_read_begin(snd_atomic_read_t *r)
++static __inline__ void snd_atomic_read_begin(snd_atomic_read_t *r)
+ {
+ 	r->end = r->write->end;
+ 	rmb();
+ }
+ 
+-static inline int snd_atomic_read_ok(snd_atomic_read_t *r)
++static __inline__ int snd_atomic_read_ok(snd_atomic_read_t *r)
+ {
+ 	rmb();
+ 	return r->end == r->write->begin;
+diff --git a/include/pcm.h b/include/pcm.h
+index e440030..95b8aed 100644
+--- a/include/pcm.h
++++ b/include/pcm.h
+@@ -451,7 +451,7 @@ int snd_pcm_poll_descriptors_count(snd_pcm_t *pcm);
+ int snd_pcm_poll_descriptors(snd_pcm_t *pcm, struct pollfd *pfds, unsigned int space);
+ int snd_pcm_poll_descriptors_revents(snd_pcm_t *pcm, struct pollfd *pfds, unsigned int nfds, unsigned short *revents);
+ int snd_pcm_nonblock(snd_pcm_t *pcm, int nonblock);
+-static inline int snd_pcm_abort(snd_pcm_t *pcm) { return snd_pcm_nonblock(pcm, 2); }
++static __inline__ int snd_pcm_abort(snd_pcm_t *pcm) { return snd_pcm_nonblock(pcm, 2); }
+ int snd_async_add_pcm_handler(snd_async_handler_t **handler, snd_pcm_t *pcm, 
+ 			      snd_async_callback_t callback, void *private_data);
+ snd_pcm_t *snd_async_handler_get_pcm(snd_async_handler_t *handler);
+diff --git a/include/pcm_extplug.h b/include/pcm_extplug.h
+index 884f322..e3b71bc 100644
+--- a/include/pcm_extplug.h
++++ b/include/pcm_extplug.h
+@@ -188,7 +188,7 @@ int snd_pcm_extplug_set_slave_param_minmax(snd_pcm_extplug_t *extplug, int type,
+ /**
+  * set the parameter constraint with a single value
+  */
+-static inline int snd_pcm_extplug_set_param(snd_pcm_extplug_t *extplug, int type, unsigned int val)
++static __inline__ int snd_pcm_extplug_set_param(snd_pcm_extplug_t *extplug, int type, unsigned int val)
+ {
+ 	return snd_pcm_extplug_set_param_list(extplug, type, 1, &val);
+ }
+@@ -196,7 +196,7 @@ static inline int snd_pcm_extplug_set_param(snd_pcm_extplug_t *extplug, int type
+ /**
+  * set the parameter constraint for slave PCM with a single value
+  */
+-static inline int snd_pcm_extplug_set_slave_param(snd_pcm_extplug_t *extplug, int type, unsigned int val)
++static __inline__ int snd_pcm_extplug_set_slave_param(snd_pcm_extplug_t *extplug, int type, unsigned int val)
+ {
+ 	return snd_pcm_extplug_set_slave_param_list(extplug, type, 1, &val);
+ }
+diff --git a/include/use-case.h b/include/use-case.h
+index defd4ea..93b3456 100644
+--- a/include/use-case.h
++++ b/include/use-case.h
+@@ -354,7 +354,7 @@ int snd_use_case_mgr_reset(snd_use_case_mgr_t *uc_mgr);
+  * \param list Returned allocated list
+  * \return Number of list entries if success, otherwise a negative error code
+  */
+-static inline int snd_use_case_card_list(const char **list[])
++static __inline__ int snd_use_case_card_list(const char **list[])
+ {
+ 	return snd_use_case_get_list(NULL, NULL, list);
+ }
+@@ -365,7 +365,7 @@ static inline int snd_use_case_card_list(const char **list[])
+  * \param list Returned list of verbs
+  * \return Number of list entries if success, otherwise a negative error code
+  */
+-static inline int snd_use_case_verb_list(snd_use_case_mgr_t *uc_mgr,
++static __inline__ int snd_use_case_verb_list(snd_use_case_mgr_t *uc_mgr,
+ 					 const char **list[])
+ {
+ 	return snd_use_case_get_list(uc_mgr, "_verbs", list);
+-- 
+1.7.11.7
+
+From a8f405b8f90d752c3609b9e918dc949c4efadf87 Mon Sep 17 00:00:00 2001
+From: Takashi Iwai <tiwai@suse.de>
+Date: Thu, 25 Apr 2013 09:55:49 +0200
+Subject: [PATCH] Add definition of __inline__ for non-GCC
+
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ include/asoundlib-head.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/include/asoundlib-head.h b/include/asoundlib-head.h
+index 6edbab0..71b5c29 100644
+--- a/include/asoundlib-head.h
++++ b/include/asoundlib-head.h
+@@ -40,6 +40,10 @@
+ #include <errno.h>
+ #include <stdarg.h>
+ 
++#ifndef __GNUC__
++#define __inline__ inline
++#endif
++
+ #include <alsa/asoundef.h>
+ #include <alsa/version.h>
+ #include <alsa/global.h>
+-- 
+1.7.11.7
+
+From 886f0cc3c274643de464e646535afb4ceee1d816 Mon Sep 17 00:00:00 2001
+From: Daniel Mack <zonque@gmail.com>
+Date: Thu, 18 Apr 2013 10:37:50 +0200
+Subject: [PATCH] bring pcm.h and pcm.c in sync with the kernel list
+
+In particular, this adds definitions and descriptions for G.723 and
+DSD types.
+
+Signed-off-by: Daniel Mack <zonque@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
+ include/pcm.h | 14 +++++++++++++-
+ src/pcm/pcm.c | 12 ++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/include/pcm.h b/include/pcm.h
+index d94ba90..e440030 100644
+--- a/include/pcm.h
++++ b/include/pcm.h
+@@ -199,7 +199,19 @@ typedef enum _snd_pcm_format {
+ 	SND_PCM_FORMAT_U18_3LE,
+ 	/** Unsigned 18bit Big Endian in 3bytes format */
+ 	SND_PCM_FORMAT_U18_3BE,
+-	SND_PCM_FORMAT_LAST = SND_PCM_FORMAT_U18_3BE,
++	/* G.723 (ADPCM) 24 kbit/s, 8 samples in 3 bytes */
++	SND_PCM_FORMAT_G723_24,
++	/* G.723 (ADPCM) 24 kbit/s, 1 sample in 1 byte */
++	SND_PCM_FORMAT_G723_24_1B,
++	/* G.723 (ADPCM) 40 kbit/s, 8 samples in 3 bytes */
++	SND_PCM_FORMAT_G723_40,
++	/* G.723 (ADPCM) 40 kbit/s, 1 sample in 1 byte */
++	SND_PCM_FORMAT_G723_40_1B,
++	/* Direct Stream Digital (DSD) in 1-byte samples (x8) */
++	SND_PCM_FORMAT_DSD_U8,
++	/* Direct Stream Digital (DSD) in 2-byte samples (x16) */
++	SND_PCM_FORMAT_DSD_U16_LE,
++	SND_PCM_FORMAT_LAST = SND_PCM_FORMAT_DSD_U16_LE,
+ 
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+ 	/** Signed 16 bit CPU endian */
+diff --git a/src/pcm/pcm.c b/src/pcm/pcm.c
+index 2a87a7b..438fb3f 100644
+--- a/src/pcm/pcm.c
++++ b/src/pcm/pcm.c
+@@ -1558,6 +1558,12 @@ static const char *const snd_pcm_format_names[] = {
+ 	FORMAT(S18_3BE),
+ 	FORMAT(U18_3LE),
+ 	FORMAT(U18_3BE),
++	FORMAT(G723_24),
++	FORMAT(G723_24_1B),
++	FORMAT(G723_40),
++	FORMAT(G723_40_1B),
++	FORMAT(DSD_U8),
++	FORMAT(DSD_U16_LE),
+ };
+ 
+ static const char *const snd_pcm_format_aliases[SND_PCM_FORMAT_LAST+1] = {
+@@ -1611,6 +1617,12 @@ static const char *const snd_pcm_format_descriptions[] = {
+ 	FORMATD(S18_3BE, "Signed 18 bit Big Endian in 3bytes"),
+ 	FORMATD(U18_3LE, "Unsigned 18 bit Little Endian in 3bytes"),
+ 	FORMATD(U18_3BE, "Unsigned 18 bit Big Endian in 3bytes"),
++	FORMATD(G723_24, "G.723 (ADPCM) 24 kbit/s, 8 samples in 3 bytes"),
++	FORMATD(G723_24_1B, "G.723 (ADPCM) 24 kbit/s, 1 sample in 1 byte"),
++	FORMATD(G723_40, "G.723 (ADPCM) 40 kbit/s, 8 samples in 3 bytes"),
++	FORMATD(G723_40_1B, "G.723 (ADPCM) 40 kbit/s, 1 sample in 1 byte"),
++	FORMATD(DSD_U8,  "Direct Stream Digital, 1-byte (x8), oldest bit in MSB"),
++	FORMATD(DSD_U16_LE, "Direct Stream Digital, 2-byte (x16), little endian, oldest bits in MSB"),
+ };
+ 
+ static const char *const snd_pcm_type_names[] = {
+-- 
+1.7.11.7
+

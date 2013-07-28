@@ -1,0 +1,58 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-10-13
+Initial Package Version: 5.52
+Origin: Michael Labuschke, Gentoo, and me
+Upstream Status: not send (the asm code needs to be fixed)
+Description: This patch compiles unzip with -fPIE, and disables assembly so
+that unzip and libunzip do not have TEXT RELOCATION's. Needed for HLFS. This
+patch also makes unzip use a non-executable stack, needed with Grsecurity
+kernels.
+
+This patch conflicts with unzip-5.52-fix_Makefile-1.patch. Enter:
+
+ln -sf libunzip.so.0.4 libunzip.so
+
+before running 'make' to replace the fix_Makefile patch.
+
+diff -Naur unzip-5.52.orig/crc_i386.S unzip-5.52/crc_i386.S
+--- unzip-5.52.orig/crc_i386.S	2005-01-24 22:12:18.000000000 +0000
++++ unzip-5.52/crc_i386.S	2005-10-13 21:44:52.000000000 +0000
+@@ -238,3 +238,7 @@
+ #endif /* i386 || _i386 || _I386 || __i386 */
+ 
+ #endif /* !USE_ZLIB */
++
++#ifdef __ELF__
++.section .note.GNU-stack,"",@progbits
++#endif
+diff -Naur unzip-5.52.orig/unix/Makefile unzip-5.52/unix/Makefile
+--- unzip-5.52.orig/unix/Makefile	2005-02-26 19:58:34.000000000 +0000
++++ unzip-5.52/unix/Makefile	2005-10-13 21:45:15.000000000 +0000
+@@ -772,8 +772,8 @@
+ # systems.)
+ linux:		unix_make
+ 	@echo 'NOTE:  use linux_noasm target for non-Intel Linux compiles.'
+-	$(MAKE) unzips CC=gcc LD=gcc AS=gcc\
+-	 CF="-O3 -Wall -I. -DASM_CRC $(LOC)"\
++	$(MAKE) unzips CC=gcc LD="gcc -pie" AS=gcc\
++	 CF="-O3 -Wall -I. -DASM_CRC -fPIE $(LOC)"\
+ 	 AF="-Di386 $(AF)" CRC32=crc_gcc
+ # GRR:  this echo is pointless; if user gets this far, no difference to install
+ #	@echo 'Be sure to use the install_asm target rather than the install target'
+@@ -822,13 +822,12 @@
+ # instead of the original UnZip version.  (libz was libgz prior to 0.94)
+ linux_shlibz:	unix_make
+ #	$(MAKE) objsdll CC=gcc CF="-O3 -Wall -I. -fPIC -DDLL -DUSE_ZLIB $(LOC)"
+-	$(MAKE) objsdll CC=gcc AS=gcc AF="-fPIC -Di386 $(AF)" CRC32=crc_gcc\
++	$(MAKE) objsdll CC=gcc AS=gcc AF="-fPIC -Di386 $(AF)"\
+ 	 CF="-O3 -Wall -I. -fPIC -DDLL -DUSE_ZLIB -DASM_CRC $(LOC)"
+-	ln -sf crc_gcc.pic.o crc32.pic.o
+ 	gcc -shared -Wl,-soname,libunzip.so.0 -o libunzip.so.0.4 $(OBJSDLL)
+ 	ln -sf libunzip.so.0.4 libunzip.so.0
+-	gcc -c -O unzipstb.c
+-	gcc -o unzip unzipstb.o -L. -lunzip -lz
++	gcc -fPIC -c -O unzipstb.c
++	gcc -pie -o unzip unzipstb.o -L. -lunzip -lz
+ 
+ # LynxOS-x86 2.3.0 and newer, a real-time BSD-like OS; uses gcc.
+ lynx:		unix_make

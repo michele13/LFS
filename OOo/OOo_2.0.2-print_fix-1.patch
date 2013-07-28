@@ -1,0 +1,37 @@
+Submitted By: DJ Lucas <dj_AT_linuxfromscratch_DOT_org>
+Date: 2006-04-22
+Initial Package Version: 2.0.2
+Origin: Upstream CVS
+Description: Fixes broken configure check and inability to save printer 
+             settings.
+Upstream Status: commited
+
+--- OOB680_m5-orig/config_office/configure.in	2006-04-20 22:31:44.000000000 -0500
++++ OOB680_m5/config_office/configure.in	2006-04-20 22:34:53.000000000 -0500
+@@ -4170,22 +4170,22 @@
+ 
+ AC_MSG_CHECKING([whether to include PPDs])
+ if test "$without_ppds" = "yes"; then
+-  AC_MSG_RESULT([yes])
+-else
+   AC_MSG_RESULT([no])
+   WITHOUT_PPDS=YES
+   SCPDEFS="$SCPDEFS -DWITHOUT_PPDS"
++else
++  AC_MSG_RESULT([yes])
+ fi
+ AC_SUBST(WITHOUT_PPDS)
+ AC_SUBST(SCPDEFS)
+ 
+ AC_MSG_CHECKING([whether to include AFMs])
+ if test "$without_afms" = "yes"; then
+-  AC_MSG_RESULT([yes])
+-else
+   AC_MSG_RESULT([no])
+   WITHOUT_AFMS=YES
+   SCPDEFS="$SCPDEFS -DWITHOUT_AFMS"
++else
++  AC_MSG_RESULT([yes])
+ fi
+ AC_SUBST(WITHOUT_AFMS)
+ AC_SUBST(SCPDEFS)

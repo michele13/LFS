@@ -1,0 +1,39 @@
+Submitted By: Zack Winkles <winkie AT linuxfromscratch DOT org>
+Date: 2004-06-18
+Initial Package Version: 027
+Origin: N/A
+Upstream Status: Not submitted
+Description: udevd(8) needs to be started manually in order to avoid a race
+	condition with reference to udevsend.  It does not fork into the
+	background though, so it's somewhat abnormal.  This patch causes it
+	to fork into the background immediately before it goes into the main
+	loop.
+
+diff -Naur udev-027.orig/udevd.c udev-027/udevd.c
+--- udev-027.orig/udevd.c	2004-06-14 16:38:34.000000000 -0400
++++ udev-027/udevd.c	2004-06-18 14:23:27.800644688 -0400
+@@ -398,6 +398,7 @@
+ 	int retval;
+ 	const int on = 1;
+ 	struct sigaction act;
++	pid_t pid;
+ 	fd_set readfds;
+ 
+ 	init_logging("udevd");
+@@ -465,6 +466,16 @@
+ 	else
+ 		udev_bin = UDEV_BIN;
+ 
++	/* fork into the background */
++	switch (pid = fork()) {
++		case 0:
++			/* child */
++			break;
++		default:
++			/* parent */
++			exit (0);
++	}
++
+ 	FD_ZERO(&readfds);
+ 	FD_SET(ssock, &readfds);
+ 	FD_SET(pipefds[0], &readfds);

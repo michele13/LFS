@@ -1,0 +1,22 @@
+Submitted By: Matt Burgess (matthew at linuxfromscratch dot org)
+Date: 2007-01-31
+Initial Package Version: 5.2
+Upstream Status: From Upstream
+Origin: http://ftp.gnu.org/gnu/readline/readline-5.2-patches/
+Description: Patch 001 from upstream: In some cases, code that is intended to be
+             used in the presence of multibyte characters is called when no such
+             characters are present, leading to incorrect display position
+             calculations and incorrect redisplay.
+
+diff -Naur readline-5.2.orig/display.c readline-5.2/display.c
+--- readline-5.2.orig/display.c	2006-09-14 18:20:12.000000000 +0000
++++ readline-5.2/display.c	2007-01-28 18:46:11.000000000 +0000
+@@ -2380,6 +2380,8 @@
+ 
+   if (end <= start)
+     return 0;
++  if (MB_CUR_MAX == 1 || rl_byte_oriented)
++    return (end - start);
+ 
+   memset (&ps, 0, sizeof (mbstate_t));
+ 

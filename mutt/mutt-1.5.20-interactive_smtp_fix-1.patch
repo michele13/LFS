@@ -1,0 +1,64 @@
+Submitted By: Guy Dalziel <krendoshazin at dementedfury dot org>
+Date: 2009-07-09
+Initial Package Version: 1.5.20
+Upstream Status: Applied
+Origin: Upstream
+Description: Can't send batch emails with smtp_url and smtp_pass enabled
+             http://dev.mutt.org/track/ticket/3289
+             http://wiki.linuxfromscratch.org/blfs/ticket/2860#comment:1
+
+--- mutt-1.5.20/account.c	2008-11-11 19:55:46.000000000 +0000
++++ mutt-1.5.20-patched/account.c	2009-07-07 17:26:18.360346766 +0100
+@@ -155,6 +155,8 @@
+   else if ((account->type == M_ACCT_TYPE_POP) && PopUser)
+     strfcpy (account->user, PopUser, sizeof (account->user));
+ #endif
++  else if (option (OPTNOCURSES))
++    return -1;
+   /* prompt (defaults to unix username), copy into account->user */
+   else
+   {
+@@ -215,6 +217,8 @@
+   else if ((account->type == M_ACCT_TYPE_SMTP) && SmtpPass)
+     strfcpy (account->pass, SmtpPass, sizeof (account->pass));
+ #endif
++  else if (option (OPTNOCURSES))
++    return -1;
+   else
+   {
+     snprintf (prompt, sizeof (prompt), _("Password for %s@%s: "),
+--- mutt-1.5.20/mutt_sasl.c	2009-03-31 07:52:43.000000000 +0100
++++ mutt-1.5.20-patched/mutt_sasl.c	2009-07-07 17:24:10.889242624 +0100
+@@ -304,7 +304,7 @@
+ 
+     snprintf (prompt, sizeof (prompt), "%s: ", interaction->prompt);
+     resp[0] = '\0';
+-    if (mutt_get_field (prompt, resp, sizeof (resp), 0))
++    if (option (OPTNOCURSES) || mutt_get_field (prompt, resp, sizeof (resp), 0))
+       return SASL_FAIL;
+ 
+     interaction->len = mutt_strlen (resp)+1;
+--- mutt-1.5.20/smtp.c	2009-06-12 18:24:17.000000000 +0100
++++ mutt-1.5.20-patched/smtp.c	2009-07-07 17:31:41.479237885 +0100
+@@ -454,12 +454,6 @@
+     }
+ 
+ #ifdef USE_SASL
+-    if (!(conn->account.flags & M_ACCT_PASS) && option (OPTNOCURSES))
+-    {
+-      mutt_error (_("Interactive SMTP authentication not supported"));
+-      mutt_sleep (1);
+-      return -1;
+-    }
+     return smtp_auth (conn);
+ #else
+     mutt_error (_("SMTP authentication requires SASL"));
+@@ -603,7 +597,7 @@
+       }
+     }
+     strfcpy (buf + len, "\r\n", sizeof (buf) - len);
+-  } while (rc == smtp_ready);
++  } while (rc == smtp_ready && saslrc != SASL_FAIL);
+ 
+   if (smtp_success (rc))
+   {

@@ -1,0 +1,30 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-29
+Initial Package Version: 2.1.11
+Origin: Jim Gifford
+Description: Moves pci.ids to /usr/share/misc
+
+diff -Naur pciutils-2.1.11.orig/Makefile pciutils-2.1.11/Makefile
+--- pciutils-2.1.11.orig/Makefile	2003-01-04 12:53:01.000000000 +0000
++++ pciutils-2.1.11/Makefile	2003-09-29 16:52:27.000000000 +0000
+@@ -12,7 +12,7 @@
+ 
+ PREFIX=/usr/local
+ SBINDIR=$(PREFIX)/sbin
+-SHAREDIR=$(PREFIX)/share
++SHAREDIR=$(PREFIX)/share/misc
+ MANDIR=$(shell if [ -d $(PREFIX)/share/man ] ; then echo $(PREFIX)/share/man ; else echo $(PREFIX)/man ; fi)
+ INSTALL=install
+ DIRINSTALL=install -d
+diff -Naur pciutils-2.1.11.orig/lib/configure pciutils-2.1.11/lib/configure
+--- pciutils-2.1.11.orig/lib/configure	2003-01-04 12:29:23.000000000 +0000
++++ pciutils-2.1.11/lib/configure	2003-09-29 16:33:19.000000000 +0000
+@@ -10,7 +10,7 @@
+ }
+ 
+ echo_n "Configuring libpci for your system..."
+-sharedir=${1:-/usr/share}
++sharedir=${1:-/usr/share/misc}
+ version=${2:-0.0}
+ sys=`uname -s`
+ rel=`uname -r`

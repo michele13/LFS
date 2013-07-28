@@ -1,0 +1,26 @@
+Submitted By: Martin Schaffner <schaffner@gmx.li>
+Date: 2004-04-02
+Initial Package Version: 5.0
+Origin: Martin Schaffner
+Description: Removes the "du" programs from the list of targets, in order to be able to cross-compile coreutils. The problem with "du" is the bogus value for UTILS_OPEN_MAX given by "configure" when cross-compiling.
+
+--- a/src/Makefile.in	Wed Apr  2 15:46:19 2003
++++ b/src/Makefile.in	Sun Feb 29 20:14:29 2004
+@@ -159,7 +159,7 @@
+ EXTRA_SCRIPTS = nohup
+ 
+ bin_SCRIPTS = groups @OPTIONAL_BIN_ZCRIPTS@
+-bin_PROGRAMS = chgrp chown chmod cp dd dircolors du \
++bin_PROGRAMS = chgrp chown chmod cp dd dircolors \
+   ginstall link ln dir vdir ls mkdir \
+   mkfifo mknod mv readlink rm rmdir shred stat sync touch unlink \
+   cat cksum comm csplit cut expand fmt fold head join md5sum \
+@@ -292,7 +292,7 @@
+ 	nice$(EXEEXT) pinky$(EXEEXT) stty$(EXEEXT) su$(EXEEXT) \
+ 	uname$(EXEEXT) uptime$(EXEEXT) users$(EXEEXT) who$(EXEEXT)
+ bin_PROGRAMS = chgrp$(EXEEXT) chown$(EXEEXT) chmod$(EXEEXT) cp$(EXEEXT) \
+-	dd$(EXEEXT) dircolors$(EXEEXT) du$(EXEEXT) ginstall$(EXEEXT) \
++	dd$(EXEEXT) dircolors$(EXEEXT) ginstall$(EXEEXT) \
+ 	link$(EXEEXT) ln$(EXEEXT) dir$(EXEEXT) vdir$(EXEEXT) \
+ 	ls$(EXEEXT) mkdir$(EXEEXT) mkfifo$(EXEEXT) mknod$(EXEEXT) \
+ 	mv$(EXEEXT) readlink$(EXEEXT) rm$(EXEEXT) rmdir$(EXEEXT) \

@@ -1,0 +1,29 @@
+Submitted By:            Matthew Burgess <matthew at linuxfromscratch dot org>
+Date:                    2004-06-23
+Initial Package Version: CVS checkout on 2004-06-23
+Upstream Status:         Submitted - awaiting feedback
+Origin:                  Branden Robinson
+                         (http://lists.debian.org/debian-devel/2003/08/msg02067.html)
+Description:             viewcvs doesn't use a umask when writing files under
+                         the svn repository's db/ directory.  This causes access
+                         via any other method (e.g. svn:// or svn+ssh://) to
+                         fail with permission denied errors.
+
+
+diff -Naur viewcvs.orig/www/cgi/viewcvs.cgi viewcvs/www/cgi/viewcvs.cgi
+--- viewcvs.orig/www/cgi/viewcvs.cgi	2004-06-23 20:39:02.000000000 +0000
++++ viewcvs/www/cgi/viewcvs.cgi	2004-06-23 20:40:17.000000000 +0000
+@@ -38,6 +38,7 @@
+ # Adjust sys.path to include our library directory
+ #
+ 
++import os
+ import sys
+ 
+ if LIBRARY_DIR:
+@@ -55,4 +56,5 @@
+ import sapi
+ import viewcvs
+ 
++os.umask(0002)
+ viewcvs.main(sapi.CgiServer())

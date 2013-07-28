@@ -1,0 +1,38 @@
+Submitted By: Ken Moffat <ken@kenmoffat.uklinux.net>
+Date: 2004-06-23
+Initial Package Version: 2.3.3-lfs-5.1
+Upstream Status: not submitted
+Origin: based on a Rock Linux patch for 2.3.4/gcc-3.4 by Rene Rebe
+Description:
+
+ When building a cross-toolchain for the lfs-5.1 versions on a host
+which is running an older version of gcc, libgcc_eh is not built,
+causing glibc to fail to link.
+
+ I don't really understand what this does, but it works well enough
+to cross-compile a kernel.
+
+The original, with some pertinent comments, is at
+http://www.rocklinux.net/submaster/smadm.cgi?i=2004050400082718286
+
+
+--- glibc-2.3.3-lfs-5.1/Makeconfig.orig	2004-06-22 20:44:51.000000000 +0100
++++ glibc-2.3.3-lfs-5.1/Makeconfig	2004-06-22 20:52:00.000000000 +0100
+@@ -517,10 +517,15 @@
+ link-extra-libs-bounded = $(foreach lib,$(LDLIBS-$(@F:%-bp=%)),$(common-objpfx)$(lib)_b.a)
+ 
+ ifndef gnulib
++ifneq ($(have-as-needed),yes)
++libgcc_eh :=
++else
++libgcc_eh := =Wl,--as-needed -lgcc_s -Wl,--no-as-needed
++endif
+ ifneq ($(have-cc-with-libunwind),yes)
+- gnulib := -lgcc -lgcc_eh
++ gnulib := -lgcc $(libgcc_eh)
+ else
+- gnulib := -lgcc -lgcc_eh -lunwind
++ gnulib := -lgcc $(libgcc_eh) -lunwind
+ endif
+ endif
+ ifeq ($(elf),yes)

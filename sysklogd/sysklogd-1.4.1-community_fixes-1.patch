@@ -1,0 +1,1835 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-05-25
+Initial Package Version: 1.4.1
+Upstream Status: Not Submitted
+Origin:	sysklogd-1.4.2-2.fc7's sysklogd-1.4.2rh.tar.gz
+	sysklogd-1.4.2rh.timezone.patch
+	Parts of sysklogd-1.4.2-rh-alt-warnings.patch
+	sysklogd-1.4.2-owl-syslogd-doexit.patch
+Description: This is over a dozen patches rolled in one. It becomes too
+complicated to keep these patches separate, because eventually they need to
+be installed in order, and then there's no point in keeping them separate.
+This is why Fedora created their own tarball. This patch includes various
+upstream and community bug fixes and enhancements, including sparc and alpha
+fixes. The changelog would double the size of this patch, and most of it has
+very little details, so I didn't include it.
+
+After applying the sysklogd-1.4.2rh.diff I:
+rm kernel.patch
+rm -rf redhat/
+rm sysklogd.spec
+cp ../sysklogd-1.4.1.orig/Makefile Makefile
+
+Then I edited Makefile with -DINET6 and -D_GNU_SOURCE, etc. Use 'make COPTS='
+to set your own cflags.
+I also fixed '#undef *syslog', chdir(2), and write(2), to supress GCC warnings.
+
+diff -Naur sysklogd-1.4.1.orig/Makefile sysklogd-1.4.1/Makefile
+--- sysklogd-1.4.1.orig/Makefile	1998-10-12 20:25:15.000000000 +0000
++++ sysklogd-1.4.1/Makefile	2007-05-25 06:10:06.000000000 +0000
+@@ -1,10 +1,12 @@
+ # Makefile for syslogd and klogd daemons.
+ 
+ CC= gcc
+-#CFLAGS= -g -DSYSV -Wall
+-#LDFLAGS= -g
+-CFLAGS= $(RPM_OPT_FLAGS) -O3 -DSYSV -fomit-frame-pointer -Wall -fno-strength-reduce
+-LDFLAGS= -s
++# COPTS_SSP= -fstack-protector-all --param=ssp-buffer-size=4 -Wstack-protector
++# COPTS_EXTRA= -D_FORTIFY_SOURCE=2 -fPIE
++COPTS= -g -O2 -fomit-frame-pointer ${COPTS_SSP} ${COPTS_EXTRA}
++CFLAGS= -DSYSV -DINET6 -D_GNU_SOURCE -std=gnu99 -Wall -Wformat -Wformat-security -Werror ${COPTS}
++# LDFLAGS_EXTRA= -pie -z now -z relro -z combreloc
++LDFLAGS= ${LDFLAGS_EXTRA}
+ 
+ # Look where your install program is.
+ INSTALL = /usr/bin/install
+@@ -25,7 +27,7 @@
+ 
+ # Define the following to impart start-up delay in klogd.  This is
+ # useful if klogd is started simultaneously or in close-proximity to syslogd.
+-# KLOGD_START_DELAY = -DKLOGD_DELAY=5
++KLOGD_START_DELAY = -DKLOGD_DELAY=1
+ 
+ # The following define determines whether the package adheres to the
+ # file system standard.
+@@ -44,7 +46,7 @@
+ # ballot below.
+ SYSLOGD_PIDNAME = -DSYSLOGD_PIDNAME=\"syslogd.pid\"
+ 
+-SYSLOGD_FLAGS= -DSYSLOG_INET -DSYSLOG_UNIXAF -DNO_SCCS ${FSSTND} \
++SYSLOGD_FLAGS= -DSYSLOG_INET -DINET6 -DSYSLOG_UNIXAF -DNO_SCCS ${FSSTND} \
+ 	${SYSLOGD_PIDNAME}
+ SYSLOG_FLAGS= -DALLOW_KERNEL_LOGGING
+ KLOGD_FLAGS = ${FSSTND} ${KLOGD_START_DELAY}
+@@ -106,14 +108,14 @@
+ 	${CC} ${CFLAGS} -DTEST -o ksym_test.o -c ksym.c
+ 
+ clean:
+-	rm -f *.o *.log *~ *.orig
++	rm -f *.o *.log *~ *.orig syslogd klogd
+ 
+ clobber: clean
+ 	rm -f syslogd klogd ksym syslog_tst oops_test TAGS tsyslogd tklogd
+ 
+ install_exec: syslogd klogd
+-	${INSTALL} -m 500 -s syslogd ${BINDIR}/syslogd
+-	${INSTALL} -m 500 -s klogd ${BINDIR}/klogd
++	${INSTALL} -m 500 syslogd ${BINDIR}/syslogd
++	${INSTALL} -m 500 klogd ${BINDIR}/klogd
+ 
+ install_man:
+ 	${INSTALL} -o ${MAN_OWNER} -g ${MAN_OWNER} -m 644 sysklogd.8 ${MANDIR}/man8/sysklogd.8
+diff -Naur sysklogd-1.4.1.orig/klogd.c sysklogd-1.4.1/klogd.c
+--- sysklogd-1.4.1.orig/klogd.c	2001-03-11 19:40:10.000000000 +0000
++++ sysklogd-1.4.1/klogd.c	2007-05-25 05:59:23.000000000 +0000
+@@ -275,6 +275,10 @@
+ #define ksyslog klogctl
+ #endif
+ 
++#ifndef _PATH_KLOG
++#define _PATH_KLOG  "/proc/kmsg"
++#endif
++
+ #define LOG_BUFFER_SIZE 4096
+ #define LOG_LINE_LENGTH 1000
+ 
+@@ -291,7 +295,7 @@
+ 		terminate = 0,
+ 		caught_TSTP = 0,
+ 		reload_symbols = 0,
+-		console_log_level = -1;
++		console_log_level = 6;
+ 
+ static int	use_syscall = 0,
+ 		one_shot = 0,
+@@ -509,8 +513,7 @@
+ 
+ 
+ 	/* Set level of kernel console messaging.. */
+-	if ( (console_log_level != -1)
+-	&& (ksyslog(8, NULL, console_log_level) < 0) && \
++	if ( (ksyslog(8, NULL, console_log_level) < 0) && \
+ 	     (errno == EINVAL) )
+ 	{
+ 		/*
+@@ -738,7 +741,7 @@
+         switch( parse_state )
+         {
+         case PARSING_TEXT:
+-               delta = copyin( line, space, ptr, len, "\n[%" );
++               delta = copyin( line, space, ptr, len, "\n[" );
+                line  += delta;
+                ptr   += delta;
+                space -= delta;
+@@ -794,30 +797,9 @@
+                      parse_state = PARSING_SYMSTART;      /* at < */
+                   break;
+                }
+-               if( *ptr == '%' )   /* dangerous printf marker */
+-	       {
+-		   delta = 0;
+-		   while (len && *ptr == '%')
+-		   {
+-		       *line++ = *ptr++;	/* copy it in */
+-		       space -= 1;
+-		       len   -= 1;
+-		       delta++;
+-		   }
+-		   if (delta % 2)	/* odd amount of %'s */
+-		   {
+-		       if (space)
+-		       {
+-			   *line++ = '%';	/* so simply add one */
+-			   space -= 1;
+-		       }
+-		       else 
+-		       {
+-			   *line++ = '\0';	/* remove the last one / terminate the string */
+-		       }
+-
+-		   }
+-	       }
++               /* Now that line_buff is no longer fed to *printf as format
++                * string, '%'s are no longer "dangerous".
++		*/
+                break;
+         
+         case PARSING_SYMSTART:
+@@ -887,8 +869,7 @@
+                value  = strtoul(sym_start+1, (char **) 0, 16);
+                *(line-1) = '>';  /* put back delim */
+ 
+-               symbol = LookupSymbol(value, &sym);
+-               if ( !symbol_lookup || symbol == (char *) 0 )
++               if ( !symbol_lookup || (symbol = LookupSymbol(value, &sym)) == (char *)0 )
+                {
+                   parse_state = PARSING_TEXT;
+                   break;
+@@ -938,7 +919,7 @@
+ 	 * messages into this fresh buffer.
+ 	 */
+ 	memset(log_buffer, '\0', sizeof(log_buffer));
+-	if ( (rdcnt = ksyslog(2, log_buffer, sizeof(log_buffer))) < 0 )
++	if ( (rdcnt = ksyslog(2, log_buffer, sizeof(log_buffer)-1)) < 0 )
+ 	{
+ 		if ( errno == EINTR )
+ 			return;
+@@ -965,10 +946,14 @@
+ 	memset(log_buffer, '\0', sizeof(log_buffer));
+ 	if ( (rdcnt = read(kmsg, log_buffer, sizeof(log_buffer)-1)) < 0 )
+ 	{
++		int saved_errno = errno;
++
+ 		if ( errno == EINTR )
+ 			return;
+ 		Syslog(LOG_ERR, "Cannot read proc file system: %d - %s.", \
+ 		       errno, strerror(errno));
++		if ( saved_errno == EPERM )
++			Terminate();
+ 	}
+ 	else
+ 		LogLine(log_buffer, rdcnt);
+@@ -991,7 +976,10 @@
+ 			*output = (char *) 0;
+ 
+ #ifndef TESTING
+-	chdir ("/");
++	if (chdir("/") != 0) {
++		fprintf(stderr, "klogd: chdir to / failed: %m");
++		exit (1);
++	}
+ #endif
+ 	/* Parse the command-line. */
+ 	while ((ch = getopt(argc, argv, "c:df:iIk:nopsvx2")) != EOF)
+@@ -1143,8 +1131,11 @@
+ 	if ( one_shot )
+ 	{
+ 		if (symbol_lookup) {
+-			InitKsyms(symfile);
+-			InitMsyms();
++			symbol_lookup  = (InitKsyms(symfile) == 1);
++			symbol_lookup |= InitMsyms();
++			if (symbol_lookup == 0) {
++				Syslog(LOG_WARNING, "cannot find any symbols, turning off symbol lookups\n");
++			}
+ 		}
+ 		if ( (logsrc = GetKernelLogSrc()) == kernel )
+ 			LogKernelLine();
+@@ -1159,8 +1150,11 @@
+ #endif
+ 	logsrc = GetKernelLogSrc();
+ 	if (symbol_lookup) {
+-		InitKsyms(symfile);
+-		InitMsyms();
++		symbol_lookup  = (InitKsyms(symfile) == 1);
++		symbol_lookup |= InitMsyms();
++		if (symbol_lookup == 0) {
++			Syslog(LOG_WARNING, "cannot find any symbols, turning off symbol lookups\n");
++		}
+ 	}
+ 
+         /* The main loop. */
+diff -Naur sysklogd-1.4.1.orig/klogd.h sysklogd-1.4.1/klogd.h
+--- sysklogd-1.4.1.orig/klogd.h	1997-06-13 09:35:54.000000000 +0000
++++ sysklogd-1.4.1/klogd.h	2007-05-25 05:59:23.000000000 +0000
+@@ -31,6 +31,12 @@
+ #include <syslog.h>
+ #include <string.h>
+ 
++#ifdef syslog
++#undef syslog /* Use internal version. */
++#endif
++#ifdef vsyslog
++#undef vsyslog /* Ditto. */
++#endif
+ 
+ /* Function prototypes. */
+ extern int InitKsyms(char *);
+@@ -38,3 +44,6 @@
+ extern char * ExpandKadds(char *, char *);
+ extern void SetParanoiaLevel(int);
+ extern void Syslog(int priority, char *fmt, ...);
++extern void syslog(int pri, const char *fmt, ...);
++extern void vsyslog(int pri, const char *fmt, va_list ap);
++extern void openlog(const char *ident, int logstat, int logfac);
+diff -Naur sysklogd-1.4.1.orig/ksym.c sysklogd-1.4.1/ksym.c
+--- sysklogd-1.4.1.orig/ksym.c	2000-09-12 21:53:31.000000000 +0000
++++ sysklogd-1.4.1/ksym.c	2007-05-25 05:59:23.000000000 +0000
+@@ -112,6 +112,7 @@
+ #include <stdlib.h>
+ #include <malloc.h>
+ #include <sys/utsname.h>
++#include <ctype.h>
+ #include "klogd.h"
+ #include "ksyms.h"
+ 
+@@ -344,6 +345,7 @@
+ 		if ( (sym_file = fopen(symfile, "r")) != (FILE *) 0 ) {
+ 			if (CheckMapVersion(symfile) == 1)
+ 				file = symfile;
++			fclose(sym_file);
+ 		}
+ 		if (sym_file == (FILE *) 0 || file == (char *) 0) {
+ 			sprintf (symfile, "%s", *mf);
+@@ -352,6 +354,7 @@
+ 			if ( (sym_file = fopen(symfile, "r")) != (FILE *) 0 ) {
+ 				if (CheckMapVersion(symfile) == 1)
+ 					file = symfile;
++				fclose(sym_file);
+ 			}
+ 		}
+ 
+@@ -770,6 +773,84 @@
+ 	if ( (num_syms == 0) ||
+ 	     (kp = strstr(line, "[<")) == (char *) 0 )
+ 	{
++#ifdef __sparc__
++		if (num_syms) {
++			/*
++			 * On SPARC, register dumps do not have the [< >] characters in it.
++			 */
++			static struct sparc_tests {
++				char *str;
++				int len;
++			} tests[] = { { "PC: ", 4 },
++				      { " o7: ", 5 },
++				      { " ret_pc: ", 9 },
++				      { " i7: ", 5 },
++				      { "Caller[", 7 }
++				    };
++			int i, j, ndigits;
++			char *kp2;
++			for (i = 0; i < 5; i++) {
++				kp = strstr(line, tests[i].str);
++				if (!kp) continue;
++				kp2 = kp + tests[i].len;
++				if (!isxdigit(*kp2)) continue;
++				for (ndigits = 1; isxdigit(kp2[ndigits]); ndigits++);
++				if (ndigits != 8 && ndigits != 16) continue;
++				/* On sparc64, all kernel addresses are in first 4GB */
++				if (ndigits == 16) {
++					if (strncmp (kp2, "00000000", 8)) continue;
++					kp2 += 8;
++				}
++				if (!i) {
++					char *kp3;
++					if (ndigits == 16 && kp > line && kp[-1L] != 'T') continue;
++					kp3 = kp2 + 8;
++					if (ndigits == 16) {
++						if (strncmp (kp3, " TNPC: 00000000", 15) || !isxdigit(kp3[15]))
++							continue;
++						kp3 += 15;
++					} else {
++						if (strncmp (kp3, " NPC: ", 6) || !isxdigit(kp3[6]))
++							continue;
++						kp3 += 6;
++					}
++					for (j = 0; isxdigit(kp3[j]); j++);
++					if (j != 8) continue;
++					strncpy(elp, line, kp2 + 8 - line);
++					elp += kp2 + 8 - line;
++					value = strtol(kp2, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strncpy(elp, kp2 + 8, kp3 - kp2);
++					elp += kp3 - kp2;
++					value = strtol(kp3, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strcpy(elp, kp3 + 8);
++				} else {
++					strncpy(elp, line, kp2 + 8 - line);
++					elp += kp2 + 8 - line;
++					value = strtol(kp2, (char **) 0, 16);
++					if ( (symbol = LookupSymbol(value, &sym)) ) {
++						if (sym.size)
++							elp += sprintf(elp, " (%s+%d/%d)", symbol, sym.offset, sym.size);
++						else
++							elp += sprintf(elp, " (%s)", symbol);
++					}
++					strcpy(elp, kp2 + 8);
++				}
++				return el;
++			}
++		}
++#endif	
+ 		strcpy(el, line);
+ 		return(el);
+ 	}
+diff -Naur sysklogd-1.4.1.orig/ksym_mod.c sysklogd-1.4.1/ksym_mod.c
+--- sysklogd-1.4.1.orig/ksym_mod.c	2000-09-12 21:15:28.000000000 +0000
++++ sysklogd-1.4.1/ksym_mod.c	2007-05-25 05:59:23.000000000 +0000
+@@ -93,7 +93,7 @@
+ #include <linux/time.h>
+ #include <linux/module.h>
+ #else /* __GLIBC__ */
+-#include <linux/module.h>
++#include "module.h"
+ extern __off64_t lseek64 __P ((int __fd, __off64_t __offset, int __whence));
+ extern int get_kernel_syms __P ((struct kernel_sym *__table));
+ #endif /* __GLIBC__ */
+diff -Naur sysklogd-1.4.1.orig/module.h sysklogd-1.4.1/module.h
+--- sysklogd-1.4.1.orig/module.h	1970-01-01 00:00:00.000000000 +0000
++++ sysklogd-1.4.1/module.h	2007-05-25 05:59:23.000000000 +0000
+@@ -0,0 +1,62 @@
++
++/* Module definitions for klogd's module support */
++struct kernel_sym
++{
++	        unsigned long value;
++	        char name[60];
++};
++
++struct module_symbol
++{
++	unsigned long value;
++	const char *name;
++};
++
++struct module_ref
++{
++	struct module *dep;     /* "parent" pointer */
++	struct module *ref;     /* "child" pointer */
++	struct module_ref *next_ref;
++};
++
++struct module_info
++{
++	unsigned long addr;
++	unsigned long size;
++	unsigned long flags;
++	long usecount;
++};
++
++
++typedef struct { volatile int counter; } atomic_t;
++
++struct module
++{
++	unsigned long size_of_struct;   /* == sizeof(module) */
++	struct module *next;
++	const char *name;
++	unsigned long size;
++	
++	union
++	{
++		atomic_t usecount;
++		long pad;
++        } uc;                           /* Needs to keep its size - so says rth */
++	
++	unsigned long flags;            /* AUTOCLEAN et al */
++	
++	unsigned nsyms;
++	unsigned ndeps;
++	
++	struct module_symbol *syms;
++	struct module_ref *deps;
++	struct module_ref *refs;
++	int (*init)(void);
++	void (*cleanup)(void);
++	const struct exception_table_entry *ex_table_start;
++	const struct exception_table_entry *ex_table_end;
++#ifdef __alpha__
++	unsigned long gp;
++#endif
++};
++	
+diff -Naur sysklogd-1.4.1.orig/pidfile.c sysklogd-1.4.1/pidfile.c
+--- sysklogd-1.4.1.orig/pidfile.c	1998-02-10 22:37:12.000000000 +0000
++++ sysklogd-1.4.1/pidfile.c	2007-05-25 05:59:23.000000000 +0000
+@@ -25,6 +25,7 @@
+  */
+ 
+ #include <stdio.h>
++#include <stdlib.h>
+ #include <unistd.h>
+ #include <sys/stat.h>
+ #include <sys/file.h>
+@@ -41,11 +42,15 @@
+ int read_pid (char *pidfile)
+ {
+   FILE *f;
+-  int pid;
++  char pidbuf[7]; /* 'kernel.pid_max = 32768', 5 digits. 7 is plenty. */
++  pid_t pid=0;
+ 
+   if (!(f=fopen(pidfile,"r")))
+     return 0;
+-  fscanf(f,"%d", &pid);
++
++  if (fgets(pidbuf, sizeof(pidbuf), f) != NULL) {
++    pid = atol(pidbuf);
++  }
+   fclose(f);
+   return pid;
+ }
+@@ -85,7 +90,8 @@
+ {
+   FILE *f;
+   int fd;
+-  int pid;
++  char pidbuf[7]; /* 'kernel.pid_max = 32768', 5 digits. 7 is plenty. */
++  pid_t pid=0;
+ 
+   if ( ((fd = open(pidfile, O_RDWR|O_CREAT, 0644)) == -1)
+        || ((f = fdopen(fd, "r+")) == NULL) ) {
+@@ -94,7 +100,9 @@
+   }
+ 
+   if (flock(fd, LOCK_EX|LOCK_NB) == -1) {
+-      fscanf(f, "%d", &pid);
++      if (fgets(pidbuf, sizeof(pidbuf), f) != NULL) {
++        pid = atol(pidbuf);
++      }
+       fclose(f);
+       printf("Can't lock, lock is held by pid %d.\n", pid);
+       return 0;
+diff -Naur sysklogd-1.4.1.orig/sysklogd.8 sysklogd-1.4.1/sysklogd.8
+--- sysklogd-1.4.1.orig/sysklogd.8	2001-03-11 19:35:51.000000000 +0000
++++ sysklogd-1.4.1/sysklogd.8	2007-05-25 05:59:23.000000000 +0000
+@@ -7,6 +7,7 @@
+ sysklogd \- Linux system logging utilities.
+ .SH SYNOPSIS
+ .B syslogd
++.RB [ " \-46A " ]
+ .RB [ " \-a "
+ .I socket
+ ]
+@@ -30,6 +31,7 @@
+ .I domainlist
+ ]
+ .RB [ " \-v " ]
++.RB [ " \-x " ]
+ .LP
+ .SH DESCRIPTION
+ .B Sysklogd
+@@ -74,6 +76,26 @@
+ .LP
+ .SH OPTIONS
+ .TP
++.BI "\-4"
++Force 
++.B syslogd 
++to use IPv4 addresses only.
++.TP
++.BI "\-6"
++Force 
++.B syslogd 
++to use IPv6 addresses only.
++.TP
++.BI "\-A"
++Ordinarily, 
++.B syslogd 
++tries to send the message to only one address
++even if the host has more than one A or AAAA record.  If this
++option is specified, 
++.B syslogd 
++tries to send the message to all
++addresses.
++.TP
+ .BI "\-a " "socket"
+ Using this argument you can specify additional sockets from that
+ .B syslogd
+@@ -152,6 +174,11 @@
+ .TP
+ .B "\-v"
+ Print version and exit.
++.TP
++.B "\-x"
++Disable name lookups when receiving remote messages.
++This avoids deadlocks when the nameserver is running on
++the same machine that runs the syslog daemon.
+ .LP
+ .SH SIGNALS
+ .B Syslogd
+diff -Naur sysklogd-1.4.1.orig/syslog.c sysklogd-1.4.1/syslog.c
+--- sysklogd-1.4.1.orig/syslog.c	2001-03-11 19:35:51.000000000 +0000
++++ sysklogd-1.4.1/syslog.c	2007-05-25 05:59:23.000000000 +0000
+@@ -54,11 +54,6 @@
+ #include <sys/file.h>
+ #include <sys/signal.h>
+ #include <sys/syslog.h>
+-#if 0
+-#include "syslog.h"
+-#include "pathnames.h"
+-#endif
+-
+ #include <sys/uio.h>
+ #include <sys/wait.h>
+ #include <netdb.h>
+@@ -70,6 +65,13 @@
+ #include <paths.h>
+ #include <stdio.h>
+ 
++#ifdef syslog
++#undef syslog /* Use internal version. */
++#endif
++#ifdef vsyslog
++#undef vsyslog /* Ditto. */
++#endif
++
+ #define	_PATH_LOGNAME	"/dev/log"
+ 
+ static int	LogFile = -1;		/* fd for log */
+@@ -179,7 +181,10 @@
+ 	(void)strcat(tbuf, "\r\n");
+ 	cnt += 2;
+ 	p = index(tbuf, '>') + 1;
+-	(void)write(fd, p, cnt - (p - tbuf));
++	if (write(fd, p, cnt - (p - tbuf)) == -1) {
++		(void)close(fd);
++		return;
++	}
+ 	(void)close(fd);
+ }
+ 
+diff -Naur sysklogd-1.4.1.orig/syslog_tst.c sysklogd-1.4.1/syslog_tst.c
+--- sysklogd-1.4.1.orig/syslog_tst.c	1997-06-02 17:21:41.000000000 +0000
++++ sysklogd-1.4.1/syslog_tst.c	2007-05-25 05:59:23.000000000 +0000
+@@ -42,7 +42,7 @@
+ 					if ( (nl = strrchr(bufr, '\n')) != \
+ 					    (char *) 0)
+ 						*nl = '\0';
+-					syslog(LOG_INFO, bufr);
++					syslog(LOG_INFO, "%s", bufr);
+ 					logged += strlen(bufr);
+ 					if ( logged > 1024 )
+ 					{
+@@ -54,7 +54,7 @@
+ 		}
+ 		else
+ 			while (argc-- > 1)
+-				syslog(LOG_INFO, argv++[1]);
++				syslog(LOG_INFO, "%s", argv++[1]);
+ 	}
+ 	else
+ 	{
+diff -Naur sysklogd-1.4.1.orig/syslogd.c sysklogd-1.4.1/syslogd.c
+--- sysklogd-1.4.1.orig/syslogd.c	2001-03-11 19:40:10.000000000 +0000
++++ sysklogd-1.4.1/syslogd.c	2007-05-25 05:59:23.000000000 +0000
+@@ -441,6 +441,15 @@
+  *	Don't return a closed fd if `-a' is called with a wrong path.
+  *	Thanks to Bill Nottingham <notting@redhat.com> for providing
+  *	a patch.
++ * Wed Dec 1 18:00:00 EST 2004: Jason Vas Dias <jvdias@redhat.com>
++ *      Use 'siginterrupt(SIGALRM,1)' after each 'signal(SIGALRM,domark)'
++ *      else recvfrom(...) will never be interrupted
++ *      (bugzilla #141983)
++ *
++ * Thu Dec 1 11:00:00 EST 2004: Jason Vas Dias <jvdias@redhat.com>
++ *      Don't allow remote logging host targets like '@localhost'
++ *      (or any name that resolves to the address of a local interface)!!
++ *
+  */
+ 
+ 
+@@ -491,6 +500,8 @@
+ #include <arpa/nameser.h>
+ #include <arpa/inet.h>
+ #include <resolv.h>
++#include <ifaddrs.h>
++
+ #ifndef TESTING
+ #include "pidfile.h"
+ #endif
+@@ -555,10 +566,11 @@
+ 
+ char	**parts;
+ 
+-int inetm = 0;
+ static int debugging_on = 0;
+ static int nlogs = -1;
+ static int restart = 0;
++static int alarm_signal = 0;
++static int exit_on_signal = 0;
+ 
+ #define MAXFUNIX	20
+ 
+@@ -613,22 +625,23 @@
+ 	short	f_type;			/* entry type, see below */
+ 	short	f_file;			/* file descriptor */
+ 	time_t	f_time;			/* time this was last written */
++	char    *f_host;                /* host from which to recd. */
+ 	u_char	f_pmask[LOG_NFACILITIES+1];	/* priority mask */
+ 	union {
+ 		char	f_uname[MAXUNAMES][UNAMESZ+1];
+ 		struct {
+-			char	f_hname[MAXHOSTNAMELEN+1];
+-			struct sockaddr_in	f_addr;
++			char	f_hname[MAXHOSTNAMELEN];
++			struct addrinfo	*f_addr;
+ 		} f_forw;		/* forwarding address */
+ 		char	f_fname[MAXFNAME];
+ 	} f_un;
+ 	char	f_prevline[MAXSVLINE];		/* last message logged */
+ 	char	f_lasttime[16];			/* time of last occurrence */
+-	char	f_prevhost[MAXHOSTNAMELEN+1];	/* host from which recd. */
++	char	f_prevhost[MAXHOSTNAMELEN];	/* host from which recd. */
+ 	int	f_prevpri;			/* pri of f_prevline */
+ 	int	f_prevlen;			/* length of f_prevline */
+ 	int	f_prevcount;			/* repetition cnt of prevline */
+-	int	f_repeatcount;			/* number of "repeated" msgs */
++	u_int	f_repeatcount;			/* number of "repeated" msgs */
+ 	int	f_flags;			/* store some additional flags */
+ };
+ 
+@@ -637,8 +650,8 @@
+  * in seconds after previous message is logged.  After each flush,
+  * we move to the next interval until we reach the largest.
+  */
+-int	repeatinterval[] = { 30, 60 };	/* # of secs before flush */
+-#define	MAXREPEAT ((sizeof(repeatinterval) / sizeof(repeatinterval[0])) - 1)
++time_t	repeatinterval[] = { 30, 60 };	/* # of secs before flush */
++#define	MAXREPEAT ((int) ((sizeof(repeatinterval) / sizeof(repeatinterval[0])) - 1))
+ #define	REPEATTIME(f)	((f)->f_time + repeatinterval[(f)->f_repeatcount])
+ #define	BACKOFF(f)	{ if (++(f)->f_repeatcount > MAXREPEAT) \
+ 				 (f)->f_repeatcount = MAXREPEAT; \
+@@ -721,15 +734,22 @@
+ };
+ 
+ int	Debug;			/* debug flag */
+-char	LocalHostName[MAXHOSTNAMELEN+1];	/* our hostname */
+-char	*LocalDomain;		/* our local domain name */
++int     resolve = 1;            /* resolve hostname */
++char	LocalHostName[MAXHOSTNAMELEN];	/* our hostname */
++const char	*LocalDomain;		/* our local domain name */
+ int	InetInuse = 0;		/* non-zero if INET sockets are being used */
+-int	finet = -1;		/* Internet datagram socket */
+-int	LogPort;		/* port number for INET connections */
++int	* finet = NULL;		/* Internet datagram socket */
+ int	Initialized = 0;	/* set when we have initialized ourselves */
+ int	MarkInterval = 20 * 60;	/* interval between marks in seconds */
++#ifdef INET6
++int     family = PF_UNSPEC;     /* protocol family (IPv4, IPv6 or both) */
++#else
++int     family = PF_INET;       /* protocol family (IPv4 only) */
++#endif
++int     send_to_all = 0;        /* send message to all IPv4/IPv6 addresses */
+ int	MarkSeq = 0;		/* mark sequence number */
+ int	NoFork = 0; 		/* don't fork - don't run in daemon mode */
++int     DisableDNS = 0;		/* don't look up IP addresses of incoming messages */
+ int	AcceptRemote = 0;	/* receive messages that come via UDP */
+ char	**StripDomains = NULL;	/* these domains may be stripped before writing logs */
+ char	**LocalHosts = NULL;	/* these hosts are logged with their hostname */
+@@ -743,7 +763,7 @@
+ char **crunch_list(char *list);
+ int usage(void);
+ void untty(void);
+-void printchopped(const char *hname, char *msg, int len, int fd);
++void printchopped(const char *hname, char *msg, size_t len, int fd);
+ void printline(const char *hname, char *msg);
+ void printsys(char *msg);
+ void logmsg(int pri, char *msg, const char *from, int flags);
+@@ -751,11 +771,14 @@
+ void endtty();
+ void wallmsg(register struct filed *f, struct iovec *iov);
+ void reapchild();
+-const char *cvthname(struct sockaddr_in *f);
++const char *cvthname(struct sockaddr_storage *f);
+ void domark();
++void alarm_handler(int sig);
+ void debug_switch();
+-void logerror(char *type);
++void logerror(const char *type);
+ void die(int sig);
++static void free_host_ai_list( struct addrinfo *ai );
++void exit_signal_handler(int sig);
+ #ifndef TESTING
+ void doexit(int sig);
+ #endif
+@@ -773,9 +796,13 @@
+ static int create_unix_socket(const char *path);
+ #endif
+ #ifdef SYSLOG_INET
+-static int create_inet_socket();
++static int * create_inet_sockets();
+ #endif
+ 
++static struct addrinfo *host_ai_list( char *host );
++static int    hosts_equal(struct addrinfo *ai1, struct addrinfo *ai2);
++static struct addrinfo *not_local_address( char *host );
++
+ int main(argc, argv)
+ 	int argc;
+ 	char **argv;
+@@ -786,7 +813,7 @@
+ 	int len, num_fds;
+ #else /* __GLIBC__ */
+ #ifndef TESTING
+-	size_t len;
++	socklen_t len;
+ #endif
+ 	int num_fds;
+ #endif /* __GLIBC__ */
+@@ -808,12 +835,13 @@
+ #ifndef TESTING
+ 	int	fd;
+ #ifdef  SYSLOG_INET
+-	struct sockaddr_in frominet;
+-	char *from;
++	struct sockaddr_storage frominet;
++	const char *from;
+ #endif
+ 	pid_t ppid = getpid();
+ #endif
+ 	int ch;
++	int l;
+ 	struct hostent *hent;
+ 
+ 	char line[MAXLINE +1];
+@@ -822,15 +850,29 @@
+ 	int maxfds;
+ 
+ #ifndef TESTING
+-	chdir ("/");
++	if (chdir("/") != 0) {
++		fprintf(stderr, "klogd: chdir to / failed: %m");
++		exit (1);
++	}
+ #endif
+ 	for (i = 1; i < MAXFUNIX; i++) {
+ 		funixn[i] = "";
+ 		funix[i]  = -1;
+ 	}
+ 
+-	while ((ch = getopt(argc, argv, "a:dhf:l:m:np:rs:v")) != EOF)
++	while ((ch = getopt(argc, argv, "46Aa:dhf:l:m:np:rs:vx")) != EOF)
+ 		switch((char)ch) {
++                case '4':
++                              family = PF_INET;
++                              break;
++#ifdef INET6
++                case '6':
++                              family = PF_INET6;
++                              break;
++#endif
++                case 'A':
++                              send_to_all++;
++			      break;
+ 		case 'a':
+ 			if (nfunix < MAXFUNIX)
+ 				funixn[nfunix++] = optarg;
+@@ -877,6 +919,9 @@
+ 		case 'v':
+ 			printf("syslogd %s.%s\n", VERSION, PATCHLEVEL);
+ 			exit (0);
++		case 'x':
++			DisableDNS = 1;
++			break;
+ 		case '?':
+ 		default:
+ 			usage();
+@@ -890,11 +935,11 @@
+ 		dprintf("Checking pidfile.\n");
+ 		if (!check_pid(PidFile))
+ 		{
++			signal (SIGTERM, doexit);
+ 			if (fork()) {
+ 				/*
+ 				 * Parent process
+ 				 */
+-				signal (SIGTERM, doexit);
+ 				sleep(300);
+ 				/*
+ 				 * Not reached unless something major went wrong.  5
+@@ -906,6 +951,7 @@
+ 				 */
+ 				exit(1);
+ 			}
++			signal (SIGTERM, SIG_DFL);
+ 			num_fds = getdtablesize();
+ 			for (i= 0; i < num_fds; i++)
+ 				(void) close(i);
+@@ -986,14 +1032,26 @@
+ 		if (isupper(*p))
+ 			*p = tolower(*p);
+ 
+-	(void) signal(SIGTERM, die);
+-	(void) signal(SIGINT, Debug ? die : SIG_IGN);
+-	(void) signal(SIGQUIT, Debug ? die : SIG_IGN);
++	(void) signal(SIGTERM, exit_signal_handler);
++	(void) signal(SIGINT, Debug ? exit_signal_handler : SIG_IGN);
++	(void) signal(SIGQUIT, Debug ? exit_signal_handler : SIG_IGN);
+ 	(void) signal(SIGCHLD, reapchild);
+-	(void) signal(SIGALRM, domark);
++	(void) signal(SIGALRM, alarm_handler);
+ 	(void) signal(SIGUSR1, Debug ? debug_switch : SIG_IGN);
+ 	(void) alarm(TIMERINTVL);
+-
++	
++	/* By default, signal() now specifies SA_RESTART, so system calls
++	 * will NOT now return EINTR when a signal arrives during them.
++	 * This makes things like recvfrom potentially hang forever...
++	 * Hence we need to add siginterrupt calls:
++	 */
++	siginterrupt(SIGTERM,1);
++	siginterrupt(SIGINT, 1);
++	siginterrupt(SIGQUIT,1);
++	siginterrupt(SIGCHLD,1);
++	siginterrupt(SIGALRM,1);
++	siginterrupt(SIGUSR1,1);
++	
+ 	/* Create a partial message table for all file descriptors. */
+ 	num_fds = getdtablesize();
+ 	dprintf("Allocated parts table for %d file descriptors.\n", num_fds);
+@@ -1049,8 +1107,11 @@
+ 		 * descriptors.
+ 		 */
+ 		if ( InetInuse && AcceptRemote ) {
+-			FD_SET(inetm, &readfds);
+-			if (inetm>maxfds) maxfds=inetm;
++			for (i = 0; i < *finet; i++) {
++                        	if (finet[i+1] != -1)
++                                	FD_SET(finet[i+1], &readfds);
++					if (finet[i+1]>maxfds) maxfds=finet[i+1];
++			}
+ 			dprintf("Listening on syslog UDP port.\n");
+ 		}
+ #endif
+@@ -1072,17 +1133,32 @@
+ 		}
+ 		nfds = select(maxfds+1, (fd_set *) &readfds, (fd_set *) NULL,
+ 				  (fd_set *) NULL, (struct timeval *) NULL);
++
++		if ( exit_on_signal )
++		{
++			die( exit_on_signal );
++			exit_on_signal = 0;
++		}
++
+ 		if ( restart )
+ 		{
++			restart = 0;
+ 			dprintf("\nReceived SIGHUP, reloading syslogd.\n");
+ 			init();
+-			restart = 0;
+ 			continue;
+ 		}
++
++		if ( alarm_signal )
++		{
++			domark();
++			alarm_signal = 0;
++		}
++
+ 		if (nfds == 0) {
+ 			dprintf("No select activity.\n");
+ 			continue;
+ 		}
++
+ 		if (nfds < 0) {
+ 			if (errno != EINTR)
+ 				logerror("select");
+@@ -1120,34 +1196,30 @@
+ #endif
+ 
+ #ifdef SYSLOG_INET
+-		if (InetInuse && AcceptRemote && FD_ISSET(inetm, &readfds)) {
+-			len = sizeof(frominet);
+-			memset(line, '\0', sizeof(line));
+-			i = recvfrom(finet, line, MAXLINE - 2, 0, \
+-				     (struct sockaddr *) &frominet, &len);
+-			dprintf("Message from inetd socket: #%d, host: %s\n",
+-				inetm, inet_ntoa(frominet.sin_addr));
+-			if (i > 0) {
+-				line[i] = line[i+1] = '\0';
+-				from = (char *)cvthname(&frominet);
+-				/*
+-				 * Here we could check if the host is permitted
+-				 * to send us syslog messages. We just have to
+-				 * catch the result of cvthname, look for a dot
+-				 * and if that doesn't exist, replace the first
+-				 * '\0' with '.' and we have the fqdn in lowercase
+-				 * letters so we could match them against whatever.
+-				 *  -Joey
+-				 */
+-				printchopped(from, line, \
+- 					     i + 2,  finet);
+-			} else if (i < 0 && errno != EINTR) {
+-				dprintf("INET socket error: %d = %s.\n", \
+-					errno, strerror(errno));
+-				logerror("recvfrom inet");
+-				/* should be harmless now that we set
+-				 * BSDCOMPAT on the socket */
+-				sleep(10);
++		if (InetInuse && AcceptRemote && finet) {
++			for (i = 0; i < *finet; i++) {
++				if (FD_ISSET(finet[i+1], &readfds)) {
++					len = sizeof(frominet);
++					memset(line, '\0', sizeof(line));
++					l = recvfrom(finet[i+1], line, MAXLINE - 2,
++						     0, (struct sockaddr *)&frominet,
++						     &len);
++					if (l > 0) {
++						line[l] = line[l+1] = '\0';
++						from = cvthname(&frominet);
++						printchopped(from, line, l + 2,  finet[i+1]);
++						dprintf("Message from inetd socket: #%d, host: %s\n",
++        	                                        finet[i+1], from);
++					} 
++					else 
++						if (l < 0 && errno != EINTR) {
++		  	                              	dprintf("INET socket error: %d = %s.\n",
++                                                                errno, strerror(errno));
++							logerror("recvfrom inet");
++							/* should be harmless */
++		                        	        sleep(10);
++						}	
++				}
+ 			}
+ 		}
+ #endif
+@@ -1174,7 +1246,7 @@
+ 
+ int usage()
+ {
+-	fprintf(stderr, "usage: syslogd [-drvh] [-l hostlist] [-m markinterval] [-n] [-p path]\n" \
++	fprintf(stderr, "usage: syslogd [-46Adrvxh] [-l hostlist] [-m markinterval] [-n] [-p path]\n" \
+ 		" [-s domainlist] [-f conffile]\n");
+ 	exit(1);
+ }
+@@ -1212,41 +1284,71 @@
+ #endif
+ 
+ #ifdef SYSLOG_INET
+-static int create_inet_socket()
++static int * create_inet_sockets()
+ {
+-	int fd, on = 1;
+-	struct sockaddr_in sin;
+-
+-	fd = socket(AF_INET, SOCK_DGRAM, 0);
+-	if (fd < 0) {
+-		logerror("syslog: Unknown protocol, suspending inet service.");
+-		return fd;
+-	}
+-
+-	memset(&sin, 0, sizeof(sin));
+-	sin.sin_family = AF_INET;
+-	sin.sin_port = LogPort;
+-	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, \
+-		       (char *) &on, sizeof(on)) < 0 ) {
+-		logerror("setsockopt(REUSEADDR), suspending inet");
+-		close(fd);
+-		return -1;
+-	}
+-	/* We need to enable BSD compatibility. Otherwise an attacker
+-	 * could flood our log files by sending us tons of ICMP errors.
+-	 */
+-	if (setsockopt(fd, SOL_SOCKET, SO_BSDCOMPAT, \
+-			(char *) &on, sizeof(on)) < 0) {
+-		logerror("setsockopt(BSDCOMPAT), suspending inet");
+-		close(fd);
+-		return -1;
+-	}
+-	if (bind(fd, (struct sockaddr *) &sin, sizeof(sin)) < 0) {
+-		logerror("bind, suspending inet");
+-		close(fd);
+-		return -1;
+-	}
+-	return fd;
++	struct addrinfo hints, *res, *r;
++        int error, maxs, *s, *socks;
++      
++        memset(&hints, 0, sizeof(hints));
++        hints.ai_flags = AI_PASSIVE;
++        hints.ai_family = family;
++        hints.ai_socktype = SOCK_DGRAM;
++        error = getaddrinfo(NULL, "syslog", &hints, &res);
++        if (error) {
++        	logerror(gai_strerror(error));
++                errno = 0;
++                die(0);
++        }
++      
++        /* Count max number of sockets we may open */
++        for (maxs = 0, r = res; r; r = r->ai_next, maxs++);
++        socks = malloc((maxs+1) * sizeof(int));
++        if (!socks) {
++	        logerror("couldn't allocate memory for sockets");
++        	die(0);
++        }
++      
++        *socks = 0;   /* num of sockets counter at start of array */
++        s = socks + 1;
++        for (r = res; r; r = r->ai_next) {
++	        *s = socket(r->ai_family, r->ai_socktype, r->ai_protocol);
++        	if (*s < 0) {
++                	logerror("socket");
++                        continue;
++		}
++
++                if (r->ai_family == AF_INET6) {
++        	        int on = 1;
++               		if (setsockopt(*s, IPPROTO_IPV6, IPV6_V6ONLY,
++                        	       (char *)&on, sizeof (on)) < 0) {
++	                	logerror("setsockopt");
++                        	close(*s);
++                        	continue;
++	                }
++        	}
++
++                if (bind(*s, r->ai_addr, r->ai_addrlen) < 0) {
++	        	close(*s);
++         	        logerror("bind");
++                	continue;
++                }
++      
++                (*socks)++;
++                s++;
++	}
++      
++        if (*socks == 0) {
++        	free(socks);
++                if (Debug)
++                	return(NULL);
++                else
++                	die(0);
++	}
++
++        if (res)
++		freeaddrinfo(res);
++      
++	return(socks);
+ }
+ #endif
+ 
+@@ -1254,30 +1356,26 @@
+ crunch_list(list)
+ 	char *list;
+ {
+-	int count, i;
++	int i, m, n;
+ 	char *p, *q;
+ 	char **result = NULL;
+ 
+ 	p = list;
+ 	
+ 	/* strip off trailing delimiters */
+-	while (p[strlen(p)-1] == LIST_DELIMITER) {
+-		count--;
++	while (*p && p[strlen(p)-1] == LIST_DELIMITER)
+ 		p[strlen(p)-1] = '\0';
+-	}
+ 	/* cut off leading delimiters */
+-	while (p[0] == LIST_DELIMITER) {
+-		count--;
++	while (p[0] == LIST_DELIMITER)
+ 		p++; 
+-	}
+ 	
+-	/* count delimiters to calculate elements */
+-	for (count=i=0; p[i]; i++)
+-		if (p[i] == LIST_DELIMITER) count++;
++	/* count delimiters to calculate the number of elements */
++	for (n = i = 0; p[i]; i++)
++		if (p[i] == LIST_DELIMITER) n++;
+ 	
+-	if ((result = (char **)malloc(sizeof(char *) * count+2)) == NULL) {
++	if ((result = (char **)malloc(sizeof(char *) * (n + 2))) == NULL) {
+ 		printf ("Sorry, can't get enough memory, exiting.\n");
+-		exit(0);
++		exit(1);
+ 	}
+ 	
+ 	/*
+@@ -1285,30 +1383,28 @@
+ 	 * characters are different from any delimiters,
+ 	 * so we don't have to care about this.
+ 	 */
+-	count = 0;
+-	while ((q=strchr(p, LIST_DELIMITER))) {
+-		result[count] = (char *) malloc((q - p + 1) * sizeof(char));
+-		if (result[count] == NULL) {
++	m = 0;
++	while ((q = strchr(p, LIST_DELIMITER)) && m < n) {
++		result[m] = (char *) malloc((q - p + 1) * sizeof(char));
++		if (result[m] == NULL) {
+ 			printf ("Sorry, can't get enough memory, exiting.\n");
+-			exit(0);
++			exit(1);
+ 		}
+-		strncpy(result[count], p, q - p);
+-		result[count][q - p] = '\0';
++		memcpy(result[m], p, q - p);
++		result[m][q - p] = '\0';
+ 		p = q; p++;
+-		count++;
++		m++;
+ 	}
+-	if ((result[count] = \
+-	     (char *)malloc(sizeof(char) * strlen(p) + 1)) == NULL) {
++	if ((result[m] = strdup(p)) == NULL) {
+ 		printf ("Sorry, can't get enough memory, exiting.\n");
+-		exit(0);
++		exit(1);
+ 	}
+-	strcpy(result[count],p);
+-	result[++count] = NULL;
++	result[++m] = NULL;
+ 
+ #if 0
+-	count=0;
+-	while (result[count])
+-		dprintf ("#%d: %s\n", count, StripDomains[count++]);
++	m = 0;
++	while (result[m])
++		dprintf ("#%d: %s\n", m, result[m++]);
+ #endif
+ 	return result;
+ }
+@@ -1346,7 +1442,7 @@
+ void printchopped(hname, msg, len, fd)
+ 	const char *hname;
+ 	char *msg;
+-	int len;
++	size_t len;
+ 	int fd;
+ {
+ 	auto int ptlngth;
+@@ -1446,6 +1542,7 @@
+ 	while ((c = *p++) && q < &line[sizeof(line) - 4]) {
+ 		if (c == '\n')
+ 			*q++ = ' ';
++#if 0
+ 		else if (c < 040) {
+ 			*q++ = '^';
+ 			*q++ = c ^ 0100;
+@@ -1454,7 +1551,9 @@
+ 			*q++ = '0' + ((c & 0300) >> 6);
+ 			*q++ = '0' + ((c & 0070) >> 3);
+ 			*q++ = '0' + (c & 0007);
+-		} else
++		}
++#endif
++		else
+ 			*q++ = c;
+ 	}
+ 	*q = '\0';
+@@ -1550,18 +1649,13 @@
+ 	 * Check to see if msg looks non-standard.
+ 	 */
+ 	msglen = strlen(msg);
+-	if (msglen < 16 || msg[3] != ' ' || msg[6] != ' ' ||
+-	    msg[9] != ':' || msg[12] != ':' || msg[15] != ' ')
+-		flags |= ADDDATE;
+-
+-	(void) time(&now);
+-	if (flags & ADDDATE)
+-		timestamp = ctime(&now) + 4;
+-	else {
+-		timestamp = msg;
++	if (!(msglen < 16 || msg[3] != ' ' || msg[6] != ' ' ||
++	    msg[9] != ':' || msg[12] != ':' || msg[15] != ' ')) {
+ 		msg += 16;
+ 		msglen -= 16;
+ 	}
++	(void) time(&now);
++        timestamp = ctime(&now) + 4;
+ 
+ 	/* extract facility and priority level */
+ 	if (flags & MARK)
+@@ -1661,13 +1755,15 @@
+ 	char *msg;
+ {
+ 	struct iovec iov[6];
++	struct addrinfo *r;
+ 	register struct iovec *v = iov;
+ 	char repbuf[80];
+ #ifdef SYSLOG_INET
+ 	register int l;
++	int i,lsent = 0;
+ 	char line[MAXLINE + 1];
+ 	time_t fwd_suspend;
+-	struct hostent *hp;
++	struct addrinfo *saddr;
+ #endif
+ 
+ 	dprintf("Called fprintlog, ");
+@@ -1736,7 +1832,7 @@
+ 		fwd_suspend = time((time_t *) 0) - f->f_time;
+ 		if ( fwd_suspend >= INET_SUSPEND_TIME ) {
+ 			dprintf("Forwarding suspension to unknown over, retrying\n");
+-			if ( (hp = gethostbyname(f->f_un.f_forw.f_hname)) == NULL ) {
++			if ( (saddr = not_local_address(f->f_un.f_forw.f_hname)) == NULL ) {
+ 				dprintf("Failure: %s\n", sys_h_errlist[h_errno]);
+ 				dprintf("Retries: %d\n", f->f_prevcount);
+ 				if ( --f->f_prevcount < 0 ) {
+@@ -1748,7 +1844,7 @@
+ 			}
+ 			else {
+ 			        dprintf("%s found, resuming.\n", f->f_un.f_forw.f_hname);
+-				memcpy((char *) &f->f_un.f_forw.f_addr.sin_addr, hp->h_addr, hp->h_length);
++				f->f_un.f_forw.f_addr = saddr;
+ 				f->f_prevcount = 0;
+ 				f->f_type = F_FORW;
+ 				goto f_forw;
+@@ -1776,15 +1872,31 @@
+ 			l = strlen(line);
+ 			if (l > MAXLINE)
+ 				l = MAXLINE;
+-			if (sendto(finet, line, l, 0, \
+-				   (struct sockaddr *) &f->f_un.f_forw.f_addr,
+-				   sizeof(f->f_un.f_forw.f_addr)) != l) {
+-				int e = errno;
+-				dprintf("INET sendto error: %d = %s.\n", 
+-					e, strerror(e));
+-				f->f_type = F_FORW_SUSP;
+-				errno = e;
+-				logerror("sendto");
++			if (finet) {
++				for (r = f->f_un.f_forw.f_addr; r; r = r->ai_next) {
++					for (i = 0; i < *finet; i++) {
++#if 0
++					/*
++					 * should we check AF first, or just
++					 * trial and error? FWD
++					*/ 
++					if (r->ai_family == address_family_of(finet[i+1]))
++#endif
++                                        lsent = sendto(finet[i+1], line, l, 0,
++                                                       r->ai_addr, r->ai_addrlen);
++                                        if (lsent == l)
++                                        	break;
++                                      }
++                                      if (lsent == l && !send_to_all)
++	                                      break;
++                              }
++                              if (lsent != l) {
++                                      int e = errno;
++				      dprintf("INET sendto error: %d = %s.\n", e, strerror(e));
++				      f->f_type = F_FORW_SUSP;
++                                      errno = e;
++                                      logerror("sendto");
++                              }
+ 			}
+ 		}
+ 		break;
+@@ -1839,7 +1951,7 @@
+ #else
+ 				&& e == EBADF) {
+ #endif
+-				f->f_file = open(f->f_un.f_fname, O_WRONLY|O_APPEND|O_NOCTTY);
++				f->f_file = open(f->f_un.f_fname, O_WRONLY|O_APPEND|O_NOCTTY|O_LARGEFILE);
+ 				if (f->f_file < 0) {
+ 					f->f_type = F_UNUSED;
+ 					logerror(f->f_un.f_fname);
+@@ -1914,6 +2026,7 @@
+ 		(void) signal(SIGTERM, SIG_DFL);
+ 		(void) alarm(0);
+ 		(void) signal(SIGALRM, endtty);
++		siginterrupt(SIGALRM,1);
+ #ifndef SYSV
+ 		(void) signal(SIGTTOU, SIG_IGN);
+ 		(void) sigsetmask(0);
+@@ -1929,7 +2042,7 @@
+ 			/* is this slot used? */
+ 			if (ut.ut_name[0] == '\0')
+ 				continue;
+-			if (ut.ut_type == LOGIN_PROCESS)
++			if (ut.ut_type != USER_PROCESS)
+ 			        continue;
+ 			if (!(strcmp (ut.ut_name,"LOGIN"))) /* paranoia */
+ 			        continue;
+@@ -2003,27 +2116,48 @@
+  * Return a printable representation of a host address.
+  */
+ const char *cvthname(f)
+-	struct sockaddr_in *f;
++	struct sockaddr_storage *f;
+ {
+-	struct hostent *hp;
++	int error;
+ 	register char *p;
++	sigset_t omask, nmask;
+ 	int count;
++	static char hname[NI_MAXHOST], ip[NI_MAXHOST];
++
++	error = getnameinfo((struct sockaddr *)f,
++                            sizeof(*f),
++                            ip, sizeof ip, NULL, 0,
++                            NI_NUMERICHOST);
++        dprintf("cvthname(%s)\n", ip);
+ 
+-	if (f->sin_family != AF_INET) {
+-		dprintf("Malformed from address.\n");
++	if (error) {
++		dprintf("Malformed from address %s\n", gai_strerror(error));
+ 		return ("???");
+ 	}
+-	hp = gethostbyaddr((char *) &f->sin_addr, sizeof(struct in_addr), \
+-			   f->sin_family);
+-	if (hp == 0) {
+-		dprintf("Host name for your address (%s) unknown.\n",
+-			inet_ntoa(f->sin_addr));
+-		return (inet_ntoa(f->sin_addr));
++
++	
++	if (!DisableDNS) {
++		sigemptyset(&nmask);
++		sigaddset(&nmask, SIGHUP);
++		sigprocmask(SIG_BLOCK, &nmask, &omask);
++
++		error = getnameinfo((struct sockaddr *)f,
++				    sizeof(*f),
++                                    hname, sizeof hname, NULL, 0,
++                                    NI_NAMEREQD);
++
++        	sigprocmask(SIG_SETMASK, &omask, NULL);
++	}
++
++	if (error || DisableDNS) {
++		dprintf("Host name for your address (%s) unknown\n", ip);
++		return (ip);
+ 	}
++
+ 	/*
+ 	 * Convert to lower case, just like LocalDomain above
+ 	 */
+-	for (p = (char *)hp->h_name; *p ; p++)
++	for (p = (char *) hname; *p ; p++)
+ 		if (isupper(*p))
+ 			*p = tolower(*p);
+ 
+@@ -2031,17 +2165,17 @@
+ 	 * Notice that the string still contains the fqdn, but your
+ 	 * hostname and domain are separated by a '\0'.
+ 	 */
+-	if ((p = strchr(hp->h_name, '.'))) {
++	if ((p = strchr(hname, '.'))) {
+ 		if (strcmp(p + 1, LocalDomain) == 0) {
+ 			*p = '\0';
+-			return (hp->h_name);
++			return (hname);
+ 		} else {
+ 			if (StripDomains) {
+ 				count=0;
+ 				while (StripDomains[count]) {
+ 					if (strcmp(p + 1, StripDomains[count]) == 0) {
+ 						*p = '\0';
+-						return (hp->h_name);
++						return (hname);
+ 					}
+ 					count++;
+ 				}
+@@ -2049,9 +2183,9 @@
+ 			if (LocalHosts) {
+ 				count=0;
+ 				while (LocalHosts[count]) {
+-					if (!strcmp(hp->h_name, LocalHosts[count])) {
++					if (!strcmp(hname, LocalHosts[count])) {
+ 						*p = '\0';
+-						return (hp->h_name);
++						return (hname);
+ 					}
+ 					count++;
+ 				}
+@@ -2059,7 +2193,15 @@
+ 		}
+ 	}
+ 
+-	return (hp->h_name);
++	return (hname);
++}
++
++void alarm_handler( int sig )
++{
++	alarm_signal = 1;
++	(void) signal(SIGALRM, alarm_handler);	
++	(void) alarm(TIMERINTVL);
++	siginterrupt(SIGALRM,1);
+ }
+ 
+ void domark()
+@@ -2092,8 +2234,6 @@
+ 		}
+ 	}
+ 	}
+-	(void) signal(SIGALRM, domark);
+-	(void) alarm(TIMERINTVL);
+ }
+ 
+ void debug_switch()
+@@ -2109,7 +2249,7 @@
+  * Print syslogd errors some place.
+  */
+ void logerror(type)
+-	char *type;
++	const char *type;
+ {
+ 	char buf[100];
+ 
+@@ -2157,8 +2297,14 @@
+         for (i = 0; i < nfunix; i++)
+ 		if (funix[i] != -1)
+ 			close(funix[i]);
++
+ 	/* Close the inet socket. */
+-	if (InetInuse) close(inetm);
++	if (InetInuse && finet)
++        	for (i = 0; i < *finet; i++)
++                	if (finet[i+1] != -1) close(finet[i+1]);
++	free(finet);
++        finet = NULL;
++
+ 
+ 	/* Clean-up files. */
+         for (i = 0; i < nfunix; i++)
+@@ -2170,6 +2316,13 @@
+ 	exit(0);
+ }
+ 
++void exit_signal_handler(int sig)
++{
++	exit_on_signal = sig;
++	signal(sig, exit_signal_handler);
++	siginterrupt(sig,1);
++}
++
+ /*
+  * Signal handler to terminate the parent process.
+  */
+@@ -2177,7 +2330,7 @@
+ void doexit(sig)
+ 	int sig;
+ {
+-	exit (0);
++	_exit(0);
+ }
+ #endif
+ 
+@@ -2212,7 +2365,6 @@
+ 		logerror("see syslogd(8) for details of whether and how to enable it.");
+ 		return;
+ 	}
+-	LogPort = sp->s_port;
+ 
+ 	/*
+ 	 *  Close all open log files and free log descriptor array.
+@@ -2237,6 +2389,9 @@
+ 				case F_CONSOLE:
+ 					(void) close(f->f_file);
+ 				break;
++				case F_FORW:
++					freeaddrinfo(f->f_un.f_forw.f_addr);
++				break;
+ 			}
+ 		}
+ 
+@@ -2346,21 +2501,22 @@
+ 
+ #ifdef SYSLOG_INET
+ 	if (Forwarding || AcceptRemote) {
+-		if (finet < 0) {
+-			finet = create_inet_socket();
+-			if (finet >= 0) {
++		if (!finet) {
++			finet = create_inet_sockets();
++			if (*finet > 0) {
+ 				InetInuse = 1;
+ 				dprintf("Opened syslog UDP port.\n");
+ 			}
+ 		}
+ 	}
+ 	else {
+-		if (finet >= 0)
+-			close(finet);
+-		finet = -1;
++		if (finet)
++			for (i = 0; i < *finet; i++)
++				if (finet[i+1] != -1) close(finet[i+1]);
++		free(finet);
++		finet = NULL;
+ 		InetInuse = 0;
+ 	}
+-	inetm = finet;
+ #endif
+ 
+ 	Initialized = 1;
+@@ -2440,6 +2596,8 @@
+ 	char *line;
+ 	register struct filed *f;
+ {
++	struct addrinfo hints, *res;
++	int error;
+ 	register char *p;
+ 	register char *q;
+ 	register int i, i2;
+@@ -2449,7 +2607,7 @@
+ 	int ignorepri = 0;
+ 	int syncfile;
+ #ifdef SYSLOG_INET
+-	struct hostent *hp;
++	struct addrinfo *ina;
+ #endif
+ 	char buf[MAXLINE];
+ 	char xbuf[200];
+@@ -2605,22 +2763,29 @@
+ 	{
+ 	case '@':
+ #ifdef SYSLOG_INET
+-		(void) strcpy(f->f_un.f_forw.f_hname, ++p);
++		(void)strncpy(f->f_un.f_forw.f_hname, ++p,
++	                      sizeof(f->f_un.f_forw.f_hname));
+ 		dprintf("forwarding host: %s\n", p);	/*ASP*/
+-		if ( (hp = gethostbyname(p)) == NULL ) {
++		 if ( (ina = not_local_address(p)) == NULL ) {
+ 			f->f_type = F_FORW_UNKN;
+ 			f->f_prevcount = INET_RETRY_MAX;
+ 			f->f_time = time ( (time_t *)0 );
+ 		} else {
+ 			f->f_type = F_FORW;
++			freeaddrinfo(ina);
+ 		}
+ 
+-		memset((char *) &f->f_un.f_forw.f_addr, 0,
+-			 sizeof(f->f_un.f_forw.f_addr));
+-		f->f_un.f_forw.f_addr.sin_family = AF_INET;
+-		f->f_un.f_forw.f_addr.sin_port = LogPort;
++		memset(&hints, 0, sizeof(hints));
++		hints.ai_family = family;
++		hints.ai_socktype = SOCK_DGRAM;
++		error = getaddrinfo(f->f_un.f_forw.f_hname, "syslog", &hints,
++				    &res);
++		if (error) {
++			logerror(gai_strerror(error));
++			break;
++		}
+ 		if ( f->f_type == F_FORW )
+-			memcpy((char *) &f->f_un.f_forw.f_addr.sin_addr, hp->h_addr, hp->h_length);
++			f->f_un.f_forw.f_addr = res;
+ 		/*
+ 		 * Otherwise the host might be unknown due to an
+ 		 * inaccessible nameserver (perhaps on the same
+@@ -2640,7 +2805,7 @@
+ 			f->f_file = open(++p, O_RDWR|O_NONBLOCK);
+ 			f->f_type = F_PIPE;
+ 	        } else {
+-			f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY,
++			f->f_file = open(p, O_WRONLY|O_APPEND|O_CREAT|O_NOCTTY|O_LARGEFILE,
+ 					 0644);
+ 			f->f_type = F_FILE;
+ 		}
+@@ -2793,6 +2958,206 @@
+ 	return;
+ }
+ 
++/* These functions are for verifying that a remote logging host
++ * '@name' target does NOT resolve to an address attached to a
++ * local interface; as reported by Chuck Mead <csm@redhat.com>,
++ * if this happens, syslogd sends log messages to itself until
++ * the /var partition fills up.
++ * Jason Vas Dias <jvdias@redhat.com>
++ */
++
++
++static void free_host_ai_list( struct addrinfo *ai )
++{ 
++    struct addrinfo *aie=0L, *ain=0L;
++    for(aie = ai; aie != 0L; aie = ain)
++    {
++	ain = aie->ai_next;
++	if(aie->ai_addr != 0L)
++	    free(aie->ai_addr);
++	if(aie->ai_canonname != 0L)
++	    free(aie->ai_canonname);
++	free(aie);
++    }    
++}
++
++static struct addrinfo *new_host_ai_node( struct addrinfo *ai )
++{
++    struct addrinfo *aie =(struct addrinfo *) malloc( sizeof(struct addrinfo) );
++    int len;
++
++    if( aie == 0L )
++	return 0L;
++    if( ai != 0L )
++	memcpy(aie, ai, sizeof(struct addrinfo));
++    aie->ai_addr = 0L;
++    aie->ai_canonname =0L;
++    aie->ai_next = 0L;
++    if( ( ai->ai_addr != 0L ) && (ai->ai_addrlen > 0) )
++    {
++	aie->ai_addr = (struct sockaddr*) malloc( ai->ai_addrlen );
++	if( aie->ai_addr != 0L )
++	    memcpy(aie->ai_addr, ai->ai_addr,  ai->ai_addrlen );
++    }
++    if( ( ai->ai_canonname != 0L) && (*(ai->ai_canonname) != '\0') )
++    {
++	len = strlen(ai->ai_canonname);
++	aie->ai_canonname = (char*) malloc( len + 1);
++	if( aie->ai_canonname != 0L )
++	{
++	    memcpy( aie->ai_canonname, ai->ai_canonname, len );
++	    ai->ai_canonname[len]='\0';
++	}
++    }
++    return aie;
++}
++
++struct addrinfo *host_ai_list( char *host )
++{
++    struct addrinfo *ai=0L, *ail=0L, *aip, *aie, aih;
++    int r;
++    char *n;
++
++    if ( (host == 0L) || (*host == '\0') )
++       return 0L;
++    memset(&aih,'\0',sizeof(struct addrinfo));
++    aih.ai_flags = AI_CANONNAME;
++    aip=0L;
++    if( ((r=getaddrinfo(host, 0L, &aih, &aip)) != 0 ) || (aip == 0L) )
++       return(0L);
++    else
++       for( aie=aip; aie != 0L; aie=aie->ai_next )
++       {
++           if(  (aie->ai_addr == 0L)
++              ||(aie->ai_family == PF_UNSPEC)
++              ||(aie->ai_addrlen <= 0)
++             )
++               continue;
++           if(ai==0L)
++	   {	
++	       if(aie->ai_canonname == 0L)
++		   continue;
++               ai = new_host_ai_node(aie);
++	       ail= ai;
++           }else
++           {
++	       n=0L;
++	       if( aie->ai_canonname == 0L)
++	       {
++		   n = ai->ai_canonname;
++		   aie->ai_canonname = n;
++	       }
++               ai->ai_next=new_host_ai_node(aie);
++               ai=ai->ai_next;
++	       if(n != 0L)
++		   aie->ai_canonname = 0L;
++           }
++           if (aie == aie->ai_next)
++               break;
++           while
++           (
++                 (aie->ai_next != 0L)
++               &&(
++                    ( aie->ai_next->ai_addr == 0L)
++                  ||( aie->ai_addr == aie->ai_next->ai_addr )
++                  ||(  (aie->ai_next->ai_family == aie->ai_family)
++                     &&(aie->ai_next->ai_addrlen == aie->ai_addrlen)
++		     &&(memcmp( aie->ai_next->ai_addr, aie->ai_addr, aie->ai_addrlen)==0)
++                    )
++		)
++            )/* bug: each unique address / name combination is repeated three times! */
++                aie = aie->ai_next;
++    }
++    if ( ai != 0L)
++       ai->ai_next=0L;
++    freeaddrinfo(aip);
++    return ail;
++}
++
++int hosts_equal( struct addrinfo *ai1, struct addrinfo *ai2 )
++{
++    struct addrinfo *ai=0;
++    for(; ai1 != 0L; ai1 = ai1->ai_next)
++       if (( ai1->ai_canonname != 0L) || ( ai1->ai_addr != 0L))
++       {
++           for(ai = ai2; ai != 0L; ai = ai->ai_next)
++           {
++               if(  (  ( ai1->ai_canonname != 0L)
++                     &&( ai->ai_canonname != 0L)
++                     &&( strcmp(ai->ai_canonname, ai1->ai_canonname)==0)
++                    )
++                 || (  ( ai1->ai_addr != 0L)
++                     &&( ai->ai_addr != 0L )
++                     &&( ai1->ai_family == ai->ai_family)
++                     &&( ai1->ai_addrlen == ai->ai_addrlen)
++                     &&( memcmp(ai->ai_addr, ai1->ai_addr, ai->ai_addrlen) == 0)
++                    )
++                 ) break;
++           }
++           if( ai != 0L )
++               break;
++        }
++    return ((ai1 != 0L) && (ai != 0L));
++}
++
++struct addrinfo *not_local_address(char *host)
++{
++    char hostname[1024];
++    struct addrinfo *ai1, *ai2;
++    struct ifaddrs *ifa=0L;
++    if ( host == 0L )
++       return 0L;
++    if(  (strcmp(host,"localhost") == 0)
++       ||(strcmp(host,"localhost.localdomain") == 0)
++       ||(strcmp(host,"127.0.0.1") == 0)
++       ||(strcmp(host,"::1") == 0)
++      ) return 0L;
++    if (gethostname(hostname,1024) == 0)
++	if ( strcmp(host, hostname) == 0 )
++	    return 0L;
++    ai1 = host_ai_list(host);
++    ai2 = host_ai_list(hostname);
++    if( hosts_equal(ai1, ai2) ) {
++	free_host_ai_list(ai2);
++	free_host_ai_list(ai1);
++	return 0L;
++    }
++    free_host_ai_list(ai2);
++    ai2=0L;
++    if( getifaddrs(&ifa) == 0)
++    {
++	for(; (ifa != 0L) && (ifa->ifa_addr != 0L); ifa = ifa->ifa_next )
++	{
++	    if( inet_ntop( ifa->ifa_addr->sa_family,
++                          ((ifa->ifa_addr->sa_family == PF_INET)
++                           ? (void*)&(((struct sockaddr_in*)(ifa->ifa_addr))->sin_addr)
++                           : (ifa->ifa_addr->sa_family == PF_INET6)
++                             ? (void*)&(((struct sockaddr_in6*)(ifa->ifa_addr))->sin6_addr)
++                             : (void*)&(ifa->ifa_addr->sa_data[0])
++                           ),
++                           hostname,
++                           sizeof(hostname)
++                   ) != 0L
++              )
++	    {
++		ai2=host_ai_list(hostname);
++		if( hosts_equal(ai1, ai2) )
++		    break;
++		free_host_ai_list(ai2);
++		ai2=0L;
++	    }
++	}
++    }
++    if( ai2 != 0L )
++    {
++        free_host_ai_list(ai2);
++        free_host_ai_list(ai1);
++        return 0L;
++    }
++
++    return ai1;
++}
++
+ /*
+  * Local variables:
+  *  c-indent-level: 8
+diff -Naur sysklogd-1.4.1.orig/version.h sysklogd-1.4.1/version.h
+--- sysklogd-1.4.1.orig/version.h	2001-03-11 19:40:10.000000000 +0000
++++ sysklogd-1.4.1/version.h	2007-05-25 05:59:23.000000000 +0000
+@@ -1,2 +1,2 @@
+ #define VERSION "1.4"
+-#define PATCHLEVEL "1"
++#define PATCHLEVEL "2-prerelease"

@@ -1,0 +1,310 @@
+Submitted By: Oliver Brakmann <obrakmann AT gmx DOT net>
+Date: 2003-11-11
+Initial Package Version: 0.80.2
+Origin: http://www.jmknoble.net/WindowMaker/patches/#menu-mapping
+	Adjusted for 0.80.2 by Oliver Brakmann <obrakmann AT gmx DOT net>
+Description: Fixes inconsistent popup positions of Windowmaker menus. Now all
+             menus pop up horizontally centered around the mouse cursor. They
+             also pop up so that they are always on the screen horizontally.
+
+diff -Naur WindowMaker-0.80.2-orig/src/appicon.c WindowMaker-0.80.2/src/appicon.c
+--- WindowMaker-0.80.2-orig/src/appicon.c	2002-01-08 14:45:07.000000000 +0100
++++ WindowMaker-0.80.2/src/appicon.c	2003-11-04 23:15:13.000000000 +0100
+@@ -506,6 +506,7 @@
+ {
+     WMenu *menu;
+     WScreen *scr = wapp->main_window_desc->screen_ptr;
++    int mx, my;
+     int i;
+ 
+     if (!scr->icon_menu) {
+@@ -524,17 +525,13 @@
+     menu->flags.realized = 0;
+     wMenuRealize(menu);
+ 
+-    x -= menu->frame->core->width/2;
+-    if (x + menu->frame->core->width > scr->scr_width)
+-	x = scr->scr_width - menu->frame->core->width;
+-    if (x < 0)
+-	x = 0;
++    wMenuCalculatePosition(menu, x, y, DEF_MENU_RELPOS, &mx, &my);
+ 
+     /* set client data */
+     for (i = 0; i < menu->entry_no; i++) {
+ 	menu->entries[i]->clientdata = wapp;
+     }
+-    wMenuMapAt(menu, x, y, False);
++    wMenuMapAt(menu, mx, my, False);
+ }
+ 
+ 
+diff -Naur WindowMaker-0.80.2-orig/src/dock.c WindowMaker-0.80.2/src/dock.c
+--- WindowMaker-0.80.2-orig/src/dock.c	2002-02-21 12:28:48.000000000 +0100
++++ WindowMaker-0.80.2/src/dock.c	2003-11-04 23:15:13.000000000 +0100
+@@ -3385,6 +3385,7 @@
+     WApplication *wapp = NULL;
+     int index = 0;
+     int x_pos;
++    int mx, my;
+     int n_selected;
+     int appIsRunning = aicon->running && aicon->icon && aicon->icon->owner;
+ 
+@@ -3519,14 +3520,9 @@
+     if (!dock->menu->flags.realized)
+ 	wMenuRealize(dock->menu);
+ 
+-    if (dock->type == WM_CLIP) {
+-	x_pos = event->xbutton.x_root+2;
+-    } else {
+-	x_pos = dock->on_right_side ?
+-	    scr->scr_width - dock->menu->frame->core->width - 2 : 0;
+-    }
+-
+-    wMenuMapAt(dock->menu, x_pos, event->xbutton.y_root+2, False);
++    wMenuCalculatePosition(dock->menu, event->xbutton.x_root,
++			   event->xbutton.y_root+2, DEF_MENU_RELPOS, &mx, &my);
++    wMenuMapAt(dock->menu, mx, my, False);
+ 
+     /* allow drag select */
+     event->xany.send_event = True;
+@@ -3538,11 +3534,14 @@
+ static void
+ openClipWorkspaceMenu(WScreen *scr, int x, int y)
+ {
++    int mx, my;
++   
+     if (!scr->clip_ws_menu) {
+ 	scr->clip_ws_menu = wWorkspaceMenuMake(scr, False);
+     }
+     wWorkspaceMenuUpdate(scr, scr->clip_ws_menu);
+-    wMenuMapAt(scr->clip_ws_menu, x, y, False);
++    wMenuCalculatePosition(scr->clip_ws_menu, x, y, DEF_MENU_RELPOS, &mx, &my);
++    wMenuMapAt(scr->clip_ws_menu, mx, my, False);
+ }
+ 
+ 
+diff -Naur WindowMaker-0.80.2-orig/src/menu.c WindowMaker-0.80.2/src/menu.c
+--- WindowMaker-0.80.2-orig/src/menu.c	2002-02-21 12:28:48.000000000 +0100
++++ WindowMaker-0.80.2/src/menu.c	2003-11-04 23:15:13.000000000 +0100
+@@ -2740,6 +2740,65 @@
+ }
+ 
+ 
++/* Calculate the optimal position at which to map the given menu,
++ * if the cursor position is (<x>,<y>) and the percentage * 10 of the
++ * menu that should be to the left of the cursor is given by
++ * <relpos>.  Return the calculated position in <menux> and <menuy>.
++ * 
++ * If <relpos> is less than 0, the calculated position will be
++ * (<x>+delta, <y>) where `delta' is some small number of pixels. If
++ * <relpos> is greater than 1000, the calculated position will be
++ * (<x>-(w + delta), <y>), where `w' is the width of the menu.
++ * Otherwise, the calculated position is equivalent to
++ * (<x>-(w * <relpos> / 1000), <y>).
++ * 
++ * After the above calculation, the position is adjusted for appearing
++ * off the screen horizontally, with a bias toward the lefthand edge.
++ * That is, if w is less than or equal to the width of the screen, the
++ * menu position is adjusted so the that menu appears entirely on the
++ * screen.  If w is greater than the width of the screen, the menu
++ * position is adjusted such that the left edge of the menu appears at
++ * the left edge of the screen.
++ */
++#define DELTA_X		2
++void
++wMenuCalculatePosition(WMenu *menu, int x, int y, int relpos, int *mx, int *my)
++{
++   WScreen *wscr;
++   int sw;
++   int mw;
++   int dx;
++
++   *mx = x;
++   *my = y;
++
++   if ((NULL == menu) || (NULL == menu->frame) ||
++       (NULL == menu->frame->core) || (NULL == menu->frame->screen_ptr)) {
++      return;
++   }
++   wscr = menu->frame->screen_ptr;
++   sw = wscr->scr_width;
++   mw = menu->frame->core->width + (2 * FRAME_BORDER_WIDTH);
++
++   if (relpos < 0) {
++      *mx = x + DELTA_X;
++   } else if (relpos > MAX_MENU_RELPOS) {
++      *mx = x - (mw + DELTA_X);
++   } else {
++      *mx = x - (mw * relpos) / MAX_MENU_RELPOS;
++   }
++
++   dx = sw - (*mx + mw);
++   if (dx < 0) {
++      *mx += dx;
++   }
++   if (*mx < 0) {
++      *mx = 0;
++   }
++}
++#undef DELTA_X
++
++
+ void
+ OpenWorkspaceMenu(WScreen *scr, int x, int y)
+ {
+diff -Naur WindowMaker-0.80.2-orig/src/menu.h WindowMaker-0.80.2/src/menu.h
+--- WindowMaker-0.80.2-orig/src/menu.h	2002-01-08 14:45:13.000000000 +0100
++++ WindowMaker-0.80.2/src/menu.h	2003-11-04 23:15:13.000000000 +0100
+@@ -133,6 +133,8 @@
+ WMenu *wMenuUnderPointer(WScreen *screen);
+ void wMenuSaveState(WScreen *scr);
+ void wMenuRestoreState(WScreen *scr);
++void wMenuCalculatePosition(WMenu *menu, int x, int y, int relpos,
++			    int *mx, int *my);
+ 
+ 
+ #endif
+diff -Naur WindowMaker-0.80.2-orig/src/rootmenu.c WindowMaker-0.80.2/src/rootmenu.c
+--- WindowMaker-0.80.2-orig/src/rootmenu.c	2002-02-21 12:28:48.000000000 +0100
++++ WindowMaker-0.80.2/src/rootmenu.c	2003-11-04 23:17:38.000000000 +0100
+@@ -1799,6 +1799,7 @@
+ OpenRootMenu(WScreen *scr, int x, int y, int keyboard)
+ {
+     WMenu *menu=NULL;
++    int mx, my;
+     WMPropList *definition;
+     /*
+     static WMPropList *domain=NULL;
+@@ -1821,8 +1822,10 @@
+ 	    
+ 	    if (keyboard)
+ 		wMenuMapAt(menu, 0, 0, True);
+-	    else
+-		wMenuMapCopyAt(menu, x-menu->frame->core->width/2, y);
++	    else {
++		wMenuCalculatePosition(menu, x, y, DEF_MENU_RELPOS, &mx, &my);
++		wMenuMapCopyAt(menu, mx, my);
++	    }
+ 	}
+ 	return;
+     }
+@@ -1877,8 +1880,7 @@
+             newx = x - menu->frame->core->width/2;
+             newy = y - menu->frame->core->height/2;
+         } else {
+-            newx = x - menu->frame->core->width/2;
+-            newy = y;
++	    wMenuCalculatePosition(menu, x, y, DEF_MENU_RELPOS, &newx, &newy);
+         }
+         wMenuMapAt(menu, newx, newy, keyboard);
+     }
+diff -Naur WindowMaker-0.80.2-orig/src/switchmenu.c WindowMaker-0.80.2/src/switchmenu.c
+--- WindowMaker-0.80.2-orig/src/switchmenu.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/src/switchmenu.c	2003-11-04 23:30:25.000000000 +0100
+@@ -95,6 +95,7 @@
+ {
+     WMenu *switchmenu = scr->switch_menu;
+     WWindow *wwin;
++    int mx, my;
+     static int initialized = 0;
+     
+     if (!initialized) {
+@@ -121,16 +122,15 @@
+ 		
+ 		if (keyboard)
+ 		    wMenuMapAt(switchmenu, 0, 0, True);
+-		else
+-		    wMenuMapCopyAt(switchmenu, 
+-				   x-switchmenu->frame->core->width/2, y);
++		else {
++		    wMenuCalculatePosition(switchmenu, x, y, DEF_MENU_RELPOS,
++					   &mx, &my);
++		    wMenuMapCopyAt(switchmenu, mx, my);
++		}
+ 	    }
+ 	} else {
+-	    if (keyboard && x==scr->scr_width/2 && y==scr->scr_height/2) {
+-		y = y - switchmenu->frame->core->height/2;
+-	    }
+-	    wMenuMapAt(switchmenu, x-switchmenu->frame->core->width/2, y,
+-		       keyboard);
++	    wMenuCalculatePosition(switchmenu, x, y, DEF_MENU_RELPOS, &mx, &my);
++	    wMenuMapAt(switchmenu, mx, my, keyboard);
+ 	}
+ 	return;
+     }
+@@ -157,8 +157,8 @@
+             newx = x - switchmenu->frame->core->width/2;
+             newy = y - switchmenu->frame->core->height/2;
+         } else {
+-            newx = x - switchmenu->frame->core->width/2;
+-            newy = y;
++	    wMenuCalculatePosition(switchmenu, x, y, DEF_MENU_RELPOS,
++				   &newx, &newy);
+         }
+         wMenuMapAt(switchmenu, newx, newy, keyboard);
+     }
+diff -Naur WindowMaker-0.80.2-orig/src/wconfig.h.in WindowMaker-0.80.2/src/wconfig.h.in
+--- WindowMaker-0.80.2-orig/src/wconfig.h.in	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/src/wconfig.h.in	2003-11-04 23:15:13.000000000 +0100
+@@ -548,6 +548,9 @@
+ 
+ #define MAX_MENU_TEXT_LENGTH 512
+ 
++#define MAX_MENU_RELPOS		1000
++#define DEF_MENU_RELPOS		(MAX_MENU_RELPOS / 2)
++
+ #define MAX_RESTART_ARGS	16
+ 
+ #define MAX_COMMAND_SIZE	1024
+diff -Naur WindowMaker-0.80.2-orig/src/winmenu.c WindowMaker-0.80.2/src/winmenu.c
+--- WindowMaker-0.80.2-orig/src/winmenu.c	2002-04-15 13:08:06.000000000 +0200
++++ WindowMaker-0.80.2/src/winmenu.c	2003-11-04 23:15:13.000000000 +0100
+@@ -637,6 +637,7 @@
+ {
+     WMenu *menu;
+     WScreen *scr = wwin->screen_ptr;
++    int mx, my;
+ 
+     wwin->flags.menu_open_for_me = 1;
+ 
+@@ -661,14 +662,14 @@
+ 
+     updateMenuForWindow(menu, wwin);
+     
+-    x -= menu->frame->core->width/2;
+-    if (x + menu->frame->core->width > wwin->frame_x+wwin->frame->core->width)
+-	x = wwin->frame_x+wwin->frame->core->width - menu->frame->core->width;
+-    if (x < wwin->frame_x) 
+-	x = wwin->frame_x;
++    wMenuCalculatePosition(menu, x, y, DEF_MENU_RELPOS, &mx, &my);
++    if (mx + menu->frame->core->width > wwin->frame_x+wwin->frame->core->width)
++	mx = wwin->frame_x+wwin->frame->core->width - menu->frame->core->width;
++    if (mx < wwin->frame_x) 
++	mx = wwin->frame_x;
+ 
+     if (!wwin->flags.internal_window)
+-	wMenuMapAt(menu, x, y, keyboard);
++	wMenuMapAt(menu, mx, my, keyboard);
+ }
+ 
+ 
+@@ -677,6 +678,7 @@
+ {
+     WMenu *menu;
+     WScreen *scr = wwin->screen_ptr;
++    int mx, my;
+ 
+     wwin->flags.menu_open_for_me = 1;
+ 
+@@ -701,8 +703,7 @@
+ 
+     updateMenuForWindow(menu, wwin);
+     
+-    x -= menu->frame->core->width/2;
+-
+-    wMenuMapAt(menu, x, y, False);
++    wMenuCalculatePosition(menu, x, y, DEF_MENU_RELPOS, &mx, &my);
++    wMenuMapAt(menu, mx, my, False);
+ }
+ 

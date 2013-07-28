@@ -1,0 +1,52 @@
+Submitted By:            Ragnar Thomsen <rthomsen_at_linuxfromscratch_dot_org>
+Date:                    2012-08-12
+Initial Package Version: 3.6.0.4
+Origin:                  LibreOffice Git Repository
+Description:             Fixes linking to Boost 1.50
+
+diff -Naur a/mdds/0001-fix-linking-error-with-boost-1.50.patch b/mdds/0001-fix-linking-error-with-boost-1.50.patch
+--- a/mdds/0001-fix-linking-error-with-boost-1.50.patch	1970-01-01 01:00:00.000000000 +0100
++++ b/mdds/0001-fix-linking-error-with-boost-1.50.patch	2012-08-12 19:51:20.458528630 +0200
+@@ -0,0 +1,27 @@
++From 09937e5d6b4b82efbff40da2aa50fb02f2250bb2 Mon Sep 17 00:00:00 2001
++From: David Tardon <dtar...@redhat.com>
++Date: Sat, 28 Jul 2012 14:32:47 +0200
++Subject: [PATCH] fix linking error with boost 1.50
++
++---
++ include/mdds/mixed_type_matrix_storage.hpp | 4 ++++
++ 1 file changed, 4 insertions(+)
++
++diff --git a/include/mdds/mixed_type_matrix_storage.hpp b/include/mdds/mixed_type_matrix_storage.hpp
++index fa0bf25..bb4e354 100644
++--- a/include/mdds/mixed_type_matrix_storage.hpp
+++++ misc/build/mdds_0.5.3/include/mdds/mixed_type_matrix_storage.hpp
++@@ -32,6 +32,10 @@
++ 
++ #include <boost/ptr_container/ptr_vector.hpp>
++ #include <boost/ptr_container/ptr_map.hpp>
+++// Boost.Pool indirectly pulls in Boost.System, causing linking error
+++// with Boost 1.50, because some (deprecated) symbols from System are
+++// not found.
+++#define BOOST_SYSTEM_NO_DEPRECATED
++ #include <boost/pool/object_pool.hpp>
++ 
++ namespace mdds {
++-- 
++1.7.11.2
++
+diff -Naur a/mdds/makefile.mk b/mdds/makefile.mk
+--- a/mdds/makefile.mk	2012-07-27 14:37:04.000000000 +0200
++++ b/mdds/makefile.mk	2012-08-12 19:52:35.695530228 +0200
+@@ -38,7 +38,10 @@
+ 
+ TARFILE_NAME=mdds_0.5.3
+ TARFILE_MD5=0ff7d225d087793c8c2c680d77aac3e7
+-PATCH_FILES=mdds_0.5.3.patch
++PATCH_FILES=\
++mdds_0.5.3.patch \
++0001-fix-linking-error-with-boost-1.50.patch \
++
+ 
+ CONFIGURE_DIR=
+ CONFIGURE_ACTION=

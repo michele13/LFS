@@ -1,0 +1,69 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-10-02
+Initial Package Version: 2.4.22
+Origin: Jim Gifford
+Description: Updated to support GCC 3.3 -march
+	     Updated for Pentium II
+ 
+diff -Naur linux-2.4.22.orig/arch/i386/Makefile linux-2.4.22/arch/i386/Makefile
+--- linux-2.4.22.orig/arch/i386/Makefile	2003-06-13 14:51:29.000000000 +0000
++++ linux-2.4.22/arch/i386/Makefile	2003-10-02 23:13:36.000000000 +0000
+@@ -52,12 +52,16 @@
+ CFLAGS += -march=i686
+ endif
+ 
++ifdef CONFIG_MPENTIUMII
++CFLAGS += $(call check_gcc,-march=pentium2,-march=i686)
++endif
++
+ ifdef CONFIG_MPENTIUMIII
+-CFLAGS += -march=i686
++CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
+ endif
+ 
+ ifdef CONFIG_MPENTIUM4
+-CFLAGS += -march=i686
++CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
+ endif
+ 
+ ifdef CONFIG_MK6
+diff -Naur linux-2.4.22.orig/arch/i386/config.in linux-2.4.22/arch/i386/config.in
+--- linux-2.4.22.orig/arch/i386/config.in	2003-08-25 11:44:39.000000000 +0000
++++ linux-2.4.22/arch/i386/config.in	2003-10-02 23:09:14.000000000 +0000
+@@ -31,7 +31,8 @@
+ 	 586/K5/5x86/6x86/6x86MX		CONFIG_M586 \
+ 	 Pentium-Classic			CONFIG_M586TSC \
+ 	 Pentium-MMX				CONFIG_M586MMX \
+-	 Pentium-Pro/Celeron/Pentium-II		CONFIG_M686 \
++	 Pentium-Pro				CONFIG_M686 \
++	 Pentium-II/Celeron			CONFIG_MPENTIUMII \
+ 	 Pentium-III/Celeron(Coppermine)	CONFIG_MPENTIUMIII \
+ 	 Pentium-4				CONFIG_MPENTIUM4 \
+ 	 K6/K6-II/K6-III			CONFIG_MK6 \
+@@ -106,6 +107,15 @@
+    define_bool CONFIG_X86_PPRO_FENCE y
+    define_bool CONFIG_X86_F00F_WORKS_OK y
+ fi
++if [ "$CONFIG_MPENTIUMII" = "y" ]; then
++   define_int  CONFIG_X86_L1_CACHE_SHIFT 5
++   define_bool CONFIG_X86_HAS_TSC y
++   define_bool CONFIG_X86_GOOD_APIC y
++   define_bool CONFIG_X86_PGE y
++   define_bool CONFIG_X86_USE_PPRO_CHECKSUM y
++   define_bool CONFIG_X86_PPRO_FENCE y
++   define_bool CONFIG_X86_F00F_WORKS_OK y
++fi
+ if [ "$CONFIG_MPENTIUMIII" = "y" ]; then
+    define_int  CONFIG_X86_L1_CACHE_SHIFT 5
+    define_bool CONFIG_X86_HAS_TSC y
+diff -Naur linux-2.4.22.orig/arch/i386/defconfig linux-2.4.22/arch/i386/defconfig
+--- linux-2.4.22.orig/arch/i386/defconfig	2002-11-28 23:53:09.000000000 +0000
++++ linux-2.4.22/arch/i386/defconfig	2003-10-02 23:09:40.000000000 +0000
+@@ -27,6 +27,7 @@
+ # CONFIG_M586TSC is not set
+ # CONFIG_M586MMX is not set
+ # CONFIG_M686 is not set
++# CONFIG_MPENTIUMII is not set
+ CONFIG_MPENTIUMIII=y
+ # CONFIG_MPENTIUM4 is not set
+ # CONFIG_MK6 is not set

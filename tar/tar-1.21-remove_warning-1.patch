@@ -1,0 +1,42 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2009-02-07
+Initial Package Version: 1.21
+Upstream Status:         Not submitted
+Origin:                  Matt Burgess
+Description:             Temporary workaround for various issues caused by the
+                         addition of a warning, including the Perl testsuite.
+
+diff -Naur tar-1.21.orig/src/buffer.c tar-1.21/src/buffer.c
+--- tar-1.21.orig/src/buffer.c	2008-11-30 12:30:29.000000000 +0000
++++ tar-1.21/src/buffer.c	2009-02-08 09:22:05.000000000 +0000
+@@ -686,18 +686,6 @@
+   more = record_start->buffer + status;
+   left = record_size - status;
+ 
+-  if (left && left % BLOCKSIZE == 0
+-      && verbose_option
+-      && record_start_block == 0 && status != 0)
+-    {
+-      unsigned long rsize = status / BLOCKSIZE;
+-      WARN ((0, 0,
+-             ngettext ("Record size = %lu block",
+-                       "Record size = %lu blocks",
+-                       rsize),
+-             rsize));
+-    }
+-
+   while (left % BLOCKSIZE != 0
+          || (left && status && read_full_records))
+     {
+diff -Naur tar-1.21.orig/tests/sparsemvp.at tar-1.21/tests/sparsemvp.at
+--- tar-1.21.orig/tests/sparsemvp.at	2008-10-19 21:56:00.000000000 +0000
++++ tar-1.21/tests/sparsemvp.at	2009-02-08 09:22:40.000000000 +0000
+@@ -56,7 +56,5 @@
+ sparsefile
+ Compare archive
+ ],
+-[tar: Record size = 12 blocks
+-tar: Record size = 12 blocks
+-],[],[],[pax])])
++[],[],[],[pax])])
+ 

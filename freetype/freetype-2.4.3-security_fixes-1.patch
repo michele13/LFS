@@ -1,0 +1,98 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2010-12-02
+Initial Package Version: 2.4.3
+Upstream Status: Applied to development branch
+Origin: Upstream
+Description: fixes for CVE-2010-3311, CVE-2010-3855 (otherwise known as
+Savannah bug #31310) and for Savannah bug #31545 (no CVE number known
+for this one, was new in 2.4 series).  N.B. many other vulnerabilities
+in freetype were fixed earlier in the 2.4 series, users of older versions
+should update.
+
+diff -Naur freetype-2.4.3.orig//src/base/ftobjs.c freetype-2.4.3/src/base/ftobjs.c
+--- freetype-2.4.3.orig//src/base/ftobjs.c	2010-08-06 19:02:15.000000000 +0100
++++ freetype-2.4.3/src/base/ftobjs.c	2010-11-27 19:39:17.000000000 +0000
+@@ -1062,6 +1062,7 @@
+       if ( cur[0]->platform_id == TT_PLATFORM_APPLE_UNICODE    &&
+            cur[0]->encoding_id == TT_APPLE_ID_VARIANT_SELECTOR &&
+            FT_Get_CMap_Format( cur[0] ) == 14                  )
++      {
+ #ifdef FT_MAX_CHARMAP_CACHEABLE
+         if ( cur - first > FT_MAX_CHARMAP_CACHEABLE )
+         {
+@@ -1071,6 +1072,7 @@
+         }
+ #endif
+         return cur[0];
++      }
+     }
+ 
+     return NULL;
+diff -Naur freetype-2.4.3.orig//src/base/ftstream.c freetype-2.4.3/src/base/ftstream.c
+--- freetype-2.4.3.orig//src/base/ftstream.c	2010-08-04 14:52:01.000000000 +0100
++++ freetype-2.4.3/src/base/ftstream.c	2010-11-27 19:20:22.000000000 +0000
+@@ -59,8 +59,17 @@
+   {
+     FT_Error  error = FT_Err_Ok;
+ 
++    /* note that seeking to the first position after the file is valid */
++    if ( pos > stream->size )
++    {
++      FT_ERROR(( "FT_Stream_Seek:"
++                 " invalid i/o; pos = 0x%lx, size = 0x%lx\n",
++                 pos, stream->size ));
++
++      error = FT_Err_Invalid_Stream_Operation;
++    }
+ 
+-    if ( stream->read )
++    if ( !error && stream->read )
+     {
+       if ( stream->read( stream, pos, 0, 0 ) )
+       {
+@@ -71,15 +80,6 @@
+         error = FT_Err_Invalid_Stream_Operation;
+       }
+     }
+-    /* note that seeking to the first position after the file is valid */
+-    else if ( pos > stream->size )
+-    {
+-      FT_ERROR(( "FT_Stream_Seek:"
+-                 " invalid i/o; pos = 0x%lx, size = 0x%lx\n",
+-                 pos, stream->size ));
+-
+-      error = FT_Err_Invalid_Stream_Operation;
+-    }
+ 
+     if ( !error )
+       stream->pos = pos;
+diff -Naur freetype-2.4.3.orig//src/truetype/ttgxvar.c freetype-2.4.3/src/truetype/ttgxvar.c
+--- freetype-2.4.3.orig//src/truetype/ttgxvar.c	2010-07-12 20:03:49.000000000 +0100
++++ freetype-2.4.3/src/truetype/ttgxvar.c	2010-11-27 19:20:35.000000000 +0000
+@@ -130,7 +130,7 @@
+     FT_Int     j;
+     FT_Int     first;
+     FT_Memory  memory = stream->memory;
+-    FT_Error   error = TT_Err_Ok;
++    FT_Error   error  = TT_Err_Ok;
+ 
+     FT_UNUSED( error );
+ 
+@@ -154,7 +154,7 @@
+         runcnt = runcnt & GX_PT_POINT_RUN_COUNT_MASK;
+         first  = points[i++] = FT_GET_USHORT();
+ 
+-        if ( runcnt < 1 )
++        if ( runcnt < 1 || i + runcnt >= n )
+           goto Exit;
+ 
+         /* first point not included in runcount */
+@@ -165,7 +165,7 @@
+       {
+         first = points[i++] = FT_GET_BYTE();
+ 
+-        if ( runcnt < 1 )
++        if ( runcnt < 1 || i + runcnt >= n )
+           goto Exit;
+ 
+         for ( j = 0; j < runcnt; ++j )

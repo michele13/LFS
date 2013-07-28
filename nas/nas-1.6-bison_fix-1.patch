@@ -1,0 +1,22 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-05
+Initial Package Version: 1.6
+Origin: None
+Description: Fix compilation with recent versions of bison.
+diff -ur nas-1.6.orig/server/dia/gram.y nas-1.6/server/dia/gram.y
+--- nas-1.6.orig/server/dia/gram.y	2002-07-09 21:28:41.000000000 -0500
++++ nas-1.6/server/dia/gram.y	2002-11-15 11:32:30.000000000 -0600
+@@ -142,11 +142,13 @@
+ 		| GAIN number
+ 			{ ddaSetConfig(GAIN, (void *)$2); }
+ 
++		;
+ string		: STRING		{ ptr = (char *)malloc(strlen($1)+1);
+ 					  strcpy(ptr, $1);
+ 					  RemoveDQuote(ptr);
+ 					  $$ = ptr;
+ 					}
++		;
+ number		: NUMBER		{ $$ = $1; }
+ 		;
+ 

@@ -1,0 +1,31 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-06-02
+Origin: Based on thoughts by Nathan Coulson and Kevin P. Fleming
+Initial Package Version: 2.6.6
+Upstream Status: The idea is being discussed in linux-hotplug-devel list
+Description: It has been found that calling /sbin/hotplug by default
+when a hotplug event arrives is unsafe, since userspace may be not ready
+to handle the event. Various bugs appear because of that, e.g.;
+
+http://bugs.linuxfromscratch.org/show_bug.cgi?id=842
+
+This patch changes the default kernel behavior to doing nothing.
+This can and must be overridden when the userspace is ready to handle hotplug
+events, by the following command:
+
+echo "/sbin/hotplug" >/proc/sys/kernel/hotplug
+
+Before applying this patch, verify that you have this command in your
+hotplug initscript!
+
+--- linux-2.6.6.old/kernel/kmod.c	2004-05-13 10:52:58.000000000 +0600
++++ linux-2.6.6/kernel/kmod.c	2004-06-02 07:22:27.813676216 +0600
+@@ -132,7 +132,7 @@
+ 	events.  the command is expected to load drivers when
+ 	necessary, and may perform additional system setup.
+ */
+-char hotplug_path[256] = "/sbin/hotplug";
++char hotplug_path[256] = "";
+ 
+ EXPORT_SYMBOL(hotplug_path);
+ 

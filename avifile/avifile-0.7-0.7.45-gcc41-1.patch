@@ -1,0 +1,48 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2007-07-26
+Initial Package Version: 0.7-0.7.45
+Upstream Status:         Unknown
+Origin:                  BLFS Trac Ticket #2327
+Description:             Fixes compilation problem using GCC-4.1.x
+
+$Id$
+
+--- avifile-0.7-0.7.45-orig/include/avm_map.h	2007-07-26 17:49:41.000000000 -0500
++++ avifile-0.7-0.7.45/include/avm_map.h	2004-02-19 05:39:56.000000000 -0600
+@@ -33,19 +33,19 @@
+ template <class Key, class Value, class Compare = less<Key>, class equal = equal<Key> > class avm_map
+ {
+ protected:
+-    template <class Key1, class Value1> struct pair
++    template <class KeyP, class ValueP> struct pair
+     {
+-	Key1 key;
+-	Value1 value;
++	KeyP key;
++	ValueP value;
+ 	pair() : key(Key()), value(Value()) {}
+-	pair(Key1 k, Value1 v) : key(k), value(v) {}
+-	pair(const pair<Key1, Value1>& p) : key(p.key), value(p.value) {}
++	pair(KeyP k, ValueP v) : key(k), value(v) {}
++	pair(const pair<KeyP, ValueP>& p) : key(p.key), value(p.value) {}
+     };
+     typedef pair<Key, Value> _Tpair;
+ 
+     template <class Key1, class Value1> struct binary_tree_node
+     {
+-	avm_map::pair<Key1, Value1>* entry;
++	_Tpair* entry;
+ 	binary_tree_node<Key1, Value1>* left;
+ 	Key1 minval;
+ 	binary_tree_node<Key1, Value1>* right;
+--- avifile-0.7-0.7.45-orig/plugins/libmp3lame_audioenc/mp3encoder.cpp	2007-07-26 17:52:57.000000000 -0500
++++ avifile-0.7-0.7.45/plugins/libmp3lame_audioenc/mp3encoder.cpp	2006-03-05 14:45:26.000000000 -0600
+@@ -30,7 +30,7 @@
+ 	short  nCodecDelay;
+     };
+ public:
+-    MP3Encoder::MP3Encoder(const CodecInfo& info, const WAVEFORMATEX* format)
++    MP3Encoder(const CodecInfo& info, const WAVEFORMATEX* format)
+ 	:IAudioEncoder(info)
+     {
+ 	in_fmt=*format;

@@ -1,0 +1,76 @@
+Submitted By: Douglas Hunley (doug@hunley.homeip.net)
+Date: 2003-08-14
+Initial Package Version: 1.2
+Origin: N/A
+Description: Add /etc/rc.d/init.d/random for increasing the size of the default entropy pool to 1k, and seeding it with a saved seed from the last boot. Also saves a seed on shutdown for the next boot.
+
+diff -Naur lfs-bootscripts-1.2/makesymlinks lfs-bootscripts-1.21/makesymlinks
+--- lfs-bootscripts-1.2/makesymlinks	2003-08-14 18:47:59.000000000 +0000
++++ lfs-bootscripts-1.21/makesymlinks	2003-08-15 13:29:35.000000000 +0000
+@@ -5,6 +5,7 @@
+ 
+ echo "Making symlinks in rc.d/rc0.d..." &&
+ cd rc.d/rc0.d &&
++ln -s ../init.d/random K40random &&
+ ln -s ../init.d/sysklogd K40sysklogd &&
+ ln -s ../init.d/sendsignals K50sendsignals &&
+ ln -s ../init.d/mountfs K60mountfs &&
+@@ -40,6 +41,7 @@
+ 
+ echo "Making symlinks in rc.d/rc6.d..." &&
+ cd ../rc6.d &&
++ln -s ../init.d/random K40random &&
+ ln -s ../init.d/sysklogd K40sysklogd &&
+ ln -s ../init.d/sendsignals K50sendsignals &&
+ ln -s ../init.d/mountfs K60mountfs &&
+@@ -58,6 +60,7 @@
+ ln -s ../init.d/setclock S60setclock &&
+ ln -s ../init.d/loadkeys S70loadkeys &&
+ ln -s ../init.d/localnet S80localnet &&
++ln -s ../init.d/random S90random
+ 
+ echo "Done."
+ 
+diff -Naur lfs-bootscripts-1.2/rc.d/init.d/random lfs-bootscripts-1.21/rc.d/init.d/random
+--- lfs-bootscripts-1.2/rc.d/init.d/random	1970-01-01 00:00:00.000000000 +0000
++++ lfs-bootscripts-1.21/rc.d/init.d/random	2003-08-15 13:25:39.000000000 +0000
+@@ -0,0 +1,39 @@
++#!/bin/bash
++# Begin $rc_base/init.d/random
++
++# Written by Douglas Hunley - doug@hunley.homeip.net
++
++source /etc/sysconfig/rc
++source $rc_functions
++
++# 512 bytes is the default entropy pool size, adjust as necessary
++# by messing with /proc/sys/kernel/random/poolsize
++# (we double it)
++
++case "$1" in
++	start)
++		echo "Initializing kernel random number generator..."
++		echo 1024 > /proc/sys/kernel/random/poolsize
++		# Seed with our previous pool if available
++		if [ -f /var/tmp/random-seed ]; then
++                        cat /var/tmp/random-seed > /dev/urandom
++                fi
++		# Cause an initial generation
++                dd if=/dev/urandom of=/var/tmp/random-seed bs=1024 count=1 &>/dev/null
++                evaluate_retval
++		;;
++
++	stop)
++		echo "Saving random seed..."
++		dd if=/dev/urandom of=/var/tmp/random-seed bs=1024 count=1 &>/dev/null
++                evaluate_retval
++		;;
++
++	*)
++		echo "Usage: $0 {start|stop}"
++		exit 1
++		;;
++esac
++
++# End $rc_base/init.d/random
++

@@ -1,0 +1,1045 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-03
+Initial Package Version: 2.5.31
+Upstream Status: Not submitted
+Origin: None
+Description: Check for gcc -fpie, -fpic, -fstack-protector, and ld -pie,
+-z relro, -z now. Use whatever works.
+
+See:
+http://www.linuxfromscratch.org/~robert/Homogenic/
+
+diff -Naur flex-2.5.31.orig/Makefile.in flex-2.5.31/Makefile.in
+--- flex-2.5.31.orig/Makefile.in	2005-02-03 14:50:55.794973360 +0000
++++ flex-2.5.31/Makefile.in	2005-02-03 15:02:13.773391328 +0000
+@@ -96,6 +96,8 @@
+ ECHO_T = @ECHO_T@
+ EGREP = @EGREP@
+ EXEEXT = @EXEEXT@
++FPICCFLAGS = @FPICCFLAGS@
++FPIECFLAGS = @FPIECFLAGS@
+ GMSGFMT = @GMSGFMT@
+ HELP2MAN = @HELP2MAN@
+ INDENT = @INDENT@
+@@ -120,6 +122,7 @@
+ MKINSTALLDIRS = @MKINSTALLDIRS@
+ MSGFMT = @MSGFMT@
+ MSGMERGE = @MSGMERGE@
++NOWLDFLAGS = @NOWLDFLAGS@
+ OBJEXT = @OBJEXT@
+ PACKAGE = @PACKAGE@
+ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
+@@ -128,10 +131,14 @@
+ PACKAGE_TARNAME = @PACKAGE_TARNAME@
+ PACKAGE_VERSION = @PACKAGE_VERSION@
+ PATH_SEPARATOR = @PATH_SEPARATOR@
++PIELDFLAGS = @PIELDFLAGS@
+ POSUB = @POSUB@
+ RANLIB = @RANLIB@
++RELROLDFLAGS = @RELROLDFLAGS@
+ SET_MAKE = @SET_MAKE@
+ SHELL = @SHELL@
++SSPCFLAGS = @SSPCFLAGS@
++SSPNOCFLAGS = @SSPNOCFLAGS@
+ STRIP = @STRIP@
+ USE_NLS = @USE_NLS@
+ VERSION = @VERSION@
+@@ -189,6 +196,9 @@
+ 
+ bin_PROGRAMS = flex
+ lib_LIBRARIES = libfl.a
++flex_CFLAGS = @FPIECFLAGS@ @SSPCFLAGS@
++flex_LDFLAGS = @PIELDFLAGS@ @RELROLDFLAGS@ @NOWLDFLAGS@
++libfl_a_CFLAGS = @SSPCFLAGS@ @FPICCFLAGS@
+ 
+ flex_SOURCES = \
+ 	ccl.c \
+@@ -335,36 +345,43 @@
+ 
+ libfl_a_AR = $(AR) cru
+ libfl_a_LIBADD =
+-am_libfl_a_OBJECTS = libmain.$(OBJEXT) libyywrap.$(OBJEXT)
++am_libfl_a_OBJECTS = libfl_a-libmain.$(OBJEXT) \
++	libfl_a-libyywrap.$(OBJEXT)
+ libfl_a_OBJECTS = $(am_libfl_a_OBJECTS)
+ bin_PROGRAMS = flex$(EXEEXT)
+ PROGRAMS = $(bin_PROGRAMS)
+ 
+-am_flex_OBJECTS = ccl.$(OBJEXT) dfa.$(OBJEXT) ecs.$(OBJEXT) \
+-	gen.$(OBJEXT) main.$(OBJEXT) misc.$(OBJEXT) nfa.$(OBJEXT) \
+-	parse.$(OBJEXT) scan.$(OBJEXT) skel.$(OBJEXT) sym.$(OBJEXT) \
+-	tblcmp.$(OBJEXT) yylex.$(OBJEXT) options.$(OBJEXT) \
+-	scanopt.$(OBJEXT) buf.$(OBJEXT) tables.$(OBJEXT) \
+-	tables_shared.$(OBJEXT) filter.$(OBJEXT) regex.$(OBJEXT)
++am_flex_OBJECTS = flex-ccl.$(OBJEXT) flex-dfa.$(OBJEXT) \
++	flex-ecs.$(OBJEXT) flex-gen.$(OBJEXT) flex-main.$(OBJEXT) \
++	flex-misc.$(OBJEXT) flex-nfa.$(OBJEXT) flex-parse.$(OBJEXT) \
++	flex-scan.$(OBJEXT) flex-skel.$(OBJEXT) flex-sym.$(OBJEXT) \
++	flex-tblcmp.$(OBJEXT) flex-yylex.$(OBJEXT) \
++	flex-options.$(OBJEXT) flex-scanopt.$(OBJEXT) \
++	flex-buf.$(OBJEXT) flex-tables.$(OBJEXT) \
++	flex-tables_shared.$(OBJEXT) flex-filter.$(OBJEXT) \
++	flex-regex.$(OBJEXT)
+ flex_OBJECTS = $(am_flex_OBJECTS)
+ flex_LDADD = $(LDADD)
+ flex_DEPENDENCIES =
+-flex_LDFLAGS =
+ 
+ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I.
+ depcomp = $(SHELL) $(top_srcdir)/depcomp
+ am__depfiles_maybe = depfiles
+-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/buf.Po ./$(DEPDIR)/ccl.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/dfa.Po ./$(DEPDIR)/ecs.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/filter.Po ./$(DEPDIR)/gen.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/libmain.Po ./$(DEPDIR)/libyywrap.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/main.Po ./$(DEPDIR)/misc.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/nfa.Po ./$(DEPDIR)/options.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/parse.Po ./$(DEPDIR)/regex.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/scan.Po ./$(DEPDIR)/scanopt.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/skel.Po ./$(DEPDIR)/sym.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/tables.Po ./$(DEPDIR)/tables_shared.Po \
+-@AMDEP_TRUE@	./$(DEPDIR)/tblcmp.Po ./$(DEPDIR)/yylex.Po
++@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/flex-buf.Po ./$(DEPDIR)/flex-ccl.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-dfa.Po ./$(DEPDIR)/flex-ecs.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-filter.Po ./$(DEPDIR)/flex-gen.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-main.Po ./$(DEPDIR)/flex-misc.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-nfa.Po ./$(DEPDIR)/flex-options.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-parse.Po ./$(DEPDIR)/flex-regex.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-scan.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-scanopt.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-skel.Po ./$(DEPDIR)/flex-sym.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-tables.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-tables_shared.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-tblcmp.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/flex-yylex.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/libfl_a-libmain.Po \
++@AMDEP_TRUE@	./$(DEPDIR)/libfl_a-libyywrap.Po
+ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+ 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+ CCLD = $(CC)
+@@ -382,10 +399,10 @@
+ 	check-recursive installcheck-recursive
+ DIST_COMMON = README $(include_HEADERS) $(noinst_HEADERS) ABOUT-NLS \
+ 	AUTHORS COPYING ChangeLog INSTALL Makefile.am Makefile.in NEWS \
+-	README-alpha THANKS TODO aclocal.m4 conf.in config.guess \
+-	config.rpath config.sub configure configure.in depcomp \
+-	flex.spec.in install-sh missing mkinstalldirs parse.c parse.h \
+-	scan.c
++	README-alpha THANKS TODO aclocal.m4 compile conf.in \
++	config.guess config.rpath config.sub configure configure.in \
++	depcomp flex.spec.in install-sh missing mkinstalldirs parse.c \
++	parse.h scan.c
+ DIST_SUBDIRS = $(SUBDIRS)
+ SOURCES = $(libfl_a_SOURCES) $(flex_SOURCES)
+ 
+@@ -461,6 +478,8 @@
+ 
+ clean-libLIBRARIES:
+ 	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
++libfl_a-libmain.$(OBJEXT): libmain.c
++libfl_a-libyywrap.$(OBJEXT): libyywrap.c
+ libfl.a: $(libfl_a_OBJECTS) $(libfl_a_DEPENDENCIES) 
+ 	-rm -f libfl.a
+ 	$(libfl_a_AR) libfl.a $(libfl_a_OBJECTS) $(libfl_a_LIBADD)
+@@ -504,11 +523,31 @@
+ 	    else echo "$$f does not support $$opt" 1>&2; bad=1; fi; \
+ 	  done; \
+ 	done; rm -f c$${pid}_.???; exit $$bad
++flex-ccl.$(OBJEXT): ccl.c
++flex-dfa.$(OBJEXT): dfa.c
++flex-ecs.$(OBJEXT): ecs.c
++flex-gen.$(OBJEXT): gen.c
++flex-main.$(OBJEXT): main.c
++flex-misc.$(OBJEXT): misc.c
++flex-nfa.$(OBJEXT): nfa.c
+ parse.h: parse.c
+ 	@if test ! -f $@; then \
+ 	  rm -f parse.c; \
+ 	  $(MAKE) parse.c; \
+ 	else :; fi
++flex-parse.$(OBJEXT): parse.c
++flex-scan.$(OBJEXT): scan.c
++flex-skel.$(OBJEXT): skel.c
++flex-sym.$(OBJEXT): sym.c
++flex-tblcmp.$(OBJEXT): tblcmp.c
++flex-yylex.$(OBJEXT): yylex.c
++flex-options.$(OBJEXT): options.c
++flex-scanopt.$(OBJEXT): scanopt.c
++flex-buf.$(OBJEXT): buf.c
++flex-tables.$(OBJEXT): tables.c
++flex-tables_shared.$(OBJEXT): tables_shared.c
++flex-filter.$(OBJEXT): filter.c
++flex-regex.$(OBJEXT): regex.c
+ flex$(EXEEXT): $(flex_OBJECTS) $(flex_DEPENDENCIES) 
+ 	@rm -f flex$(EXEEXT)
+ 	$(LINK) $(flex_LDFLAGS) $(flex_OBJECTS) $(flex_LDADD) $(LIBS)
+@@ -519,28 +558,28 @@
+ distclean-compile:
+ 	-rm -f *.tab.c
+ 
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/buf.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccl.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dfa.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ecs.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gen.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libmain.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libyywrap.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/misc.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nfa.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/options.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parse.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/regex.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scan.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scanopt.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/skel.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sym.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tables.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tables_shared.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tblcmp.Po@am__quote@
+-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/yylex.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-buf.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-ccl.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-dfa.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-ecs.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-filter.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-gen.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-main.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-misc.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-nfa.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-options.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-parse.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-regex.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-scan.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-scanopt.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-skel.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-sym.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-tables.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-tables_shared.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-tblcmp.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flex-yylex.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfl_a-libmain.Po@am__quote@
++@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libfl_a-libyywrap.Po@am__quote@
+ 
+ distclean-depend:
+ 	-rm -rf ./$(DEPDIR)
+@@ -567,6 +606,490 @@
+ @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+ @am__fastdepCC_FALSE@	$(COMPILE) -c `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'`
+ 
++libfl_a-libmain.o: libmain.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -MT libfl_a-libmain.o -MD -MP -MF "$(DEPDIR)/libfl_a-libmain.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o libfl_a-libmain.o `test -f 'libmain.c' || echo '$(srcdir)/'`libmain.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/libfl_a-libmain.Tpo" "$(DEPDIR)/libfl_a-libmain.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libfl_a-libmain.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libmain.c' object='libfl_a-libmain.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libfl_a-libmain.Po' tmpdepfile='$(DEPDIR)/libfl_a-libmain.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -c -o libfl_a-libmain.o `test -f 'libmain.c' || echo '$(srcdir)/'`libmain.c
++
++libfl_a-libmain.obj: libmain.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -MT libfl_a-libmain.obj -MD -MP -MF "$(DEPDIR)/libfl_a-libmain.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o libfl_a-libmain.obj `if test -f 'libmain.c'; then $(CYGPATH_W) 'libmain.c'; else $(CYGPATH_W) '$(srcdir)/libmain.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/libfl_a-libmain.Tpo" "$(DEPDIR)/libfl_a-libmain.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libfl_a-libmain.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libmain.c' object='libfl_a-libmain.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libfl_a-libmain.Po' tmpdepfile='$(DEPDIR)/libfl_a-libmain.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -c -o libfl_a-libmain.obj `if test -f 'libmain.c'; then $(CYGPATH_W) 'libmain.c'; else $(CYGPATH_W) '$(srcdir)/libmain.c'`
++
++libfl_a-libyywrap.o: libyywrap.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -MT libfl_a-libyywrap.o -MD -MP -MF "$(DEPDIR)/libfl_a-libyywrap.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o libfl_a-libyywrap.o `test -f 'libyywrap.c' || echo '$(srcdir)/'`libyywrap.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/libfl_a-libyywrap.Tpo" "$(DEPDIR)/libfl_a-libyywrap.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libfl_a-libyywrap.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libyywrap.c' object='libfl_a-libyywrap.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libfl_a-libyywrap.Po' tmpdepfile='$(DEPDIR)/libfl_a-libyywrap.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -c -o libfl_a-libyywrap.o `test -f 'libyywrap.c' || echo '$(srcdir)/'`libyywrap.c
++
++libfl_a-libyywrap.obj: libyywrap.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -MT libfl_a-libyywrap.obj -MD -MP -MF "$(DEPDIR)/libfl_a-libyywrap.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o libfl_a-libyywrap.obj `if test -f 'libyywrap.c'; then $(CYGPATH_W) 'libyywrap.c'; else $(CYGPATH_W) '$(srcdir)/libyywrap.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/libfl_a-libyywrap.Tpo" "$(DEPDIR)/libfl_a-libyywrap.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/libfl_a-libyywrap.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='libyywrap.c' object='libfl_a-libyywrap.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/libfl_a-libyywrap.Po' tmpdepfile='$(DEPDIR)/libfl_a-libyywrap.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfl_a_CFLAGS) $(CFLAGS) -c -o libfl_a-libyywrap.obj `if test -f 'libyywrap.c'; then $(CYGPATH_W) 'libyywrap.c'; else $(CYGPATH_W) '$(srcdir)/libyywrap.c'`
++
++flex-ccl.o: ccl.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-ccl.o -MD -MP -MF "$(DEPDIR)/flex-ccl.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-ccl.o `test -f 'ccl.c' || echo '$(srcdir)/'`ccl.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-ccl.Tpo" "$(DEPDIR)/flex-ccl.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-ccl.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccl.c' object='flex-ccl.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-ccl.Po' tmpdepfile='$(DEPDIR)/flex-ccl.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-ccl.o `test -f 'ccl.c' || echo '$(srcdir)/'`ccl.c
++
++flex-ccl.obj: ccl.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-ccl.obj -MD -MP -MF "$(DEPDIR)/flex-ccl.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-ccl.obj `if test -f 'ccl.c'; then $(CYGPATH_W) 'ccl.c'; else $(CYGPATH_W) '$(srcdir)/ccl.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-ccl.Tpo" "$(DEPDIR)/flex-ccl.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-ccl.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ccl.c' object='flex-ccl.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-ccl.Po' tmpdepfile='$(DEPDIR)/flex-ccl.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-ccl.obj `if test -f 'ccl.c'; then $(CYGPATH_W) 'ccl.c'; else $(CYGPATH_W) '$(srcdir)/ccl.c'`
++
++flex-dfa.o: dfa.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-dfa.o -MD -MP -MF "$(DEPDIR)/flex-dfa.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-dfa.o `test -f 'dfa.c' || echo '$(srcdir)/'`dfa.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-dfa.Tpo" "$(DEPDIR)/flex-dfa.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-dfa.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dfa.c' object='flex-dfa.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-dfa.Po' tmpdepfile='$(DEPDIR)/flex-dfa.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-dfa.o `test -f 'dfa.c' || echo '$(srcdir)/'`dfa.c
++
++flex-dfa.obj: dfa.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-dfa.obj -MD -MP -MF "$(DEPDIR)/flex-dfa.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-dfa.obj `if test -f 'dfa.c'; then $(CYGPATH_W) 'dfa.c'; else $(CYGPATH_W) '$(srcdir)/dfa.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-dfa.Tpo" "$(DEPDIR)/flex-dfa.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-dfa.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='dfa.c' object='flex-dfa.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-dfa.Po' tmpdepfile='$(DEPDIR)/flex-dfa.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-dfa.obj `if test -f 'dfa.c'; then $(CYGPATH_W) 'dfa.c'; else $(CYGPATH_W) '$(srcdir)/dfa.c'`
++
++flex-ecs.o: ecs.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-ecs.o -MD -MP -MF "$(DEPDIR)/flex-ecs.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-ecs.o `test -f 'ecs.c' || echo '$(srcdir)/'`ecs.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-ecs.Tpo" "$(DEPDIR)/flex-ecs.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-ecs.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ecs.c' object='flex-ecs.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-ecs.Po' tmpdepfile='$(DEPDIR)/flex-ecs.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-ecs.o `test -f 'ecs.c' || echo '$(srcdir)/'`ecs.c
++
++flex-ecs.obj: ecs.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-ecs.obj -MD -MP -MF "$(DEPDIR)/flex-ecs.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-ecs.obj `if test -f 'ecs.c'; then $(CYGPATH_W) 'ecs.c'; else $(CYGPATH_W) '$(srcdir)/ecs.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-ecs.Tpo" "$(DEPDIR)/flex-ecs.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-ecs.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='ecs.c' object='flex-ecs.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-ecs.Po' tmpdepfile='$(DEPDIR)/flex-ecs.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-ecs.obj `if test -f 'ecs.c'; then $(CYGPATH_W) 'ecs.c'; else $(CYGPATH_W) '$(srcdir)/ecs.c'`
++
++flex-gen.o: gen.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-gen.o -MD -MP -MF "$(DEPDIR)/flex-gen.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-gen.o `test -f 'gen.c' || echo '$(srcdir)/'`gen.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-gen.Tpo" "$(DEPDIR)/flex-gen.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-gen.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gen.c' object='flex-gen.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-gen.Po' tmpdepfile='$(DEPDIR)/flex-gen.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-gen.o `test -f 'gen.c' || echo '$(srcdir)/'`gen.c
++
++flex-gen.obj: gen.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-gen.obj -MD -MP -MF "$(DEPDIR)/flex-gen.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-gen.obj `if test -f 'gen.c'; then $(CYGPATH_W) 'gen.c'; else $(CYGPATH_W) '$(srcdir)/gen.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-gen.Tpo" "$(DEPDIR)/flex-gen.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-gen.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='gen.c' object='flex-gen.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-gen.Po' tmpdepfile='$(DEPDIR)/flex-gen.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-gen.obj `if test -f 'gen.c'; then $(CYGPATH_W) 'gen.c'; else $(CYGPATH_W) '$(srcdir)/gen.c'`
++
++flex-main.o: main.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-main.o -MD -MP -MF "$(DEPDIR)/flex-main.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-main.Tpo" "$(DEPDIR)/flex-main.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-main.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='flex-main.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-main.Po' tmpdepfile='$(DEPDIR)/flex-main.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
++
++flex-main.obj: main.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-main.obj -MD -MP -MF "$(DEPDIR)/flex-main.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-main.Tpo" "$(DEPDIR)/flex-main.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-main.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='main.c' object='flex-main.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-main.Po' tmpdepfile='$(DEPDIR)/flex-main.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'`
++
++flex-misc.o: misc.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-misc.o -MD -MP -MF "$(DEPDIR)/flex-misc.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-misc.o `test -f 'misc.c' || echo '$(srcdir)/'`misc.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-misc.Tpo" "$(DEPDIR)/flex-misc.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-misc.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='misc.c' object='flex-misc.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-misc.Po' tmpdepfile='$(DEPDIR)/flex-misc.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-misc.o `test -f 'misc.c' || echo '$(srcdir)/'`misc.c
++
++flex-misc.obj: misc.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-misc.obj -MD -MP -MF "$(DEPDIR)/flex-misc.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-misc.obj `if test -f 'misc.c'; then $(CYGPATH_W) 'misc.c'; else $(CYGPATH_W) '$(srcdir)/misc.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-misc.Tpo" "$(DEPDIR)/flex-misc.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-misc.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='misc.c' object='flex-misc.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-misc.Po' tmpdepfile='$(DEPDIR)/flex-misc.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-misc.obj `if test -f 'misc.c'; then $(CYGPATH_W) 'misc.c'; else $(CYGPATH_W) '$(srcdir)/misc.c'`
++
++flex-nfa.o: nfa.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-nfa.o -MD -MP -MF "$(DEPDIR)/flex-nfa.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-nfa.o `test -f 'nfa.c' || echo '$(srcdir)/'`nfa.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-nfa.Tpo" "$(DEPDIR)/flex-nfa.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-nfa.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='nfa.c' object='flex-nfa.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-nfa.Po' tmpdepfile='$(DEPDIR)/flex-nfa.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-nfa.o `test -f 'nfa.c' || echo '$(srcdir)/'`nfa.c
++
++flex-nfa.obj: nfa.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-nfa.obj -MD -MP -MF "$(DEPDIR)/flex-nfa.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-nfa.obj `if test -f 'nfa.c'; then $(CYGPATH_W) 'nfa.c'; else $(CYGPATH_W) '$(srcdir)/nfa.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-nfa.Tpo" "$(DEPDIR)/flex-nfa.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-nfa.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='nfa.c' object='flex-nfa.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-nfa.Po' tmpdepfile='$(DEPDIR)/flex-nfa.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-nfa.obj `if test -f 'nfa.c'; then $(CYGPATH_W) 'nfa.c'; else $(CYGPATH_W) '$(srcdir)/nfa.c'`
++
++flex-parse.o: parse.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-parse.o -MD -MP -MF "$(DEPDIR)/flex-parse.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-parse.o `test -f 'parse.c' || echo '$(srcdir)/'`parse.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-parse.Tpo" "$(DEPDIR)/flex-parse.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-parse.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='parse.c' object='flex-parse.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-parse.Po' tmpdepfile='$(DEPDIR)/flex-parse.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-parse.o `test -f 'parse.c' || echo '$(srcdir)/'`parse.c
++
++flex-parse.obj: parse.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-parse.obj -MD -MP -MF "$(DEPDIR)/flex-parse.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-parse.obj `if test -f 'parse.c'; then $(CYGPATH_W) 'parse.c'; else $(CYGPATH_W) '$(srcdir)/parse.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-parse.Tpo" "$(DEPDIR)/flex-parse.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-parse.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='parse.c' object='flex-parse.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-parse.Po' tmpdepfile='$(DEPDIR)/flex-parse.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-parse.obj `if test -f 'parse.c'; then $(CYGPATH_W) 'parse.c'; else $(CYGPATH_W) '$(srcdir)/parse.c'`
++
++flex-scan.o: scan.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-scan.o -MD -MP -MF "$(DEPDIR)/flex-scan.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-scan.o `test -f 'scan.c' || echo '$(srcdir)/'`scan.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-scan.Tpo" "$(DEPDIR)/flex-scan.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-scan.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='scan.c' object='flex-scan.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-scan.Po' tmpdepfile='$(DEPDIR)/flex-scan.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-scan.o `test -f 'scan.c' || echo '$(srcdir)/'`scan.c
++
++flex-scan.obj: scan.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-scan.obj -MD -MP -MF "$(DEPDIR)/flex-scan.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-scan.obj `if test -f 'scan.c'; then $(CYGPATH_W) 'scan.c'; else $(CYGPATH_W) '$(srcdir)/scan.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-scan.Tpo" "$(DEPDIR)/flex-scan.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-scan.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='scan.c' object='flex-scan.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-scan.Po' tmpdepfile='$(DEPDIR)/flex-scan.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-scan.obj `if test -f 'scan.c'; then $(CYGPATH_W) 'scan.c'; else $(CYGPATH_W) '$(srcdir)/scan.c'`
++
++flex-skel.o: skel.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-skel.o -MD -MP -MF "$(DEPDIR)/flex-skel.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-skel.o `test -f 'skel.c' || echo '$(srcdir)/'`skel.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-skel.Tpo" "$(DEPDIR)/flex-skel.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-skel.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='skel.c' object='flex-skel.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-skel.Po' tmpdepfile='$(DEPDIR)/flex-skel.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-skel.o `test -f 'skel.c' || echo '$(srcdir)/'`skel.c
++
++flex-skel.obj: skel.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-skel.obj -MD -MP -MF "$(DEPDIR)/flex-skel.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-skel.obj `if test -f 'skel.c'; then $(CYGPATH_W) 'skel.c'; else $(CYGPATH_W) '$(srcdir)/skel.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-skel.Tpo" "$(DEPDIR)/flex-skel.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-skel.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='skel.c' object='flex-skel.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-skel.Po' tmpdepfile='$(DEPDIR)/flex-skel.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-skel.obj `if test -f 'skel.c'; then $(CYGPATH_W) 'skel.c'; else $(CYGPATH_W) '$(srcdir)/skel.c'`
++
++flex-sym.o: sym.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-sym.o -MD -MP -MF "$(DEPDIR)/flex-sym.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-sym.o `test -f 'sym.c' || echo '$(srcdir)/'`sym.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-sym.Tpo" "$(DEPDIR)/flex-sym.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-sym.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sym.c' object='flex-sym.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-sym.Po' tmpdepfile='$(DEPDIR)/flex-sym.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-sym.o `test -f 'sym.c' || echo '$(srcdir)/'`sym.c
++
++flex-sym.obj: sym.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-sym.obj -MD -MP -MF "$(DEPDIR)/flex-sym.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-sym.obj `if test -f 'sym.c'; then $(CYGPATH_W) 'sym.c'; else $(CYGPATH_W) '$(srcdir)/sym.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-sym.Tpo" "$(DEPDIR)/flex-sym.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-sym.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='sym.c' object='flex-sym.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-sym.Po' tmpdepfile='$(DEPDIR)/flex-sym.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-sym.obj `if test -f 'sym.c'; then $(CYGPATH_W) 'sym.c'; else $(CYGPATH_W) '$(srcdir)/sym.c'`
++
++flex-tblcmp.o: tblcmp.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tblcmp.o -MD -MP -MF "$(DEPDIR)/flex-tblcmp.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tblcmp.o `test -f 'tblcmp.c' || echo '$(srcdir)/'`tblcmp.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tblcmp.Tpo" "$(DEPDIR)/flex-tblcmp.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tblcmp.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tblcmp.c' object='flex-tblcmp.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tblcmp.Po' tmpdepfile='$(DEPDIR)/flex-tblcmp.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tblcmp.o `test -f 'tblcmp.c' || echo '$(srcdir)/'`tblcmp.c
++
++flex-tblcmp.obj: tblcmp.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tblcmp.obj -MD -MP -MF "$(DEPDIR)/flex-tblcmp.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tblcmp.obj `if test -f 'tblcmp.c'; then $(CYGPATH_W) 'tblcmp.c'; else $(CYGPATH_W) '$(srcdir)/tblcmp.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tblcmp.Tpo" "$(DEPDIR)/flex-tblcmp.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tblcmp.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tblcmp.c' object='flex-tblcmp.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tblcmp.Po' tmpdepfile='$(DEPDIR)/flex-tblcmp.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tblcmp.obj `if test -f 'tblcmp.c'; then $(CYGPATH_W) 'tblcmp.c'; else $(CYGPATH_W) '$(srcdir)/tblcmp.c'`
++
++flex-yylex.o: yylex.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-yylex.o -MD -MP -MF "$(DEPDIR)/flex-yylex.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-yylex.o `test -f 'yylex.c' || echo '$(srcdir)/'`yylex.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-yylex.Tpo" "$(DEPDIR)/flex-yylex.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-yylex.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='yylex.c' object='flex-yylex.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-yylex.Po' tmpdepfile='$(DEPDIR)/flex-yylex.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-yylex.o `test -f 'yylex.c' || echo '$(srcdir)/'`yylex.c
++
++flex-yylex.obj: yylex.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-yylex.obj -MD -MP -MF "$(DEPDIR)/flex-yylex.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-yylex.obj `if test -f 'yylex.c'; then $(CYGPATH_W) 'yylex.c'; else $(CYGPATH_W) '$(srcdir)/yylex.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-yylex.Tpo" "$(DEPDIR)/flex-yylex.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-yylex.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='yylex.c' object='flex-yylex.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-yylex.Po' tmpdepfile='$(DEPDIR)/flex-yylex.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-yylex.obj `if test -f 'yylex.c'; then $(CYGPATH_W) 'yylex.c'; else $(CYGPATH_W) '$(srcdir)/yylex.c'`
++
++flex-options.o: options.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-options.o -MD -MP -MF "$(DEPDIR)/flex-options.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-options.o `test -f 'options.c' || echo '$(srcdir)/'`options.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-options.Tpo" "$(DEPDIR)/flex-options.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-options.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='options.c' object='flex-options.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-options.Po' tmpdepfile='$(DEPDIR)/flex-options.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-options.o `test -f 'options.c' || echo '$(srcdir)/'`options.c
++
++flex-options.obj: options.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-options.obj -MD -MP -MF "$(DEPDIR)/flex-options.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-options.obj `if test -f 'options.c'; then $(CYGPATH_W) 'options.c'; else $(CYGPATH_W) '$(srcdir)/options.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-options.Tpo" "$(DEPDIR)/flex-options.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-options.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='options.c' object='flex-options.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-options.Po' tmpdepfile='$(DEPDIR)/flex-options.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-options.obj `if test -f 'options.c'; then $(CYGPATH_W) 'options.c'; else $(CYGPATH_W) '$(srcdir)/options.c'`
++
++flex-scanopt.o: scanopt.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-scanopt.o -MD -MP -MF "$(DEPDIR)/flex-scanopt.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-scanopt.o `test -f 'scanopt.c' || echo '$(srcdir)/'`scanopt.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-scanopt.Tpo" "$(DEPDIR)/flex-scanopt.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-scanopt.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='scanopt.c' object='flex-scanopt.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-scanopt.Po' tmpdepfile='$(DEPDIR)/flex-scanopt.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-scanopt.o `test -f 'scanopt.c' || echo '$(srcdir)/'`scanopt.c
++
++flex-scanopt.obj: scanopt.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-scanopt.obj -MD -MP -MF "$(DEPDIR)/flex-scanopt.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-scanopt.obj `if test -f 'scanopt.c'; then $(CYGPATH_W) 'scanopt.c'; else $(CYGPATH_W) '$(srcdir)/scanopt.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-scanopt.Tpo" "$(DEPDIR)/flex-scanopt.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-scanopt.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='scanopt.c' object='flex-scanopt.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-scanopt.Po' tmpdepfile='$(DEPDIR)/flex-scanopt.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-scanopt.obj `if test -f 'scanopt.c'; then $(CYGPATH_W) 'scanopt.c'; else $(CYGPATH_W) '$(srcdir)/scanopt.c'`
++
++flex-buf.o: buf.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-buf.o -MD -MP -MF "$(DEPDIR)/flex-buf.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-buf.o `test -f 'buf.c' || echo '$(srcdir)/'`buf.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-buf.Tpo" "$(DEPDIR)/flex-buf.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-buf.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='buf.c' object='flex-buf.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-buf.Po' tmpdepfile='$(DEPDIR)/flex-buf.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-buf.o `test -f 'buf.c' || echo '$(srcdir)/'`buf.c
++
++flex-buf.obj: buf.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-buf.obj -MD -MP -MF "$(DEPDIR)/flex-buf.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-buf.obj `if test -f 'buf.c'; then $(CYGPATH_W) 'buf.c'; else $(CYGPATH_W) '$(srcdir)/buf.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-buf.Tpo" "$(DEPDIR)/flex-buf.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-buf.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='buf.c' object='flex-buf.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-buf.Po' tmpdepfile='$(DEPDIR)/flex-buf.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-buf.obj `if test -f 'buf.c'; then $(CYGPATH_W) 'buf.c'; else $(CYGPATH_W) '$(srcdir)/buf.c'`
++
++flex-tables.o: tables.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tables.o -MD -MP -MF "$(DEPDIR)/flex-tables.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tables.o `test -f 'tables.c' || echo '$(srcdir)/'`tables.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tables.Tpo" "$(DEPDIR)/flex-tables.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tables.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tables.c' object='flex-tables.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tables.Po' tmpdepfile='$(DEPDIR)/flex-tables.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tables.o `test -f 'tables.c' || echo '$(srcdir)/'`tables.c
++
++flex-tables.obj: tables.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tables.obj -MD -MP -MF "$(DEPDIR)/flex-tables.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tables.obj `if test -f 'tables.c'; then $(CYGPATH_W) 'tables.c'; else $(CYGPATH_W) '$(srcdir)/tables.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tables.Tpo" "$(DEPDIR)/flex-tables.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tables.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tables.c' object='flex-tables.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tables.Po' tmpdepfile='$(DEPDIR)/flex-tables.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tables.obj `if test -f 'tables.c'; then $(CYGPATH_W) 'tables.c'; else $(CYGPATH_W) '$(srcdir)/tables.c'`
++
++flex-tables_shared.o: tables_shared.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tables_shared.o -MD -MP -MF "$(DEPDIR)/flex-tables_shared.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tables_shared.o `test -f 'tables_shared.c' || echo '$(srcdir)/'`tables_shared.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tables_shared.Tpo" "$(DEPDIR)/flex-tables_shared.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tables_shared.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tables_shared.c' object='flex-tables_shared.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tables_shared.Po' tmpdepfile='$(DEPDIR)/flex-tables_shared.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tables_shared.o `test -f 'tables_shared.c' || echo '$(srcdir)/'`tables_shared.c
++
++flex-tables_shared.obj: tables_shared.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-tables_shared.obj -MD -MP -MF "$(DEPDIR)/flex-tables_shared.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-tables_shared.obj `if test -f 'tables_shared.c'; then $(CYGPATH_W) 'tables_shared.c'; else $(CYGPATH_W) '$(srcdir)/tables_shared.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-tables_shared.Tpo" "$(DEPDIR)/flex-tables_shared.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-tables_shared.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='tables_shared.c' object='flex-tables_shared.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-tables_shared.Po' tmpdepfile='$(DEPDIR)/flex-tables_shared.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-tables_shared.obj `if test -f 'tables_shared.c'; then $(CYGPATH_W) 'tables_shared.c'; else $(CYGPATH_W) '$(srcdir)/tables_shared.c'`
++
++flex-filter.o: filter.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-filter.o -MD -MP -MF "$(DEPDIR)/flex-filter.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-filter.o `test -f 'filter.c' || echo '$(srcdir)/'`filter.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-filter.Tpo" "$(DEPDIR)/flex-filter.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-filter.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='filter.c' object='flex-filter.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-filter.Po' tmpdepfile='$(DEPDIR)/flex-filter.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-filter.o `test -f 'filter.c' || echo '$(srcdir)/'`filter.c
++
++flex-filter.obj: filter.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-filter.obj -MD -MP -MF "$(DEPDIR)/flex-filter.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-filter.obj `if test -f 'filter.c'; then $(CYGPATH_W) 'filter.c'; else $(CYGPATH_W) '$(srcdir)/filter.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-filter.Tpo" "$(DEPDIR)/flex-filter.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-filter.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='filter.c' object='flex-filter.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-filter.Po' tmpdepfile='$(DEPDIR)/flex-filter.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-filter.obj `if test -f 'filter.c'; then $(CYGPATH_W) 'filter.c'; else $(CYGPATH_W) '$(srcdir)/filter.c'`
++
++flex-regex.o: regex.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-regex.o -MD -MP -MF "$(DEPDIR)/flex-regex.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-regex.o `test -f 'regex.c' || echo '$(srcdir)/'`regex.c; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-regex.Tpo" "$(DEPDIR)/flex-regex.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-regex.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='regex.c' object='flex-regex.o' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-regex.Po' tmpdepfile='$(DEPDIR)/flex-regex.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-regex.o `test -f 'regex.c' || echo '$(srcdir)/'`regex.c
++
++flex-regex.obj: regex.c
++@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -MT flex-regex.obj -MD -MP -MF "$(DEPDIR)/flex-regex.Tpo" \
++@am__fastdepCC_TRUE@	  -c -o flex-regex.obj `if test -f 'regex.c'; then $(CYGPATH_W) 'regex.c'; else $(CYGPATH_W) '$(srcdir)/regex.c'`; \
++@am__fastdepCC_TRUE@	then mv "$(DEPDIR)/flex-regex.Tpo" "$(DEPDIR)/flex-regex.Po"; \
++@am__fastdepCC_TRUE@	else rm -f "$(DEPDIR)/flex-regex.Tpo"; exit 1; \
++@am__fastdepCC_TRUE@	fi
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='regex.c' object='flex-regex.obj' libtool=no @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	depfile='$(DEPDIR)/flex-regex.Po' tmpdepfile='$(DEPDIR)/flex-regex.TPo' @AMDEPBACKSLASH@
++@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
++@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(flex_CFLAGS) $(CFLAGS) -c -o flex-regex.obj `if test -f 'regex.c'; then $(CYGPATH_W) 'regex.c'; else $(CYGPATH_W) '$(srcdir)/regex.c'`
++
+ .l.c:
+ 	$(LEXCOMPILE) `test -f $< || echo '$(srcdir)/'`$<
+ 	sed '/^#/ s|$(LEX_OUTPUT_ROOT)\.c|$@|' $(LEX_OUTPUT_ROOT).c >$@
+@@ -892,11 +1415,11 @@
+ maintainer-clean-generic:
+ 	@echo "This command is intended for maintainers to use"
+ 	@echo "it deletes files that may require special tools to rebuild."
+-	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
+ 	-rm -f parse.h
+ 	-test -z "$(MAINTAINERCLEANFILES)" || rm -f $(MAINTAINERCLEANFILES)
+-	-rm -f parse.c
+ 	-rm -f scan.c
++	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
++	-rm -f parse.c
+ clean: clean-recursive
+ 
+ clean-am: clean-binPROGRAMS clean-generic clean-libLIBRARIES \
+diff -Naur flex-2.5.31.orig/configure flex-2.5.31/configure
+--- flex-2.5.31.orig/configure	2005-02-03 14:50:55.808971232 +0000
++++ flex-2.5.31/configure	2005-02-03 15:02:13.764392696 +0000
+@@ -307,7 +307,7 @@
+ # include <unistd.h>
+ #endif"
+ 
+-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE MKINSTALLDIRS MSGFMT GMSGFMT XGETTEXT MSGMERGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os USE_NLS LIBICONV LTLIBICONV INTLLIBS LIBINTL LTLIBINTL POSUB YACC LEX LEXLIB LEX_OUTPUT_ROOT CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LN_S RANLIB ac_ct_RANLIB BISON HELP2MAN M4 INDENT CPP EGREP LIBOBJS LTLIBOBJS'
++ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE MKINSTALLDIRS MSGFMT GMSGFMT XGETTEXT MSGMERGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE build build_cpu build_vendor build_os host host_cpu host_vendor host_os USE_NLS LIBICONV LTLIBICONV INTLLIBS LIBINTL LTLIBINTL POSUB YACC LEX LEXLIB LEX_OUTPUT_ROOT CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE LN_S RANLIB ac_ct_RANLIB FPIECFLAGS PIELDFLAGS FPICCFLAGS SSPCFLAGS SSPNOCFLAGS RELROLDFLAGS NOWLDFLAGS BISON HELP2MAN M4 INDENT CPP EGREP LIBOBJS LTLIBOBJS'
+ ac_subst_files=''
+ 
+ # Initialize some variables set by options.
+@@ -5657,6 +5657,287 @@
+ fi
+ 
+ 
++ac_ext=c
++ac_cpp='$CPP $CPPFLAGS'
++ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_c_compiler_gnu
++
++ac_save_CFLAGS=$CFLAGS
++CFLAGS="-pie -fPIE $CFLAGS"
++echo "$as_me:$LINENO: checking whether $CC accepts -pie -fPIE" >&5
++echo $ECHO_N "checking whether $CC accepts -pie -fPIE... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_fpie+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++#include "confdefs.h"
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_fpie=yes
++else
++  echo "$as_me: failed program was:" >&5
++cat conftest.$ac_ext >&5
++ac_cv_prog_cc_fpie=no
++fi
++rm -f conftest.$ac_objext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_fpie" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_fpie" >&6
++
++
++CFLAGS="$ac_save_CFLAGS"
++if test $ac_cv_prog_cc_fpie = yes; then
++    FPIECFLAGS="-pie -fPIE"
++    PIELDFLAGS="-pie"
++else
++    FPIECFLAGS=""
++    PIELDFLAGS=""
++fi
++
++ac_ext=c
++ac_cpp='$CPP $CPPFLAGS'
++ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_c_compiler_gnu
++
++ac_save_CFLAGS=$CFLAGS
++CFLAGS="-fPIC $CFLAGS"
++echo "$as_me:$LINENO: checking whether $CC accepts -fPIC" >&5
++echo $ECHO_N "checking whether $CC accepts -fPIC... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_fpic+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++#include "confdefs.h"
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_fpic=yes
++else
++  echo "$as_me: failed program was:" >&5
++cat conftest.$ac_ext >&5
++ac_cv_prog_cc_fpic=no
++fi
++rm -f conftest.$ac_objext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_fpic" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_fpic" >&6
++
++CFLAGS="$ac_save_CFLAGS"
++if test $ac_cv_prog_cc_fpic = yes; then
++    FPICCFLAGS="-fPIC"
++else
++    FPICCFLAGS=""
++fi
++
++ac_ext=c
++ac_cpp='$CPP $CPPFLAGS'
++ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_c_compiler_gnu
++
++ac_save_CFLAGS=$CFLAGS
++CFLAGS="-fstack-protector-all $CFLAGS"
++echo "$as_me:$LINENO: checking whether $CC accepts -fstack-protector-all" >&5
++echo $ECHO_N "checking whether $CC accepts -fstack-protector-all... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_ssp+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++#include "confdefs.h"
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext
++if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
++  (eval $ac_compile) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest.$ac_objext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_ssp=yes
++else
++  echo "$as_me: failed program was:" >&5
++cat conftest.$ac_ext >&5
++ac_cv_prog_cc_ssp=no
++fi
++rm -f conftest.$ac_objext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_ssp" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_ssp" >&6
++
++
++CFLAGS="$ac_save_CFLAGS"
++if test $ac_cv_prog_cc_ssp = yes; then
++    SSPCFLAGS="-fstack-protector-all"
++    SSPNOCFLAGS="-fno-fstack-protector"
++else
++    SSPCFLAGS=""
++    SSPNOCFLAGS=""
++fi
++
++ac_ext=c
++ac_cpp='$CPP $CPPFLAGS'
++ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_c_compiler_gnu
++
++ac_save_CFLAGS=$CFLAGS
++CFLAGS="-Wl,-z,relro $CFLAGS"
++echo "$as_me:$LINENO: checking whether the $CC linker accepts -z relro" >&5
++echo $ECHO_N "checking whether the $CC linker accepts -z relro... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_relro+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++#include "confdefs.h"
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_relro=yes
++else
++  echo "$as_me: failed program was:" >&5
++cat conftest.$ac_ext >&5
++ac_cv_prog_cc_relro=no
++fi
++rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_relro" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_relro" >&6
++
++CFLAGS="$ac_save_CFLAGS"
++if test $ac_cv_prog_cc_relro = yes; then
++    RELROLDFLAGS="-z relro"
++else
++    RELROLDFLAGS=""
++fi
++
++ac_ext=c
++ac_cpp='$CPP $CPPFLAGS'
++ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
++ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
++ac_compiler_gnu=$ac_cv_c_compiler_gnu
++
++ac_save_CFLAGS=$CFLAGS
++CFLAGS="-Wl,-z,now $CFLAGS"
++echo "$as_me:$LINENO: checking whether the $CC linker accepts -z now" >&5
++echo $ECHO_N "checking whether the $CC linker accepts -z now... $ECHO_C" >&6
++if test "${ac_cv_prog_cc_now+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++#include "confdefs.h"
++
++int
++main ()
++{
++
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_prog_cc_now=yes
++else
++  echo "$as_me: failed program was:" >&5
++cat conftest.$ac_ext >&5
++ac_cv_prog_cc_now=no
++fi
++rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
++fi
++echo "$as_me:$LINENO: result: $ac_cv_prog_cc_now" >&5
++echo "${ECHO_T}$ac_cv_prog_cc_now" >&6
++
++CFLAGS="$ac_save_CFLAGS"
++if test $ac_cv_prog_cc_now = yes; then
++    NOWLDFLAGS="-z now"
++else
++    NOWLDFLAGS=""
++fi
++
+ # Extract the first word of "bison", so it can be a program name with args.
+ set dummy bison; ac_word=$2
+ echo "$as_me:$LINENO: checking for $ac_word" >&5
+@@ -7527,6 +7808,13 @@
+ s,@LN_S@,$LN_S,;t t
+ s,@RANLIB@,$RANLIB,;t t
+ s,@ac_ct_RANLIB@,$ac_ct_RANLIB,;t t
++s,@FPIECFLAGS@,$FPIECFLAGS,;t t
++s,@PIELDFLAGS@,$PIELDFLAGS,;t t
++s,@FPICCFLAGS@,$FPICCFLAGS,;t t
++s,@SSPCFLAGS@,$SSPCFLAGS,;t t
++s,@SSPNOCFLAGS@,$SSPNOCFLAGS,;t t
++s,@RELROLDFLAGS@,$RELROLDFLAGS,;t t
++s,@NOWLDFLAGS@,$NOWLDFLAGS,;t t
+ s,@BISON@,$BISON,;t t
+ s,@HELP2MAN@,$HELP2MAN,;t t
+ s,@M4@,$M4,;t t

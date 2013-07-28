@@ -1,0 +1,22 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2004-10-15
+Initial Package Version: 2.12h
+Origin: Jim Gifford
+Upstream Status: Sent
+Description: Parameters are reversed to fix the sfdisk issue, this patch corrects
+	     them
+ 
+--- util-linux-2.12h/fdisk/sfdisk.c.orig	2004-10-15 19:30:26.000000000 +0000
++++ util-linux-2.12h/fdisk/sfdisk.c	2004-10-16 05:48:18.179958000 +0000
+@@ -133,9 +133,9 @@
+  * GCC nonsense - needed for GCC 3.4.x with -O2
+  */
+ #if defined(__GNUC__PREREQ) && __GNUC_PREREQ(3,4)
+-#define __attribute__used __attribute__ ((used))
+-#else
+ #define __attribute__used
++#else
++#define __attribute__used __attribute__ ((used))
+ #endif
+ 
+ /* Or test with  #if (__GNUC__ >= 3) && (__GNUC_MINOR__ >= 4)  */

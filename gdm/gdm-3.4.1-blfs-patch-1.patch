@@ -1,0 +1,406 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2012-04-28
+Initial Package Version: 3.4.1
+Upstream Status:         Unknown
+Origin:                  Self
+Description:             Fix libexec paths and PAM files according to default BLFS configuration.
+
+--- gdm.orig/configure	2012-04-14 20:55:27.000000000 +0200
++++ gdm/configure	2012-04-28 11:50:49.233644648 +0200
+@@ -23781,7 +23781,7 @@
+ 
+ 
+ 
+-authdir=${localstatedir}/gdm
++authdir=${localstatedir}/lib/gdm/auth
+ 
+ gdmlocaledir=${gdmconfdir}
+ 
+--- gdm.orig/daemon/gdm-server.c	2012-04-28 11:50:34.885337973 +0200
++++ gdm/daemon/gdm-server.c	2012-04-28 11:50:49.235644692 +0200
+@@ -141,7 +141,7 @@
+         g_return_val_if_fail (GDM_IS_SERVER (server), NULL);
+ 
+         error = NULL;
+-        command = g_strdup_printf (LIBEXECDIR "/ck-get-x11-display-device --display %s",
++        command = g_strdup_printf ("/usr/lib/ConsoleKit/ck-get-x11-display-device --display %s",
+                                    server->priv->display_name);
+ 
+         g_debug ("GdmServer: Running helper %s", command);
+--- gdm.orig/daemon/Makefile.in	2012-04-14 20:55:28.000000000 +0200
++++ gdm/daemon/Makefile.in	2012-04-28 11:50:49.245644905 +0200
+@@ -53,7 +53,7 @@
+ @HAVE_ADT_TRUE@am__append_4 = gdm-session-solaris-auditor.h     \
+ @HAVE_ADT_TRUE@	                      gdm-session-solaris-auditor.c
+ 
+-sbin_PROGRAMS = gdm-binary$(EXEEXT) $(am__EXEEXT_1)
++sbin_PROGRAMS = gdm$(EXEEXT) $(am__EXEEXT_1)
+ @XDMCP_SUPPORT_TRUE@am__append_5 = $(XDMCP_SOURCES)
+ @WITH_CONSOLE_KIT_TRUE@am__append_6 = $(CONSOLE_KIT_SOURCES)
+ subdir = daemon
+@@ -76,7 +76,7 @@
+ am__installdirs = "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(sbindir)" \
+ 	"$(DESTDIR)$(sbindir)"
+ PROGRAMS = $(libexec_PROGRAMS) $(noinst_PROGRAMS) $(sbin_PROGRAMS)
+-am__gdm_binary_SOURCES_DIST = main.c gdm-display-access-file.c \
++am__gdm_SOURCES_DIST = main.c gdm-display-access-file.c \
+ 	gdm-display-access-file.h gdm-display-store.c \
+ 	gdm-display-store.h gdm-display-factory.c \
+ 	gdm-display-factory.h gdm-local-display-factory.c \
+@@ -97,7 +97,7 @@
+ @XDMCP_SUPPORT_TRUE@am__objects_3 = $(am__objects_2)
+ am__objects_4 = $(am__objects_1)
+ @WITH_CONSOLE_KIT_TRUE@am__objects_5 = $(am__objects_4)
+-am_gdm_binary_OBJECTS = main.$(OBJEXT) \
++am_gdm_OBJECTS = main.$(OBJEXT) \
+ 	gdm-display-access-file.$(OBJEXT) gdm-display-store.$(OBJEXT) \
+ 	gdm-display-factory.$(OBJEXT) \
+ 	gdm-local-display-factory.$(OBJEXT) gdm-display.$(OBJEXT) \
+@@ -105,18 +105,18 @@
+ 	gdm-product-display.$(OBJEXT) gdm-manager.$(OBJEXT) \
+ 	gdm-slave-proxy.$(OBJEXT) $(am__objects_1) $(am__objects_3) \
+ 	$(am__objects_5)
+-gdm_binary_OBJECTS = $(am_gdm_binary_OBJECTS)
++gdm_OBJECTS = $(am_gdm_OBJECTS)
+ am__DEPENDENCIES_1 =
+-gdm_binary_DEPENDENCIES = $(top_builddir)/common/libgdmcommon.la \
++gdm_DEPENDENCIES = $(top_builddir)/common/libgdmcommon.la \
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+ 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+ AM_V_lt = $(am__v_lt_@AM_V@)
+ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
+ am__v_lt_0 = --silent
+-gdm_binary_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
++gdm_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
+ 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+-	$(gdm_binary_LDFLAGS) $(LDFLAGS) -o $@
++	$(gdm_LDFLAGS) $(LDFLAGS) -o $@
+ am_gdm_factory_slave_OBJECTS = factory-slave-main.$(OBJEXT) \
+ 	gdm-greeter-server.$(OBJEXT) gdm-welcome-session.$(OBJEXT) \
+ 	gdm-greeter-session.$(OBJEXT) gdm-server.$(OBJEXT) \
+@@ -266,12 +266,12 @@
+ AM_V_GEN = $(am__v_GEN_@AM_V@)
+ am__v_GEN_ = $(am__v_GEN_@AM_DEFAULT_V@)
+ am__v_GEN_0 = @echo "  GEN   " $@;
+-SOURCES = $(gdm_binary_SOURCES) $(EXTRA_gdm_binary_SOURCES) \
++SOURCES = $(gdm_SOURCES) $(EXTRA_gdm_SOURCES) \
+ 	$(gdm_factory_slave_SOURCES) $(gdm_product_slave_SOURCES) \
+ 	$(gdm_session_worker_SOURCES) $(gdm_simple_slave_SOURCES) \
+ 	$(gdm_xdmcp_chooser_slave_SOURCES) $(test_session_SOURCES)
+-DIST_SOURCES = $(am__gdm_binary_SOURCES_DIST) \
+-	$(EXTRA_gdm_binary_SOURCES) $(gdm_factory_slave_SOURCES) \
++DIST_SOURCES = $(am__gdm_SOURCES_DIST) \
++	$(EXTRA_gdm_SOURCES) $(gdm_factory_slave_SOURCES) \
+ 	$(gdm_product_slave_SOURCES) \
+ 	$(am__gdm_session_worker_SOURCES_DIST) \
+ 	$(gdm_simple_slave_SOURCES) $(gdm_xdmcp_chooser_slave_SOURCES) \
+@@ -780,7 +780,7 @@
+ 	$(SYSTEMD_LIBS) 			\
+ 	$(NULL)
+ 
+-gdm_binary_SOURCES = main.c gdm-display-access-file.c \
++gdm_SOURCES = main.c gdm-display-access-file.c \
+ 	gdm-display-access-file.h gdm-display-store.c \
+ 	gdm-display-store.h gdm-display-factory.c \
+ 	gdm-display-factory.h gdm-local-display-factory.c \
+@@ -801,7 +801,7 @@
+ 	gdm-xdmcp-chooser-display.h	\
+ 	$(NULL)
+ 
+-EXTRA_gdm_binary_SOURCES = $(XDMCP_SOURCES) $(NULL) \
++EXTRA_gdm_SOURCES = $(XDMCP_SOURCES) $(NULL) \
+ 	$(CONSOLE_KIT_SOURCES)
+ CONSOLE_KIT_SOURCES = \
+ 	$(NULL)
+@@ -809,11 +809,11 @@
+ 
+ # Note that these libs are in LDFLAGS because they should come before
+ # everything else on the link line as they may override stuff
+-gdm_binary_LDFLAGS = \
++gdm_LDFLAGS = \
+ 	$(EXTRA_DAEMON_LIBS)			\
+ 	$(NULL)
+ 
+-gdm_binary_LDADD = \
++gdm_LDADD = \
+ 	$(top_builddir)/common/libgdmcommon.la	\
+ 	$(XLIB_LIBS)				\
+ 	$(DAEMON_LIBS)				\
+@@ -823,16 +823,13 @@
+ 	$(NULL)
+ 
+ sbin_SCRIPTS = \
+-	gdm		\
+ 	$(NULL)
+ 
+ CLEANFILES = \
+-	gdm			\
+ 	$(BUILT_SOURCES)	\
+ 	$(NULL)
+ 
+ EXTRA_DIST = \
+-	gdm.in				\
+ 	gdm-slave.xml			\
+ 	gdm-simple-slave.xml		\
+ 	gdm-factory-slave.xml		\
+@@ -979,9 +976,9 @@
+ 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+ 	echo " rm -f" $$list; \
+ 	rm -f $$list
+-gdm-binary$(EXEEXT): $(gdm_binary_OBJECTS) $(gdm_binary_DEPENDENCIES) $(EXTRA_gdm_binary_DEPENDENCIES) 
+-	@rm -f gdm-binary$(EXEEXT)
+-	$(AM_V_CCLD)$(gdm_binary_LINK) $(gdm_binary_OBJECTS) $(gdm_binary_LDADD) $(LIBS)
++gdm$(EXEEXT): $(gdm_OBJECTS) $(gdm_DEPENDENCIES) $(EXTRA_gdm_DEPENDENCIES) 
++	@rm -f gdm$(EXEEXT)
++	$(AM_V_CCLD)$(gdm_LINK) $(gdm_OBJECTS) $(gdm_LDADD) $(LIBS)
+ gdm-factory-slave$(EXEEXT): $(gdm_factory_slave_OBJECTS) $(gdm_factory_slave_DEPENDENCIES) $(EXTRA_gdm_factory_slave_DEPENDENCIES) 
+ 	@rm -f gdm-factory-slave$(EXEEXT)
+ 	$(AM_V_CCLD)$(gdm_factory_slave_LINK) $(gdm_factory_slave_OBJECTS) $(gdm_factory_slave_LDADD) $(LIBS)
+@@ -1356,9 +1353,6 @@
+ gdm-product-display-glue.h: gdm-product-display.xml Makefile.am
+ 	dbus-binding-tool --prefix=gdm_product_display --mode=glib-server --output=gdm-product-display-glue.h $(srcdir)/gdm-product-display.xml
+ 
+-gdm: $(srcdir)/gdm.in
+-	sed -e 's,[@]sbindir[@],$(sbindir),g' <$(srcdir)/gdm.in >gdm
+-
+ # Tell versions [3.59,3.63) of GNU make to not export all variables.
+ # Otherwise a system limit (for SysV at least) may be exceeded.
+ .NOEXPORT:
+--- gdm.orig/data/gdm	2011-09-04 20:44:17.000000000 +0200
++++ gdm/data/gdm	2012-04-28 11:50:49.245644905 +0200
+@@ -1,12 +1,18 @@
+-#%PAM-1.0
+-auth       required    pam_env.so
+-auth       required    pam_succeed_if.so user != root quiet
+-auth       sufficient  pam_succeed_if.so user ingroup nopasswdlogin
+-auth       include     system-auth
+-account    required    pam_nologin.so
+-account    include     system-auth
+-password   include     system-auth
+-session    optional    pam_keyinit.so force revoke
+-session    include     system-auth
+-session    required    pam_loginuid.so
+-session    optional    pam_console.so
++# Begin /etc/pam.d/gdm
++
++auth     requisite      pam_nologin.so
++auth     required       pam_env.so
++
++auth     required       pam_succeed_if.so uid >= 1000 quiet
++auth     include        system-auth
++auth     optional       pam_gnome_keyring.so
++
++account  include        system-account
++
++session  required       pam_limits.so
++session  include        system-session
++session  optional       pam_gnome_keyring.so auto_start
++
++password include        system-password
++
++# End /etc/pam.d/gdm
+--- gdm.orig/data/gdm-autologin	2011-09-04 20:44:17.000000000 +0200
++++ gdm/data/gdm-autologin	2012-04-28 11:50:49.246644926 +0200
+@@ -1,10 +1,17 @@
+-#%PAM-1.0
+-auth       required    pam_env.so
+-auth       required    pam_permit.so
+-account    required    pam_nologin.so
+-account    include     system-auth
+-password   include     system-auth
+-session    optional    pam_keyinit.so force revoke
+-session    include     system-auth
+-session    required    pam_loginuid.so
+-session    optional    pam_console.so
++# Begin /etc/pam.d/gdm-autologin
++
++auth     requisite      pam_nologin.so
++auth     required       pam_env.so
++
++auth     required       pam_succeed_if.so uid >= 1000 quiet
++auth     required       pam_permit.so
++
++account  include        system-account
++
++password include        system-password
++
++session  optional       pam_keyinit.so revoke
++session  required       pam_limits.so
++session  include        system-session
++
++# End /etc/pam.d/gdm-autologin
+--- gdm.orig/data/gdm-fingerprint.pam	2012-04-14 20:52:00.000000000 +0200
++++ gdm/data/gdm-fingerprint.pam	2012-04-28 11:50:49.246644926 +0200
+@@ -1,17 +1,18 @@
+-# Sample PAM file for doing fingerprint authentication.
+-# Distros should replace this with what makes sense for them.
+-auth        required      pam_env.so
+-auth        required      pam_fprintd.so
+-auth        sufficient    pam_succeed_if.so uid >= 500 quiet
+-auth        required      pam_deny.so
+-
+-account     required      pam_unix.so
+-account     sufficient    pam_localuser.so
+-account     sufficient    pam_succeed_if.so uid < 500 quiet
+-account     required      pam_permit.so
+-
+-password    required      pam_deny.so
+-
+-session     optional      pam_keyinit.so revoke
+-session     required      pam_limits.so
+-session     required      pam_unix.so
++# Begin /etc/pam.d/gdm-fingerprint
++
++auth     requisite      pam_nologin.so
++auth     required       pam_env.so
++
++auth     requisite      pam_fprintd.so
++auth     required       pam_succeed_if.so uid >= 1000 quiet
++auth     required       pam_deny.so
++
++account  include        system-account
++
++password required       pam_deny.so
++
++session  optional       pam_keyinit.so revoke
++session  required       pam_limits.so
++session  include        system-session
++
++# End /etc/pam.d/gdm-fingerprint
+--- gdm.orig/data/gdm-shell.session.in	2012-04-14 20:52:00.000000000 +0200
++++ gdm/data/gdm-shell.session.in	2012-04-28 11:50:49.247644947 +0200
+@@ -1,5 +1,5 @@
+ [GNOME Session]
+ Name=Display Manager
+ RequiredComponents=gnome-shell;gnome-settings-daemon;
+-IsRunnableHelper=bash -c 'gnome-shell --help | grep -q gdm-mode && @libexecdir@/gnome-session-check-accelerated'
++IsRunnableHelper=bash -c 'gnome-shell --help | grep -q gdm-mode && /usr/lib/gnome-session/gnome-session-check-accelerated'
+ FallbackSession=gdm-fallback
+--- gdm.orig/data/gdm-smartcard.pam	2012-04-14 20:52:00.000000000 +0200
++++ gdm/data/gdm-smartcard.pam	2012-04-28 11:50:49.247644947 +0200
+@@ -1,18 +1,18 @@
+-# Sample PAM file for doing smartcard authentication.
+-# Distros should replace this with what makes sense for them.
+-auth        required      pam_env.so
+-auth        [success=done ignore=ignore default=die] pam_pkcs11.so wait_for_card card_only
+-auth        requisite     pam_succeed_if.so uid >= 500 quiet
+-auth        required      pam_deny.so
+-
+-account     required      pam_unix.so
+-account     sufficient    pam_localuser.so
+-account     sufficient    pam_succeed_if.so uid < 500 quiet
+-account     required      pam_permit.so
+-
+-password    optional      pam_pkcs11.so
+-password    requisite     pam_cracklib.so try_first_pass retry=3 type=
+-
+-session     optional      pam_keyinit.so revoke
+-session     required      pam_limits.so
+-session     required      pam_unix.so
++# Begin /etc/pam.d/gdm-smartcard
++
++auth     requisite      pam_nologin.so
++auth     required       pam_env.so
++
++auth     requisite      pam_pkcs11.so wait_for_card card_only
++auth     required       pam_succeed_if.so uid >= 1000 quiet
++auth     required       pam_deny.so
++
++account  include        system-account
++
++password required       pam_pkcs11.so
++
++session  optional       pam_keyinit.so revoke
++session  required       pam_limits.so
++session  include        system-session
++
++# End /etc/pam.d/gdm-smartcard
+--- gdm.orig/data/gdm-welcome	2011-10-21 06:13:08.000000000 +0200
++++ gdm/data/gdm-welcome	2012-04-28 11:50:49.248644968 +0200
+@@ -1,9 +1,14 @@
+-#%PAM-1.0
+-auth       required    pam_env.so
+-auth       required    pam_permit.so
+-account    required    pam_nologin.so
+-account    include     system-auth
+-password   include     system-auth
+-session    required    pam_loginuid.so
+-session    optional    pam_keyinit.so force revoke
+-session    include     system-auth
++# Begin /etc/pam.d/gdm-welcome
++
++auth     required       pam_env.so
++auth     required       pam_permit.so
++
++account  required       pam_nologin.so
++account  include        system-account
++
++password required       pam_deny.so
++
++session  required       pam_loginuid.so
++session  optional       pam_keyinit.so force revoke
++
++# End /etc/pam.d/gdm-welcome
+--- gdm.orig/data/Makefile.in	2012-04-14 20:55:28.000000000 +0200
++++ gdm/data/Makefile.in	2012-04-28 11:50:49.250645012 +0200
+@@ -348,7 +348,7 @@
+ am__quote = @am__quote@
+ am__tar = @am__tar@
+ am__untar = @am__untar@
+-authdir = $(localstatedir)/gdm
++authdir = $(localstatedir)/lib/gdm/auth
+ bindir = @bindir@
+ build = @build@
+ build_alias = @build_alias@
+--- gdm.orig/gui/simple-chooser/gdm-chooser-session.c	2011-09-04 20:44:17.000000000 +0200
++++ gdm/gui/simple-chooser/gdm-chooser-session.c	2012-04-28 11:50:49.251645034 +0200
+@@ -131,7 +131,7 @@
+         ret = FALSE;
+ 
+         error = NULL;
+-        g_spawn_command_line_async (LIBEXECDIR "/gnome-settings-daemon", &error);
++        g_spawn_command_line_async ("/usr/lib/gnome-settings-daemon/gnome-settings-daemon", &error);
+         if (error != NULL) {
+                 g_warning ("Error starting settings daemon: %s", error->message);
+                 g_error_free (error);
+--- gdm.orig/gui/simple-greeter/extensions/password/gdm-password.pam	2011-10-21 06:13:08.000000000 +0200
++++ gdm/gui/simple-greeter/extensions/password/gdm-password.pam	2012-04-28 11:50:49.251645034 +0200
+@@ -1,19 +1,18 @@
+-# Sample PAM file for doing password authentication.
+-# Distros should replace this with what makes sense for them.
+-auth        required      pam_env.so
+-auth        sufficient    pam_unix.so nullok try_first_pass
+-auth        requisite     pam_succeed_if.so uid >= 500 quiet
+-auth        required      pam_deny.so
+-
+-account     required      pam_unix.so
+-account     sufficient    pam_localuser.so
+-account     sufficient    pam_succeed_if.so uid < 500 quiet
+-account     required      pam_permit.so
+-
+-password    requisite     pam_cracklib.so try_first_pass retry=3 type=
+-password    sufficient    pam_unix.so nullok try_first_pass use_authtok
+-password    required      pam_deny.so
+-
+-session     optional      pam_keyinit.so revoke
+-session     required      pam_limits.so
+-session     required      pam_unix.so
++# Begin /etc/pam.d/gdm-password
++
++auth     requisite      pam_nologin.so
++auth     required       pam_env.so
++
++auth     required       pam_succeed_if.so uid >= 1000 quiet
++auth     include        system-auth
++auth     optional       pam_gnome_keyring.so
++
++account  include        system-account
++
++session  required       pam_limits.so
++session  include        system-session
++session  optional       pam_gnome_keyring.so auto_start
++
++password include        system-password
++
++# End /etc/pam.d/gdm-password

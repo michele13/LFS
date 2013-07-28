@@ -1,0 +1,16 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-15
+Initial Package Version: 2.4.2
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/ppp-2.4.2-optim-1.patch
+Upstream Status: not reported
+Description: use optimization flags for pppdump too
+ 
+diff -Naur ppp-2.4.2.orig/pppdump/Makefile.linux ppp-2.4.2/pppdump/Makefile.linux
+--- ppp-2.4.2.orig/pppdump/Makefile.linux	1999-07-26 11:09:29.000000000 +0000
++++ ppp-2.4.2/pppdump/Makefile.linux	2004-05-15 17:41:01.213194832 +0000
+@@ -1,4 +1,4 @@
+-CFLAGS= -O -I../include/net
++CFLAGS= -O $(COPTS) -I../include/net
+ OBJS = pppdump.o bsd-comp.o deflate.o zlib.o
+ 
+ INSTALL= install

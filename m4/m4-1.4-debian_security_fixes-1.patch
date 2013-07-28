@@ -1,0 +1,96 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-11-23
+Initial Package Version: 1.4
+Origin: Debian Package
+Description: Misc security fixes from debian
+  * buffer overrun fix.
+  * use mkstemp instead of mktemp.
+  * format string vulnerability fix.
+
+diff -ur m4-1.4.orig/checks/check-them m4-1.4/checks/check-them
+--- m4-1.4.orig/checks/check-them	1994-07-05 18:13:43.000000000 -0500
++++ m4-1.4/checks/check-them	2003-11-23 10:24:37.000000000 -0600
+@@ -14,7 +14,7 @@
+ for file
+ do
+   echo "Checking $file"
+-  m4 -d $file >$out 2>$err
++  LC_MESSAGES=C m4 -d $file >$out 2>$err
+ 
+   sed -e '/^dnl @result{}/!d' -e 's///' $file > $xout
+ 
+diff -ur m4-1.4.orig/src/builtin.c m4-1.4/src/builtin.c
+--- m4-1.4.orig/src/builtin.c	1994-08-31 11:45:12.000000000 -0500
++++ m4-1.4/src/builtin.c	2003-11-23 10:24:37.000000000 -0600
+@@ -1076,9 +1076,15 @@
+ static void
+ m4_maketemp (struct obstack *obs, int argc, token_data **argv)
+ {
++  int fd;
+   if (bad_argc (argv[0], argc, 2, 2))
+     return;
+-  mktemp (ARG (1));
++  if ((fd = mkstemp (ARG (1))) < 0)
++    {
++      M4ERROR ((warning_status, errno, "Cannot create tempfile %s", ARG (1)));
++      return;
++    }
++  close(fd);
+   obstack_grow (obs, ARG (1), strlen (ARG (1)));
+ }
+ 
+@@ -1380,7 +1386,11 @@
+ 	{
+ 	  to = *++s;
+ 	  if (to == '\0')
+-	    obstack_1grow (obs, '-'); /* trailing dash */
++	    {
++              /* trailing dash */
++              obstack_1grow (obs, '-');
++              break;
++	    }
+ 	  else if (from <= to)
+ 	    {
+ 	      while (from++ < to)
+diff -ur m4-1.4.orig/src/m4.c m4-1.4/src/m4.c
+--- m4-1.4.orig/src/m4.c	1994-11-01 21:14:28.000000000 -0600
++++ m4-1.4/src/m4.c	2003-11-23 10:24:37.000000000 -0600
+@@ -369,7 +369,7 @@
+ 
+       case 'o':
+ 	if (!debug_set_output (optarg))
+-	  error (0, errno, optarg);
++	  error (0, errno, "%s", optarg);
+ 	break;
+ 
+       case 's':
+@@ -466,7 +466,7 @@
+ 	    fp = path_search (argv[optind]);
+ 	    if (fp == NULL)
+ 	      {
+-		error (0, errno, argv[optind]);
++		error (0, errno, "%s", argv[optind]);
+ 		continue;
+ 	      }
+ 	    else
+diff -ur m4-1.4.orig/src/output.c m4-1.4/src/output.c
+--- m4-1.4.orig/src/output.c	1994-09-02 01:27:40.000000000 -0500
++++ m4-1.4/src/output.c	2003-11-23 10:24:37.000000000 -0600
+@@ -467,12 +467,12 @@
+ 
+   /* Insert output by big chunks.  */
+ 
+-  while (length = read (fileno (file), buffer, COPY_BUFFER_SIZE),
++  errno = 0;
++  while (length = fread (buffer, 1, COPY_BUFFER_SIZE, file),
+ 	 length != 0)
+-    if (length == (size_t) -1)
+-      M4ERROR ((EXIT_FAILURE, errno, "ERROR: Reading inserted file"));
+-    else
+-      output_text (buffer, length);
++    output_text (buffer, length);
++  if (errno)
++    M4ERROR ((EXIT_FAILURE, errno, "ERROR: Reading inserted file"));
+ }
+ 
+ /*-------------------------------------------------------------------------.

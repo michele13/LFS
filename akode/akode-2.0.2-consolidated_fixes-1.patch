@@ -1,0 +1,91 @@
+Submitted By:            Bruce Dubbs <bdubbs_at_linuxfromscratch_dot_org>
+Date:                    2011-12-29
+Initial Package Version: 2.0.2
+Upstream Status:         Unknown
+Origin:                  BLFS-Dev submission: 
+                         http://linuxfromscratch.org/pipermail/blfs-dev/2007-October/017837.html
+                         as modified by Randy McMurchy.  Fix does *not* work for 
+                         current ffmpeg now in BLFS.
+                         
+                         Incorporates other changes for gcc/glibc updates into one
+                         patch.   
+
+Description:             Fix compilation errors.
+
+diff -Naur akode-2.0.2-orig/akode/akodeplay/akodeplay.cpp akode-2.0.2/akode/akodeplay/akodeplay.cpp
+--- akode-2.0.2-orig/akode/akodeplay/akodeplay.cpp	2006-11-06 07:20:52.000000000 -0600
++++ akode-2.0.2/akode/akodeplay/akodeplay.cpp	2011-12-29 15:04:52.000000000 -0600
+@@ -24,6 +24,7 @@
+ #include "../lib/player.h"
+ #include "../lib/sink.h"
+ #include "../lib/decoder.h"
++#include <cstdlib>
+ 
+ #ifdef HAVE_GNU_GETOPT
+   #include <getopt.h>
+diff -Naur akode-2.0.2-orig/akode/lib/auto_sink.cpp akode-2.0.2/akode/lib/auto_sink.cpp
+--- akode-2.0.2-orig/akode/lib/auto_sink.cpp	2005-10-26 08:50:29.000000000 -0500
++++ akode-2.0.2/akode/lib/auto_sink.cpp	2011-12-29 15:04:52.000000000 -0600
+@@ -22,6 +22,7 @@
+ #include "auto_sink.h"
+ 
+ #include <iostream>
++#include <cstdlib>
+ 
+ namespace aKode {
+ 
+diff -Naur akode-2.0.2-orig/akode/lib/magic.cpp akode-2.0.2/akode/lib/magic.cpp
+--- akode-2.0.2-orig/akode/lib/magic.cpp	2005-10-20 15:47:17.000000000 -0500
++++ akode-2.0.2/akode/lib/magic.cpp	2011-12-29 15:04:52.000000000 -0600
+@@ -22,6 +22,8 @@
+ #include "magic.h"
+ #include "file.h"
+ #include <iostream>
++#include <string.h>
++
+ using std::cerr;
+ 
+ namespace aKode {
+diff -Naur akode-2.0.2-orig/akode/lib/player.cpp akode-2.0.2/akode/lib/player.cpp
+--- akode-2.0.2-orig/akode/lib/player.cpp	2006-11-05 08:37:48.000000000 -0600
++++ akode-2.0.2/akode/lib/player.cpp	2011-12-29 15:04:52.000000000 -0600
+@@ -21,6 +21,8 @@
+ #include <pthread.h>
+ #include <semaphore.h>
+ #include <assert.h>
++#include <string.h>
++
+ 
+ #include "audioframe.h"
+ #include "audiobuffer.h"
+diff -Naur akode-2.0.2-orig/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp akode-2.0.2/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp
+--- akode-2.0.2-orig/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp	2006-08-10 13:37:20.000000000 -0500
++++ akode-2.0.2/akode/plugins/ffmpeg_decoder/ffmpeg_decoder.cpp	2011-12-29 15:04:52.000000000 -0600
+@@ -26,9 +26,11 @@
+ #include "decoder.h"
+ 
+ #include <assert.h>
++extern "C" {
+ #include <ffmpeg/avcodec.h>
+ #include <ffmpeg/avformat.h>
+ #include <ffmpeg/avio.h>
++}
+ 
+ #include "ffmpeg_decoder.h"
+ #include <iostream>
+diff -Naur akode-2.0.2-orig/akode/plugins/xiph_decoder/flac113_decoder.cpp akode-2.0.2/akode/plugins/xiph_decoder/flac113_decoder.cpp
+--- akode-2.0.2-orig/akode/plugins/xiph_decoder/flac113_decoder.cpp	2006-11-06 07:20:52.000000000 -0600
++++ akode-2.0.2/akode/plugins/xiph_decoder/flac113_decoder.cpp	2011-12-29 15:06:11.000000000 -0600
+@@ -107,8 +107,10 @@
+ 
+ static FLAC__StreamDecoderReadStatus flac_read_callback(
+         const FLAC__StreamDecoder *,
+-        FLAC__byte buffer[],
+-        unsigned *bytes,
++        //FLAC__byte buffer[],
++        unsigned char buffer[],
++        //unsigned *bytes,
++        long unsigned int* bytes,
+         void *client_data)
+ {
+     FLACDecoder::private_data *data = (FLACDecoder::private_data*)client_data;

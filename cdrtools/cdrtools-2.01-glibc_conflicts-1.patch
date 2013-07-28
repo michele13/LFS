@@ -1,0 +1,44 @@
+Submitted By: Guy Dalziel (krendoshazin at dementedfury dot org)
+Date: 2009-07-31
+Initial Package Version: 2.01
+Origin: Guy Dalziel (with thanks to Nathan Coulson for reporting that the original
+        patch did not work as specified).
+Upstream Status: Not submitted.
+Description: Fixes several function conflicts that occur between Cdrtools and
+             Glibc 2.10.1.
+
+diff -Naur cdrtools-2.01-orig/include/schily.h cdrtools-2.01/include/schily.h
+--- cdrtools-2.01-orig/include/schily.h	2004-03-05 00:30:40.000000000 +0000
++++ cdrtools-2.01/include/schily.h	2009-08-15 13:03:32.167323222 +0100
+@@ -50,6 +50,16 @@
+ extern "C" {
+ #endif
+ 
++#ifdef fexecve
++#undef fexecve
++#endif
++#define fexecve fexecve_
++
++#ifdef getline 
++#undef getline 
++#endif
++#define getline getline_
++
+ #if	defined(_INCL_SYS_TYPES_H) || defined(off_t)
+ #	ifndef	FOUND_OFF_T
+ #	define	FOUND_OFF_T
+diff -Naur cdrtools-2.01-orig/cdrecord/cue.c cdrtools-2.01/cdrecord/cue.c
+--- cdrtools-2.01-orig/cdrecord/cue.c	2004-03-02 20:00:53.000000000 +0000
++++ cdrtools-2.01/cdrecord/cue.c	2009-08-15 13:04:35.321174296 +0100
+@@ -44,6 +44,11 @@
+ #include "auheader.h"
+ #include "libport.h"
+ 
++#ifdef getdelim 
++#undef getdelim 
++#endif
++#define getdelim getdelim_
++
+ typedef struct state {
+ 	char	*filename;
+ 	void	*xfp;

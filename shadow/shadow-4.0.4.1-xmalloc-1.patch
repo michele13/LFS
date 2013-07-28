@@ -1,0 +1,25 @@
+Submitted By: Gregory Davis <gregdavis at ieee dot org>
+Date: 2004-05-05
+Initial Package Version: 4.0.4.1
+Upstream Status: Different solution in CVS
+Origin: Submittor
+Description: This patch does some standard compliance cleanup so GCC-3.4 doesn't choke on mismatching function signatures of malloc.  CVS Shadow eliminates the extern declaration of malloc altogether.
+
+--- shadow-4.0.4.1/libmisc/xmalloc.c.old	2004-05-05 17:43:25.302483088 -0400
++++ shadow-4.0.4.1/libmisc/xmalloc.c	2004-05-05 17:44:01.496980688 -0400
+@@ -13,13 +13,13 @@
+ RCSID ("$Id: shadow-4.0.4.1-xmalloc-1.patch,v 1.1 2004/05/08 05:42:18 tushar Exp $")
+ #include <stdio.h>
+ #include "defines.h"
+-extern char *malloc ();
++extern void *malloc ();
+ 
+ char *xmalloc (size_t size)
+ {
+ 	char *ptr;
+ 
+-	ptr = malloc (size);
++	ptr = (char *) malloc (size);
+ 	if (!ptr && size) {
+ 		fprintf (stderr, _("malloc(%d) failed\n"), (int) size);
+ 		exit (13);

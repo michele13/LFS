@@ -1,0 +1,18 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2006-05-21
+Initial Package Version: 1.0.1
+Origin: ??
+Upstream Status: Unknown
+Description: Fixes installation when using fakeroot approach
+diff -Naur rstart-1.0.1.orig/Makefile.in rstart-1.0.1/Makefile.in
+--- rstart-1.0.1.orig/Makefile.in	2005-12-21 01:22:41.000000000 -0600
++++ rstart-1.0.1/Makefile.in	2006-05-21 00:30:06.000000000 -0500
+@@ -812,7 +812,7 @@
+ 	done;								\
+ 									\
+ 	cd $(DESTDIR)$(DATA_DIR)/contexts;				\
+-	sed -e '/^$$/d' -e '/^#/d' ${srcdir}/contexts/@Aliases |	\
++	sed -e '/^$$/d' -e '/^#/d' @Aliases |	\
+ 	    while read real aliases; do					\
+ 	        for i in $$aliases; do					\
+ 	            $(RM) $$i;						\

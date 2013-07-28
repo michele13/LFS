@@ -1,0 +1,57 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2005-02-18
+Initial Package Version: 6.8.2
+Upstream Status: Not submitted - They already know
+Origin: Gentoo - 9910_all_use-nonow-ldflag-for-hardenedgccspecs.patch
+Description: Xorg won't work with 'ld -z now'. This adds -nonow to the
+compile flags for Xorg. Need to add "#define HardenedGccSpecs YES" to
+config/cf/host.def.
+
+Also see:
+http://www.linuxfromscratch.org/hlfs/
+
+diff -urN xc.orig/config/cf/Imake.rules xc/config/cf/Imake.rules
+--- xc.orig/config/cf/Imake.rules	2004-08-13 10:21:43.000000000 -0700
++++ xc/config/cf/Imake.rules	2004-10-11 01:58:56.556395456 -0700
+@@ -3493,6 +3493,10 @@
+ #endif
+ #endif
+ 
++#if defined(HardenedGccSpecs) && HardenedGccSpecs
++LDBIND_FLAGS = -nonow
++#endif
++
+ /*
+  * DynamicModuleTarget - build a module to be dynamically loaded
+  */
+@@ -3502,7 +3506,7 @@
+ 									@@\
+ module: modlist								@@\
+ 	RemoveFile($@)							@@\
+-	$(CC) -o $@ $(SHLIBLDFLAGS) modlist				@@\
++	$(CC) -o $@ $(SHLIBLDFLAGS) -nostdlib $(LDBIND_FLAGS) modlist	@@\
+ 									@@\
+ clean::									@@\
+ 	RemoveFile(module)
+@@ -3517,7 +3521,7 @@
+ 									@@\
+ module: deplist								@@\
+ 	RemoveFile($@)							@@\
+-	$(CC) -o $@ $(SHLIBLDFLAGS) modlist				@@\
++	$(CC) -o $@ $(SHLIBLDFLAGS) -nostdlib $(LDBIND_FLAGS) modlist	@@\
+ 									@@\
+ clean::									@@\
+ 	RemoveFile(module)
+diff -urN xc.orig/programs/Xserver/Imakefile xc/programs/Xserver/Imakefile
+--- xc.orig/programs/Xserver/Imakefile	2004-10-11 01:51:58.590935864 -0700
++++ xc/programs/Xserver/Imakefile	2004-10-11 01:56:44.395486968 -0700
+@@ -686,6 +686,9 @@
+ XCOMM
+ XCOMM Xorg Server
+ XCOMM
++#if defined(HardenedGccSpecs) && HardenedGccSpecs
++LOCAL_LDFLAGS += -nonow
++#endif
+ FBSUBDIR = fb
+ MFBSUBDIR  = mfb
+ CFB8SUBDIR = cfb

@@ -1,0 +1,50 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-13
+Initial Package Version: 18
+Origin: Rawhide
+Description: Fixes minor Perl Formatting Error.
+
+diff -Naur procinfo-18.orig/lsdev.pl procinfo-18/lsdev.pl
+--- procinfo-18.orig/lsdev.pl	2001-02-24 23:30:52.000000000 +0000
++++ procinfo-18/lsdev.pl	2003-09-13 07:27:38.000000000 +0000
+@@ -16,6 +16,7 @@
+ while (<IRQ>) {
+     next if /^[ \t]*[A-Z]/;
+     chop;
++    s/^ +//g;
+     if (/PIC/) {
+ 	$n = (@line = split());
+     } else {
+@@ -32,6 +33,7 @@
+ open (DMA, "</proc/dma") || die "can't open /proc/dma";
+ while (<DMA>) {
+     chop;
++    s/^ +//g;
+     @line = split(': ');
+     @tmp = split (/[ \(]/, $line[1]);
+     $name = $tmp[0];
+@@ -43,6 +45,7 @@
+ open (IOPORTS, "</proc/ioports") || die "can't open /proc/ioports";
+ while (<IOPORTS>) {
+     chop;
++    s/^ +//g;
+     @line = split(' : ');
+     @tmp = split (/[ \(]/, $line[1]);
+     $name = $tmp[0];
+@@ -51,12 +54,12 @@
+ }
+ close (IOPORTS);
+ 
+-printf ("%-16s %4s%6s %s\n------------------------------------------------\n",
+-	"Device", "DMA", "IRQ", " I/O Ports");
++printf "%-16s %4s%6s %s\n------------------------------------------------\n",
++	"Device", "DMA", "IRQ", " I/O Ports";
+ 
+ foreach $name (sort { uc($a) cmp uc($b) } keys %device) {
+-    printf ("%-16s %4s%6s %s\n",
+-	    $name, $dma{$name}, $irq{$name}, $port{$name});
++    printf "%-16s %4s%6s %s\n",
++	    $name, $dma{$name}, $irq{$name}, $port{$name};
+ }
+ 
+ # The End ####################################################################

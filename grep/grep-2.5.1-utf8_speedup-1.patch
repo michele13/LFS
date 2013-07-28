@@ -1,0 +1,217 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-06-10
+Origin: http://mail.nl.linux.org/linux-utf8/2003-11/msg00168.html
+Initial Package Version: 2.5.1
+Upstream Status: fixed differently, see below;
+RedHat pretends to have a third fix
+
+Description: without this patch, grep is 80x slower in UTF-8 based locales
+than in C locale. This patch may be buggy.
+
+Benchmarks:
+
+All benchmarks were performed by running the following command:
+
+time grep showpage oo_1.1.1_cvs20040425_src.tar.gz >/dev/null
+
+oo_1.1.1_cvs20040425_src.tar.gz file has a size of 200 MB
+
+All versions of grep in LC_ALL=C, and patched grep-2.5.1 in LC_ALL=ru_RU.UTF-8:
+real    0m0.536s
+user    0m0.131s
+sys     0m0.381s
+
+Original and latest RedHat grep-2.5.1, LC_ALL=ru_RU.UTF-8:
+real    0m40.423s
+user    0m39.822s
+sys     0m0.395s
+
+Today's CVS grep without any patches, LC_ALL=ru_RU.UTF-8:
+real    0m17.606s
+user    0m17.067s
+sys     0m0.413s
+
+--- grep-2.5.1/src/search.c	2003-11-10 12:18:23.000000000 +0100
++++ grep-2.5.1/src/search.c	2003-11-10 13:10:46.000000000 +0100
+@@ -17,6 +17,8 @@
+    02111-1307, USA.  */
+ 
+ /* Written August 1992 by Mike Haertel. */
++/* 2003-11-10 Mika Fischer <mf@debian.org>:
++ * Do not compute character lengths in advance, do it when needed. */
+ 
+ #ifdef HAVE_CONFIG_H
+ # include <config.h>
+@@ -141,38 +143,6 @@
+     }
+ }
+ 
+-#ifdef MBS_SUPPORT
+-/* This function allocate the array which correspond to "buf".
+-   Then this check multibyte string and mark on the positions which
+-   are not singlebyte character nor the first byte of a multibyte
+-   character.  Caller must free the array.  */
+-static char*
+-check_multibyte_string(char const *buf, size_t size)
+-{
+-  char *mb_properties = malloc(size);
+-  mbstate_t cur_state;
+-  int i;
+-  memset(&cur_state, 0, sizeof(mbstate_t));
+-  memset(mb_properties, 0, sizeof(char)*size);
+-  for (i = 0; i < size ;)
+-    {
+-      size_t mbclen;
+-      mbclen = mbrlen(buf + i, size - i, &cur_state);
+-
+-      if (mbclen == (size_t) -1 || mbclen == (size_t) -2 || mbclen == 0)
+-	{
+-	  /* An invalid sequence, or a truncated multibyte character.
+-	     We treat it as a singlebyte character.  */
+-	  mbclen = 1;
+-	}
+-      mb_properties[i] = mbclen;
+-      i += mbclen;
+-    }
+-
+-  return mb_properties;
+-}
+-#endif
+-
+ static void
+ Gcompile (char const *pattern, size_t size)
+ {
+@@ -341,12 +311,7 @@
+   struct kwsmatch kwsm;
+   size_t i;
+ #ifdef MBS_SUPPORT
+-  char *mb_properties = NULL;
+-#endif /* MBS_SUPPORT */
+-
+-#ifdef MBS_SUPPORT
+-  if (MB_CUR_MAX > 1 && kwset)
+-    mb_properties = check_multibyte_string(buf, size);
++  mbstate_t cur_state;
+ #endif /* MBS_SUPPORT */
+ 
+   buflim = buf + size;
+@@ -361,10 +326,6 @@
+ 	      size_t offset = kwsexec (kwset, beg, buflim - beg, &kwsm);
+ 	      if (offset == (size_t) -1)
+ 		{
+-#ifdef MBS_SUPPORT
+-		  if (MB_CUR_MAX > 1)
+-		    free(mb_properties);
+-#endif
+ 		  return (size_t)-1;
+ 		}
+ 	      beg += offset;
+@@ -373,8 +334,12 @@
+ 	      end = memchr(beg, eol, buflim - beg);
+ 	      end++;
+ #ifdef MBS_SUPPORT
+-	      if (MB_CUR_MAX > 1 && mb_properties[beg - buf] == 0)
+-		continue;
++	      if (MB_CUR_MAX > 1)
++		{
++		  memset(&cur_state, 0, sizeof(mbstate_t));
++		  if (mbrlen(beg, buflim - beg, &cur_state) < 0)
++		    continue;
++		}
+ #endif
+ 	      while (beg > buf && beg[-1] != eol)
+ 		--beg;
+@@ -461,17 +426,9 @@
+ 	    }
+ 	} /* for Regex patterns.  */
+     } /* for (beg = end ..) */
+-#ifdef MBS_SUPPORT
+-  if (MB_CUR_MAX > 1 && mb_properties)
+-    free (mb_properties);
+-#endif /* MBS_SUPPORT */
+   return (size_t) -1;
+ 
+  success:
+-#ifdef MBS_SUPPORT
+-  if (MB_CUR_MAX > 1 && mb_properties)
+-    free (mb_properties);
+-#endif /* MBS_SUPPORT */
+   *match_size = end - beg;
+   return beg - buf;
+ }
+@@ -507,9 +464,7 @@
+   char eol = eolbyte;
+   struct kwsmatch kwsmatch;
+ #ifdef MBS_SUPPORT
+-  char *mb_properties;
+-  if (MB_CUR_MAX > 1)
+-    mb_properties = check_multibyte_string (buf, size);
++  mbstate_t cur_state;
+ #endif /* MBS_SUPPORT */
+ 
+   for (beg = buf; beg <= buf + size; ++beg)
+@@ -517,25 +472,21 @@
+       size_t offset = kwsexec (kwset, beg, buf + size - beg, &kwsmatch);
+       if (offset == (size_t) -1)
+ 	{
+-#ifdef MBS_SUPPORT
+-	  if (MB_CUR_MAX > 1)
+-	    free(mb_properties);
+-#endif /* MBS_SUPPORT */
+ 	  return offset;
+ 	}
+ #ifdef MBS_SUPPORT
+-      if (MB_CUR_MAX > 1 && mb_properties[offset+beg-buf] == 0)
+-	continue; /* It is a part of multibyte character.  */
++      if (MB_CUR_MAX > 1)
++	{
++	  memset(&cur_state, 0, sizeof(mbstate_t));
++	  if (mbrlen(beg + offset, buf + size - beg, &cur_state) < 0)
++	    continue; /* It is a part of multibyte character.  */
++	}
+ #endif /* MBS_SUPPORT */
+       beg += offset;
+       len = kwsmatch.size[0];
+       if (exact)
+ 	{
+ 	  *match_size = len;
+-#ifdef MBS_SUPPORT
+-	  if (MB_CUR_MAX > 1)
+-	    free (mb_properties);
+-#endif /* MBS_SUPPORT */
+ 	  return beg - buf;
+ 	}
+       if (match_lines)
+@@ -556,10 +507,6 @@
+ 		offset = kwsexec (kwset, beg, --len, &kwsmatch);
+ 		if (offset == (size_t) -1)
+ 		  {
+-#ifdef MBS_SUPPORT
+-		    if (MB_CUR_MAX > 1)
+-		      free (mb_properties);
+-#endif /* MBS_SUPPORT */
+ 		    return offset;
+ 		  }
+ 		try = beg + offset;
+@@ -572,10 +519,6 @@
+ 	goto success;
+     }
+ 
+-#ifdef MBS_SUPPORT
+-  if (MB_CUR_MAX > 1)
+-    free (mb_properties);
+-#endif /* MBS_SUPPORT */
+   return -1;
+ 
+  success:
+@@ -584,10 +527,6 @@
+   while (buf < beg && beg[-1] != eol)
+     --beg;
+   *match_size = end - beg;
+-#ifdef MBS_SUPPORT
+-  if (MB_CUR_MAX > 1)
+-    free (mb_properties);
+-#endif /* MBS_SUPPORT */
+   return beg - buf;
+ }
+

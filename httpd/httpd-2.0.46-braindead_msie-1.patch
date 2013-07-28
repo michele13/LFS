@@ -1,0 +1,56 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Date: 2003-08-13
+Initial Package Version: 2.0.46
+Origin: some Yahoo Groups post
+Description: Don't treat some requests that Microsoft Internet Explorer 
+sends as bad ones. Really MSIE, not Apache, should be fixed.
+Related information: http://127.0.0.1/manual/mod/mod_auth_digest.html
+
+The patch also applies to 1.3.x as well, in 
+fact it was for 1.3.x in the Yahoo Groups post)
+
+Applies probably only to souls bought by Microsoft.
+
+License:
+You may apply this patch only if you find the original Yahoo Groups post 
+containing it without this license (hint: it exists) or if you can 
+provide correct answers to the following questions:
+1) Suppose that http://www.example.com/restricted/script.cgi?q=a is 
+protected by Digest authentication. What will be the GET request sent by 
+MSIE? (Hint: use a sniffer)
+2) What is the number of RFC that defines the Digest authentication?
+3) Which section is violated by MSIE?
+4) How should the correct request look like?
+5) What does the Microsoft Knowledge Base contain concerning this issue?
+
+diff -ur httpd-2.0.46/modules/aaa/mod_auth_digest.c httpd-2.0.46-fixed/modules/aaa/mod_auth_digest.c
+--- httpd-2.0.46/modules/aaa/mod_auth_digest.c	2003-02-16 09:41:18.000000000 +0500
++++ httpd-2.0.46-fixed/modules/aaa/mod_auth_digest.c	2003-06-02 14:54:05.000000000 +0600
+@@ -1652,7 +1652,7 @@
+         if (r->method_number == M_CONNECT) {
+             if (strcmp(resp->uri, r_uri.hostinfo)) {
+                 ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
+-                              "Digest: uri mismatch - <%s> does not match "
++                              "Digest (1): uri mismatch - <%s> does not match "
+                               "request-uri <%s>", resp->uri, r_uri.hostinfo);
+                 return HTTP_BAD_REQUEST;
+             }
+@@ -1675,12 +1675,15 @@
+                 && !(d_uri.path && !r_uri.path && resp->psd_request_uri->hostname
+                     && d_uri.path[0] == '*' && d_uri.path[1] == '\0'))
+             /* check that query matches */
++	    /* heh, this does not make any sense... */
++	    /*
+             || (d_uri.query != r_uri.query
+                 && (!d_uri.query || !r_uri.query
+                     || strcmp(d_uri.query, r_uri.query)))
+-            ) {
++            */
++	    ) {
+             ap_log_rerror(APLOG_MARK, APLOG_ERR, 0, r,
+-                          "Digest: uri mismatch - <%s> does not match "
++                          "Digest (2): uri mismatch - <%s> does not match "
+                           "request-uri <%s>", resp->uri, resp->raw_request_uri);
+             return HTTP_BAD_REQUEST;
+         }
+

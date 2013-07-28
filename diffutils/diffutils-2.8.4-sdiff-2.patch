@@ -1,0 +1,31 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-09-09
+Initial Package Version: 2.8.4
+Origin: converter@dalnet-perl.org Gentoo Bug #11728
+Description: sdiff returns -1 status on exit. This patch fixes sdiff
+             to return a status of 0 on exit
+
+diff -Naur diffutils-2.8.4.orig/src/sdiff.c diffutils-2.8.4/src/sdiff.c
+--- diffutils-2.8.4.orig/src/sdiff.c	2002-06-17 05:55:42.000000000 +0000
++++ diffutils-2.8.4/src/sdiff.c	2003-09-09 20:25:53.000000000 +0000
+@@ -692,7 +692,7 @@
+       ck_fclose (out);
+ 
+       {
+-	int wstatus;
++	int wstatus = 0;
+ 	int werrno = 0;
+ 
+ #if ! (HAVE_WORKING_FORK || HAVE_WORKING_VFORK)
+@@ -701,11 +701,6 @@
+ 	  werrno = errno;
+ #else
+ 	ck_fclose (diffout);
+-	while (waitpid (diffpid, &wstatus, 0) < 0)
+-	  if (errno == EINTR)
+-	    checksigs ();
+-	  else
+-	    perror_fatal ("waitpid");
+ 	diffpid = 0;
+ #endif
+ 

@@ -1,0 +1,44 @@
+Submitted By: Guy Dalziel <gdalziel at linuxfromscratch dot org>
+Date: 2009-08-06 
+Initial Package Version: 1.0.0b3
+Upstream Status: Sent
+Origin: Debian, Dan Nicholson, and Guy Dalziel 
+Description: Fixes compilation issues with gcc-4:
+               wrudf.c:248: error: lvalue required as left operand of assignment
+               cdrwtool.c:606: error: 'INT_MAX' undeclared (first use in this function)
+               pktsetup.c:66: error: 'INT_MAX' undeclared (first use in this function)
+
+diff -Naur udftools-1.0.0b3-orig/cdrwtool/cdrwtool.c udftools-1.0.0b3/cdrwtool/cdrwtool.c
+--- udftools-1.0.0b3-orig/cdrwtool/cdrwtool.c	2002-12-28 04:48:51.000000000 +0000
++++ udftools-1.0.0b3/cdrwtool/cdrwtool.c	2009-08-06 12:41:08.909353809 +0100
+@@ -27,6 +27,7 @@
+ #include <unistd.h>
+ #include <getopt.h>
+ #include <signal.h>
++#include <limits.h>
+ 
+ #include <sys/ioctl.h>
+ #include <asm/param.h>
+diff -Naur udftools-1.0.0b3-orig/pktsetup/pktsetup.c udftools-1.0.0b3/pktsetup/pktsetup.c
+--- udftools-1.0.0b3-orig/pktsetup/pktsetup.c	2002-11-26 07:18:51.000000000 +0000
++++ udftools-1.0.0b3/pktsetup/pktsetup.c	2009-08-06 12:41:31.864951075 +0100
+@@ -21,6 +21,7 @@
+ #include <sys/ioctl.h>
+ #include <unistd.h>
+ #include <getopt.h>
++#include <limits.h>
+ #include <bits/types.h>
+ #include <sys/types.h>
+ 
+diff -Naur udftools-1.0.0b3-orig/wrudf/wrudf.c udftools-1.0.0b3/wrudf/wrudf.c
+--- udftools-1.0.0b3-orig/wrudf/wrudf.c	2002-11-26 07:18:51.000000000 +0000
++++ udftools-1.0.0b3/wrudf/wrudf.c	2009-08-06 12:40:50.258305159 +0100
+@@ -245,7 +245,7 @@
+ 	    } else if( strncmp( spm->partIdent.ident, UDF_ID_VIRTUAL, strlen(UDF_ID_VIRTUAL)) == 0 )
+ 		virtualPartitionNum = i;
+ 	}
+-	(char*)spm += spm->partitionMapLength;
++	spm = (char*)spm + spm->partitionMapLength;
+     }
+ 
+     if( medium == CDR ) {

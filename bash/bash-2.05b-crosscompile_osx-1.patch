@@ -1,0 +1,26 @@
+Submitted By: Martin Schaffner <schaffner@gmx.li>
+Date: 2004-04-02
+Initial Package Version: 2.05b
+Origin: Martin Schaffner
+Description: Fixes a cross-compilation issue by turning an unnecessary configure run test into a compile test. Run "autoconf" after applying this patch, which also fixes another cross-compilation issue.
+
+--- a/aclocal.m4	Mon Mar 15 15:43:29 2004
++++ b/aclocal.m4	Mon Mar 15 17:40:56 2004
+@@ -1656,14 +1656,11 @@
+ AC_CHECK_FUNC(wcwidth, AC_DEFINE(HAVE_WCWIDTH))
+ 
+ AC_CACHE_CHECK([for mbstate_t], bash_cv_have_mbstate_t,
+-[AC_TRY_RUN([
++[AC_TRY_COMPILE([
+ #include <wchar.h>
+-int
+-main ()
+-{
++],[
+   mbstate_t ps;
+-  return 0;
+-}], bash_cv_have_mbstate_t=yes,  bash_cv_have_mbstate_t=no)])
++], bash_cv_have_mbstate_t=yes,  bash_cv_have_mbstate_t=no)])
+ if test $bash_cv_have_mbstate_t = yes; then
+ 	AC_DEFINE(HAVE_MBSTATE_T)
+ fi

@@ -1,0 +1,262 @@
+Submitted By: DJ Lucas (dj AT linuxfromscratch DOT org)
+Date: 2005-07-06
+Initial Package Version: 4.0.10
+Origin: http://lists.pld.org.pl/mailman/pipermail/shadow/2005-June/000125.html
+Upstream Status: Accepted
+Description: Fixes erroneous warning messages when used with Linux-PAM.
+
+
+diff -Naur shadow-4.0.10-orig/libmisc/setupenv.c shadow-4.0.10/libmisc/setupenv.c
+--- shadow-4.0.10-orig/libmisc/setupenv.c	2005-06-14 15:27:35.000000000 -0500
++++ shadow-4.0.10/libmisc/setupenv.c	2005-07-06 20:24:17.000000000 -0500
+@@ -238,7 +238,17 @@
+ 	 * Create the PATH environmental variable and export it.
+ 	 */
+ 
++	/*
++	 * Export the user name.  For BSD derived systems, it's "USER", for
++	 * all others it's "LOGNAME".  We set both of them.
++	 */
++
++	addenv ("USER", info->pw_name);
++	addenv ("LOGNAME", info->pw_name);
++
++#ifndef USE_PAM
+ 	cp = getdef_str ((info->pw_uid == 0) ? "ENV_SUPATH" : "ENV_PATH");
++
+ 	if (!cp) {
+ 		/* not specified, use a minimal default */
+ 		addenv ("PATH=/bin:/usr/bin", NULL);
+@@ -251,14 +261,6 @@
+ 	}
+ 
+ 	/*
+-	 * Export the user name.  For BSD derived systems, it's "USER", for
+-	 * all others it's "LOGNAME".  We set both of them.
+-	 */
+-
+-	addenv ("USER", info->pw_name);
+-	addenv ("LOGNAME", info->pw_name);
+-
+-	/*
+ 	 * MAILDIR environment variable for Qmail
+ 	 */
+ 	if ((cp = getdef_str ("QMAIL_DIR")))
+@@ -274,6 +276,7 @@
+ 	else if ((cp = getdef_str ("MAIL_FILE")))
+ 		addenv_path ("MAIL", info->pw_dir, cp);
+ 	else {
++
+ #if defined(MAIL_SPOOL_FILE)
+ 		addenv_path ("MAIL", info->pw_dir, MAIL_SPOOL_FILE);
+ #elif defined(MAIL_SPOOL_DIR)
+@@ -281,11 +284,10 @@
+ #endif
+ 	}
+ 
+-#ifndef USE_PAM
+ 	/*
+ 	 * Read environment from optional config file.  --marekm
+ 	 */
+ 	if ((envf = getdef_str ("ENVIRON_FILE")))
+ 		read_env_file (envf);
+-#endif
++#endif /* !USE_PAM */
+ }
+diff -Naur shadow-4.0.10-orig/libmisc/tz.c shadow-4.0.10/libmisc/tz.c
+--- shadow-4.0.10-orig/libmisc/tz.c	2005-06-14 15:27:35.000000000 -0500
++++ shadow-4.0.10/libmisc/tz.c	2005-07-06 20:24:17.000000000 -0500
+@@ -49,8 +49,10 @@
+ 
+ 	if ((fp = fopen (fname, "r")) == NULL ||
+ 	    fgets (tzbuf, sizeof (tzbuf), fp) == NULL) {
++#ifndef USE_PAM
+ 		if (!(def_tz = getdef_str ("ENV_TZ")) || def_tz[0] == '/')
+ 			def_tz = "TZ=CST6CDT";
++#endif /* !USE_PAM */
+ 
+ 		strcpy (tzbuf, def_tz);
+ 	} else
+diff -Naur shadow-4.0.10-orig/src/login.c shadow-4.0.10/src/login.c
+--- shadow-4.0.10-orig/src/login.c	2005-06-20 04:36:27.000000000 -0500
++++ shadow-4.0.10/src/login.c	2005-07-06 20:24:17.000000000 -0500
+@@ -277,9 +277,11 @@
+ 
+ 	if ((tmp = getenv ("TZ"))) {
+ 		addenv ("TZ", tmp);
+-	} else if ((cp = getdef_str ("ENV_TZ")))
++	} 
++#ifndef USE_PAM
++		else if ((cp = getdef_str ("ENV_TZ")))
+ 		addenv (*cp == '/' ? tz (cp) : cp, NULL);
+-
++#endif /* !USE_PAM */
+ 	/* 
+ 	 * Add the clock frequency so that profiling commands work
+ 	 * correctly.
+@@ -287,8 +289,11 @@
+ 
+ 	if ((tmp = getenv ("HZ"))) {
+ 		addenv ("HZ", tmp);
+-	} else if ((cp = getdef_str ("ENV_HZ")))
++	} 
++#ifndef USE_PAM
++		else if ((cp = getdef_str ("ENV_HZ")))
+ 		addenv (cp, NULL);
++#endif /* !USE_PAM */
+ }
+ 
+ 
+@@ -347,8 +352,7 @@
+ 	int retcode;
+ 	pid_t child;
+ 	char *pam_user;
+-#endif				/* USE_PAM */
+-#ifndef USE_PAM
++#else
+ 	struct spwd *spwd = NULL;
+ #endif
+ 	/*
+@@ -503,6 +507,8 @@
+ 
+ 		setup_tty ();
+ 
++#ifndef USE_PAM
++
+ 		umask (getdef_num ("UMASK", 077));
+ 
+ 		{
+@@ -519,6 +525,8 @@
+ 				set_filesize_limit (limit);
+ 		}
+ 
++#endif /* !USE_PAM */
++
+ 		/*
+ 		 * The entire environment will be preserved if the -p flag
+ 		 * is used.
+diff -Naur shadow-4.0.10-orig/src/su.c shadow-4.0.10/src/su.c
+--- shadow-4.0.10-orig/src/su.c	2005-06-20 05:17:08.000000000 -0500
++++ shadow-4.0.10/src/su.c	2005-07-06 20:24:17.000000000 -0500
+@@ -35,12 +35,6 @@
+ #include <stdio.h>
+ #ifdef USE_PAM
+ #include "pam_defs.h"
+-static const struct pam_conv conv = {
+-	misc_conv,
+-	NULL
+-};
+-
+-static pam_handle_t *pamh = NULL;
+ #endif
+ 
+ #include "prototypes.h"
+@@ -64,8 +58,18 @@
+ static char name[BUFSIZ];
+ static char oldname[BUFSIZ];
+ 
+-static char *Prog;
++#ifdef USE_PAM
++static const struct pam_conv conv = {
++	misc_conv,
++	NULL
++};
++
++static pam_handle_t *pamh = NULL;
++#endif 
++
++static int caught = 0;
+ 
++static char *Prog;
+ extern struct passwd pwent;
+ 
+ /*
+@@ -73,9 +77,8 @@
+  */
+ 
+ extern char **newenvp;
+-extern size_t newenvc;
+-
+ extern char **environ;
++extern size_t newenvc;
+ 
+ /* local function prototypes */
+ 
+@@ -133,9 +136,8 @@
+ 	exit (1);
+ }
+ 
+-#ifdef USE_PAM
+-static int caught = 0;
+ 
++#ifdef USE_PAM
+ /* Signal handler for parent process later */
+ static void su_catch_sig (int sig)
+ {
+@@ -341,13 +343,6 @@
+ 	 */
+ 
+ 	if (fakelogin) {
+-		if ((cp = getdef_str ("ENV_TZ")))
+-			addenv (*cp == '/' ? tz (cp) : cp, NULL);
+-		/*
+-		 * The clock frequency will be reset to the login value if required
+-		 */
+-		if ((cp = getdef_str ("ENV_HZ")))
+-			addenv (cp, NULL);	/* set the default $HZ, if one */
+ 		/*
+ 		 * The terminal type will be left alone if it is present in
+ 		 * the environment already.
+@@ -355,6 +350,13 @@
+ 		if ((cp = getenv ("TERM")))
+ 			addenv ("TERM", cp);
+ #ifndef USE_PAM
++		if ((cp = getdef_str ("ENV_TZ")))
++			addenv (*cp == '/' ? tz (cp) : cp, NULL);
++		/*
++		 * The clock frequency will be reset to the login value if required
++		 */
++		if ((cp = getdef_str ("ENV_HZ")))
++			addenv (cp, NULL);	/* set the default $HZ, if one */
+ 		/*
+ 		 * Also leave DISPLAY and XAUTHORITY if present, else
+ 		 * pam_xauth will not work.
+@@ -586,6 +588,7 @@
+ #endif				/* !USE_PAM */
+ 
+ 	signal (SIGINT, SIG_DFL);
++#ifndef USE_PAM
+ 	cp = getdef_str ((pwent.pw_uid == 0) ? "ENV_SUPATH" : "ENV_PATH");
+ 
+ 	/* XXX very similar code duplicated in libmisc/setupenv.c */
+@@ -597,10 +600,8 @@
+ 		addenv ("PATH", cp);
+ 	}
+ 
+-/* setup the environment for pam later on, else we run into auth problems */
+-#ifndef USE_PAM
+ 	environ = newenvp;	/* make new environment active */
+-#endif
++#endif /* !USE_PAM */
+ 
+ 	if (getenv ("IFS"))	/* don't export user IFS ... */
+ 		addenv ("IFS= \t\n", NULL);	/* ... instead, set a safe IFS */
+diff -Naur shadow-4.0.10-orig/src/sulogin.c shadow-4.0.10/src/sulogin.c
+--- shadow-4.0.10-orig/src/sulogin.c	2005-06-20 04:35:09.000000000 -0500
++++ shadow-4.0.10/src/sulogin.c	2005-07-06 20:24:17.000000000 -0500
+@@ -140,10 +140,14 @@
+ 	while (*envp)		/* add inherited environment, */
+ 		addenv (*envp++, NULL);	/* some variables change later */
+ 
++#ifndef USE_PAM
++
+ 	if ((cp = getdef_str ("ENV_TZ")))
+ 		addenv (*cp == '/' ? tz (cp) : cp, NULL);
+ 	if ((cp = getdef_str ("ENV_HZ")))
+ 		addenv (cp, NULL);	/* set the default $HZ, if one */
++#endif /* !USE_PAM */
++
+ 	(void) strcpy (name, "root");	/* KLUDGE!!! */
+ 
+ 	signal (SIGALRM, catch);	/* exit if the timer expires */
+

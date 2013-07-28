@@ -1,0 +1,37 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Origin: Alexander E. Patrakov
+Date: 2003-09-28
+Initial Package Version: 3.1.4
+Description: When kdebase is compiled against Qt 3.2.x, the "Run Command"
+dialog has wrong size (looks like the bottom is cut). This patch fixes
+this problem. Don't ask me how it works - I just noticed that in KDE CVS HEAD
+QVBoxLayout is used instead of QGridLayout. Maybe this is a bug in Qt.
+Applies to only those people who built Qt 3.2.x.
+
+
+diff -ur kdebase-3.1.4.orig/kdesktop/minicli.cpp kdebase-3.1.4/kdesktop/minicli.cpp
+--- kdebase-3.1.4.orig/kdesktop/minicli.cpp	2003-09-01 17:31:16.000000000 +0600
++++ kdebase-3.1.4/kdesktop/minicli.cpp	2003-09-28 20:37:27.000000000 +0600
+@@ -51,8 +51,8 @@
+ Minicli::Minicli( QWidget *parent, const char *name)
+         :KDialog( parent, name )
+ {
+-    m_vbox = new QGridLayout( this, 4, 1, KDialog::marginHint(),
+-                                         KDialog::spacingHint() );
++    m_vbox = new QVBoxLayout( this, KDialog::marginHint(),
++                              KDialog::spacingHint() );
+     m_vbox->setResizeMode( QLayout::Fixed );
+     KWin::setIcons( winId(), DesktopIcon("run"), SmallIcon("run") );
+     setCaption( i18n("Run Command") );
+diff -ur kdebase-3.1.4.orig/kdesktop/minicli.h kdebase-3.1.4/kdesktop/minicli.h
+--- kdebase-3.1.4.orig/kdesktop/minicli.h	2003-09-01 17:31:17.000000000 +0600
++++ kdebase-3.1.4/kdesktop/minicli.h	2003-09-28 20:15:42.000000000 +0600
+@@ -78,7 +78,7 @@
+     KURIFilterData* m_filterData;
+     QWidget* m_FocusWidget;
+     QPushButton* m_btnRun;
+-    QGridLayout *m_vbox;
++    QVBoxLayout *m_vbox;
+     QStringList terminalAppList;
+ 
+     QStringList middleFilters;

@@ -1,0 +1,40 @@
+Submitted By: Sune Molgaard <sune at molgaard.org>
+Date: 2004-12-09
+Initial Package Version: 3.1.8
+Upstream Status: Not submitted
+Origin: Me
+Description: This is a patch for the at source, that lets us use it
+with fcron...
+
+diff -Naur at-3.1.8.orig/configure at-3.1.8/configure
+--- at-3.1.8.orig/configure	2002-01-18 05:15:27.000000000 +0100
++++ at-3.1.8/configure	2004-12-10 03:58:51.147441648 +0100
+@@ -2264,20 +2264,20 @@
+ EOF
+ 
+   echo "$ac_t""Using existing /var/spool/at{jobs|run}" 1>&6
+-elif  test -d /var/spool/cron- ; then
+-  sp=/var/spool/cron
++elif  test -d /var/spool/fcron- ; then
++  sp=/var/spool/fcron
+   cat >> confdefs.h <<\EOF
+-#define SPOOLDIR "/var/spool/cron"
++#define SPOOLDIR "/var/spool/fcron"
+ EOF
+ 
+-  echo "$ac_t""/var/spool/cron" 1>&6
+-elif test -d /usr/spool/cron ; then
+-  sp=/usr/spool/cron
++  echo "$ac_t""/var/spool/fcron" 1>&6
++elif test -d /var/spool/fcron ; then
++  sp=/var/spool/fcron
+   cat >> confdefs.h <<\EOF
+-#define SPOOLDIR "/usr/spool/cron"
++#define SPOOLDIR "/var/spool/fcron"
+ EOF
+ 
+-  echo "$ac_t""/usr/spool/cron" 1>&6
++  echo "$ac_t""/var/spool/fcron" 1>&6
+ else
+   echo "$ac_t""not found" 1>&6
+ fi

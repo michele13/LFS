@@ -1,0 +1,20 @@
+Submitted By: Archaic <archaic AT linuxfromscratch D0T org>
+Date: 2005-07-06
+Initial Package Version: 1.2.2
+Upstream Status: Awaiting Acceptance
+Origin: ftp://ftp.freebsd.org/pub/FreeBSD/CERT/patches/SA-05%3A16/zlib.patch
+Description: Fixes a buffer overflow vulnerability.
+             http://cve.mitre.org/cgi-bin/cvename.cgi?name=CAN-2005-2096
+
+diff -Naur zlib-1.2.2.orig/inftrees.c zlib-1.2.2/inftrees.c
+--- zlib-1.2.2.orig/inftrees.c	2004-09-15 14:30:06.000000000 +0000
++++ zlib-1.2.2/inftrees.c	2005-07-06 17:47:31.000000000 +0000
+@@ -134,7 +134,7 @@
+         left -= count[len];
+         if (left < 0) return -1;        /* over-subscribed */
+     }
+-    if (left > 0 && (type == CODES || (codes - count[0] != 1)))
++    if (left > 0 && (type == CODES || max != 1))
+         return -1;                      /* incomplete set */
+ 
+     /* generate offsets into symbol table for each length for sorting */

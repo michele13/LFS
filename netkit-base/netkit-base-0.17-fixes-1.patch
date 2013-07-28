@@ -1,0 +1,122 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-07-10
+Initial Package Version: 0.17
+Origin: Gentoo
+Upstream Status: Unknown
+Description: Fixes Compile issues under current toolchains
+ 
+diff -Naur netkit-base-0.17.orig/inetd/builtins.c netkit-base-0.17/inetd/builtins.c
+--- netkit-base-0.17.orig/inetd/builtins.c	2000-07-22 20:13:07.000000000 +0000
++++ netkit-base-0.17/inetd/builtins.c	2005-07-10 17:49:42.000000000 +0000
+@@ -12,6 +12,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <unistd.h>
++#include <time.h>
+ 
+ #include "servtab.h"
+ #include "builtins.h"
+diff -Naur netkit-base-0.17.orig/inetd/inetd.c netkit-base-0.17/inetd/inetd.c
+--- netkit-base-0.17.orig/inetd/inetd.c	2000-07-24 23:48:34.000000000 +0000
++++ netkit-base-0.17/inetd/inetd.c	2005-07-10 17:49:42.000000000 +0000
+@@ -869,8 +869,8 @@
+ 	int on = 1;
+ 
+ 	if ((sep->se_fd = socket(sep->se_family, sep->se_socktype, 0)) < 0) {
+-		syslog(LOG_ERR, "%s: socket: %m", service_name(sep),
+-		    sep->se_service, sep->se_proto);
++		syslog(LOG_ERR, "%s: socket: %m", service_name(sep));
++/*		    sep->se_service, sep->se_proto); */
+ 
+ 		if (errno == EMFILE) {
+ 			syslog(LOG_ALERT, 
+@@ -888,8 +888,8 @@
+ 		syslog(LOG_ERR, "setsockopt (SO_REUSEADDR): %m");
+ #undef turnon
+ 	if (bind(sep->se_fd, &sep->se_ctrladdr, sep->se_ctrladdr_size) < 0) {
+-		syslog(LOG_ERR, "%s: bind: %m", service_name(sep),
+-		    sep->se_service, sep->se_proto);
++		syslog(LOG_ERR, "%s: bind: %m", service_name(sep));
++/*		    sep->se_service, sep->se_proto); */
+ 		(void) close(sep->se_fd);
+ 		sep->se_fd = -1;
+ 		if (!timingout) {
+@@ -938,8 +938,8 @@
+ 	}
+ 	m = sizeof(sn);
+ 	if (getsockname(sep->se_fd, (struct sockaddr *)&sn, &m) < 0) {
+-		syslog(LOG_ERR, "%s: getsockname: %m", service_name(sep),
+-		    sep->se_service, sep->se_proto);
++		syslog(LOG_ERR, "%s: getsockname: %m", service_name(sep));
++/*		    sep->se_service, sep->se_proto); */
+ 		return;
+ 	}
+ 
+@@ -1026,7 +1026,7 @@
+ 	if (rl.rlim_cur <= rlim_ofile_cur) {
+ 		syslog(LOG_ERR,
+ 			"bump_nofile: cannot extend file limit, max = %d",
+-			rl.rlim_cur);
++			(int)rl.rlim_cur);
+ 		return -1;
+ 	}
+ 
+diff -Naur netkit-base-0.17.orig/inetd/servtab.c netkit-base-0.17/inetd/servtab.c
+--- netkit-base-0.17.orig/inetd/servtab.c	2000-07-22 20:20:50.000000000 +0000
++++ netkit-base-0.17/inetd/servtab.c	2005-07-10 17:48:55.000000000 +0000
+@@ -771,7 +771,7 @@
+ 			return;
+ 		}
+ 		
+-#define SWAP(type, a, b) {type c=(type)a; (type)a=(type)b; (type)b=(type)c;}
++#define SWAP(type, a, b) {type c=(type)a; a=(type)b; b=(type)c;}
+ 
+ 		/*
+ 		 * sep->se_wait may be holding the pid of a daemon
+diff -Naur netkit-base-0.17.orig/ping/ping.c netkit-base-0.17/ping/ping.c
+--- netkit-base-0.17.orig/ping/ping.c	2000-07-23 04:16:21.000000000 +0000
++++ netkit-base-0.17/ping/ping.c	2005-07-10 17:48:16.000000000 +0000
+@@ -203,7 +203,7 @@
+  * datalen is the length of the other data plus the timeval.
+  * note: due to alignment problems don't assign to OUTPACK_TIME, use memcpy.
+  */
+-static u_int8_t outpack[IP_MAXPACKET];
++static u_int8_t outpack[IP_MAXPACKET] __attribute__((aligned(sizeof(long)))); 
+ static int datalen = DEFDATALEN;
+ 
+ #define OUTPACK_ICMP    ((struct icmp *)outpack)
+@@ -639,7 +639,7 @@
+ 	cp = INPACK_PAYLOAD;
+ 	dp = OUTPACK_PAYLOAD;
+ 
+-	for (i=0; i<datalen-ICMP_MINLEN; i++) {
++	for (i=sizeof(struct timeval); i<datalen-ICMP_MINLEN; i++) {
+ 		if (cp[i] != dp[i]) {
+ 			printf("\n");
+ 			printf("wrong data byte #%d should be 0x%x "
+@@ -648,7 +648,7 @@
+ 			for (i=0; i<datalen-ICMP_MINLEN; i++) {
+ 				if ((i % 32) == 8)
+ 					printf("\n\t");
+-				printf("%x ", cp[i]);
++				printf(" %x", cp[i]);
+ 			}
+ 			return;
+ 		}
+@@ -725,6 +725,7 @@
+ 			tp = (struct timeval *)icp->icmp_data;
+ 			memcpy(&packettv, tp, sizeof(struct timeval));
+ 			tvsub(&now, &packettv);
++			
+ 
+ 			/* precision: tenths of milliseconds */
+ 			triptime = now.tv_sec * 10000 + (now.tv_usec / 100);
+@@ -760,7 +761,7 @@
+ 			       inet_ntoa(from->sin_addr), icp->icmp_seq);
+ 			printf(" ttl=%d", ip->ip_ttl);
+ 			if (timing) {
+-				printf(" time=%ld.%ld ms", triptime/10,
++				printf(" time=%hd.%hd ms", triptime/10,
+ 				       triptime%10);
+ 			}
+ 			if (dupflag) {

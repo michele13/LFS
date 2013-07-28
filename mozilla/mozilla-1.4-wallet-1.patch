@@ -1,0 +1,17 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-05
+Initial Package Version: 1.0
+Origin: Mozilla Development Archives
+Description: Patch to allow mozilla to store passwords even if it is explicitly disabled using the non-standard autocomplete=off option
+diff -Nur mozilla.orig/extensions/wallet/src/wallet.cpp mozilla/extensions/wallet/src/wallet.cpp
+--- mozilla.orig/extensions/wallet/src/wallet.cpp	2002-05-13 17:07:55.000000000 -0500
++++ mozilla/extensions/wallet/src/wallet.cpp	2002-07-14 10:31:18.000000000 -0500
+@@ -4002,7 +4002,7 @@
+                       isPassword = PR_FALSE;
+                     }
+                   }
+-#define WALLET_DONT_CACHE_ALL_PASSWORDS
++/* #define WALLET_DONT_CACHE_ALL_PASSWORDS */
+ #ifdef WALLET_DONT_CACHE_ALL_PASSWORDS
+                   // Do not store this form element if the 'autocomplete = off' attibute is present, 
+                   // unless both wallet encryption and 'wallet.crypto.autocompleteoverride' are enabled.

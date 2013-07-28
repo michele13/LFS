@@ -1,0 +1,46 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-16
+Initial Package Version: 2.7.0
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/nxtvepg-2.7.0-posix-1.patch
+Upstream Status: not reported
+Description: use posix head and tail syntax
+ 
+diff -Naur nxtvepg-2.7.0.orig/Makefile nxtvepg-2.7.0/Makefile
+--- nxtvepg-2.7.0.orig/Makefile	2004-05-16 14:15:47.939988624 +0000
++++ nxtvepg-2.7.0/Makefile	2004-05-16 14:16:22.532729728 +0000
+@@ -279,7 +279,7 @@
+ 
+ nxtvepg.1 manual.html: nxtvepg.pod pod2help.pl epgctl/epgversion.h
+ 	@if test -x $(PERL); then \
+-	  EPG_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*EPG_VERSION_STR' epgctl/epgversion.h | head -1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
++	  EPG_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*EPG_VERSION_STR' epgctl/epgversion.h | head -n 1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
+ 	  echo "pod2man nxtvepg.pod > nxtvepg.1"; \
+ 	  pod2man -date " " -center "Nextview EPG Decoder" -section "1" \
+ 	          -release "nxtvepg "$$EPG_VERSION_STR" (C) 1999-2004 Tom Zoerner" \
+@@ -294,7 +294,7 @@
+ 
+ tvsim/tvsim.1 tvsim/tvsim.html: tvsim/tvsim.pod tvsim/tvsim_version.h
+ 	@if test -x $(PERL); then \
+-	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
++	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -n 1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
+ 	  echo "pod2man tvsim/tvsim.pod > tvsim/tvsim.1"; \
+ 	  pod2man -date " " -center "TV app interaction simulator" -section "1" \
+ 	          -release "tvsim "$$TVSIM_VERSION_STR" (C) 2002,2004 Tom Zoerner" \
+@@ -309,7 +309,7 @@
+ 
+ tvsim/vbirec.1 tvsim/vbirec.html: tvsim/vbirec.pod tvsim/tvsim_version.h
+ 	@if test -x $(PERL); then \
+-	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
++	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -n 1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
+ 	  echo "pod2man tvsim/vbirec.pod > tvsim/vbirec.1"; \
+ 	  pod2man -date " " -center "VBI recorder" -section "1" \
+ 	          -release "vbirec (C) 2002,2004 Tom Zoerner" \
+@@ -324,7 +324,7 @@
+ 
+ tvsim/vbiplay.1 tvsim/vbiplay.html: tvsim/vbiplay.pod tvsim/tvsim_version.h
+ 	@if test -x $(PERL); then \
+-	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
++	  TVSIM_VERSION_STR=`egrep '[ \t]*#[ \t]*define[ \t]*TVSIM_VERSION_STR' tvsim/tvsim_version.h | head -n 1 | sed -e 's#.*"\(.*\)".*#\1#'`; \
+ 	  echo "pod2man tvsim/vbiplay.pod > tvsim/vbiplay.1"; \
+ 	  pod2man -date " " -center "VBI playback tool" -section "1" \
+ 	          -release "vbiplay (C) 2002 Tom Zoerner" \

@@ -1,0 +1,49 @@
+Submitted By: Alexander E. Patrakov (semzx at newmail dot ru)
+Date: 2003-08-13
+Initial Package Version: 1.1.19
+Origin: First hunk - Alexander E. Patrakov, second hunk - CUPS CVS (problem
+reported by Alexander E. Patrakov)
+Description: First hunk: allow execution of language-specific CGI-scripts with a
+query string (I am really too lazy, I should submit that as a software trouble 
+report to the CUPS team); Second hunk: Drop privileges properly, see http://www.cups.org/str.php?L185
+The patch should go into the book.
+
+diff -ur cups-1.1.19/scheduler/client.c cups-1.1.19.fixed/scheduler/client.c
+--- cups-1.1.19/scheduler/client.c	2003-05-09 22:10:22.000000000 +0600
++++ cups-1.1.19.fixed/scheduler/client.c	2003-08-13 17:27:45.000000000 +0600
+@@ -2689,6 +2689,9 @@
+     {
+       snprintf(filename, len, "%s%s", DocumentRoot, con->uri);
+ 
++      if ((params = strchr(filename, '?')) != NULL)
++       *params = '\0';
++
+       status = stat(filename, filestats);
+     }
+   }
+@@ -3156,15 +3159,20 @@
+       if (setgid(Group))
+         exit(errno);
+ 
++      if (setgroups(1, &Group))
++        exit(errno);
++
+       if (setuid(User))
+         exit(errno);
+     }
++    else
++    {
++     /*
++      * Reset group membership to just the main one we belong to.
++      */
+ 
+-   /*
+-    * Reset group membership to just the main one we belong to.
+-    */
+-
+-    setgroups(0, NULL);
++      setgroups(1, &Group);
++    }
+ 
+    /*
+     * Update stdin/stdout/stderr...

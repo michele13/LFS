@@ -1,0 +1,23 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-02-10
+Initial Package Version: 050207
+Origin: Stephen Hemminger
+Upstream Status: Next Release
+Description: Fixes compile issue
+	     
+	undefined reference to `__constant_htons' 
+
+--- iproute2-2.6.9-050209/ip/iptunnel.c.orig	2005-02-10 19:02:45.774340480 +0000
++++ iproute2-2.6.9-050209/ip/iptunnel.c	2005-02-10 19:03:21.531904504 +0000
+@@ -29,6 +29,11 @@
+ #include <linux/if.h>
+ #include <linux/if_arp.h>
+ #include <linux/ip.h>
++
++#ifndef __constant_htons
++#define __constant_htons(x)  htons(x)
++#endif
++
+ #include <linux/if_tunnel.h>
+ 
+ #include "rt_names.h"

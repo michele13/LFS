@@ -1,0 +1,19 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-29
+Initial Package Version: 2.1.11
+Origin: Mandrake CVS
+Description: Increases Buffersize when reading /proc
+
+ 
+diff -Naur pciutils-2.1.11.orig/lib/proc.c pciutils-2.1.11/lib/proc.c
+--- pciutils-2.1.11.orig/lib/proc.c	2002-12-26 20:24:08.000000000 +0000
++++ pciutils-2.1.11/lib/proc.c	2003-09-29 16:27:20.000000000 +0000
+@@ -183,7 +183,7 @@
+ 
+   if (a->cached_dev != d || a->fd_rw < rw)
+     {
+-      char buf[256];
++      char buf[512];
+       if (a->fd >= 0)
+ 	close(a->fd);
+       if (snprintf(buf, sizeof(buf), "%s/%02x/%02x.%d", a->method_params[PCI_ACCESS_PROC_BUS_PCI],

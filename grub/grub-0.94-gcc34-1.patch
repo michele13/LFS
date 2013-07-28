@@ -1,0 +1,21 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-05-13
+Initial Package Version: 0.94
+Origin: Gentoo
+Upstream Status: Already fixed in CVS
+Description: Fixes Compile Issues with GCC 3.4
+ 
+diff -Naur grub-0.94.orig/stage2/char_io.c grub-0.94/stage2/char_io.c
+--- grub-0.94.orig/stage2/char_io.c	2003-07-09 11:45:52.000000000 +0000
++++ grub-0.94/stage2/char_io.c	2004-05-14 03:51:42.356882818 +0000
+@@ -1265,3 +1265,10 @@
+   return dest;
+ }
+ #endif /* ! STAGE1_5 */
++
++#ifndef GRUB_UTIL
++# undef memcpy
++/* GCC emits references to memcpy() for struct copies etc.  */
++void *memcpy (void *dest, const void *src, int n)  __attribute__ ((alias ("grub_memmove")));
++#endif
++

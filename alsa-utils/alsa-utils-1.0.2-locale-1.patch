@@ -1,0 +1,30 @@
+Submitted By: Alexander E. Patrakov
+Date: 2004-02-15
+Initial Package Version: 1.0.2
+Origin: Alexander E. Patrakov
+Upstream status: Patch accepted for inclusion in next release
+Description: With ncurses 5.4 or later, it is necessary to have the
+correct LC_CTYPE setting before calling initscr(). Otherwise, the line
+drawing characters and boxes are not visible on Linux console in UTF-8 mode,
+and that makes alsamixer totally unusable on such terminal.
+
+diff -ur alsa-utils-1.0.2.old/alsamixer/alsamixer.c alsa-utils-1.0.2/alsamixer/alsamixer.c
+--- alsa-utils-1.0.2.old/alsamixer/alsamixer.c	2003-08-11 15:42:16.000000000 +0600
++++ alsa-utils-1.0.2/alsamixer/alsamixer.c	2004-02-15 10:58:14.412877016 +0500
+@@ -113,6 +113,8 @@
+ #include <sys/signal.h>
+ #include <sys/time.h>
+ 
++#include <locale.h>
++
+ #ifndef CURSESINC
+ #include <ncurses.h>
+ #else
+@@ -1578,6 +1580,7 @@
+ {
+   /* initialize ncurses
+    */
++  setlocale(LC_CTYPE, "");
+   mixer_window = initscr ();
+   curs_set (0); /* hide the cursor */
+ 

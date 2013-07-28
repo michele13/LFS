@@ -1,0 +1,212 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2003-10-03
+Initial Package Version: 1.4.1
+Origin: None
+Description: Instead of fixing the path where binraries are located, use the binaries
+in the user's path.
+--- Build.orig/control/make/common/Defs-linux.gmk	2002-09-06 02:00:17.000000000 -0500
++++ Build/control/make/common/Defs-linux.gmk	2003-01-13 09:23:49.000000000 -0600
+@@ -44,52 +44,54 @@
+ # define these to avoid picking up ones from aliases or from
+ # non-standard locations
+ #
++# The sane thing to do is to use the PATH set by user!
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ 
+-AR             = $(USRBIN_PATH)ar
+-BASENAME       = $(UNIXCOMMAND_PATH)basename
+-CAT            = $(UNIXCOMMAND_PATH)cat
++AR             = ar
++BASENAME       = basename
++CAT            = cat
+ CD             = cd # intrinsic unix command
+-CHMOD          = $(UNIXCOMMAND_PATH)chmod
+-CMP            = $(USRBIN_PATH)cmp
+-COMM           = $(USRBIN_PATH)comm
+-COMPRESS       = $(USRBIN_PATH)compress
+-CP             = $(UNIXCOMMAND_PATH)cp
+-CPIO           = $(UNIXCOMMAND_PATH)cpio
+-CUT            = $(USRBIN_PATH)cut
+-DATE           = $(UNIXCOMMAND_PATH)date
+-DF             = $(UNIXCOMMAND_PATH)df
+-DIFF           = $(USRBIN_PATH)diff
+-DIRNAME        = $(USRBIN_PATH)dirname
++CHMOD          = chmod
++CMP            = cmp
++COMM           = comm
++COMPRESS       = compress
++CP             = cp
++CPIO           = cpio
++CUT            = cut
++DATE           = date
++DF             = df
++DIFF           = diff
++DIRNAME        = dirname
+ ECHO           = echo -e # intrinsic unix command, with backslash-escaped character interpretation 
+-EGREP          = $(UNIXCOMMAND_PATH)egrep
+-EXPR           = $(USRBIN_PATH)expr
+-FIND           = $(USRBIN_PATH)find
+-GREP           = $(UNIXCOMMAND_PATH)grep
+-LEX            = $(USRBIN_PATH)lex
+-LN             = $(UNIXCOMMAND_PATH)ln
+-LS             = $(UNIXCOMMAND_PATH)ls
+-M4             = $(USRBIN_PATH)m4
+-MKDIR          = $(UNIXCOMMAND_PATH)mkdir
+-MV             = $(UNIXCOMMAND_PATH)mv
+-NAWK           = $(USRBIN_PATH)gawk
+-PWD            = $(UNIXCOMMAND_PATH)pwd
++EGREP          = egrep
++EXPR           = expr
++FIND           = find
++GREP           = grep
++LEX            = lex
++LN             = ln
++LS             = ls
++M4             = m4
++MKDIR          = mkdir
++MV             = mv
++NAWK           = gawk
++PWD            = pwd
+ #RM   is defined by GNU Make as 'rm -f'
+-RMDIR          = $(UNIXCOMMAND_PATH)rmdir
+-RPM            = $(UNIXCOMMAND_PATH)rpm
+-SED            = $(UNIXCOMMAND_PATH)sed
+-SH             = $(UNIXCOMMAND_PATH)sh
+-SORT           = $(UNIXCOMMAND_PATH)sort
+-STRIP          = $(USRBIN_PATH)strip
+-TAR            = $(UNIXCOMMAND_PATH)tar
+-TOUCH          = $(UNIXCOMMAND_PATH)touch
+-TR             = $(USRBIN_PATH)tr
+-TRUE           = $(UNIXCOMMAND_PATH)true
+-UNAME          = $(UNIXCOMMAND_PATH)uname
+-UNIQ           = $(USRBIN_PATH)uniq
+-UNZIP          = $(USRBIN_PATH)unzip
+-WC             = $(USRBIN_PATH)wc
+-YACC           = $(USRBIN_PATH)yacc
+-ZIPEXE         = $(USRBIN_PATH)zip
++RMDIR          = rmdir
++RPM            = rpm
++SED            = sed
++SH             = sh
++SORT           = sort
++STRIP          = strip
++TAR            = tar
++TOUCH          = touch
++TR             = tr
++TRUE           = true
++UNAME          = uname
++UNIQ           = uniq
++UNZIP          = unzip
++WC             = wc
++YACC           = yacc
++ZIPEXE         = zip
+ 
+ 
+ archExpr = case "`$(UNAME) -m`" in  \
+--- Build.orig/j2se/make/common/Defs-linux.gmk	2002-09-06 02:07:13.000000000 -0500
++++ Build/j2se/make/common/Defs-linux.gmk	2003-01-13 09:24:54.000000000 -0600
+@@ -25,56 +25,58 @@
+ # define these to avoid picking up ones from aliases or from
+ # non-standard locations
+ #
++# The sane thing to do is to use the PATH set by user!
++# Changed by Tushar Teredesai <tush@yahoo.com>
+ 
+-AR             = $(USRBIN_PATH)ar
+-BASENAME       = $(UNIXCOMMAND_PATH)basename
+-CAT            = $(UNIXCOMMAND_PATH)cat
+-CC             = $(COMPILER_PATH)gcc
+-CPP            = $(COMPILER_PATH)gcc -E
+-CXX            = $(COMPILER_PATH)g++
++AR             = ar
++BASENAME       = basename
++CAT            = cat
++CC             = gcc
++CPP            = gcc -E
++CXX            = g++
+ CD             = cd # intrinsic unix command
+-CHMOD          = $(UNIXCOMMAND_PATH)chmod
+-CMP            = $(USRBIN_PATH)cmp
+-COMPRESS       = $(USRBIN_PATH)compress
+-CP             = $(UNIXCOMMAND_PATH)cp
+-CPIO           = $(UNIXCOMMAND_PATH)cpio
+-CUT            = $(USRBIN_PATH)cut
+-DATE           = $(UNIXCOMMAND_PATH)date
+-DF             = $(UNIXCOMMAND_PATH)df
+-DIFF           = $(USRBIN_PATH)diff
+-DIRNAME        = $(USRBIN_PATH)dirname
++CHMOD          = chmod
++CMP            = cmp
++COMPRESS       = compress
++CP             = cp
++CPIO           = cpio
++CUT            = cut
++DATE           = date
++DF             = df
++DIFF           = diff
++DIRNAME        = dirname
+ ECHO           = echo -e # intrinsic unix command, with backslash-escaped character interpretation 
+-EGREP          = $(UNIXCOMMAND_PATH)egrep
+-EXPR           = $(USRBIN_PATH)expr
+-FIND           = $(USRBIN_PATH)find
+-HEAD           = $(USRBIN_PATH)head
+-GDB            = $(USRBIN_PATH)gdb
+-GREP           = $(UNIXCOMMAND_PATH)grep
+-LEX            = $(USRBIN_PATH)lex
+-LN             = $(UNIXCOMMAND_PATH)ln
+-LS             = $(UNIXCOMMAND_PATH)ls
+-M4             = $(USRBIN_PATH)m4
+-MKDIR          = $(UNIXCOMMAND_PATH)mkdir
+-MV             = $(UNIXCOMMAND_PATH)mv
+-NAWK           = $(USRBIN_PATH)gawk
+-PWD            = $(UNIXCOMMAND_PATH)pwd
++EGREP          = egrep
++EXPR           = expr
++FIND           = find
++HEAD           = head
++GDB            = gdb
++GREP           = grep
++LEX            = lex
++LN             = ln
++LS             = ls
++M4             = m4
++MKDIR          = mkdir
++MV             = mv
++NAWK           = gawk
++PWD            = pwd
+ #RM   is defined by GNU Make as 'rm -f'
+-RMDIR          = $(UNIXCOMMAND_PATH)rmdir
+-RPM            = $(UNIXCOMMAND_PATH)rpm
+-SED            = $(UNIXCOMMAND_PATH)sed
+-SH             = $(UNIXCOMMAND_PATH)sh
+-SORT           = $(UNIXCOMMAND_PATH)sort
+-STRIP          = $(USRBIN_PATH)strip
+-TAR            = $(UNIXCOMMAND_PATH)tar
+-TOUCH          = $(UNIXCOMMAND_PATH)touch
+-TR             = $(USRBIN_PATH)tr
+-TRUE           = $(UNIXCOMMAND_PATH)true
+-UNAME          = $(UNIXCOMMAND_PATH)uname
+-UNIQ           = $(USRBIN_PATH)uniq
+-UNZIP          = $(USRBIN_PATH)unzip
+-UNZIPSFX       = $(USRBIN_PATH)unzipsfx
+-YACC           = $(USRBIN_PATH)yacc
+-ZIPEXE         = $(USRBIN_PATH)zip
++RMDIR          = rmdir
++RPM            = rpm
++SED            = sed
++SH             = sh
++SORT           = sort
++STRIP          = strip
++TAR            = tar
++TOUCH          = touch
++TR             = tr
++TRUE           = true
++UNAME          = uname
++UNIQ           = uniq
++UNZIP          = unzip
++UNZIPSFX       = unzipsfx
++YACC           = yacc
++ZIPEXE         = zip
+ 
+ 
+ archExpr = case "`$(UNAME) -m`" in  \

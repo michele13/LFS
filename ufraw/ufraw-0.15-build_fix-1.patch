@@ -1,0 +1,24 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-10-04
+Initial Package Version: 0.15
+Upstream Status: Applied (along with many other changes from dcraw).
+Origin: From Dave Coffin's original dcraw, applied by hand.
+Description: Fixes "invalid conversion from 'const char*' to 'char*' error with glibc-2.10.1
+NB - the additional 'g' at the end of the string is intended.
+References:
+http://sourceforge.net/tracker/?func=detail&aid=2867424&group_id=127649&atid=709086
+http://sourceforge.net/mailarchive/forum.php?thread_name=E1Mbo4h-0001hh-LX%40ddv4jf1.ch3.sourceforge.com&forum_name=ufraw-cvs
+http://udrepper.livejournal.com/20948.html
+
+diff -Naur ufraw-0.15.orig/dcraw.cc ufraw-0.15/dcraw.cc
+--- ufraw-0.15.orig/dcraw.cc	2008-12-23 07:19:41.000000000 +0000
++++ ufraw-0.15/dcraw.cc	2009-10-02 16:03:26.000000000 +0100
+@@ -8401,7 +8401,7 @@
+   argv[argc] = "";
+   for (arg=1; (((opm = argv[arg][0]) - 2) | 2) == '+'; ) {
+     opt = argv[arg++][1];
+-    if ((cp = strchr (sp="nbrkStqmHAC", opt)))
++    if ((cp = (char*) strchr (sp="nbrkStqmHACg", opt)))
+       for (i=0; i < "11411111142"[cp-sp]-'0'; i++)
+ 	if (!isdigit(argv[arg+i][0])) {
+ 	  dcraw_message (DCRAW_ERROR,_("Non-numeric argument to \"-%c\"\n"), opt);

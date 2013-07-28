@@ -1,0 +1,22 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2003-09-18
+Initial Package Version: 2.0.2
+Origin: Kristofer T. Karas <ktk@enterprise.bidmc.harvard.edu>
+Description: Fixes netmasks
+
+	     Corrects error util.h:42: parse error before `netmasks'
+ 
+diff -Naur snort-2.0.2.orig/src/util.h snort-2.0.2/src/util.h
+--- snort-2.0.2.orig/src/util.h	2003-03-26 21:59:30.000000000 +0000
++++ snort-2.0.2/src/util.h	2003-09-18 19:08:44.000000000 +0000
+@@ -39,6 +39,10 @@
+ #include "strlcpyu.h"
+ #endif
+ 
++#ifdef HAVE_SYS_TYPES_H
++#include <sys/types.h>
++#endif
++
+ extern u_long netmasks[33];
+ 
+ /* Self preservation memory control struct */

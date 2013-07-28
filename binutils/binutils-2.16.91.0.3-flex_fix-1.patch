@@ -1,0 +1,29 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-09-12
+Initial Package Version: 2.16.91 HJL
+Origin: Unknown
+Upstream Status: Sent
+Description: Fixes http://sources.redhat.com/bugzilla/show_bug.cgi?id=1299
+
+diff -Naur binutils-2.16.91.0.3.orig/gas/Makefile.am binutils-2.16.91.0.3/gas/Makefile.am
+--- binutils-2.16.91.0.3.orig/gas/Makefile.am	2005-08-22 19:27:41.000000000 +0000
++++ binutils-2.16.91.0.3/gas/Makefile.am	2005-09-12 21:36:30.000000000 +0000
+@@ -604,6 +604,7 @@
+ 
+ itbl-lex.c: $(srcdir)/itbl-lex.l
+ itbl-lex.o: itbl-lex.c itbl-parse.h $(srcdir)/itbl-lex.h
++	$(COMPILE) -c $< $(NO_WERROR)
+ 
+ # Disable -Werror, if it has been enabled, since old versions of bison/
+ # yacc will produce working code which contain compile time warnings. 
+diff -Naur binutils-2.16.91.0.3.orig/gas/Makefile.in binutils-2.16.91.0.3/gas/Makefile.in
+--- binutils-2.16.91.0.3.orig/gas/Makefile.in	2005-08-22 19:27:41.000000000 +0000
++++ binutils-2.16.91.0.3/gas/Makefile.in	2005-09-12 21:32:29.000000000 +0000
+@@ -2831,6 +2831,7 @@
+ 
+ itbl-lex.c: $(srcdir)/itbl-lex.l
+ itbl-lex.o: itbl-lex.c itbl-parse.h $(srcdir)/itbl-lex.h
++	$(COMPILE) -c $< $(NO_WERROR)
+ 
+ # Disable -Werror, if it has been enabled, since old versions of bison/
+ # yacc will produce working code which contain compile time warnings. 

@@ -1,0 +1,90 @@
+Submitted By: Dan Nicholson <dbn dot lists at gmail dot com>
+Date: 2006-03-16
+Initial Package Version: 20060311.0028
+Upstream Status: LFS Specific
+Origin: Self
+Description: This patch changes the man page formatter and displayer to Man
+             from the default of Man-DB for the compressdoc script.
+
+--- compressdoc.orig	2006-03-15 22:47:55.569633210 -0800
++++ compressdoc	2006-03-15 22:48:21.568197022 -0800
+@@ -1,5 +1,5 @@
+ #!/bin/bash
+-# VERSION: 20060311.0028
++# VERSION: 20050112.0027
+ #
+ # Compress (with bzip2 or gzip) all man pages in a hierarchy and
+ # update symlinks - By Marc Heerdink <marc @ koelkast.net>
+@@ -20,11 +20,6 @@
+ # Modified 20050112 by Randy McMurchy to shorten line lengths and
+ # correct grammar errors.
+ #
+-# Modified 20060128 by Alexander E. Patrakov for compatibility with Man-DB.
+-#
+-# Modified 20060311 by Archaic to use Man-DB manpath utility which is a
+-# replacement for man --path from Man.
+-#
+ # TODO:
+ #     - choose a default compress method to be based on the available
+ #       tool : gzip or bzip2;
+@@ -79,18 +74,17 @@
+                 backup mode.
+ 
+   --conf=dir, --conf dir
+-                Specify the location of man_db.conf. Defaults to /etc.
++                Specify the location of man.conf. Defaults to /etc.
+ 
+   --verbose, -v Verbose mode, print the name of the directory being
+                 processed. Double the flag to turn it even more verbose,
+                 and to print the name of the file being processed.
+ 
+-  --fake, -f    Fakes it. Print the actual parameters compressdoc will use.
++  --fake, -f    Fakes it. Print the actual parameters compman will use.
+ 
+   dirs          A list of space-separated _absolute_ pathnames to the
+-                man directories. When empty, and only then, use manpath
+-                to parse ${MAN_CONF}/man_db.conf for all valid occurrences
+-                of MANDATORY_MANPATH.
++                man directories. When empty, and only then, parse
++                ${MAN_CONF}/man.conf for all occurrences of MANPATH.
+ 
+ Note about compression:
+   There has been a discussion on blfs-support about compression ratios of
+@@ -155,7 +149,7 @@
+ 
+ # OK, parse the command-line for arguments, and initialize to some
+ # sensible state, that is: don't change links state, parse
+-# /etc/man_db.conf, be most silent, search man_db.conf in /etc, and don't
++# /etc/man.conf, be most silent, search man.conf in /etc, and don't
+ # force (re-)compression.
+ COMP_METHOD=
+ COMP_SUF=
+@@ -265,16 +259,16 @@
+ # Note: on my machine, 'man --path' gives /usr/share/man twice, once
+ # with a trailing '/', once without.
+ if [ -z "$MAN_DIR" ]; then
+-  MAN_DIR=`manpath -C "$MAN_CONF"/man_db.conf \
++  MAN_DIR=`man --path -C "$MAN_CONF"/man.conf \
+             | sed 's/:/\\n/g' \
+             | while read foo; do dirname "$foo"/.; done \
+             | sort -u \
+             | while read bar; do echo -n "$bar "; done`
+ fi
+ 
+-# If no MANDATORY_MANPATH in ${MAN_CONF}/man_db.conf, abort as well
++# If no MANPATH in ${MAN_CONF}/man.conf, abort as well
+ if [ -z "$MAN_DIR" ]; then
+-  echo "No directory specified, and no directory found with \`manpath'"
++  echo "No directory specified, and no directory found with \`man --path'"
+   exit 1
+ fi
+ 
+@@ -293,7 +287,7 @@
+   echo "Compression suffix: $COMP_SUF"
+   echo -n "Force compression.: "
+   [ "foo$FORCE_OPT" = "foo-F" ] && echo "yes" || echo "no"
+-  echo "man_db.conf is....: ${MAN_CONF}/man_db.conf"
++  echo "man.conf is.......: ${MAN_CONF}/man.conf"
+   echo -n "Hard-links........: "
+   [ "foo$LN_OPT" = "foo-S" ] &&
+   echo "convert to soft-links" || echo "leave as is"

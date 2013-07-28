@@ -1,0 +1,37 @@
+Submitted By: Tushar Teredesai <tushar@linuxfromscratch.org>
+Date: 2004-02-01
+Initial Package Version: 2.5.6
+Origin: NA
+Description: Links to system installed zlib instead of the included zlib.
+
+diff -ur rsync-2.5.6.orig/Makefile.in rsync-2.5.6/Makefile.in
+--- rsync-2.5.6.orig/Makefile.in	2003-01-20 12:26:14.000000000 -0600
++++ rsync-2.5.6/Makefile.in	2003-01-31 17:31:58.000000000 -0600
+@@ -6,7 +6,7 @@
+ bindir=@bindir@
+ mandir=@mandir@
+ 
+-LIBS=@LIBS@
++LIBS=@LIBS@ -lz
+ CC=@CC@
+ CFLAGS=@CFLAGS@
+ CPPFLAGS=@CPPFLAGS@
+@@ -27,9 +27,6 @@
+ 
+ LIBOBJ=lib/fnmatch.o lib/compat.o lib/snprintf.o lib/mdfour.o \
+ 	lib/permstring.o @LIBOBJS@
+-ZLIBOBJ=zlib/deflate.o zlib/infblock.o zlib/infcodes.o zlib/inffast.o \
+-	zlib/inflate.o zlib/inftrees.o zlib/infutil.o zlib/trees.o \
+-	zlib/zutil.o zlib/adler32.o
+ OBJS1=rsync.o generator.o receiver.o cleanup.o sender.o exclude.o util.o \
+ 	main.o checksum.o match.o syscall.o log.o backup.o
+ OBJS2=options.o flist.o io.o compat.o hlink.o token.o uidlist.o socket.o \
+@@ -38,7 +35,7 @@
+ DAEMON_OBJ = params.o loadparm.o clientserver.o access.o connection.o authenticate.o
+ popt_OBJS=popt/findme.o  popt/popt.o  popt/poptconfig.o \
+ 	popt/popthelp.o popt/poptparse.o
+-OBJS=$(OBJS1) $(OBJS2) $(OBJS3) $(DAEMON_OBJ) $(LIBOBJ) $(ZLIBOBJ) @BUILD_POPT@
++OBJS=$(OBJS1) $(OBJS2) $(OBJS3) $(DAEMON_OBJ) $(LIBOBJ) @BUILD_POPT@
+ 
+ TLS_OBJ = tls.o syscall.o lib/permstring.o
+ 

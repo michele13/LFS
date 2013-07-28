@@ -1,0 +1,186 @@
+#!/bin/bash
+
+# This script will generate a patch with the appropriate LFS header
+# 
+# Asumptions
+#
+# *  The script assumes that you have two directories
+#    One for the unmodified and one modified
+#    Examples: zoo-2.10 and zoo-2.10.orig
+#	   The .orig is unmodified
+#
+#    or
+#    The script assums that you have two files
+#    One for the umodified and one modified
+#    Examples: config.h and config.h.orig 
+#	   The .orig is unmodified
+#
+# *  It assumes that this is a first release patch and
+#    adds -1 to end of the patch. Unless you specify the
+#    third option
+# 
+# Script depends on the following programs that are not standard with
+# LFS (See BLFS for installation)
+# * nail
+# * which
+#
+# This script also create a blank header that will need to be edited
+# with the Initial Package Version:, Origin: , and Description: of
+# the patch
+#
+# See ChangeLog at the end for credits.
+#
+
+# Input Check
+# 
+dir="$1"
+type="$2"
+version="$3"
+
+if [ "$dir" == "" ] || [ "$type" == "" ]
+	then	
+		echo "The command below will create a patch."
+		echo "$0 directory description version"
+		echo "or"
+		echo "The command below will allow you to submit the patch."
+		echo "$0 submit"
+		exit
+fi
+
+if [ "$version" == "" ]
+	then
+		version="1"
+fi
+
+rm -f /tmp/patch.mail /tmp/file.list /tmp/file.list.new
+
+# Variables
+#
+submitter="Your Name"
+email="your@email.address"
+date="`date +%F`"
+patches="patches@linuxfromscratch.org"
+
+# If you want the script to submit your patches
+# You will need to specify the mailer program
+#
+# Currently the script only works with nail and mail
+#
+SUBMIT_PATCH="enabled"
+
+# Enter name of Mail Program
+mailprog="mail"
+
+# Enter name of Editor
+editorprog="nano"
+
+# If you want the script to be compressed
+#
+COMPRESS="enabled"
+
+# Enter name of compressing program
+compressprog="bzip2"
+compressext="bz2"
+
+# Do not edit this
+mailbin="`which $mailprog`"
+editorbin="`which $editorprog`"
+compressbin="`which $compressprog`"
+
+# Subroutines
+#
+YESNO ()
+{
+	INPUT="$1"
+	echo -n "$INPUT -=>"
+	RETURN="0"
+	read input
+	if [ "$input" == "YES" ] || [ "$input" == "yes" ] || [ "$input" == "Y" ] || [ "$input" == "y" ]
+		then
+			OK="YES"
+			RETURN="1"
+	fi
+	if [ "$input" == "NO" ] || [ "$input" == "no" ] || [ "$input" == "N" ] || [ "$input" == "n" ]
+		then
+			OK="NO"
+			RETURN="1"
+	fi
+	if [ "$RETURN" == "0" ]
+		then
+			YESNO "$INPUT"
+	fi
+}
+
+# Parse Email
+#
+emailobfuscated="`echo $email|sed -e s%'@'%' at '% -e s%'\.'%' dot '%g`"
+
+# Create Patch Header
+#
+echo "Submitted By: $submitter ($emailobfuscated)" > $dir-$type-$version.patch
+echo "Date: $date" >> $dir-$type-$version.patch
+echo "Initial Package Version: " >> $dir-$type-$version.patch
+echo "Origin: " >> $dir-$type-$version.patch
+echo "Upstream Status: " >> $dir-$type-$version.patch
+echo "Description: " >> $dir-$type-$version.patch
+echo " " >> $dir-$type-$version.patch
+
+# Lets edit the patch Header
+#
+$editorbin $dir-$type-$version.patch
+
+# Copy the patch header for email text
+#
+cp $dir-$type-$version.patch /tmp/patch.mail
+
+# Check for directory.orig first if not there check all files in the current directory
+#
+if [ -e $dir.orig ]
+	then
+		# Create Patch from directory.orig directory
+		#
+		echo "Creating patch from directory $dir.."
+		LC_ALL=C TZ=UTC0 diff -Naur $dir.orig $dir >> $dir-$type-$version.patch
+	else
+		# Create Patch from file.orig file
+		#
+		find $dir/ -type f > /tmp/file.list
+		cat /tmp/file.list | grep ".orig" > /tmp/file.list.new
+		sed -e 's|.orig| |g' /tmp/file.list.new > /tmp/file.list
+		file_list="`cat /tmp/file.list`"
+		for file in $file_list
+			do
+					echo "Creating patch from file $file.."
+					LC_ALL=C TZ=UTC0 diff -Naur $file.orig $file >> $dir-$type-$version.patch
+			done
+fi
+
+rm -f /tmp/file.list /tmp/file.list.new
+
+if [ "$SUBMIT_PATCH" == "enabled" ] && [ "$mailbin" != "" ] && [ "$email" != "" ]
+	then
+		YESNO "Are you sure you want to send $dir-$type-$version to $patches (yes/no)"
+		if [ "$OK" == "YES" ]
+			then
+				if [ "$COMPRESS" == "enabled" ]
+					then
+						echo "Compressing $dir-$type-$version.patch..."
+						$compressbin $dir-$type-$version.patch
+						attachment="$dir-$type-$version.patch.$compressext"
+					else
+						attachment="$dir-$type-$version.patch"
+				fi
+				echo "Sending email to $patches..."
+				$mailbin -B -s "Patch Submission for $dir" -a $attachment -r $email $patches < /tmp/patch.mail
+		fi
+fi
+rm -f /tmp/patch.mail $dir-$type-$version.patch.$compressext /tmp/file.list /tmp/file.list.new
+
+ # ChangeLog:
+ # [2003-10-06]
+ #  * Initial Version (Jim Gifford)
+ # [2003-10-16]
+ #  * Fixed typo in submission e-mail address (Ronald Hummelink)
+ #  * Fixed e-mail obfuscation to handle more than one "." (Ronald Hummelink)
+ # [2004-05-04]
+ #  * Added Upstream Status Header (Jim Gifford)

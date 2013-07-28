@@ -1,0 +1,65 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2009-02-25
+Initial Package Version: 6b
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Adds DESTDIR functionality to 'make install'
+
+
+diff -Nau jpeg-6b-orig/makefile.cfg jpeg-6b/makefile.cfg
+--- jpeg-6b-orig/makefile.cfg	1998-03-21 13:08:57.000000000 -0600
++++ jpeg-6b/makefile.cfg	2009-02-25 08:41:04.000000000 -0600
+@@ -58,7 +58,7 @@
+ # file deletion command
+ RM= rm -f
+ # directory creation command
+-MKDIR= mkdir
++MKDIR= mkdir -p 
+ # library (.a) file creation command
+ AR= ar rc
+ # second step in .a creation (use "touch" if not needed)
+@@ -191,25 +191,29 @@
+ # Installation rules:
+ 
+ install: cjpeg djpeg jpegtran rdjpgcom wrjpgcom @FORCE_INSTALL_LIB@
+-	$(INSTALL_PROGRAM) cjpeg $(bindir)/$(binprefix)cjpeg
+-	$(INSTALL_PROGRAM) djpeg $(bindir)/$(binprefix)djpeg
+-	$(INSTALL_PROGRAM) jpegtran $(bindir)/$(binprefix)jpegtran
+-	$(INSTALL_PROGRAM) rdjpgcom $(bindir)/$(binprefix)rdjpgcom
+-	$(INSTALL_PROGRAM) wrjpgcom $(bindir)/$(binprefix)wrjpgcom
+-	$(INSTALL_DATA) $(srcdir)/cjpeg.1 $(mandir)/$(manprefix)cjpeg.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/djpeg.1 $(mandir)/$(manprefix)djpeg.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/jpegtran.1 $(mandir)/$(manprefix)jpegtran.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/rdjpgcom.1 $(mandir)/$(manprefix)rdjpgcom.$(manext)
+-	$(INSTALL_DATA) $(srcdir)/wrjpgcom.1 $(mandir)/$(manprefix)wrjpgcom.$(manext)
++	$(MKDIR) $(DESTDIR)/$(bindir)
++	$(INSTALL_PROGRAM) cjpeg $(DESTDIR)/$(bindir)/$(binprefix)cjpeg
++	$(INSTALL_PROGRAM) djpeg $(DESTDIR)/$(bindir)/$(binprefix)djpeg
++	$(INSTALL_PROGRAM) jpegtran $(DESTDIR)/$(bindir)/$(binprefix)jpegtran
++	$(INSTALL_PROGRAM) rdjpgcom $(DESTDIR)/$(bindir)/$(binprefix)rdjpgcom
++	$(INSTALL_PROGRAM) wrjpgcom $(DESTDIR)/$(bindir)/$(binprefix)wrjpgcom
++	$(MKDIR) $(DESTDIR)/$(mandir)
++	$(INSTALL_DATA) $(srcdir)/cjpeg.1 $(DESTDIR)/$(mandir)/$(manprefix)cjpeg.$(manext)
++	$(INSTALL_DATA) $(srcdir)/djpeg.1 $(DESTDIR)/$(mandir)/$(manprefix)djpeg.$(manext)
++	$(INSTALL_DATA) $(srcdir)/jpegtran.1 $(DESTDIR)/$(mandir)/$(manprefix)jpegtran.$(manext)
++	$(INSTALL_DATA) $(srcdir)/rdjpgcom.1 $(DESTDIR)/$(mandir)/$(manprefix)rdjpgcom.$(manext)
++	$(INSTALL_DATA) $(srcdir)/wrjpgcom.1 $(DESTDIR)/$(mandir)/$(manprefix)wrjpgcom.$(manext)
+ 
+ install-lib: libjpeg.$(A) install-headers
+-	$(INSTALL_LIB) libjpeg.$(A) $(libdir)/$(binprefix)libjpeg.$(A)
++	$(MKDIR) $(DESTDIR)/$(libdir)
++	$(INSTALL_LIB) libjpeg.$(A) $(DESTDIR)/$(libdir)/$(binprefix)libjpeg.$(A)
+ 
+ install-headers: jconfig.h
+-	$(INSTALL_DATA) jconfig.h $(includedir)/jconfig.h
+-	$(INSTALL_DATA) $(srcdir)/jpeglib.h $(includedir)/jpeglib.h
+-	$(INSTALL_DATA) $(srcdir)/jmorecfg.h $(includedir)/jmorecfg.h
+-	$(INSTALL_DATA) $(srcdir)/jerror.h $(includedir)/jerror.h
++	$(MKDIR) $(DESTDIR)/$(includedir)
++	$(INSTALL_DATA) jconfig.h $(DESTDIR)/$(includedir)/jconfig.h
++	$(INSTALL_DATA) $(srcdir)/jpeglib.h $(DESTDIR)/$(includedir)/jpeglib.h
++	$(INSTALL_DATA) $(srcdir)/jmorecfg.h $(DESTDIR)/$(includedir)/jmorecfg.h
++	$(INSTALL_DATA) $(srcdir)/jerror.h $(DESTDIR)/$(includedir)/jerror.h
+ 
+ clean:
+ 	$(RM) *.o *.lo libjpeg.a libjpeg.la

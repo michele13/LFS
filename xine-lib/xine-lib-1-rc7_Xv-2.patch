@@ -1,0 +1,80 @@
+Submitted By: David Jensen
+Date: 2004-11-20
+Initial Package Version: 1-rc7
+Upstream Status: posted a patch to configure.ac on Sourceforge buglist
+Origin: David Jensen
+Description: Use static libXv.a if it exits,else use shared if it is
+	allowed by the platform.
+	correct badly formatted xv_lib test 
+diff -Naur xine-lib-1-rc7.orig/configure xine-lib-1-rc7/configure
+--- xine-lib-1-rc7.orig/configure	2004-11-22 10:20:13.587464368 -0600
++++ xine-lib-1-rc7/configure	2004-11-22 10:30:18.557494944 -0600
+@@ -28665,6 +28665,10 @@
+ echo "${ECHO_T}yes" >&6
+     xv_lib="libXv.a"
+ 
++if test "$xv_lib" = "libXv.so"; then
++  xv_allow_static="no"
++fi
++ 
+ 
+ host_or_hostalias="$host"
+ if test "$host_or_hostalias" = ""; then
+@@ -28675,6 +28679,7 @@
+   hppa*)
+ 	if test "$xv_lib" = "libXv.a"; then
+ 	  echo "warning: hppa linker - disabling static libXv"
++          xv_allow_static="no"
+ 	  xv_lib="libXv.so"
+ 	fi
+ 	;;
+@@ -28862,6 +28867,24 @@
+   xv_path="/usr/X11R6/$XINE_LIBNAME"
+ fi;
+ 
++if ! test -f "$xv_path/libXv.a"; then
++  xv_lib="libXv.so"
++else
++  if ! test -f "$xv_path/libXv.so"; then
++    if test x$xv_allow_static != "xyes"; then
++      echo
++      echo "****************************************************************"
++      echo "* if you don't have a libXv.so on your system, use:            *"
++      echo "* ld --whole-archive -shared -o libXv.so.1 libXv.a             *"
++      echo "* then: ln -s libXv.so.1 libXv.so                              *"
++      echo "* to create it or try to use --with-xv-path to set the         *"
++      echo "* location of libXv.so                                         *"
++      echo "****************************************************************"
++      echo
++    fi
++  fi
++fi
++
+ echo "$as_me:$LINENO: checking for XvShmCreateImage in -lXv" >&5
+ echo $ECHO_N "checking for XvShmCreateImage in -lXv... $ECHO_C" >&6
+ if test "${ac_cv_lib_Xv_XvShmCreateImage+set}" = set; then
+@@ -28948,15 +28971,6 @@
+                else
+                  echo "$as_me:$LINENO: result: not found in $xv_path" >&5
+ echo "${ECHO_T}not found in $xv_path" >&6
+-	         echo
+-                 echo "****************************************************************"
+-		 echo "* if you don't have a libXv.so on your system, use:            *"
+-		 echo "* ld --whole-archive -shared -o libXv.so.1 libXv.a             *"
+-		 echo "* then: ln -s libXv.so.1 libXv.so                              *"
+-	         echo "* to create it or try to use --with-xv-path to set the         *"
+-                 echo "* location of libXv.so                                         *"
+-                 echo "****************************************************************"
+-	         echo
+                fi
+ fi
+ 
+@@ -46586,7 +46600,7 @@
+     echo "   - SyncFB (for Matrox G200/G400 cards)"
+   fi
+     if test x$ac_have_xv = "xyes"; then
+-    if test x$xv_lib="xlibXv.a"; then
++    if test x$xv_lib = "xlibXv.a"; then
+       echo "   - Xv (XVideo *static*)"
+     else
+       echo "   - Xv (XVideo *shared*)"

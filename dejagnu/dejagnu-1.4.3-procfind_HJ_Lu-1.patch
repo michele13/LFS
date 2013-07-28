@@ -1,0 +1,39 @@
+Submitted By: Ronald Hummelink <ronald at hummelink dot xs4all dot nl>
+Date: 2003-08-16
+Initial Package Version: 1.4.3
+Origin: Dejagnu mailinglist: http://mail.gnu.org/archive/html/dejagnu/2003-05/msg00007.html
+Description: Fix from H.J. Lu for a bug where "proc find" is using "getdirs -all" incorrectly.
+
+2003-05-19  H.J. Lu <hongjiu.lu at intel dot com>
+
+	* lib/utils.exp (find): Correctly use [getdirs -all $rootdir].
+
+--- dejagnu/lib/utils.exp.recursive	2002-08-29 20:54:53.000000000 -0700
++++ dejagnu/lib/utils.exp	2003-05-18 23:42:17.000000000 -0700
+@@ -97,25 +97,7 @@ proc getdirs { args } {
+ #
+ proc find { rootdir pattern } {
+     # first find all the directories
+-    set dirs "$rootdir "
+-    while 1 {
+-	set tmp $rootdir
+-	set rootdir ""
+-	if [string match "" $tmp] {
+-	    break
+-	}
+-	foreach i $tmp {
+-	    set j [getdirs -all $i]
+-	    if ![string match "" $j] {
+-		append dirs "$j "
+-		set rootdir $j
+-		unset j
+-	    } else {
+-		set rootdir ""
+-	    }
+-	}
+-	set tmp ""
+-    }
++    set dirs "$rootdir [getdirs -all $rootdir]"
+     
+     # find all the files that match the pattern
+     foreach i $dirs {

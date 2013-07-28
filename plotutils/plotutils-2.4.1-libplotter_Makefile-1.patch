@@ -1,0 +1,55 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2004-10-31
+Initial Package Version: 2.4.1
+Upstream Status:         Not submitted (too much of a hack)
+Origin:                  http://lists.gnu.org/archive/html/bug-gnu-utils/2003-01/msg00207.html
+Description:             Adds a patch command to 4 places in the created 
+                         Makefile to Fix C++ errors when using GCC >= 3.x.x
+                         Note: This patch is used with 4 other patches which
+                         are called by libplotter/Makefile which is created
+                         after using this patch and running configure. You'll 
+                         also need:
+                         plotutils-2.4.1-g_write_cc_fix-1.patch
+                         plotutils-2.4.1-n_write_cc_fix-1.patch
+                         plotutils-2.4.1-z_write_cc_fix-1.patch
+                         plotutils-2.4.1-i_rle_cc_fix-1.patch
+
+diff -Naur plotutils-2.4.1-orig/libplotter/Makefile.in plotutils-2.4.1/libplotter/Makefile.in
+--- plotutils-2.4.1-orig/libplotter/Makefile.in	2000-07-04 07:41:22.000000000 +0000
++++ plotutils-2.4.1/libplotter/Makefile.in	2004-10-31 20:25:43.248310808 +0000
+
+@@ -1240,7 +1240,7 @@
+ 	@rm -f g_version.cc ; if $(LN_S) $(top_srcdir)/libplot/g_version.c g_version.cc ; then true ; else cp -p $(top_srcdir)/libplot/g_version.c g_version.cc ; fi
+ 
+ g_write.cc: $(top_srcdir)/libplot/g_write.c $(ALLHEADERS)
+-	@rm -f g_write.cc ; if $(LN_S) $(top_srcdir)/libplot/g_write.c g_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/g_write.c g_write.cc ; fi
++	@rm -f g_write.cc ; if $(LN_S) $(top_srcdir)/libplot/g_write.c g_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/g_write.c g_write.cc ; fi ; patch -Np1 -i ../../plotutils-2.4.1-g_write_cc_fix-1.patch
+ 
+ g_xmalloc.cc: $(top_srcdir)/libplot/g_xmalloc.c $(ALLHEADERS)
+ 	@rm -f g_xmalloc.cc ; if $(LN_S) $(top_srcdir)/libplot/g_xmalloc.c g_xmalloc.cc ; then true ; else cp -p $(top_srcdir)/libplot/g_xmalloc.c g_xmalloc.cc ; fi
+@@ -1300,13 +1300,13 @@
+ 	@rm -f n_defplot.cc ; if $(LN_S) $(top_srcdir)/libplot/n_defplot.c n_defplot.cc ; then true ; else cp -p $(top_srcdir)/libplot/n_defplot.c n_defplot.cc ; fi
+ 
+ n_write.cc: $(top_srcdir)/libplot/n_write.c $(ALLHEADERS)
+-	@rm -f n_write.cc ; if $(LN_S) $(top_srcdir)/libplot/n_write.c n_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/n_write.c n_write.cc ; fi
++	@rm -f n_write.cc ; if $(LN_S) $(top_srcdir)/libplot/n_write.c n_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/n_write.c n_write.cc ; fi ; patch -Np1 -i ../../plotutils-2.4.1-n_write_cc_fix-1.patch
+ 
+ z_defplot.cc: $(top_srcdir)/libplot/z_defplot.c $(ALLHEADERS)
+ 	@rm -f z_defplot.cc ; if $(LN_S) $(top_srcdir)/libplot/z_defplot.c z_defplot.cc ; then true ; else cp -p $(top_srcdir)/libplot/z_defplot.c z_defplot.cc ; fi
+ 
+ z_write.cc: $(top_srcdir)/libplot/z_write.c $(ALLHEADERS)
+-	@rm -f z_write.cc ; if $(LN_S) $(top_srcdir)/libplot/z_write.c z_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/z_write.c z_write.cc ; fi
++	@rm -f z_write.cc ; if $(LN_S) $(top_srcdir)/libplot/z_write.c z_write.cc ; then true ; else cp -p $(top_srcdir)/libplot/z_write.c z_write.cc ; fi ; patch -Np1 -i ../../plotutils-2.4.1-z_write_cc_fix-1.patch
+ 
+ i_closepl.cc: $(top_srcdir)/libplot/i_closepl.c $(ALLHEADERS)
+ 	@rm -f i_closepl.cc ; if $(LN_S) $(top_srcdir)/libplot/i_closepl.c i_closepl.cc ; then true ; else cp -p $(top_srcdir)/libplot/i_closepl.c i_closepl.cc ; fi
+@@ -1330,7 +1330,7 @@
+ 	@rm -f i_point.cc ; if $(LN_S) $(top_srcdir)/libplot/i_point.c i_point.cc ; then true ; else cp -p $(top_srcdir)/libplot/i_point.c i_point.cc ; fi
+ 
+ i_rle.cc: $(top_srcdir)/libplot/i_rle.c $(ALLHEADERS)
+-	@rm -f i_rle.cc ; if $(LN_S) $(top_srcdir)/libplot/i_rle.c i_rle.cc ; then true ; else cp -p $(top_srcdir)/libplot/i_rle.c i_rle.cc ; fi
++	@rm -f i_rle.cc ; if $(LN_S) $(top_srcdir)/libplot/i_rle.c i_rle.cc ; then true ; else cp -p $(top_srcdir)/libplot/i_rle.c i_rle.cc ; fi ; patch -Np1 -i ../../plotutils-2.4.1-i_rle_cc_fix-1.patch
+ 
+ m_attribs.cc: $(top_srcdir)/libplot/m_attribs.c $(ALLHEADERS)
+ 	@rm -f m_attribs.cc ; if $(LN_S) $(top_srcdir)/libplot/m_attribs.c m_attribs.cc ; then true ; else cp -p $(top_srcdir)/libplot/m_attribs.c m_attribs.cc ; fi
+

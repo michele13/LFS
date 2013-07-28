@@ -1,0 +1,34 @@
+Submitted By: Uwe Düffert (lfs at uwe-dueffert dot de)
+Date: 2004-05-15
+Initial Package Version: 4.4.0
+Origin: self-created, http://www.uwe-dueffert.de/lfs/ownpatches/xc-4.4.0-gcc35-1.patch
+Upstream Status: not reported
+Description: fix compilation with gcc35 (invalid lvalue)
+ 
+diff -Naur xc-4.4.0.orig/lib/GL/mesa/src/drv/tdfx/tdfx_span.c xc-4.4.0/lib/GL/mesa/src/drv/tdfx/tdfx_span.c
+--- xc-4.4.0.orig/lib/GL/mesa/src/drv/tdfx/tdfx_span.c	2004-05-15 18:40:43.894544480 +0000
++++ xc-4.4.0/lib/GL/mesa/src/drv/tdfx/tdfx_span.c	2004-05-15 18:55:50.000000000 +0000
+@@ -588,8 +588,21 @@
+     (((type *)((ReadParamsp)->lfbWrapPtr))                          \
+                  [((y)) * ((ReadParamsp)->LFBStrideInElts)          \
+                    + ((x) - (ReadParamsp)->firstWrappedX)])
+-#define PUT_FB_DATA(ReadParamsp, type, x, y, value)                        \
+-    (GET_FB_DATA(ReadParamsp, type, x, y) = (type)(value))
++#define PUT_FB_DATA(ReadParamsp, type, x, y, value)                 \
++    if ((x) < (ReadParamsp)->firstWrappedX)                         \
++    {                                                               \
++        (((type *)((ReadParamsp)->lfbPtr))                          \
++                 [(y) * ((ReadParamsp)->LFBStrideInElts)            \
++                   + (x)])                                          \
++                  = (type)(value);                                  \
++    }                                                               \
++    else                                                            \
++    {                                                               \
++        (((type *)((ReadParamsp)->lfbWrapPtr))                      \
++                 [((y)) * ((ReadParamsp)->LFBStrideInElts)          \
++                   + ((x) - (ReadParamsp)->firstWrappedX)])         \
++                  = (type)(value);                                  \
++    }
+ #define PUT_ORDINARY_FB_DATA(ReadParamsp, type, x, y, value)              \
+     (GET_ORDINARY_FB_DATA(ReadParamsp, type, x, y) = (type)(value))
+ #define PUT_WRAPPED_FB_DATA(ReadParamsp, type, x, y, value)                \

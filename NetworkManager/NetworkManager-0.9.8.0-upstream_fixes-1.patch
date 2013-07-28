@@ -1,0 +1,696 @@
+Submitted By:            Armin K. <krejzi at email dot com>
+Date:                    2013-04-27
+Initial Package Version: 0.9.8.0
+Upstream Status:         Fixed Upstream
+Origin:                  Upstream
+Description:             Varius fixes from upstream git repository.
+
+--- a/cli/src/devices.c	2013-02-20 21:56:15.000000000 +0100
++++ b/cli/src/devices.c	2013-04-27 13:18:27.262354256 +0200
+@@ -909,7 +909,7 @@
+ 			/* available-connections */
+ 			avail_cons = nm_device_get_available_connections (device);
+ 			ac_paths_str = g_string_new (NULL);
+-			if (avail_cons->len) {
++			if (avail_cons && avail_cons->len) {
+ 				ac_arr = g_new (char *, avail_cons->len + 1);
+ 				ac_arr[avail_cons->len] = NULL;
+ 			}
+--- a/libnm-glib/nm-device.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-glib/nm-device.c	2013-04-27 13:21:07.658452029 +0200
+@@ -1364,39 +1364,33 @@
+ 	return unescaped;
+ }
+ 
+-static void
+-_device_update_description (NMDevice *device)
++static char *
++_get_udev_property (NMDevice *device,
++                    const char *enc_prop,  /* ID_XXX_ENC */
++                    const char *db_prop)   /* ID_XXX_FROM_DATABASE */
+ {
+-	NMDevicePrivate *priv;
++	NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE (device);
+ 	const char *subsys[3] = { "net", "tty", NULL };
+ 	GUdevDevice *udev_device = NULL, *tmpdev, *olddev;
+ 	const char *ifname;
+ 	guint32 count = 0;
+-	const char *vendor, *model;
+-
+-	g_return_if_fail (NM_IS_DEVICE (device));
+-	priv = NM_DEVICE_GET_PRIVATE (device);
++	char *enc_value = NULL, *db_value = NULL;
+ 
+ 	if (!priv->client) {
+ 		priv->client = g_udev_client_new (subsys);
+ 		if (!priv->client)
+-			return;
++			return NULL;
+ 	}
+ 
+ 	ifname = nm_device_get_iface (device);
+ 	if (!ifname)
+-		return;
++		return NULL;
+ 
+ 	udev_device = g_udev_client_query_by_subsystem_and_name (priv->client, "net", ifname);
+ 	if (!udev_device)
+ 		udev_device = g_udev_client_query_by_subsystem_and_name (priv->client, "tty", ifname);
+ 	if (!udev_device)
+-		return;
+-
+-	g_free (priv->product);
+-	priv->product = NULL;
+-	g_free (priv->vendor);
+-	priv->vendor = NULL;
++		return NULL;
+ 
+ 	/* Walk up the chain of the device and its parents a few steps to grab
+ 	 * vendor and device ID information off it.
+@@ -1406,12 +1400,11 @@
+ 	 * as g_udev_device_get_parent() returns a ref-ed object.
+ 	 */
+ 	tmpdev = g_object_ref (udev_device);
+-	while ((count++ < 3) && tmpdev && (!priv->vendor || !priv->product)) {
+-		if (!priv->vendor)
+-			priv->vendor = get_decoded_property (tmpdev, "ID_VENDOR_ENC");
+-
+-		if (!priv->product)
+-			priv->product = get_decoded_property (tmpdev, "ID_MODEL_ENC");
++	while ((count++ < 3) && tmpdev && !enc_value) {
++		if (!enc_value)
++			enc_value = get_decoded_property (tmpdev, enc_prop);
++		if (!db_value)
++			db_value = g_strdup (g_udev_device_get_property (tmpdev, db_prop));
+ 
+ 		olddev = tmpdev;
+ 		tmpdev = g_udev_device_get_parent (tmpdev);
+@@ -1424,42 +1417,18 @@
+ 	if (tmpdev)
+ 		g_object_unref (tmpdev);
+ 
+-	/* If we didn't get strings directly from the device, try database strings */
++	/* Balance the initial g_udev_client_query_by_subsystem_and_name() */
++	g_object_unref (udev_device);
+ 
+-	/* Again, ref the original device as we need to unref it every iteration
+-	 * since g_udev_device_get_parent() returns a refed object.
++	/* Prefer the the encoded value which comes directly from the device
++	 * over the hwdata database value.
+ 	 */
+-	tmpdev = g_object_ref (udev_device);
+-	count = 0;
+-	while ((count++ < 3) && tmpdev && (!priv->vendor || !priv->product)) {
+-		if (!priv->vendor) {
+-			vendor = g_udev_device_get_property (tmpdev, "ID_VENDOR_FROM_DATABASE");
+-			if (vendor)
+-				priv->vendor = g_strdup (vendor);
+-		}
+-
+-		if (!priv->product) {
+-			model = g_udev_device_get_property (tmpdev, "ID_MODEL_FROM_DATABASE");
+-			if (model)
+-				priv->product = g_strdup (model);
+-		}
+-
+-		olddev = tmpdev;
+-		tmpdev = g_udev_device_get_parent (tmpdev);
+-		g_object_unref (olddev);
++	if (enc_value) {
++		g_free (db_value);
++		return enc_value;
+ 	}
+ 
+-	/* Unref the last device if we found what we needed before running out
+-	 * of parents.
+-	 */
+-	if (tmpdev)
+-		g_object_unref (tmpdev);
+-
+-	/* Balance the initial g_udev_client_query_by_subsystem_and_name() */
+-	g_object_unref (udev_device);
+-
+-	_nm_object_queue_notify (NM_OBJECT (device), NM_DEVICE_VENDOR);
+-	_nm_object_queue_notify (NM_OBJECT (device), NM_DEVICE_PRODUCT);
++	return db_value;
+ }
+ 
+ /**
+@@ -1479,8 +1448,10 @@
+ 	g_return_val_if_fail (NM_IS_DEVICE (device), NULL);
+ 
+ 	priv = NM_DEVICE_GET_PRIVATE (device);
+-	if (!priv->product)
+-		_device_update_description (device);
++	if (!priv->product) {
++		priv->product = _get_udev_property (device, "ID_MODEL_ENC", "ID_PRODUCT_FROM_DATABASE");
++		_nm_object_queue_notify (NM_OBJECT (device), NM_DEVICE_PRODUCT);
++	}
+ 	return priv->product;
+ }
+ 
+@@ -1501,8 +1472,10 @@
+ 	g_return_val_if_fail (NM_IS_DEVICE (device), NULL);
+ 
+ 	priv = NM_DEVICE_GET_PRIVATE (device);
+-	if (!priv->vendor)
+-		_device_update_description (device);
++	if (!priv->vendor) {
++		priv->vendor = _get_udev_property (device, "ID_VENDOR_ENC", "ID_VENDOR_FROM_DATABASE");
++		_nm_object_queue_notify (NM_OBJECT (device), NM_DEVICE_VENDOR);
++	}
+ 	return priv->vendor;
+ }
+ 
+--- a/libnm-glib/nm-object.c	2013-02-20 18:21:48.000000000 +0100
++++ b/libnm-glib/nm-object.c	2013-04-27 13:21:51.322529548 +0200
+@@ -1399,6 +1399,7 @@
+ 
+ 	if (!priv->property_interfaces && !priv->pseudo_properties) {
+ 		g_simple_async_result_complete_in_idle (simple);
++		g_object_unref (simple);
+ 		return;
+ 	}
+ 
+--- a/libnm-glib/nm-remote-connection.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-glib/nm-remote-connection.c	2013-04-27 13:21:30.238837272 +0200
+@@ -428,6 +428,7 @@
+ 	}
+ 
+ 	g_simple_async_result_complete (init_data->result);
++	g_object_unref (init_data->result);
+ 	g_slice_free (NMRemoteConnectionInitData, init_data);
+ }
+ 
+--- a/libnm-util/crypto.c	2013-02-20 21:01:55.000000000 +0100
++++ b/libnm-util/crypto.c	2013-04-27 13:20:24.984388188 +0200
+@@ -238,19 +238,25 @@
+ 		             _("Could not decode private key."));
+ 		goto parse_error;
+ 	}
++	g_string_free (str, TRUE);
+ 
+ 	if (lines)
+ 		g_strfreev (lines);
+ 
+ 	bindata = g_byte_array_sized_new (tmp_len);
+ 	g_byte_array_append (bindata, tmp, tmp_len);
++	g_free (tmp);
++
+ 	*out_iv = iv;
+ 	*out_cipher = cipher;
+ 	return bindata;
+ 
+ parse_error:
++	g_free (tmp);
+ 	g_free (cipher);
+ 	g_free (iv);
++	if (str)
++		g_string_free (str, TRUE);
+ 	if (lines)
+ 		g_strfreev (lines);
+ 	return NULL;
+--- a/libnm-util/nm-setting-8021x.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-8021x.c	2013-04-27 13:19:51.223807844 +0200
+@@ -538,29 +538,23 @@
+ 	data = crypto_load_and_verify_certificate (cert_path, &format, error);
+ 	if (data) {
+ 		/* wpa_supplicant can only use raw x509 CA certs */
+-		switch (format) {
+-		case NM_CRYPTO_FILE_FORMAT_X509:
++		if (format == NM_CRYPTO_FILE_FORMAT_X509) {
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_X509;
+-			break;
+-		default:
+-			g_byte_array_free (data, TRUE);
+-			data = NULL;
+-			g_set_error (error,
+-			             NM_SETTING_802_1X_ERROR,
+-			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
+-			             NM_SETTING_802_1X_CA_CERT);
+-			break;
+-		}
+ 
+-		if (data) {
+ 			if (scheme == NM_SETTING_802_1X_CK_SCHEME_BLOB)
+-				priv->ca_cert = data;
++				priv->ca_cert = g_byte_array_ref (data);
+ 			else if (scheme == NM_SETTING_802_1X_CK_SCHEME_PATH)
+ 				priv->ca_cert = path_to_scheme_value (cert_path);
+ 			else
+ 				g_assert_not_reached ();
++		} else {
++			g_set_error (error,
++			             NM_SETTING_802_1X_ERROR,
++			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
++			             NM_SETTING_802_1X_CA_CERT);
+ 		}
++		g_byte_array_unref (data);
+ 	}
+ 
+ 	return priv->ca_cert != NULL;
+@@ -818,19 +812,20 @@
+ 
+ 	data = crypto_load_and_verify_certificate (cert_path, &format, error);
+ 	if (data) {
+-		/* wpa_supplicant can only use raw x509 CA certs */
++		gboolean valid = FALSE;
++
+ 		switch (format) {
+ 		case NM_CRYPTO_FILE_FORMAT_X509:
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_X509;
++			valid = TRUE;
+ 			break;
+ 		case NM_CRYPTO_FILE_FORMAT_PKCS12:
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_PKCS12;
++			valid = TRUE;
+ 			break;
+ 		default:
+-			g_byte_array_free (data, TRUE);
+-			data = NULL;
+ 			g_set_error (error,
+ 			             NM_SETTING_802_1X_ERROR,
+ 			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
+@@ -838,14 +833,15 @@
+ 			break;
+ 		}
+ 
+-		if (data) {
++		if (valid) {
+ 			if (scheme == NM_SETTING_802_1X_CK_SCHEME_BLOB)
+-				priv->client_cert = data;
++				priv->client_cert = g_byte_array_ref (data);
+ 			else if (scheme == NM_SETTING_802_1X_CK_SCHEME_PATH)
+ 				priv->client_cert = path_to_scheme_value (cert_path);
+ 			else
+ 				g_assert_not_reached ();
+ 		}
++		g_byte_array_unref (data);
+ 	}
+ 
+ 	return priv->client_cert != NULL;
+@@ -1078,29 +1074,23 @@
+ 	data = crypto_load_and_verify_certificate (cert_path, &format, error);
+ 	if (data) {
+ 		/* wpa_supplicant can only use raw x509 CA certs */
+-		switch (format) {
+-		case NM_CRYPTO_FILE_FORMAT_X509:
++		if (format == NM_CRYPTO_FILE_FORMAT_X509) {
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_X509;
+-			break;
+-		default:
+-			g_byte_array_free (data, TRUE);
+-			data = NULL;
+-			g_set_error (error,
+-			             NM_SETTING_802_1X_ERROR,
+-			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
+-			             NM_SETTING_802_1X_PHASE2_CA_CERT);
+-			break;
+-		}
+ 
+-		if (data) {
+ 			if (scheme == NM_SETTING_802_1X_CK_SCHEME_BLOB)
+-				priv->phase2_ca_cert = data;
++				priv->phase2_ca_cert = g_byte_array_ref (data);
+ 			else if (scheme == NM_SETTING_802_1X_CK_SCHEME_PATH)
+ 				priv->phase2_ca_cert = path_to_scheme_value (cert_path);
+ 			else
+ 				g_assert_not_reached ();
++		} else {
++			g_set_error (error,
++			             NM_SETTING_802_1X_ERROR,
++			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
++			             NM_SETTING_802_1X_PHASE2_CA_CERT);
+ 		}
++		g_byte_array_unref (data);
+ 	}
+ 
+ 	return priv->phase2_ca_cert != NULL;
+@@ -1362,19 +1352,21 @@
+ 
+ 	data = crypto_load_and_verify_certificate (cert_path, &format, error);
+ 	if (data) {
++		gboolean valid = FALSE;
++
+ 		/* wpa_supplicant can only use raw x509 CA certs */
+ 		switch (format) {
+ 		case NM_CRYPTO_FILE_FORMAT_X509:
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_X509;
++			valid = TRUE;
+ 			break;
+ 		case NM_CRYPTO_FILE_FORMAT_PKCS12:
+ 			if (out_format)
+ 				*out_format = NM_SETTING_802_1X_CK_FORMAT_PKCS12;
++			valid = TRUE;
+ 			break;
+ 		default:
+-			g_byte_array_free (data, TRUE);
+-			data = NULL;
+ 			g_set_error (error,
+ 			             NM_SETTING_802_1X_ERROR,
+ 			             NM_SETTING_802_1X_ERROR_INVALID_PROPERTY,
+@@ -1382,14 +1374,15 @@
+ 			break;
+ 		}
+ 
+-		if (data) {
++		if (valid) {
+ 			if (scheme == NM_SETTING_802_1X_CK_SCHEME_BLOB)
+-				priv->phase2_client_cert = data;
++				priv->phase2_client_cert = g_byte_array_ref (data);
+ 			else if (scheme == NM_SETTING_802_1X_CK_SCHEME_PATH)
+ 				priv->phase2_client_cert = path_to_scheme_value (cert_path);
+ 			else
+ 				g_assert_not_reached ();
+ 		}
++		g_byte_array_unref (data);
+ 	}
+ 
+ 	return priv->phase2_client_cert != NULL;
+--- a/libnm-util/nm-setting-ip4-config.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-ip4-config.c	2013-04-27 13:21:40.442344407 +0200
+@@ -818,6 +818,8 @@
+ 	NMSettingIP4ConfigPrivate *priv = NM_SETTING_IP4_CONFIG_GET_PRIVATE (self);
+ 
+ 	g_free (priv->method);
++	g_free (priv->dhcp_hostname);
++	g_free (priv->dhcp_client_id);
+ 
+ 	g_array_free (priv->dns, TRUE);
+ 
+--- a/libnm-util/nm-setting-ip6-config.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-ip6-config.c	2013-04-27 13:21:40.442344407 +0200
+@@ -744,6 +744,8 @@
+ 	NMSettingIP6ConfigPrivate *priv = NM_SETTING_IP6_CONFIG_GET_PRIVATE (object);
+ 
+ 	g_free (priv->method);
++	g_free (priv->dhcp_hostname);
++
+ 	g_slist_free (priv->dns);
+ 
+ 	nm_utils_slist_free (priv->dns_search, g_free);
+--- a/libnm-util/nm-setting-pppoe.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-pppoe.c	2013-04-27 13:20:14.787546471 +0200
+@@ -258,6 +258,18 @@
+ }
+ 
+ static void
++finalize (GObject *object)
++{
++	NMSettingPPPOEPrivate *priv = NM_SETTING_PPPOE_GET_PRIVATE (object);
++
++	g_free (priv->username);
++	g_free (priv->password);
++	g_free (priv->service);
++
++	G_OBJECT_CLASS (nm_setting_pppoe_parent_class)->finalize (object);
++}
++
++static void
+ nm_setting_pppoe_class_init (NMSettingPPPOEClass *setting_class)
+ {
+ 	GObjectClass *object_class = G_OBJECT_CLASS (setting_class);
+@@ -268,6 +280,7 @@
+ 	/* virtual methods */
+ 	object_class->set_property = set_property;
+ 	object_class->get_property = get_property;
++	object_class->finalize     = finalize;
+ 	parent_class->verify       = verify;
+ 	parent_class->need_secrets = need_secrets;
+ 
+--- a/libnm-util/nm-setting-vlan.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-vlan.c	2013-04-27 13:23:56.631315885 +0200
+@@ -407,8 +407,8 @@
+ 	list = get_map (setting, map);
+ 	g_return_if_fail (idx < g_slist_length (list));
+ 
+-	item = g_slist_nth_data (list, idx);
+-	priority_map_free ((PriorityMap *) item);
++	item = g_slist_nth (list, idx);
++	priority_map_free ((PriorityMap *) (item->data));
+ 	set_map (setting, map, g_slist_delete_link (list, item));
+ }
+ 
+--- a/libnm-util/nm-setting-wired.c	2013-02-20 21:56:15.000000000 +0100
++++ b/libnm-util/nm-setting-wired.c	2013-04-27 13:19:42.193652234 +0200
+@@ -537,6 +537,11 @@
+ 
+ 	nm_utils_slist_free (priv->mac_address_blacklist, g_free);
+ 
++	if (priv->s390_subchannels) {
++		g_ptr_array_foreach (priv->s390_subchannels, (GFunc) g_free, NULL);
++		g_ptr_array_free (priv->s390_subchannels, TRUE);
++	}
++
+ 	G_OBJECT_CLASS (nm_setting_wired_parent_class)->finalize (object);
+ }
+ 
+--- a/src/dns-manager/nm-dns-manager.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/dns-manager/nm-dns-manager.c	2013-04-27 13:22:19.423006855 +0200
+@@ -561,7 +561,6 @@
+ 			nm_ip6_config_hash (NM_IP6_CONFIG (iter->data), sum, TRUE);
+ 	}
+ 
+-	memset (buffer, 0, sizeof (buffer));
+ 	g_checksum_get_digest (sum, buffer, &len);
+ 	g_checksum_free (sum);
+ }
+--- a/src/ip6-manager/nm-ip6-manager.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/ip6-manager/nm-ip6-manager.c	2013-04-27 13:18:57.319543075 +0200
+@@ -455,7 +455,7 @@
+ 
+ 		nm_ip6_manager_cancel_addrconf (manager, ifindex);
+ 		g_signal_emit (manager, signals[ADDRCONF_COMPLETE], 0,
+-		               ifindex, device->dhcp_opts, FALSE);
++		               ifindex, IP6_DHCP_OPT_NONE, FALSE);
+ 	}
+ 
+ 	return FALSE;
+--- a/src/nm-device.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/nm-device.c	2013-04-27 13:24:10.141543160 +0200
+@@ -4526,8 +4526,7 @@
+ 		g_value_set_uint (value, priv->state);
+ 		break;
+ 	case PROP_STATE_REASON:
+-		g_value_set_boxed (value,
+-			dbus_g_type_specialized_construct (DBUS_G_TYPE_UINT_STRUCT));
++		g_value_take_boxed (value, dbus_g_type_specialized_construct (DBUS_G_TYPE_UINT_STRUCT));
+ 		dbus_g_type_struct_set (value,
+ 		                        0, priv->state,
+ 		                        1, priv->state_reason,
+@@ -5525,6 +5524,7 @@
+ 			g_hash_table_insert (NM_DEVICE_GET_PRIVATE (self)->available_connections,
+ 					             g_object_ref (connection),
+ 					             GUINT_TO_POINTER (1));
++			return TRUE;
+ 		}
+ 	}
+ 	return FALSE;
+--- a/src/nm-device-ethernet.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/nm-device-ethernet.c	2013-04-27 13:22:49.270179194 +0200
+@@ -439,7 +439,7 @@
+ 	errno = 0;
+ 	ret = ioctl (fd, SIOCETHTOOL, &req);
+ 	if ((ret < 0) || !nm_ethernet_address_is_valid ((struct ether_addr *) epaddr->data)) {
+-		nm_log_err (LOGD_HW | LOGD_ETHER, "(%s): unable to read permanent MAC address (error %d)",
++		nm_log_dbg (LOGD_HW | LOGD_ETHER, "(%s): unable to read permanent MAC address (error %d)",
+ 		            nm_device_get_iface (dev), errno);
+ 		/* Fall back to current address */
+ 		memcpy (epaddr->data, priv->hw_addr, ETH_ALEN);
+--- a/src/nm-device-wifi.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/nm-device-wifi.c	2013-04-27 13:23:34.177604322 +0200
+@@ -1125,11 +1125,11 @@
+ 
+ 	s_wifi = nm_connection_get_setting_wireless (connection);
+ 
+-	/* Ad-Hoc connections are always available because they may be started
+-	 * at any time.
++	/* Ad-Hoc and AP connections are always available because they may be
++	 * started at any time.
+ 	 */
+ 	mode = nm_setting_wireless_get_mode (s_wifi);
+-	if (g_strcmp0 (mode, "adhoc") == 0)
++	if (g_strcmp0 (mode, "adhoc") == 0 || g_strcmp0 (mode, "ap") == 0)
+ 		return TRUE;
+ 
+ 	/* Hidden SSIDs obviously don't always appear in the scan list either */
+@@ -2887,7 +2887,7 @@
+ 	errno = 0;
+ 	ret = ioctl (fd, SIOCETHTOOL, &req);
+ 	if ((ret < 0) || !nm_ethernet_address_is_valid ((struct ether_addr *) epaddr->data)) {
+-		nm_log_err (LOGD_HW | LOGD_ETHER, "(%s): unable to read permanent MAC address (error %d)",
++		nm_log_dbg (LOGD_HW | LOGD_ETHER, "(%s): unable to read permanent MAC address (error %d)",
+ 		            nm_device_get_iface (dev), errno);
+ 		/* Fall back to current address */
+ 		memcpy (epaddr->data, &priv->hw_addr, ETH_ALEN);
+--- a/src/nm-manager.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/nm-manager.c	2013-04-27 13:21:20.178665743 +0200
+@@ -215,6 +215,7 @@
+ #endif
+ 
+ 	NMDBusManager *dbus_mgr;
++	guint          dbus_connection_changed_id;
+ 	NMUdevManager *udev_mgr;
+ 	NMBluezManager *bluez_mgr;
+ 
+@@ -4245,6 +4246,7 @@
+ 		g_assert (dbus_connection);
+ 		dbus_connection_remove_filter (dbus_connection, prop_filter, manager);
+ 	}
++	g_signal_handler_disconnect (priv->dbus_mgr, priv->dbus_connection_changed_id);
+ 	g_object_unref (priv->dbus_mgr);
+ 
+ 	if (priv->bluez_mgr)
+@@ -4492,6 +4494,26 @@
+ }
+ 
+ static void
++dbus_connection_changed_cb (NMDBusManager *dbus_mgr,
++                            DBusGConnection *connection,
++                            gpointer user_data)
++{
++	NMManager *self = NM_MANAGER (user_data);
++	DBusConnection *dbus_connection;
++
++	if (connection) {
++		dbus_connection = dbus_g_connection_get_connection (connection);
++		g_assert (dbus_connection);
++
++		/* Register property filter on new connection; there's no reason this
++		 * should fail except out-of-memory or program error; if it does fail
++		 * then there's no Manager property access control, which is bad.
++		 */
++		g_assert (dbus_connection_add_filter (dbus_connection, prop_filter, self, NULL));
++	}
++}
++
++static void
+ nm_manager_init (NMManager *manager)
+ {
+ 	NMManagerPrivate *priv = NM_MANAGER_GET_PRIVATE (manager);
+@@ -4533,6 +4555,10 @@
+ 	priv->state = NM_STATE_DISCONNECTED;
+ 
+ 	priv->dbus_mgr = nm_dbus_manager_get ();
++	priv->dbus_connection_changed_id = g_signal_connect (priv->dbus_mgr,
++	                                                     NM_DBUS_MANAGER_DBUS_CONNECTION_CHANGED,
++	                                                     G_CALLBACK (dbus_connection_changed_cb),
++	                                                     manager);
+ 
+ 	priv->modem_manager = nm_modem_manager_get ();
+ 	priv->modem_added_id = g_signal_connect (priv->modem_manager, "modem-added",
+--- a/src/settings/plugins/keyfile/reader.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/settings/plugins/keyfile/reader.c	2013-04-27 13:23:46.174473155 +0200
+@@ -1157,15 +1157,23 @@
+ 
+ 	/* Make sure that we have the base device type setting even if
+ 	 * the keyfile didn't include it, which can happen when the base
+-	 * device type setting is all default values (like ethernet).
++	 * device type setting is all default values (like ethernet where
++	 * the MAC address isn't given, or VLAN when the VLAN ID is zero).
+ 	 */
+ 	s_con = nm_connection_get_setting_connection (connection);
+ 	if (s_con) {
+ 		ctype = nm_setting_connection_get_connection_type (s_con);
+ 		setting = nm_connection_get_setting_by_name (connection, ctype);
+-		if (ctype) {
+-			if (!setting && !strcmp (ctype, NM_SETTING_WIRED_SETTING_NAME))
+-				nm_connection_add_setting (connection, nm_setting_wired_new ());
++		if (ctype && !setting) {
++			NMSetting *base_setting;
++			GType base_setting_type;
++
++			base_setting_type = nm_connection_lookup_setting_type (ctype);
++			if (base_setting_type != G_TYPE_INVALID) {
++				base_setting = (NMSetting *) g_object_new (base_setting_type, NULL);
++				g_assert (base_setting);
++				nm_connection_add_setting (connection, base_setting);
++			}
+ 		}
+ 	}
+ 
+--- a/src/settings/plugins/keyfile/tests/keyfiles/Makefile.am	2013-02-20 21:56:16.000000000 +0100
++++ b/src/settings/plugins/keyfile/tests/keyfiles/Makefile.am	2013-04-27 13:23:46.174473155 +0200
+@@ -16,7 +16,8 @@
+ 	Test_Wired_TLS_Path_Missing \
+ 	Test_InfiniBand_Connection \
+ 	Test_Bridge_Main \
+-	Test_Bridge_Component
++	Test_Bridge_Component \
++	Test_Missing_Vlan_Setting
+ 
+ CERTS = \
+ 	test-ca-cert.pem \
+--- a/src/settings/plugins/keyfile/tests/keyfiles/Test_Missing_Vlan_Setting	1970-01-01 01:00:00.000000000 +0100
++++ b/src/settings/plugins/keyfile/tests/keyfiles/Test_Missing_Vlan_Setting	2013-04-27 13:23:46.177806544 +0200
+@@ -0,0 +1,11 @@
++# Settings with all default values are not written, including
++# VLAN settings with a VLAN ID of 0, which is the default value.
++
++[connection]
++id=Test Missing Vlan Setting
++uuid=4e80a56d-c99f-4aad-a6dd-b449bc398c57
++type=vlan
++autoconnect=true
++
++[802-3-ethernet]
++mac-address=00:11:22:33:44:55
+--- a/src/settings/plugins/keyfile/tests/test-keyfile.c	2013-02-20 21:56:16.000000000 +0100
++++ b/src/settings/plugins/keyfile/tests/test-keyfile.c	2013-04-27 13:23:46.177806544 +0200
+@@ -1193,11 +1193,8 @@
+ 	        TEST_STRING_SSID_FILE,
+ 	        NM_SETTING_WIRELESS_SETTING_NAME,
+ 	        NM_SETTING_WIRELESS_SSID);
+-	ASSERT (memcmp (array->data, expected_ssid, sizeof (expected_ssid)) == 0,
+-	        "connection-verify-wireless", "failed to verify %s: unexpected %s / %s key value",
+-	        TEST_STRING_SSID_FILE,
+-	        NM_SETTING_WIRELESS_SETTING_NAME,
+-	        NM_SETTING_WIRELESS_SSID);
++	g_assert_cmpint (array->len, ==, strlen (expected_ssid));
++	g_assert (memcmp (array->data, expected_ssid, array->len) == 0);
+ 
+ 	g_object_unref (connection);
+ }
+@@ -3078,6 +3075,28 @@
+ 	g_object_unref (connection);
+ }
+ 
++static void
++test_read_missing_vlan_setting (void)
++{
++	NMConnection *connection;
++	NMSettingVlan *s_vlan;
++	GError *error = NULL;
++	gboolean success;
++
++	connection = nm_keyfile_plugin_connection_from_file (TEST_KEYFILES_DIR"/Test_Missing_Vlan_Setting", &error);
++	g_assert_no_error (error);
++	g_assert (connection);
++	success = nm_connection_verify (connection, &error);
++	g_assert_no_error (error);
++	g_assert (success);
++
++	/* Ensure the VLAN setting exists */
++	s_vlan = nm_connection_get_setting_vlan (connection);
++	g_assert (s_vlan);
++	g_assert_cmpint (nm_setting_vlan_get_id (s_vlan), ==, 0);
++
++	g_object_unref (connection);
++}
+ 
+ int main (int argc, char **argv)
+ {
+@@ -3135,6 +3154,8 @@
+ 	test_read_bridge_component ();
+ 	test_write_bridge_component ();
+ 
++	test_read_missing_vlan_setting ();
++
+ 	base = g_path_get_basename (argv[0]);
+ 	fprintf (stdout, "%s: SUCCESS\n", base);
+ 	g_free (base);

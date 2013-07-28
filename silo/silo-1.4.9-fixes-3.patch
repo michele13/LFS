@@ -1,0 +1,130 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2005-08-06
+Initial Package Version: 1.4.9
+Origin: RockLinux and Jim Gifford
+Upstream Status: Unknown
+Description: Fixes Compile issues with Silo
+ 
+diff -Naur silo-1.4.9.orig/Rules.make silo-1.4.9/Rules.make
+--- silo-1.4.9.orig/Rules.make	2005-03-15 16:41:01.000000000 +0000
++++ silo-1.4.9/Rules.make	2005-08-07 03:48:55.000000000 +0000
+@@ -2,11 +2,15 @@
+ IMGVERSION=0.99
+ RM=rm -f
+ # We want to force 32-bit builds
+-CC=gcc -m32
+-LD=ld
+-AS=as
+-STRIP=strip
+-NM=nm
++CC=$(CROSS_COMPILE)gcc -m32
++BUILD_CC=gcc
++LD=$(CROSS_COMPILE)ld -m elf32_sparc
++AS=$(CROSS_COMPILE)as
++STRIP=$(CROSS_COMPILE)strip
++NM=$(CROSS_COMPILE)nm
++AR=$(CROSS_COMPILE)ar
++RANLIB=$(CROSS_COMPILE)ranlib
++
+ ELFTOAOUT=elftoaout
+ BIN2H=../common/bin2h
+ 
+diff -Naur silo-1.4.9.orig/common/Makefile silo-1.4.9/common/Makefile
+--- silo-1.4.9.orig/common/Makefile	2004-06-20 17:16:32.000000000 +0000
++++ silo-1.4.9/common/Makefile	2005-08-06 19:49:52.000000000 +0000
+@@ -12,12 +12,15 @@
+ 
+ OBJS = sdiv.o rem.o udiv.o urem.o jmp.o printf.o console.o prom.o tree.o stringops2.o\
+ 	stringops1.o ffs.o divdi3.o udivdi3.o
+-PROGRAMS = bin2h
+ 
+-all: $(OBJS) $(PROGRAMS)
++bin2h:
++	$(BUILD_CC) $(CFLAGS) -o bin2h bin2h.c
++
++all: $(OBJS) bin2h
+ 
+ prom.o: prom.c
+ 	$(CC) $(CFLAGS) -c -Wa,-Av9 -o prom.o prom.c
+ 
+ clean:
+ 	$(RM) $(PROGRAMS) *.o
++
+diff -Naur silo-1.4.9.orig/common/divdi3.S silo-1.4.9/common/divdi3.S
+--- silo-1.4.9.orig/common/divdi3.S	2004-06-20 17:16:32.000000000 +0000
++++ silo-1.4.9/common/divdi3.S	2005-08-06 19:50:06.000000000 +0000
+@@ -17,6 +17,9 @@
+ the Free Software Foundation, 59 Temple Place - Suite 330,
+ Boston, MA 02111-1307, USA.  */
+ 
++	.register %g3,#scratch
++	.register %g2,#scratch
++ 
+ 	.data
+ 	.align 8
+ 	.globl	__clz_tab
+diff -Naur silo-1.4.9.orig/common/udivdi3.S silo-1.4.9/common/udivdi3.S
+--- silo-1.4.9.orig/common/udivdi3.S	2004-06-20 17:16:32.000000000 +0000
++++ silo-1.4.9/common/udivdi3.S	2005-08-06 19:50:06.000000000 +0000
+@@ -17,6 +17,8 @@
+ the Free Software Foundation, 59 Temple Place - Suite 330,
+ Boston, MA 02111-1307, USA.  */
+ 
++	.register %g2,#scratch
++
+ 	.text
+ 	.align 4
+ 	.globl __udivdi3
+diff -Naur silo-1.4.9.orig/second/Makefile silo-1.4.9/second/Makefile
+--- silo-1.4.9.orig/second/Makefile	2004-06-20 17:16:32.000000000 +0000
++++ silo-1.4.9/second/Makefile	2005-08-06 19:49:52.000000000 +0000
+@@ -3,13 +3,9 @@
+ ##
+ ##
+ 
+-AS=as
+-AR=ar
+-NM=nm
+ DD=dd
+ AWK=awk
+ LS=ls
+-STRIP=strip
+ GZIP=gzip
+ GDB=gdb
+ ECHO=echo
+@@ -85,7 +81,7 @@
+ 	$(CC) $(CFLAGS) -c -o $@ $<
+ 
+ util:	util.c
+-	$(CC) -DSMALL_RELOC=$(SMALL_RELOC) -DLARGE_RELOC=$(LARGE_RELOC) -o $@ $<
++	$(BUILD_CC) -DSMALL_RELOC=$(SMALL_RELOC) -DLARGE_RELOC=$(LARGE_RELOC) -o $@ $<
+ 
+ clean:
+ 	$(RM) *.o fs/*.o second* silotftp* util fs/libfs.a
+diff -Naur silo-1.4.9.orig/second/ls.c silo-1.4.9/second/ls.c
+--- silo-1.4.9.orig/second/ls.c	2004-01-10 23:36:34.000000000 +0000
++++ silo-1.4.9/second/ls.c	2005-08-06 19:54:00.000000000 +0000
+@@ -19,10 +19,10 @@
+    USA.  */
+ 
+ #include <silo.h>
++#include <linux/types.h>
+ #include <stringops.h>
+ 
+ typedef int FILE;
+-#include <linux/types.h>
+ #include <ext2fs/ext2_fs.h>
+ #include <ext2fs/ext2fs.h>
+ 
+diff -Naur silo-1.4.9.orig/second/muldi3.S silo-1.4.9/second/muldi3.S
+--- silo-1.4.9.orig/second/muldi3.S	2001-06-06 17:04:50.000000000 +0000
++++ silo-1.4.9/second/muldi3.S	2005-08-06 19:50:06.000000000 +0000
+@@ -17,6 +17,8 @@
+ the Free Software Foundation, 59 Temple Place - Suite 330,
+ Boston, MA 02111-1307, USA.  */
+ 
++	.register %g2,#scratch
++
+ 	.text
+ 	.align 4
+ 	.globl __muldi3

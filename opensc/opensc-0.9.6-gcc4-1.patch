@@ -1,0 +1,23 @@
+Submitted By:            Randy McMurchy <randy_at_linuxfromscratch_dot_org>
+Date:                    2005-08-18
+Initial Package Version: 0.9.6
+Upstream Status:         Not determined, but the patch is from an open ticket
+                         in the upstream maintainer's tracking system
+Origin:                  OpenSC bug tracking system
+                         http://www.opensc.org/opensc/attachment/ticket/11/opensc-lvalue.patch
+Description:             Fixes GCC-4 compilation problem
+
+
+diff -Naur opensc-0.9.6-orig/src/pam/pam_support.c opensc-0.9.6/src/pam/pam_support.c
+--- opensc-0.9.6-orig/src/pam/pam_support.c	2005-04-14 09:02:10.000000000 +0000
++++ opensc-0.9.6/src/pam/pam_support.c	2005-08-18 14:50:28.000000000 +0000
+@@ -205,7 +205,8 @@
+ 
+ static void _cleanup(pam_handle_t * pamh, void *x, int error_status)
+ {
+-	_pam_delete((char *) x);
++	char *y = (char *) x;
++	_pam_delete(y);
+ }
+ 
+ /* ************************************************************** *

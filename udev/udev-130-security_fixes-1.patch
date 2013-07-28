@@ -1,0 +1,62 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-04-24
+Initial Package Version: 130
+Upstream Status: From upstream, commits e86a923d508c2aed371cdd958ce82489cf2ab615 - as backported to udev-124 by fedora - and 662c3110803bd8c1aedacc36788e6fd028944314
+Origin: Scott James Remnant, Kay Sievers
+Description: These fix CVE-2009-1185 (netlink messages can be received from
+local users, allowing privilege escalation) and CVE-2009-1186 (potential
+buffer overflow).
+
+diff -Naur a/udev/udevd.c b/udev/udevd.c
+--- a/udev/udevd.c	2008-10-04 12:52:21.000000000 +0100
++++ b/udev/udevd.c	2009-04-24 16:54:09.000000000 +0100
+@@ -613,16 +613,34 @@
+ 	struct udevd_uevent_msg *msg;
+ 	int bufpos;
+ 	ssize_t size;
++	struct sockaddr_nl snl;
++	struct msghdr smsg;
++	struct iovec iov;
+ 	static char buffer[UEVENT_BUFFER_SIZE+512];
+ 	char *pos;
+ 
+-	size = recv(uevent_netlink_sock, &buffer, sizeof(buffer), 0);
++	iov.iov_base = buffer;
++	iov.iov_len = sizeof(buffer);
++
++	memset(&smsg, 0x00, sizeof(struct msghdr));
++	smsg.msg_name = &snl;
++	smsg.msg_namelen = sizeof(struct sockaddr_nl);
++	smsg.msg_iov = &iov;
++	smsg.msg_iovlen = 1;
++
++	size = recvmsg(uevent_netlink_sock, &smsg, 0);
+ 	if (size <  0) {
+ 		if (errno != EINTR)
+ 			err(udev, "unable to receive kernel netlink message: %m\n");
+ 		return NULL;
+ 	}
+ 
++	if ((snl.nl_groups != 1) || (snl.nl_pid != 0)) {
++		info("ignored netlink message from invalid group/sender %d/%d\n",
++		    snl.nl_groups, snl.nl_pid);
++		return NULL;
++	}
++
+ 	if ((size_t)size > sizeof(buffer)-1)
+ 		size = sizeof(buffer)-1;
+ 	buffer[size] = '\0';
+
+diff --git a/udev/lib/libudev-util.c b/udev/lib/libudev-util.c
+index b628fdd..a40be06 100644
+--- a/udev/lib/libudev-util.c
++++ b/udev/lib/libudev-util.c
+@@ -103,7 +103,7 @@ int util_log_priority(const char *priority)
+ 
+ size_t util_path_encode(char *s, size_t len)
+ {
+-	char t[(len * 3)+1];
++	char t[(len * 4)+1];
+ 	size_t i, j;
+ 
+ 	for (i = 0, j = 0; s[i] != '\0'; i++) {

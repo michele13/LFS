@@ -1,0 +1,17 @@
+Submitted By: Jim Gifford (patches at jg555 dot com)
+Date: 2003-08-15
+Initial Package Version: 2.9
+Origin: http://lunar-linux.org/pipermail/lunar/2003-April/001333.html
+Description: Fixes Glibc 2.3.2 Errors
+
+diff -Naur dosfstools-2.9.orig/mkdosfs/mkdosfs.c dosfstools-2.9/mkdosfs/mkdosfs.c
+--- dosfstools-2.9.orig/mkdosfs/mkdosfs.c	2002-01-08 08:27:54.000000000 +0000
++++ dosfstools-2.9/mkdosfs/mkdosfs.c	2003-08-15 23:34:24.000000000 +0000
+@@ -53,6 +53,7 @@
+ #include <linux/hdreg.h>
+ #include <linux/fs.h>
+ #include <linux/fd.h>
++#include <errno.h>
+ #include <endian.h>
+ #include <mntent.h>
+ #include <signal.h>

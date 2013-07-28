@@ -1,0 +1,171 @@
+Submitted By:            Igor Živković <contact at igor hyphen zivkovic dot from dot hr>
+Date:                    2013-06-27
+Initial Package Version: 2.80
+Upstream Status:         Rejected
+Origin:                  Transmission Trac (submitted by nzqr)
+Description:             Removes dependency on D-Bus for Qt GUI client.
+
+diff -Naur transmission-2.80.orig/qt/app.cc transmission-2.80/qt/app.cc
+--- transmission-2.80.orig/qt/app.cc	2013-06-26 04:35:26.215458867 +0200
++++ transmission-2.80/qt/app.cc	2013-06-27 19:49:57.647271776 +0200
+@@ -14,10 +14,6 @@
+ #include <ctime>
+ #include <iostream>
+ 
+-#include <QDBusConnection>
+-#include <QDBusConnectionInterface>
+-#include <QDBusError>
+-#include <QDBusMessage>
+ #include <QDialogButtonBox>
+ #include <QIcon>
+ #include <QLabel>
+@@ -32,7 +28,6 @@
+ 
+ #include "add-data.h"
+ #include "app.h"
+-#include "dbus-adaptor.h"
+ #include "formatter.h"
+ #include "mainwin.h"
+ #include "options.h"
+@@ -45,9 +40,6 @@
+ 
+ namespace
+ {
+-  const QString DBUS_SERVICE     = QString::fromAscii ("com.transmissionbt.Transmission" );
+-  const QString DBUS_OBJECT_PATH = QString::fromAscii ("/com/transmissionbt/Transmission");
+-  const QString DBUS_INTERFACE   = QString::fromAscii ("com.transmissionbt.Transmission" );
+ 
+   const char * MY_READABLE_NAME ("transmission-qt");
+ 
+@@ -251,13 +243,6 @@
+   for (QStringList::const_iterator it=filenames.begin (), end=filenames.end (); it!=end; ++it)
+     addTorrent (*it);
+ 
+-  // register as the dbus handler for Transmission
+-  new TrDBusAdaptor (this);
+-  QDBusConnection bus = QDBusConnection::sessionBus ();
+-  if (!bus.registerService (DBUS_SERVICE))
+-    std::cerr << "couldn't register " << qPrintable (DBUS_SERVICE) << std::endl;
+-  if (!bus.registerObject (DBUS_OBJECT_PATH, this))
+-    std::cerr << "couldn't register " << qPrintable (DBUS_OBJECT_PATH) << std::endl;
+ }
+ 
+ /* these functions are for popping up desktop notifications */
+@@ -293,8 +278,6 @@
+ 
+   if (tor)
+     {
+-      if (myPrefs->getBool (Prefs::SHOW_NOTIFICATION_ON_COMPLETE))
+-        notify (tr ("Torrent Completed"), tor->name ());
+ 
+       if (myPrefs->getBool (Prefs::COMPLETE_SOUND_ENABLED))
+         {
+@@ -316,9 +299,6 @@
+ 
+   if (tor && !tor->name ().isEmpty ())
+     {
+-      const int age_secs = tor->dateAdded ().secsTo (QDateTime::currentDateTime ());
+-      if (age_secs < 30)
+-        notify (tr ("Torrent Added"), tor->name ());
+ 
+       disconnect (tor, SIGNAL (torrentChanged (int)), this, SLOT (onNewTorrentChanged (int)));
+ 
+@@ -461,29 +441,6 @@
+   QApplication :: alert (myWindow);
+ }
+ 
+-bool
+-MyApp :: notify (const QString& title, const QString& body) const
+-{
+-  const QString dbusServiceName   = QString::fromAscii ("org.freedesktop.Notifications");
+-  const QString dbusInterfaceName = QString::fromAscii ("org.freedesktop.Notifications");
+-  const QString dbusPath          = QString::fromAscii ("/org/freedesktop/Notifications");
+-
+-  QDBusMessage m = QDBusMessage::createMethodCall (dbusServiceName, dbusPath, dbusInterfaceName, QString::fromAscii ("Notify"));
+-  QList<QVariant> args;
+-  args.append (QString::fromAscii ("Transmission")); // app_name
+-  args.append (0U);                                   // replaces_id
+-  args.append (QString::fromAscii ("transmission")); // icon
+-  args.append (title);                                // summary
+-  args.append (body);                                 // body
+-  args.append (QStringList ());                       // actions - unused for plain passive popups
+-  args.append (QVariantMap ());                       // hints - unused atm
+-  args.append (int32_t (-1));                          // use the default timeout period
+-  m.setArguments (args);
+-  QDBusMessage replyMsg = QDBusConnection::sessionBus ().call (m);
+-  //std::cerr << qPrintable (replyMsg.errorName ()) << std::endl;
+-  //std::cerr << qPrintable (replyMsg.errorMessage ()) << std::endl;
+-  return (replyMsg.type () == QDBusMessage::ReplyMessage) && !replyMsg.arguments ().isEmpty ();
+-}
+ 
+ /***
+ ****
+@@ -501,37 +458,6 @@
+     if (c == TR_OPT_UNK)
+       addme.append (optarg);
+ 
+-  // try to delegate the work to an existing copy of Transmission
+-  // before starting ourselves...
+-  bool delegated = false;
+-  QDBusConnection bus = QDBusConnection::sessionBus ();
+-  for (int i=0, n=addme.size (); i<n; ++i)
+-    {
+-      QDBusMessage request = QDBusMessage::createMethodCall (DBUS_SERVICE,
+-                                                             DBUS_OBJECT_PATH,
+-                                                             DBUS_INTERFACE,
+-                                                             QString::fromAscii ("AddMetainfo"));
+-      QList<QVariant> arguments;
+-      AddData a (addme[i]);
+-      switch (a.type)
+-        {
+-          case AddData::URL:      arguments.push_back (a.url.toString ()); break;
+-          case AddData::MAGNET:   arguments.push_back (a.magnet); break;
+-          case AddData::FILENAME: arguments.push_back (a.toBase64 ().constData ()); break;
+-          case AddData::METAINFO: arguments.push_back (a.toBase64 ().constData ()); break;
+-          default:                break;
+-        }
+-      request.setArguments (arguments);
+-
+-      QDBusMessage response = bus.call (request);
+-      //std::cerr << qPrintable (response.errorName ()) << std::endl;
+-      //std::cerr << qPrintable (response.errorMessage ()) << std::endl;
+-      arguments = response.arguments ();
+-      delegated |= (arguments.size ()==1) && arguments[0].toBool ();
+-    }
+-
+-  if (delegated)
+-    return 0;
+ 
+   tr_optind = 1;
+   MyApp app (argc, argv);
+diff -Naur transmission-2.80.orig/qt/app.h transmission-2.80/qt/app.h
+--- transmission-2.80.orig/qt/app.h	2013-06-26 04:35:26.191458866 +0200
++++ transmission-2.80/qt/app.h	2013-06-27 19:50:28.373997135 +0200
+@@ -37,7 +37,6 @@
+ 
+   public:
+     void raise ();
+-    bool notify (const QString& title, const QString& body) const;
+ 
+   public:
+     Favicons favicons;
+diff -Naur transmission-2.80.orig/qt/qtr.pro transmission-2.80/qt/qtr.pro
+--- transmission-2.80.orig/qt/qtr.pro	2013-06-26 04:35:26.187458866 +0200
++++ transmission-2.80/qt/qtr.pro	2013-06-27 19:51:23.451712990 +0200
+@@ -11,7 +11,7 @@
+ man.path = /share/man/man1/
+ man.files = transmission-qt.1
+ 
+-CONFIG += qt qdbus thread debug link_pkgconfig
++CONFIG += qt thread debug link_pkgconfig
+ QT += network
+ PKGCONFIG = fontconfig libcurl openssl libevent
+ 
+@@ -46,7 +45,6 @@
+ SOURCES += about.cc \
+            add-data.cc \
+            app.cc \
+-           dbus-adaptor.cc \
+            details.cc \
+            favicon.cc \
+            file-tree.cc \

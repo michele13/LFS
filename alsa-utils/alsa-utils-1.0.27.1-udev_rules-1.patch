@@ -1,0 +1,20 @@
+Submitted By:            Igor Živković <contact at igor hyphen zivkovic dot from dot hr>
+Date:                    2013-07-08
+Initial Package Version: 1.0.27.1
+Upstream Status:         Unknown
+Origin:                  Debian patches
+Description:             Reverts upstream removal of alsa-restore udev rules.
+
+diff -Naur alsa-utils-1.0.27.1.orig/alsactl/Makefile.am alsa-utils-1.0.27.1/alsactl/Makefile.am
+--- alsa-utils-1.0.27.1.orig/alsactl/Makefile.am	2013-05-21 10:48:28.000000000 +0200
++++ alsa-utils-1.0.27.1/alsactl/Makefile.am	2013-07-08 19:43:21.437783727 +0200
+@@ -11,6 +11,9 @@
+ alsactl_CFLAGS=$(AM_CFLAGS) -D__USE_GNU -DSYS_ASOUNDRC=\"$(ASOUND_STATE_DIR)/asound.state\" -DSYS_PIDFILE=\"$(ALSACTL_PIDFILE_DIR)/alsactl.pid\"
+ noinst_HEADERS=alsactl.h list.h init_sysdeps.c init_utils_string.c init_utils_run.c init_sysfs.c
+ 
++udevrules_DATA = \
++	90-alsa-restore.rules
++
+ if HAVE_SYSTEMD
+ 
+ systemdsystemunit_DATA = \

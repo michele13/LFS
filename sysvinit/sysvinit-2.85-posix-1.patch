@@ -1,0 +1,19 @@
+Submitted By: Jim Gifford (jim at linuxfromscratch dot org)
+Date: 2004-02-20
+Initial Package Version: 2.85
+Origin: http://ttervo.vectorstar.net/nptl/posix-patches/sysvinit-2.85-posix-chown.patch
+Description: Makes Posix Compliant
+
+ 
+diff -Naur sysvinit-2.85.orig/src/Makefile sysvinit-2.85/src/Makefile
+--- sysvinit-2.85.orig/src/Makefile	2001-11-06 11:58:16.000000000 +0000
++++ sysvinit-2.85/src/Makefile	2004-02-20 19:39:34.880436470 +0000
+@@ -23,7 +23,7 @@
+ 
+ BIN_OWNER	= root
+ BIN_GROUP	= root
+-BIN_COMBO	= $(BIN_OWNER).$(BIN_GROUP)
++BIN_COMBO	= $(BIN_OWNER):$(BIN_GROUP)
+ INSTALL		= install -o $(BIN_OWNER) -g $(BIN_GROUP)
+ MANDIR		= /usr/share/man
+ 

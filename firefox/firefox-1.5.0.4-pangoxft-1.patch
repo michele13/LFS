@@ -1,0 +1,98 @@
+Submitted By:  Dan Nicholson <dnicholson_linuxfromscratch_dot_org>
+Date:  2006-07-03
+Initial Version:  1.5.0.4
+Upstream Status:  In Bugzilla
+Origin:	https://bugzilla.mozilla.org/show_bug.cgi?id=338446
+	https://bugzilla.mozilla.org/attachment.cgi?id=227072
+Description:  When building Gecko with --enable-pango, the GTK+ graphics
+	backend must be linked against libpangoxft-1.0.
+
+diff -pNur mozilla.orig/config/static-config.mk mozilla/config/static-config.mk
+--- mozilla.orig/config/static-config.mk	2005-07-21 13:33:40.000000000 +0000
++++ mozilla/config/static-config.mk	2006-07-03 02:30:16.000000000 +0000
+@@ -116,6 +116,10 @@ ifdef MOZ_ENABLE_XPRINT
+ STATIC_EXTRA_LIBS	+= $(MOZ_XPRINT_LDFLAGS)
+ endif
+ 
++ifdef MOZ_ENABLE_PANGO
++STATIC_EXTRA_LIBS	+= $(MOZ_PANGO_LIBS)
++endif
++
+ # Component Makefile always brings in this.
+ # STATIC_EXTRA_LIBS	+= $(TK_LIBS)
+ 
+diff -pNur mozilla.orig/configure mozilla/configure
+--- mozilla.orig/configure	2006-04-21 21:41:39.000000000 +0000
++++ mozilla/configure	2006-07-03 02:43:08.000000000 +0000
+@@ -13165,30 +13165,30 @@ fi
+   else
+      PKG_CONFIG_MIN_VERSION=0.9.0
+      if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
+-        echo $ac_n "checking for pango >= 1.6.0 pangoft2 >= 1.6.0""... $ac_c" 1>&6
+-echo "configure:13170: checking for pango >= 1.6.0 pangoft2 >= 1.6.0" >&5
++        echo $ac_n "checking for pangoxft >= 1.6.0""... $ac_c" 1>&6
++echo "configure:13170: checking for pangoxft >= 1.6.0" >&5
+ 
+-        if $PKG_CONFIG --exists "pango >= 1.6.0 pangoft2 >= 1.6.0" ; then
++        if $PKG_CONFIG --exists "pangoxft >= 1.6.0" ; then
+             echo "$ac_t""yes" 1>&6
+             succeeded=yes
+ 
+             echo $ac_n "checking MOZ_PANGO_CFLAGS""... $ac_c" 1>&6
+ echo "configure:13177: checking MOZ_PANGO_CFLAGS" >&5
+-            MOZ_PANGO_CFLAGS=`$PKG_CONFIG --cflags "pango >= 1.6.0 pangoft2 >= 1.6.0"`
++            MOZ_PANGO_CFLAGS=`$PKG_CONFIG --cflags "pangoxft >= 1.6.0"`
+             echo "$ac_t""$MOZ_PANGO_CFLAGS" 1>&6
+ 
+             echo $ac_n "checking MOZ_PANGO_LIBS""... $ac_c" 1>&6
+ echo "configure:13182: checking MOZ_PANGO_LIBS" >&5
+             ## don't use --libs since that can do evil things like add
+             ## -Wl,--export-dynamic
+-            MOZ_PANGO_LIBS="`$PKG_CONFIG --libs-only-L \"pango >= 1.6.0 pangoft2 >= 1.6.0\"` `$PKG_CONFIG --libs-only-l \"pango >= 1.6.0 pangoft2 >= 1.6.0\"`"
++            MOZ_PANGO_LIBS="`$PKG_CONFIG --libs-only-L \"pangoxft >= 1.6.0\"` `$PKG_CONFIG --libs-only-l \"pangoxft >= 1.6.0\"`"
+             echo "$ac_t""$MOZ_PANGO_LIBS" 1>&6
+         else
+             MOZ_PANGO_CFLAGS=""
+             MOZ_PANGO_LIBS=""
+             ## If we have a custom action on failure, don't print errors, but 
+             ## do set a variable so people can do so.
+-            MOZ_PANGO_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "pango >= 1.6.0 pangoft2 >= 1.6.0"`
++            MOZ_PANGO_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "pangoxft >= 1.6.0"`
+             echo $MOZ_PANGO_PKG_ERRORS
+         fi
+ 
+@@ -13203,7 +13203,7 @@ echo "configure:13182: checking MOZ_PANG
+   if test $succeeded = yes; then
+      :
+   else
+-     { echo "configure: error: Library requirements (pango >= 1.6.0 pangoft2 >= 1.6.0) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them." 1>&2; exit 1; }
++     { echo "configure: error: Library requirements (pangoxft >= 1.6.0) not met; consider adjusting the PKG_CONFIG_PATH environment variable if your libraries are in a nonstandard prefix so pkg-config can find them." 1>&2; exit 1; }
+   fi
+ 
+ 
+diff -pNur mozilla.orig/configure.in mozilla/configure.in
+--- mozilla.orig/configure.in	2006-04-21 20:50:21.000000000 +0000
++++ mozilla/configure.in	2006-07-03 02:29:04.000000000 +0000
+@@ -4376,7 +4376,7 @@ MOZ_ARG_ENABLE_BOOL(pango,
+ if test "$MOZ_ENABLE_PANGO"
+ then
+     AC_DEFINE(MOZ_ENABLE_PANGO)
+-    PKG_CHECK_MODULES(MOZ_PANGO, pango >= 1.6.0 pangoft2 >= 1.6.0)
++    PKG_CHECK_MODULES(MOZ_PANGO, pangoxft >= 1.6.0)
+ 
+     AC_SUBST(MOZ_ENABLE_PANGO)
+     AC_SUBST(MOZ_PANGO_CFLAGS)
+diff -pNur mozilla.orig/gfx/src/gtk/Makefile.in mozilla/gfx/src/gtk/Makefile.in
+--- mozilla.orig/gfx/src/gtk/Makefile.in	2005-04-26 04:46:13.000000000 +0000
++++ mozilla/gfx/src/gtk/Makefile.in	2006-07-03 02:29:04.000000000 +0000
+@@ -201,6 +201,10 @@ EXTRA_DSO_LDOPTS += \
+ 		$(NULL)
+ endif
+ 
++ifdef MOZ_ENABLE_PANGO
++EXTRA_DSO_LDOPTS += $(MOZ_PANGO_LIBS)
++endif
++
+ EXTRA_DSO_LDOPTS += $(XLDFLAGS) $(XLIBS) $(MOZ_GTK_LDFLAGS) $(MOZ_XFT_LIBS) $(MOZ_GTK2_LIBS)
+ CXXFLAGS	+= $(MOZ_GTK_CFLAGS) $(MOZ_GTK2_CFLAGS)
+ CFLAGS		+= $(MOZ_GTK_CFLAGS) $(MOZ_GTK2_CFLAGS)

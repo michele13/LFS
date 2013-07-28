@@ -1,0 +1,65 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2007-12-28
+Initial Package Version: 0.9.29
+Upstream Status: From Upstream
+Origin: http://uclibc.org/cgi-bin/viewcvs.cgi?rev=18907&view=rev
+http://busybox.net/~aldot/uClibc/uClibc-0.9.29-fix-internal_function-definition.patch
+Description: This is a bugfix. Some packages will not compile without this
+patch. Also see:
+http://linuxfromscratch.org/pipermail/hlfs-dev/2007-July/003676.html
+
+aldot
+Sun Jun 24 10:23:54 2007 PDT
+- make sure to define _LIBC in libc-symbols.h before including anything else.
+- internal_function is only used inside libc, so do not define it in
+  uClibc_arch_features.h on i386 if we are outside of libc.
+
+diff -Naur uClibc-0.9.29.orig/include/libc-symbols.h uClibc-0.9.29/include/libc-symbols.h
+--- uClibc-0.9.29.orig/include/libc-symbols.h	2007-01-29 14:33:27.000000000 +0000
++++ uClibc-0.9.29/include/libc-symbols.h	2007-12-28 07:36:15.000000000 +0000
+@@ -22,6 +22,16 @@
+ #ifndef _LIBC_SYMBOLS_H
+ #define _LIBC_SYMBOLS_H	1
+ 
++/* This is defined for the compilation of all C library code.  features.h
++   tests this to avoid inclusion of stubs.h while compiling the library,
++   before stubs.h has been generated.  Some library code that is shared
++   with other packages also tests this symbol to see if it is being
++   compiled as part of the C library.  We must define this before including
++   config.h, because it makes some definitions conditional on whether libc
++   itself is being compiled, or just some generator program.  */
++#define _LIBC	1
++
++
+ /* This file's macros are included implicitly in the compilation of every
+    file in the C library by -imacros.
+ 
+@@ -40,16 +50,6 @@
+ 
+ #include <bits/uClibc_arch_features.h>
+ 
+-
+-/* This is defined for the compilation of all C library code.  features.h
+-   tests this to avoid inclusion of stubs.h while compiling the library,
+-   before stubs.h has been generated.  Some library code that is shared
+-   with other packages also tests this symbol to see if it is being
+-   compiled as part of the C library.  We must define this before including
+-   config.h, because it makes some definitions conditional on whether libc
+-   itself is being compiled, or just some generator program.  */
+-#define _LIBC	1
+-
+ /* Enable declarations of GNU extensions, since we are compiling them.  */
+ #define _GNU_SOURCE	1
+ 
+diff -Naur uClibc-0.9.29.orig/libc/sysdeps/linux/i386/bits/uClibc_arch_features.h uClibc-0.9.29/libc/sysdeps/linux/i386/bits/uClibc_arch_features.h
+--- uClibc-0.9.29.orig/libc/sysdeps/linux/i386/bits/uClibc_arch_features.h	2006-03-04 00:54:43.000000000 +0000
++++ uClibc-0.9.29/libc/sysdeps/linux/i386/bits/uClibc_arch_features.h	2007-12-28 07:36:15.000000000 +0000
+@@ -42,6 +42,8 @@
+ /* define if target supports IEEE signed zero floats */
+ #define __UCLIBC_HAVE_SIGNED_ZERO__
+ 
++#if defined _LIBC
+ #define internal_function __attribute__ ((regparm (3), stdcall))
++#endif
+ 
+ #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */

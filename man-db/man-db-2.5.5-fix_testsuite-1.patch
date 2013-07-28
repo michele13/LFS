@@ -1,0 +1,19 @@
+Submitted By: Ken Moffat <ken at linuxfromscratch dot org>
+Date: 2009-04-15
+Initial Package Version: 2.5.5
+Upstream Status: Applied
+Origin: Upstream, r1060
+Description: Allows the testsuite to succeed with the UTF-8-aware version of
+col in util-linux-ng.
+
+--- man-db-2.5.5/man/check-man.orig	2009-03-14 22:37:21.000000000 +0000
++++ man-db-2.5.5/man/check-man	2009-04-15 20:19:16.000000000 +0100
+@@ -19,7 +19,7 @@
+ [ -x "$top_builddir/src/man" ] || exit 77
+ 
+ code=0
+-errors="$(LC_ALL=C MANWIDTH=80 "$top_builddir/src/man" --warnings -E UTF-8 -l "$1" 2>&1 >/dev/null)" || code=$?
++errors="$(LC_ALL=C MANWIDTH=80 MAN_KEEP_FORMATTING=1 "$top_builddir/src/man" --warnings -E UTF-8 -l "$1" 2>&1 >/dev/null)" || code=$?
+ 
+ # Ignore wrapping failures for CJK manual pages; this should go away once
+ # groff supports these natively.

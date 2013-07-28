@@ -1,0 +1,584 @@
+Submitted By: Andrew Benton <b3nton@gmail.com>
+Date: 2012-01-27
+Initial Package Version: 0.18.1
+Upstream Status: not submitted
+Origin: From Debian (can't find the link now)
+Description: Fixes linking to lcms2
+
+diff -Naur poppler-0.18.1~/config.h.in poppler-0.18.1/config.h.in
+--- poppler-0.18.1~/config.h.in	2011-10-26 13:40:23.000000000 +0100
++++ poppler-0.18.1/config.h.in	2012-01-27 10:27:03.000000000 +0000
+@@ -194,6 +194,9 @@
+ /* Use single precision arithmetic in the Splash backend */
+ #undef USE_FLOAT
+ 
++/* Defines if use lcms1 */
++#undef USE_LCMS1
++
+ /* Version number of package */
+ #undef VERSION
+ 
+diff -Naur poppler-0.18.1~/configure poppler-0.18.1/configure
+--- poppler-0.18.1~/configure	2012-01-27 10:37:23.000000000 +0000
++++ poppler-0.18.1/configure	2012-01-27 10:26:11.000000000 +0000
+@@ -622,6 +622,8 @@
+ POPPLER_MAJOR_VERSION
+ PC_REQUIRES_PRIVATE
+ PC_REQUIRES
++USE_LCMS1_FALSE
++USE_LCMS1_TRUE
+ USE_CMS_FALSE
+ USE_CMS_TRUE
+ LCMS_LIBS
+@@ -22723,6 +22725,78 @@
+     pkg_cv_LCMS_CFLAGS="$LCMS_CFLAGS"
+  elif test -n "$PKG_CONFIG"; then
+     if test -n "$PKG_CONFIG" && \
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms2\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "lcms2") 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; then
++  pkg_cv_LCMS_CFLAGS=`$PKG_CONFIG --cflags "lcms2" 2>/dev/null`
++		      test "x$?" != "x0" && pkg_failed=yes
++else
++  pkg_failed=yes
++fi
++ else
++    pkg_failed=untried
++fi
++if test -n "$LCMS_LIBS"; then
++    pkg_cv_LCMS_LIBS="$LCMS_LIBS"
++ elif test -n "$PKG_CONFIG"; then
++    if test -n "$PKG_CONFIG" && \
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms2\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "lcms2") 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; then
++  pkg_cv_LCMS_LIBS=`$PKG_CONFIG --libs "lcms2" 2>/dev/null`
++		      test "x$?" != "x0" && pkg_failed=yes
++else
++  pkg_failed=yes
++fi
++ else
++    pkg_failed=untried
++fi
++
++
++
++if test $pkg_failed = yes; then
++   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++
++if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
++        _pkg_short_errors_supported=yes
++else
++        _pkg_short_errors_supported=no
++fi
++        if test $_pkg_short_errors_supported = yes; then
++	        LCMS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "lcms2" 2>&1`
++        else
++	        LCMS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "lcms2" 2>&1`
++        fi
++	# Put the nasty error message in config.log where it belongs
++	echo "$LCMS_PKG_ERRORS" >&5
++
++	lcms2=no
++elif test $pkg_failed = untried; then
++     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++	lcms2=no
++else
++	LCMS_CFLAGS=$pkg_cv_LCMS_CFLAGS
++	LCMS_LIBS=$pkg_cv_LCMS_LIBS
++        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++	lcms2=yes
++fi
++  if test x$lcms2 = xno; then
++
++pkg_failed=no
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LCMS" >&5
++$as_echo_n "checking for LCMS... " >&6; }
++
++if test -n "$LCMS_CFLAGS"; then
++    pkg_cv_LCMS_CFLAGS="$LCMS_CFLAGS"
++ elif test -n "$PKG_CONFIG"; then
++    if test -n "$PKG_CONFIG" && \
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms\""; } >&5
+   ($PKG_CONFIG --exists --print-errors "lcms") 2>&5
+   ac_status=$?
+@@ -22805,6 +22879,7 @@
+ $as_echo "yes" >&6; }
+ 
+ fi
++  fi
+ elif test x$enable_cms = xtry; then
+ 
+ pkg_failed=no
+@@ -22815,6 +22890,80 @@
+     pkg_cv_LCMS_CFLAGS="$LCMS_CFLAGS"
+  elif test -n "$PKG_CONFIG"; then
+     if test -n "$PKG_CONFIG" && \
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms2\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "lcms2") 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; then
++  pkg_cv_LCMS_CFLAGS=`$PKG_CONFIG --cflags "lcms2" 2>/dev/null`
++		      test "x$?" != "x0" && pkg_failed=yes
++else
++  pkg_failed=yes
++fi
++ else
++    pkg_failed=untried
++fi
++if test -n "$LCMS_LIBS"; then
++    pkg_cv_LCMS_LIBS="$LCMS_LIBS"
++ elif test -n "$PKG_CONFIG"; then
++    if test -n "$PKG_CONFIG" && \
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms2\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "lcms2") 2>&5
++  ac_status=$?
++  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
++  test $ac_status = 0; }; then
++  pkg_cv_LCMS_LIBS=`$PKG_CONFIG --libs "lcms2" 2>/dev/null`
++		      test "x$?" != "x0" && pkg_failed=yes
++else
++  pkg_failed=yes
++fi
++ else
++    pkg_failed=untried
++fi
++
++
++
++if test $pkg_failed = yes; then
++   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++
++if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
++        _pkg_short_errors_supported=yes
++else
++        _pkg_short_errors_supported=no
++fi
++        if test $_pkg_short_errors_supported = yes; then
++	        LCMS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "lcms2" 2>&1`
++        else
++	        LCMS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "lcms2" 2>&1`
++        fi
++	# Put the nasty error message in config.log where it belongs
++	echo "$LCMS_PKG_ERRORS" >&5
++
++	lcms2=no
++elif test $pkg_failed = untried; then
++     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
++$as_echo "no" >&6; }
++	lcms2=no
++else
++	LCMS_CFLAGS=$pkg_cv_LCMS_CFLAGS
++	LCMS_LIBS=$pkg_cv_LCMS_LIBS
++        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
++$as_echo "yes" >&6; }
++	lcms2=yes
++fi
++  if test x$lcms2 = xyes; then
++    enable_cms=yes
++  else
++
++pkg_failed=no
++{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LCMS" >&5
++$as_echo_n "checking for LCMS... " >&6; }
++
++if test -n "$LCMS_CFLAGS"; then
++    pkg_cv_LCMS_CFLAGS="$LCMS_CFLAGS"
++ elif test -n "$PKG_CONFIG"; then
++    if test -n "$PKG_CONFIG" && \
+     { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"lcms\""; } >&5
+   ($PKG_CONFIG --exists --print-errors "lcms") 2>&5
+   ac_status=$?
+@@ -22877,12 +23026,19 @@
+ $as_echo "yes" >&6; }
+ 	enable_cms=yes
+ fi
++  fi
+ fi
+ 
+ if test "x$enable_cms" = "xyes"; then
+ 
+ $as_echo "#define USE_CMS 1" >>confdefs.h
+ 
++  if test "x$lcms2" = "xno"; then
++    lcms1=yes;
++
++$as_echo "#define USE_LCMS1 1" >>confdefs.h
++
++  fi
+ fi
+  if test x$enable_cms = xyes; then
+   USE_CMS_TRUE=
+@@ -22892,6 +23048,14 @@
+   USE_CMS_FALSE=
+ fi
+ 
++ if test x$lcms1 = xyes; then
++  USE_LCMS1_TRUE=
++  USE_LCMS1_FALSE='#'
++else
++  USE_LCMS1_TRUE='#'
++  USE_LCMS1_FALSE=
++fi
++
+ 
+ if test "x$GCC" != xyes; then
+   enable_compile_warnings=no
+@@ -23160,6 +23324,10 @@
+   as_fn_error $? "conditional \"USE_CMS\" was never defined.
+ Usually this means the macro was only invoked conditionally." "$LINENO" 5
+ fi
++if test -z "${USE_LCMS1_TRUE}" && test -z "${USE_LCMS1_FALSE}"; then
++  as_fn_error $? "conditional \"USE_LCMS1\" was never defined.
++Usually this means the macro was only invoked conditionally." "$LINENO" 5
++fi
+ 
+ : "${CONFIG_STATUS=./config.status}"
+ ac_write_fail=0
+diff -Naur poppler-0.18.1~/configure.ac poppler-0.18.1/configure.ac
+--- poppler-0.18.1~/configure.ac	2011-10-26 13:34:22.000000000 +0100
++++ poppler-0.18.1/configure.ac	2012-01-27 10:07:01.000000000 +0000
+@@ -551,15 +551,28 @@
+               enable_cms=$enableval,
+               enable_cms="try")
+ if test x$enable_cms = xyes; then
+-  PKG_CHECK_MODULES(LCMS, lcms)
++  PKG_CHECK_MODULES(LCMS, lcms2, [lcms2=yes], [lcms2=no])
++  if test x$lcms2 = xno; then
++      PKG_CHECK_MODULES(LCMS, lcms)
++  fi
+ elif test x$enable_cms = xtry; then
+-  PKG_CHECK_MODULES(LCMS, lcms, [enable_cms=yes], [enable_cms=no])
++  PKG_CHECK_MODULES(LCMS, lcms2,[lcms2=yes],[lcms2=no])
++  if test x$lcms2 = xyes; then
++    enable_cms=yes
++  else
++      PKG_CHECK_MODULES(LCMS, lcms,[enable_cms=yes],[enable_cms=no])
++  fi
+ fi
+ 
+ if test "x$enable_cms" = "xyes"; then
+   AC_DEFINE(USE_CMS, 1, [Defines if use cms])
++  if test "x$lcms2" = "xno"; then
++    lcms1=yes;
++    AC_DEFINE(USE_LCMS1, 1, [Defines if use lcms1])
++  fi
+ fi
+ AM_CONDITIONAL(USE_CMS, test x$enable_cms = xyes)
++AM_CONDITIONAL(USE_LCMS1, test x$lcms1 = xyes)
+ 
+ if test "x$GCC" != xyes; then
+   enable_compile_warnings=no
+diff -Naur poppler-0.18.1~/poppler/GfxState.cc poppler-0.18.1/poppler/GfxState.cc
+--- poppler-0.18.1~/poppler/GfxState.cc	2011-09-28 14:42:50.000000000 +0100
++++ poppler-0.18.1/poppler/GfxState.cc	2012-01-27 10:15:26.000000000 +0000
+@@ -146,7 +146,39 @@
+ 
+ #ifdef USE_CMS
+ 
++#ifdef USE_LCMS1
+ #include <lcms.h>
++#define cmsColorSpaceSignature icColorSpaceSignature
++#define cmsSetLogErrorHandler cmsSetErrorHandler
++#define cmsSigXYZData icSigXYZData
++#define cmsSigLuvData icSigLuvData
++#define cmsSigLabData icSigLabData
++#define cmsSigYCbCrData icSigYCbCrData
++#define cmsSigYxyData icSigYxyData
++#define cmsSigRgbData icSigRgbData
++#define cmsSigHsvData icSigHsvData
++#define cmsSigHlsData icSigHlsData
++#define cmsSigCmyData icSigCmyData
++#define cmsSig3colorData icSig3colorData
++#define cmsSigGrayData icSigGrayData
++#define cmsSigCmykData icSigCmykData
++#define cmsSig4colorData icSig4colorData
++#define cmsSig2colorData icSig2colorData
++#define cmsSig5colorData icSig5colorData
++#define cmsSig6colorData icSig6colorData
++#define cmsSig7colorData icSig7colorData
++#define cmsSig8colorData icSig8colorData
++#define cmsSig9colorData icSig9colorData
++#define cmsSig10colorData icSig10colorData
++#define cmsSig11colorData icSig11colorData
++#define cmsSig12colorData icSig12colorData
++#define cmsSig13colorData icSig13colorData
++#define cmsSig14colorData icSig14colorData
++#define cmsSig15colorData icSig15colorData
++#else
++#include <lcms2.h>
++#endif
++
+ 
+ #define COLOR_PROFILE_DIR "/ColorProfiles/"
+ #define GLOBAL_COLOR_PROFILE_DIR POPPLER_DATADIR COLOR_PROFILE_DIR
+@@ -180,8 +212,8 @@
+ static GfxColorTransform *XYZ2DisplayTransform = NULL;
+ 
+ // convert color space signature to cmsColor type 
+-static unsigned int getCMSColorSpaceType(icColorSpaceSignature cs);
+-static unsigned int getCMSNChannels(icColorSpaceSignature cs);
++static unsigned int getCMSColorSpaceType(cmsColorSpaceSignature cs);
++static unsigned int getCMSNChannels(cmsColorSpaceSignature cs);
+ static cmsHPROFILE loadColorProfile(const char *fileName);
+ 
+ void GfxColorSpace::setDisplayProfile(void *displayProfileA) {
+@@ -320,10 +352,14 @@
+   return hp;
+ }
+ 
++#ifdef USE_LCMS1
+ static int CMSError(int ecode, const char *msg)
++#else
++static void CMSError(cmsContext contextId, cmsUInt32Number ecode,
++   const char *text)
++#endif
+ {
+-    error(-1, "%s", msg);
+-    return 1;
++    error(-1, "%s", text);
+ }
+ 
+ int GfxColorSpace::setupColorProfiles()
+@@ -337,7 +373,7 @@
+   initialized = gTrue;
+ 
+   // set error handlor
+-  cmsSetErrorHandler(CMSError);
++  cmsSetLogErrorHandler(CMSError);
+ 
+   if (displayProfile == NULL) {
+     // load display profile if it was not already loaded.
+@@ -373,118 +409,118 @@
+   return 0;
+ }
+ 
+-unsigned int getCMSColorSpaceType(icColorSpaceSignature cs)
++unsigned int getCMSColorSpaceType(cmsColorSpaceSignature cs)
+ {
+     switch (cs) {
+-    case icSigXYZData:
++    case cmsSigXYZData:
+       return PT_XYZ;
+       break;
+-    case icSigLabData:
++    case cmsSigLabData:
+       return PT_Lab;
+       break;
+-    case icSigLuvData:
++    case cmsSigLuvData:
+       return PT_YUV;
+       break;
+-    case icSigYCbCrData:
++    case cmsSigYCbCrData:
+       return PT_YCbCr;
+       break;
+-    case icSigYxyData:
++    case cmsSigYxyData:
+       return PT_Yxy;
+       break;
+-    case icSigRgbData:
++    case cmsSigRgbData:
+       return PT_RGB;
+       break;
+-    case icSigGrayData:
++    case cmsSigGrayData:
+       return PT_GRAY;
+       break;
+-    case icSigHsvData:
++    case cmsSigHsvData:
+       return PT_HSV;
+       break;
+-    case icSigHlsData:
++    case cmsSigHlsData:
+       return PT_HLS;
+       break;
+-    case icSigCmykData:
++    case cmsSigCmykData:
+       return PT_CMYK;
+       break;
+-    case icSigCmyData:
++    case cmsSigCmyData:
+       return PT_CMY;
+       break;
+-    case icSig2colorData:
+-    case icSig3colorData:
+-    case icSig4colorData:
+-    case icSig5colorData:
+-    case icSig6colorData:
+-    case icSig7colorData:
+-    case icSig8colorData:
+-    case icSig9colorData:
+-    case icSig10colorData:
+-    case icSig11colorData:
+-    case icSig12colorData:
+-    case icSig13colorData:
+-    case icSig14colorData:
+-    case icSig15colorData:
++    case cmsSig2colorData:
++    case cmsSig3colorData:
++    case cmsSig4colorData:
++    case cmsSig5colorData:
++    case cmsSig6colorData:
++    case cmsSig7colorData:
++    case cmsSig8colorData:
++    case cmsSig9colorData:
++    case cmsSig10colorData:
++    case cmsSig11colorData:
++    case cmsSig12colorData:
++    case cmsSig13colorData:
++    case cmsSig14colorData:
++    case cmsSig15colorData:
+     default:
+       break;
+     }
+     return PT_RGB;
+ }
+ 
+-unsigned int getCMSNChannels(icColorSpaceSignature cs)
++unsigned int getCMSNChannels(cmsColorSpaceSignature cs)
+ {
+     switch (cs) {
+-    case icSigXYZData:
+-    case icSigLuvData:
+-    case icSigLabData:
+-    case icSigYCbCrData:
+-    case icSigYxyData:
+-    case icSigRgbData:
+-    case icSigHsvData:
+-    case icSigHlsData:
+-    case icSigCmyData:
+-    case icSig3colorData:
++    case cmsSigXYZData:
++    case cmsSigLuvData:
++    case cmsSigLabData:
++    case cmsSigYCbCrData:
++    case cmsSigYxyData:
++    case cmsSigRgbData:
++    case cmsSigHsvData:
++    case cmsSigHlsData:
++    case cmsSigCmyData:
++    case cmsSig3colorData:
+       return 3;
+       break;
+-    case icSigGrayData:
++    case cmsSigGrayData:
+       return 1;
+       break;
+-    case icSigCmykData:
+-    case icSig4colorData:
++    case cmsSigCmykData:
++    case cmsSig4colorData:
+       return 4;
+       break;
+-    case icSig2colorData:
++    case cmsSig2colorData:
+       return 2;
+       break;
+-    case icSig5colorData:
++    case cmsSig5colorData:
+       return 5;
+       break;
+-    case icSig6colorData:
++    case cmsSig6colorData:
+       return 6;
+       break;
+-    case icSig7colorData:
++    case cmsSig7colorData:
+       return 7;
+       break;
+-    case icSig8colorData:
++    case cmsSig8colorData:
+       return 8;
+       break;
+-    case icSig9colorData:
++    case cmsSig9colorData:
+       return 9;
+       break;
+-    case icSig10colorData:
++    case cmsSig10colorData:
+       return 10;
+       break;
+-    case icSig11colorData:
++    case cmsSig11colorData:
+       return 11;
+       break;
+-    case icSig12colorData:
++    case cmsSig12colorData:
+       return 12;
+       break;
+-    case icSig13colorData:
++    case cmsSig13colorData:
+       return 13;
+       break;
+-    case icSig14colorData:
++    case cmsSig14colorData:
+       return 14;
+       break;
+-    case icSig15colorData:
++    case cmsSig15colorData:
+       return 15;
+     default:
+       break;
+diff -Naur poppler-0.18.1~/qt4/src/poppler-document.cc poppler-0.18.1/qt4/src/poppler-document.cc
+--- poppler-0.18.1~/qt4/src/poppler-document.cc	2011-10-19 14:41:55.000000000 +0100
++++ poppler-0.18.1/qt4/src/poppler-document.cc	2012-01-27 10:17:16.000000000 +0000
+@@ -40,7 +40,11 @@
+ #include "poppler-page-private.h"
+ 
+ #if defined(USE_CMS)
++#if defined(USE_LCMS1)
+ #include <lcms.h>
++#else
++#include <lcms2.h>
++#endif
+ #endif
+ 
+ namespace Poppler {
+diff -Naur poppler-0.18.1~/utils/pdftocairo.cc poppler-0.18.1/utils/pdftocairo.cc
+--- poppler-0.18.1~/utils/pdftocairo.cc	2011-10-17 12:42:30.000000000 +0100
++++ poppler-0.18.1/utils/pdftocairo.cc	2012-01-27 10:20:12.000000000 +0000
+@@ -49,7 +49,11 @@
+ #include "PDFDocFactory.h"
+ #include "CairoOutputDev.h"
+ #if USE_CMS
++#ifdef USE_LCMS1
+ #include <lcms.h>
++#else
++#include <lcms2.h>
++#endif
+ #endif
+ #include <cairo.h>
+ #if CAIRO_HAS_PS_SURFACE
+@@ -256,10 +260,22 @@
+       writer = new PNGWriter(PNGWriter::RGB);
+ 
+ #if USE_CMS
++#ifdef USE_LCMS1
+     if (icc_data)
+       static_cast<PNGWriter*>(writer)->setICCProfile(cmsTakeProductName(profile), icc_data, icc_data_size);
+     else
+       static_cast<PNGWriter*>(writer)->setSRGBProfile();
++#else
++    if (icc_data) {
++      cmsUInt8Number profileID[17];
++      profileID[16] = '\0';
++
++      cmsGetHeaderProfileID(profile,profileID);
++      static_cast<PNGWriter*>(writer)->setICCProfile(reinterpret_cast<char *>(profileID), icc_data, icc_data_size);
++    } else {
++      static_cast<PNGWriter*>(writer)->setSRGBProfile();
++    }
++#endif
+ #endif
+ #endif
+ 

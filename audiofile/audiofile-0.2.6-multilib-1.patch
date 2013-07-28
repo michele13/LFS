@@ -1,0 +1,19 @@
+Submitted By: Jim Gifford <jim at linuxfromscratch dot org>
+Date: 2006-07-04
+Initial Package Version: 0.2.6
+Origin: Various
+Description: Make audiofile-config Multilib Friendly
+
+diff -Naur audiofile-0.2.6.orig/audiofile-config.in audiofile-0.2.6/audiofile-config.in
+--- audiofile-0.2.6.orig/audiofile-config.in	2004-03-05 22:39:23.000000000 -0800
++++ audiofile-0.2.6/audiofile-config.in	2006-07-04 12:35:48.386966857 -0700
+@@ -45,8 +45,7 @@
+       echo $includes
+       ;;
+     --libs)
+-      libdirs=-L@libdir@
+-      echo $libdirs -laudiofile -lm
++      echo -laudiofile -lm
+       ;;
+     *)
+       echo "${usage}" 1>&2

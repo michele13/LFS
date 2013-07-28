@@ -1,0 +1,3202 @@
+Submitted By: Daniel Baumann (daniel.baumann@panthera-systems.net)
+Date: 2004-01-06
+Initial Package Version: 0.80.2
+Origin: http://www.windowmaker.org/
+Description: Changes the preference directory from ~/GNUstep to ~/.GNUstep
+
+diff -Naur WindowMaker-0.80.2.original/FAQ WindowMaker-0.80.2/FAQ
+--- WindowMaker-0.80.2.original/FAQ	2001-10-04 00:53:18.000000000 +0200
++++ WindowMaker-0.80.2/FAQ	2004-01-06 00:07:14.000000000 +0100
+@@ -62,7 +62,7 @@
+      	 but when I do that from the configuration files it doesnt!
+ 
+ 4 - Configuration 
+-     4.1 What are those files inside my ~/GNUstep directory? 
++     4.1 What are those files inside my ~/.GNUstep directory? 
+      4.2 How do I enable the normal X sloppy focus mode? 
+      4.3 How do I get my auto-arrange icons to work? 
+      4.4 How do I get my Meta-Tab to cycle through windows correctly? 
+@@ -580,7 +580,7 @@
+ 
+ You can also use the normal "Exit Session" command from the WM root
+ menu and place additional commands required to shutdown CDE in
+-~/GNUstep/Library/WindowMaker/exitscript 
++~/.GNUstep/Library/WindowMaker/exitscript 
+ 
+ So, if you add "dtaction ExitSession" in that file, the command to shutdown
+ CDE will be automatically executed when you exit WindowMaker. 
+@@ -739,13 +739,13 @@
+ 
+ DOH! If you set the root background with wmsetbg by hand, it will obviously
+ find the image, since you have explicitly specified it by hand. But if you
+-simply put it in ~/GNUstep/Defaults/WindowMaker in some option like
++simply put it in ~/.GNUstep/Defaults/WindowMaker in some option like
+ WorkspaceBack, it will not find the image because Window Maker can't read
+ your mind to figure where you put the image. So, to fix it, you have to
+ either place the full path for the image in the texture specification or put
+ the path for the directory you put your background images in the PixmapPath
+ option. You can also put all your background images in places like
+-~/GNUstep/Library/WindowMaker/Backgrounds or
++~/.GNUstep/Library/WindowMaker/Backgrounds or
+ /usr/local/share/WindowMaker/Backgrounds
+ These directories will be listed under the "Search Path" section of WPrefs.
+ 
+@@ -755,15 +755,15 @@
+ Configuration:
+ -=-=-=-=-=-=-=-
+ 
+-4.1 What are those files inside my ~/GNUstep directory? 
++4.1 What are those files inside my ~/.GNUstep directory? 
+ ----------------------------------
+-~/GNUstep/WindowMaker/WindowMaker 
++~/.GNUstep/WindowMaker/WindowMaker 
+ 
+      The main config file. This file controls options such as keybindings,
+      fonts, pixmaps, and focus modes. 
+ 
+ 
+-~/GNUstep/WindowMaker/WMWindowAttributes 
++~/.GNUstep/WindowMaker/WMWindowAttributes 
+ 
+      The Controls "attributes" for individual applications and appicons.
+      Options such as what icon to use are set here. For the most part, this
+@@ -771,25 +771,25 @@
+      and selecting "Attributes" 
+ 
+ 
+-~/GNUstep/Defaults/WMState 
++~/.GNUstep/Defaults/WMState 
+ 
+      This is the file that is automatically generated and contains the current
+      dock settings. It is not recommended to edit this file by hand. 
+ 
+ 
+-~/GNUstep/Defaults/WMRootMenu 
++~/.GNUstep/Defaults/WMRootMenu 
+ 
+      This file specifies what file to use as the root menu.  In Window Maker
+ 	 0.19.0 and higher, you can replace this file with the one called plmenu
+-	 in ~/GNUstep/Defaults/WindowMaker, and you can then use WPrefs to edit
++	 in ~/.GNUstep/Defaults/WindowMaker, and you can then use WPrefs to edit
+ 	 the menu.
+ 
+ 
+-~/GNUstep/Library/WindowMaker/menu 
++~/.GNUstep/Library/WindowMaker/menu 
+ 
+      This is the file to edit to change your root menu. 
+ 
+-~/GNUstep/Library/WindowMaker/plmenu
++~/.GNUstep/Library/WindowMaker/plmenu
+ 
+ 	 This is the same menu file, in property list format - WPrefs needs a
+ 	 menu in this format if you wish to edit it using WPrefs.
+@@ -799,20 +799,20 @@
+ 
+ 4.2 How do I enable the normal X sloppy focus mode? 
+ ----------------------------------
+-In the ~/GNUstep/Defaults/WindowMaker, change the following: 
++In the ~/.GNUstep/Defaults/WindowMaker, change the following: 
+ 
+ FocusMode = sloppy; 
+ 
+ 
+ 4.3 How do I get my auto-arrange icons to work? 
+ ----------------------------------
+-In ~/GNUstep/Defaults/WindowMaker set AutoArrangeIcons=Yes; and the icons
++In ~/.GNUstep/Defaults/WindowMaker set AutoArrangeIcons=Yes; and the icons
+ should now auto-arrange. 
+ 
+ 
+ 4.4 How do I get my Meta-Tab to cycle through windows correctly? 
+ ----------------------------------
+-Make sure that these settings are true in your ~/GNUstep/Defaults/WindowMaker
++Make sure that these settings are true in your ~/.GNUstep/Defaults/WindowMaker
+ file: 
+ 
+ CirculateRaise = Yes;
+@@ -834,7 +834,7 @@
+ "Attributes..." option, then click on the "Ignore client supplied icon"
+ checkbox. Click "Apply", "Save" and close the Attributes Editor. 
+ 
+-Another method is to edit ~/GNUstep/Defaults/WMWindowAttributes by hand and
++Another method is to edit ~/.GNUstep/Defaults/WMWindowAttributes by hand and
+ use the AlwaysUserIcon=YES; option for the app. For example: 
+ 
+ xmcd = { Icon = "Radio.xpm";
+@@ -845,7 +845,7 @@
+ 4.6 How do I get a Tile background for my AppIcons (those things in
+     the dock)? 
+ ----------------------------------
+-You need to change 1 line to your ~/GNUstep/Defaults/WindowMaker file. 
++You need to change 1 line to your ~/.GNUstep/Defaults/WindowMaker file. 
+ 
+ IconBack = (spixmap, tile.black.xpm, white);
+ or
+@@ -890,7 +890,7 @@
+ By Default, to get back to the attributes menu once you've removed the
+ titlebar, hit the key F10 while the window is focused. 
+ 
+-Here is an example entry in ~/GNUstep/WMWindowAttributes for x11amp. 
++Here is an example entry in ~/.GNUstep/WMWindowAttributes for x11amp. 
+ 
+ x11amp={
+ Icon="x11amp.xpm";
+@@ -935,7 +935,7 @@
+ 
+ -u 
+    will update the WorkspaceBack in the default database
+-   domain file in ~/GNUstep/Defaults/WindowMaker, and let Window
++   domain file in ~/.GNUstep/Defaults/WindowMaker, and let Window
+    Maker refresh the screen. Please note that this option only
+    works under Window Maker, and will have no effect under
+    other window managers, since it rely on Window Maker to
+@@ -954,18 +954,18 @@
+ 
+ 
+ The following line is straight from your WindowMaker-0.15.x
+-~/GNUstep/Library/WindowMaker/menu file and should all be on one line. 
++~/.GNUstep/Library/WindowMaker/menu file and should all be on one line. 
+ 
+ "Images" OPEN_MENU BACKGROUNDS_DIR
+-~/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t 
++~/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t 
+ 
+ This should give you an idea on how to add other entries for different image
+ directories. See the help info at the top of the
+-~/GNUstep/Library/WindowMaker/menu file for more information. 
++~/.GNUstep/Library/WindowMaker/menu file for more information. 
+ 
+ If you for some reason would like to set your background image with XV, for
+ instance to use an image format not yet supported by wmsetbg or to use one
+-of XV's special modes, edit the file ~/GNUstep/Library/WindowMaker/autostart
++of XV's special modes, edit the file ~/.GNUstep/Library/WindowMaker/autostart
+ and insert the line 
+ 
+ xv -root -quit -maxpect ~/background.jpg
+@@ -979,7 +979,7 @@
+ If you would like xv functionality in your menu, heres a nice little tip from
+ Alfredo: 
+ 
+-Add the following line to your ~/GNUstep/Library/WindowMaker/menu file. (all on
++Add the following line to your ~/.GNUstep/Library/WindowMaker/menu file. (all on
+ one line) 
+ 
+ "More Backgrounds" OPEN_MENU /home/whoever/backgrounds xv -root -maxpect -quit 
+@@ -992,7 +992,7 @@
+ 
+ MenuTextBack=(tpixmap, foo.xpm, acolor); 
+ 
+-in ~/GNUstep/Defaults/WindowMaker will put the correct pixmap tiled in your
++in ~/.GNUstep/Defaults/WindowMaker will put the correct pixmap tiled in your
+ menu. 
+ 
+ FTitleBack = (spixmap, foo.xpm, black); 
+@@ -1015,14 +1015,14 @@
+ 
+ 4.12 How do I get superfluous bells and whistles working? 
+ ----------------------------------
+-Add Superfluous=YES; to your ~/GNUstep/Defaults/Windowmaker file. 
++Add Superfluous=YES; to your ~/.GNUstep/Defaults/Windowmaker file. 
+ 
+ This option was added as a runtime option in Window Maker >= 0.16.1. 
+ 
+ 
+ 4.13 How do I get the classic NeXT(tm)-like style back? 
+ ----------------------------------
+-Add NewStyle=NO; to your ~/GNUstep/Defaults/Windowmaker file. 
++Add NewStyle=NO; to your ~/.GNUstep/Defaults/Windowmaker file. 
+ 
+ This option was added as a runtime option in Window Maker >= 0.16.1 
+ 
+@@ -1042,7 +1042,7 @@
+             WindowListMouseButton = Right; 
+           
+ 
+-in ~/GNUstep/Defaults/WindowMaker ought to allow the left button to
++in ~/.GNUstep/Defaults/WindowMaker ought to allow the left button to
+ activate the root menu, and the right button (as MB2) to activate the
+ windows menu. 
+ 
+@@ -1054,19 +1054,19 @@
+ if you have the new PropList style menu, or you can manually edit the 
+ oldstyle menu file 
+ 
+-            ~/GNUstep/Library/WindowMaker/menu
++            ~/.GNUstep/Library/WindowMaker/menu
+ 
+ (or you can also manually edit the newstyle menu file) 
+ 
+-            ~/GNUstep/Defaults/WMRootMenu
++            ~/.GNUstep/Defaults/WMRootMenu
+ 
+ and save your changes. Window Maker should detect the change and
+ automatically update. If you are having a problem getting it to reload the
+ menu, try 
+ 
+-            touch ~/GNUstep/Library/WindowMaker/menu
++            touch ~/.GNUstep/Library/WindowMaker/menu
+ 
+-            (or 'touch ~/GNUstep/Defaults/WMRootMenu' for the newstyle menu)
++            (or 'touch ~/.GNUstep/Defaults/WMRootMenu' for the newstyle menu)
+ 
+ to force the modification time into the future. 
+ 
+@@ -1100,7 +1100,7 @@
+ Editor.  Check the "Ignore client supplied icon" box.  "Apply" and "Save",
+ and close the Attributes Editor.
+ 
+-Another method is to edit ~/GNUstep/Defaults/WMWindowAttributes by hand and
++Another method is to edit ~/.GNUstep/Defaults/WMWindowAttributes by hand and
+ use the AlwaysUserIcon=YES; option for the app. For example: 
+ 
+ xmcd = { Icon = "Radio.xpm"; AlwaysUserIcon=Yes; }; 
+@@ -1120,7 +1120,7 @@
+ close the Attributes Editor. 
+ 
+ You can also enter the following line in
+-~/GNUstep/Library/WindowMaker/WMWindowAttributes: 
++~/.GNUstep/Library/WindowMaker/WMWindowAttributes: 
+ 
+ gimp={Icon="gimp.xpm";}; 
+ 
+@@ -1482,7 +1482,7 @@
+ This should be as simple as untarring the Theme.tar.gz into one of two
+ places. You can untar it to the global /usr/local/share/WindowMaker/* directory,
+ and have it be accessable to all users, or you can untar it to your own
+-~/GNUstep/Library/WindowMaker/ directory for your own personal use. 
++~/.GNUstep/Library/WindowMaker/ directory for your own personal use. 
+ 
+ Use your favorite variation of the following: 
+ 
+diff -Naur WindowMaker-0.80.2.original/FAQ.I18N WindowMaker-0.80.2/FAQ.I18N
+--- WindowMaker-0.80.2.original/FAQ.I18N	1999-05-31 22:34:00.000000000 +0200
++++ WindowMaker-0.80.2/FAQ.I18N	2004-01-06 00:06:26.000000000 +0100
+@@ -33,11 +33,11 @@
+ 		ftp://ftp.linux.or.jp/pub/RPM/glibc
+ 
+ 	- if you'd like to display multibyte characters, set the
+-	  MultiByteText option to YES in ~/GNUstep/Defaults/WindowMaker
+-	  and ~/GNUstep/Defaults/WMGLOBAL
++	  MultiByteText option to YES in ~/.GNUstep/Defaults/WindowMaker
++	  and ~/.GNUstep/Defaults/WMGLOBAL
+ 
+ 	- the fonts you're using support your locale. if your font
+-	  setting on $HOME/GNUstep/Defaults/WindowMaker is like..
++	  setting on $HOME/.GNUstep/Defaults/WindowMaker is like..
+ 
+ 	  WindowTitleFont = "-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*";
+ 	  MenuTitleFont = "-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*";
+diff -Naur WindowMaker-0.80.2.original/FAQ.I18N.cs WindowMaker-0.80.2/FAQ.I18N.cs
+--- WindowMaker-0.80.2.original/FAQ.I18N.cs	2002-02-18 14:50:30.000000000 +0100
++++ WindowMaker-0.80.2/FAQ.I18N.cs	2004-01-06 00:06:26.000000000 +0100
+@@ -47,12 +47,12 @@
+         - pokud chcete zobrazovat multibyte znaky, nastavte volbu MultiByteText
+           na YES v souborech:
+ 
+-                ~/GNUstep/Defaults/WindowMaker
+-                ~/GNUstep/Defaults/WMGLOBAL
++                ~/.GNUstep/Defaults/WindowMaker
++                ~/.GNUstep/Defaults/WMGLOBAL
+ 
+         - fonty, které pou¾íváte by mìli být podporované va¹ím místním nastavením.
+-          Jestli¾e va¹e nastavení fontù v souboru ~/GNUstep/Defaults/WindowMaker
+-          vypadá takto:
++          Jestli¾e va¹e nastavení fontù v souboru
++	  ~/.GNUstep/Defaults/WindowMaker vypadá takto:
+ 
+           WindowTitleFont = "-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*";
+           MenuTitleFont = "-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*";  ,
+@@ -67,4 +67,4 @@
+           ~/Library/WindowMaker/Style.
+ 
+         - pokud si nejste jisti, zda-li má systémová promìnná LC_TYPE správnou
+-          hodnotu, tak ji nenastavujte.
+\ No newline at end of file
++          hodnotu, tak ji nenastavujte.
+diff -Naur WindowMaker-0.80.2.original/FAQ.I18N.sk WindowMaker-0.80.2/FAQ.I18N.sk
+--- WindowMaker-0.80.2.original/FAQ.I18N.sk	2001-11-05 22:41:03.000000000 +0100
++++ WindowMaker-0.80.2/FAQ.I18N.sk	2004-01-06 00:06:26.000000000 +0100
+@@ -36,11 +36,11 @@
+ 		 ftp://ftp.linux.or.jp/pub/RPM/glibc
+ 
+ 	- ak chcete zobrazova» multibyte znaky, nastavte mo¾nos»
+-	  MultiByteText YES v ~/GNUstep/Defaults/WindowMaker a
+-	  ~/GNUstep/Defaults/WMGLOBAL	
++	  MultiByteText YES v ~/.GNUstep/Defaults/WindowMaker a
++	  ~/.GNUstep/Defaults/WMGLOBAL	
+ 
+ 	- fonty, ktoré pou¾ívate, podporujú va¹e miesne nastavenia.
+-	  Ak va¹e nastavenia fontov v ~/GNUstep/Defaults/WindowMaker
++	  Ak va¹e nastavenia fontov v ~/.GNUstep/Defaults/WindowMaker
+ 	  vyzerajú takto:
+ 
+ 	  WindowTitleFont = "-*-helvetica-bold-r-normal-*-12-*-*-*-*-*-*-*";
+diff -Naur WindowMaker-0.80.2.original/INSTALL WindowMaker-0.80.2/INSTALL
+--- WindowMaker-0.80.2.original/INSTALL	2002-02-21 12:28:33.000000000 +0100
++++ WindowMaker-0.80.2/INSTALL	2004-01-06 00:06:26.000000000 +0100
+@@ -423,7 +423,7 @@
+ also need to supply the --with-appspath option, to specify the path for
+ WPrefs.app Example:
+ 
+-./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/GNUstep/Apps
++./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/.GNUstep/Apps
+ 
+ 
+ Then make /home/jshmoe/bin be included in your search PATH, add
+@@ -492,9 +492,9 @@
+ 
+ * Check if the version of libXPM you have is at least 4.7
+ 
+-* Check if you have an updated version of ~/GNUstep/Defaults/WindowMaker
++* Check if you have an updated version of ~/.GNUstep/Defaults/WindowMaker
+ 
+-If you're not sure, try renaming ~/GNUstep to ~/GNUtmp and then run wmaker.inst
++If you're not sure, try renaming ~/.GNUstep to ~/GNUtmp and then run wmaker.inst
+ 
+ == "...: your machine is misconfigured. gethostname() returned (none)"
+ 
+@@ -545,7 +545,7 @@
+ 
+ 2 - Additionally, if your language uses multi-byte characters, such
+ as Japanese or Korean, you must set the MultiByteText option to YES
+-in ~/GNUstep/Defaults/WMGLOBAL 
++in ~/.GNUstep/Defaults/WMGLOBAL 
+ 
+ 3 - Configure, build and install Window Maker normally.
+ 
+diff -Naur WindowMaker-0.80.2.original/INSTALL.cs WindowMaker-0.80.2/INSTALL.cs
+--- WindowMaker-0.80.2.original/INSTALL.cs	2002-02-18 14:50:30.000000000 +0100
++++ WindowMaker-0.80.2/INSTALL.cs	2004-01-06 00:06:26.000000000 +0100
+@@ -440,7 +440,7 @@
+ cestu pro WPrefs.app.
+ Pøíklad:
+ 
+-./configure --prefix=/home/karel --with-appspath=/home/karel/GNUstep/Apps
++./configure --prefix=/home/karel --with-appspath=/home/karel/.GNUstep/Apps
+ 
+ Potom pøidejte adresáø /home/karel/bin do systémové promìnné PATH a adresáø
+ /home/karel/lib do sytémové promìnné LD_LIBRARY_PATH a nakonec spus»te
+@@ -508,8 +508,8 @@
+ 
+ * Zkontrolujte, jestli verze knihovny libXPM je vy¹¹í ne¾ 4.7
+ 
+-* Zkontrolujte, zda-li máte upravenou verzi ~/GNUstep/Defaults/WindowMaker
+-  Pokud si nejste jisti, tak zkuste pøejmenovat ~/GNUstep na ~/GNUtmp a
++* Zkontrolujte, zda-li máte upravenou verzi ~/.GNUstep/Defaults/WindowMaker
++  Pokud si nejste jisti, tak zkuste pøejmenovat ~/.GNUstep na ~/GNUtmp a
+   spus»te wmaker.inst
+ 
+ == "...: your machine is misconfigured. gethostname() returned (none)"
+@@ -558,7 +558,7 @@
+ 
+ 2 - Navíc, pokud vá¹ jazyk pou¾ívá multi-byte znaky, napøíklad Japon¹tina
+     nebo Korej¹tina, tak musíte nastavit volbu the MultiByteText na YES
+-    v souboru ~/GNUstep/Defaults/WMGLOBAL
++    v souboru ~/.GNUstep/Defaults/WMGLOBAL
+ 
+ 3 - Nakonfigurujte, zkompilujte a nainstalujte Window Maker jako obvykle.
+ 
+@@ -590,14 +590,14 @@
+ 5 - Pokud si vyberete jazyk, který pou¾ívá multi-byte znaky, tak musíte
+     pøíslu¹ným zpùsobem nastavit fonty. Pøeètìte si manuálové stránky
+     o XCreateFontSet k získání vìt¹ího mno¾ství informací o daném
+-    problému. Musíte zmìnit v souboru ~/GNUstep/Default/WindowMaker
++    problému. Musíte zmìnit v souboru ~/.GNUstep/Default/WindowMaker
+     nastavení fontù pro titulky, menu, atd. Fonty pro dialogy nastavíte
+-    v souboru ~/GNUstep/Default/WMGLOBAL. Øetìzce %d ve jménech fontù
++    v souboru ~/.GNUstep/Default/WMGLOBAL. Øetìzce %d ve jménech fontù
+     nemusí být odstranìné. Také mù¾ete pou¾ít skript wsetfont, který
+     toto v¹e uèiní za vás. Pokud se ho rozhodnote pou¾ít, tak si k nìmu
+     pøeètìte instrukce tak, ¾e spustíte wsetfont bez argumentù.
+ 
+-    Pøíklad èásti souboru ~/GNUstep/Default/WindowMaker:
++    Pøíklad èásti souboru ~/.GNUstep/Default/WindowMaker:
+ 
+         WindowTitleFont = "-*-helvetica-bold-r-normal-*-12-*,-*-*-medium-r-normal-*-14-*";
+         MenuTitleFont = "-*-helvetica-bold-r-normal-*-12-*,-*-*-medium-r-normal-*-14-*";
+@@ -606,7 +606,7 @@
+         ClipTitleFont = "-*-helvetica-bold-r-normal-*-10-*,-*-*-medium-r-normal-*-12-*";
+         DisplayFont = "-*-helvetica-medium-r-normal-*-12-*,-*-*-medium-r-normal-*-12-*";
+ 
+-    a souboru ~/GNUstep/Default/WMGLOBAL:
++    a souboru ~/.GNUstep/Default/WMGLOBAL:
+ 
+         SystemFont = "-*-*-medium-r-normal-*-%d-*-*-*-*-*-*-*";
+         BoldSystemFont = "-*-*-medium-r-normal-*-%d-*-*-*-*-*-*-*";
+@@ -615,4 +615,4 @@
+     WPrefs.app).
+ 
+     Skript wsetfont vám umo¾ní nastavit fonty mnohem jednodu¹ím zpùsobem. Podívejte
+-    se na jeho manuálové stránku k získání bli¾¹ích informací.
+\ No newline at end of file
++    se na jeho manuálové stránku k získání bli¾¹ích informací.
+diff -Naur WindowMaker-0.80.2.original/INSTALL.es WindowMaker-0.80.2/INSTALL.es
+--- WindowMaker-0.80.2.original/INSTALL.es	2002-02-21 12:28:34.000000000 +0100
++++ WindowMaker-0.80.2/INSTALL.es	2004-01-06 00:06:26.000000000 +0100
+@@ -427,7 +427,7 @@
+ También necesitará proporcionar la opción --with-appspath, para especificar la ruta
+ para WPrefs.app. Ejemplo:
+ 
+-./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/GNUstep/Apps
++./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/.GNUstep/Apps
+ 
+ Luego haga /home/jshmoe/bin para que se lo incluya en su ruta de búsqueda, agregue
+ /home/jshmoe/lib a su variable de entorno LD_LIBRARY_PATH y ejecute bin/wmaker.inst
+@@ -499,9 +499,9 @@
+ 
+ * Verifique si la versión de libXPM que tiene es por lo menos la 4.7
+ 
+-* Verifique si tiene una versión actualizada de ~/GNUstep/Defaults/WindowMaker
++* Verifique si tiene una versión actualizada de ~/.GNUstep/Defaults/WindowMaker
+ 
+-Si no está seguro, intente renombrar ~/GNUstep a ~/GNUtmp y luego ejecute wmaker.inst
++Si no está seguro, intente renombrar ~/.GNUstep a ~/GNUtmp y luego ejecute wmaker.inst
+ 
+ == "...: your machine is misconfigured. gethostname() returned (none)"
+ 
+@@ -551,7 +551,7 @@
+ 
+ 2 - Adicionalmente, si su idioma usa caracteres multi-byte, tal como
+ Japonés o Coreano, debe definir la opción MultiByteText a YES
+-en ~/GNUstep/Defaults/WMGLOBAL
++en ~/.GNUstep/Defaults/WMGLOBAL
+ 
+ 3 - Configure, compile e instale Window Maker normalmente.
+ 
+diff -Naur WindowMaker-0.80.2.original/INSTALL.fr WindowMaker-0.80.2/INSTALL.fr
+--- WindowMaker-0.80.2.original/INSTALL.fr	2001-10-08 21:19:33.000000000 +0200
++++ WindowMaker-0.80.2/INSTALL.fr	2004-01-06 00:06:26.000000000 +0100
+@@ -467,7 +467,7 @@
+ Il est aussi nécessaire d'utiliser l'option --with-appspath, afin de préciser
+ le chemin d'accès à WPrefs.app. Par exemple :
+ 
+-./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/GNUstep/Apps
++./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/.GNUstep/Apps
+ 
+ 
+ Puis, faites en sorte que /home/jshmoe/bin soit inclus dans votre PATH, ajoutez
+@@ -540,9 +540,9 @@
+ 
+ * Vérifiez que la version de libXPM qui est installée est au moins 4.7.
+ 
+-* Vérifiez que votre fichier ~/GNUstep/Defaults/WindowMaker est à jour.
++* Vérifiez que votre fichier ~/.GNUstep/Defaults/WindowMaker est à jour.
+ 
+-Si vous n'en êtes pas sûr, renommez ~/GNUstep en ~/GNUtmp et lancez wmaker.inst.
++Si vous n'en êtes pas sûr, renommez ~/.GNUstep en ~/GNUtmp et lancez wmaker.inst.
+ 
+ 
+ == "...: your machine is misconfigured. gethostname() returned (none)"
+@@ -594,7 +594,7 @@
+ 
+ 2 - De plus, si votre langue utilise des caractères multi-octets, comme
+ le japonais ou le coréen, vous devez vous assurer que l'option MultiByteText est à YES
+-dans ~/GNUstep/Defaults/WMGLOBAL.
++dans ~/.GNUstep/Defaults/WMGLOBAL.
+ 
+ 3 - Configurez, compilez et installez Window Maker normalement.
+ 
+diff -Naur WindowMaker-0.80.2.original/INSTALL.pt WindowMaker-0.80.2/INSTALL.pt
+--- WindowMaker-0.80.2.original/INSTALL.pt	1999-09-16 04:26:05.000000000 +0200
++++ WindowMaker-0.80.2/INSTALL.pt	2004-01-06 00:06:26.000000000 +0100
+@@ -382,7 +382,7 @@
+ Você ainda precisará fornecer a opção --with-appspath, para especificar o
+ caminho do WPrefs.app. Exemplo:
+ 
+-./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/GNUstep/Apps
++./configure --prefix=/home/jshmoe --with-appspath=/home/jshmoe/.GNUstep/Apps
+ 
+ Depois faça com que /home/jshome/bin seja incluído na variável PATH, adicione
+ /home/jshome/lib na variável de ambiente LD_LIBRARY_PATH e rode bin/wmaker.inst
+@@ -452,9 +452,9 @@
+ 
+ * Confira se a versão da libXPM é a 4.7 ou mais atual
+ 
+-* Confira se você tem uma versão atualizada do ~/GNUstep/Defaults/WindowMaker
++* Confira se você tem uma versão atualizada do ~/.GNUstep/Defaults/WindowMaker
+ 
+-Se você não tem certeza, tente renomear ~/GNUstep para ~/GNUtmp e depois rode
++Se você não tem certeza, tente renomear ~/.GNUstep para ~/GNUtmp e depois rode
+ o wmaker.inst
+ 
+ == "...: your machine is misconfigured. gethostname() returned (none)"
+@@ -504,7 +504,7 @@
+ 
+ 2 - Adicionalmente, se a sua linguagem usa caracteres multi-bytes, tais 
+ como as línguas japonesas e koreanas, você deve definir a opção MultiByteText
+-para YES nos arquivos ~/GNUstep/Defaults/WMGLOBAL e ~/GNUstep/Defaults/WindowMaker
++para YES nos arquivos ~/.GNUstep/Defaults/WMGLOBAL e ~/.GNUstep/Defaults/WindowMaker
+ 
+ 3 - Configure, compile e instale o Window Maker normalmente.
+ 
+diff -Naur WindowMaker-0.80.2.original/INSTALL.sk WindowMaker-0.80.2/INSTALL.sk
+--- WindowMaker-0.80.2.original/INSTALL.sk	2001-07-30 22:53:35.000000000 +0200
++++ WindowMaker-0.80.2/INSTALL.sk	2004-01-06 00:06:26.000000000 +0100
+@@ -426,7 +426,7 @@
+ --with-appspath, pomocou ktorej ¹pecifikujete cestu pre WPrefs.app.
+ Príklad:
+ 
+-./configure --prefix=/home/jshome --with-appspath=/home/jshome/GNUstep/Apps
++./configure --prefix=/home/jshome --with-appspath=/home/jshome/.GNUstep/Apps
+ 
+ Poto pridajte adresár /home/jshome/bin do premennej PATH, /home/jshome/lib
+ do premennej LD_LIBRARY_PATH a spustite bin/wmaker.inst
+@@ -499,9 +499,9 @@
+ 
+ * Skontrolujte verziu libXpm, musíte ma» aspoò 4.7
+ 
+-* Skontrolujte, èi máte upravenú verziu ~/GNUstep/Defaults/WindowMaker
++* Skontrolujte, èi máte upravenú verziu ~/.GNUstep/Defaults/WindowMaker
+ 
+-Ak si nie ste istí, skúste premenova» ~/GNUstep na ~/GNUtmp a spustite
++Ak si nie ste istí, skúste premenova» ~/.GNUstep na ~/GNUtmp a spustite
+ wmaker.inst
+ 
+ 
+@@ -554,7 +554,7 @@
+ 
+ 2 - Naviac, ak vá¹ jazyk pou¾íva multi-byte znaky, napríklad Japonèina
+ alebo Kórejèina, musíte nastaveniu MultiByteText priradi» YES v súbore
+-~/GNUstep/Defaults/WMGLOBAL
++~/.GNUstep/Defaults/WMGLOBAL
+ 
+ 3 - Konfigurujte, kompilujte a in¹talujte Window Maker ako zvyèajne.
+ 
+diff -Naur WindowMaker-0.80.2.original/README.KDE WindowMaker-0.80.2/README.KDE
+--- WindowMaker-0.80.2.original/README.KDE	1999-04-10 20:27:21.000000000 +0200
++++ WindowMaker-0.80.2/README.KDE	2004-01-06 00:06:26.000000000 +0100
+@@ -71,7 +71,7 @@
+ wont be using Window Maker themes anyway, you can set
+ WorkspaceBack = (none);
+ 
+-in ~/GNUstep/Defaults/WindowMaker
++in ~/.GNUstep/Defaults/WindowMaker
+ 
+ 
+ Enhancing Integration
+diff -Naur WindowMaker-0.80.2.original/README.definable-cursor WindowMaker-0.80.2/README.definable-cursor
+--- WindowMaker-0.80.2.original/README.definable-cursor	2001-11-23 05:42:41.000000000 +0100
++++ WindowMaker-0.80.2/README.definable-cursor	2004-01-06 00:06:26.000000000 +0100
+@@ -13,7 +13,7 @@
+ -------------------------
+ 
+ A cursor specification takes one of the following forms in the
+-~/GNUstep/Defaults/WindowMaker file:
++~/.GNUstep/Defaults/WindowMaker file:
+ 
+     (none)
+     (builtin, <cursor-name>)
+diff -Naur WindowMaker-0.80.2.original/WINGs/README WindowMaker-0.80.2/WINGs/README
+--- WindowMaker-0.80.2.original/WINGs/README	2000-09-29 09:16:58.000000000 +0200
++++ WindowMaker-0.80.2/WINGs/README	2004-01-06 00:06:26.000000000 +0100
+@@ -37,7 +37,7 @@
+ Internationalization:
+ ---------------------
+ 
+-    Change ~/GNUstep/Defaults/WMGLOBAL to set the desired font set and
++    Change ~/.GNUstep/Defaults/WMGLOBAL to set the desired font set and
+ set MultiByteText = YES; to enable support for multibyte text.
+ 
+ 
+diff -Naur WindowMaker-0.80.2.original/WINGs/userdefaults.c WindowMaker-0.80.2/WINGs/userdefaults.c
+--- WindowMaker-0.80.2.original/WINGs/userdefaults.c	2001-12-20 17:36:59.000000000 +0100
++++ WindowMaker-0.80.2/WINGs/userdefaults.c	2004-01-06 00:06:26.000000000 +0100
+@@ -67,7 +67,7 @@
+ 	    pathlen = strlen(wgethomedir()) + 10;
+ 	    path = wmalloc(pathlen);
+ 	    strcpy(path, wgethomedir());
+-	    strcat(path, "/GNUstep");
++	    strcat(path, "/.GNUstep");
+ 	}
+     }
+ 
+diff -Naur WindowMaker-0.80.2.original/WINGs/wapplication.c WindowMaker-0.80.2/WINGs/wapplication.c
+--- WindowMaker-0.80.2.original/WINGs/wapplication.c	2001-10-04 02:59:50.000000000 +0200
++++ WindowMaker-0.80.2/WINGs/wapplication.c	2004-01-06 00:06:26.000000000 +0100
+@@ -118,7 +118,7 @@
+      * - resourcePath/ext
+      * - argv[0]/ext
+      * - GNUSTEP_USER_ROOT/Apps/ApplicationName.app/ext 
+-     * - ~/GNUstep/Apps/ApplicationName.app/ext
++     * - ~/.GNUstep/Apps/ApplicationName.app/ext
+      * - GNUSTEP_LOCAL_ROOT/Apps/ApplicationName.app/ext
+      * - /usr/local/GNUstep/Apps/ApplicationName.app/ext
+      * - GNUSTEP_SYSTEM_ROOT/Apps/ApplicationName.app/ext
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/Menu.c WindowMaker-0.80.2/WPrefs.app/Menu.c
+--- WindowMaker-0.80.2.original/WPrefs.app/Menu.c	2002-07-02 02:30:25.000000000 +0200
++++ WindowMaker-0.80.2/WPrefs.app/Menu.c	2004-01-06 00:06:26.000000000 +0100
+@@ -616,17 +616,17 @@
+ 
+ 	data = putNewItem(panel, pad, DirectoryInfo, _("Themes"));
+ 	data->param.directory.command = "setstyle";
+-	data->param.directory.directory = "/usr/share/WindowMaker/Themes /usr/local/share/WindowMaker/Themes $HOME/GNUstep/Library/WindowMaker/Themes";
++	data->param.directory.directory = "/usr/share/WindowMaker/Themes /usr/local/share/WindowMaker/Themes $HOME/.GNUstep/Library/WindowMaker/Themes";
+ 	data->param.directory.stripExt = 1;
+ 	
+ 	data = putNewItem(panel, pad, DirectoryInfo, _("Bg Images (scale)"));
+ 	data->param.directory.command = "wmsetbg -u -s";
+-	data->param.directory.directory = "/opt/kde2/share/wallpapers /usr/share/WindowMaker/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds";
++	data->param.directory.directory = "/opt/kde2/share/wallpapers /usr/share/WindowMaker/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds";
+ 	data->param.directory.stripExt = 1;
+ 
+ 	data = putNewItem(panel, pad, DirectoryInfo, _("Bg Images (tile)"));
+ 	data->param.directory.command = "wmsetbg -u -t";
+-	data->param.directory.directory = "/opt/kde2/share/wallpapers /usr/share/WindowMaker/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds";
++	data->param.directory.directory = "/opt/kde2/share/wallpapers /usr/share/WindowMaker/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds";
+ 	data->param.directory.stripExt = 1;
+ 	
+ 	smenu = putNewSubmenu(pad, _("Assorted XTerms"));
+@@ -721,7 +721,7 @@
+     WMSetLabelText(label, _("Enter the path for a file containing a menu\n"
+ 			    "or a list of directories with the programs you\n"
+ 			    "want to have listed in the menu. Ex:\n"
+-			    "~/GNUstep/Library/WindowMaker/menu\n"
++			    "~/.GNUstep/Library/WindowMaker/menu\n"
+ 			    "or\n"
+ 			    "/usr/X11R6/bin ~/xbin"));
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/Paths.c WindowMaker-0.80.2/WPrefs.app/Paths.c
+--- WindowMaker-0.80.2.original/WPrefs.app/Paths.c	2002-01-08 14:44:38.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/Paths.c	2004-01-06 00:06:26.000000000 +0100
+@@ -83,7 +83,7 @@
+ 	if (array)
+ 	    wwarning(_("bad value in option IconPath. Using default path list"));
+ 	addPathToList(panel->icoL, -1, "~/pixmaps");
+-	addPathToList(panel->icoL, -1, "~/GNUstep/Library/Icons");
++	addPathToList(panel->icoL, -1, "~/.GNUstep/Library/Icons");
+ 	addPathToList(panel->icoL, -1, "/usr/include/X11/pixmaps");
+ 	addPathToList(panel->icoL, -1, "/usr/local/share/WindowMaker/Icons");
+ 	addPathToList(panel->icoL, -1, "/usr/local/share/WindowMaker/Pixmaps");
+@@ -100,7 +100,7 @@
+ 	if (array)
+ 	    wwarning(_("bad value in option PixmapPath. Using default path list"));
+ 	addPathToList(panel->pixL, -1, "~/pixmaps");
+-	addPathToList(panel->pixL, -1, "~/GNUstep/Library/WindowMaker/Pixmaps");
++	addPathToList(panel->pixL, -1, "~/.GNUstep/Library/WindowMaker/Pixmaps");
+ 	addPathToList(panel->pixL, -1, "/usr/local/share/WindowMaker/Pixmaps");
+     } else {
+ 	for (i=0; i<WMGetPropListItemCount(array); i++) {
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/README WindowMaker-0.80.2/WPrefs.app/README
+--- WindowMaker-0.80.2.original/WPrefs.app/README	2000-11-12 04:53:46.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/README	2004-01-06 00:06:26.000000000 +0100
+@@ -29,7 +29,7 @@
+     WPrefs is still under development. Some of the configuration options are 
+ not yet configurable from WPrefs, notably the appearance related options.
+ It might contain bugs that can corrupt your configuration files, so backup
+-the contents of the ~/GNUstep/Defaults directory before using it.
++the contents of the ~/.GNUstep/Defaults directory before using it.
+ 
+ 
+ 
+@@ -90,7 +90,7 @@
+ 
+ OR
+ 
+-~/GNUstep/Apps
++~/.GNUstep/Apps
+ 
+ 
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/bg.po WindowMaker-0.80.2/WPrefs.app/po/bg.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/bg.po	2000-08-29 16:46:20.000000000 +0200
++++ WindowMaker-0.80.2/WPrefs.app/po/bg.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1910,11 +1910,11 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "Ôàéëúò ñ ìåíþ òðÿáâà äà áúäå â ïðîñò òåêñòîâ ôîðìàò. Òîçè ôîðìàò å îïèñàí "
+ "âúâ ôàéëîâåòå ìåíþòà, ñúïðîâîæäàùè Window Maker, âåðîÿòíî â "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1925,12 +1925,12 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "Çàäàäåíàòà êîìàíäà òðÿáâà äà ãåíåðèðà è èçâåäå âàëèäíà äåôèíèöèÿ íà ìåíþ íà "
+ "ñòàíäàðòíèÿ ñè èçõîä. Òàçè äåôèíèöèÿ òðÿáâà äà áúäå â ïðîñòèÿ òåêñòîâ "
+ "ôîðìàò, îïèñàí âúâ ôàéëîâåòå ìåíþòà, ñúïðîâîæäàùè Window Maker, îáèêíîâåíî â "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+@@ -1979,4 +1979,4 @@
+ #~ "switch to first workspace when switching past the last workspace and "
+ #~ "vice-versa"
+ #~ msgstr ""
+-#~ "äà ñå ìèíå êúì ïúðâîòî ðàáîòíî ìÿñòî ñëåä çàäìèíàâàíå íà ïîñëåäíîòî è îáðàòíî"
+\ No newline at end of file
++#~ "äà ñå ìèíå êúì ïúðâîòî ðàáîòíî ìÿñòî ñëåä çàäìèíàâàíå íà ïîñëåäíîòî è îáðàòíî"
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/cs.po WindowMaker-0.80.2/WPrefs.app/po/cs.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/cs.po	2002-01-08 14:44:40.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/cs.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1023,14 +1023,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "Vlo¾ cestu pro soubor obsahující menu\n"
+ "nebo seznam adresáøù s programy, které\n"
+ "chete zobrazit v menu. Pø:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "nebo\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+@@ -2101,4 +2101,4 @@
+ 
+ #: ../main.c:161
+ msgid "could not initialize application"
+-msgstr "nelze inicializovat aplikaci"
+\ No newline at end of file
++msgstr "nelze inicializovat aplikaci"
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/de.po WindowMaker-0.80.2/WPrefs.app/po/de.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/de.po	2002-02-21 12:28:41.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/de.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1078,14 +1078,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "Bitte den Pfad zu entweder der Datei mit dem Menü,\n"
+ "oder zu einem Verzeichnis eingeben, dass die in\n"
+ "das Menü aufzunehmende Programme enthält. Z.B.:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "oder\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/es.po WindowMaker-0.80.2/WPrefs.app/po/es.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/es.po	2001-11-30 23:38:55.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/es.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1871,11 +1871,11 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "El archivo de menú debe contener un menú en el formato de texto plano. Este "
+ "formato esta descrito en los archivos distribuidos con Window Maker, "
+-"probablemente en ~/GNUstep/Library/WindowMaker/menu"
++"probablemente en ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1886,11 +1886,11 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "El comando dado debe generar una definición de menú valida a stdout. Esta "
+ "definición debe estar en el formato de texto plano, descrito en los archivos "
+-"incluidos con WindowMaker, normalmente en ~/GNUstep/Library/WindowMaker/menu"
++"incluidos con WindowMaker, normalmente en ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/fi.po WindowMaker-0.80.2/WPrefs.app/po/fi.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/fi.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/fi.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1226,14 +1226,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "Syötä valikon sisältävän tiedoston polku\n"
+ "tai ne hakemistot, jotka sisältävät ohjelmat,\n"
+ "jotka haluat mukaan valikkoon. Esim.\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "tai\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+@@ -2296,11 +2296,11 @@
+ #~ msgid ""
+ #~ "The menu file must contain a menu in the plain text menu file format. This "
+ #~ "format is described in the menu files included with WindowMaker, probably at "
+-#~ "~/GNUstep/Library/WindowMaker/menu"
++#~ "~/.GNUstep/Library/WindowMaker/menu"
+ #~ msgstr ""
+ #~ "Valikkotiedoston pitää sisältää valikko pelkkä teksti -muodossa. Tämä muoto "
+ #~ "kuvaillaan Window Makerin sisältämissä valikkotiedostoissa, luultavasti "
+-#~ "paikassa ~/GNUstep/Library/WindowMaker/menu"
++#~ "paikassa ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #~ msgid "Type the command that will generate the menu definition:"
+ #~ msgstr "Kirjoita komento, joka luo valikkomääritelmän:"
+@@ -2309,12 +2309,12 @@
+ #~ "The command supplied must generate and output a valid menu definition to "
+ #~ "stdout. This definition should be in the plain text menu file format, "
+ #~ "described in the menu files included with WindowMaker, usually at "
+-#~ "~/GNUstep/Library/WindowMaker/menu"
++#~ "~/.GNUstep/Library/WindowMaker/menu"
+ #~ msgstr ""
+ #~ "Tämän komennon pitää muodostaa valikkomääritelmä ja tulostaa se "
+ #~ "vakiotulostusvirtaan. Valikon pitää olla \"pelkkä teksti\" -tiedostomuodossa "
+ #~ "(kuvailtu Window Makerin mukana tulevissa valikkotiedostoissa, yleensä "
+-#~ "~/GNUstep/Library/WindowMaker/menu)."
++#~ "~/.GNUstep/Library/WindowMaker/menu)."
+ 
+ #~ msgid ""
+ #~ "Type the path for the directory. You can type more than one path by "
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/fr.po WindowMaker-0.80.2/WPrefs.app/po/fr.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/fr.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/fr.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1897,11 +1897,11 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "Le fichier de menu doit être formaté en texte. Ce format est décrit dans  le "
+ "fichier de menu inclus avec Window Maker, probablement "
+-"~/GNUstep/Library/WindowMaker/menu.fr"
++"~/.GNUstep/Library/WindowMaker/menu.fr"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1912,11 +1912,11 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "La commande doit générer un menu valide sur le sortie standard. Le menu doit "
+ "être formaté en texte, décrit dans le fichier de menu inclus avec Window "
+-"Maker, probablement ~/GNUstep/Library/WindowMaker/menu.fr"
++"Maker, probablement ~/.GNUstep/Library/WindowMaker/menu.fr"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/hr.po WindowMaker-0.80.2/WPrefs.app/po/hr.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/hr.po	1999-01-25 20:06:53.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/hr.po	2004-01-06 00:06:26.000000000 +0100
+@@ -592,16 +592,16 @@
+ msgstr "Upi¹i stazu za izbornik datoteku:"
+ 
+ #: ../../WPrefs/MenuGuru.c:318
+-msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/GNUstep/Library/WindowMaker/menu"
+-msgstr "Menu datoteka mora sadr¾avati izbornik u èistom tekst formatu. Ovaj format je opisan u menu datotekama u distribuciji, vjerojatno u ~/GNUstep/Library/WindowMaker/menu"
++msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/.GNUstep/Library/WindowMaker/menu"
++msgstr "Menu datoteka mora sadr¾avati izbornik u èistom tekst formatu. Ovaj format je opisan u menu datotekama u distribuciji, vjerojatno u ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+ msgstr "Upi¹i naredbu koja æe generirati definiciju izbornika:"
+ 
+ #: ../../WPrefs/MenuGuru.c:338
+-msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/GNUstep/Library/WindowMaker/menu"
+-msgstr "Navedana naredba mora stvoriti i ispisati va¾eæu definiciju izbornika na stdout. Ova definicija mora biti u formatu opisanom u ~/GNUstep/Library/WindowMaker/menu"
++msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/.GNUstep/Library/WindowMaker/menu"
++msgstr "Navedana naredba mora stvoriti i ispisati va¾eæu definiciju izbornika na stdout. Ova definicija mora biti u formatu opisanom u ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs/MenuGuru.c:350 ../../WPrefs/MenuGuru.c:372 ../../WPrefs/MenuGuru.c:394
+ msgid "Type the path for the directory. You can type more than one path by separating them with spaces."
+@@ -1234,8 +1234,8 @@
+ # msgid "Aplications Menu Definition"
+ # msgstr "Definiranje izbornika Aplikacije"
+ # 
+-# msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, probably at ~/GNUstep/Library/WindowMaker/menu"
+-# msgstr "Ponuðena naredba mora generirati i ispisati va¾eæu definicuju izbornika na stdout. Ova bi definicja trebala biti u èistom tekst menu formatu koji je opisan u menu datotekama iz distribucije, vjerojatno u ~/GNUstep/Library/WindowMaker/menu"
++# msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, probably at ~/.GNUstep/Library/WindowMaker/menu"
++# msgstr "Ponuðena naredba mora generirati i ispisati va¾eæu definicuju izbornika na stdout. Ova bi definicja trebala biti u èistom tekst menu formatu koji je opisan u menu datotekama iz distribucije, vjerojatno u ~/.GNUstep/Library/WindowMaker/menu"
+ # 
+ # msgid ""
+ # "bad speed value for option %s.\n"
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/hu.po WindowMaker-0.80.2/WPrefs.app/po/hu.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/hu.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/hu.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1712,16 +1712,16 @@
+ msgstr "Írd be a menü fájl elérési útvonalát:"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:318
+-msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/GNUstep/Library/WindowMaker/menu"
+-msgstr "A menü fájlnak tartalmaznia kell a menü leírását egyszerû, szöveges formában. A pontos formátumot megtalálod a WindowMakerrel együtt terjesztett menü fájlokban, pl.: ~/GNUstep/Library/WindowMaker/menu"
++msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/.GNUstep/Library/WindowMaker/menu"
++msgstr "A menü fájlnak tartalmaznia kell a menü leírását egyszerû, szöveges formában. A pontos formátumot megtalálod a WindowMakerrel együtt terjesztett menü fájlokban, pl.: ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+ msgstr "Írd be a parancsot, amely elkészíti a menü leírását:"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:338
+-msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/GNUstep/Library/WindowMaker/menu"
+-msgstr "A megadott parancsnak helyes szintaxisú menü-leírást kell küldenie a kimenetre. Ennek a leírásnak egyszerû, szöveges formátumúnak kell lennie, amirõl a WindowMakerrel terjesztett menü fájlokban találsz bõvebb leírást (pl.: ~/GNUstep/Library/WindowMaker/menu)"
++msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/.GNUstep/Library/WindowMaker/menu"
++msgstr "A megadott parancsnak helyes szintaxisú menü-leírást kell küldenie a kimenetre. Ennek a leírásnak egyszerû, szöveges formátumúnak kell lennie, amirõl a WindowMakerrel terjesztett menü fájlokban találsz bõvebb leírást (pl.: ~/.GNUstep/Library/WindowMaker/menu)"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372 ../../WPrefs.app/MenuGuru.c:394
+ msgid "Type the path for the directory. You can type more than one path by separating them with spaces."
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/it.po WindowMaker-0.80.2/WPrefs.app/po/it.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/it.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/it.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1257,14 +1257,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "Scrivere il percorso di un file contenente un\n"
+ "menù o una lista di directory con i programmi\n"
+ "che si vogliono nel menù. Ad esempio:\n"
+-"~/GNUstep/Library/WindowMaker/menu.it\n"
++"~/.GNUstep/Library/WindowMaker/menu.it\n"
+ "oppure\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/ja.po WindowMaker-0.80.2/WPrefs.app/po/ja.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/ja.po	2001-09-12 05:04:16.000000000 +0200
++++ WindowMaker-0.80.2/WPrefs.app/po/ja.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1227,14 +1227,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "¥á¥Ë¥å¡¼¤ò´Þ¤à¥Õ¥¡¥¤¥ë¤Ø¤Î¥Ñ¥¹, ¤Ê¤¤¤·¤Ï \n"
+ "¥á¥Ë¥å¡¼¤ËÉ½¼¨¤·¤Æ¤Û¤·¤¤¥×¥í¥°¥é¥à¤Î¤¢¤ë \n"
+ "¥Ç¥£¥ì¥¯¥È¥ê. Îã:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "¤È¤«, \n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/ko.po WindowMaker-0.80.2/WPrefs.app/po/ko.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/ko.po	2000-02-14 16:57:02.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/ko.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1797,11 +1797,11 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "¸Þ´º ÆÄÀÏÀÇ ³»¿ëÀº º¸Åë ÅØ½ºÆ®·Î µÈ ¸Þ´º ÆÄÀÏ Çü½ÄÀÇ ¸Þ´ºÀÔ´Ï´Ù. ÀÌ Çü½ÄÀº "
+ "WindowMaker¿¡ Æ÷ÇÔµÈ ¸Þ´º ÆÄÀÏÀ» º¸¸é µÇ¸ç, º¸Åë "
+-"~/GNUstep/Library/WindowMaker/menu.koÀÔ´Ï´Ù."
++"~/.GNUstep/Library/WindowMaker/menu.koÀÔ´Ï´Ù."
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1812,11 +1812,11 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "ÀÌ ¸í·ÉÀº À¯È¿ÇÑ ¸Þ´º Á¤ÀÇ¸¦ ¸¸µé¾î¼­ Ç¥ÁØ Ãâ·ÂÀ¸·Î ³»º¸³»¾ß ÇÕ´Ï´Ù. ÀÌ "
+ "Á¤ÀÇ´Â º¸Åë ÅØ½ºÆ®·Î µÈ ¸Þ´º ÆÄÀÏ Çü½ÄÀÌ¾î¾ß ÇÏ¸ç, WindowMaker¿¡ Æ÷ÇÔµÈ ¸Þ´º "
+-"ÆÄÀÏ¿¡ ¼³¸íµÇ¾î ÀÖ½À´Ï´Ù. º¸Åë ~/GNUstep/Library/WindowMaker/menu.ko ÀÔ´Ï´Ù"
++"ÆÄÀÏ¿¡ ¼³¸íµÇ¾î ÀÖ½À´Ï´Ù. º¸Åë ~/.GNUstep/Library/WindowMaker/menu.ko ÀÔ´Ï´Ù"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/pt.po WindowMaker-0.80.2/WPrefs.app/po/pt.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/pt.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/pt.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1884,11 +1884,11 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "O arquivo de menu deve conter um menu em formato texto puro. Esse formato é "
+ "descrito no menu incluído no WindowMaker, provavelmente em "
+-"~/GNUstep/Library/WindowMaker/menu."
++"~/.GNUstep/Library/WindowMaker/menu."
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1899,11 +1899,11 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "O comando deverá gerar uma definição de menu válida e mandá-lo para o "
+ "stdout. Esta definição deve estar no formato descrito em "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/ru.po WindowMaker-0.80.2/WPrefs.app/po/ru.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/ru.po	1999-10-02 22:46:35.000000000 +0200
++++ WindowMaker-0.80.2/WPrefs.app/po/ru.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1320,15 +1320,15 @@
+ msgstr "÷×ÅÄÉÔÅ ÐÕÔØ Ë ÆÁÊÌÕ Ó ÍÅÎÀ:"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:318
+-msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/GNUstep/Library/WindowMaker/menu"
+-msgstr "æÁÊÌ ÍÅÎÀ ÄÏÌÖÅÎ ÓÏÄÅÒÖÁÔØ ÍÅÎÀ × ÆÏÒÍÁÔÅ plain text. æÏÒÍÁÔ ÆÁÊÌÁ ÏÐÉÓÁÎ × menu ÆÁÊÌÁÈ ÉÄÕÝÉÈ Ó WindowMaker, ×ÅÒÏÑÔÎÅÅ ×ÓÅÇÏ ~/GNUstep/Library/WindowMaker/menu"
++msgid "The menu file must contain a menu in the plain text menu file format. This format is described in the menu files included with WindowMaker, probably at ~/.GNUstep/Library/WindowMaker/menu"
++msgstr "æÁÊÌ ÍÅÎÀ ÄÏÌÖÅÎ ÓÏÄÅÒÖÁÔØ ÍÅÎÀ × ÆÏÒÍÁÔÅ plain text. æÏÒÍÁÔ ÆÁÊÌÁ ÏÐÉÓÁÎ × menu ÆÁÊÌÁÈ ÉÄÕÝÉÈ Ó WindowMaker, ×ÅÒÏÑÔÎÅÅ ×ÓÅÇÏ ~/.GNUstep/Library/WindowMaker/menu"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+ msgstr "îÁÂÅÒÉÔÅ ËÏÍÁÎÄÕ ËÏÔÏÒÁÑ ×ÏÊÄÅÔ × ÍÅÎÀ:"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:338
+-msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/GNUstep/Library/WindowMaker/menu"
++msgid "The command supplied must generate and output a valid menu definition to stdout. This definition should be in the plain text menu file format, described in the menu files included with WindowMaker, usually at ~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372 ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/sk.po WindowMaker-0.80.2/WPrefs.app/po/sk.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/sk.po	2001-12-22 13:55:41.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/sk.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1044,14 +1044,14 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "Zadajte cestu k súboru, ktorý obsahuje menu\n"
+ "alebo zoznam adresárov s programami, ktoré chcete\n"
+ "ma» zaradené do menu. Napr.\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "alebo\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/zh_CN.po WindowMaker-0.80.2/WPrefs.app/po/zh_CN.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/zh_CN.po	2001-11-30 23:38:59.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/zh_CN.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1780,10 +1780,10 @@
+ msgid ""
+ "The menu file must contain a menu in the plain text menu file format. This "
+ "format is described in the menu files included with WindowMaker, probably at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "²Ëµ¥ÎÄ¼þ±ØÐëº¬ÓÐÆÕÍ¨ÎÄ±¾²Ëµ¥ÎÄ¼þ¸ñÊ½µÄ²Ëµ¥.ÕâÖÖ¸ñÊ½ÔÚ WindowMaker °üº¬µÄ"
+-"²Ëµ¥ÎÄÖÐÓÐÃèÊö. Õâ¸ö²Ëµ¥¿ÉÄÜÔÚ ~/GNUstep/Library/WindowMaker/menu Àï"
++"²Ëµ¥ÎÄÖÐÓÐÃèÊö. Õâ¸ö²Ëµ¥¿ÉÄÜÔÚ ~/.GNUstep/Library/WindowMaker/menu Àï"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:328
+ msgid "Type the command that will generate the menu definition:"
+@@ -1794,11 +1794,11 @@
+ "The command supplied must generate and output a valid menu definition to "
+ "stdout. This definition should be in the plain text menu file format, "
+ "described in the menu files included with WindowMaker, usually at "
+-"~/GNUstep/Library/WindowMaker/menu"
++"~/.GNUstep/Library/WindowMaker/menu"
+ msgstr ""
+ "Ìá¹©µÄÃüÁî±ØÐë²úÉúÇÒÊä³öÓÐÐ§µÄ²Ëµ¥¶¨ÒåÖÁ±ê×¼Êä³ö. Õâ¶¨ÒåÓ¦¸ÃÊÇÆÕÍ¨ÎÄ±¾²Ëµ¥"
+ "ÎÄ¼þ¸ñÊ½.ÎÄ¼þ¸ñÊ½ÔÚWindowMaker°üº¬µÄ²Ëµ¥ÎÄ¼þÖÐÓÐÃèÊö,Õâ¸öÎÄ¼þÍ¨³£ÔÚ "
+-"~/GNUstep/Library/WindowMaker/menu Àï"
++"~/.GNUstep/Library/WindowMaker/menu Àï"
+ 
+ #: ../../WPrefs.app/MenuGuru.c:350 ../../WPrefs.app/MenuGuru.c:372
+ #: ../../WPrefs.app/MenuGuru.c:394
+diff -Naur WindowMaker-0.80.2.original/WPrefs.app/po/zh_TW.Big5.po WindowMaker-0.80.2/WPrefs.app/po/zh_TW.Big5.po
+--- WindowMaker-0.80.2.original/WPrefs.app/po/zh_TW.Big5.po	2002-01-08 14:44:42.000000000 +0100
++++ WindowMaker-0.80.2/WPrefs.app/po/zh_TW.Big5.po	2004-01-06 00:06:26.000000000 +0100
+@@ -1018,13 +1018,13 @@
+ "Enter the path for a file containing a menu\n"
+ "or a list of directories with the programs you\n"
+ "want to have listed in the menu. Ex:\n"
+-"~/GNUstep/Library/WindowMaker/menu\n"
++"~/.GNUstep/Library/WindowMaker/menu\n"
+ "or\n"
+ "/usr/X11R6/bin ~/xbin"
+ msgstr ""
+ "¿é¤J¸ô®|§t¦³§A­n¦C©ó¿ï³æ¤¤\n"
+ "µ{¦¡ªº¿ï³æ©Î¥Ø¿ý²M³æªºÀÉ®×¸ô®|¡C\n"
+-"¨Ò¦p¡G~/GNUstep/Library/WindowMaker/menu\n"
++"¨Ò¦p¡G~/.GNUstep/Library/WindowMaker/menu\n"
+ "©Î\n"
+ "/usr/X11R6/bin ~/xbin"
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/Defaults/WindowMaker.in WindowMaker-0.80.2/WindowMaker/Defaults/WindowMaker.in
+--- WindowMaker-0.80.2.original/WindowMaker/Defaults/WindowMaker.in	2002-02-21 12:28:41.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/Defaults/WindowMaker.in	2004-01-06 00:06:26.000000000 +0100
+@@ -10,18 +10,18 @@
+   WorkspaceBorder = None;
+   IconificationStyle = Zoom;
+   IconPath = (
+-    "~/GNUstep/Library/Icons",
++    "~/.GNUstep/Library/Icons",
+     "#pkgdatadir#/Icons",
+     "#pkgdatadir#/Pixmaps",
+     "/usr/X11R6/include/X11/pixmaps",
+-    "~/GNUstep/Library/WindowMaker/Pixmaps",
++    "~/.GNUstep/Library/WindowMaker/Pixmaps",
+     "/usr/share/icons",
+     "/usr/local/share/pixmaps",
+     "/usr/share/pixmaps"
+   );
+   PixmapPath = (
+-    "~/GNUstep/Library/WindowMaker/Pixmaps",
+-    "~/GNUstep/Library/WindowMaker/Backgrounds",
++    "~/.GNUstep/Library/WindowMaker/Pixmaps",
++    "~/.GNUstep/Library/WindowMaker/Backgrounds",
+     "#pkgdatadir#/Pixmaps",
+     "#pkgdatadir#/Backgrounds",
+     "/usr/X11R6/include/X11/pixmaps",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/README WindowMaker-0.80.2/WindowMaker/README
+--- WindowMaker-0.80.2.original/WindowMaker/README	2001-05-14 23:35:53.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/README	2004-01-06 00:06:26.000000000 +0100
+@@ -11,9 +11,9 @@
+ Japanese.
+ 
+ To use the menu in the property list format (plmenu), just replace the
+-~/GNUstep/Defaults/WMRootMenu with it. To use the plain text menu,
+-place the path for the menu in ~/GNUstep/Defaults/WMRootMenu, enclosed
+-in double quotes ("). Ex: "~/GNUstep/Library/WindowMaker/menu"
++~/.GNUstep/Defaults/WMRootMenu with it. To use the plain text menu,
++place the path for the menu in ~/.GNUstep/Defaults/WMRootMenu, enclosed
++in double quotes ("). Ex: "~/.GNUstep/Library/WindowMaker/menu"
+ 
+ Instructions for editing the plain text menus can be found in the menu
+ file itself, kindly translated to your tongue for your convenience, by
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/README.themes WindowMaker-0.80.2/WindowMaker/README.themes
+--- WindowMaker-0.80.2.original/WindowMaker/README.themes	1999-03-18 02:11:19.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/README.themes	2004-01-06 00:06:26.000000000 +0100
+@@ -13,9 +13,9 @@
+ ===========================
+ 
+ To install a theme, unpack your theme into your WindowMaker directory 
+-(the same as old-style themes), usually ~/GNUstep/Library/WindowMaker
++(the same as old-style themes), usually ~/.GNUstep/Library/WindowMaker
+ 
+-cd ~/GNUstep/Library/WindowMaker
++cd ~/.GNUstep/Library/WindowMaker
+ gzip -dc "xyztheme.tar.gz" | tar xvf -
+ 
+ You can also do this in your system-wide WindowMaker directory (usually
+@@ -31,7 +31,7 @@
+ setstyle xyztheme.themed
+ 
+ Note that if you move the directory of the theme (for example, from
+-~/GNUstep/Library/WindowMaker/Themes to /usr/local/share/WindowMaker/Themes)
++~/.GNUstep/Library/WindowMaker/Themes to /usr/local/share/WindowMaker/Themes)
+ you will have to reload that theme so that path information is updated.
+ 
+ 
+@@ -41,7 +41,7 @@
+ To create a theme pack from your current configuration, use the getstyle
+ utility with the -p flag. Example:
+ 
+-getstyle -p ~/GNUstep/Library/WindowMaker/Themes/MyTheme
++getstyle -p ~/.GNUstep/Library/WindowMaker/Themes/MyTheme
+ 
+ This will create a theme pack (a new directory in either the current
+ directory or a directory you specify) named MyTheme.themed, containing
+@@ -58,7 +58,7 @@
+ 
+ Example:
+ 
+-cd ~/GNUstep/Library/WindowMaker
++cd ~/.GNUstep/Library/WindowMaker
+ tar cvf MyTheme.tar Themes/MyTheme.themed
+ gzip MyTheme.tar
+ 
+@@ -68,7 +68,7 @@
+ 
+ Just remove the .themed directory. Example:
+ 
+-cd ~/GNUstep/Library/WindowMaker/Themes
++cd ~/.GNUstep/Library/WindowMaker/Themes
+ rm -fr themename.themed
+ 
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu WindowMaker-0.80.2/WindowMaker/menu
+--- WindowMaker-0.80.2.original/WindowMaker/menu	2002-07-02 02:30:25.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * $HOME/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * $HOME/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -178,9 +178,9 @@
+ 	"Commands" END
+ 
+ 	"Appearance" MENU
+-		"Themes" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Styles" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Icon Sets" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Themes" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Styles" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Icon Sets" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Background" MENU
+ 			"Solid" MENU
+                         	"Black" WS_BACK '(solid, black)'
+@@ -202,10 +202,10 @@
+     				"Grey Shades" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Wine Shades" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Gradient" END
+-			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Background" END
+-		"Save Theme" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
+-		"Save IconSet" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
++		"Save Theme" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
++		"Save IconSet" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
+ 		"Preferences Utility" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"Appearance" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.bg WindowMaker-0.80.2/WindowMaker/menu.bg
+--- WindowMaker-0.80.2.original/WindowMaker/menu.bg	2000-09-15 00:10:31.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.bg	2004-01-06 00:06:26.000000000 +0100
+@@ -11,7 +11,7 @@
+  * 
+  * SHORTCUT îïðåäåëÿ êëàâèøíà êîìáèíàöèÿ ("áúðç êëàâèø") çà òîçè
+  * åëåìåíò íà ìåíþòî. <êîìáèíàöèÿ> èìà ñúùèÿ ñèíòàêñèñ, êàêòî êëàâèøíèòå
+- * êîìáèíàöèè âúâ ôàéëà $HOME/GNUstep/Defaults/WindowMaker,
++ * êîìáèíàöèè âúâ ôàéëà $HOME/.GNUstep/Defaults/WindowMaker,
+  * íàïð. RootMenuKey èëè MiniaturizeKey.
+  *
+  * Íå ìîæå äà ñå ïîñî÷âà êëàâèøíà êîìáèíàöèÿ çà MENU è OPEN_MENU.
+@@ -181,9 +181,9 @@
+ 	"Ðàáîòíè ìåñòà" END
+ 
+ 	"Èçãëåä" MENU
+-		"Òåìè" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Ñòèëîâå" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Êîëåêöèè èêîíêè" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Òåìè" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Ñòèëîâå" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Êîëåêöèè èêîíêè" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Ôîí" MENU
+ 			"Ïëúòåí" MENU
+                         	"×åðåí" WS_BACK '(solid, black)'
+@@ -205,10 +205,10 @@
+     				"Ñèâè ñåíêè" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Âèíåíè ñåíêè" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Ãðàäèåíò" END
+-			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Ôîí" END
+-		"Çàïàçè òåìàòà" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
+-		"Çàïàçè êîëåêöèÿòà èêîíêè" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
++		"Çàïàçè òåìàòà" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
++		"Çàïàçè êîëåêöèÿòà èêîíêè" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
+ 		"Ïîñîáèå çà íàñòðîéêè" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"Èçãëåä" END
+ 
+@@ -219,4 +219,4 @@
+ 		"Ñòàðòèðàé IceWM" RESTART icewm
+ 		"Èçõîä..."  EXIT
+ 	"Èçõîä" END
+-"Ïðèëîæåíèÿ" END
+\ No newline at end of file
++"Ïðèëîæåíèÿ" END
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.ca WindowMaker-0.80.2/WindowMaker/menu.ca
+--- WindowMaker-0.80.2.original/WindowMaker/menu.ca	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.ca	2004-01-06 00:06:26.000000000 +0100
+@@ -12,7 +12,7 @@
+  *
+  * TECLA especifica una combinació de tecles per aquest objecte. <Tecla> té
+  * la mateixa sintaxis que les combinacions de tecles especificades al
+- * fitxer $HOME/GNUstep/Defaults/WindowMaker , com a RootMenuKey o bé
++ * fitxer $HOME/.GNUstep/Defaults/WindowMaker , com a RootMenuKey o bé
+  * MiniaturizeKey.
+  *
+  * No es pot especificar una combinació de tecles per a un MENU o un
+@@ -175,9 +175,9 @@
+         "Escriptori" END
+ 
+         "Aparença" MENU
+-                "Temes" OPEN_MENU THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-                "Estils" OPEN_MENU STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-                "Jocs d'Icones" OPEN_MENU ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++                "Temes" OPEN_MENU THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++                "Estils" OPEN_MENU STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++                "Jocs d'Icones" OPEN_MENU ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+                 "Fons de pantalla" MENU
+                         "Sòlid" MENU
+                                 "Negre" WS_BACK '(solid, black)'
+@@ -199,10 +199,10 @@
+                                 "Degradat Gris" WS_BACK '(vgradient,"#636380", "#131318")'
+                                 "Degradat Lila" WS_BACK '(vgradient,"#600040", "#180010")'
+                         "Degradat" END
+-                        "Imatges" OPEN_MENU BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++                        "Imatges" OPEN_MENU BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+                 "Fons de pantalla" END
+-                "Guardar Tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-                "Guardar Joc d'Icones" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++                "Guardar Tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++                "Guardar Joc d'Icones" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+         "Aparença" END
+ 
+         "Sortir"        MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.cz WindowMaker-0.80.2/WindowMaker/menu.cz
+--- WindowMaker-0.80.2.original/WindowMaker/menu.cz	1999-05-29 23:41:26.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.cz	2004-01-06 00:06:26.000000000 +0100
+@@ -31,7 +31,7 @@
+ 
+ "Hlavní menu" MENU
+ 	"Správce oken" MENU	
+-		"Editace menu" SHEXEC xterm -T 'Editace menu' -e joe $HOME/GNUstep/Library/WindowMaker/menu
++		"Editace menu" SHEXEC xterm -T 'Editace menu' -e joe $HOME/.GNUstep/Library/WindowMaker/menu
+ 	"Správce oken" END
+ 	"Info" MENU
+ 		"Info Panel..." INFO_PANEL
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.da WindowMaker-0.80.2/WindowMaker/menu.da
+--- WindowMaker-0.80.2.original/WindowMaker/menu.da	2001-01-07 00:52:00.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.da	2004-01-06 00:06:26.000000000 +0100
+@@ -170,9 +170,9 @@
+         "Arbejdsbord" END
+ 
+         "Udseende" MENU
+-                "Temaer" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-                "Stil" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-                "Ikonsæt" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++                "Temaer" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++                "Stil" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++                "Ikonsæt" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+                 "Baggrund" MENU
+                         "Ensfarvet" MENU
+                                 "Sort" WS_BACK '(solid, black)'
+@@ -195,10 +195,10 @@
+     				"Bordeaux Skygger" WS_BACK '(vgradient, "#600040", "#180010")'
+                                 "Flag" WS_BACK '(mdgradient, green, red, white, green)'
+                         "Nuancer" END
+-                        "Billeder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++                        "Billeder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+                 "Baggrund" END
+-                "Gem Tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Tema navn,Indtast navn:)"
+-                "Gem Ikonsæt" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Ikonsæt navn,Indtast navn:)"
++                "Gem Tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Tema navn,Indtast navn:)"
++                "Gem Ikonsæt" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Ikonsæt navn,Indtast navn:)"
+         "Udseende" END
+ 
+         "Afslut" MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.el WindowMaker-0.80.2/WindowMaker/menu.el
+--- WindowMaker-0.80.2.original/WindowMaker/menu.el	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.el	2004-01-06 00:06:26.000000000 +0100
+@@ -11,7 +11,7 @@
+  * 
+  * SHORTCUT åßíáé ï óõíäõáóìüò ðëÞêôñùí ãéá ôï óõãêåêñéìÝíï ðñüãñáììá ð.÷:
+  *          "Meta+1". ¶ëëá ðáñáäåßãìáôá èá äåßôå óôï á÷ñåßï:
+- *          $HOME/GNUstep/Defaults/WindowMaker
++ *          $HOME/.GNUstep/Defaults/WindowMaker
+  *
+  * Äåí ìðïñåß íá äçëùèåß Ýíá shortcut ãéá MENU êáé ãéá OPEN_MENU åíôïëÞ.
+  * 
+@@ -44,7 +44,7 @@
+  *                 èá áíáêëçèïýí ôçí åðüìåíç öïñÜ ðïõ ï ÷ñÞóôçò
+  *                 åêêéíÞóåé ôïí Window Maker ìÝ÷ñé ç åíôïëÞ SAVE_SESSION Þ
+  *                 CLEAR_SESSION ÷ñçóéìïðïéçèïýí. Áí óôï áñ÷åßï Window Maker ôïõ
+- *                 êáôáëüãïõ "$HOME/GNUstep/Defaults/" õðÜñ÷åé ç åíôïëÞ:
++ *                 êáôáëüãïõ "$HOME/.GNUstep/Defaults/" õðÜñ÷åé ç åíôïëÞ:
+  *                 "SaveSessionOnExit = Yes;", ôüôå üëá ôá ðáñáðÜíù ãßíïíôáé
+  *                 áõôüìáôá ìå êÜèå Ýîïäï ôïõ ÷ñÞóôç áðü ôïí Window Maker,
+  *                 áêõñþíïíôáò ïõóéáóôéêÜ êÜèå ðñïçãïýìåíç ÷ñÞóç ôùò åíôïëþí
+@@ -185,9 +185,9 @@
+ 	"ÅðéöÜíåéá" END
+ 
+ 	"ÅìöÜíéóç" MENU
+-		"ÈÝìáôá" OPEN_MENU -noext  THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Óôõë" OPEN_MENU -noext  STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"ÏìÜäá Åéêïíéäßùí" OPEN_MENU -noext  ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"ÈÝìáôá" OPEN_MENU -noext  THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Óôõë" OPEN_MENU -noext  STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"ÏìÜäá Åéêïíéäßùí" OPEN_MENU -noext  ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"ÐáñáóêÞíéï" MENU
+ 			"Ìïíü÷ñùìï" MENU
+                         	"Ìáýñï" WS_BACK '(solid, black)'
+@@ -209,10 +209,10 @@
+     				"Ãêñßæåò Áðï÷ñþóåéò" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"ÊïêêéíùðÝò Áðï÷ñþóåéò" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"ÄéáâáèìéóìÝíï" END
+-			"Åéêüíåò" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Åéêüíåò" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"ÐáñáóêÞíéï" END
+-		"ÁðïèÞêåõóç ÈÝìáôïò" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(¼íïìá ÈÝìáôïò,ÃñÜøå ôï üíïìá ôïõ áñ÷åßïõ:)"
+-		"ÁðïèÞêåõóç ÏìÜäáò Åéêïíéäßùí" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(¼íïìá ÏìÜäáò,ÃñÜøå ôï üíïìá ôïõ áñ÷åßïõ:)"
++		"ÁðïèÞêåõóç ÈÝìáôïò" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(¼íïìá ÈÝìáôïò,ÃñÜøå ôï üíïìá ôïõ áñ÷åßïõ:)"
++		"ÁðïèÞêåõóç ÏìÜäáò Åéêïíéäßùí" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(¼íïìá ÏìÜäáò,ÃñÜøå ôï üíïìá ôïõ áñ÷åßïõ:)"
+ 	"ÅìöÜíéóç" END
+ 
+ 	"¸îïäïò" MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.es WindowMaker-0.80.2/WindowMaker/menu.es
+--- WindowMaker-0.80.2.original/WindowMaker/menu.es	1999-05-29 23:41:26.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.es	2004-01-06 00:06:26.000000000 +0100
+@@ -42,7 +42,7 @@
+ 
+ 	"Informacion ..." MENU
+ 		"Copyright..." SHEXEC xmessage -center -font variable -title \
+-	'WindowMaker 'WM_VERSION -file ~/GNUstep/Library/WindowMaker/Copyright
++	'WindowMaker 'WM_VERSION -file ~/.GNUstep/Library/WindowMaker/Copyright
+ 		"Carga del sistema" SHEXEC xosview || xload
+ 		"Lista de tarifas (top)" EXEC rxvt -ls -fg white -bg black -fn vga -e top
+ 		"Manual" EXEC xman
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.fi WindowMaker-0.80.2/WindowMaker/menu.fi
+--- WindowMaker-0.80.2.original/WindowMaker/menu.fi	2000-04-02 22:47:31.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.fi	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * $HOME/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * $HOME/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -174,9 +174,9 @@
+ 	"Työtila" END
+ 
+ 	"Ulkonäkö" MENU
+-		"Teemat" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Tyylit" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Kuvakkeet" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Teemat" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Tyylit" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Kuvakkeet" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Taustat" MENU
+ 			"Yksivärinen" MENU
+                         	"Musta" WS_BACK '(solid, black)'
+@@ -198,10 +198,10 @@
+     				"Harmaan sävyjä" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Viininpunaisen sävyjä" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Liukuväri" END
+-			"Kuvat" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Kuvat" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Taustat" END
+-		"Tallenna teema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Teeman nimi,Kirjoita teematiedoston nimi:)"
+-		"Tallenna kuvakkeet" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Kuvakesetin nimi,Kirjoita tiedostonnimi:)"
++		"Tallenna teema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Teeman nimi,Kirjoita teematiedoston nimi:)"
++		"Tallenna kuvakkeet" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Kuvakesetin nimi,Kirjoita tiedostonnimi:)"
+ 		"Asetukset" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"Ulkonäkö" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.fr WindowMaker-0.80.2/WindowMaker/menu.fr
+--- WindowMaker-0.80.2.original/WindowMaker/menu.fr	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.fr	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  *
+  * SHORTCUT spécifie un raccourci pour une entrée dans le menu. <Raccourci>
+  * a la même syntaxe que les options pour les raccourcis clavier dans le
+- * fichier $HOME/GNUstep/Defaults/WindowMaker, comme par example RootMenuKey ou
++ * fichier $HOME/.GNUstep/Defaults/WindowMaker, comme par example RootMenuKey ou
+  * encore MiniaturizeKey.
+  *
+  * Il n'est pas possible de spécifier un raccourci pour une entrée MENU
+@@ -220,9 +220,9 @@
+ 	"Bureaux" END
+ 
+ 	"Apparence" MENU
+-		"Thèmes" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Styles" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Jeu d'icônes" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Thèmes" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Styles" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Jeu d'icônes" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Fond d'écran" MENU
+ 			"Unifié" MENU
+ 				"Noir" WS_BACK '(solid, black)'
+@@ -244,10 +244,10 @@
+ 				"Dégradés de Gris" WS_BACK '(vgradient, "#636380", "#131318")'
+ 				"Dégradés de Bordeau" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Degradé" END
+-			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Images" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Fond d'écran" END
+-		"Sauver le thème" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Nom du thème,Entrez un nom de fichier:)"
+-		"Sauver le jeu d'icônes" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Nom du jeu d'icônes,Entrez un nom de fichier:)"
++		"Sauver le thème" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Nom du thème,Entrez un nom de fichier:)"
++		"Sauver le jeu d'icônes" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Nom du jeu d'icônes,Entrez un nom de fichier:)"
+ 	"Apparence" END
+ 
+ 	"Quitter" MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.he WindowMaker-0.80.2/WindowMaker/menu.he
+--- WindowMaker-0.80.2.original/WindowMaker/menu.he	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.he	2004-01-06 00:06:26.000000000 +0100
+@@ -162,9 +162,9 @@
+ 	"äãåáò áçøî" END
+ 
+ 	"äàøî" MENU
+-		"Themes" OPEN_MENU -noext  THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"úåðåðâñ" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"íéðå÷ééà èñ" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Themes" OPEN_MENU -noext  THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"úåðåðâñ" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"íéðå÷ééà èñ" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"ò÷ø" MENU
+ 			"Solid" MENU
+                         	"øåçù" WS_BACK '(solid, black)'
+@@ -180,10 +180,10 @@
+ 				"Flag" WS_BACK '(vdgradient, blue, white, blue)'
+ 				"Sky" WS_BACK '(vgradient, blue4, white)'
+ 			"Gradient" END
+-			"Images" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Images" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"ò÷ø" END
+-		"Save Theme" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Save IconSet" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Save Theme" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Save IconSet" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"äàøî" END
+ 
+ 	"äàéöé"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.hr WindowMaker-0.80.2/WindowMaker/menu.hr
+--- WindowMaker-0.80.2.original/WindowMaker/menu.hr	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.hr	2004-01-06 00:06:26.000000000 +0100
+@@ -164,9 +164,9 @@
+ 	"Radni prostor" END
+ 
+ 	"Izgled" MENU
+-		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stilovi" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Setovi Ikona" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stilovi" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Setovi Ikona" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Pozadina" MENU
+ 			"Boja" MENU
+                         	"Crna" WS_BACK '(solid, black)'
+@@ -182,10 +182,10 @@
+ 				"Zastava" WS_BACK '(mdgradient, green, red, white, green)'
+ 				"Nebo" WS_BACK '(vgradient, blue4, white)'
+ 			"Preljev" END
+-			"Slike" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Slike" OPEN_MENU -noext  BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Pozadina" END
+-		"Snimi temu" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Snimi set ikona" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Snimi temu" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Snimi set ikona" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"Izgled" END
+ 
+ 	"Izlaz"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.hu WindowMaker-0.80.2/WindowMaker/menu.hu
+--- WindowMaker-0.80.2.original/WindowMaker/menu.hu	2001-01-07 00:52:00.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.hu	2004-01-06 00:06:26.000000000 +0100
+@@ -15,7 +15,7 @@
+  * 
+  * SHORTCUT meghataroz egy shortcut-ot adott programokra. <Shortcut>-nak
+  * ugyanolyan megadasi szintakszisa van a
+- * $HOME/GNUstep/Defaults/WindowMaker file-ban, mint a RootMenuKey
++ * $HOME/.GNUstep/Defaults/WindowMaker file-ban, mint a RootMenuKey
+  * vagy a MiniaturizeKey.
+  *
+  * Nem lehet letrehozni shortcut-ot MENU vagy OPEN_MENU bejegyzesben.
+@@ -178,9 +178,9 @@
+ 	"Munkafelület" END
+ 
+ 	"Megjelenés" MENU
+-		"Témák" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stílusok" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Ikonok" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Témák" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stílusok" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Ikonok" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Háttér" MENU
+ 			"Szolíd" MENU
+                         	"Fekete" WS_BACK '(solid, black)'
+@@ -200,10 +200,10 @@
+     				"Lilás" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Vöröses" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Gradiens" END
+-			"Képek" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Képek" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Háttér" END
+-		"Téma mentése" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Téma neve,Add meg a téma fájl nevét:)"
+-		"Ikonbeállítások mentése" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Ikonbeállítások mentése,Add meg a fájl nevét:)"
++		"Téma mentése" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Téma neve,Add meg a téma fájl nevét:)"
++		"Ikonbeállítások mentése" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Ikonbeállítások mentése,Add meg a fájl nevét:)"
+ 		"Konfiguráló program" EXEC /usr/X11R6/bin/WPrefs
+ 	"Megjelenés" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.ja WindowMaker-0.80.2/WindowMaker/menu.ja
+--- WindowMaker-0.80.2.original/WindowMaker/menu.ja	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.ja	2004-01-06 00:06:26.000000000 +0100
+@@ -169,9 +169,9 @@
+ 	"¥ï¡¼¥¯¥¹¥Ú¡¼¥¹" END
+ 
+ 	"³°´Ñ" MENU
+-		"¥Æ¡¼¥Þ" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"¥¹¥¿¥¤¥ë" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"¥¢¥¤¥³¥ó½¸" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"¥Æ¡¼¥Þ" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"¥¹¥¿¥¤¥ë" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"¥¢¥¤¥³¥ó½¸" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"ÇØ·Ê" MENU
+ 			"¥½¥ê¥Ã¥É" MENU
+                         	"Black" WS_BACK '(solid, black)'
+@@ -187,10 +187,10 @@
+ 				"Flag" WS_BACK '(mdgradient, green, red, white, green)'
+ 				"Sky" WS_BACK '(vgradient, blue4, white)'
+ 			"¥°¥é¥Ç¡¼¥·¥ç¥ó" END
+-			"¥¤¥á¡¼¥¸" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"¥¤¥á¡¼¥¸" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"ÇØ·Ê" END
+-		"¸½ºß¤ÎÀßÄê¤ò¥Æ¡¼¥Þ¤È¤·¤Æ¥»¡¼¥Ö" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"¸½ºß¤Î¥¢¥¤¥³¥ó½¸¤ò¥»¡¼¥Ö" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"¸½ºß¤ÎÀßÄê¤ò¥Æ¡¼¥Þ¤È¤·¤Æ¥»¡¼¥Ö" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"¸½ºß¤Î¥¢¥¤¥³¥ó½¸¤ò¥»¡¼¥Ö" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"³°´Ñ" END
+ 
+ 	"½ªÎ»"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.ko WindowMaker-0.80.2/WindowMaker/menu.ko
+--- WindowMaker-0.80.2.original/WindowMaker/menu.ko	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.ko	2004-01-06 00:06:26.000000000 +0100
+@@ -9,7 +9,7 @@
+  *         ÇÑ´Ù¸é ¹Ýµå½Ã µû¿ÈÇ¥ "·Î ¹­¾î¾ß ÇÑ´Ù.
+  *
+  * SHORTCUTÀº °¢ Ç×¸ñ¿¡ ´ëÇÑ ´ÜÃà ±Û¼è¸¦ ÁöÁ¤ÇÏ´Â ¸í·ÉÀÌ´Ù. <Shortcut>ÀÇ
+- * ¹®¹ýÀº $HOME/GNUstep/Defaults/WindowMakerÀÇ RootMenuKey³ª MiniaturizeKey
++ * ¹®¹ýÀº $HOME/.GNUstep/Defaults/WindowMakerÀÇ RootMenuKey³ª MiniaturizeKey
+  * ¿Í °°Àº ´ÜÃà ±Û¼è ¼³Á¤ ¿É¼Ç°ú °°´Ù.
+  *
+  * <Command> »ç¿ë°¡´ÉÇÑ ¸í·É¾îµé
+@@ -164,12 +164,12 @@
+ 	"Ã¢ °ü ¸®" END
+ 	"ÀÛ¾÷È¯°æ" MENU
+ 		"¼³    Á¤" SHEXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs || wmakerconf
+-		"Å×    ¸¶" OPEN_MENU -noext THEMES_DIR ~/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Å×¸¶ÀúÀå" EXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Å×¸¶ ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)"
+-		"¾ÆÀÌÄÜ¼Â" OPEN_MENU -noext ICON_SETS_DIR ~/GNUstep/Library/WindowMaker/IconSets WITH seticons
+-		"¾ÆÀÌÄÜ¼ÂÀúÀå" EXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(¾ÆÀÌÄÜ¼Â ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)"
++		"Å×    ¸¶" OPEN_MENU -noext THEMES_DIR ~/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Å×¸¶ÀúÀå" EXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Å×¸¶ ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)"
++		"¾ÆÀÌÄÜ¼Â" OPEN_MENU -noext ICON_SETS_DIR ~/.GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"¾ÆÀÌÄÜ¼ÂÀúÀå" EXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(¾ÆÀÌÄÜ¼Â ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)"
+ #if (DEPTH>8)
+-		"½º Å¸ ÀÏ" OPEN_MENU -noext STYLES_DIR ~/GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"½º Å¸ ÀÏ" OPEN_MENU -noext STYLES_DIR ~/.GNUstep/Library/WindowMaker/Styles WITH setstyle
+ #endif
+ 		"¹è°æÈ­¸é" MENU
+ 			"´Ü    »ö" MENU
+@@ -184,9 +184,9 @@
+ 				"»ö ÁöÁ¤" WS_BACK '(solid, "%a(¹è°æ»ö:)")'
+ 			"´Ü    »ö" END
+ 			"±×    ¸²" MENU
+-				"ÀüÃ¼È­¸é" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -s
+-				"Å¸ÀÏÇü½Ä" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+-				"°¡ ¿î µ¥" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -e
++				"ÀüÃ¼È­¸é" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -s
++				"Å¸ÀÏÇü½Ä" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++				"°¡ ¿î µ¥" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -e
+ 			"±×    ¸²" END
+ #if (DEPTH>8)
+ 			"±×·¡µð¾ðÆ®" MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.no WindowMaker-0.80.2/WindowMaker/menu.no
+--- WindowMaker-0.80.2.original/WindowMaker/menu.no	1999-05-29 23:41:26.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.no	2004-01-06 00:06:26.000000000 +0100
+@@ -163,9 +163,9 @@
+ 	"Arbeidsområder" END
+ 	"Utseende" MENU
+ 
+-		"Temaer" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stiler" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Ikon set" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Temaer" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stiler" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Ikon set" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Bakgrunn" MENU
+ 			"Ensfarget" MENU
+                         	"Svart" WS_BACK '(solid, black)'
+@@ -179,10 +179,10 @@
+ 				"Flagg"  WS_BACK '(mgradient, green, red, white, green)'
+ 				"Himmel" WS_BACK '(vgradient, blue4, white)'
+ 			"Overganger" END
+-		"Bilder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/BackGrounds WITH wmsetbg -u -t
++		"Bilder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/BackGrounds WITH wmsetbg -u -t
+ 		"Bakgrunn" END
+-		"Lagre Tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Lagre Ikonsett" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Lagre Tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Lagre Ikonsett" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"Utseende" END
+ 
+ 	"Avslutt"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.pl WindowMaker-0.80.2/WindowMaker/menu.pl
+--- WindowMaker-0.80.2.original/WindowMaker/menu.pl	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.pl	2004-01-06 00:06:26.000000000 +0100
+@@ -11,7 +11,7 @@
+  * 
+  * SHORTCUT Definiowanie skrótu.
+  * <Skrót> Nazwa rodzaju skrótu umieszczonego w pliku
+- *         $HOME/GNUstep/Defaults/WindowMaker, tak jak RootMenuKey 
++ *         $HOME/.GNUstep/Defaults/WindowMaker, tak jak RootMenuKey 
+  *         lub MiniaturizeKey.
+  *
+  * Skróty mog± wystêpowaæ w sekcji MENU lub OPEN_MENU .
+@@ -79,7 +79,7 @@
+  * "Test" END
+  *
+  * Je¿eli zamiast polskich fontów s± jakie¶ krzaczki nale¿y wyedetowaæ pliki
+- * $HOME/GNUstep/Defaults/WMGLOBAL i $HOME/GNUstep/Defaults/WindowMaker,  
++ * $HOME/.GNUstep/Defaults/WMGLOBAL i $HOME/.GNUstep/Defaults/WindowMaker,  
+  * lub wej¶æ w menu Konfiguracja.
+  * Aby uzyskaæ polskie znaki nale¿y uzupe³niæ definicje fontów.
+  * np. zamieniæ
+@@ -111,9 +111,9 @@
+ 	"Informacja" END
+ 	
+ 	"Konfiguracja" MENU	
+-		"Edycja menu"       EXEC ULUB_TERM -T "Edycja menu" -e ULUB_EDYTOR $HOME/GNUstep/Library/WindowMaker/menu
+-		"Ustawienie fontów" EXEC ULUB_TERM -T "Ustawienie fontów" -e ULUB_EDYTOR $HOME/GNUstep/Defaults/WMGLOBAL
+-		"Konfiguracja"      EXEC ULUB_TERM -T "Konfiguracja" -e ULUB_EDYTOR $HOME/GNUstep/Defaults/WindowMaker
++		"Edycja menu"       EXEC ULUB_TERM -T "Edycja menu" -e ULUB_EDYTOR $HOME/.GNUstep/Library/WindowMaker/menu
++		"Ustawienie fontów" EXEC ULUB_TERM -T "Ustawienie fontów" -e ULUB_EDYTOR $HOME/.GNUstep/Defaults/WMGLOBAL
++		"Konfiguracja"      EXEC ULUB_TERM -T "Konfiguracja" -e ULUB_EDYTOR $HOME/.GNUstep/Defaults/WindowMaker
+ 	"Konfiguracja" END
+ 	
+ 	"Uruchom..." EXEC %a(Uruchom,Wpisz komende do uruchomienia:)
+@@ -234,9 +234,9 @@
+ 	"Ekran" END
+ 
+ 	"Wygl±d" MENU
+-		"Tematy"          OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Style"           OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Ustawienia ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Tematy"          OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Style"           OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Ustawienia ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"T³o" MENU
+ 			"Jednolite" MENU
+                	"Czarny"            WS_BACK '(solid, black)'
+@@ -258,10 +258,10 @@
+     			"Cieniowany Szary"      WS_BACK '(vgradient, "#636380", "#131318")'
+     			"Cieniowany Winnny"     WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Cieniowane" END
+-			"Obrazki" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Obrazki" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"T³o" END
+-		"Zaoamiêtanie Tematu"        EXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Nazwa tematu,Wpisz nazwe pliku:)"
+-		"Zapamiêtanie Ustawieñ Ikon" EXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Ustawienia ikon,wpisz nazwe pliku:)"
++		"Zaoamiêtanie Tematu"        EXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Nazwa tematu,Wpisz nazwe pliku:)"
++		"Zapamiêtanie Ustawieñ Ikon" EXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Ustawienia ikon,wpisz nazwe pliku:)"
+ 	"Wygl±d" END
+ 
+ 	"Wyj¶cie" MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.pt WindowMaker-0.80.2/WindowMaker/menu.pt
+--- WindowMaker-0.80.2.original/WindowMaker/menu.pt	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.pt	2004-01-06 00:06:26.000000000 +0100
+@@ -8,7 +8,7 @@
+  * <Title> é qualquer texto a ser usado como título. Deve estar entre aspas "
+  * 
+  * SHORTCUT especifica uma tecla de atalho para o item. <tecla de atalho> 
+- * tem a mesma sintaxe das teclas de atalho em $HOME/GNUstep/Defaults/WindowMaker
++ * tem a mesma sintaxe das teclas de atalho em $HOME/.GNUstep/Defaults/WindowMaker
+  *
+  * Não é possível especificar teclas de atalho para MENU ou OPEN_MENU
+  * 
+@@ -38,7 +38,7 @@
+  *		de trabalho atual. Todas as informações serão restauradas
+  *		até que se use o comando SAVE_SESSION de novo ou CLEAR_SESSION.
+  *		Se SaveSessionOnExit = Yes; estiver definido no domínio 
+- *		WindowMaker ($HOME/GNUstep/Defaults/WindowMaker), então o 
++ *		WindowMaker ($HOME/.GNUstep/Defaults/WindowMaker), então o 
+  *		salvamento da sessão é feito automaticamente quando o 
+  *		WindowMaker finalizar, apagando quaisquer SAVE_SESSION ou
+  *		CLEAR_SESSION usados anteriormente.
+@@ -172,9 +172,9 @@
+ 	"Área de Trabalho" END
+ 
+ 	"Aparência" MENU
+-		"Temas" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Estilos" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Conjunto de Ícones" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Temas" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Estilos" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Conjunto de Ícones" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Papéis de Parede" MENU
+ 			"Sólido" MENU
+                         	"Preto" WS_BACK '(solid, black)'
+@@ -190,10 +190,10 @@
+ 				"Bandeira" WS_BACK '(mdgradient, green, green, yellow)'
+ 				"Céu" WS_BACK '(vgradient, blue4, white)'
+ 			"Degradé" END
+-			"Imagens" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Imagens" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Papéis de Parede" END
+-		"Salvar Tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Nome do Tema)"
+-		"Salvar Configuração de Ícones" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Nome do Conjunto de Ícones)"
++		"Salvar Tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Nome do Tema)"
++		"Salvar Configuração de Ícones" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Nome do Conjunto de Ícones)"
+ 	"Appearance" END
+ 
+ 	"Sair"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.ro WindowMaker-0.80.2/WindowMaker/menu.ro
+--- WindowMaker-0.80.2.original/WindowMaker/menu.ro	2000-07-25 02:07:44.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.ro	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * $HOME/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * $HOME/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -174,9 +174,9 @@
+ 	"Spaþiu de Lucru" END
+ 
+ 	"Configurare" MENU
+-		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stiluri" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Seturi de Icoane" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stiluri" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Seturi de Icoane" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Fundal" MENU
+ 			"Solid" MENU
+                         	"Negru" WS_BACK '(solid, black)'
+@@ -198,10 +198,10 @@
+     				"Gradient Gri" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Gradient Viºiniu" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Gradientat" END
+-			"Imagini" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Imagini" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Fundal" END
+-		"Salveazã Tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
+-		"Salveazã Setul de Iconiþe" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
++		"Salveazã Tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name,Enter file name:)"
++		"Salveazã Setul de Iconiþe" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name,Enter file name:)"
+ 		"Utilitar de Configurare" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"Configurare" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.se WindowMaker-0.80.2/WindowMaker/menu.se
+--- WindowMaker-0.80.2.original/WindowMaker/menu.se	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.se	2004-01-06 00:06:26.000000000 +0100
+@@ -172,9 +172,9 @@
+ 	"Arbetsbord" END
+ 
+ 	"Utseende" MENU
+-		"Teman" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stilar" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Ikonuppsättningar" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Teman" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stilar" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Ikonuppsättningar" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Bakgrund" MENU
+ 			"Enfärgat" MENU
+                         	"Svart" WS_BACK '(solid, black)'
+@@ -190,10 +190,10 @@
+ 				"Flagga" WS_BACK '(mdgradient, green, red, white, green)'
+ 				"Himmel" WS_BACK '(vgradient, blue4, white)'
+ 			"Toningar" END
+-			"Bilder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Bilder" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Bakgrund" END
+-		"Spara tema" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Spara ikonuppsättning" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Spara tema" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Spara ikonuppsättning" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"Utseende" END
+ 
+ 	"Avsluta"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.sk WindowMaker-0.80.2/WindowMaker/menu.sk
+--- WindowMaker-0.80.2.original/WindowMaker/menu.sk	2001-07-24 01:13:20.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/menu.sk	2004-01-06 00:06:26.000000000 +0100
+@@ -20,7 +20,7 @@
+  *	medzery, musí by» uzavretý v úvodzovkách.
+  * 
+  * SHORTCUT udáva klávesovú skratku pre danú polo¾ku. <Klávesová skratka> má
+- *	rovnakú syntax ako v súbore $HOME/GNUstep/Defaults/WindowMaker, napr. 
++ *	rovnakú syntax ako v súbore $HOME/.GNUstep/Defaults/WindowMaker, napr. 
+  *	RootMenuKey alebo MiniaturizeKey.
+  *
+  * Nemô¾ete zada» klávesovú skratku pre polo¾ky typu MENU a OPEN_MENU.
+@@ -189,8 +189,8 @@
+ 
+ 	"Vzhµad" MENU
+ 		"Témy" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"©týly" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Sady ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"©týly" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Sady ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Pozadie" MENU
+ 			"Jedna farba" MENU
+                         	"Èierna" WS_BACK '(solid, black)'
+@@ -212,10 +212,10 @@
+     				"Odtiene sivej" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Odtiene vínovej" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"Prechod farieb" END
+-			"Obrázky" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Obrázky" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Pozadie" END
+-		"Ulo¾i» tému" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Meno témy,Zadajte názov súboru:)"
+-		"Ulo¾i» sadu ikon" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Meno sady ikon,Zadajte názov súboru:)"
++		"Ulo¾i» tému" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Meno témy,Zadajte názov súboru:)"
++		"Ulo¾i» sadu ikon" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Meno sady ikon,Zadajte názov súboru:)"
+ 		"Konfiguraèný nástroj" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"Vzhµad" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.sl WindowMaker-0.80.2/WindowMaker/menu.sl
+--- WindowMaker-0.80.2.original/WindowMaker/menu.sl	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.sl	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * $HOME/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * $HOME/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -171,9 +171,9 @@
+ 	"Delovni prostor" END
+ 
+ 	"Izgled" MENU
+-		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Stili" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Zbirke ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Teme" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Stili" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Zbirke ikon" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Odzadje" MENU
+ 			"Barva" MENU
+                         	"Èrna" WS_BACK '(solid, black)'
+@@ -189,10 +189,10 @@
+ 				"Zastava" WS_BACK '(mdgradient, green, red, white, green)'
+ 				"Nebo" WS_BACK '(vgradient, blue4, white)'
+ 			"Preliv" END
+-			"Slike" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Slike" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Odzadje" END
+-		"Shrani temo" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Shrani zbirko ikon" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Shrani temo" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Shrani zbirko ikon" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"Izgled" END
+ 
+ 	"Izhod"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.tr WindowMaker-0.80.2/WindowMaker/menu.tr
+--- WindowMaker-0.80.2.original/WindowMaker/menu.tr	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.tr	2004-01-06 00:06:26.000000000 +0100
+@@ -9,7 +9,7 @@
+  * 	yazýlmalý
+  * 
+  * SHORTCUT sözkonusu giriþ için kýsayol tuþu tanýmlamak için kullanýlýr
+- * <Kýsayol>, $HOME/GNUstep/Defaults/WindowMaker olduðu gibi tanýmlanabilir.
++ * <Kýsayol>, $HOME/.GNUstep/Defaults/WindowMaker olduðu gibi tanýmlanabilir.
+  *
+  * MENU veya OPEN_MENU için kýsayol tanýmlayamazsýnýz.
+  * 
+@@ -90,7 +90,7 @@
+ "Ana Menü" MENU
+ 	"Bilgi" MENU
+ 		"Copyright..." EXEC xmessage -center -font variable -title \
+-	'WindowMaker 'WM_VERSION -file $HOME/GNUstep/Library/WindowMaker/Copyright
++	'WindowMaker 'WM_VERSION -file $HOME/.GNUstep/Library/WindowMaker/Copyright
+ 		"Sistem Konsolu" EXEC xconsole
+ 		"Sistem Yükü" SHEXEC xosview || xload
+ 		"Süreç Dökümü" EXEC xterm -e top
+@@ -157,9 +157,9 @@
+ 	"Çalýþma Alaný" END
+ 
+ 	"Görünüm" MENU
+-		"Temalar" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"Tarzlar" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Simge Kümeleri" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Temalar" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"Tarzlar" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Simge Kümeleri" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"Arkaplan" MENU
+ 			"Düz Renk" MENU
+                         	"Black" WS_BACK '(solid, black)'
+@@ -175,10 +175,10 @@
+ 				"Flag" WS_BACK '(mdgradient, green, red, white, green)'
+ 				"Sky" WS_BACK '(vgradient, blue4, white)'
+ 			"Renk Geçiþi" END
+-			"Görüntüler" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Görüntüler" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"Arkaplan" END
+-		"Tema Sakla" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
+-		"Simge Kümesi Sakla" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
++		"Tema Sakla" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Theme name)"
++		"Simge Kümesi Sakla" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(IconSet name)"
+ 	"Görünüm" END
+ 
+ 	"Çýkýþ"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.zh_CN WindowMaker-0.80.2/WindowMaker/menu.zh_CN
+--- WindowMaker-0.80.2.original/WindowMaker/menu.zh_CN	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.zh_CN	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * $HOME/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * $HOME/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -175,9 +175,9 @@
+ 	"¹¤×÷¿Õ¼ä" END
+ 
+ 	"Íâ¹Û" MENU
+-		"Ö÷Ìâ" OPEN_MENU -noext THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"·ç¸ñ" OPEN_MENU -noext STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"Í¼±ê¼¯" OPEN_MENU -noext ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"Ö÷Ìâ" OPEN_MENU -noext THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"·ç¸ñ" OPEN_MENU -noext STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"Í¼±ê¼¯" OPEN_MENU -noext ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"±³¾°" MENU
+ 			"µ¥É«" MENU
+                         	"ºÚ" WS_BACK '(solid, black)'
+@@ -199,10 +199,10 @@
+     				"»ÒÉ«ÒõÓ°" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"¾ÆºìÉ«ÒõÓ°" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"¹ý¶ÉÉ«" END
+-			"Í¼Ïñ" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"Í¼Ïñ" OPEN_MENU -noext BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"±³¾°" END
+-		"±£´æÖ÷Ìâ" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(Ö÷ÌâÃû,ÊäÈëÎÄ¼þÃû:)"
+-		"±£´æÍ¼±ê¼¯" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(Í¼±ê¼¯Ãû,ÊäÈëÎÄ¼þÃû:)"
++		"±£´æÖ÷Ìâ" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(Ö÷ÌâÃû,ÊäÈëÎÄ¼þÃû:)"
++		"±£´æÍ¼±ê¼¯" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(Í¼±ê¼¯Ãû,ÊäÈëÎÄ¼þÃû:)"
+ 	"Íâ¹Û" END
+ 
+ 	"ÍË³ö"	MENU
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/menu.zh_TW.Big5 WindowMaker-0.80.2/WindowMaker/menu.zh_TW.Big5
+--- WindowMaker-0.80.2.original/WindowMaker/menu.zh_TW.Big5	2002-01-08 14:44:42.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/menu.zh_TW.Big5	2004-01-06 00:06:26.000000000 +0100
+@@ -10,7 +10,7 @@
+  * 
+  * SHORTCUT specifies a shortcut for that item. <Shortcut> has the
+  * same syntax of the shortcuts key options in the 
+- * ~/GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
++ * ~/.GNUstep/Defaults/WindowMaker file, such as RootMenuKey or MiniaturizeKey.
+  *
+  * You can't specify a shortcut for a MENU or OPEN_MENU entry.
+  * 
+@@ -171,9 +171,9 @@
+ 	"¤u§@°Ï" END
+ 
+ 	"¥~Æ[" MENU
+-		"¥DÃD" OPEN_MENU THEMES_DIR $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle
+-		"­·®æ" OPEN_MENU STYLES_DIR $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle
+-		"¹Ï¥Ü¶°" OPEN_MENU ICON_SETS_DIR $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons
++		"¥DÃD" OPEN_MENU THEMES_DIR $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle
++		"­·®æ" OPEN_MENU STYLES_DIR $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle
++		"¹Ï¥Ü¶°" OPEN_MENU ICON_SETS_DIR $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons
+ 		"­I´º" MENU
+ 			"¹êÅé¦â" MENU
+                         	"Black" WS_BACK '(solid, black)'
+@@ -195,10 +195,10 @@
+     				"Grey Shades" WS_BACK '(vgradient, "#636380", "#131318")'
+     				"Wine Shades" WS_BACK '(vgradient, "#600040", "#180010")'
+ 			"º¥¼h¦â" END
+-			"¹Ï¤ù" OPEN_MENU BACKGROUNDS_DIR $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
++			"¹Ï¤ù" OPEN_MENU BACKGROUNDS_DIR $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t
+ 		"­I´º" END
+-		"Àx¦s¥DÃD" SHEXEC getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/"%a(¥DÃD¦WºÙ)"
+-		"Àx¦s¹Ï¥Ü¶°" SHEXEC geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/"%a(¹Ï¥Ü¶°¦WºÙ)"
++		"Àx¦s¥DÃD" SHEXEC getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/"%a(¥DÃD¦WºÙ)"
++		"Àx¦s¹Ï¥Ü¶°" SHEXEC geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/"%a(¹Ï¥Ü¶°¦WºÙ)"
+ 		"°¾¦n³]©w¤½¥Îµ{¦¡" EXEC /usr/local/GNUstep/Apps/WPrefs.app/WPrefs
+ 	"¥~Æ[" END
+ 
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu WindowMaker-0.80.2/WindowMaker/plmenu
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu	2002-07-02 02:30:25.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu	2004-01-06 00:07:23.000000000 +0100
+@@ -67,9 +67,9 @@
+   ("Clear Session", CLEAR_SESSION)
+   ),
+  ("Appearance",
+-  ("Themes", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Styles", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Icon Sets", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Themes", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Styles", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Icon Sets", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Background",
+    ("Solid",
+     ("Black", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -91,10 +91,10 @@
+     ("Grey Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Wine Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Images", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Images", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Save Theme", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("Save IconSet", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("Save Theme", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("Save IconSet", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("Preferences Utility", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("Exit",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.bg WindowMaker-0.80.2/WindowMaker/plmenu.bg
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.bg	2000-09-15 00:10:31.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.bg	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("Èç÷èñòè çàïàçåíàòà ñåñèÿ", CLEAR_SESSION)
+   ),
+  ("Èçãëåä",
+-  ("Òåìè", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Ñòèëîâå", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Êîëåêöèè èêîíêè", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Òåìè", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Ñòèëîâå", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Êîëåêöèè èêîíêè", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Ôîí",
+    ("Ïëúòåí",
+     ("×åðåí", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Ñèâè ñåíêè",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Âèíåíè ñåíêè",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Èçîáðàæåíèÿ", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Èçîáðàæåíèÿ", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Çàïàçè òåìàòà", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("Çàïàçè êîëåêöèÿòà èêîíêè", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("Çàïàçè òåìàòà", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("Çàïàçè êîëåêöèÿòà èêîíêè", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("Ïîñîáèå çà íàñòðîéêè", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("Èçõîä",
+@@ -103,4 +103,4 @@
+   ("Ñòàðòèðàé IceWM", RESTART, icewm),
+   ("Èçõîä...", EXIT)
+  )
+-)
+\ No newline at end of file
++)
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.da WindowMaker-0.80.2/WindowMaker/plmenu.da
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.da	2001-01-07 00:52:00.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.da	2004-01-06 00:06:26.000000000 +0100
+@@ -211,17 +211,17 @@
+                 (
+                 "Temaer",
+                 OPEN_MENU,
+-                "-noext /usr/local/share/WindowMaker/Themes  $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"
++                "-noext /usr/local/share/WindowMaker/Themes  $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"
+                 ),
+                 (
+                 "Stil",
+                 OPEN_MENU,
+-                "-noext /usr/local/share/WindowMaker/Styles  $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"
++                "-noext /usr/local/share/WindowMaker/Styles  $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"
+                 ),
+                 (
+                 "Ikonsæt",
+                 OPEN_MENU,
+-                "-noext /usr/local/share/WindowMaker/IconSets  $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"
++                "-noext /usr/local/share/WindowMaker/IconSets  $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"
+                 ),
+                 (
+                 "Baggrund",
+@@ -319,11 +319,11 @@
+                         (
+                         "Billeder",
+                         OPEN_MENU,
+-                        "-noext /usr/local/share/WindowMaker/Backgrounds  $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
++                        "-noext /usr/local/share/WindowMaker/Backgrounds  $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
+                         )
+                 ),
+-                ("Gem Tema", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Tema navn,Indtast navn:)"),
+-                ("Gem Ikonsæt", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(Ikonsæt navn,Indtast navn:)")
++                ("Gem Tema", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Tema navn,Indtast navn:)"),
++                ("Gem Ikonsæt", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(Ikonsæt navn,Indtast navn:)")
+         ),
+         (
+         "Afslut",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.de WindowMaker-0.80.2/WindowMaker/plmenu.de
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.de	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.de	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("Gespeicherte Sitzung löschen", CLEAR_SESSION)
+   ),
+  ("Erscheinungsbild",
+-  ("Themen", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Themes /home/mawa/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Stile", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Styles /home/mawa/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Iconsätze", OPEN_MENU, "-noext /usr/local/share/WindowMaker/IconSets /home/mawa/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Themen", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Themes /home/mawa/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Stile", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Styles /home/mawa/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Iconsätze", OPEN_MENU, "-noext /usr/local/share/WindowMaker/IconSets /home/mawa/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Hintergrund",
+    ("Einfarbig",
+     ("Schwarz", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Grau schattiert",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Weinfarben schattiert",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Bilder", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Backgrounds /home/mawa/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Bilder", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Backgrounds /home/mawa/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Thema speichern", SHEXEC, "getstyle -t /home/mawa/GNUstep/Library/WindowMaker/Themes/\"%a(Themenname)\""),
+-  ("Iconsatz speichern", SHEXEC, "geticonset /home/mawa/GNUstep/Library/WindowMaker/IconSets/\"%a(Iconsatz-Name)\"")
++  ("Thema speichern", SHEXEC, "getstyle -t /home/mawa/.GNUstep/Library/WindowMaker/Themes/\"%a(Themenname)\""),
++  ("Iconsatz speichern", SHEXEC, "geticonset /home/mawa/.GNUstep/Library/WindowMaker/IconSets/\"%a(Iconsatz-Name)\"")
+   ), 
+  ("Beenden",
+   ("Neustart", RESTART),
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.es WindowMaker-0.80.2/WindowMaker/plmenu.es
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.es	2000-06-16 02:16:35.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.es	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("Borrar sesion", CLEAR_SESSION)
+   ),
+  ("Apariencia",
+-  ("Temas", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Estilos", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Grupos de iconos", OPEN_MENU, "-noext /usr/local/share/WindowMaker/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Temas", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Estilos", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Grupos de iconos", OPEN_MENU, "-noext /usr/local/share/WindowMaker/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Papel Tapiz",
+    ("Solido",
+     ("Negro", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Sombras grises",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Sombras vino",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Imagenes", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Imagenes", OPEN_MENU, "-noext /usr/local/share/WindowMaker/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Guardar tema", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("Guardar iconos", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("Guardar tema", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("Guardar iconos", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("Preferencias", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("Salir",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.fi WindowMaker-0.80.2/WindowMaker/plmenu.fi
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.fi	2000-04-02 22:47:31.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.fi	2004-01-06 00:06:26.000000000 +0100
+@@ -238,17 +238,17 @@
+ 		(
+ 		"Teemat",
+ 		OPEN_MENU,
+-		"-noext /usr/local/share/WindowMaker/Themes  $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"
++		"-noext /usr/local/share/WindowMaker/Themes  $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"
+ 		),
+ 		(
+ 		"Tyylit",
+ 		OPEN_MENU,
+-		"-noext /usr/local/share/WindowMaker/Styles  $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"
++		"-noext /usr/local/share/WindowMaker/Styles  $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"
+ 		),
+ 		(
+ 		"Kuvakkeet",
+ 		OPEN_MENU,
+-		"-noext /usr/local/share/WindowMaker/IconSets  $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"
++		"-noext /usr/local/share/WindowMaker/IconSets  $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"
+ 		),
+ 		(
+ 		"Taustat",
+@@ -341,18 +341,18 @@
+ 			(
+ 			"Kuvat",
+ 			OPEN_MENU,
+-			"-noext /usr/local/share/WindowMaker/Backgrounds  $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
++			"-noext /usr/local/share/WindowMaker/Backgrounds  $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
+ 			)
+ 		),
+ 		(
+ 		"Tallenna teema",
+ 		EXEC,
+-		"getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Teeman nimi,Kirjoita teematiedoston nimi:)\""
++		"getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Teeman nimi,Kirjoita teematiedoston nimi:)\""
+ 		),
+ 		(
+ 		"Tallenna kuvakkeet",
+ 		EXEC,
+-		"geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(Kuvakesetin nimi,Kirjoita tiedostonnimi:)\""
++		"geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(Kuvakesetin nimi,Kirjoita tiedostonnimi:)\""
+ 		),
+ 		(
+ 		"Asetukset",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.fr WindowMaker-0.80.2/WindowMaker/plmenu.fr
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.fr	1999-05-29 23:41:26.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.fr	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+    ("Effacer la session", CLEAR_SESSION)
+   ),
+  ("Apparence",
+-   ("Thèmes", OPEN_MENU, "-noext /opt/share/WindowMaker/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-   ("Styles", OPEN_MENU, "-noext /opt/share/WindowMaker/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-   ("Jeu d'icônes", OPEN_MENU, "-noext /opt/share/WindowMaker/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++   ("Thèmes", OPEN_MENU, "-noext /opt/share/WindowMaker/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++   ("Styles", OPEN_MENU, "-noext /opt/share/WindowMaker/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++   ("Jeu d'icônes", OPEN_MENU, "-noext /opt/share/WindowMaker/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+    ("Fond d'écran",
+      ("Unifié",
+        ("Noir", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -88,10 +88,10 @@
+        ("Dégradés de Gris",    EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+        ("Dégradés de Bordeau", EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+       ),
+-     ("Images", OPEN_MENU, "-noext /opt/share/WindowMaker/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++     ("Images", OPEN_MENU, "-noext /opt/share/WindowMaker/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+       ),
+-   ("Sauver le thème", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes /\"%a(Nom du thème,Entrez un nom de fichier:)\""),
+-   ("Sauver le jeu d'icônes", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets /\"%a(Nom du jeu d'icônes,Entrez un nom de fichier:)\"")  
++   ("Sauver le thème", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes /\"%a(Nom du thème,Entrez un nom de fichier:)\""),
++   ("Sauver le jeu d'icônes", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets /\"%a(Nom du jeu d'icônes,Entrez un nom de fichier:)\"")  
+   ),
+  ("Quitter",
+    ("Redémarrer", RESTART),
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.hr WindowMaker-0.80.2/WindowMaker/plmenu.hr
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.hr	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.hr	2004-01-06 00:06:26.000000000 +0100
+@@ -88,17 +88,17 @@
+     (
+       Teme,
+       OPEN_MENU,
+-      "-noext /usr/local/share/WindowMaker/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"
++      "-noext /usr/local/share/WindowMaker/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"
+     ),
+     (
+       Stilovi,
+       OPEN_MENU,
+-      "-noext /usr/local/share/WindowMaker/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"
++      "-noext /usr/local/share/WindowMaker/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"
+     ),
+     (
+       "Setovi ikona",
+       OPEN_MENU,
+-      "-noext /usr/local/share/WindowMaker/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"
++      "-noext /usr/local/share/WindowMaker/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"
+     ),
+     (
+       Pozadina,
+@@ -191,18 +191,18 @@
+       (
+         Slike,
+         OPEN_MENU,
+-        "-noext /usr/local/share/WindowMaker/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
++        "-noext /usr/local/share/WindowMaker/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"
+       )
+     ),
+     (
+       "Snimi temu",
+       SHEXEC,
+-      "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""
++      "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""
+     ),
+     (
+       "Snimi set ikona",
+       SHEXEC,
+-      "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""
++      "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""
+     )
+   ),
+   (
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.it WindowMaker-0.80.2/WindowMaker/plmenu.it
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.it	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.it	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("Cancella Sessione salvata", CLEAR_SESSION)
+   ),
+  ("Visualizzazione",
+-  ("Temi", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Themes ~/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Stili", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Styles ~/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Set di Icone", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/IconSets ~/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Temi", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Themes ~/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Stili", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Styles ~/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Set di Icone", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/IconSets ~/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Sfondo",
+    ("Tinta unita",
+     ("Nero", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Sfumature Grigie",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Sfumature Vinaccia",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Immagini", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Backgrounds ~/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Immagini", OPEN_MENU, "-noext /usr/X11R6/share/WindowMaker/Backgrounds ~/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Salva il tema", EXEC, "getstyle -t ~/GNUstep/Library/WindowMaker/Themes/\"%a(Nome Tema)\""),
+-  ("Salva il set icone", EXEC, "geticonset ~/GNUstep/Library/WindowMaker/IconSets/\"%a(Nome IconSet)\"")
++  ("Salva il tema", EXEC, "getstyle -t ~/.GNUstep/Library/WindowMaker/Themes/\"%a(Nome Tema)\""),
++  ("Salva il set icone", EXEC, "geticonset ~/.GNUstep/Library/WindowMaker/IconSets/\"%a(Nome IconSet)\"")
+   ), 
+  ("Esci",
+   ("Riavvia", RESTART),
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.ja WindowMaker-0.80.2/WindowMaker/plmenu.ja
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.ja	2001-05-31 20:06:20.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.ja	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("¥»¥Ã¥·¥ç¥ó¤ò¥¯¥ê¥¢", CLEAR_SESSION)
+   ),
+  ("³°´Ñ",
+-  ("¥Æ¡¼¥Þ", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("¥¹¥¿¥¤¥ë", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("¥¢¥¤¥³¥ó¥»¥Ã¥È", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("¥Æ¡¼¥Þ", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("¥¹¥¿¥¤¥ë", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("¥¢¥¤¥³¥ó¥»¥Ã¥È", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("ÇØ·Ê",
+    ("¥½¥ê¥Ã¥É",
+     ("Black", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Grey Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Wine Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("¥¤¥á¡¼¥¸", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("¥¤¥á¡¼¥¸", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("ÀßÄê¤ò¥Æ¡¼¥Þ¤È¤·¤Æ¥»¡¼¥Ö", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("¸½ºß¤Î¥¢¥¤¥³¥ó¥»¥Ã¥È¤ò¥»¡¼¥Ö", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("ÀßÄê¤ò¥Æ¡¼¥Þ¤È¤·¤Æ¥»¡¼¥Ö", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("¸½ºß¤Î¥¢¥¤¥³¥ó¥»¥Ã¥È¤ò¥»¡¼¥Ö", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("ÀßÄê¥æ¡¼¥Æ¥£¥ê¥Æ¥£", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("½ªÎ»",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.ko WindowMaker-0.80.2/WindowMaker/plmenu.ko
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.ko	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.ko	2004-01-06 00:06:26.000000000 +0100
+@@ -64,11 +64,11 @@
+  ("ÀÛ¾÷°ø°£", WORKSPACE_MENU),
+  ("ÀÛ¾÷È¯°æ",
+   ("¼³    Á¤", SHEXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs || wmakerconf"),
+-  ("Å×    ¸¶", OPEN_MENU, "-noext /usr/share/WindowMaker/Themes ~/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Å×¸¶ÀúÀå", EXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Å×¸¶ ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)\""),
+-  ("½º Å¸ ÀÏ", OPEN_MENU, "-noext /usr/share/WindowMaker/Styles ~/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("¾ÆÀÌÄÜ¼Â", OPEN_MENU, "-noext /usr/share/WindowMaker/IconSets ~/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+-  ("¾ÆÀÌÄÜ¼ÂÀúÀå", EXEC, "geticonset ~/GNUstep/Library/WindowMaker/IconSets/\"%a(¾ÆÀÌÄÜ¼Â ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)\""),
++  ("Å×    ¸¶", OPEN_MENU, "-noext /usr/share/WindowMaker/Themes ~/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Å×¸¶ÀúÀå", EXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Å×¸¶ ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)\""),
++  ("½º Å¸ ÀÏ", OPEN_MENU, "-noext /usr/share/WindowMaker/Styles ~/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("¾ÆÀÌÄÜ¼Â", OPEN_MENU, "-noext /usr/share/WindowMaker/IconSets ~/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("¾ÆÀÌÄÜ¼ÂÀúÀå", EXEC, "geticonset ~/.GNUstep/Library/WindowMaker/IconSets/\"%a(¾ÆÀÌÄÜ¼Â ÀÌ¸§,ÆÄÀÏ ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä:)\""),
+   ("¹è°æÈ­¸é",
+    ("´Ü    »ö",
+     ("Black", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -82,9 +82,9 @@
+     ("»öÁöÁ¤", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, \"%a(¹è°æ»ö:)\")'")
+     ),
+    ("±×    ¸²",
+-    ("ÀüÃ¼È­¸é", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -s"),
+-    ("Å¸ÀÏÇü½Ä", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"),
+-    ("°¡ ¿î µ¥", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -e")
++    ("ÀüÃ¼È­¸é", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -s"),
++    ("Å¸ÀÏÇü½Ä", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t"),
++    ("°¡ ¿î µ¥", OPEN_MENU, "-noext /usr/share/WindowMaker/Backgrounds ~/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -e")
+     ),
+    ("±×·¡µð¾ðÆ®",
+     ("Sunset", EXEC, "wdwrite WindowMaker WorkspaceBack '(mvgradient, deepskyblue4, black, deepskyblue4, tomato4)'"),
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.pl WindowMaker-0.80.2/WindowMaker/plmenu.pl
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.pl	2000-01-04 22:45:57.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.pl	2004-01-06 00:06:26.000000000 +0100
+@@ -9,9 +9,9 @@
+ 	),
+ 	
+ 	("Konfiguracja",	
+-		("Edycja menu",       EXEC, "xterm -T 'Edycja menu' -e vi $HOME/GNUstep/Library/WindowMaker/menu"),
+-		("Ustawienie fontów", EXEC, "xterm -T 'Ustawienie fontów' -e vi $HOME/GNUstep/Defaults/WMGLOBAL"),
+-		("Konfiguracja",      EXEC, "xterm -T 'Konfiguracja' -e vi $HOME/GNUstep/Defaults/WindowMaker")
++		("Edycja menu",       EXEC, "xterm -T 'Edycja menu' -e vi $HOME/.GNUstep/Library/WindowMaker/menu"),
++		("Ustawienie fontów", EXEC, "xterm -T 'Ustawienie fontów' -e vi $HOME/.GNUstep/Defaults/WMGLOBAL"),
++		("Konfiguracja",      EXEC, "xterm -T 'Konfiguracja' -e vi $HOME/.GNUstep/Defaults/WindowMaker")
+ 	),
+ 	
+ 	("Uruchom...", EXEC, "%a(Uruchom,Wpisz komende do uruchomienia:)"),
+@@ -131,9 +131,9 @@
+ 	),
+ 
+ 	("Wygl±d",
+-		("Tematy",          OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-		("Style",           OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-		("Ustawienia ikon", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++		("Tematy",          OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++		("Style",           OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++		("Ustawienia ikon", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+ 		("T³o",
+ 			("Jednolite",
+                	("Czarny",            EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -155,10 +155,10 @@
+     			("Cieniowany Szary",      EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, '#636380', '#131318')'"),
+     			("Cieniowany Winnny",     EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, '#600040', '#180010')'")
+ 			),
+-			("Obrazki", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t)")
++			("Obrazki", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t)")
+ 		),
+-		("Zaoamiêtanie Tematu",        EXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/'%a(Nazwa tematu,Wpisz nazwe pliku:)'"),
+-		("Zapamiêtanie Ustawieñ Ikon", EXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/'%a(Ustawienia ikon,Wpisz nazwe pliku:)'")
++		("Zaoamiêtanie Tematu",        EXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/'%a(Nazwa tematu,Wpisz nazwe pliku:)'"),
++		("Zapamiêtanie Ustawieñ Ikon", EXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/'%a(Ustawienia ikon,Wpisz nazwe pliku:)'")
+ 	),
+ 
+ 	("Wyj¶cie",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.ro WindowMaker-0.80.2/WindowMaker/plmenu.ro
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.ro	2000-07-25 02:07:44.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.ro	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("ªterge Setãrile de Sesiune", CLEAR_SESSION)
+   ),
+  ("Configurare",
+-  ("Teme", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("Stiluri", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Seturi de Iconiþe", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Teme", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("Stiluri", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Seturi de Iconiþe", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Fundal",
+    ("Solid",
+     ("Negru", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Gradient Gri",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Gradient Viºiniu",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Imagini", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Imagini", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Salveazã Tema", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("Salveazã Setul de Iconiþe", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("Salveazã Tema", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("Salveazã Setul de Iconiþe", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("Utilitar de Configurare", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("Ieºire",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.sk WindowMaker-0.80.2/WindowMaker/plmenu.sk
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.sk	2001-01-26 20:31:12.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.sk	2004-01-06 00:06:26.000000000 +0100
+@@ -66,9 +66,9 @@
+   ("Zmaza» sedenie", CLEAR_SESSION)
+   ),
+  ("Vzhµad",
+-  ("Témy", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("©týly", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Sada ikon", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Témy", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("©týly", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Sada ikon", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("Pozadie",
+    ("Jedna farba",
+     ("Èierna", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -90,10 +90,10 @@
+     ("Odtiene sivej",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Odtiene vínovej",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Obrázky", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Obrázky", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("Ulo¾i» tému", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
+-  ("Ulo¾i» sadu ikon", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
++  ("Ulo¾i» tému", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Theme name)\""),
++  ("Ulo¾i» sadu ikon", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(IconSet name)\""),
+   ("Konfiguraèný nástroj", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ), 
+  ("Koniec",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.zh_CN WindowMaker-0.80.2/WindowMaker/plmenu.zh_CN
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.zh_CN	2001-09-01 16:06:04.000000000 +0200
++++ WindowMaker-0.80.2/WindowMaker/plmenu.zh_CN	2004-01-06 00:06:26.000000000 +0100
+@@ -68,9 +68,9 @@
+   ("Çå³ý±£´æµÄ»á»°", CLEAR_SESSION)
+   ),
+  ("Íâ¹Û",
+-  ("Ö÷Ìâ", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("·ç¸ñ", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("Í¼±ê¼¯", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("Ö÷Ìâ", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("·ç¸ñ", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("Í¼±ê¼¯", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("±³¾°",
+    ("µ¥É«",
+     ("ºÚ", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -92,10 +92,10 @@
+     ("»ÒÉ«ÒõÓ°",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("¾ÆºìÒõÓ°",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("Í¼Ïñ", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("Í¼Ïñ", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),   
+-  ("±£´æÖ÷Ìâ", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/\"%a(Ö÷ÌâÃû)\""),
+-  ("±£´æÍ¼±ê¼¯", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/\"%a(Í¼±ê¼¯Ãû)\"")
++  ("±£´æÖ÷Ìâ", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/\"%a(Ö÷ÌâÃû)\""),
++  ("±£´æÍ¼±ê¼¯", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/\"%a(Í¼±ê¼¯Ãû)\"")
+   ), 
+  ("ÍË³ö",
+   ("ÖØÐÂÆô¶¯", RESTART),
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/plmenu.zh_TW.Big5 WindowMaker-0.80.2/WindowMaker/plmenu.zh_TW.Big5
+--- WindowMaker-0.80.2.original/WindowMaker/plmenu.zh_TW.Big5	2002-01-08 14:44:43.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/plmenu.zh_TW.Big5	2004-01-06 00:06:26.000000000 +0100
+@@ -64,9 +64,9 @@
+   ("²M°£¶¥¬qª¬ºA", CLEAR_SESSION)
+   ),
+  ("¥~Æ[",
+-  ("¥DÃD", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/GNUstep/Library/WindowMaker/Themes WITH setstyle"),
+-  ("­·®æ", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/GNUstep/Library/WindowMaker/Styles WITH setstyle"),
+-  ("¹Ï¥Ü¶°", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/GNUstep/Library/WindowMaker/IconSets WITH seticons"),
++  ("¥DÃD", OPEN_MENU, "-noext #wmdatadir#/Themes $HOME/.GNUstep/Library/WindowMaker/Themes WITH setstyle"),
++  ("­·®æ", OPEN_MENU, "-noext #wmdatadir#/Styles $HOME/.GNUstep/Library/WindowMaker/Styles WITH setstyle"),
++  ("¹Ï¥Ü¶°", OPEN_MENU, "-noext #wmdatadir#/IconSets $HOME/.GNUstep/Library/WindowMaker/IconSets WITH seticons"),
+   ("­I´º",
+    ("¹êÅé¦â",
+     ("Black", EXEC, "wdwrite WindowMaker WorkspaceBack '(solid, black)'"),
+@@ -88,10 +88,10 @@
+     ("Grey Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#636380\", \"#131318\")'"),
+     ("Wine Shades",   EXEC, "wdwrite WindowMaker WorkspaceBack '(vgradient, \"#600040\", \"#180010\")'")
+     ),
+-   ("¹Ï¤ù", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
++   ("¹Ï¤ù", OPEN_MENU, "-noext #wmdatadir#/Backgrounds $HOME/.GNUstep/Library/WindowMaker/Backgrounds WITH wmsetbg -u -t")
+    ),
+-  ("Àx¦s¥DÃD", SHEXEC, "getstyle -t $HOME/GNUstep/Library/WindowMaker/Themes/%a(¥DÃD¦WºÙ)"),
+-  ("Àx¦s¹Ï¥Ü¶°", SHEXEC, "geticonset $HOME/GNUstep/Library/WindowMaker/IconSets/%a(¹Ï¥Ü¶°¦WºÙ)")
++  ("Àx¦s¥DÃD", SHEXEC, "getstyle -t $HOME/.GNUstep/Library/WindowMaker/Themes/%a(¥DÃD¦WºÙ)"),
++  ("Àx¦s¹Ï¥Ü¶°", SHEXEC, "geticonset $HOME/.GNUstep/Library/WindowMaker/IconSets/%a(¹Ï¥Ü¶°¦WºÙ)")
+   ("°¾¦n³]©w¤½¥Îµ{¦¡", EXEC, "/usr/local/GNUstep/Apps/WPrefs.app/WPrefs")
+   ),
+  ("Â÷¶}",
+diff -Naur WindowMaker-0.80.2.original/WindowMaker/wmmacros WindowMaker-0.80.2/WindowMaker/wmmacros
+--- WindowMaker-0.80.2.original/WindowMaker/wmmacros	1999-01-11 13:39:36.000000000 +0100
++++ WindowMaker-0.80.2/WindowMaker/wmmacros	2004-01-06 00:06:26.000000000 +0100
+@@ -22,7 +22,7 @@
+ /*
+  * SETSTYLE FILE - loads a style file 
+  */
+-#define SETSTYLE EXEC cd $HOME/GNUstep/Library/WindowMaker/Styles; setstyle 
++#define SETSTYLE EXEC cd $HOME/.GNUstep/Library/WindowMaker/Styles; setstyle 
+ 
+ 
+ /*
+diff -Naur WindowMaker-0.80.2.original/doc/geticonset.1x WindowMaker-0.80.2/doc/geticonset.1x
+--- WindowMaker-0.80.2.original/doc/geticonset.1x	1999-02-17 12:06:46.000000000 +0100
++++ WindowMaker-0.80.2/doc/geticonset.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -21,7 +21,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .SH FILES
+ .IP GNUSTEP_USER_ROOT/Defaults/WMWindowAttributes
+ is the actual file that's read.
+diff -Naur WindowMaker-0.80.2.original/doc/getstyle.1x WindowMaker-0.80.2/doc/getstyle.1x
+--- WindowMaker-0.80.2.original/doc/getstyle.1x	2001-09-06 11:33:29.000000000 +0200
++++ WindowMaker-0.80.2/doc/getstyle.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -50,7 +50,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .SH FILES
+ .IP GNUSTEP_USER_ROOT/Defaults/WindowMaker
+ This is the actual file that gets written.
+diff -Naur WindowMaker-0.80.2.original/doc/seticons.1x WindowMaker-0.80.2/doc/seticons.1x
+--- WindowMaker-0.80.2.original/doc/seticons.1x	1999-02-17 12:06:46.000000000 +0100
++++ WindowMaker-0.80.2/doc/seticons.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -23,7 +23,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .SH FILES
+ .IP GNUSTEP_USER_ROOT/Defaults/WMWindowAttributes
+ This is the actual file that's written.
+diff -Naur WindowMaker-0.80.2.original/doc/setstyle.1x WindowMaker-0.80.2/doc/setstyle.1x
+--- WindowMaker-0.80.2.original/doc/setstyle.1x	2001-09-06 11:33:29.000000000 +0200
++++ WindowMaker-0.80.2/doc/setstyle.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -42,7 +42,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .SH FILES
+ .IP GNUSTEP_USER_ROOT/Defaults/WindowMaker
+ This is the actual file that's written.
+diff -Naur WindowMaker-0.80.2.original/doc/sk/geticonset.1x WindowMaker-0.80.2/doc/sk/geticonset.1x
+--- WindowMaker-0.80.2.original/doc/sk/geticonset.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/geticonset.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -21,7 +21,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .SH SÚBORY
+ .IP GNUSTEP_USER_ROOT/Defaults/WMWindowAttributes
+ Toto je súbor, ktorý sa zapí¹e.
+diff -Naur WindowMaker-0.80.2.original/doc/sk/getstyle.1x WindowMaker-0.80.2/doc/sk/getstyle.1x
+--- WindowMaker-0.80.2.original/doc/sk/getstyle.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/getstyle.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -39,7 +39,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .SH SÚBORY
+ .IP GNUSTEP_USER_ROOT/Defaults/WindowMaker
+ Toto je súbor, ktorý sa zapí¹e.
+diff -Naur WindowMaker-0.80.2.original/doc/sk/seticons.1x WindowMaker-0.80.2/doc/sk/seticons.1x
+--- WindowMaker-0.80.2.original/doc/sk/seticons.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/seticons.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -23,7 +23,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .SH SÚBORY
+ .IP GNUSTEP_USER_ROOT/Defaults/WMWindowAttributes
+ Toto je súbor, ktorý sa zapí¹e.
+diff -Naur WindowMaker-0.80.2.original/doc/sk/setstyle.1x WindowMaker-0.80.2/doc/sk/setstyle.1x
+--- WindowMaker-0.80.2.original/doc/sk/setstyle.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/setstyle.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -32,7 +32,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .SH SÚBORY
+ .IP GNUSTEP_USER_ROOT/Defaults/WindowMaker
+ Toto je súbor, ktorý sa zapí¹e.
+diff -Naur WindowMaker-0.80.2.original/doc/sk/wdwrite.1x WindowMaker-0.80.2/doc/sk/wdwrite.1x
+--- WindowMaker-0.80.2.original/doc/sk/wdwrite.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/wdwrite.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -26,7 +26,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .SH SÚBORY
+ Domény sa nachádzajú v GNUSTEP_USER_ROOT/Defaults/
+ .SH POZRI TIE®
+diff -Naur WindowMaker-0.80.2.original/doc/sk/wmaker.1x WindowMaker-0.80.2/doc/sk/wmaker.1x
+--- WindowMaker-0.80.2.original/doc/sk/wmaker.1x	2001-07-24 14:05:12.000000000 +0200
++++ WindowMaker-0.80.2/doc/sk/wmaker.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -43,18 +43,18 @@
+ .PP
+ .SH SÚBORY
+ .TP
+-.B ~/GNUstep/Defaults/WindowMaker
++.B ~/.GNUstep/Defaults/WindowMaker
+ v¹eobecné nastavenia Window Makera.
+ .TP
+-.B ~/GNUstep/Defaults/WMState
++.B ~/.GNUstep/Defaults/WMState
+ informácie o Doku a Spinke. NEeditujte za behu Window Makeru. Bude
+ prepísaný.
+ .TP
+-.B ~/GNUstep/Defaults/WMRootMenu
++.B ~/.GNUstep/Defaults/WMRootMenu
+ Obsahuje meno súboru, z ktorého sa má naèíta» hlavné menu alebo
+ menu samotné vo formáte proplist.
+ .TP
+-.B ~/GNUstep/Defaults/WMWindowAttributes
++.B ~/.GNUstep/Defaults/WMWindowAttributes
+ Atribúty pre rôzne triedy a in¹tancie aplikácií. Pou¾ite editor nastavení
+ (»ahajte pravé tlaèítko na hornej li¹te aplikácie, zvoµte Nastavenia)
+ namiesto priameho editovania tohto súboru. Je len málo nastavení, ktoré
+@@ -66,10 +66,10 @@
+ sú naèítané, ak je potrebné zapísa» zmenu konfigurácie spä» do týchto
+ súborov, zapí¹u sa do u¾ívateµských súborov.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/autostart
++.B ~/.GNUstep/Library/WindowMaker/autostart
+ Tento skript sa automaticky vykoná pri ¹tarte Window Makera.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/exitscript
++.B ~/.GNUstep/Library/WindowMaker/exitscript
+ Tento skript sa automaticky vykoná bezprostredne pred ukonèením Window Makera.
+ .B Poznámka:
+ Ak potrebujete spusti» z tohto skriptu nieèo, èo vy¾aduje spustený X server,
+@@ -78,24 +78,24 @@
+ z hlavného menu. Inak sa mô¾e sta», ¾e X server sa ukonèí skôr ne¾ sa vykoná
+ skript.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/
++.B ~/.GNUstep/Library/WindowMaker/
+ Súbor menu, ktorého názov je vo WMRootMenu, sa hµadá tu...
+ .TP
+ .B /etc/X11/WindowMaker/
+ a tu, v tomto poradí, pokiaµ nie je názov absolútna cesta.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Pixmaps/
++.B ~/.GNUstep/Library/WindowMaker/Pixmaps/
+ Tu hµadá Window Maker obrázky
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Backgrounds/
++.B ~/.GNUstep/Library/WindowMaker/Backgrounds/
+ Tu hµadá Window Maker pozadia
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Styles/
++.B ~/.GNUstep/Library/WindowMaker/Styles/
+ Tu hµadá Window Maker súbory so ¹týlmi (nie celkom... vyzerá to tak, ale
+ aj tak musíte zada» úplnú cestu. Je to len vyhradené miesto, aby boli
+ veci pekne usporiadané)
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Themes/
++.B ~/.GNUstep/Library/WindowMaker/Themes/
+ Tu hµadá Window Maker súbory s témami (viï vy¹¹ie)
+ .TP
+ .B /usr/share/WindowMaker/Pixmaps/
+@@ -113,7 +113,7 @@
+ .IP GNUSTEP_USER_ROOT
+ ¹pecifikuje cestu k adresáru Defaults. "Defaults/" je pridané k tejto
+ premennej, èím sa urèí umiestnenie databáz. Ak premenná nie je nastavená,
+-jej implicitná hodnota je "~/GNUstep"
++jej implicitná hodnota je "~/.GNUstep"
+ .IP GNUSTEP_LOCAL_ROOT
+ ¹pecifikuje umiestnenie systémového \fBlokálneho\fP GNUstep adresára (toto
+ je u¾itoèné v prípade, ¾e umiestnenie adresára spoloèného pre celý systém je
+diff -Naur WindowMaker-0.80.2.original/doc/wdwrite.1x WindowMaker-0.80.2/doc/wdwrite.1x
+--- WindowMaker-0.80.2.original/doc/wdwrite.1x	1999-02-17 12:06:46.000000000 +0100
++++ WindowMaker-0.80.2/doc/wdwrite.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -26,7 +26,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .SH FILES
+ The domains reside in GNUSTEP_USER_ROOT/Defaults/
+ .SH SEE ALSO
+diff -Naur WindowMaker-0.80.2.original/doc/wmaker.1x WindowMaker-0.80.2/doc/wmaker.1x
+--- WindowMaker-0.80.2.original/doc/wmaker.1x	1999-02-17 12:06:46.000000000 +0100
++++ WindowMaker-0.80.2/doc/wmaker.1x	2004-01-06 00:06:26.000000000 +0100
+@@ -43,18 +43,18 @@
+ .PP
+ .SH FILES
+ .TP
+-.B ~/GNUstep/Defaults/WindowMaker
++.B ~/.GNUstep/Defaults/WindowMaker
+ general Window Maker defaults.
+ .TP
+-.B ~/GNUstep/Defaults/WMState
++.B ~/.GNUstep/Defaults/WMState
+ information about the Dock and Clip. DON'T edit this while running
+ Window Maker. It will be overwritten.
+ .TP
+-.B ~/GNUstep/Defaults/WMRootMenu
++.B ~/.GNUstep/Defaults/WMRootMenu
+ Contains the name of the file to read the root menu from or the
+ menu itself, in property list format.
+ .TP
+-.B ~/GNUstep/Defaults/WMWindowAttributes
++.B ~/.GNUstep/Defaults/WMWindowAttributes
+ Attributes for different application classes and instances. Use the
+ Attribute Editor (right drag the application's title bar, select
+ Attributes) instead of modifying this file directly. There are just a
+@@ -66,10 +66,10 @@
+ from, if it's necesary to write configuration changes back into this
+ files, user's files will be written to.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/autostart
++.B ~/.GNUstep/Library/WindowMaker/autostart
+ This script is automatically executed when Window Maker is started.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/exitscript
++.B ~/.GNUstep/Library/WindowMaker/exitscript
+ This script is automatically executed immediately before Window Maker is 
+ exited.
+ .B Note:
+@@ -79,24 +79,24 @@
+ command from the root menu to exit Window Maker. Otherwise, the X server
+ might be shut down before the script is executed.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/
++.B ~/.GNUstep/Library/WindowMaker/
+ The menu file indicated in WMRootMenu is looked for here...
+ .TP
+ .B /etc/X11/WindowMaker/
+ and here, in that order. Unless, the indicated path is an absolute path.
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Pixmaps/
++.B ~/.GNUstep/Library/WindowMaker/Pixmaps/
+ Window Maker looks for pixmaps here
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Backgrounds/
++.B ~/.GNUstep/Library/WindowMaker/Backgrounds/
+ Window Maker looks for backgrounds here
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Styles/
++.B ~/.GNUstep/Library/WindowMaker/Styles/
+ Window Maker looks for style files here (not true... it looks like it
+ does, but you have to specify the full path anyway, it's just a place
+ to keep things nicely ordered)
+ .TP
+-.B ~/GNUstep/Library/WindowMaker/Themes/
++.B ~/.GNUstep/Library/WindowMaker/Themes/
+ Window Maker looks for theme files here (ibid)
+ .TP
+ .B /usr/share/WindowMaker/Pixmaps/
+@@ -114,7 +114,7 @@
+ .IP GNUSTEP_USER_ROOT
+ specifies the initial path for the Defaults directory. "Defaults/" is
+ appended to this variable to determine the actual location of the
+-databases. If the varialbe is not set, it defaults to "~/GNUstep"
++databases. If the varialbe is not set, it defaults to "~/.GNUstep"
+ .IP GNUSTEP_LOCAL_ROOT
+ specifies the location of the system-wide \fBlocal\fP GNUstep
+ directory (this is useful, for example, in those cases where the
+diff -Naur WindowMaker-0.80.2.original/src/WindowMaker.h WindowMaker-0.80.2/src/WindowMaker.h
+--- WindowMaker-0.80.2.original/src/WindowMaker.h	2002-02-21 12:28:48.000000000 +0100
++++ WindowMaker-0.80.2/src/WindowMaker.h	2004-01-06 00:06:26.000000000 +0100
+@@ -474,7 +474,7 @@
+         unsigned int nodock:1;	       /* don't display the dock */
+         unsigned int noclip:1;         /* don't display the clip */
+ 	unsigned int nocpp:1;	       /* don't use cpp */
+-	unsigned int noupdates:1;      /* don't require ~/GNUstep (-static) */
++	unsigned int noupdates:1;      /* don't require ~/.GNUstep (-static) */
+ 	unsigned int noautolaunch:1;   /* don't autolaunch apps */
+ 	unsigned int norestore:1;      /* don't restore session */
+ 	unsigned int create_stdcmap:1; /* create std colormap */
+diff -Naur WindowMaker-0.80.2.original/src/icon.c WindowMaker-0.80.2/src/icon.c
+--- WindowMaker-0.80.2.original/src/icon.c	2002-02-21 12:28:48.000000000 +0100
++++ WindowMaker-0.80.2/src/icon.c	2004-01-06 00:06:26.000000000 +0100
+@@ -517,7 +517,7 @@
+ 
+ /*
+  * wIconStore--
+- * 	Stores the client supplied icon at ~/GNUstep/.AppInfo/WindowMaker
++ * 	Stores the client supplied icon at ~/.GNUstep/.AppInfo/WindowMaker
+  * and returns the path for that icon. Returns NULL if there is no
+  * client supplied icon or on failure.
+  * 
+diff -Naur WindowMaker-0.80.2.original/src/session.c WindowMaker-0.80.2/src/session.c
+--- WindowMaker-0.80.2.original/src/session.c	2002-02-21 12:28:50.000000000 +0100
++++ WindowMaker-0.80.2/src/session.c	2004-01-06 00:06:26.000000000 +0100
+@@ -704,7 +704,7 @@
+  * might want to keep the dock configuration while not wanting to
+  * resume a previously saved session. 
+  * So, wmaker specific state info can be saved in 
+- * ~/GNUstep/.AppInfo/WindowMaker/statename.state 
++ * ~/.GNUstep/.AppInfo/WindowMaker/statename.state 
+  * Its better to not put it in the defaults directory because:
+  * - its not a defaults file (having domain names like wmaker0089504baa
+  * in the defaults directory wouldn't be very neat)
+diff -Naur WindowMaker-0.80.2.original/src/wconfig.h WindowMaker-0.80.2/src/wconfig.h
+--- WindowMaker-0.80.2.original/src/wconfig.h	2002-07-02 02:38:54.000000000 +0200
++++ WindowMaker-0.80.2/src/wconfig.h	2004-01-06 00:06:26.000000000 +0100
+@@ -229,7 +229,7 @@
+ /* list of paths to look for the config files, searched in order 
+  * of appearance */
+ #define DEF_CONFIG_PATHS \
+-"~/GNUstep/Library/WindowMaker:"PKGDATADIR
++"~/.GNUstep/Library/WindowMaker:"PKGDATADIR
+ 
+ #define DEF_MENU_FILE	"menu"
+ 
+@@ -254,17 +254,17 @@
+ 
+ /* pixmap path */
+ #define DEF_PIXMAP_PATHS \
+-"(\"~/pixmaps\",\"~/GNUstep/Library/WindowMaker/Pixmaps\",\""PIXMAPDIR"\")"
++"(\"~/pixmaps\",\"~/.GNUstep/Library/WindowMaker/Pixmaps\",\""PIXMAPDIR"\")"
+ 
+ #ifdef USER_MENU
+ #define GLOBAL_USER_MENU_PATH PKGDATADIR"/UserMenus"
+ #define DEF_USER_MENU_PATHS \
+-"~/GNUstep/Library/WindowMaker/UserMenus:"GLOBAL_USER_MENU_PATH
++"~/.GNUstep/Library/WindowMaker/UserMenus:"GLOBAL_USER_MENU_PATH
+ #endif
+ 
+ /* icon path */
+ #define DEF_ICON_PATHS \
+-"(\"~/pixmaps\",\"~/GNUstep/Library/Icons\",\"/usr/include/X11/pixmaps/\",\""PIXMAPDIR"\")"
++"(\"~/pixmaps\",\"~/.GNUstep/Library/Icons\",\"/usr/include/X11/pixmaps/\",\""PIXMAPDIR"\")"
+ 
+ 
+ /* window title to use for untitled windows */
+diff -Naur WindowMaker-0.80.2.original/src/wconfig.h.in WindowMaker-0.80.2/src/wconfig.h.in
+--- WindowMaker-0.80.2.original/src/wconfig.h.in	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/src/wconfig.h.in	2004-01-06 00:06:26.000000000 +0100
+@@ -229,7 +229,7 @@
+ /* list of paths to look for the config files, searched in order 
+  * of appearance */
+ #define DEF_CONFIG_PATHS \
+-"~/GNUstep/Library/WindowMaker:"PKGDATADIR
++"~/.GNUstep/Library/WindowMaker:"PKGDATADIR
+ 
+ #define DEF_MENU_FILE	"menu"
+ 
+@@ -254,17 +254,17 @@
+ 
+ /* pixmap path */
+ #define DEF_PIXMAP_PATHS \
+-"(\"~/pixmaps\",\"~/GNUstep/Library/WindowMaker/Pixmaps\",\""PIXMAPDIR"\")"
++"(\"~/pixmaps\",\"~/.GNUstep/Library/WindowMaker/Pixmaps\",\""PIXMAPDIR"\")"
+ 
+ #ifdef USER_MENU
+ #define GLOBAL_USER_MENU_PATH PKGDATADIR"/UserMenus"
+ #define DEF_USER_MENU_PATHS \
+-"~/GNUstep/Library/WindowMaker/UserMenus:"GLOBAL_USER_MENU_PATH
++"~/.GNUstep/Library/WindowMaker/UserMenus:"GLOBAL_USER_MENU_PATH
+ #endif
+ 
+ /* icon path */
+ #define DEF_ICON_PATHS \
+-"(\"~/pixmaps\",\"~/GNUstep/Library/Icons\",\"/usr/include/X11/pixmaps/\",\""PIXMAPDIR"\")"
++"(\"~/pixmaps\",\"~/.GNUstep/Library/Icons\",\"/usr/include/X11/pixmaps/\",\""PIXMAPDIR"\")"
+ 
+ 
+ /* window title to use for untitled windows */
+diff -Naur WindowMaker-0.80.2.original/util/bughint WindowMaker-0.80.2/util/bughint
+--- WindowMaker-0.80.2.original/util/bughint	2001-07-24 01:13:24.000000000 +0200
++++ WindowMaker-0.80.2/util/bughint	2004-01-06 00:06:26.000000000 +0100
+@@ -26,7 +26,7 @@
+ cat config.cache Version >> sysinfo.txt 2> /dev/null
+ 
+ echo "=============== configuration dir ===========" >> sysinfo.txt
+-WDIR=$HOME/GNUstep/Defaults
++WDIR=$HOME/.GNUstep/Defaults
+ if [ -d $WDIR ]; then
+ 	for i in WMGLOBAL WMRootMenu WMState WMWindowAttributes WindowMaker; do
+ 		if [ -f $WDIR/$i ]; then
+diff -Naur WindowMaker-0.80.2.original/util/getstyle.c WindowMaker-0.80.2/util/getstyle.c
+--- WindowMaker-0.80.2.original/util/getstyle.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/util/getstyle.c	2004-01-06 00:06:26.000000000 +0100
+@@ -154,7 +154,7 @@
+ 	    exit(0);
+ 	}
+ 	strcpy(path, home);
+-	strcat(path, "/GNUstep/");
++	strcat(path, "/.GNUstep/");
+     }
+     strcat(path, DEFAULTS_DIR);
+     strcat(path, "/");
+diff -Naur WindowMaker-0.80.2.original/util/seticons.c WindowMaker-0.80.2/util/seticons.c
+--- WindowMaker-0.80.2.original/util/seticons.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/util/seticons.c	2004-01-06 00:06:26.000000000 +0100
+@@ -52,7 +52,7 @@
+ 	}
+ 
+ 	strcpy(path, home);
+-	strcat(path, "/GNUstep/");
++	strcat(path, "/.GNUstep/");
+     }
+     strcat(path, DEFAULTS_DIR);
+     strcat(path, "/");
+diff -Naur WindowMaker-0.80.2.original/util/setstyle.c WindowMaker-0.80.2/util/setstyle.c
+--- WindowMaker-0.80.2.original/util/setstyle.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/util/setstyle.c	2004-01-06 00:06:26.000000000 +0100
+@@ -100,7 +100,7 @@
+ 	}
+ 
+ 	strcpy(path, home);
+-	strcat(path, "/GNUstep/");
++	strcat(path, "/.GNUstep/");
+     }
+     strcat(path, DEFAULTS_DIR);
+     strcat(path, "/");
+diff -Naur WindowMaker-0.80.2.original/util/wdread.c WindowMaker-0.80.2/util/wdread.c
+--- WindowMaker-0.80.2.original/util/wdread.c	2002-02-28 14:26:10.000000000 +0100
++++ WindowMaker-0.80.2/util/wdread.c	2004-01-06 00:06:26.000000000 +0100
+@@ -113,7 +113,7 @@
+ 	strcpy(path, gsdir);
+     } else {
+ 	strcpy(path, gethomedir());
+-	strcat(path, "/GNUstep");
++	strcat(path, "/.GNUstep");
+     }
+     strcat(path, "/");
+     strcat(path, DEFAULTS_DIR);
+diff -Naur WindowMaker-0.80.2.original/util/wdwrite.c WindowMaker-0.80.2/util/wdwrite.c
+--- WindowMaker-0.80.2.original/util/wdwrite.c	2002-01-08 14:45:33.000000000 +0100
++++ WindowMaker-0.80.2/util/wdwrite.c	2004-01-06 00:06:26.000000000 +0100
+@@ -117,7 +117,7 @@
+ 	path = wstrdup(gsdir);
+     } else {
+ 	path = wstrdup(gethomedir());
+-	path = wstrappend(path, "/GNUstep");
++	path = wstrappend(path, "/.GNUstep");
+     }
+     path = wstrappend(path, "/");
+     path = wstrappend(path, DEFAULTS_DIR);
+diff -Naur WindowMaker-0.80.2.original/util/wkdemenu.pl WindowMaker-0.80.2/util/wkdemenu.pl
+--- WindowMaker-0.80.2.original/util/wkdemenu.pl	2001-02-17 22:56:27.000000000 +0100
++++ WindowMaker-0.80.2/util/wkdemenu.pl	2004-01-06 00:06:26.000000000 +0100
+@@ -36,7 +36,7 @@
+ # 1) If /usr/bin/perl is not the location of the perl binary on your system,
+ #    the first line should be changed to reflect upon it's location.
+ # 2) Run the script.
+-# 3) Configure Window Maker's menu by editing ~/GNUstep/Defaults/WMRootMenu
++# 3) Configure Window Maker's menu by editing ~/.GNUstep/Defaults/WMRootMenu
+ #    This could be done with any text editor, or by using WPrefs. Insert
+ #    the following line (if done with a text editor) into the WMRootMenu file.
+ #      ("External Menu", OPEN_MENU, "$HOME/.kde2wmaker.menu"),
+diff -Naur WindowMaker-0.80.2.original/util/wm-oldmenu2new WindowMaker-0.80.2/util/wm-oldmenu2new
+--- WindowMaker-0.80.2.original/util/wm-oldmenu2new	1998-11-23 12:32:26.000000000 +0100
++++ WindowMaker-0.80.2/util/wm-oldmenu2new	2004-01-06 00:06:26.000000000 +0100
+@@ -15,8 +15,8 @@
+ # Copyright waived; no warranty provided.
+ #
+ 
+-GLW=GNUstep/Library/WindowMaker
+-GD=GNUstep/Defaults
++GLW=.GNUstep/Library/WindowMaker
++GD=.GNUstep/Defaults
+ WLW=$HOME/$GLW
+ WD=$HOME/$GD
+ 
+diff -Naur WindowMaker-0.80.2.original/util/wmaker.inst.in WindowMaker-0.80.2/util/wmaker.inst.in
+--- WindowMaker-0.80.2.original/util/wmaker.inst.in	2001-09-04 22:15:18.000000000 +0200
++++ WindowMaker-0.80.2/util/wmaker.inst.in	2004-01-06 00:06:26.000000000 +0100
+@@ -63,7 +63,7 @@
+ 	file=`basename $source`
+ 	rm -f $target
+ 	if [ "$file" = "WindowMaker" ]; then
+-		sed -e "s|~/GNUstep|$GSDIR|g" $source > $target
++		sed -e "s|~/.GNUstep|$GSDIR|g" $source > $target
+ 	elif [ "$file" = "WMRootMenu" ]; then
+ 		if [ "$LOCALE" ]; then
+             	    if [ -f $GLOBALDIR/plmenu.$LOCALE ]; then
+@@ -87,7 +87,7 @@
+ 			sed -e "s:#wmdatadir#:$GLOBALDIR:g" \
+ 					$source > $target
+ 		else
+-			sed -e "s|\$HOME/GNUstep|$GSDIR|g" \
++			sed -e "s|\$HOME/.GNUstep|$GSDIR|g" \
+ 				-e "s:#wmdatadir#:$GLOBALDIR:g" \
+ 					$source > $target
+ 		fi
+@@ -119,7 +119,7 @@
+ 
+ if test "x$GNUSTEP_USER_ROOT" = "x"; then
+ 	cd $USERDIR
+-	GSDIR=$USERDIR/GNUstep
++	GSDIR=$USERDIR/.GNUstep
+ 	if [ ! -d $GSDIR ]; then
+ 		echo "Creating $GSDIR user directory"
+ 		make_dir $GSDIR
+diff -Naur WindowMaker-0.80.2.original/util/wmchlocale.in WindowMaker-0.80.2/util/wmchlocale.in
+--- WindowMaker-0.80.2.original/util/wmchlocale.in	2001-07-24 01:13:24.000000000 +0200
++++ WindowMaker-0.80.2/util/wmchlocale.in	2004-01-06 00:06:26.000000000 +0100
+@@ -17,7 +17,7 @@
+ VERSION="0.3"
+ 
+ if [ "x$GNUSTEP_USER_ROOT" = "x" ]; then
+-    GSDIR="$HOME/GNUstep"
++    GSDIR="$HOME/.GNUstep"
+ else
+     GSDIR="$GNUSTEP_USER_ROOT"
+     if [ ! -d "GSDIR" ]; then

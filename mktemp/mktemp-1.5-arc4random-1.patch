@@ -1,0 +1,136 @@
+Submitted By: Robert Connolly <robert at linuxfromscratch dot org> (ashes)
+Date: 2004-11-04
+Initial Package Version: 1.5
+Upstream Status: Submitted
+Origin: None
+Description: This uses libarc4random instead of urandom for mktemp.
+Do not use the --with-libc configure option with this patch or it will
+not work.
+
+Also see:
+http://www.linuxfromscratch.org/~robert/libarc4random/
+
+diff -Naur mktemp-1.5.orig/configure mktemp-1.5.arc4random/configure
+--- mktemp-1.5.orig/configure	2003-03-24 01:06:43.000000000 +0000
++++ mktemp-1.5.arc4random/configure	2004-11-04 04:53:56.245426328 +0000
+@@ -3582,6 +3582,70 @@
+ done
+ 
+ 
++
++echo "$as_me:$LINENO: checking for arc4random in -larc4random" >&5
++echo $ECHO_N "checking for arc4random in -larc4random... $ECHO_C" >&6
++if test "${ac_cv_lib_arc4random_arc4random+set}" = set; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  ac_check_lib_save_LIBS=$LIBS
++LIBS="-larc4random  $LIBS"
++cat >conftest.$ac_ext <<_ACEOF
++#line $LINENO "configure"
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++
++/* Override any gcc2 internal prototype to avoid an error.  */
++#ifdef __cplusplus
++extern "C"
++#endif
++/* We use char because int might match the return type of a gcc2
++   builtin and then its argument prototype would still apply.  */
++char arc4random ();
++int
++main ()
++{
++arc4random ();
++  ;
++  return 0;
++}
++_ACEOF
++rm -f conftest.$ac_objext conftest$ac_exeext
++if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
++  (eval $ac_link) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } &&
++         { ac_try='test -s conftest$ac_exeext'
++  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
++  (eval $ac_try) 2>&5
++  ac_status=$?
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); }; }; then
++  ac_cv_lib_arc4random_arc4random=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++ac_cv_lib_arc4random_arc4random=no
++fi
++rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
++LIBS=$ac_check_lib_save_LIBS
++fi
++echo "$as_me:$LINENO: result: $ac_cv_lib_arc4random_arc4random" >&5
++echo "${ECHO_T}$ac_cv_lib_arc4random_arc4random" >&6
++if test $ac_cv_lib_arc4random_arc4random = yes; then
++  cat >>confdefs.h <<_ACEOF
++#define HAVE_LIBARC4RANDOM 1
++_ACEOF
++
++  LIBS="-larc4random $LIBS"
++
++fi
++
+ echo "$as_me:$LINENO: checking for __progname" >&5
+ echo $ECHO_N "checking for __progname... $ECHO_C" >&6
+ if test "${mktemp_cv_progname+set}" = set; then
+diff -Naur mktemp-1.5.orig/configure.in mktemp-1.5.arc4random/configure.in
+--- mktemp-1.5.orig/configure.in	2003-03-24 01:04:49.000000000 +0000
++++ mktemp-1.5.arc4random/configure.in	2004-11-04 04:53:44.996400152 +0000
+@@ -155,6 +155,10 @@
+ break])
+ AC_REPLACE_FUNCS(strerror strdup)
+ dnl
++dnl Check for libarc4random
++dnl
++AC_CHECK_LIB(arc4random, arc4random)
++dnl
+ dnl Check for __progname
+ dnl
+ AC_MSG_CHECKING([for __progname])
+--- mktemp-1.5.orig/config.h.in	2003-03-24 01:06:57.000000000 +0000
++++ mktemp-1.5.arc4random/config.h.in	2004-11-04 04:59:30.550862296 +0000
+@@ -30,6 +30,9 @@
+ /* Define to 1 if you have the `srandomdev' function. */
+ #undef HAVE_SRANDOMDEV
+ 
++/* Define to 1 if you have the `arc4random' function. */
++#undef HAVE_LIBARC4RANDOM
++
+ /* Define to 1 if you have the <stdint.h> header file. */
+ #undef HAVE_STDINT_H
+ 
+--- mktemp-1.5.orig/random.c	2001-10-01 00:21:34.000000000 +0000
++++ mktemp-1.5.arc4random/random.c	2004-11-04 05:02:14.809418200 +0000
+@@ -64,6 +64,13 @@
+ static const char rcsid[] = "$Id: random.c,v 1.4 2001/10/01 00:21:34 millert Exp $";
+ #endif /* not lint */
+ 
++#ifdef HAVE_LIBARC4RANDOM
++void
++seed_random()
++{
++        arc4random() % 65536;
++}
++#else !HAVE_LIBARC4RANDOM
+ #ifdef HAVE_SRANDOMDEV
+ void
+ seed_random()
+@@ -124,6 +131,7 @@
+ 	SRAND(seed);
+ }
+ #endif /* !HAVE_SRANDOMDEV */
++#endif /* !HAVE_LIBARC4RANDOM */
+ 
+ long
+ get_random()

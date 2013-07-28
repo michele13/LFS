@@ -1,0 +1,50 @@
+Submitted By: Hatzimanikas Agathoklis ( a dot hatzim at gmail dot com)
+Date: 2007-02-12
+Initial Package Version: 1.1.1
+Origin: Gene Pavlovsky http://lists.xiph.org/pipermail/vorbis-dev/2005-September/018257.html
+Upstream Status: Applied
+Description: Vorbiscomment doesn't handle utf-8 characters correctly.
+	https://trac.xiph.org/ticket/685
+
+diff -Naur vorbis-tools-1.1.1-orig/share/charset.c vorbis-tools-1.1.1/share/charset.c
+--- vorbis-tools-1.1.1-orig/share/charset.c	2005-06-03 13:15:10.000000000 +0300
++++ vorbis-tools-1.1.1/share/charset.c	2007-02-12 21:11:24.815003686 +0200
+@@ -27,6 +27,10 @@
+  * 8-bit char, 16-bit short and 32-bit int.
+  */
+ 
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
+ #ifndef HAVE_ICONV /* should be ifdef USE_CHARSET_CONVERT */
+ 
+ #include <stdlib.h>
+diff -Naur vorbis-tools-1.1.1-orig/share/iconvert.c vorbis-tools-1.1.1/share/iconvert.c
+--- vorbis-tools-1.1.1-orig/share/iconvert.c	2005-06-03 13:15:10.000000000 +0300
++++ vorbis-tools-1.1.1/share/iconvert.c	2007-02-12 21:11:24.815003686 +0200
+@@ -16,6 +16,10 @@
+  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+  */
+ 
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
+ #ifdef HAVE_ICONV
+ 
+ #include <assert.h>
+diff -Naur vorbis-tools-1.1.1-orig/share/utf8.c vorbis-tools-1.1.1/share/utf8.c
+--- vorbis-tools-1.1.1-orig/share/utf8.c	2005-06-03 13:15:10.000000000 +0300
++++ vorbis-tools-1.1.1/share/utf8.c	2007-02-12 21:11:24.815003686 +0200
+@@ -21,6 +21,10 @@
+  * Convert a string between UTF-8 and the locale's charset.
+  */
+ 
++#ifdef HAVE_CONFIG_H
++# include <config.h>
++#endif
++
+ #include <stdlib.h>
+ #include <string.h>
+ 
