@@ -572,13 +572,6 @@ pre.screen {
 
 
 /* Mixed tags */
-p.usernotes {
-  margin-left: -1em;
-  font-size: small;
-  font-weight: bold;
-  font-style: italic;
-}
-
 .underlined {
   text-decoration: underline;
 }
