@@ -99,18 +99,8 @@
       <xref linkend="db"/>,
       <xref linkend="cyrus-sasl"/>,
       <xref linkend="dbus"/>,
-      <ulink url="http://ftp.gnome.org/pub/gnome/sources/libgnome-keyring/">libgnome-keyring</ulink>,
-      <ulink url="http://utils.kde.org/projects/kwalletmanager/">KWallet</ulink>,
       <xref linkend="python2"/> (required to run the test suite) and
       <xref linkend="ruby"/>
-    </para>
-
-    <bridgehead renderas="sect4">Optional (for the Java Bindings)</bridgehead>
-    <para role="optional">
-      One of <xref linkend="openjdk"/>,
-      <ulink url="http://www.inet.no/dante/">Dante</ulink> or
-      <ulink url="http://oss.software.ibm.com/developerworks/opensource/jikes/">Jikes</ulink>,
-      and <xref linkend="junit"/> (to test the Java bindings)
     </para>
 
     <bridgehead renderas="sect4">Optional (for the SWIG Bindings)</bridgehead>
@@ -137,14 +127,6 @@ make</userinput></screen>
     </para>
 
     <para>
-      If you passed the <option>--enable-javahl</option> parameter to
-      <command>configure</command> and wish to build the Java bindings, issue
-      the following command:
-    </para>
-
-<screen><userinput>make javahl</userinput></screen>
-
-    <para>
       If you have a multi core CPU and normally run <command>make</command> with
       multiple jobs (eg <command>make -j4</command>) then a bug in the
       <filename>Makefile</filename> will prevent the
@@ -168,12 +150,6 @@ make swig-rb</userinput></screen>
     </para>
 
     <para>
-      To test the results of the Java bindings build, issue
-      <command>make check-javahl</command>. Note you must have the
-      <application>JUnit</application> testing framework installed.
-    </para>
-
-    <para>
       To test the results of any of the <application>SWIG</application>
       bindings, you can use any of the following commands:
     </para>
@@ -190,13 +166,6 @@ make check-swig-rb </userinput></screen>
 install -v -m755 -d /usr/share/doc/subversion-&subversion-version; &amp;&amp;
 cp      -v -R       doc/* \
                     /usr/share/doc/subversion-&subversion-version;</userinput></screen>
-
-    <para>
-      If you built the Java bindings, issue the following command as the
-      <systemitem class="username">root</systemitem> user to install them:
-    </para>
-
-<screen role="root"><userinput>make install-javahl</userinput></screen>
 
     <para>
       If you built any of the <application>SWIG</application> bindings, issue
@@ -279,7 +248,7 @@ make install-swig-rb</userinput></screen>
           svnsync, and svnversion
         </seg>
         <seg>
-          libsvn_*-1.so and optionally, a Java library, the mod_dav_svn.so and
+          libsvn_*-1.so and optionally, the mod_dav_svn.so and
           and mod_authz_svn.so <application>Apache HTTP</application> DSO
           modules and various <application>Perl</application>,
           <application>Python</application> and
@@ -290,7 +259,6 @@ make install-swig-rb</userinput></screen>
           /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/SVN (optional),
           /usr/lib/perl5/site_perl/&lfs-perl-version;/SVN (optional),
           /usr/lib/ruby/site_ruby/&lt;x.y&gt;/i686-linux/svn (optional),
-          /usr/lib/svn-javahl (optional),
           /usr/lib/svn-python (optional), and
           /usr/share/doc/subversion-&subversion-version;
         </seg>

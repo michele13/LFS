@@ -8,7 +8,6 @@ DUMPDIR ?= $(HOME)/blfs-commands
 RENDERTMP ?= /tmp
 CHUNK_QUIET = 1
 ROOT_ID =
-#PDF_OUTPUT = BLFS-BOOK.pdf
 NOCHUNKS_OUTPUT = BLFS-BOOK.html
 SHELL = /bin/bash
 
@@ -24,7 +23,6 @@ else
 endif
 
 blfs: html wget-list
-#all: blfs nochunks pdf
 all: blfs nochunks
 world: all blfs-patch-list dump-commands test-links
 
@@ -55,27 +53,6 @@ $(BASEDIR)/index.html: $(RENDERTMP)/blfs-html.xml
 	  sed -i -e "s@text/html@application/xhtml+xml@g" $$filename; \
 	done;
 
-#pdf: $(BASEDIR)/$(PDF_OUTPUT)
-#$(RENDERTMP)/blfs-pdf.xml: $(RENDERTMP)/blfs-full.xml
-#	@echo "Generating profiled XML for PDF..."
-#	$(Q)xsltproc --nonet --stringparam profile.condition pdf \
-	  --output $(RENDERTMP)/blfs-pdf.xml stylesheets/lfs-xsl/profile.xsl \
-	  $(RENDERTMP)/blfs-full.xml
-
-#$(RENDERTMP)/blfs-pdf.fo: $(RENDERTMP)/blfs-pdf.xml
-#	@echo "Generating FO file..."
-#	$(Q)xsltproc --nonet -stringparam rootid "$(ROOT_ID)" \
-	  --output $(RENDERTMP)/blfs-pdf.fo stylesheets/blfs-pdf.xsl \
-	  $(RENDERTMP)/blfs-pdf.xml
-#	$(Q)sed -i -e 's/span="inherit"/span="all"/' $(RENDERTMP)/blfs-pdf.fo
-
-#$(BASEDIR)/$(PDF_OUTPUT): $(RENDERTMP)/blfs-pdf.fo
-#	@echo "Generating PDF file..."
-#	$(Q)if [ ! -e $(BASEDIR) ]; then \
-	  mkdir -p $(BASEDIR); \
-	fi;
-#	$(Q)fop $(RENDERTMP)/blfs-pdf.fo $(BASEDIR)/$(PDF_OUTPUT)
-
 nochunks: $(BASEDIR)/$(NOCHUNKS_OUTPUT)
 $(BASEDIR)/$(NOCHUNKS_OUTPUT): $(RENDERTMP)/blfs-html.xml
 	@echo "Generating non-chunked XHTML file..."
@@ -97,8 +74,6 @@ $(RENDERTMP):
 clean:
 	@echo "Cleaning $(RENDERTMP)"
 	$(Q)rm -f $(RENDERTMP)/blfs-{full,html}.xml
-#	$(Q)rm -f $(RENDERTMP)/blfs-{full,html,pdf}.xml
-#	$(Q)rm -f $(RENDERTMP)/blfs-pdf.fo
 	$(Q)rm -f $(RENDERTMP)/blfs-{patch-list,patches}
 	$(Q)rmdir $(RENDERTMP) 2>/dev/null || :
 
@@ -170,7 +145,4 @@ validate:
 	$(Q)xmllint --noout --nonet --xinclude --postvalid index.xml
 
 .PHONY: blfs all world html nochunks tmpdir clean validxml \
-	profile-html wget-list test-links dump-commands validate
-
-#.PHONY: blfs all world html pdf nochunks tmpdir clean validxml \
 	profile-html wget-list test-links dump-commands validate
