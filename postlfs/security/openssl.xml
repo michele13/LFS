@@ -102,10 +102,9 @@
 
 <screen><userinput>patch -Np1 -i ../openssl-&openssl-version;-fix_parallel_build-1.patch &amp;&amp;
 patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
-
-./config --prefix=/usr         \
+./config --prefix=/usr \
          --openssldir=/etc/ssl \
-         shared                \
+         shared \
          zlib-dynamic &amp;&amp;
 make</userinput></screen>
 
@@ -114,7 +113,7 @@ make</userinput></screen>
     </para>
 
     <para>
-      If you want to disable installing the static libraries, use this sed:
+      Use this sed to disable installing the static libraries:
     </para>
 
 <screen><userinput>sed -i 's# libcrypto.a##;s# libssl.a##' Makefile</userinput></screen>
@@ -124,8 +123,8 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install &amp;&amp;
-install -dv -m755 /usr/share/doc/openssl-&openssl-version;  &amp;&amp;
-cp -vfr doc/*     /usr/share/doc/openssl-&openssl-version;</userinput></screen>
+install -dv -m755 /usr/share/doc/openssl-&openssl-version; &amp;&amp;
+cp -vfr doc/* /usr/share/doc/openssl-&openssl-version;</userinput></screen>
 
   </sect2>
 
@@ -216,7 +215,7 @@ cp -vfr doc/*     /usr/share/doc/openssl-&openssl-version;</userinput></screen>
           c_rehash and openssl
         </seg>
         <seg>
-          libcrypto.{so,a} and libssl.{so,a}
+          libcrypto.so and libssl.so
         </seg>
         <seg>
           /etc/ssl,
@@ -261,7 +260,7 @@ cp -vfr doc/*     /usr/share/doc/openssl-&openssl-version;</userinput></screen>
       </varlistentry>
 
       <varlistentry id="libcrypto">
-        <term><filename class="libraryfile">libcrypto.{so,a}</filename></term>
+        <term><filename class="libraryfile">libcrypto.so</filename></term>
         <listitem>
           <para>
             implements a wide range of cryptographic algorithms used in various
@@ -273,13 +272,13 @@ cp -vfr doc/*     /usr/share/doc/openssl-&openssl-version;</userinput></screen>
             standards.
           </para>
           <indexterm zone="openssl libcrypto">
-            <primary sortas="c-libcrypto">libcrypto.{so,a}</primary>
+            <primary sortas="c-libcrypto">libcrypto.so</primary>
           </indexterm>
         </listitem>
       </varlistentry>
 
       <varlistentry id="libssl">
-        <term><filename class="libraryfile">libssl.{so,a}</filename></term>
+        <term><filename class="libraryfile">libssl.so</filename></term>
         <listitem>
           <para>
             implements the Secure Sockets Layer (SSL v2/v3) and Transport Layer
@@ -287,7 +286,7 @@ cp -vfr doc/*     /usr/share/doc/openssl-&openssl-version;</userinput></screen>
             on which can be found by running <command>man 3 ssl</command>.
           </para>
           <indexterm zone="openssl libssl">
-            <primary sortas="c-libssl">libssl.{so,a}</primary>
+            <primary sortas="c-libssl">libssl.so</primary>
           </indexterm>
         </listitem>
       </varlistentry>
