@@ -70,10 +70,8 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
+      <ulink url="http://www.thrysoee.dk/editline/">Editline</ulink> and
       <ulink url="http://valgrind.org/">Valgrind</ulink>
-<!-- -&#45;enable-pcretest-libedit (redundant as long as LFS installs libreadline
-      and <ulink url="http://www.thrysoee.dk/editline/">libedit</ulink>
--->
     </para>
 
   </sect2>
@@ -82,18 +80,16 @@
     <title>Installation of PCRE</title>
 
     <para>
-      Install <application>PCRE</application> by running
-      the following commands:
+      Install <application>PCRE</application> by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr                     \
+<screen><userinput>./configure --prefix=/usr \
             --docdir=/usr/share/doc/pcre-&pcre-version; \
-            --enable-utf                      \
-            --enable-unicode-properties       \
-            --enable-pcregrep-libz            \
-            --enable-pcregrep-libbz2          \
-            --enable-pcretest-libreadline     \
-            --disable-static                 &amp;&amp;
+            --disable-static \
+            --enable-unicode-properties \
+            --enable-pcregrep-libz \
+            --enable-pcregrep-libbz2 \
+            --enable-pcretest-libreadline &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -104,7 +100,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install                     &amp;&amp;
+<screen role="root"><userinput>make install &amp;&amp;
 mv -v /usr/lib/libpcre.so.* /lib &amp;&amp;
 ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
 
@@ -114,42 +110,42 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
     <title>Command Explanations</title>
 
     <para>
-      <option>--enable-utf</option>: This switch includes the code for
-      handling UTF-8 character strings in the library.
-    </para>
-
-    <para>
-      <option>--enable-unicode-properties</option>: This switch enables
-      Unicode properties support. Note: You need this switch if you are
-      going to build <xref linkend="glib2"/> with the
+      <parameter>--enable-unicode-properties</parameter>: This switch enables
+      Unicode properties support and includes the code for handling UTF-8/16/32
+      character strings in the library. You need this switch if you are going to
+      build <application>GLib</application> with the
       <parameter>--with-pcre=system</parameter> switch.
     </para>
 
     <para>
-      <option>--enable-pcregrep-libz</option>: This switch adds
-      support to <command>pcregrep</command> to read
-      <filename class="extension">.gz</filename> compressed files.
+      <parameter>--enable-pcregrep-libz</parameter>: This switch adds support to
+      <command>pcregrep</command> to read <filename
+      class="extension">.gz</filename> compressed files.
     </para>
 
     <para>
-      <option>--enable-pcregrep-libbz2</option>: This switch adds
-      support to <command>pcregrep</command> to read
-      <filename class="extension">.bz2</filename> compressed files.
+      <parameter>--enable-pcregrep-libbz2</parameter>: This switch adds support
+      to <command>pcregrep</command> to read <filename
+      class="extension">.bz2</filename> compressed files.
     </para>
 
     <para>
-      <option>--enable-pcretest-libreadline</option>: This switch adds line
-      editing and history features to <command>pcretest</command> program.
+      <parameter>--enable-pcretest-libreadline</parameter>: This switch adds
+      line editing and history features to <command>pcretest</command> program.
     </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
 
     <para>
       <command>mv -v /usr/lib/libpcre.so.* /lib</command>: Moves the
-      <application>PCRE</application> library on the root filesystem
-      so that it is available in case <command>grep</command>
-      gets reinstalled with <application>PCRE</application> support.
+      <application>PCRE</application> library on the root filesystem so that it
+      is available in case <command>grep</command> gets reinstalled with
+      <application>PCRE</application> support.
+    </para>
+
+    <para>
+      <option>--enable-pcretest-libedit</option>: This switch adds
+      line editing and history features to <command>pcretest</command> program
+      by using <application>Editline</application> library instead of
+      <application>Readline</application>.
     </para>
 
   </sect2>
