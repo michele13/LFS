@@ -77,30 +77,6 @@
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
     <itemizedlist spacing="compact">
-      <title>Infinality Patch</title>
-      <listitem>
-        <para>
-          Download (HTTP): <ulink url="&freetype2-infinality-download-http;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download (FTP): <ulink url="&freetype2-infinality-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &freetype2-infinality-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &freetype2-infinality-size;
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <itemizedlist spacing="compact">
       <title>Additional Documentation</title>
       <listitem>
         <para>
@@ -120,6 +96,30 @@
       <listitem>
         <para>
           Download size: &freetype2-doc-size;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <itemizedlist spacing="compact">
+      <title>Infinality</title>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&freetype2-infinality-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&freetype2-infinality-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &freetype2-infinality-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &freetype2-infinality-size;
         </para>
       </listitem>
     </itemizedlist>
@@ -145,13 +145,18 @@
 <screen><userinput>tar xvf ../freetype-doc-&freetype2-version;.tar.bz2 --strip-components=2 -C docs</userinput></screen>
 
     <para>
+      If you wish to use Infinality, use the following commands:
+    </para>
+
+<screen><userinput>tar xvf ../freetype-infinality-&freetype2-version;-20130514_01-x86_64.tar.bz2 &amp;&amp;
+patch -Np1 -i freetype-entire-infinality-patchset-20130514-01.patch</userinput></screen>
+
+    <para>
       Install <application>FreeType2</application> by running the following
       commands:
     </para>
 
-<screen><userinput>tar xvf ../freetype-infinality-&freetype2-version;-20130514_01-x86_64.tar.bz2 &amp;&amp;
-patch -Np1 -i freetype-entire-infinality-patchset-20130514-01.patch &amp;&amp;
-sed -i -e "/AUX.*.gxvalid/s@^# @@" -e "/AUX.*.otvalid/s@^# @@" modules.cfg &amp;&amp;
+<screen><userinput>sed -i -e "/AUX.*.gxvalid/s@^# @@" -e "/AUX.*.otvalid/s@^# @@" modules.cfg &amp;&amp;
 ./configure --prefix=/usr --disable-static &amp;&amp;
 make</userinput></screen>
 
@@ -164,9 +169,16 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
 install -v -m755 -d /usr/share/doc/freetype-&freetype2-version; &amp;&amp;
 cp -v -R docs/* /usr/share/doc/freetype-&freetype2-version;</userinput></screen>
+
+    <para>
+      If you used the Infinality patchset, as the <systemitem class="username">root</systemitem>
+      user:
+    </para>
+
+<screen role="root"><userinput>install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
+sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' /etc/profile.d/infinality-settings.sh</userinput></screen>
 
   </sect2>
 

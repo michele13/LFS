@@ -5,12 +5,19 @@
   %general-entities;
 
   <!ENTITY fontconfig-download-http 
-           "http://www.freedesktop.org/software/fontconfig/release/fontconfig-&fontconfig-version;.tar.bz2">
+  "http://www.freedesktop.org/software/fontconfig/release/fontconfig-&fontconfig-version;.tar.bz2">
   <!ENTITY fontconfig-download-ftp  " ">
-  <!ENTITY fontconfig-md5sum        "0f8e5c63c2d6931626185c02802375a3">
-  <!ENTITY fontconfig-size          "1.5 MB">
+  <!ENTITY fontconfig-md5sum        "2f239690057d1438aa282e051f721d08">
+  <!ENTITY fontconfig-size          "1.4 MB">
   <!ENTITY fontconfig-buildsize     "16 MB">
   <!ENTITY fontconfig-time          "0.4 SBU">
+
+  <!ENTITY fontconfig-infinality-download-http
+  "http://www.infinality.net/fedora/linux/zips/fontconfig-infinality-1-20130104_1.tar.bz2">
+  <!ENTITY fontconfig-infinality-download-ftp    " ">
+  <!ENTITY fontconfig-infinality-md5sum "1e132295aadaa499a6b8f8a754825aa3">
+  <!ENTITY fontconfig-infinality-size   "23 KB">
+
 ]>
 
 <sect1 id="fontconfig" xreflabel="Fontconfig-&fontconfig-version;">
@@ -61,6 +68,31 @@
       <listitem>
         <para>
           Estimated build time: &fontconfig-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <title>Infinality</title>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&fontconfig-infinality-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&fontconfig-infinality-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &fontconfig-infinality-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &fontconfig-infinality-size;
         </para>
       </listitem>
     </itemizedlist>
@@ -133,6 +165,14 @@ install -v -m644 doc/fontconfig-devel/* \
         /usr/share/doc/fontconfig-&fontconfig-version;/fontconfig-devel &amp;&amp;
 install -v -m644 doc/*.{pdf,sgml,txt,html} \
        /usr/share/doc/fontconfig-&fontconfig-version;</userinput></screen>
+
+    <para>
+      If you wish to use Infinality, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>tar xvf ../fontconfig-infinality-1-20130104_1.tar.bz2 -C /etc/fonts &amp;&amp;
+chown -R root.root /etc/fonts &amp;&amp;
+ln -sfnv styles.conf.avail/linux /etc/fonts/infinality/conf.d</userinput></screen>
 
   </sect2>
 
