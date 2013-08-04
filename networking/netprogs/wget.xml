@@ -79,7 +79,8 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="openssl"/> or <xref linkend="gnutls"/>
+      <xref linkend="openssl"/> or
+      <xref linkend="gnutls"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -100,9 +101,8 @@
     </para>
 
 <screen><userinput>patch -Np1 -i ../wget-&wget-version;-texi2pod-1.patch &amp;&amp;
-
-./configure --prefix=/usr      \
-            --sysconfdir=/etc  \
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
             --with-ssl=openssl &amp;&amp;
 make</userinput></screen>
 
@@ -121,15 +121,17 @@ make</userinput></screen>
     <title>Command Explanations</title>
 
     <para>
-      <parameter>--sysconfdir=/etc</parameter>: This relocates the configuration
-      file from <filename class="directory">/usr/etc</filename> to
-      <filename class="directory">/etc</filename>.
+      <parameter>--with-ssl=openssl</parameter>: This configures the program to
+      use <application>OpenSSL</application>. It can be omitted if
+      <application>GnuTLS</application>, which is preferred by the configure
+      script, is installed.
     </para>
 
     <para>
-      <parameter>--with-ssl=openssl</parameter>: This allows the program to work
-      with <xref linkend="openssl"/>. It can be omitted if
-      <xref linkend="gnutls"/> is found or the HTTPS protocol is not needed.
+      <option>--without-ssl</option>: This configure option is required if
+      support for the HTTPS protocol is not needed and neither
+      <application>GnuTLS</application> nor <application>OpenSSL</application>
+      are installed.
     </para>
 
   </sect2>
