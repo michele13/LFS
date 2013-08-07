@@ -7,7 +7,7 @@ the official book editors.
 This book is automatically generated at: http://igor-zivkovic.from.hr/BLFS/
 
 It is tracking the official one from SVN trunk and should be compatible with the
-latest LFS from SVN trunk. Older version are not supported.
+latest LFS from SVN trunk. Older versions are not supported.
 
 Major changes from the official book are noted at:
 https://raw.github.com/igzivkov/blfs-book/master/ChangeLog
