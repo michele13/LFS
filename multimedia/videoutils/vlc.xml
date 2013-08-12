@@ -90,7 +90,6 @@
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
       <xref linkend="alsa-lib"/>,
-      <xref linkend="dbus"/>,
       <xref linkend="ffmpeg"/>,
       <xref linkend="gnutls"/>,
       <xref linkend="liba52"/>,
@@ -219,7 +218,7 @@ patch -Np1 -i ../vlc-&vlc-version;-live_fixes-1.patch &amp;&amp;
 sed -i 's:libsmbclient.h:samba-4.0/&amp;:' configure.ac modules/access/smb.c &amp;&amp;
 ./bootstrap &amp;&amp;
 
-./configure --prefix=/usr &amp;&amp;
+./configure --prefix=/usr --disable-dbus &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -252,13 +251,13 @@ make</userinput></screen>
     </para>
 
     <para>
-      <option>--disable-lua</option>: Use this switch if you don't have
-      <application>Lua</application> installed.
+      <option>--disable-dbus</option>: This switch disables
+      <application>D-Bus</application> support.
     </para>
 
     <para>
-      <option>--disable-dbus</option>: Use this switch if you don't have
-      <application>D-Bus</application> installed.
+      <option>--disable-lua</option>: Use this switch if you don't have
+      <application>Lua</application> installed.
     </para>
 
     <para>
