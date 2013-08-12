@@ -248,24 +248,8 @@ display -backdrop -window root "${picture_list[${random_number}]}"
 exec openbox</literal>
 EOF</userinput></screen>
 
-      <para>
-        If you like to have the numlock key set whan you start Xorg, install
-        <ulink url="http://home.kde.org/~seli/numlockx/">Numlockx</ulink> and
-        add that to your xinitrc. Another useful application is
-        <xref linkend="dbus"/>
-      </para>
-
-<screen role="user"><userinput>cat &gt; ~/.xinitrc &lt;&lt; "EOF"
-<literal>. /etc/profile
-picture_list=(~/.config/backgrounds/*)
-random_number=$(( ${RANDOM} % ${#picture_list[*]} ))
-display -backdrop -window root "${picture_list[${random_number}]}"
-numlockx
-eval $(dbus-launch --auto-syntax --exit-with-session)
-lxpanel &amp;
-exec openbox</literal>
-EOF</userinput></screen>
     </sect3>
+
   </sect2>
 
   <sect2 role="content">
