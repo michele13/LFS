@@ -88,23 +88,6 @@
       (optionally used during the unit regression tests)
     </para>
 
-    <bridgehead renderas="sect4">
-      Optional (Required to rebuild the API Documentation)
-    </bridgehead>
-    <para role="optional">
-      <xref linkend="gtk-doc"/> and
-      <xref linkend="python2"/> (compiled against an XML Parser such as
-      <xref linkend="expat"/>).
-    </para>
-
-    <bridgehead renderas="sect4">Optional (Required to Build Manuals)</bridgehead>
-    <para role="optional">
-      <xref linkend="docbook-utils"/>,
-      <xref linkend="gs"/>
-      <xref linkend="libxslt"/> and
-      <xref linkend="texlive"/>
-    </para>
-
   </sect2>
 
   <sect2 role="installation">
@@ -131,15 +114,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /usr/share/doc/gstreamer-0.10/design &amp;&amp;
-install -v -m644 docs/design/*.txt \
-                    /usr/share/doc/gstreamer-0.10/design &amp;&amp;
-
-if [ -d /usr/share/doc/gstreamer-0.10/faq/html ]; then
-    chown -v -R root:root \
-        /usr/share/doc/gstreamer-0.10/*/html
-fi</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
     <sect3>
       <title>Testing the Installation</title>
@@ -177,24 +152,6 @@ fi</userinput></screen>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/static-libraries.xml"/>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/gtk-doc-rebuild.xml"/>
-
-    <para>
-      <option>--enable-docbook</option>: This parameter is used to build
-      HTML, PDF and PostScript versions of the
-      <application>GStreamer</application> User's Manual, FAQ and Writer's
-      Guide. Note that you must have all the listed dependencies installed.
-    </para>
-
-    <para>
-      <command>chown -v -R root:root ...</command>: The documentation is
-      installed with the ownership of the user who untarred and built the
-      package. This command changes the ownership of the installed
-      documentation files to root:root, and is only executed if the
-      documentation files were built and installed.
-    </para>
 
   </sect2>
 
