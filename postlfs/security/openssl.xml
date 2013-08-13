@@ -4,6 +4,7 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY openssl-homepage      "http://www.openssl.org/">
   <!ENTITY openssl-download-http
            "http://www.openssl.org/source/openssl-&openssl-version;.tar.gz">
   <!ENTITY openssl-download-ftp
@@ -24,7 +25,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to OpenSSL</title>
+    <title>Introduction</title>
 
     <para>
       The <application>OpenSSL</application> package contains management tools
@@ -36,6 +37,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&openssl-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&openssl-download-http;"/>
@@ -84,7 +90,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">OpenSSL Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
@@ -94,7 +100,7 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of OpenSSL</title>
+    <title>Installation</title>
 
     <para>
       Install <application>OpenSSL</application> with the following commands:
@@ -109,10 +115,6 @@ patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
 make</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make test</command>.
-    </para>
-
-    <para>
       Use this sed to disable installing the static libraries:
     </para>
 
@@ -122,9 +124,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install &amp;&amp;
-install -dv -m755 /usr/share/doc/openssl-&openssl-version; &amp;&amp;
-cp -vfr doc/* /usr/share/doc/openssl-&openssl-version;</userinput></screen>
+<screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install</userinput></screen>
 
   </sect2>
 
@@ -161,7 +161,7 @@ cp -vfr doc/* /usr/share/doc/openssl-&openssl-version;</userinput></screen>
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring OpenSSL</title>
+    <title>Configuration</title>
 
     <sect3 id="openssl-config">
       <title>Config Files</title>
