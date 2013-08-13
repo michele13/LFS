@@ -4,8 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY pcre-download-http "&sourceforge-repo;/pcre/pcre-&pcre-version;.tar.bz2">
-  <!ENTITY pcre-download-ftp  "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
+  <!ENTITY pcre-homepage      "http://www.pcre.org/">
+  <!ENTITY pcre-download-http
+           "&sourceforge-repo;/pcre/pcre-&pcre-version;.tar.bz2">
+  <!ENTITY pcre-download-ftp
+           "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
   <!ENTITY pcre-md5sum        "21514018448ac10062ece7a668fca949">
   <!ENTITY pcre-size          "1.4 MB">
   <!ENTITY pcre-buildsize     "18 MB">
@@ -22,7 +25,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to PCRE</title>
+    <title>Introduction</title>
 
     <para>
       The <application>PCRE</application> package contains
@@ -34,6 +37,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pcre-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&pcre-download-http;"/>
@@ -66,18 +74,17 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">PCRE Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <xref linkend="libedit"/> and
-      <ulink url="http://valgrind.org/">Valgrind</ulink>
+      <xref linkend="libedit"/>
     </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of PCRE</title>
+    <title>Installation</title>
 
     <para>
       Install <application>PCRE</application> by running the following commands:
@@ -91,10 +98,6 @@
             --enable-pcregrep-libbz2 \
             --enable-pcretest-libreadline &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -144,7 +147,7 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
     <para>
       <option>--enable-pcretest-libedit</option>: This switch adds
       line editing and history features to <command>pcretest</command> program
-      by using <application>Editline</application> library instead of
+      by using <application>libedit</application> library instead of
       <application>Readline</application>.
     </para>
 
@@ -156,7 +159,7 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
     <segmentedlist>
       <segtitle>Installed Programs</segtitle>
       <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+      <segtitle>Installed Directories</segtitle>
 
       <seglistitem>
         <seg>
@@ -166,7 +169,7 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
           libpcre.so, libpcrecpp.so and libpcreposix.so
         </seg>
         <seg>
-          /usr/share/doc/pcre-&pcre-version;
+          None
         </seg>
       </seglistitem>
     </segmentedlist>
