@@ -74,9 +74,8 @@
     <para role="required">
       <ulink url="http://anduin.linuxfromscratch.org/sources/other/udev-lfs-206-1.tar.bz2"/>
       (match the udev-lfs-???.tar.bz2 tarball version to the systemd version used in LFS).
-      <xref linkend="glib2"/> (for the gudev library),
-      <xref linkend="gperf"/> (for keymap), and
-      <xref linkend="gobject-introspection"/> (for gir-data, needed for Gnome)
+      <xref linkend="glib2"/> (for the gudev library), and
+      <xref linkend="gperf"/> (for keymap)
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -128,22 +127,6 @@
 
 <screen role="root"><userinput>make -f udev-lfs-&udev-extras-version;/Makefile.lfs install-gudev</userinput></screen>
 
-    </sect3>
-
-    <sect3>
-    <title>GObject Files</title>
-
-    <para>To build the <application>gobject-introspection</application>
-    interface (gir) files for the <filename
-    class='libraryfile'>libgudev-1.0</filename> library, run:</para>
-
-<screen><userinput>make -f udev-lfs-&udev-extras-version;/Makefile.lfs gir-data</userinput></screen>
-
-    <para>Install the gir data, as the <systemitem
-    class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>make -f udev-lfs-&udev-extras-version;/Makefile.lfs install-gir-data</userinput></screen>
-
     <caution><para>There is a shortcut to build and install all of the
     <application>udev</application> components at once using the
     <emphasis>all</emphasis> and <emphasis>install-all</emphasis>
@@ -154,6 +137,7 @@
     and udev libraries.</para></caution>
 
     </sect3>
+
   </sect2>
 
   <sect2 role="content">
