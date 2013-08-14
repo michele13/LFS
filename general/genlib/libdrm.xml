@@ -4,7 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libdrm-download-http "http://dri.freedesktop.org/libdrm/libdrm-&libdrm-version;.tar.bz2">
+  <!ENTITY libdrm-download-http
+  "http://dri.freedesktop.org/libdrm/libdrm-&libdrm-version;.tar.bz2">
   <!ENTITY libdrm-download-ftp  " ">
   <!ENTITY libdrm-md5sum        "9cba217fd3daa10b1d052ec60d3aa7d5">
   <!ENTITY libdrm-size          "544 KB">
@@ -22,7 +23,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to libdrm</title>
+    <title>Introduction</title>
 
     <para>
       <application>libdrm</application> provides core library routines
@@ -64,7 +65,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libdrm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -82,7 +83,7 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of libdrm</title>
+    <title>Installation</title>
 
     <para>
       Install <application>libdrm</application> by running the following
@@ -91,12 +92,9 @@
 
 <screen><userinput>sed -e "/pthread-stubs/d" -i configure.ac &amp;&amp;
 autoreconf -fi &amp;&amp;
-./configure --prefix=/usr --enable-udev &amp;&amp;
+./configure --prefix=/usr \
+            --enable-udev &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To check the results, issue <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -116,7 +114,7 @@ make</userinput></screen>
     </para>
 
     <para>
-      <option>--enable-udev</option>: This option enables support for using
+      <parameter>--enable-udev</parameter>: This option enables support for using
       <application>Udev</application> instead of <command>mknod</command>.
     </para>
 
