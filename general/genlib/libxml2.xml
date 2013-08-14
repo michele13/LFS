@@ -4,8 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libxml2-download-http "http://xmlsoft.org/sources/libxml2-&libxml2-version;.tar.gz">
-  <!ENTITY libxml2-download-ftp  "ftp://xmlsoft.org/libxml2/libxml2-&libxml2-version;.tar.gz">
+  <!ENTITY libxml2-homepage      "http://www.xmlsoft.org/">
+  <!ENTITY libxml2-download-http
+           "http://xmlsoft.org/sources/libxml2-&libxml2-version;.tar.gz">
+  <!ENTITY libxml2-download-ftp
+           "ftp://xmlsoft.org/libxml2/libxml2-&libxml2-version;.tar.gz">
   <!ENTITY libxml2-md5sum        "9c0cfef285d5c4a5c80d00904ddab380">
   <!ENTITY libxml2-size          "5.0 MB">
   <!ENTITY libxml2-buildsize     "100 MB">
@@ -22,7 +25,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to libxml2</title>
+    <title>Introduction</title>
 
     <para>
       The <application>libxml2</application> package contains libraries
@@ -31,6 +34,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libxml2-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libxml2-download-http;"/>
@@ -63,32 +71,19 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Optional Testsuite:
-          <ulink url="http://www.w3.org/XML/Test/xmlts20080827.tar.gz"/> - This
-          enables <command>make check</command> to do complete testing.
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <bridgehead renderas="sect3">libxml2 Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
       <xref linkend="python2"/> (to build and install a
-      <application>Python</application> library module, additionally it is
-      required to run the full suite of tests)
+      <application>Python</application> library module)
     </para>
 
     <note>
       <para>
-        Some packages which utilize <application>libxml2</application> (such as
-        <application>GNOME Doc Utils</application>) need the
+        Some packages which utilize <application>libxml2</application> need the
         <application>Python</application> module installed to function properly
-        and some packages (such as MesaLib) will not build properly if the
+        and some packages will not build properly if the
         <application>Python</application> module is not available.
       </para>
     </note>
@@ -96,23 +91,17 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of libxml2</title>
-
-    <para>If you downloaded the testsuite, issue the following command:</para>
-
-<screen><userinput>tar xf ../xmlts20080827.tar.gz</userinput></screen>
+    <title>Installation</title>
 
     <para>
       Install <application>libxml2</application> by running the following
       commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static --with-history &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --with-history &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -124,11 +113,8 @@ make</userinput></screen>
   <sect2 role="commands">
     <title>Command Explanations</title>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
     <para>
-      <option>--with-history</option>: This switch enables
+      <parameter>--with-history</parameter>: This switch enables
       <application>Readline</application> support when running
       <command>xmlcatalog</command> or <command>xmllint</command> in shell mode.
     </para>
