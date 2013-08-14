@@ -5,20 +5,16 @@
   %general-entities;
 
   <!ENTITY sqlite-dl-version    "3071700">
-  <!ENTITY sqlite-doc-version   "3071700">
 
+  <!ENTITY sqlite-homepage      "http://www.sqlite.org/">
   <!ENTITY sqlite-download-http
            "http://sqlite.org/2013/sqlite-autoconf-&sqlite-dl-version;.tar.gz">
   <!ENTITY sqlite-download-ftp  " ">
   <!ENTITY sqlite-md5sum        "18c285053e9562b848209cb0ee16d4ab">
   <!ENTITY sqlite-size          "1.8 MB">
-  <!ENTITY sqlite-buildsize     "40 MB (includes optional documentation)">
+  <!ENTITY sqlite-buildsize     "40 MB">
   <!ENTITY sqlite-time          "0.3 SBU">
 
-  <!ENTITY sqlite-docs-download
-           "http://sqlite.org/2013/sqlite-doc-&sqlite-doc-version;.zip">
-  <!ENTITY sqlite-docs-md5sum   "f8a99a3db44c9564b32fc47eca6d8cf0">
-  <!ENTITY sqlite-docs-size     "4.0 MB">
 ]>
 
 <sect1 id="sqlite" xreflabel="SQLite-&sqlite-version;">
@@ -31,7 +27,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to SQLite</title>
+    <title>Introduction</title>
 
     <para>
       The <application>SQLite</application> package is a software library that
@@ -41,6 +37,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&sqlite-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&sqlite-download-http;"/>
@@ -73,60 +74,24 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <title>Optional Documentation</title>
-      <listitem>
-        <para>
-          Download (HTTP): <ulink url="&sqlite-docs-download;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &sqlite-docs-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &sqlite-docs-size;
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <bridgehead renderas="sect3">SQLite Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="unzip"/> (required to unzip the documentation).
-    </para>
-
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of SQLite</title>
-
-    <para>
-      If you downloaded the optional documentation, issue the following command
-      to install the documentation into the source tree:
-    </para>
-
-<screen><userinput>unzip -q ../sqlite-doc-&sqlite-doc-version;.zip</userinput></screen>
+    <title>Installation</title>
 
     <para>
       Install <application>SQLite</application> by running the following
       commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static        \
-            CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1 \
-            -DSQLITE_ENABLE_COLUMN_METADATA=1     \
-            -DSQLITE_ENABLE_UNLOCK_NOTIFY=1       \
-            -DSQLITE_SECURE_DELETE=1" &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            CFLAGS="-g -O2 \
+                    -DSQLITE_ENABLE_FTS3=1 \
+                    -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+                    -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+                    -DSQLITE_SECURE_DELETE=1" &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -134,20 +99,10 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>
-      If you downloaded the optional documentation, issue the following commands
-      as the <systemitem class="username">root</systemitem> user to install it:
-    </para>
-
-<screen role="root"><userinput>install -v -m755 -d /usr/share/doc/sqlite-&sqlite-version; &amp;&amp;
-cp -v -R sqlite-doc-&sqlite-doc-version;/* /usr/share/doc/sqlite-&sqlite-version;</userinput></screen>
   </sect2>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
 
     <para>
       <parameter>CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1
@@ -170,7 +125,7 @@ cp -v -R sqlite-doc-&sqlite-doc-version;/* /usr/share/doc/sqlite-&sqlite-version
     <segmentedlist>
       <segtitle>Installed Program</segtitle>
       <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+      <segtitle>Installed Directories</segtitle>
 
       <seglistitem>
         <seg>
@@ -180,7 +135,7 @@ cp -v -R sqlite-doc-&sqlite-doc-version;/* /usr/share/doc/sqlite-&sqlite-version
           libsqlite3.so
         </seg>
         <seg>
-          /usr/share/doc/sqlite-&sqlite-version;
+          None
         </seg>
       </seglistitem>
     </segmentedlist>
