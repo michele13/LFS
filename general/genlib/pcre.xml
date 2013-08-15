@@ -11,8 +11,8 @@
            "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
   <!ENTITY pcre-md5sum        "21514018448ac10062ece7a668fca949">
   <!ENTITY pcre-size          "1.4 MB">
-  <!ENTITY pcre-buildsize     "18 MB">
-  <!ENTITY pcre-time          "0.2 SBU">
+  <!ENTITY pcre-buildsize     "24 MB">
+  <!ENTITY pcre-time          "0.3 SBU">
 ]>
 
 <sect1 id="pcre" xreflabel="PCRE-&pcre-version;">
@@ -94,6 +94,8 @@
             --docdir=/usr/share/doc/pcre-&pcre-version; \
             --disable-static \
             --enable-unicode-properties \
+            --enable-pcre16 \
+            --enable-pcre32 \
             --enable-pcregrep-libz \
             --enable-pcregrep-libbz2 \
             --enable-pcretest-libreadline &amp;&amp;
@@ -105,7 +107,7 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install &amp;&amp;
 mv -v /usr/lib/libpcre.so.* /lib &amp;&amp;
-ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
+ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput></screen>
 
   </sect2>
 
@@ -118,6 +120,16 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
       character strings in the library. You need this switch if you are going to
       build <application>GLib</application> with the
       <parameter>--with-pcre=system</parameter> switch.
+    </para>
+
+    <para>
+      <parameter>--enable-pcre16</parameter>: This switch enables 16 bit
+      character support.
+    </para>
+
+    <para>
+      <parameter>--enable-pcre32</parameter>: This switch enables 32 bit
+      character support.
     </para>
 
     <para>
@@ -166,7 +178,8 @@ ln -sfv ../../lib/libpcre.so.1.2.1 /usr/lib/libpcre.so</userinput></screen>
           pcregrep, pcretest and pcre-config
         </seg>
         <seg>
-          libpcre.so, libpcrecpp.so and libpcreposix.so
+          libpcre.so, libpcre16.so, libpcre32.so,
+          libpcrecpp.so and libpcreposix.so
         </seg>
         <seg>
           /usr/share/doc/pcre-&pcre-version;
