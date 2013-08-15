@@ -4,7 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY ldns-download-http "http://www.nlnetlabs.nl/downloads/ldns/ldns-&ldns-version;.tar.gz">
+  <!ENTITY ldns-homepage      "http://www.nlnetlabs.nl/projects/ldns/">
+  <!ENTITY ldns-download-http
+  "http://www.nlnetlabs.nl/downloads/ldns/ldns-&ldns-version;.tar.gz">
   <!ENTITY ldns-download-ftp  " ">
   <!ENTITY ldns-md5sum        "9ab2b402127cf24dffefaacbb727cad7">
   <!ENTITY ldns-size          "1.1 MB">
@@ -22,7 +24,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to ldns</title>
+    <title>Introduction</title>
 
     <para>
       <application>ldns</application> is a fast DNS library with the goal to
@@ -33,6 +35,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&ldns-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&ldns-download-http;"/>
@@ -65,7 +72,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">ldns Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
@@ -75,16 +82,15 @@
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
       <xref linkend="cacerts"/> and
-      <xref linkend="libpcap"/> (for example programs),
+      <xref linkend="libpcap"/> (for example programs), and
       <xref linkend="python2"/> and
-      <ulink url="http://www.swig.org/">SWIG</ulink> (for Python bindings), and
-      <xref linkend="doxygen"/> (for html documentation)
+      <ulink url="http://www.swig.org/">SWIG</ulink> (for Python bindings)
     </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of ldns</title>
+    <title>Installation</title>
 
     <para>
       Install <application>ldns</application> by running the following
@@ -98,40 +104,18 @@
 make</userinput></screen>
 
     <para>
-      If you have <xref linkend="doxygen"/> package installed and want to build 
-      html documentation, run the following command:
-    </para>
-
-<screen><userinput>make doc</userinput></screen>
-
-    <para>
-      This package does not come with a working test suite.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
-
-    <para>
-      If you built html documentation, install it by running the following
-      commands as the <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>install -v -m755 -d /usr/share/doc/ldns-&ldns-version; &amp;&amp;
-install -v -m644 doc/html/* /usr/share/doc/ldns-&ldns-version;</userinput></screen>
 
   </sect2>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
     <para>
-      <option>--with-drill</option>: This option enables building of the
+      <parameter>--with-drill</parameter>: This option enables building of the
       <command>drill</command> tool.
     </para>
 
@@ -153,7 +137,7 @@ install -v -m644 doc/html/* /usr/share/doc/ldns-&ldns-version;</userinput></scre
     <segmentedlist>
       <segtitle>Installed Programs</segtitle>
       <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+      <segtitle>Installed Directory</segtitle>
 
       <seglistitem>
         <seg>
@@ -163,7 +147,7 @@ install -v -m644 doc/html/* /usr/share/doc/ldns-&ldns-version;</userinput></scre
           libldns.so
         </seg>
         <seg>
-          /usr/include/ldns and /usr/share/doc/ldns-&ldns-version;
+          /usr/include/ldns
         </seg>
       </seglistitem>
     </segmentedlist>
