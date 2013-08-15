@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY graphite-homepage      "http://graphite.sil.org/">
+  <!ENTITY graphite-download-http
+           "http://projects.palaso.org/attachments/download/384/graphite2-&graphite-version;.tgz">
+  <!ENTITY graphite-download-ftp  " ">
+  <!ENTITY graphite-md5sum        "7042305e4208af4c2d5249d814ccce58">
+  <!ENTITY graphite-size          "4.9 MB">
+  <!ENTITY graphite-buildsize     "11 MB">
+  <!ENTITY graphite-time          "0.1 SBU">
+]>
+
+<sect1 id="graphite" xreflabel="Graphite-&graphite-version;">
+  <?dbhtml filename="graphite.html"?>
+
+  <title>Graphite-&graphite-version;</title>
+
+  <indexterm zone="graphite">
+    <primary sortas="a-Graphite">Graphite</primary>
+  </indexterm>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      <application>Graphite</application> is a package that can be used to
+      create "smart fonts" capable of displaying writing systems with various
+      complex behaviors. A smart font contains not only letter shapes but also
+      additional instructions indicating how to combine and position the letters
+      in complex ways. <application>Graphite</application> was developed to
+      provide the flexibility needed for minority languages which often need to
+      be written according to slightly different rules than well-known languages
+      that use the same script.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&graphite-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&graphite-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&graphite-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &graphite-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &graphite-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &graphite-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &graphite-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="cmake"/>
+    </para>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation</title>
+
+    <para>
+      Install <application>Graphite</application> by running the following
+      commands:
+    </para>
+
+<screen><userinput>mkdir build &amp;&amp;
+cd build &amp;&amp;
+cmake -DCMAKE_INSTALL_PREFIX=/usr .. &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2 role="content">
+    <title>Contents</title>
+
+    <segmentedlist>
+      <segtitle>Installed Program</segtitle>
+      <segtitle>Installed Library</segtitle>
+      <segtitle>Installed Directories</segtitle>
+
+      <seglistitem>
+        <seg>
+          gr2fonttest
+        </seg>
+        <seg>
+          libgraphite2.so
+        </seg>
+        <seg>
+          /usr/include/graphite2 and /usr/share/graphite2
+        </seg>
+      </seglistitem>
+    </segmentedlist>
+
+    <variablelist>
+      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
+      <?dbfo list-presentation="list"?>
+      <?dbhtml list-presentation="table"?>
+
+      <varlistentry id="gr2fonttest">
+        <term><command>gr2fonttest</command></term>
+        <listitem>
+          <para>
+            creates a segment using FileFont and dumps a diagnostic table of the resulting glyph vector to the console.
+          </para>
+          <indexterm zone="graphite gr2fonttest">
+            <primary sortas="b-gr2fonttest">gr2fonttest</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="libgraphite2">
+        <term><filename class="libraryfile">libgraphite2.so</filename></term>
+        <listitem>
+          <para>
+            provides Graphite API functions to programs.
+          </para>
+          <indexterm zone="graphite libgraphite2">
+            <primary sortas="c-libgraphite2">libgraphite2.so</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </sect2>
+
+</sect1>
