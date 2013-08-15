@@ -4,7 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libpcap-download-http "http://www.tcpdump.org/release/libpcap-&libpcap-version;.tar.gz">
+  <!ENTITY libpcap-homepage      "http://www.tcpdump.org/">
+  <!ENTITY libpcap-download-http
+  "http://www.tcpdump.org/release/libpcap-&libpcap-version;.tar.gz">
   <!ENTITY libpcap-download-ftp  " ">
   <!ENTITY libpcap-md5sum        "56e88a5aabdd1e04414985ac24f7e76c">
   <!ENTITY libpcap-size          "608 KB">
@@ -22,7 +24,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to libpcap</title>
+    <title>Introduction</title>
 
     <para>
       <application>libpcap</application> provides functions for user-level
@@ -31,6 +33,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libpcap-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libpcap-download-http;"/>
@@ -63,22 +70,18 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libpcap Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      Software distribution for the
-      <ulink url="http://www.endace.com/">DAG</ulink>,
-      <xref linkend="libnl"/>,
-      <xref linkend="libusb"/> and
-      <ulink url="http://www.intel.com/">Septel</ulink> range of passive
-      network monitoring cards.
+      <xref linkend="libnl"/> and
+      <xref linkend="libusb"/>
     </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of libpcap</title>
+    <title>Installation</title>
 
     <para>
       Install <application>libpcap</application> by running the
@@ -89,8 +92,10 @@
 make</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Use this sed to disable installing the static library:
     </para>
+
+<screen><userinput>sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -113,7 +118,7 @@ make</userinput></screen>
           libpcap-config
         </seg>
         <seg>
-          libpcap.{a,so}
+          libpcap.so
         </seg>
         <seg>
           /usr/include/pcap
@@ -140,13 +145,13 @@ make</userinput></screen>
     </varlistentry>
 
     <varlistentry id="libpcap-lib">
-        <term><filename class="libraryfile">libpcap.{a,so}</filename></term>
+        <term><filename class="libraryfile">libpcap.so</filename></term>
       <listitem>
         <para>
-          are libraries used for user-level packet capture.
+          contains functions used for user-level packet capture.
         </para>
         <indexterm zone="libpcap libpcap-lib">
-          <primary sortas="c-libpcap">libpcap.{a,so}</primary>
+          <primary sortas="c-libpcap">libpcap.so</primary>
         </indexterm>
       </listitem>
     </varlistentry>
