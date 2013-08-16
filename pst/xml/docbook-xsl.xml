@@ -4,16 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY docbook-xsl-download-http "&sourceforge-repo;/docbook/docbook-xsl-&docbook-xsl-version;.tar.bz2">
+  <!ENTITY docbook-xsl-homepage      "http://docbook.sourceforge.net/">
+  <!ENTITY docbook-xsl-download-http
+  "&sourceforge-repo;/docbook/docbook-xsl-&docbook-xsl-version;.tar.bz2">
   <!ENTITY docbook-xsl-download-ftp  " ">
   <!ENTITY docbook-xsl-md5sum        "6dd0f89131cc35bf4f2ed105a1c17771">
   <!ENTITY docbook-xsl-size          "4.8 MB">
-  <!ENTITY docbook-xsl-buildsize     "49 MB (includes installing optional documentation)">
+  <!ENTITY docbook-xsl-buildsize     "49 MB">
   <!ENTITY docbook-xsl-time          "less than 0.1 SBU">
-
-  <!ENTITY docbook-xsl-doc-download  "&sourceforge-repo;/docbook/docbook-xsl-doc-&docbook-xsl-version;.tar.bz2">
-  <!ENTITY docbook-xsl-doc-md5sum    "77b63a06db2db2b692dcb96c2c64dc45">
-  <!ENTITY docbook-xsl-doc-size      "1.0 MB">
 ]>
 
 <sect1 id="docbook-xsl"
@@ -28,104 +26,94 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to DocBook XSL Stylesheets</title>
+    <title>Introduction</title>
 
-    <para>The <application>DocBook XSL Stylesheets</application>
-    package contains XSL stylesheets. These are useful for
-    performing transformations on XML DocBook files.</para>
+    <para>
+      The <application>DocBook XSL Stylesheets</application> package contains
+      XSL stylesheets. These are useful for performing transformations on XML
+      DocBook files.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&docbook-xsl-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&docbook-xsl-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&docbook-xsl-download-ftp;"/></para>
+        <para>
+          Download (HTTP): <ulink url="&docbook-xsl-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &docbook-xsl-md5sum;</para>
+        <para>
+          Download (FTP): <ulink url="&docbook-xsl-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &docbook-xsl-size;</para>
+        <para>
+          Download MD5 sum: &docbook-xsl-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &docbook-xsl-buildsize;</para>
+        <para>
+          Download size: &docbook-xsl-size;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &docbook-xsl-time;</para>
+        <para>
+          Estimated disk space required: &docbook-xsl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &docbook-xsl-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <title>Optional documentation</title>
-      <listitem>
-        <para>Download (HTTP): <ulink url="&docbook-xsl-doc-download;"/></para>
-      </listitem>
-      <listitem>
-        <para>Download MD5 sum: &docbook-xsl-doc-md5sum;</para>
-      </listitem>
-      <listitem>
-        <para>Download size: &docbook-xsl-doc-size;</para>
-      </listitem>
-    </itemizedlist>
-
-    <bridgehead renderas="sect3">DocBook XSL Stylesheets Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="libxml2"/></para>
+    <para role="required">
+      <xref linkend="libxml2"/>
+    </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><xref linkend="ruby"/> (to utilize the
-    <quote>epub</quote> stylesheets)</para>
+    <para role="optional">
+      <xref linkend="ruby"/> (to utilize the <quote>epub</quote> stylesheets)
+    </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of DocBook XSL Stylesheets</title>
+    <title>Installation</title>
 
-    <para>If you downloaded the optional documentation tarball, unpack it
-    with the following command:</para>
-
-<screen><userinput>tar -xf ../docbook-xsl-doc-&docbook-xsl-version;.tar.bz2 --strip-components=1</userinput></screen>
-
-    <para>BLFS does not install the required packages to run the test suite
-    and provide meaningful results.</para>
-
-    <para>Install <application>DocBook XSL Stylesheets</application>
-    by running the following commands as the
-    <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Install <application>DocBook XSL Stylesheets</application> by running the
+      following commands as the <systemitem class="username">root</systemitem>
+      user:
+    </para>
 
 <screen role="root"><userinput>install -v -m755 -d /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
-
-cp -v -R VERSION common eclipse epub extensions fo highlighting html \
-         htmlhelp images javahelp lib manpages params profiling \
-         roundtrip slides template tests tools webhelp website \
-         xhtml xhtml-1_1 \
-    /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
-
-ln -s VERSION /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;/VERSION.xsl &amp;&amp;
-
-install -v -m644 -D README \
-                    /usr/share/doc/docbook-xsl-&docbook-xsl-version;/README.txt &amp;&amp;
-install -v -m644    RELEASE-NOTES* NEWS* \
-                    /usr/share/doc/docbook-xsl-&docbook-xsl-version;</userinput></screen>
-
-    <para>If you downloaded the optional documentation tarball, install the
-    documentation by issuing the following command as the
-    <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>cp -v -R doc/* /usr/share/doc/docbook-xsl-&docbook-xsl-version;</userinput></screen>
+cp -v -R VERSION common eclipse epub extensions fo highlighting html htmlhelp \
+         images javahelp lib manpages params profiling roundtrip slides \
+         template tests tools webhelp website xhtml xhtml-1_1 \
+         /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
+ln -s VERSION /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;/VERSION.xsl</userinput></screen>
 
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring DocBook XSL Stylesheets</title>
+    <title>Configuration</title>
 
     <sect3 id="docbook-xsl-config">
       <title>Config Files</title>
 
-      <para><filename>/etc/xml/catalog</filename></para>
+      <para>
+        <filename>/etc/xml/catalog</filename>
+      </para>
 
       <indexterm zone="docbook-xsl docbook-xsl-config">
         <primary sortas="e-etc-xml-catalog">/etc/xml/catalog</primary>
@@ -136,9 +124,10 @@ install -v -m644    RELEASE-NOTES* NEWS* \
     <sect3>
       <title>Configuration Information</title>
 
-      <para>Create (or append) and populate the XML catalog file using the
-      following commands as the <systemitem class="username">root</systemitem>
-      user:</para>
+      <para>
+        Create (or append) and populate the XML catalog file using the following
+        commands as the <systemitem class="username">root</systemitem> user:
+      </para>
 
 <screen role="root"><userinput>if [ ! -d /etc/xml ]; then install -v -m755 -d /etc/xml; fi &amp;&amp;
 if [ ! -f /etc/xml/catalog ]; then
@@ -165,12 +154,14 @@ xmlcatalog --noout --add "rewriteURI" \
            "/usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;" \
     /etc/xml/catalog</userinput></screen>
 
-      <para>Occasionally, you may find the need to install other versions of
-      the XSL stylesheets as some projects reference a specific version. One
-      example is BLFS-6.0, which required the 1.67.2 version. In these instances
-      you should install any other required version in its own versioned
-      directory and create catalog entries as follows (substitute the desired
-      version number for <replaceable>&lt;version&gt;</replaceable>):</para>
+      <para>
+        Occasionally, you may find the need to install other versions of the XSL
+        stylesheets as some projects reference a specific version. One example
+        is BLFS-6.0, which required the 1.67.2 version. In these instances you
+        should install any other required version in its own versioned directory
+        and create catalog entries as follows (substitute the desired version
+        number for <replaceable>&lt;version&gt;</replaceable>):
+      </para>
 
 <screen role="root"><userinput>xmlcatalog --noout --add "rewriteSystem" \
            "http://docbook.sourceforge.net/release/xsl/<replaceable>&lt;version&gt;</replaceable>" \
@@ -181,19 +172,6 @@ xmlcatalog --noout --add "rewriteURI" \
            "http://docbook.sourceforge.net/release/xsl/<replaceable>&lt;version&gt;</replaceable>" \
            "/usr/share/xml/docbook/xsl-stylesheets-<replaceable>&lt;version&gt;</replaceable>" \
     /etc/xml/catalog</userinput></screen>
-
-<!-- Commented uot until be sure that there is no objetions from any of the
-     {C,H}LFS editors
-
-      <para>If you will be using the stylesheets from this installation to
-      render the LFS and HLFS SVN books, then you need to create a symbolic
-      link to the stylesheets directory so that the image files will be
-      found. Create the link by issuing the following command as the
-      <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>ln -v -sfn xsl-stylesheets-1.69.1 \
-    /usr/share/xml/docbook/xsl-stylesheets-current</userinput></screen>
--->
 
     </sect3>
 
@@ -208,10 +186,16 @@ xmlcatalog --noout --add "rewriteURI" \
       <segtitle>Installed Directories</segtitle>
 
       <seglistitem>
-        <seg>None</seg>
-        <seg>None</seg>
-        <seg>/usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; and
-        /usr/share/doc/docbook-xsl-&docbook-xsl-version;</seg>
+        <seg>
+          None
+        </seg>
+        <seg>
+          None
+        </seg>
+        <seg>
+          /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; and
+          /usr/share/doc/docbook-xsl-&docbook-xsl-version;
+        </seg>
       </seglistitem>
     </segmentedlist>
 
