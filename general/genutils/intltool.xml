@@ -4,7 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY intltool-download-http "http://launchpad.net/intltool/trunk/&intltool-version;/+download/intltool-&intltool-version;.tar.gz">
+  <!ENTITY intltool-homepage      "http://freedesktop.org/wiki/Software/intltool/">
+  <!ENTITY intltool-download-http
+  "http://launchpad.net/intltool/trunk/&intltool-version;/+download/intltool-&intltool-version;.tar.gz">
   <!ENTITY intltool-download-ftp  " ">
   <!ENTITY intltool-md5sum        "23fbd879118253cb99aeac067da5f591">
   <!ENTITY intltool-size          "188 KB">
@@ -22,20 +24,24 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Intltool</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>Intltool</application> is an internationalization
-      tool used for extracting translatable strings from source files,
-      collecting the extracted strings with messages from traditional
-      source files (<filename class="directory">&lt;source
-      directory&gt;/&lt;package&gt;/po</filename>) and merging the
-      translations into <filename>.xml</filename>,
+      The <application>Intltool</application> is an internationalization tool
+      used for extracting translatable strings from source files, collecting the
+      extracted strings with messages from traditional source files (<filename
+      class="directory">&lt;source directory&gt;/&lt;package&gt;/po</filename>)
+      and merging the translations into <filename>.xml</filename>,
       <filename>.desktop</filename> and <filename>.oaf</filename> files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&intltool-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&intltool-download-http;"/>
@@ -68,7 +74,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Intltool Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -78,7 +84,7 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Intltool</title>
+    <title>Installation</title>
 
     <para>
       Install <application>Intltool</application> by running the following
@@ -89,16 +95,10 @@
 make</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m644 -D doc/I18N-HOWTO \
-    /usr/share/doc/intltool-&intltool-version;/I18N-HOWTO</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
@@ -108,7 +108,7 @@ install -v -m644 -D doc/I18N-HOWTO \
     <segmentedlist>
       <segtitle>Installed Programs</segtitle>
       <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+      <segtitle>Installed Directory</segtitle>
 
       <seglistitem>
         <seg>
@@ -119,7 +119,6 @@ install -v -m644 -D doc/I18N-HOWTO \
           None
         </seg>
         <seg>
-          /usr/share/doc/intltool-&intltool-version; and
           /usr/share/intltool
         </seg>
       </seglistitem>
@@ -134,8 +133,7 @@ install -v -m644 -D doc/I18N-HOWTO \
         <term><command>intltoolize</command></term>
         <listitem>
           <para>
-            prepares a package to use
-            <application>intltool</application>.
+            prepares a package to use <application>intltool</application>.
           </para>
           <indexterm zone="intltool intltoolize">
             <primary sortas="b-intltoolize">intltoolize</primary>
@@ -184,8 +182,8 @@ install -v -m644 -D doc/I18N-HOWTO \
         <term><command>intltool-update</command></term>
         <listitem>
           <para>
-            updates the <filename>po</filename> template files and merges
-            them with the translations.
+            updates the <filename>po</filename> template files and merges them
+            with the translations.
           </para>
           <indexterm zone="intltool intltool-update">
             <primary sortas="b-intltool-update">intltool-update</primary>
