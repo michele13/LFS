@@ -1,15 +1,23 @@
 My personal modifications to the BLFS (http://www.linuxfromscratch.org/blfs/)
-book with the goal to remove packages I don't use like, for example, desktop
-environments, Java, GTK+3, D-Bus, PulseAudio, GObject introspection, Vala,
-GTK-Doc and similar. Other minor modifications are removed package testing
-instructions and additional documentation installation (except man pages) as I
-don't find them that useful. Another goal is to add a bunch of packages I use
-but don't want to place the burden of maintainance on the official book editors.
+book with the goals to:
 
-This book is automatically generated at: http://igor-zivkovic.from.hr/BLFS/
+* remove packages I think don't add much value but complicate instructions a lot
+  like, for example: desktop environments, Java, GTK+3, D-Bus, PulseAudio,
+  GObject introspection, Linux-PAM and similar
 
-It is tracking the official BLFS book from SVN trunk and should be compatible
-with the latest LFS from SVN trunk. Older versions are not supported.
+* remove additional documentation installation (except man pages) since I read
+  it online anyways
+
+* remove testing and debugging instructions as I don't find it that useful
+
+* add a bunch of packages I regularly compile but don't want to place the burden
+  of maintainance on the official book editors.
+
+
+This book is periodically generated at: http://igor-zivkovic.from.hr/BLFS/
+
+It is tracking changes from the official BLFS book from SVN trunk and should be
+compatible with the latest LFS from SVN trunk.
 
 Major changes from the official book (mainly removed and added packages) are
 noted at: https://raw.github.com/igzivkov/blfs-book/master/ChangeLog
