@@ -77,9 +77,8 @@
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
       <xref linkend="DocBook"/>,
-      <xref linkend="docbook-xsl"/>,
-      <xref linkend="libxslt"/> and
-      <xref linkend="linux-pam"/>
+      <xref linkend="docbook-xsl"/>, and
+      <xref linkend="libxslt"/>
     </para>
 
     <note>
@@ -143,49 +142,11 @@ make</userinput></screen>
     <para>
       <parameter>--with-authfw=shadow</parameter>: This parameter configures the
       package to use the <application>Shadow</application> rather than the
-      <application>Linux PAM</application> Authentication framework. Remove it if
-      you would like to use <application>Linux PAM</application>.
+      <application>Linux PAM</application> Authentication framework.
     </para>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring Polkit</title>
-
-    <sect3>
-      <title>PAM Configuration</title>
-
-      <note>
-        <para>
-          If you did not build <application>Polkit</application> with
-          <application>Linux PAM</application> support, you can skip this section.
-        </para>
-      </note>
-
-      <para>
-        If you have built <application>Polkit</application> with
-        <application>Linux PAM</application> support, you need to modify
-        the default PAM configuration file which was installed by default to get
-        <application>Polkit</application> to work correctly with BLFS. Issue the
-        following commands as the <systemitem class="username">root</systemitem>
-        user to create the configuration file for <application>Linux PAM</application>:
-      </para>
-
-<screen role="root"><userinput>cat &gt; /etc/pam.d/polkit-1 &lt;&lt; "EOF"
-<literal># Begin /etc/pam.d/polkit-1
-
-auth     include        system-auth
-account  include        system-account
-password include        system-password
-session  include        system-session
-
-# End /etc/pam.d/polkit-1</literal>
-EOF</userinput></screen>
-
-    </sect3>
 
   </sect2>
 

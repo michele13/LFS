@@ -74,15 +74,13 @@
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="libglade"/> and
-      <xref linkend="xorg7-app"/>
+      <xref linkend="xorg7-app"/> and
+      <xref linkend="libglade"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <ulink url="&gnome-download-http;/gdm/">GDM</ulink>,
-      <ulink url="http://linas.org/gle/">GLE</ulink> and
-      <xref linkend="linux-pam"/>
+      <ulink url="http://linas.org/gle/">GLE</ulink>
     </para>
 
   </sect2>
@@ -138,32 +136,6 @@ make</userinput></screen>
       <indexterm zone="xscreensaver xscreensaver-config">
         <primary sortas="e-AA.xscreensaver">~/.xscreensaver</primary>
       </indexterm>
-
-    </sect3>
-
-    <sect3>
-      <title>Linux PAM Configuration</title>
-
-      <para>
-        If you have built <application>XScreenSaver</application> with
-        <application>Linux PAM</application> support, you need to create
-        <application>PAM</application> configuration file to get
-        <application>XScreenSaver</application> to work correctly with BLFS.
-      </para>
-
-      <para>
-        Issue the following commands as the <systemitem class="username">root</systemitem>
-        user to create the configuration file for <application>Linux PAM</application>:
-      </para>
-
-<screen role="root"><userinput>cat &gt; /etc/pam.d/xscreensaver &lt;&lt; "EOF"
-<literal># Begin /etc/pam.d/xscreensaver
-
-auth    include system-auth
-account include system-account
-
-# End /etc/pam.d/xscreensaver</literal>
-EOF</userinput></screen>
 
     </sect3>
 

@@ -84,7 +84,6 @@
     <para role="optional">
       <xref linkend="libedit"/>,
       <xref linkend="x-window-system"/>,
-      <xref linkend="linux-pam"/>,
       <xref linkend="mitkrb"/>,
       <ulink url="http://www.opensc-project.org/">OpenSC</ulink> and
       <ulink url="http://www.citi.umich.edu/projects/smartcard/sectok.html">libsectok</ulink>
@@ -157,11 +156,6 @@ install -v -m644 contrib/ssh-copy-id.1 /usr/share/man/man1</userinput></screen>
     <para>
       <parameter>--with-md5-passwords</parameter>: This enables the use of MD5
       passwords.
-    </para>
-
-    <para>
-      <option>--with-pam</option>: This option enables
-      <application>Linux-PAM</application> support in the build.
     </para>
 
     <para>
@@ -253,20 +247,6 @@ unset public_key</userinput></screen>
 
 <screen role="root"><userinput>echo "PasswordAuthentication no" >> /etc/ssh/sshd_config &amp;&amp;
 echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></screen>
-
-      <para>
-        If you added <application>LinuxPAM</application> support and you want
-        ssh to use it then you will need to add a configuration file for
-        <application>sshd</application> and enable use of
-        <application>LinuxPAM</application>. Note, ssh only uses PAM to check
-        passwords, if you've disabled password logins these commands are not
-        needed. If you want to use PAM issue the following commands as the
-        <systemitem class='username'>root</systemitem> user:
-      </para>
-
-<screen role="root"><userinput>sed 's@d/login@d/sshd@g' /etc/pam.d/login &gt; /etc/pam.d/sshd &amp;&amp;
-chmod 644 /etc/pam.d/sshd &amp;&amp;
-echo "UsePAM yes" &gt;&gt; /etc/ssh/sshd_config</userinput></screen>
 
       <para>
         Additional configuration information can be found in the man
