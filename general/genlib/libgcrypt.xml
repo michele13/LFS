@@ -4,8 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY libgcrypt-homepage      "http://www.gnu.org/software/libgcrypt/">
   <!ENTITY libgcrypt-download-http " ">
-  <!ENTITY libgcrypt-download-ftp  "ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-&libgcrypt-version;.tar.bz2">
+  <!ENTITY libgcrypt-download-ftp
+  "ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-&libgcrypt-version;.tar.bz2">
   <!ENTITY libgcrypt-md5sum        "993159b2924ae7b0e4eaff0743c2db35">
   <!ENTITY libgcrypt-size          "1.4 MB">
   <!ENTITY libgcrypt-buildsize     "27 MB">
@@ -22,18 +24,23 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to libgcrypt</title>
+    <title>Introduction</title>
 
     <para>
       The <application>libgcrypt</application> package contains a general
       purpose crypto library based on the code used in
       <application>GnuPG</application>. The library provides a high level
-      interface to cryptographic building blocks using an extendable and flexible
-      API.
+      interface to cryptographic building blocks using an extendable and
+      flexible API.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libgcrypt-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libgcrypt-download-http;"/>
@@ -66,7 +73,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libgcrypt Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -82,53 +89,22 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of libgcrypt</title>
+    <title>Installation</title>
 
     <para>
       Install <application>libgcrypt</application> by running the
       following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      Only <command>info</command> documentation is shipped in the package
-      tarball. If you wish to build alternate formats of the documentation,
-      (you must have <xref linkend="texlive"/> installed to build the PDF
-      and PostScript documentation), then issue the following commands:
-    </para>
-
-<screen><userinput>make -C doc pdf ps html &amp;&amp;
-makeinfo --html --no-split -o doc/gcrypt_nochunks.html doc/gcrypt.texi &amp;&amp;
-makeinfo --plaintext       -o doc/gcrypt.txt           doc/gcrypt.texi</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -dm755   /usr/share/doc/libgcrypt-&libgcrypt-version; &amp;&amp;
-install -v -m644    README doc/{README.apichanges,fips*,libgcrypt*} \
-                    /usr/share/doc/libgcrypt-&libgcrypt-version;</userinput></screen>
-
-    <para>
-      If you built the additional documentation, install it by issuing the
-      following commands as the <systemitem class="username">root</systemitem>
-      user:
-    </para>
-
-<screen role="root"><userinput>install -v -dm755   /usr/share/doc/libgcrypt-&libgcrypt-version;/html &amp;&amp;
-install -v -m644 doc/gcrypt.html/* \
-                    /usr/share/doc/libgcrypt-&libgcrypt-version;/html &amp;&amp;
-install -v -m644 doc/gcrypt_nochunks.html \
-                    /usr/share/doc/libgcrypt-&libgcrypt-version; &amp;&amp;
-install -v -m644 doc/gcrypt.{pdf,ps,dvi,txt,texi} \
-                    /usr/share/doc/libgcrypt-&libgcrypt-version;</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
@@ -147,7 +123,7 @@ install -v -m644 doc/gcrypt.{pdf,ps,dvi,txt,texi} \
     <segmentedlist>
       <segtitle>Installed Programs</segtitle>
       <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+      <segtitle>Installed Directories</segtitle>
 
       <seglistitem>
         <seg>
@@ -157,7 +133,7 @@ install -v -m644 doc/gcrypt.{pdf,ps,dvi,txt,texi} \
           libgcrypt.so
         </seg>
         <seg>
-          /usr/share/doc/libgcrypt-&libgcrypt-version;
+          None
         </seg>
       </seglistitem>
     </segmentedlist>
