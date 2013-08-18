@@ -4,7 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY acpid-download-http "&sourceforge-repo;/acpid2/acpid-&acpid-version;.tar.xz">
+  <!ENTITY acpid-homepage      "http://sourceforge.net/projects/acpid2/">
+  <!ENTITY acpid-download-http
+  "&sourceforge-repo;/acpid2/acpid-&acpid-version;.tar.xz">
   <!ENTITY acpid-download-ftp  " ">
   <!ENTITY acpid-md5sum        "0b07a982e3e28cf37645f2c6269af72e">
   <!ENTITY acpid-size          "148 KB">
@@ -22,7 +24,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to acpid</title>
+    <title>Introduction</title>
 
     <para>
       The <application>acpid</application> (Advanced Configuration and Power
@@ -35,6 +37,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&acpid-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&acpid-download-http;"/>
@@ -70,32 +77,28 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of acpid</title>
+    <title>Installation</title>
 
     <para>
       Install <application>acpid</application> by
       running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --docdir=/usr/share/doc/acpid-&acpid-version; &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --docdir=/usr/share/doc/acpid-&acpid-version; &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /etc/acpi/events &amp;&amp;
-cp -r samples /usr/share/doc/acpid-&acpid-version;</userinput></screen>
+install -v -m755 -d /etc/acpi/events</userinput></screen>
 
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring acpid</title>
+    <title>Configuration</title>
 
     <para>
       <application>acpid</application> is configured by user defined events.
@@ -126,8 +129,8 @@ chmod +x /etc/acpi/lid.sh</userinput></screen>
     <para>
       Unfortunately, not every computer labels ACPI events in the same way. To
       determine how your buttons are recognized, use the
-      <command>acpi_listen</command> tool. Also, look in package documentation's
-      samples directory for more examples.
+      <command>acpi_listen</command> tool. Also, look in package documentation
+      for more examples.
     </para>
 
     <sect3  id="acpid-init">
