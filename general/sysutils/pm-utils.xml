@@ -4,7 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY pm-utils-download-http "http://pm-utils.freedesktop.org/releases/pm-utils-&pm-utils-version;.tar.gz">
+  <!ENTITY pm-utils-homepage      "http://pm-utils.freedesktop.org/">
+  <!ENTITY pm-utils-download-http
+  "http://pm-utils.freedesktop.org/releases/pm-utils-&pm-utils-version;.tar.gz">
   <!ENTITY pm-utils-download-ftp  " ">
   <!ENTITY pm-utils-md5sum        "1742a556089c36c3a89eb1b957da5a60">
   <!ENTITY pm-utils-size          "204 KB">
@@ -22,7 +24,7 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Power Management Utilities</title>
+    <title>Introduction</title>
 
     <para>
       The <application>Power Management Utilities</application> is a small
@@ -32,6 +34,11 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pm-utils-homepage;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&pm-utils-download-http;"/>
@@ -64,7 +71,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Power Management Utilities Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
@@ -73,9 +80,9 @@
 
     <bridgehead renderas="sect4">Optional (runtime)</bridgehead>
     <para role="optional">
+      <xref linkend="ethtool"/>,
       <xref linkend="hdparm"/>,
-      <xref linkend="wireless_tools"/>,
-      <ulink url="https://www.kernel.org/pub/software/network/ethtool/">ethtool</ulink> and
+      <xref linkend="wireless_tools"/>, and
       <!-- both http://www.codon.org.uk/~mjg59/vbetool/ and
            http://www.srcf.ucam.org/~mjg59/vbetool/ are down -->
       <ulink url="http://ftp.de.debian.org/debian/pool/main/v/vbetool/">vbetool</ulink>
@@ -85,20 +92,17 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Power Management Utilities</title>
+    <title>Installation</title>
 
     <para>
       Install <application>Power Management Utilities</application> by
       running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --sysconfdir=/etc \
+<screen><userinput>./configure --prefix=/usr \
+            --sysconfdir=/etc \
             --docdir=/usr/share/doc/pm-utils-&pm-utils-version; &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -120,7 +124,7 @@ ln -sv pm-action.8 /usr/share/man/man8/pm-suspend-hybrid.8</userinput></screen>
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring Power Management Utilities</title>
+    <title>Configuration</title>
 
     <para>
       Suspend or resume functionality can be easily modified by installing files
