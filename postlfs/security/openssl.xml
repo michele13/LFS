@@ -121,7 +121,7 @@ patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
 make</userinput></screen>
 
     <para>
-      Use this sed to disable installing the static libraries:
+      Disable installing the static libraries:
     </para>
 
 <screen><userinput>sed -i 's# libcrypto.a##;s# libssl.a##' Makefile</userinput></screen>
@@ -132,37 +132,37 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>shared</parameter>: This parameter forces the creation of
+        shared libraries along with the static libraries.
+      </para>
 
-    <para>
-      <parameter>shared</parameter>: This parameter forces the creation of
-      shared libraries along with the static libraries.
-    </para>
+      <para>
+        <parameter>zlib-dynamic</parameter>: This parameter adds compression and
+        decompression functionality using the <filename
+        class="libraryfile">libz</filename> library.
+      </para>
 
-    <para>
-      <parameter>zlib-dynamic</parameter>: This parameter adds
-      compression/decompression functionality using the
-      <filename class="libraryfile">libz</filename> library.
-    </para>
+      <para>
+        <command>make MANDIR=/usr/share/man MANSUFFIX=ssl install</command>:
+        This command installs <application>OpenSSL</application> with the man
+        pages in <filename class="directory">/usr/share/man</filename> instead
+        of <filename class="directory">/etc/ssl/man</filename> and appends "ssl"
+        suffix to the manual page names to avoid conflicts with manual pages
+        installed by other packages.
+      </para>
 
-    <para>
-      <option>no-rc5 no-idea</option>: When added to the
-      <command>./config</command> command, this will eliminate the building
-      of those encryption methods. Patent licenses may be needed for you to
-      utilize either of those methods in your projects.
-    </para>
+      <para>
+        <option>no-rc5 no-idea</option>: When added to the
+        <command>./config</command> command, this will eliminate the building of
+        those encryption methods. Patent licenses may be needed for you to
+        utilize either of those methods in your projects.
+      </para>
 
-    <para>
-      <command>make MANDIR=/usr/share/man MANSUFFIX=ssl install</command>:
-      This command installs <application>OpenSSL</application> with the man
-      pages in <filename class="directory">/usr/share/man</filename>
-      instead of <filename class="directory">/etc/ssl/man</filename> and
-      appends "ssl" suffix to the manual page names to avoid conflicts with
-      manual pages installed by other packages.
-    </para>
+    </sect3>
 
   </sect2>
 
@@ -185,6 +185,27 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
+    <segmentedlist>
+      <segtitle>Installed Programs</segtitle>
+      <segtitle>Installed Libraries</segtitle>
+      <segtitle>Installed Config files</segtitle>
+
+      <seglistitem>
+        <seg>
+          <command>c_rehash</command> and
+          <command>openssl</command>
+        </seg>
+        <seg>
+          <filename class="libraryfile">libcrypto.so</filename> and
+          <filename class="libraryfile">libssl.so</filename>
+        </seg>
+        <seg>
+          <filename>/etc/ssl/openssl.cnf</filename>
+        </seg>
+      </seglistitem>
+
+    </segmentedlist>
+
     <indexterm zone="openssl">
       <primary sortas="b-c_rehash">c_rehash</primary>
     </indexterm>
@@ -194,16 +215,20 @@ make</userinput></screen>
     </indexterm>
 
     <indexterm zone="openssl">
-      <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
-    </indexterm>
-
-    <indexterm zone="openssl">
       <primary sortas="c-libcrypto">libcrypto.so</primary>
     </indexterm>
 
     <indexterm zone="openssl">
       <primary sortas="c-libssl">libssl.so</primary>
     </indexterm>
+
+    <indexterm zone="openssl">
+      <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
+    </indexterm>
+
+    <para>
+      Complete list of installed files and directories:
+    </para>
 
 <screen><literal>/etc/ssl
 /etc/ssl/certs
