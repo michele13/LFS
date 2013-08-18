@@ -232,17 +232,6 @@
           </xsl:attribute>
           <xsl:apply-templates select="$target[1]" mode="index-title-content"/>
         </a>
-        <xsl:text> -- </xsl:text>
-        <a>
-          <xsl:attribute name="href">
-            <xsl:call-template name="href.target.uri">
-              <xsl:with-param name="object" select="$target2[1]"/>
-            </xsl:call-template>
-          </xsl:attribute>
-          <xsl:call-template name="gentext">
-            <xsl:with-param name="key">description</xsl:with-param>
-          </xsl:call-template>
-        </a>
         <br/>
       </xsl:when>
       <xsl:otherwise>
