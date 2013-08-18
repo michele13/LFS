@@ -5,10 +5,12 @@
   %general-entities;
 
   <!ENTITY pcre-homepage      "http://www.pcre.org/">
+  <!ENTITY pcre-wikipedia
+  "http://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions">
   <!ENTITY pcre-download-http
-           "&sourceforge-repo;/pcre/pcre-&pcre-version;.tar.bz2">
+  "&sourceforge-repo;/pcre/pcre-&pcre-version;.tar.bz2">
   <!ENTITY pcre-download-ftp
-           "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
+  "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
   <!ENTITY pcre-md5sum        "21514018448ac10062ece7a668fca949">
   <!ENTITY pcre-size          "1.4 MB">
   <!ENTITY pcre-buildsize     "24 MB">
@@ -40,6 +42,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&pcre-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pcre-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -102,122 +109,290 @@ make</userinput></screen>
 mv -v /usr/lib/libpcre.so.* /lib &amp;&amp;
 ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--enable-unicode-properties</parameter>: This switch enables
+        Unicode properties support and includes the code for handling UTF-8/16/32
+        character strings in the library. You need this switch if you are going to
+        build <application>GLib</application> with the
+        <parameter>--with-pcre=system</parameter> switch.
+      </para>
 
-    <para>
-      <parameter>--enable-unicode-properties</parameter>: This switch enables
-      Unicode properties support and includes the code for handling UTF-8/16/32
-      character strings in the library. You need this switch if you are going to
-      build <application>GLib</application> with the
-      <parameter>--with-pcre=system</parameter> switch.
-    </para>
+      <para>
+        <parameter>--enable-pcre16</parameter>: This switch enables 16 bit
+        character support.
+      </para>
 
-    <para>
-      <parameter>--enable-pcre16</parameter>: This switch enables 16 bit
-      character support.
-    </para>
+      <para>
+        <parameter>--enable-pcre32</parameter>: This switch enables 32 bit
+        character support.
+      </para>
 
-    <para>
-      <parameter>--enable-pcre32</parameter>: This switch enables 32 bit
-      character support.
-    </para>
+      <para>
+        <parameter>--enable-pcregrep-libz</parameter>: This switch adds support to
+        <command>pcregrep</command> to read <filename
+        class="extension">.gz</filename> compressed files.
+      </para>
 
-    <para>
-      <parameter>--enable-pcregrep-libz</parameter>: This switch adds support to
-      <command>pcregrep</command> to read <filename
-      class="extension">.gz</filename> compressed files.
-    </para>
+      <para>
+        <parameter>--enable-pcregrep-libbz2</parameter>: This switch adds support
+        to <command>pcregrep</command> to read <filename
+        class="extension">.bz2</filename> compressed files.
+      </para>
 
-    <para>
-      <parameter>--enable-pcregrep-libbz2</parameter>: This switch adds support
-      to <command>pcregrep</command> to read <filename
-      class="extension">.bz2</filename> compressed files.
-    </para>
+      <para>
+        <parameter>--enable-pcretest-libreadline</parameter>: This switch adds
+        line editing and history features to <command>pcretest</command> program.
+      </para>
 
-    <para>
-      <parameter>--enable-pcretest-libreadline</parameter>: This switch adds
-      line editing and history features to <command>pcretest</command> program.
-    </para>
+      <para>
+        <command>mv -v /usr/lib/libpcre.so.* /lib</command>: Moves the
+        <application>PCRE</application> library on the root filesystem so that it
+        is available in case <command>grep</command> gets reinstalled with
+        <application>PCRE</application> support.
+      </para>
 
-    <para>
-      <command>mv -v /usr/lib/libpcre.so.* /lib</command>: Moves the
-      <application>PCRE</application> library on the root filesystem so that it
-      is available in case <command>grep</command> gets reinstalled with
-      <application>PCRE</application> support.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="pcre">
+      <primary sortas="b-pcre-config">pcre-config</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="b-pcregrep">pcregrep</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="b-pcretest">pcretest</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre16">libpcre16.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre32">libpcre32.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcrecpp">libpcrecpp.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcreposix">libpcreposix.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre">libpcre.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          pcregrep, pcretest and pcre-config
-        </seg>
-        <seg>
-          libpcre.so, libpcre16.so, libpcre32.so,
-          libpcrecpp.so and libpcreposix.so
-        </seg>
-        <seg>
-          /usr/share/doc/pcre-&pcre-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Complete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="pcregrep">
-        <term><command>pcregrep</command></term>
-        <listitem>
-          <para>
-            is a <command>grep</command> that understands
-            <application>Perl</application> compatible regular expressions.
-          </para>
-          <indexterm zone="pcre pcregrep">
-            <primary sortas="b-pcregrep">pcregrep</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pcretest">
-        <term><command>pcretest</command></term>
-        <listitem>
-          <para>
-            can test a <application>Perl</application> compatible
-            regular expression.
-          </para>
-          <indexterm zone="pcre pcretest">
-            <primary sortas="b-pcretest">pcretest</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pcre-config">
-        <term><command>pcre-config</command></term>
-        <listitem>
-          <para>
-            is used during the compile process of programs linking to
-            the <application>PCRE</application> libraries.
-          </para>
-          <indexterm zone="pcre pcre-config">
-            <primary sortas="b-pcre-config">pcre-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/lib/libpcre.so.1
+/lib/libpcre.so.1.2.1
+/usr/bin/pcre-config
+/usr/bin/pcregrep
+/usr/bin/pcretest
+/usr/include/pcrecpparg.h
+/usr/include/pcrecpp.h
+/usr/include/pcre.h
+/usr/include/pcreposix.h
+/usr/include/pcre_scanner.h
+/usr/include/pcre_stringpiece.h
+/usr/lib/libpcre16.la
+/usr/lib/libpcre16.so
+/usr/lib/libpcre16.so.0
+/usr/lib/libpcre16.so.0.2.1
+/usr/lib/libpcre32.la
+/usr/lib/libpcre32.so
+/usr/lib/libpcre32.so.0
+/usr/lib/libpcre32.so.0.0.1
+/usr/lib/libpcrecpp.la
+/usr/lib/libpcrecpp.so
+/usr/lib/libpcrecpp.so.0
+/usr/lib/libpcrecpp.so.0.0.0
+/usr/lib/libpcre.la
+/usr/lib/libpcreposix.la
+/usr/lib/libpcreposix.so
+/usr/lib/libpcreposix.so.0
+/usr/lib/libpcreposix.so.0.0.2
+/usr/lib/libpcre.so
+/usr/lib/pkgconfig/libpcre16.pc
+/usr/lib/pkgconfig/libpcre32.pc
+/usr/lib/pkgconfig/libpcrecpp.pc
+/usr/lib/pkgconfig/libpcre.pc
+/usr/lib/pkgconfig/libpcreposix.pc
+/usr/share/doc/pcre-8.33
+/usr/share/doc/pcre-8.33/AUTHORS
+/usr/share/doc/pcre-8.33/ChangeLog
+/usr/share/doc/pcre-8.33/COPYING
+/usr/share/doc/pcre-8.33/html
+/usr/share/doc/pcre-8.33/html/index.html
+/usr/share/doc/pcre-8.33/html/NON-AUTOTOOLS-BUILD.txt
+/usr/share/doc/pcre-8.33/html/pcre16.html
+/usr/share/doc/pcre-8.33/html/pcre32.html
+/usr/share/doc/pcre-8.33/html/pcreapi.html
+/usr/share/doc/pcre-8.33/html/pcre_assign_jit_stack.html
+/usr/share/doc/pcre-8.33/html/pcrebuild.html
+/usr/share/doc/pcre-8.33/html/pcrecallout.html
+/usr/share/doc/pcre-8.33/html/pcrecompat.html
+/usr/share/doc/pcre-8.33/html/pcre_compile2.html
+/usr/share/doc/pcre-8.33/html/pcre_compile.html
+/usr/share/doc/pcre-8.33/html/pcre_config.html
+/usr/share/doc/pcre-8.33/html/pcre-config.html
+/usr/share/doc/pcre-8.33/html/pcre_copy_named_substring.html
+/usr/share/doc/pcre-8.33/html/pcre_copy_substring.html
+/usr/share/doc/pcre-8.33/html/pcrecpp.html
+/usr/share/doc/pcre-8.33/html/pcredemo.html
+/usr/share/doc/pcre-8.33/html/pcre_dfa_exec.html
+/usr/share/doc/pcre-8.33/html/pcre_exec.html
+/usr/share/doc/pcre-8.33/html/pcre_free_study.html
+/usr/share/doc/pcre-8.33/html/pcre_free_substring.html
+/usr/share/doc/pcre-8.33/html/pcre_free_substring_list.html
+/usr/share/doc/pcre-8.33/html/pcre_fullinfo.html
+/usr/share/doc/pcre-8.33/html/pcre_get_named_substring.html
+/usr/share/doc/pcre-8.33/html/pcre_get_stringnumber.html
+/usr/share/doc/pcre-8.33/html/pcre_get_stringtable_entries.html
+/usr/share/doc/pcre-8.33/html/pcre_get_substring.html
+/usr/share/doc/pcre-8.33/html/pcre_get_substring_list.html
+/usr/share/doc/pcre-8.33/html/pcregrep.html
+/usr/share/doc/pcre-8.33/html/pcre.html
+/usr/share/doc/pcre-8.33/html/pcre_jit_exec.html
+/usr/share/doc/pcre-8.33/html/pcrejit.html
+/usr/share/doc/pcre-8.33/html/pcre_jit_stack_alloc.html
+/usr/share/doc/pcre-8.33/html/pcre_jit_stack_free.html
+/usr/share/doc/pcre-8.33/html/pcrelimits.html
+/usr/share/doc/pcre-8.33/html/pcre_maketables.html
+/usr/share/doc/pcre-8.33/html/pcrematching.html
+/usr/share/doc/pcre-8.33/html/pcrepartial.html
+/usr/share/doc/pcre-8.33/html/pcrepattern.html
+/usr/share/doc/pcre-8.33/html/pcre_pattern_to_host_byte_order.html
+/usr/share/doc/pcre-8.33/html/pcreperform.html
+/usr/share/doc/pcre-8.33/html/pcreposix.html
+/usr/share/doc/pcre-8.33/html/pcreprecompile.html
+/usr/share/doc/pcre-8.33/html/pcre_refcount.html
+/usr/share/doc/pcre-8.33/html/pcresample.html
+/usr/share/doc/pcre-8.33/html/pcrestack.html
+/usr/share/doc/pcre-8.33/html/pcre_study.html
+/usr/share/doc/pcre-8.33/html/pcresyntax.html
+/usr/share/doc/pcre-8.33/html/pcretest.html
+/usr/share/doc/pcre-8.33/html/pcreunicode.html
+/usr/share/doc/pcre-8.33/html/pcre_utf16_to_host_byte_order.html
+/usr/share/doc/pcre-8.33/html/pcre_utf32_to_host_byte_order.html
+/usr/share/doc/pcre-8.33/html/pcre_version.html
+/usr/share/doc/pcre-8.33/html/README.txt
+/usr/share/doc/pcre-8.33/LICENCE
+/usr/share/doc/pcre-8.33/NEWS
+/usr/share/doc/pcre-8.33/pcre-config.txt
+/usr/share/doc/pcre-8.33/pcregrep.txt
+/usr/share/doc/pcre-8.33/pcretest.txt
+/usr/share/doc/pcre-8.33/pcre.txt
+/usr/share/doc/pcre-8.33/README
+/usr/share/man/man1/pcre-config.1
+/usr/share/man/man1/pcregrep.1
+/usr/share/man/man1/pcretest.1
+/usr/share/man/man3/pcre16.3
+/usr/share/man/man3/pcre16_assign_jit_stack.3
+/usr/share/man/man3/pcre16_compile2.3
+/usr/share/man/man3/pcre16_compile.3
+/usr/share/man/man3/pcre16_config.3
+/usr/share/man/man3/pcre16_copy_named_substring.3
+/usr/share/man/man3/pcre16_copy_substring.3
+/usr/share/man/man3/pcre16_dfa_exec.3
+/usr/share/man/man3/pcre16_exec.3
+/usr/share/man/man3/pcre16_free_study.3
+/usr/share/man/man3/pcre16_free_substring.3
+/usr/share/man/man3/pcre16_free_substring_list.3
+/usr/share/man/man3/pcre16_fullinfo.3
+/usr/share/man/man3/pcre16_get_named_substring.3
+/usr/share/man/man3/pcre16_get_stringnumber.3
+/usr/share/man/man3/pcre16_get_stringtable_entries.3
+/usr/share/man/man3/pcre16_get_substring.3
+/usr/share/man/man3/pcre16_get_substring_list.3
+/usr/share/man/man3/pcre16_jit_exec.3
+/usr/share/man/man3/pcre16_jit_stack_alloc.3
+/usr/share/man/man3/pcre16_jit_stack_free.3
+/usr/share/man/man3/pcre16_maketables.3
+/usr/share/man/man3/pcre16_pattern_to_host_byte_order.3
+/usr/share/man/man3/pcre16_refcount.3
+/usr/share/man/man3/pcre16_study.3
+/usr/share/man/man3/pcre16_utf16_to_host_byte_order.3
+/usr/share/man/man3/pcre16_version.3
+/usr/share/man/man3/pcre.3
+/usr/share/man/man3/pcre32.3
+/usr/share/man/man3/pcre32_assign_jit_stack.3
+/usr/share/man/man3/pcre32_compile2.3
+/usr/share/man/man3/pcre32_compile.3
+/usr/share/man/man3/pcre32_config.3
+/usr/share/man/man3/pcre32_copy_named_substring.3
+/usr/share/man/man3/pcre32_copy_substring.3
+/usr/share/man/man3/pcre32_dfa_exec.3
+/usr/share/man/man3/pcre32_exec.3
+/usr/share/man/man3/pcre32_free_study.3
+/usr/share/man/man3/pcre32_free_substring.3
+/usr/share/man/man3/pcre32_free_substring_list.3
+/usr/share/man/man3/pcre32_fullinfo.3
+/usr/share/man/man3/pcre32_get_named_substring.3
+/usr/share/man/man3/pcre32_get_stringnumber.3
+/usr/share/man/man3/pcre32_get_stringtable_entries.3
+/usr/share/man/man3/pcre32_get_substring.3
+/usr/share/man/man3/pcre32_get_substring_list.3
+/usr/share/man/man3/pcre32_jit_exec.3
+/usr/share/man/man3/pcre32_jit_stack_alloc.3
+/usr/share/man/man3/pcre32_jit_stack_free.3
+/usr/share/man/man3/pcre32_maketables.3
+/usr/share/man/man3/pcre32_pattern_to_host_byte_order.3
+/usr/share/man/man3/pcre32_refcount.3
+/usr/share/man/man3/pcre32_study.3
+/usr/share/man/man3/pcre32_utf32_to_host_byte_order.3
+/usr/share/man/man3/pcre32_version.3
+/usr/share/man/man3/pcreapi.3
+/usr/share/man/man3/pcre_assign_jit_stack.3
+/usr/share/man/man3/pcrebuild.3
+/usr/share/man/man3/pcrecallout.3
+/usr/share/man/man3/pcrecompat.3
+/usr/share/man/man3/pcre_compile2.3
+/usr/share/man/man3/pcre_compile.3
+/usr/share/man/man3/pcre_config.3
+/usr/share/man/man3/pcre_copy_named_substring.3
+/usr/share/man/man3/pcre_copy_substring.3
+/usr/share/man/man3/pcrecpp.3
+/usr/share/man/man3/pcredemo.3
+/usr/share/man/man3/pcre_dfa_exec.3
+/usr/share/man/man3/pcre_exec.3
+/usr/share/man/man3/pcre_free_study.3
+/usr/share/man/man3/pcre_free_substring.3
+/usr/share/man/man3/pcre_free_substring_list.3
+/usr/share/man/man3/pcre_fullinfo.3
+/usr/share/man/man3/pcre_get_named_substring.3
+/usr/share/man/man3/pcre_get_stringnumber.3
+/usr/share/man/man3/pcre_get_stringtable_entries.3
+/usr/share/man/man3/pcre_get_substring.3
+/usr/share/man/man3/pcre_get_substring_list.3
+/usr/share/man/man3/pcrejit.3
+/usr/share/man/man3/pcre_jit_exec.3
+/usr/share/man/man3/pcre_jit_stack_alloc.3
+/usr/share/man/man3/pcre_jit_stack_free.3
+/usr/share/man/man3/pcrelimits.3
+/usr/share/man/man3/pcre_maketables.3
+/usr/share/man/man3/pcrematching.3
+/usr/share/man/man3/pcrepartial.3
+/usr/share/man/man3/pcrepattern.3
+/usr/share/man/man3/pcre_pattern_to_host_byte_order.3
+/usr/share/man/man3/pcreperform.3
+/usr/share/man/man3/pcreposix.3
+/usr/share/man/man3/pcreprecompile.3
+/usr/share/man/man3/pcre_refcount.3
+/usr/share/man/man3/pcresample.3
+/usr/share/man/man3/pcrestack.3
+/usr/share/man/man3/pcre_study.3
+/usr/share/man/man3/pcresyntax.3
+/usr/share/man/man3/pcreunicode.3
+/usr/share/man/man3/pcre_utf16_to_host_byte_order.3
+/usr/share/man/man3/pcre_utf32_to_host_byte_order.3
+/usr/share/man/man3/pcre_version.3</literal></screen>
 
   </sect2>
 
