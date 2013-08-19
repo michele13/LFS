@@ -5,10 +5,11 @@
   %general-entities;
 
   <!ENTITY libpng-homepage      "http://www.libpng.org/pub/png/libpng.html">
+  <!ENTITY libpng-wikipedia     "http://en.wikipedia.org/wiki/Libpng">
   <!ENTITY libpng-download-http
-           "&sourceforge-repo;/libpng/libpng-&libpng-version;.tar.xz">
+  "&sourceforge-repo;/libpng/libpng-&libpng-version;.tar.xz">
   <!ENTITY libpng-download-ftp
-           "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-&libpng-version;.tar.xz">
+  "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-&libpng-version;.tar.xz">
   <!ENTITY libpng-md5sum        "9307f8ab04f4be3c1889ffb504f0fe5c">
   <!ENTITY libpng-size          "856 KB">
   <!ENTITY libpng-buildsize     "11 MB">
@@ -17,7 +18,7 @@
   <!ENTITY apng-version "1.6.3">
 
   <!ENTITY apng-patch
-           "&sourceforge-repo;/libpng-apng/libpng-&apng-version;-apng.patch.gz">
+  "&sourceforge-repo;/libpng-apng/libpng-&apng-version;-apng.patch.gz">
 ]>
 
 <sect1 id="libpng" xreflabel="libpng-&libpng-version;">
@@ -33,10 +34,10 @@
     <title>Introduction</title>
 
     <para>
-      The <application>libpng</application> package contains libraries used
-      by other programs for reading and writing PNG files. The PNG format
-      was designed as a replacement for GIF and, to a lesser extent, TIFF,
-      with many improvements and extensions and lack of patent problems.
+      The libpng package contains libraries used by other programs for reading
+      and writing PNG files. The PNG format was designed as a replacement for
+      GIF and, to a lesser extent, TIFF, with many improvements and extensions
+      and lack of patent problems.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -44,6 +45,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libpng-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libpng-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -93,17 +99,14 @@
     <title>Installation</title>
 
     <para>
-      If you want to patch <application>libpng</application> to include animated
-      png functionality (required to use the system
-      <application>libpng</application> in <application>Firefox</application>),
-      apply the patch:
+      If you want to patch libpng to include animated png functionality
+      (required to use the system libpng in Firefox), apply the patch:
     </para>
 
 <screen><userinput>gzip -cd ../libpng-&apng-version;-apng.patch.gz | patch -p1</userinput></screen>
 
     <para>
-      Install <application>libpng</application> by running the following
-      commands:
+      Install libpng by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -121,57 +124,43 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libpng">
+      <primary sortas="b-libpng16-config">libpng16-config</primary>
+    </indexterm>
+    <indexterm zone="libpng">
+      <primary sortas="b-libpng-config">libpng-config</primary>
+    </indexterm>
+    <indexterm zone="libpng">
+      <primary sortas="b-pngfix">pngfix</primary>
+    </indexterm>
+    <indexterm zone="libpng">
+      <primary sortas="b-png-fix-itxt">png-fix-itxt</primary>
+    </indexterm>
+    <indexterm zone="libpng">
+      <primary sortas="c-libpng16.so">libpng16.so</primary>
+    </indexterm>
+    <indexterm zone="libpng">
+      <primary sortas="c-libpng.so">libpng.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          libpng-config and libpng16-config
-        </seg>
-        <seg>
-          libpng.so and libpng16.so
-        </seg>
-        <seg>
-          /usr/include/libpng16
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libpng-config">
-        <term><command>libpng-config</command></term>
-        <listitem>
-          <para>
-            is a shell script that provides configuration information
-            for applications wanting to use
-            <application>libpng</application>.
-          </para>
-          <indexterm zone="libpng libpng-config">
-            <primary sortas="b-libpng-config">libpng-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libpng-lin">
-        <term><filename class="libraryfile">libpng.so</filename></term>
-        <listitem>
-          <para>
-            contain routines used to create and manipulate PNG
-            format graphics files.
-          </para>
-          <indexterm zone="libpng libpng-lin">
-            <primary sortas="c-libpng">libpng.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/libpng16-config
+/usr/bin/libpng-config
+/usr/bin/pngfix
+/usr/bin/png-fix-itxt
+/usr/include/libpng16/
+/usr/include/pngconf.h
+/usr/include/png.h
+/usr/include/pnglibconf.h
+/usr/lib/libpng16.so
+/usr/lib/libpng16.so.16
+/usr/lib/libpng16.so.16.3.0
+/usr/lib/libpng.so
+/usr/share/man/man3/libpng.3
+/usr/share/man/man5/png.5</literal></screen>
 
   </sect2>
 
