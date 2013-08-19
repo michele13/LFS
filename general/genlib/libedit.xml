@@ -5,8 +5,9 @@
   %general-entities;
 
   <!ENTITY libedit-homepage      "http://www.thrysoee.dk/editline/">
+  <!ENTITY libedit-wikipedia     " ">
   <!ENTITY libedit-download-http
-           "http://www.thrysoee.dk/editline/libedit-&libedit-version;.tar.gz">
+  "http://www.thrysoee.dk/editline/libedit-&libedit-version;.tar.gz">
   <!ENTITY libedit-download-ftp  " ">
   <!ENTITY libedit-md5sum        "0891336c697362727a1fa7e60c5cb96c">
   <!ENTITY libedit-size          "473 KB">
@@ -27,9 +28,8 @@
     <title>Introduction</title>
 
   <para>
-    <application>libedit</application> is a command line editor library
-    providing generic line editing, history, and tokenization functions, similar
-    to those found in <application>Readline</application>.
+    libedit is a command line editor library providing generic line editing,
+    history, and tokenization functions, similar to those found in Readline.
   </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -37,6 +37,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libedit-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libedit-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -77,8 +82,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>libedit</application> by running the following
-      commands:
+      Install libedit by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -92,56 +96,39 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-widec</parameter>: This switch enables
+        wide-character/UTF-8 code support.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <parameter>--enable-widec</parameter>: This switch enables
-      wide-character/UTF-8 code support.
-    </para>
-
-  </sect2>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libedit">
+      <primary sortas="c-libedit">libedit.so</primary>
+    </indexterm>
+    <indexterm zone="libedit">
+      <primary sortas="e-AA.editrc">~/.editrc</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libedit.so
-        </seg>
-        <seg>
-          /usr/include/editline
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libedit-lib">
-        <term><filename class="libraryfile">libedit.so</filename></term>
-        <listitem>
-          <para>
-            provides line editing, history, and tokenization functions to programs.
-          </para>
-          <indexterm zone="libedit libedit-lib">
-            <primary sortas="c-libedit">libedit.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/editline/
+/usr/include/editline/readline.h
+/usr/include/histedit.h
+/usr/lib/libedit.so
+/usr/lib/libedit.so.0
+/usr/lib/libedit.so.0.0.47
+/usr/share/man/man5/editrc.5</literal></screen>
 
   </sect2>
 
