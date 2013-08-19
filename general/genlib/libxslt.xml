@@ -5,10 +5,11 @@
   %general-entities;
 
   <!ENTITY libxslt-homepage      "http://xmlsoft.org/XSLT/">
+  <!ENTITY libxslt-wikipedia     "http://en.wikipedia.org/wiki/Libxslt">
   <!ENTITY libxslt-download-http
-           "http://xmlsoft.org/sources/libxslt-&libxslt-version;.tar.gz">
+  "http://xmlsoft.org/sources/libxslt-&libxslt-version;.tar.gz">
   <!ENTITY libxslt-download-ftp
-           "ftp://xmlsoft.org/libxslt/libxslt-&libxslt-version;.tar.gz">
+  "ftp://xmlsoft.org/libxslt/libxslt-&libxslt-version;.tar.gz">
   <!ENTITY libxslt-md5sum        "9667bf6f9310b957254fdcf6596600b7">
   <!ENTITY libxslt-size          "3.3 MB">
   <!ENTITY libxslt-buildsize     "40 MB">
@@ -28,10 +29,8 @@
     <title>Introduction</title>
 
     <para>
-      The <application>libxslt</application> package contains
-      XSLT libraries used for extending <filename
-      class="libraryfile">libxml2</filename> libraries to
-      support XSLT files.
+      The libxslt package contains XSLT libraries used for extending <filename
+      class="libraryfile">libxml2</filename> libraries to support XSLT files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -39,6 +38,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libxslt-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libxslt-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -94,9 +98,8 @@
 
     <note>
       <para>
-        Although it is not a direct dependency, many applications
-        using <application>libxslt</application> will expect
-        <xref linkend="DocBook"/> and <xref linkend="docbook-xsl"/>
+        Although it is not a direct dependency, many applications using libxslt
+        will expect <xref linkend="DocBook"/> and <xref linkend="docbook-xsl"/>
         to be present.
       </para>
     </note>
@@ -107,8 +110,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>libxslt</application> by running the following
-      commands:
+      Install libxslt by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -126,86 +128,41 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libxslt">
+      <primary sortas="b-xslt-config">xslt-config</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="b-xsltproc">xsltproc</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="c-libexslt.so">libexslt.so</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="c-libxslt.so">libxslt.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          xslt-config and xsltproc
-        </seg>
-        <seg>
-          libexslt.so, libxslt.so and optionally, libxsltmod.so
-          <application>Python</application> modules
-        </seg>
-        <seg>
-          /usr/include/libexslt,
-          /usr/include/libxslt,
-          /usr/lib/libxslt-plugins,
-          /usr/share/doc/libxslt-&libxslt-version;, and
-          /usr/share/doc/libxslt-python-&libxslt-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="xslt-config">
-        <term><command>xslt-config</command></term>
-        <listitem>
-          <para>
-            is used to find out the pre-processor, linking and
-            compiling flags necessary to use the <application>libxslt</application>
-            libraries in 3rd-party programs.
-          </para>
-          <indexterm zone="libxslt xslt-config">
-            <primary sortas="b-xslt-config">xslt-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xsltproc">
-        <term><command>xsltproc</command></term>
-        <listitem>
-          <para>
-            is used to apply XSLT stylesheets to XML documents.
-          </para>
-          <indexterm zone="libxslt xsltproc">
-            <primary sortas="b-xsltproc">xsltproc</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libexslt">
-        <term><filename class="libraryfile">libexslt.so</filename></term>
-        <listitem>
-          <para>
-            is used to provide extensions to XSLT functions.
-          </para>
-          <indexterm zone="libxslt libexslt">
-            <primary sortas="c-libexslt">libexslt.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libxslt-lib">
-        <term><filename class="libraryfile">libxslt.so</filename></term>
-        <listitem>
-          <para>
-            provides extensions to the
-            <filename class="libraryfile">libxml2</filename>
-            libraries to parse files that use the XSLT format.
-          </para>
-          <indexterm zone="libxslt libxslt-lib">
-            <primary sortas="c-libxslt">libxslt.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/xslt-config
+/usr/bin/xsltproc
+/usr/include/libexslt/
+/usr/include/libxslt/
+/usr/lib/libexslt.so
+/usr/lib/libexslt.so.0
+/usr/lib/libexslt.so.0.8.17
+/usr/lib/libxslt-plugins/
+/usr/lib/libxslt.so
+/usr/lib/libxslt.so.1
+/usr/lib/libxslt.so.1.1.28
+/usr/lib/python2.7/site-packages/libxslt.py
+/usr/lib/xsltConf.sh
+/usr/share/doc/libxslt-1.1.28/
+/usr/share/doc/libxslt-python-1.1.28/
+/usr/share/man/man1/xsltproc.1
+/usr/share/man/man3/libexslt.3
+/usr/share/man/man3/libxslt.3</literal></screen>
 
   </sect2>
 
