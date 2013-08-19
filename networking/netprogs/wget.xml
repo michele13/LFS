@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY wget-homepage      "http://www.gnu.org/software/wget/">
+  <!ENTITY wget-wikipedia     "http://en.wikipedia.org/wiki/Wget">
   <!ENTITY wget-download-http
            "http://ftp.gnu.org/gnu/wget/wget-&wget-version;.tar.xz">
   <!ENTITY wget-download-ftp
@@ -28,8 +29,8 @@
     <title>Introduction</title>
 
     <para>
-      The <application>Wget</application> package contains a utility useful for
-      non-interactive downloading of files from the Web.
+      The Wget package contains a utility useful for non-interactive downloading
+      of files from the Web.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -37,6 +38,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&wget-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&wget-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -100,7 +106,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>Wget</application> by running the following commands:
+      Install Wget by running the following commands:
     </para>
 
 <screen><userinput>patch -Np1 -i ../wget-&wget-version;-texi2pod-1.patch &amp;&amp;
@@ -116,42 +122,20 @@ make</userinput></screen>
 <screen role="root"><userinput>make install</userinput></screen>
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <parameter>--with-ssl=openssl</parameter>: This configures the program to
-      use <application>OpenSSL</application> instead of
-      <application>GnuTLS</application>, which is preferred by the configure
-      script.
-    </para>
-
-    <para>
-      <option>--without-ssl</option>: This configure option is required if
-      support for the HTTPS protocol is not needed and
-      <application>OpenSSL</application> is not installed.
-    </para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuration</title>
-
-    <sect3 id="wget-config">
-      <title>Config Files</title>
+    <sect3>
+      <title>Command Explanations</title>
 
       <para>
-        <filename>/etc/wgetrc</filename> and
-        <filename>~/.wgetrc</filename>
+        <parameter>--with-ssl=openssl</parameter>: This configures the program
+        to use OpenSSL instead of GnuTLS which is preferred by the configure
+        script.
       </para>
 
-      <indexterm zone="wget wget-config">
-        <primary sortas="e-AA.wgetrc">~/.wgetrc</primary>
-      </indexterm>
-
-      <indexterm zone="wget wget-config">
-        <primary sortas="e-etc-wgetrc">/etc/wgetrc</primary>
-      </indexterm>
+      <para>
+        <option>--without-ssl</option>: This configure option is required if
+        support for the HTTPS protocol is not needed and OpenSSL is not
+        installed.
+      </para>
 
     </sect3>
 
@@ -160,44 +144,23 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="wget wget-prog">
+      <primary sortas="b-wget">wget</primary>
+    </indexterm>
+    <indexterm zone="wget wget-config">
+      <primary sortas="e-etc-wgetrc">/etc/wgetrc</primary>
+    </indexterm>
+    <indexterm zone="wget wget-config">
+      <primary sortas="e-AA.wgetrc">~/.wgetrc</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          wget
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          None
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="wget-prog">
-        <term><command>wget</command></term>
-        <listitem>
-          <para>
-            retrieves files from the Web using the HTTP, HTTPS and FTP
-            protocols.  It is designed to be non-interactive, for background or
-            unattended operations.
-          </para>
-          <indexterm zone="wget wget-prog">
-            <primary sortas="b-wget">wget</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/wgetrc
+/usr/bin/wget
+/usr/share/man/man1/wget.1</literal></screen>
 
   </sect2>
 
