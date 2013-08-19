@@ -5,14 +5,15 @@
   %general-entities;
 
   <!ENTITY python2-homepage      "http://www.python.org/">
+  <!ENTITY python2-wikipedia
+  "http://en.wikipedia.org/wiki/Python_&#40;programming_language&#41;">
   <!ENTITY python2-download-http
-          "http://www.python.org/ftp/python/&python2-version;/Python-&python2-version;.tar.xz">
+  "http://www.python.org/ftp/python/&python2-version;/Python-&python2-version;.tar.xz">
   <!ENTITY python2-download-ftp  " ">
   <!ENTITY python2-md5sum        "5eea8462f69ab1369d32f9c4cd6272ab">
   <!ENTITY python2-size          "9.8 MB">
   <!ENTITY python2-buildsize     "235 MB">
   <!ENTITY python2-time          "1.0 SBU">
-
 ]>
 
 <sect1 id="python2" xreflabel="Python-&python2-version;">
@@ -28,9 +29,8 @@
     <title>Introduction</title>
 
     <para>
-      The <application>Python 2</application> package contains the
-      <application>Python</application> development environment. It is useful
-      for object-oriented programming, writing scripts, prototyping large
+      The Python 2 package contains the Python development environment. It is
+      useful for object-oriented programming, writing scripts, prototyping large
       programs or developing entire applications. This version is for backward
       compatibility with other dependent packages.
     </para>
@@ -40,6 +40,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&python2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&python2-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -82,12 +87,11 @@
       <xref linkend="libffi"/>
     </para>
 
-    <bridgehead renderas="sect4">Optional (for additional modules)</bridgehead>
+    <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <xref linkend="db"/>,
       <xref linkend="openssl"/>,
       <xref linkend="sqlite"/> and
-      <xref linkend="tk"/>
+      <xref linkend="tk"/> (for additional modules)
     </para>
 
   </sect2>
@@ -96,8 +100,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>Python 2</application> by running the following
-      commands:
+      Install Python 2 by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -114,152 +117,89 @@ make</userinput></screen>
 <screen role="root"><userinput>make install &amp;&amp;
 chmod -v 755 /usr/lib/libpython&python2-majorver;.so.1.0</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--with-system-expat</parameter>: This switch enables linking
+        against system version of Expat.
+      </para>
 
-    <para>
-      <parameter>--with-system-expat</parameter>: This switch enables linking against
-      system version of <application>Expat</application>. Remove if you have
-      not installed <xref linkend="expat"/>.
-    </para>
+      <para>
+        <parameter>--with-system-ffi</parameter>: This switch enables linking
+        against system version of libffi.
+      </para>
 
-    <para>
-      <parameter>--with-system-ffi</parameter>: This switch enables linking against
-      system version of <application>libffi</application>. Remove if you have
-      not installed <xref linkend="libffi"/>.
-    </para>
+      <para>
+        <parameter>--enable-unicode=ucs4</parameter>: This switch enables 32bit
+        Unicode support in Python.
+      </para>
 
-    <para>
-      <parameter>--enable-unicode=ucs4</parameter>: This switch enables
-      32bit Unicode support in <application>Python</application>.
-    </para>
+      <para>
+        <command>chmod ...</command>: Fix permissions for libraries to be
+        consistent with other libraries.
+      </para>
 
-    <para>
-      <command>chmod ...</command>: Fix permissions for libraries to be
-      consistent with other libraries.
-    </para>
-
-    <para>
-      <option>--with-dbmliborder=bdb:gdbm:ndbm</option>: Use this switch
-      if you want to build <application>Python</application> DBM Module
-      against <application>Berkeley DB</application> instead of
-      <application>GDBM</application>.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="python2">
+      <primary sortas="b-2to3">2to3</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-idle">idle</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-pydoc">pydoc</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python">python</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python2">python2</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python&python2-majorver;">python&python2-majorver;</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python&python2-majorver;-config">python&python2-majorver;-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python2-config">python2-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python-config">python-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-smtpd.py">smtpd.py</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="c-libpython&python2-majorver;.so">libpython&python2-majorver;.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          2to3, pydoc, python, python-config, python2, python2-config,
-          python&python2-majorver;, python&python2-majorver;-config,
-          smtpd.py, and optionally if <application>Tk</application>
-          is installed, idle
-        </seg>
-        <seg>
-          libpython&python2-majorver;.so
-        </seg>
-        <seg>
-          /usr/include/python&python2-majorver;,
-          /usr/lib/python&python2-majorver;, and
-          /usr/share/doc/python-&python2-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="python2-2to3">
-        <term><command>2to3</command></term>
-        <listitem>
-          <para>
-            is a <application>Python</application> program that reads
-            <application>Python 2.x</application> source code and applies a series of
-            fixers to transform it into valid <application>Python 3.x</application>
-            code.
-          </para>
-          <indexterm zone="python2 python2-2to3">
-            <primary sortas="b-2to3">2to3</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="idle">
-        <term><command>idle</command></term>
-        <listitem>
-          <para>
-            is a wrapper script that opens a <application>Python</application>
-            aware GUI editor.
-          </para>
-          <indexterm zone="python2 idle">
-            <primary sortas="b-idle">idle</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pydoc2">
-        <term><command>pydoc</command></term>
-        <listitem>
-          <para>
-            is the <application>Python</application> documentation tool.
-          </para>
-          <indexterm zone="python2 pydoc2">
-            <primary sortas="b-pydoc2">pydoc</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="python">
-        <term><command>python</command></term>
-        <listitem>
-          <para>
-            is an interpreted, interactive, object-oriented programming
-            language.
-          </para>
-          <indexterm zone="python2 python">
-            <primary sortas="b-python2">python</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="python2-ver">
-        <term><command>python&python2-majorver;</command></term>
-        <listitem>
-          <para>
-            is a version-specific name for the <command>python</command>
-            program.
-          </para>
-          <indexterm zone="python2 python2-ver">
-            <primary sortas="b-python&python2-majorver;">python&python2-majorver;</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="smtpd.py">
-        <term><command>smtpd.py</command></term>
-        <listitem>
-          <para>
-            is an SMTP proxy implemented in <application>Python</application>.
-          </para>
-          <indexterm zone="python2 smtpd.py">
-            <primary sortas="b-smtpd.py">smtpd.py</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/2to3
+/usr/bin/idle
+/usr/bin/pydoc
+/usr/bin/python
+/usr/bin/python2
+/usr/bin/python&python2-majorver;
+/usr/bin/python&python2-majorver;-config
+/usr/bin/python2-config
+/usr/bin/python-config
+/usr/bin/smtpd.py
+/usr/include/python&python2-majorver;/
+/usr/lib/libpython&python2-majorver;.so
+/usr/lib/libpython&python2-majorver;.so.1.0
+/usr/lib/python&python2-majorver;/
+/usr/share/man/man1/python.1</literal></screen>
 
   </sect2>
 
