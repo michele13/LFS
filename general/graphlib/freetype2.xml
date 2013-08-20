@@ -5,7 +5,9 @@
   %general-entities;
 
   <!ENTITY freetype2-homepage      "http://www.freetype.org/">
-  <!ENTITY freetype2-download-http "&sourceforge-repo;/freetype/freetype-&freetype2-version;.tar.bz2">
+  <!ENTITY freetype2-wikipedia     "http://en.wikipedia.org/wiki/FreeType">
+  <!ENTITY freetype2-download-http
+  "&sourceforge-repo;/freetype/freetype-&freetype2-version;.tar.bz2">
   <!ENTITY freetype2-download-ftp  " ">
   <!ENTITY freetype2-md5sum        "3463102764315eb86c0d3c2e1f3ffb7d">
   <!ENTITY freetype2-size          "1.6 MB">
@@ -17,7 +19,6 @@
   <!ENTITY freetype2-infinality-download-ftp    " ">
   <!ENTITY freetype2-infinality-md5sum "4f5ff3fd3e3e56310953e25eade4a2d3">
   <!ENTITY freetype2-infinality-size   "38 KB">
-
 ]>
 
 <sect1 id="freetype2" xreflabel="FreeType-&freetype2-version;">
@@ -33,9 +34,8 @@
     <title>Introduction</title>
 
     <para>
-      The <application>FreeType2</application> package contains
-      a library which allows applications to properly render
-      <application>TrueType</application> fonts.
+      The FreeType2 package contains a library which allows applications to
+      properly render TrueType fonts.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -43,6 +43,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&freetype2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&freetype2-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -116,12 +121,10 @@
 patch -Np1 -i freetype-entire-infinality-patchset-20130514-01.patch</userinput></screen>
 
     <para>
-      Install <application>FreeType2</application> by running the following
-      commands:
+      Install FreeType2 by running the following commands:
     </para>
 
-<screen><userinput>sed -i -e "/AUX.*.gxvalid/s@^# @@" -e "/AUX.*.otvalid/s@^# @@" modules.cfg &amp;&amp;
-./configure --prefix=/usr \
+<screen><userinput>./configure --prefix=/usr \
             --disable-static &amp;&amp;
 make</userinput></screen>
 
@@ -132,8 +135,8 @@ make</userinput></screen>
 <screen role="root"><userinput>make install</userinput></screen>
 
     <para>
-      If you used the Infinality patchset, as the <systemitem class="username">root</systemitem>
-      user:
+      If you used the Infinality patchset, as the <systemitem
+      class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
@@ -141,69 +144,27 @@ sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' /etc/profile.d/infinality-sett
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <command>sed -i -e ...</command>: 
-      This command enables GX/AAT and OpenType table validation.
-    </para>
-
-  </sect2>
-
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="freetype2">
+      <primary sortas="b-freetype-config">freetype-config</primary>
+    </indexterm>
+    <indexterm zone="freetype2">
+      <primary sortas="c-libfreetype.so">libfreetype.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          freetype-config
-        </seg>
-        <seg>
-          libfreetype.so
-        </seg>
-        <seg>
-          /usr/include/freetype2
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="freetype-config">
-        <term><command>freetype-config</command></term>
-        <listitem>
-          <para>
-            is used to get <application>FreeType</application> compilation
-            and linking information.
-          </para>
-          <indexterm zone="freetype2 freetype-config">
-            <primary sortas="b-freetype-config">freetype-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libfreetype">
-        <term><filename class="libraryfile">libfreetype.so</filename></term>
-        <listitem>
-          <para>
-            contains functions for rendering various font types, such
-            as TrueType and Type1.
-          </para>
-          <indexterm zone="freetype2 libfreetype">
-            <primary sortas="c-libfreetype">libfreetype.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/profile.d/infinality-settings.sh
+/usr/bin/freetype-config
+/usr/include/freetype2/
+/usr/include/ft2build.h
+/usr/lib/libfreetype.so
+/usr/lib/libfreetype.so.6
+/usr/lib/libfreetype.so.6.10.1</literal></screen>
 
   </sect2>
 
