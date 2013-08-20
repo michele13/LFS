@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY jbigkit-homepage      "http://www.cl.cam.ac.uk/~mgk25/jbigkit/">
+  <!ENTITY jbigkit-wikipedia     "http://en.wikipedia.org/wiki/JBIG">
   <!ENTITY jbigkit-download-http
   "http://www.cl.cam.ac.uk/~mgk25/download/jbigkit-&jbigkit-version;.tar.gz">
   <!ENTITY jbigkit-download-ftp  " ">
@@ -27,9 +28,9 @@
     <title>Introduction</title>
 
     <para>
-      <application>JBIG-KIT</application> is a software implementation of the
-      JBIG1 data compression standard (ITU-T T.82), which was designed for
-      bi-level high-resolution image data such as scanned documents.
+      JBIG-KIT is a software implementation of the JBIG1 data compression
+      standard (ITU-T T.82), which was designed for bi-level high-resolution
+      image data such as scanned documents.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -37,6 +38,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&jbigkit-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&jbigkit-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -87,15 +93,14 @@
     <title>Installation</title>
 
     <para>
-      Install <application>JBIG-KIT</application> by running the following
-      commands:
+      Install JBIG-KIT by running the following commands:
     </para>
 
 <screen><userinput>patch -Np1 -i ../jbigkit-2.0-fixes-1.patch &amp;&amp;
 make</userinput></screen>
 
     <para>
-      Use this sed to disable installing the static library:
+      Disable installing the static library:
     </para>
 
 <screen><userinput>sed -i 's|libjbig/.libs/\*.a||' Makefile</userinput></screen>
@@ -112,66 +117,38 @@ chmod -v 755 /usr/lib/libjbig.so.0.0.0</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-jbgtopbm">jbgtopbm</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-jbgtopbm85">jbgtopbm85</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-pbmtojbg">pbmtojbg</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-pbmtojbg85">pbmtojbg85</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="c-libjbig.so">libjbig.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          jbgtopbm, jbgtopbm85, pbmtojbg and pbmtojbg85
-        </seg>
-        <seg>
-          libjbig.so
-        </seg>
-        <seg>
-          None
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="jbgtopbm">
-        <term><command>jbgtopbm</command></term>
-        <listitem>
-          <para>
-            is a JBIG1 to portable bitmap file converter.
-          </para>
-          <indexterm zone="jbigkit jbgtopbm">
-            <primary sortas="b-jbgtopbm">jbgtopbm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pbmtojbg">
-        <term><command>pbmtojbg</command></term>
-        <listitem>
-          <para>
-            is a portable bitmap to JBIG1 file converter.
-          </para>
-          <indexterm zone="jbigkit pbmtojbg">
-            <primary sortas="b-pbmtojbg">pbmtojbg</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libjbig">
-        <term><filename class="libraryfile">libjbig.so</filename></term>
-        <listitem>
-          <para>
-            contains functions for compression and decompression of JBIG1 files.
-          </para>
-          <indexterm zone="jbigkit libjbig">
-            <primary sortas="c-libjbig">libjbig.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/jbgtopbm
+/usr/bin/jbgtopbm85
+/usr/bin/pbmtojbg
+/usr/bin/pbmtojbg85
+/usr/include/jbig85.h
+/usr/include/jbig_ar.h
+/usr/include/jbig.h
+/usr/lib/libjbig.so
+/usr/lib/libjbig.so.0
+/usr/lib/libjbig.so.0.0.0
+/usr/share/man/man1/jbgtopbm.1
+/usr/share/man/man1/pbmtojbg.1</literal></screen>
 
   </sect2>
 
