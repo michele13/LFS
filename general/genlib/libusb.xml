@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libusb-download-http "&sourceforge-repo;/libusb/libusb-&libusb-version;.tar.bz2">
+  <!ENTITY libusb-homepage      "http://www.libusb.org/">
+  <!ENTITY libusb-wikipedia     "http://en.wikipedia.org/wiki/Libusb">
+  <!ENTITY libusb-download-http "&sourceforge-repo;/libusbx/libusbx-&libusb-version;.tar.bz2">
   <!ENTITY libusb-download-ftp  " ">
-  <!ENTITY libusb-md5sum        "7f5a02375ad960d4e33a6dae7d63cfcb">
-  <!ENTITY libusb-size          "416 KB">
+  <!ENTITY libusb-md5sum        "7f5715d624cd6c26b30a317eb6c2fe5e">
+  <!ENTITY libusb-size          "477 KB">
   <!ENTITY libusb-buildsize     "5 MB">
-  <!ENTITY libusb-time          "less than 0.1 SBU">
+  <!ENTITY libusb-time          "0.1 SBU">
 ]>
 
 <sect1 id="libusb" xreflabel="libusb-&libusb-version;">
@@ -22,15 +24,25 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to libusb</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>libusb</application> package contains a library
-      used by some applications for USB device access.
+      The libusb package contains a library used by some applications for USB
+      device access.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libusb-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libusb-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libusb-download-http;"/>
@@ -63,36 +75,18 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libusb Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="doxygen"/>
-    </para>
-
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of libusb</title>
+    <title>Installation</title>
 
     <para>
-      Install <application>libusb</application> by running the following
-      commands:
+      Install libusb by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      If <application>Doxygen</application> is installed and you wish to
-      build the API documentation, issue the following command:
-    </para>
-
-<screen><userinput>make -C doc docs</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -100,19 +94,10 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>
-      If you built the API documentation, install it using the following
-      commands as the <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>install -v -d -m755 /usr/share/doc/libusb-&libusb-version;/apidocs &amp;&amp;
-install -v -m644    doc/html/* \
-                    /usr/share/doc/libusb-&libusb-version;/apidocs</userinput></screen>
-
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring Libusb</title>
+    <title>Configuration</title>
 
     <para id="libusb-kernel">
       To access raw USB devices (those not treated as a disk by the mass-storage
@@ -136,43 +121,18 @@ install -v -m644    doc/html/* \
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libusb">
+      <primary sortas="c-libusb-1.0.so">libusb-1.0.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libusb-1.0.so
-        </seg>
-        <seg>
-          /usr/include/libusb-1.0 and
-          /usr/share/doc/libusb-&libusb-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libusb-lib">
-        <term><filename class='libraryfile'>libusb-1.0.so</filename></term>
-        <listitem>
-          <para>
-            contains API functions used for accessing USB hardware.
-          </para>
-          <indexterm zone="libusb libusb-lib">
-            <primary sortas="c-libusb">libusb-1.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/libusb-1.0/
+/usr/lib/libusb-1.0.so
+/usr/lib/libusb-1.0.so.0
+/usr/lib/libusb-1.0.so.0.1.0</literal></screen>
 
   </sect2>
 
