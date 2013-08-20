@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY libtiff-homepage      "http://www.remotesensing.org/libtiff/">
+  <!ENTITY libtiff-wikipedia     "http://en.wikipedia.org/wiki/Libtiff">
   <!ENTITY libtiff-download-http
   "http://download.osgeo.org/libtiff/tiff-&libtiff-version;.tar.gz">
   <!ENTITY libtiff-download-ftp
@@ -28,10 +29,9 @@
     <title>Introduction</title>
 
     <para>
-      The <application>LibTIFF</application> package contains the TIFF
-      libraries and associated utilities. The libraries are used by many
-      programs for reading and writing TIFF files and the utilities are
-      used for general work with TIFF files.
+      The LibTIFF package contains the TIFF libraries and associated utilities.
+      The libraries are used by many programs for reading and writing TIFF files
+      and the utilities are used for general work with TIFF files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -39,6 +39,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libtiff-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libtiff-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -89,8 +94,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>LibTIFF</application> by running the following
-      commands:
+      Install LibTIFF by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -108,352 +112,152 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libtiff">
+      <primary sortas="b-bmp2tiff">bmp2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-fax2ps">fax2ps</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-fax2tiff">fax2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-gif2tiff">gif2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-pal2rgb">pal2rgb</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-ppm2tiff">ppm2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-ras2tiff">ras2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-raw2tiff">raw2tiff</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-rgb2ycbcr">rgb2ycbcr</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-thumbnail">thumbnail</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiff2bw">tiff2bw</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiff2pdf">tiff2pdf</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiff2ps">tiff2ps</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiff2rgba">tiff2rgba</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffcmp">tiffcmp</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffcp">tiffcp</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffcrop">tiffcrop</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffdither">tiffdither</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffdump">tiffdump</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffgt">tiffgt</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffinfo">tiffinfo</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffmedian">tiffmedian</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffset">tiffset</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="b-tiffsplit">tiffsplit</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="c-libtiff.so">libtiff.so</primary>
+    </indexterm>
+    <indexterm zone="libtiff">
+      <primary sortas="c-libtiffxx.so">libtiffxx.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          bmp2tiff, fax2ps, fax2tiff, gif2tiff, pal2rgb, ppm2tiff, ras2tiff,
-          raw2tiff, rgb2ycbcr, thumbnail, tiff2bw, tiff2pdf, tiff2ps,
-          tiff2rgba, tiffcmp, tiffcp, tiffcrop, tiffdither, tiffdump, tiffgt
-          tiffinfo, tiffmedian, tiffset and tiffsplit
-        </seg>
-        <seg>
-          libtiff.so and libtiffxx.so
-        </seg>
-        <seg>
-          /usr/share/doc/tiff-&libtiff-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="bmp2tiff">
-        <term><command>bmp2tiff</command></term>
-        <listitem>
-          <para>
-            converts a Microsoft Windows Device Independent Bitmap image
-            file to a TIFF image.
-          </para>
-          <indexterm zone="libtiff bmp2tiff">
-            <primary sortas="b-bmp2tiff">bmp2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="fax2ps">
-        <term><command>fax2ps</command></term>
-        <listitem>
-          <para>
-            converts a TIFF facsimile to compressed PostScript file.
-          </para>
-          <indexterm zone="libtiff fax2ps">
-            <primary sortas="b-fax2ps">fax2ps</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="fax2tiff">
-        <term><command>fax2tiff</command></term>
-        <listitem>
-          <para>
-            creates a TIFF Class F fax file from raw fax data.
-          </para>
-          <indexterm zone="libtiff fax2tiff">
-            <primary sortas="b-fax2tiff">fax2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gif2tiff">
-        <term><command>gif2tiff</command></term>
-        <listitem>
-          <para>
-            creates a TIFF file from a GIF87 format image file.
-          </para>
-          <indexterm zone="libtiff gif2tiff">
-            <primary sortas="b-gif2tiff">gif2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pal2rgb">
-        <term><command>pal2rgb</command></term>
-        <listitem>
-          <para>
-            converts a palette color TIFF image to a full color
-            image.
-          </para>
-          <indexterm zone="libtiff pal2rgb">
-            <primary sortas="b-pal2rgb">pal2rgb</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ppm2tiff">
-        <term><command>ppm2tiff</command></term>
-        <listitem>
-          <para>
-            creates a TIFF file from a PPM image file.
-          </para>
-          <indexterm zone="libtiff ppm2tiff">
-            <primary sortas="b-ppm2tiff">ppm2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ras2tiff">
-        <term><command>ras2tiff</command></term>
-        <listitem>
-          <para>
-            creates a TIFF file from a Sun rasterfile.
-          </para>
-          <indexterm zone="libtiff ras2tiff">
-            <primary sortas="b-ras2tiff">ras2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="raw2tiff">
-        <term><command>raw2tiff</command></term>
-        <listitem>
-          <para>
-            converts a raw byte sequence into TIFF.
-          </para>
-          <indexterm zone="libtiff raw2tiff">
-            <primary sortas="b-raw2tiff">raw2tiff</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="rgb2ycbcr">
-        <term><command>rgb2ycbcr</command></term>
-        <listitem>
-          <para>
-            converts non-YCbCr TIFF images to YCbCr TIFF images.
-          </para>
-          <indexterm zone="libtiff rgb2ycbcr">
-            <primary sortas="b-rgb2ycbcr">rgb2ycbcr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="thumbnail">
-        <term><command>thumbnail</command></term>
-        <listitem>
-          <para>
-            creates a TIFF file with thumbnail images.
-          </para>
-          <indexterm zone="libtiff thumbnail">
-            <primary sortas="b-thumbnail">thumbnail</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiff2bw">
-        <term><command>tiff2bw</command></term>
-        <listitem>
-          <para>
-            converts a color TIFF image to grayscale.
-          </para>
-          <indexterm zone="libtiff tiff2bw">
-            <primary sortas="b-tiff2bw">tiff2bw</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiff2pdf">
-        <term><command>tiff2pdf</command></term>
-        <listitem>
-          <para>
-            converts a TIFF image to a PDF document.
-          </para>
-          <indexterm zone="libtiff tiff2pdf">
-            <primary sortas="b-tiff2pdf">tiff2pdf</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiff2ps">
-        <term><command>tiff2ps</command></term>
-        <listitem>
-          <para>
-            converts a TIFF image to a PostScript file.
-          </para>
-          <indexterm zone="libtiff tiff2ps">
-            <primary sortas="b-tiff2ps">tiff2ps</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiff2rgba">
-        <term><command>tiff2rgba</command></term>
-        <listitem>
-          <para>
-            converts a wide variety of TIFF images into an RGBA
-            TIFF image.
-          </para>
-          <indexterm zone="libtiff tiff2rgba">
-            <primary sortas="b-tiff2rgba">tiff2rgba</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffcmp">
-        <term><command>tiffcmp</command></term>
-        <listitem>
-          <para>
-            compares two TIFF files.
-          </para>
-          <indexterm zone="libtiff tiffcmp">
-            <primary sortas="b-tiffcmp">tiffcmp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffcp">
-        <term><command>tiffcp</command></term>
-        <listitem>
-          <para>
-            copies (and possibly converts) a TIFF file.
-          </para>
-          <indexterm zone="libtiff tiffcp">
-            <primary sortas="b-tiffcp">tiffcp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffcrop">
-        <term><command>tiffcrop</command></term>
-        <listitem>
-          <para>
-            selects, copies, crops, converts, extracts and/or processes
-            one or more TIFF files.
-          </para>
-          <indexterm zone="libtiff tiffcrop">
-            <primary sortas="b-tiffcrop">tiffcrop</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffdither">
-        <term><command>tiffdither</command></term>
-        <listitem>
-          <para>
-            converts a grayscale image to bilevel using dithering.
-          </para>
-          <indexterm zone="libtiff tiffdither">
-            <primary sortas="b-tiffdither">tiffdither</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffdump">
-        <term><command>tiffdump</command></term>
-        <listitem>
-          <para>
-            prints verbatim information about TIFF files.
-          </para>
-          <indexterm zone="libtiff tiffdump">
-            <primary sortas="b-tiffdump">tiffdump</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffgt">
-        <term><command>tiffgt</command></term>
-        <listitem>
-          <para>
-            displays an image stored in a TIFF file.
-          </para>
-          <indexterm zone="libtiff tiffgt">
-            <primary sortas="b-tiffgt">tiffgt</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffinfo">
-        <term><command>tiffinfo</command></term>
-        <listitem>
-          <para>
-            prints information about TIFF files.
-          </para>
-          <indexterm zone="libtiff tiffinfo">
-            <primary sortas="b-tiffinfo">tiffinfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffmedian">
-        <term><command>tiffmedian</command></term>
-        <listitem>
-          <para>
-            applies the median cut algorithm to data in a TIFF file.
-          </para>
-          <indexterm zone="libtiff tiffmedian">
-            <primary sortas="b-tiffmedian">tiffmedian</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffset">
-        <term><command>tiffset</command></term>
-        <listitem>
-          <para>
-            sets the value of a TIFF header to a specified value.
-          </para>
-          <indexterm zone="libtiff tiffset">
-            <primary sortas="b-tiffset">tiffset</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tiffsplit">
-        <term><command>tiffsplit</command></term>
-        <listitem>
-          <para>
-            splits a multi-image TIFF into single-image TIFF files.
-          </para>
-          <indexterm zone="libtiff tiffsplit">
-            <primary sortas="b-tiffsplit">tiffsplit</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libtiff-lib">
-        <term><filename class="libraryfile">libtiff.so</filename></term>
-        <listitem>
-          <para>
-            contains the API functions used by the
-            <application>libtiff</application> programs as well as other
-            programs to read and write TIFF files.
-          </para>
-          <indexterm zone="libtiff libtiff-lib">
-            <primary sortas="c-libtiff">libtiff.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libtiffxx">
-        <term><filename class="libraryfile">libtiffxx.so</filename></term>
-        <listitem>
-          <para>
-            contains the C++ API functions used
-            by programs to read and write TIFF files.
-          </para>
-          <indexterm zone="libtiff libtiffxx">
-            <primary sortas="c-libtiffxx">libtiffxx.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/bmp2tiff
+/usr/bin/fax2ps
+/usr/bin/fax2tiff
+/usr/bin/gif2tiff
+/usr/bin/pal2rgb
+/usr/bin/ppm2tiff
+/usr/bin/ras2tiff
+/usr/bin/raw2tiff
+/usr/bin/rgb2ycbcr
+/usr/bin/thumbnail
+/usr/bin/tiff2bw
+/usr/bin/tiff2pdf
+/usr/bin/tiff2ps
+/usr/bin/tiff2rgba
+/usr/bin/tiffcmp
+/usr/bin/tiffcp
+/usr/bin/tiffcrop
+/usr/bin/tiffdither
+/usr/bin/tiffdump
+/usr/bin/tiffgt
+/usr/bin/tiffinfo
+/usr/bin/tiffmedian
+/usr/bin/tiffset
+/usr/bin/tiffsplit
+/usr/include/tiffconf.h
+/usr/include/tiff.h
+/usr/include/tiffio.h
+/usr/include/tiffio.hxx
+/usr/include/tiffvers.h
+/usr/lib/libtiff.so
+/usr/lib/libtiff.so.5
+/usr/lib/libtiff.so.5.2.0
+/usr/lib/libtiffxx.so
+/usr/lib/libtiffxx.so.5
+/usr/lib/libtiffxx.so.5.2.0
+/usr/share/doc/tiff-4.0.3/
+/usr/share/man/man1/bmp2tiff.1
+/usr/share/man/man1/fax2ps.1
+/usr/share/man/man1/fax2tiff.1
+/usr/share/man/man1/gif2tiff.1
+/usr/share/man/man1/pal2rgb.1
+/usr/share/man/man1/ppm2tiff.1
+/usr/share/man/man1/ras2tiff.1
+/usr/share/man/man1/raw2tiff.1
+/usr/share/man/man1/rgb2ycbcr.1
+/usr/share/man/man1/sgi2tiff.1
+/usr/share/man/man1/thumbnail.1
+/usr/share/man/man1/tiff2bw.1
+/usr/share/man/man1/tiff2pdf.1
+/usr/share/man/man1/tiff2ps.1
+/usr/share/man/man1/tiff2rgba.1
+/usr/share/man/man1/tiffcmp.1
+/usr/share/man/man1/tiffcp.1
+/usr/share/man/man1/tiffcrop.1
+/usr/share/man/man1/tiffdither.1
+/usr/share/man/man1/tiffdump.1
+/usr/share/man/man1/tiffgt.1
+/usr/share/man/man1/tiffinfo.1
+/usr/share/man/man1/tiffmedian.1
+/usr/share/man/man1/tiffset.1
+/usr/share/man/man1/tiffsplit.1
+/usr/share/man/man1/tiffsv.1
+/usr/share/man/man3/libtiff.3tiff</literal></screen>
 
   </sect2>
 
