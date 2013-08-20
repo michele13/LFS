@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY libpcap-homepage      "http://www.tcpdump.org/">
+  <!ENTITY libpcap-wikipedia     "http://en.wikipedia.org/wiki/Pcap">
   <!ENTITY libpcap-download-http
   "http://www.tcpdump.org/release/libpcap-&libpcap-version;.tar.gz">
   <!ENTITY libpcap-download-ftp  " ">
@@ -27,8 +28,8 @@
     <title>Introduction</title>
 
     <para>
-      <application>libpcap</application> provides functions for user-level
-      packet capture, used in low-level network monitoring.
+      libpcap provides functions for user-level packet capture, used in
+      low-level network monitoring.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -36,6 +37,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libpcap-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libpcap-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -84,15 +90,14 @@
     <title>Installation</title>
 
     <para>
-      Install <application>libpcap</application> by running the
-      following commands:
+      Install libpcap by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
     <para>
-      Use this sed to disable installing the static library:
+      Disable installing the static library:
     </para>
 
 <screen><userinput>sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile</userinput></screen>
@@ -108,55 +113,25 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+  <indexterm zone="libpcap">
+    <primary sortas="b-libpcap-config">libpcap-config</primary>
+  </indexterm>
+  <indexterm zone="libpcap">
+    <primary sortas="c-libpcap.so">libpcap.so</primary>
+  </indexterm>
 
-      <seglistitem>
-        <seg>
-          libpcap-config
-        </seg>
-        <seg>
-          libpcap.so
-        </seg>
-        <seg>
-          /usr/include/pcap
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-    <varlistentry id="libpcap-config">
-        <term><command>libpcap-config</command></term>
-      <listitem>
-        <para>
-          provides configuration information for
-          <application>libpcap</application>.
-        </para>
-        <indexterm zone="libpcap libpcap-config">
-          <primary sortas="c-libpcap">libpcap-config</primary>
-        </indexterm>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry id="libpcap-lib">
-        <term><filename class="libraryfile">libpcap.so</filename></term>
-      <listitem>
-        <para>
-          contains functions used for user-level packet capture.
-        </para>
-        <indexterm zone="libpcap libpcap-lib">
-          <primary sortas="c-libpcap">libpcap.so</primary>
-        </indexterm>
-      </listitem>
-    </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/pcap-config
+/usr/include/pcap/
+/usr/lib/libpcap.so
+/usr/lib/libpcap.so.1
+/usr/lib/libpcap.so.1.4.0
+/usr/share/man/man1/pcap-config.1
+/usr/share/man/man3/pcap.3pcap
+/usr/share/man/man5/pcap-savefile.5</literal></screen>
 
   </sect2>
 
