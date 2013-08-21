@@ -5,10 +5,11 @@
   %general-entities;
 
   <!ENTITY libxml2-homepage      "http://www.xmlsoft.org/">
+  <!ENTITY libxml2-wikipedia     "http://en.wikipedia.org/wiki/Libxml2">
   <!ENTITY libxml2-download-http
-           "http://xmlsoft.org/sources/libxml2-&libxml2-version;.tar.gz">
+  "http://xmlsoft.org/sources/libxml2-&libxml2-version;.tar.gz">
   <!ENTITY libxml2-download-ftp
-           "ftp://xmlsoft.org/libxml2/libxml2-&libxml2-version;.tar.gz">
+  "ftp://xmlsoft.org/libxml2/libxml2-&libxml2-version;.tar.gz">
   <!ENTITY libxml2-md5sum        "9c0cfef285d5c4a5c80d00904ddab380">
   <!ENTITY libxml2-size          "5.0 MB">
   <!ENTITY libxml2-buildsize     "100 MB">
@@ -28,8 +29,8 @@
     <title>Introduction</title>
 
     <para>
-      The <application>libxml2</application> package contains libraries
-      and utilities used for parsing XML files.
+      The libxml2 package contains libraries and utilities used for parsing XML
+      files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -37,6 +38,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&libxml2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libxml2-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -75,16 +81,14 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="python2"/> (to build and install a
-      <application>Python</application> library module)
+      <xref linkend="python2"/> (to build and install a Python library module)
     </para>
 
     <note>
       <para>
-        Some packages which utilize <application>libxml2</application> need the
-        <application>Python</application> module installed to function properly
-        and some packages will not build properly if the
-        <application>Python</application> module is not available.
+        Some packages which utilize libxml2 need the Python module installed to
+        function properly and some packages will not build properly if the
+        Python module is not available.
       </para>
     </note>
 
@@ -94,7 +98,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>libxml2</application> by running the following
+      Install libxml2 by running the following
       commands:
     </para>
 
@@ -108,102 +112,58 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
-  </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+    <sect3>
+      <title>Command Explanations</title>
 
-    <para>
-      <parameter>--with-history</parameter>: This switch enables
-      <application>Readline</application> support when running
-      <command>xmlcatalog</command> or <command>xmllint</command> in shell mode.
-    </para>
+      <para>
+        <parameter>--with-history</parameter>: This switch enables Readline
+        support when running <command>xmlcatalog</command> or
+        <command>xmllint</command> in shell mode.
+      </para>
+
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libxml2">
+      <primary sortas="b-xml2-config">xml2-config</primary>
+    </indexterm>
+    <indexterm zone="libxml2">
+      <primary sortas="b-xmlcatalog">xmlcatalog</primary>
+    </indexterm>
+    <indexterm zone="libxml2">
+      <primary sortas="b-xmllint">xmllint</primary>
+    </indexterm>
+    <indexterm zone="libxml2">
+      <primary sortas="c-libxml2.so">libxml2.so</primary>
+    </indexterm>
+    <indexterm zone="libxml2">
+      <primary sortas="g-libxml2.py">libxml2.py</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          xml2-config, xmlcatalog and xmllint
-        </seg>
-        <seg>
-          libxml2.so and optionally, the libxml2mod.so
-          <application>Python</application> module
-        </seg>
-        <seg>
-          /usr/include/libxml2,
-          /usr/share/doc/libxml2-&libxml2-version;,
-          /usr/share/doc/libxml2-python-&libxml2-version; and
-          /usr/share/gtk-doc/html/libxml2
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="xml2-config">
-        <term><command>xml2-config</command></term>
-        <listitem>
-          <para>
-            determines the compile and linker flags that should be used to
-            compile and link programs that use
-            <filename class='libraryfile'>libxml2</filename>.
-          </para>
-          <indexterm zone="libxml2 xml2-config">
-            <primary sortas="b-xml2-config">xml2-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xmlcatalog">
-        <term><command>xmlcatalog</command></term>
-        <listitem>
-          <para>
-            is used to monitor and manipulate XML and SGML catalogs.
-          </para>
-          <indexterm zone="libxml2 xmlcatalog">
-            <primary sortas="b-xmlcatalog">xmlcatalog</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xmllint">
-        <term><command>xmllint</command></term>
-        <listitem>
-          <para>
-            parses XML files and outputs reports (based upon options) to detect
-            errors in XML coding.
-          </para>
-          <indexterm zone="libxml2 xmllint">
-            <primary sortas="b-xmllint">xmllint</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libxml2-lib">
-        <term><filename class="libraryfile">libxml2.so</filename></term>
-        <listitem>
-          <para>
-            provides functions for programs to parse files that use the XML
-            format.
-          </para>
-          <indexterm zone="libxml2 libxml2-lib">
-            <primary sortas="c-libxml2">libxml2.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/xml2-config
+/usr/bin/xmlcatalog
+/usr/bin/xmllint
+/usr/include/libxml2/
+/usr/lib/libxml2.so
+/usr/lib/libxml2.so.2
+/usr/lib/libxml2.so.2.9.1
+/usr/lib/python2.7/site-packages/libxml2.py
+/usr/lib/xml2Conf.sh
+/usr/share/doc/libxml2-2.9.1/
+/usr/share/doc/libxml2-python-2.9.1/
+/usr/share/man/man1/xml2-config.1
+/usr/share/man/man1/xmlcatalog.1
+/usr/share/man/man1/xmllint.1
+/usr/share/man/man3/libxml.3</literal></screen>
 
   </sect2>
 
