@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY certhost              "http://mxr.mozilla.org">
-  <!ENTITY certdir               "/mozilla/source/security/nss/lib/ckfw/builtins">
-  <!ENTITY ca-bundle-download    "&certhost;&certdir;/certdata.txt?raw=1">
-  <!ENTITY ca-bundle-size        "1.2 MB">
-  <!ENTITY cacerts-buildsize     "1.2 MB">
-  <!ENTITY cacerts-time          "less than 0.1 SBU">
+  <!ENTITY certhost           "http://mxr.mozilla.org">
+  <!ENTITY certdir            "/mozilla/source/security/nss/lib/ckfw/builtins">
+  <!ENTITY cacerts-wikipedia
+  "http://en.wikipedia.org/wiki/Certificate_authority">
+  <!ENTITY ca-bundle-download "&certhost;&certdir;/certdata.txt?raw=1">
+  <!ENTITY ca-bundle-size     "1.2 MB">
+  <!ENTITY cacerts-buildsize  "1.2 MB">
+  <!ENTITY cacerts-time       "less than 0.1 SBU">
 ]>
 
 <sect1 id="cacerts" xreflabel="Certificate Authority Certificates">
@@ -17,55 +19,70 @@
 
   <title>Certificate Authority Certificates</title>
 
-  <para>
-    The Public Key Inrastructure is used for many security issues in a Linux
-    system. In order for a certificate to be trusted, it must be signed by a
-    trusted agent called a Certificate Authority (CA). The certificates loaded
-    by this section are from the list on the Mozilla version control system and
-    formats it into a form used by <application>OpenSSL</application>. The
-    certificates can also be used by other applications either directly of
-    indirectly through <application>OpenSSL</application>.
-  </para>
-
   <indexterm zone="cacerts">
     <primary sortas="a-cacerts">Certificate Authority Certificates</primary>
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Certificate Authorities</title>
+    <title>Introduction</title>
 
-   <bridgehead renderas="sect3">Package Information</bridgehead>
+    <para>
+      The Public Key Inrastructure is used for many security issues in a Linux
+      system. In order for a certificate to be trusted, it must be signed by a
+      trusted agent called a Certificate Authority (CA). The certificates loaded
+      by this section are from the list on the Mozilla version control system
+      and formats it into a form used by OpenSSL. The certificates can also be
+      used by other applications either directly of indirectly through OpenSSL.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>CA Certificate Download: <ulink url="&ca-bundle-download;"/></para>
+        <para>
+          Wikipedia: <ulink url="&cacerts-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>CA Bundle size: &ca-bundle-size;</para>
+        <para>
+          CA Certificate Download: <ulink url="&ca-bundle-download;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &cacerts-buildsize;</para>
+        <para>
+          CA Bundle size: &ca-bundle-size;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &cacerts-time;</para>
+        <para>
+          Estimated disk space required: &cacerts-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &cacerts-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Certificate Authority Certificates Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="openssl"/></para>
+    <para role="required">
+      <xref linkend="openssl"/>
+    </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Certificate Authority Certificates</title>
+    <title>Installation</title>
 
-    <para>First create a script to reformat a certificate into a
-    form needed by <application>openssl</application>.  As the <systemitem
-    class="username">root</systemitem> user:</para>
+    <para>
+      First create a script to reformat a certificate into a form needed by
+      OpenSSL. As the <systemitem class="username">root</systemitem> user:
+    </para>
 
-  <screen role="root"><userinput>cat > /bin/make-cert.pl &lt;&lt; "EOF"
-#!/usr/bin/perl -w
+<screen role="root"><userinput>cat > /bin/make-cert.pl &lt;&lt; "EOF"
+<literal>#!/usr/bin/perl -w
 
 # Used to generate PEM encoded files from Mozilla certdata.txt.
 # Run as ./mkcrt.pl > certificate.crt
@@ -113,19 +130,20 @@ while ( &lt;IN&gt; )
             printf( OUT "%c", oct($b) ) unless $b eq '';
         }
     }
-}
+}</literal>
 EOF
-
 chmod +x /bin/make-cert.pl</userinput></screen>
 
-   <para>The following script creates the certificates and a bundle of all the
-   certificates.  It creates a <filename class='directory'>./certs</filename>
-   directory and <filename>./BLFS-ca-bundle-${VERSION}.crt</filename>.  Again
-   create this script as the <systemitem class="username">root</systemitem>
-   user:</para>
+    <para>
+      The following script creates the certificates and a bundle of all the
+      certificates. It creates a <filename class='directory'>./certs</filename>
+      directory and <filename>./BLFS-ca-bundle-${VERSION}.crt</filename>. Again
+      create this script as the <systemitem class="username">root</systemitem>
+      user:
+    </para>
 
-   <screen role="root"><userinput>cat > /bin/make-ca.sh &lt;&lt; "EOF"
-#!/bin/bash
+<screen role="root"><userinput>cat > /bin/make-ca.sh &lt;&lt; "EOF"
+<literal>#!/bin/bash
 # Begin make-ca.sh
 # Script to populate OpenSSL's CApath from a bundle of PEM formatted CAs
 #
@@ -219,17 +237,18 @@ fi
 
 # Finally, generate the bundle and clean up.
 cat certs/*.pem >  ${BUNDLE}
-rm -r "${TEMPDIR}"
+rm -r "${TEMPDIR}"</literal>
 EOF
-
 chmod +x /bin/make-ca.sh</userinput></screen>
 
-   <para>Add a short script to remove expired certificates from a directory.
-   Again create this script as the <systemitem
-   class="username">root</systemitem> user:</para>
+    <para>
+      Add a short script to remove expired certificates from a directory. Again
+      create this script as the <systemitem class="username">root</systemitem>
+      user:
+    </para>
 
-  <screen role="root"><userinput>cat > /bin/remove-expired-certs.sh &lt;&lt; "EOF"
-#!/bin/bash
+<screen role="root"><userinput>cat > /bin/remove-expired-certs.sh &lt;&lt; "EOF"
+<literal>#!/bin/bash
 # Begin /bin/remove-expired-certs.sh
 #
 # Version 20120211
@@ -281,39 +300,42 @@ for cert in $certs; do
      echo "${cert} expired on ${certdate}! Removing..."
      rm -f "${cert}"
   fi
-done
+done</literal>
 EOF
-
 chmod +x /bin/remove-expired-certs.sh</userinput></screen>
 
-  <para>
-    The following commands will fetch the certificates and convert them to the
-    correct format. If desired, a web browser may be used instead of
-    <application>Wget</application> but the file will need to be saved with the
-    name <filename>certdata.txt</filename>. These commands can be repeated as
-    necessary to update the CA Certificates.
-  </para>
+    <para>
+      The following commands will fetch the certificates and convert them to the
+      correct format. If desired, a web browser may be used instead of Wget but
+      the file will need to be saved with the name
+      <filename>certdata.txt</filename>. These commands can be repeated as
+      necessary to update the CA Certificates.
+    </para>
 
-   <screen><userinput>certhost='http://mxr.mozilla.org'                        &amp;&amp;
+<screen><userinput>certhost='http://mxr.mozilla.org' &amp;&amp;
 certdir='/mozilla/source/security/nss/lib/ckfw/builtins' &amp;&amp;
-url="$certhost$certdir/certdata.txt?raw=1"               &amp;&amp;
-
+url="$certhost$certdir/certdata.txt?raw=1" &amp;&amp;
 wget --output-document certdata.txt $url &amp;&amp;
-unset certhost certdir url               &amp;&amp;
-make-ca.sh                               &amp;&amp;
+unset certhost certdir url &amp;&amp;
+
+make-ca.sh &amp;&amp;
 remove-expired-certs.sh certs</userinput></screen>
 
-   <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
-<screen role="root"><userinput>SSLDIR=/etc/ssl                                             &amp;&amp;
-install -d ${SSLDIR}/certs                                  &amp;&amp;
-cp -v certs/*.pem ${SSLDIR}/certs                           &amp;&amp;
-c_rehash                                                    &amp;&amp;
-install BLFS-ca-bundle*.crt ${SSLDIR}/ca-bundle.crt         &amp;&amp;
+<screen role="root"><userinput>SSLDIR=/etc/ssl &amp;&amp;
+install -d ${SSLDIR}/certs &amp;&amp;
+cp -v certs/*.pem ${SSLDIR}/certs &amp;&amp;
+c_rehash &amp;&amp;
+install BLFS-ca-bundle*.crt ${SSLDIR}/ca-bundle.crt &amp;&amp;
 ln -sv ../ca-bundle.crt ${SSLDIR}/certs/ca-certificates.crt &amp;&amp;
 unset SSLDIR</userinput></screen>
 
-   <para>Finally, clean up the current directory:</para>
+    <para>
+      Finally, clean up the current directory:
+    </para>
 
 <screen><userinput>rm -r certs BLFS-ca-bundle*</userinput></screen>
 
@@ -322,58 +344,33 @@ unset SSLDIR</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="cacerts">
+      <primary sortas="b-make-ca.sh">make-ca.sh</primary>
+    </indexterm>
+    <indexterm zone="cacerts">
+      <primary sortas="b-make-cert.pl">make-cert.pl</primary>
+    </indexterm>
+    <indexterm zone="cacerts">
+      <primary sortas="b-remove-expired-certs.sh">remove-expired-certs.sh</primary>
+    </indexterm>
+    <indexterm zone="cacerts">
+      <primary sortas="g-ca-bundle.crt">ca-bundle.crt</primary>
+    </indexterm>
+    <indexterm zone="cacerts">
+      <primary sortas="g-ca-certificates.crt">ca-certificates.crt</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>make-ca.sh, make-cert.pl and remove-expired-certs.sh</seg>
-        <seg>None</seg>
-        <seg>/etc/ssl/certs</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-   <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="make-ca">
-        <term><command>make-ca.sh</command></term>
-        <listitem>
-          <para>is a <application>bash</application> script that reformats
-          the <filename>certdata.txt</filename> file for use by
-          <application>openssl</application>.</para>
-          <indexterm zone="cacerts make-ca">
-            <primary sortas="b-make-ca">make-ca</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="make-cert">
-        <term><command>make-cert.pl</command></term>
-        <listitem>
-          <para>is a utility <application>perl</application> script that
-          converts a single binary certificate (.der format) into .pem format.</para>
-          <indexterm zone="cacerts make-cert">
-            <primary sortas="b-make-cert">make-cert</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="remove-expired-certs">
-        <term><command>remove-expired-certs.sh</command></term>
-        <listitem>
-          <para>is a utility <application>perl</application> script that
-          removes expired certificates from a directory.  The default
-          directory is <filename class='directory'>/etc/ssl/certs</filename>.</para>
-          <indexterm zone="cacerts remove-expired-certs">
-            <primary sortas="b-remove-expired-certs">remove-expired-certs</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-   </variablelist>
+<screen><literal>/bin/make-ca.sh
+/bin/make-cert.pl
+/bin/remove-expired-certs.sh
+/etc/ssl/ca-bundle.crt
+/etc/ssl/certs/
+/etc/ssl/certs/ca-certificates.crt</literal></screen>
 
   </sect2>
+
 </sect1>
