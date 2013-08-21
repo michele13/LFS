@@ -1,14 +1,16 @@
 My personal modifications to the BLFS (http://www.linuxfromscratch.org/blfs/)
 book with the goals to:
 
-* remove packages I think don't add much value but complicate instructions a lot
-  like, for example: desktop environments, Java, GTK+3, D-Bus, PulseAudio,
-  GObject introspection, Linux-PAM and similar
+* remove packages I think don't add much value but complicate instructions
+  significantly, like for example: desktop environments, Java, GTK+3, D-Bus,
+  PulseAudio, GObject introspection, Linux-PAM and similar
 
-* remove additional documentation installation (except man pages) since I read
-  it online anyways
+* remove additional documentation installation since I read it online anyways
 
 * remove testing and debugging instructions as I don't find it that useful
+
+* remove package dependencies only used for building additional documentation,
+  example programs or testing
 
 * add a bunch of packages I regularly compile but don't want to place the burden
   of maintainance on the official book editors.
