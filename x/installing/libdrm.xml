@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY libdrm-homepage      " ">
+  <!ENTITY libdrm-wikipedia     " ">
   <!ENTITY libdrm-download-http
   "http://dri.freedesktop.org/libdrm/libdrm-&libdrm-version;.tar.bz2">
   <!ENTITY libdrm-download-ftp  " ">
@@ -26,13 +28,23 @@
     <title>Introduction</title>
 
     <para>
-      <application>libdrm</application> provides core library routines
-      for the X Window System to directly interface with video hardware using
-      the Linux kernel's Direct Rendering Manager (DRM).
+      libdrm provides core library routines for the X Window System to directly
+      interface with video hardware using the Linux kernel's Direct Rendering
+      Manager (DRM).
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libdrm-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libdrm-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libdrm-download-http;"/>
@@ -86,8 +98,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>libdrm</application> by running the following
-      commands:
+      Install libdrm by running the following commands:
     </para>
 
 <screen><userinput>sed -e "/pthread-stubs/d" -i configure.ac &amp;&amp;
@@ -102,116 +113,67 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <command>sed -e "/pthread-stubs/d" -i configure.ac</command>: This sed
+        removes dependency on libpthread-stubs package which is useless on
+        Linux.
+      </para>
 
-    <para>
-      <command>sed -e "/pthread-stubs/d" -i configure.ac</command>:
-      This sed removes dependency on libpthread-stubs package
-      which is useless on Linux.
-    </para>
+      <para>
+        <parameter>--enable-udev</parameter>: This option enables support for
+        using Udev instead of <command>mknod</command>.
+      </para>
 
-    <para>
-      <parameter>--enable-udev</parameter>: This option enables support for using
-      <application>Udev</application> instead of <command>mknod</command>.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_intel.so">libdrm_intel.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_nouveau.so">libdrm_nouveau.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_radeon.so">libdrm_radeon.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm.so">libdrm.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libkms.so">libkms.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libdrm.so, libdrm_intel.so, libdrm_nouveau.so,
-          libdrm_radeon.so and libkms.so
-        </seg>
-        <seg>
-          /usr/include/libdrm and
-          /usr/include/libkms
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libdrm-lib">
-        <term><filename class="libraryfile">libdrm.so</filename></term>
-        <listitem>
-          <para>
-            contains the Direct Rendering Manager API functions.
-          </para>
-          <indexterm zone="libdrm libdrm-lib">
-            <primary sortas="c-libdrm">libdrm.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libdrm_intel">
-        <term><filename class="libraryfile">libdrm_intel.so</filename></term>
-        <listitem>
-          <para>
-            contains the Intel specific Direct Rendering Manager
-            functions.
-          </para>
-          <indexterm zone="libdrm libdrm_intel">
-            <primary sortas="c-libdrm_intel">libdrm_intel.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libdrm_nouveau">
-        <term><filename class="libraryfile">libdrm_nouveau.so</filename></term>
-        <listitem>
-          <para>
-            contains the open source nVidia (Nouveau) specific Direct
-            Rendering Manager functions.
-          </para>
-          <indexterm zone="libdrm libdrm_nouveau">
-            <primary sortas="c-libdrm_nouveau">libdrm_nouveau.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libdrm_radeon">
-        <term><filename class="libraryfile">libdrm_radeon.so</filename></term>
-        <listitem>
-          <para>
-            contains the AMD Radeon specific Direct Rendering Manager
-            functions.
-          </para>
-          <indexterm zone="libdrm libdrm_radeon">
-            <primary sortas="c-libdrm_radeon">libdrm_radeon.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libkms">
-        <term><filename class="libraryfile">libkms.so</filename></term>
-        <listitem>
-          <para>
-            contains API functions for kernel mode setting abstraction.
-          </para>
-          <indexterm zone="libdrm libkms">
-            <primary sortas="c-libkms">libkms.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/libdrm/
+/usr/include/libkms/
+/usr/include/xf86drm.h
+/usr/include/xf86drmMode.h
+/usr/lib/libdrm_intel.so
+/usr/lib/libdrm_intel.so.1
+/usr/lib/libdrm_intel.so.1.0.0
+/usr/lib/libdrm_nouveau.so
+/usr/lib/libdrm_nouveau.so.2
+/usr/lib/libdrm_nouveau.so.2.0.0
+/usr/lib/libdrm_radeon.so
+/usr/lib/libdrm_radeon.so.1
+/usr/lib/libdrm_radeon.so.1.0.1
+/usr/lib/libdrm.so
+/usr/lib/libdrm.so.2
+/usr/lib/libdrm.so.2.4.0
+/usr/lib/libkms.so
+/usr/lib/libkms.so.1
+/usr/lib/libkms.so.1.0.0
+/usr/share/man/man7/drm.7</literal></screen>
 
   </sect2>
 
