@@ -5,6 +5,8 @@
   %general-entities;
 
   <!ENTITY acpid-homepage      "http://sourceforge.net/projects/acpid2/">
+  <!ENTITY acpid-wikipedia
+  "http://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">
   <!ENTITY acpid-download-http
   "&sourceforge-repo;/acpid2/acpid-&acpid-version;.tar.xz">
   <!ENTITY acpid-download-ftp  " ">
@@ -27,12 +29,12 @@
     <title>Introduction</title>
 
     <para>
-      The <application>acpid</application> (Advanced Configuration and Power
-      Interface event daemon) is a completely flexible, totally extensible
-      daemon for delivering ACPI events. It listens on netlink interface and
-      when an event occurs, executes programs to handle the event. The programs
-      it executes are configured through a set of configuration files, which can
-      be dropped into place by packages or by the user.
+      The acpid (Advanced Configuration and Power Interface event daemon) is a
+      completely flexible, totally extensible daemon for delivering ACPI events.
+      It listens on netlink interface and when an event occurs, executes
+      programs to handle the event. The programs it executes are configured
+      through a set of configuration files, which can be dropped into place by
+      packages or by the user.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -40,6 +42,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&acpid-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&acpid-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -80,8 +87,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>acpid</application> by
-      running the following commands:
+      Install acpid by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -101,8 +107,7 @@ install -v -m755 -d /etc/acpi/events</userinput></screen>
     <title>Configuration</title>
 
     <para>
-      <application>acpid</application> is configured by user defined events.
-      Place event files under
+      acpid is configured by user defined events. Place event files under
       <filename class="directory">/etc/acpi/events</filename> directory. If an
       event occurs, <command>acpid</command> recurses through the event files in
       order to see if the regex defined after "event" matches. If they do,
@@ -141,9 +146,6 @@ chmod +x /etc/acpi/lid.sh</userinput></screen>
         boot script from the <xref linkend="bootscripts"/> package.
       </para>
 
-      <indexterm zone="acpid acpid-init">
-        <primary sortas="f-acpid">acpid</primary>
-      </indexterm>
 
 <screen role="root"><userinput>make install-acpid</userinput></screen>
 
@@ -154,70 +156,31 @@ chmod +x /etc/acpi/lid.sh</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="acpid">
+      <primary sortas="b-acpid">acpid</primary>
+    </indexterm>
+    <indexterm zone="acpid">
+      <primary sortas="b-acpi_listen">acpi_listen</primary>
+    </indexterm>
+    <indexterm zone="acpid">
+      <primary sortas="b-kacpimon">kacpimon</primary>
+    </indexterm>
+    <indexterm zone="acpid">
+      <primary sortas="f-acpid">acpid</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          acpid, acpi_listen and kacpimon
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/share/doc/acpid-&acpid-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="acpid-prog">
-        <term><command>acpid</command></term>
-        <listitem>
-          <para>
-            is a program that listens for ACPI events and executes the rules
-            that match the received event.
-          </para>
-          <indexterm zone="acpid acpid-prog">
-            <primary sortas="b-acpid">acpid</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="acpi_listen">
-        <term><command>acpi_listen</command></term>
-        <listitem>
-          <para>
-            is a simple tool which connects to <command>acpid</command> and
-            listens for events.
-          </para>
-          <indexterm zone="acpid acpi_listen">
-            <primary sortas="b-acpi_listen">acpi_listen</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="kacpimon">
-        <term><command>kacpimon</command></term>
-        <listitem>
-          <para>
-            is a monitor program that connects to three sources of ACPI events
-            (events file, netlink and input layer) and then reports on what it
-            sees while it is connected.
-          </para>
-          <indexterm zone="acpid kacpimon">
-            <primary sortas="b-kacpimon">kacpimon</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/acpi/
+/usr/bin/acpi_listen
+/usr/sbin/acpid
+/usr/sbin/kacpimon
+/usr/share/doc/acpid-2.0.19/
+/usr/share/man/man8/acpid.8
+/usr/share/man/man8/acpi_listen.8
+/usr/share/man/man8/kacpimon.8</literal></screen>
 
   </sect2>
 
