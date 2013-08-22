@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY docbook-xsl-homepage      "http://docbook.sourceforge.net/">
+  <!ENTITY docbook-xsl-wikipedia     "http://en.wikipedia.org/wiki/DocBook_XSL">
   <!ENTITY docbook-xsl-download-http
   "&sourceforge-repo;/docbook/docbook-xsl-&docbook-xsl-version;.tar.bz2">
   <!ENTITY docbook-xsl-download-ftp  " ">
@@ -29,9 +30,8 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
     <title>Introduction</title>
 
     <para>
-      The <application>DocBook XSL Stylesheets</application> package contains
-      XSL stylesheets. These are useful for performing transformations on XML
-      DocBook files.
+      The DocBook XSL Stylesheets package contains XSL stylesheets. These are
+      useful for performing transformations on XML DocBook files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -39,6 +39,11 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
       <listitem>
         <para>
           Homepage: <ulink url="&docbook-xsl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&docbook-xsl-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -91,9 +96,8 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
     <title>Installation</title>
 
     <para>
-      Install <application>DocBook XSL Stylesheets</application> by running the
-      following commands as the <systemitem class="username">root</systemitem>
-      user:
+      Install DocBook XSL Stylesheets by running the following commands as the
+      <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>install -v -m755 -d /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
@@ -108,26 +112,10 @@ ln -s VERSION /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;/VERSI
   <sect2 role="configuration">
     <title>Configuration</title>
 
-    <sect3 id="docbook-xsl-config">
-      <title>Config Files</title>
-
-      <para>
-        <filename>/etc/xml/catalog</filename>
-      </para>
-
-      <indexterm zone="docbook-xsl docbook-xsl-config">
-        <primary sortas="e-etc-xml-catalog">/etc/xml/catalog</primary>
-      </indexterm>
-
-    </sect3>
-
-    <sect3>
-      <title>Configuration Information</title>
-
-      <para>
-        Create (or append) and populate the XML catalog file using the following
-        commands as the <systemitem class="username">root</systemitem> user:
-      </para>
+    <para>
+      Create (or append) and populate the XML catalog file using the following
+      commands as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>if [ ! -d /etc/xml ]; then install -v -m755 -d /etc/xml; fi &amp;&amp;
 if [ ! -f /etc/xml/catalog ]; then
@@ -150,14 +138,14 @@ xmlcatalog --noout --add "rewriteURI" \
            "/usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;" \
            /etc/xml/catalog</userinput></screen>
 
-      <para>
-        Occasionally, you may find the need to install other versions of the XSL
-        stylesheets as some projects reference a specific version. One example
-        is BLFS-6.0, which required the 1.67.2 version. In these instances you
-        should install any other required version in its own versioned directory
-        and create catalog entries as follows (substitute the desired version
-        number for <replaceable>&lt;version&gt;</replaceable>):
-      </para>
+    <para>
+      Occasionally, you may find the need to install other versions of the XSL
+      stylesheets as some projects reference a specific version. One example is
+      BLFS-6.0, which required the 1.67.2 version. In these instances you should
+      install any other required version in its own versioned directory and
+      create catalog entries as follows (substitute the desired version number
+      for <replaceable>&lt;version&gt;</replaceable>):
+    </para>
 
 <screen role="root"><userinput>xmlcatalog --noout --add "rewriteSystem" \
            "http://docbook.sourceforge.net/release/xsl/<replaceable>&lt;version&gt;</replaceable>" \
@@ -168,31 +156,20 @@ xmlcatalog --noout --add "rewriteURI" \
            "/usr/share/xml/docbook/xsl-stylesheets-<replaceable>&lt;version&gt;</replaceable>" \
            /etc/xml/catalog</userinput></screen>
 
-    </sect3>
-
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+      <indexterm zone="docbook-xsl">
+        <primary sortas="e-etc-xml-catalog">/etc/xml/catalog</primary>
+      </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; and
-          /usr/share/doc/docbook-xsl-&docbook-xsl-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;/</literal></screen>
 
   </sect2>
 

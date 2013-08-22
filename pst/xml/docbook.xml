@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY DocBook-homepage      "http://www.docbook.org/">
+  <!ENTITY DocBook-wikipedia     "http://en.wikipedia.org/wiki/DocBook">
   <!ENTITY DocBook-download-http
   "http://www.docbook.org/xml/&DocBook-version;/docbook-xml-&DocBook-version;.zip">
   <!ENTITY DocBook-download-ftp  " ">
@@ -27,11 +28,11 @@
     <title>Introduction</title>
 
     <para>
-      The <application>DocBook XML DTD</application>-&DocBook-version; package
-      contains document type definitions for verification of XML data files
-      against the DocBook rule set. These are useful for structuring books and
-      software documentation to a standard allowing you to utilize
-      transformations already written for that standard.
+      The DocBook XML DTD-&DocBook-version; package contains document type
+      definitions for verification of XML data files against the DocBook rule
+      set. These are useful for structuring books and software documentation to
+      a standard allowing you to utilize transformations already written for
+      that standard.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -39,6 +40,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&DocBook-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&DocBook-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -90,9 +96,8 @@
     href="../../xincludes/use-unzip.xml"/>
 
     <para>
-      Install <application>DocBook XML DTD</application> by running the
-      following commands as the <systemitem class="username">root</systemitem>
-      user:
+      Install DocBook XML DTD by running the following commands as the
+      <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>install -v -d -m755 /usr/share/xml/docbook/xml-dtd-&DocBook-version; &amp;&amp;
@@ -186,38 +191,16 @@ xmlcatalog --noout --add "delegateURI" \
   <sect2 role="configuration">
     <title>Configuration</title>
 
-    <sect3 id="docbook-config">
-      <title>Config Files</title>
-
-      <para>
-        <filename>/etc/xml/catalog</filename>,
-        <filename>/etc/xml/docbook</filename>
-      </para>
-
-      <indexterm zone="DocBook docbook-config">
-        <primary sortas="e-etc-xml-docbook">/etc/xml/docbook</primary>
-      </indexterm>
-
-      <indexterm zone="DocBook docbook-config">
-        <primary sortas="e-etc-xml-catalog">/etc/xml/catalog</primary>
-      </indexterm>
-
-    </sect3>
-
-    <sect3>
-      <title>Configuration Information</title>
-
-      <para>
-        The above installation creates the files and updates the catalogs. In
-        order to install <application>ScrollKeeper</application> or to utilize
-        <application>DocBook XML DTD</application> V&DocBook-version; when any
-        version 4.x is requested in the System Identifier, you need to add
-        additional statements to the catalog files. If you have any of the
-        <application>DocBook XML DTD</application>'s referenced below already
-        installed on your system, remove those entries from the
-        <command>for</command> command below (issue the commands as the
-        <systemitem class="username">root</systemitem> user):
-      </para>
+    <para>
+      The above installation creates the files and updates the catalogs. In
+      order to install ScrollKeeper or to utilize DocBook XML DTD
+      V&DocBook-version; when any version 4.x is requested in the System
+      Identifier, you need to add additional statements to the catalog files. If
+      you have any of the DocBook XML DTD's referenced below already installed
+      on your system, remove those entries from the <command>for</command>
+      command below (issue the commands as the <systemitem
+      class="username">root</systemitem> user):
+    </para>
 
 <screen role="root"><userinput>for DTDVERSION in 4.1.2 4.2 4.3 4.4
 do
@@ -243,76 +226,35 @@ do
     /etc/xml/catalog
 done</userinput></screen>
 
-    </sect3>
-
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="DocBook">
+      <primary sortas="e-etc-xml-catalog">/etc/xml/catalog</primary>
+    </indexterm>
+    <indexterm zone="DocBook">
+      <primary sortas="e-etc-xml-docbook">/etc/xml/docbook</primary>
+    </indexterm>
+    <indexterm zone="DocBook">
+      <primary sortas="g-DTD-files">DTD Files</primary>
+    </indexterm>
+    <indexterm zone="DocBook">
+      <primary sortas="g-ENT-files">ENT files</primary>
+    </indexterm>
+    <indexterm zone="DocBook">
+      <primary sortas="g-MOD-files">MOD files</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /etc/xml and /usr/share/xml/docbook/xml-dtd-&DocBook-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="DTD-files">
-        <term><filename>DTD files</filename></term>
-        <listitem>
-          <para>
-            contain a document type definition which defines the element types
-            and the attribute lists that can be used in the corresponding
-            <filename>XML</filename> files.
-          </para>
-          <indexterm zone="DocBook DTD-files">
-            <primary sortas="g-DTD-files">DTD Files</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="MOD-files">
-        <term><filename>MOD files</filename></term>
-        <listitem>
-          <para>
-            files contain components of the document type definition that are
-            sourced into the <filename>DTD</filename> files.
-          </para>
-          <indexterm zone="DocBook MOD-files">
-            <primary sortas="g-MOD-files">MOD files</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ENT-files">
-        <term><filename>ENT files</filename></term>
-        <listitem>
-          <para>
-            files contain lists of named character entities allowed in HTML.
-          </para>
-          <indexterm zone="DocBook ENT-files">
-            <primary sortas="g-ENT-files">ENT-files</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/xml/
+/etc/xml/catalog
+/etc/xml/docbook
+/usr/share/xml/docbook/xml-dtd-&DocBook-version;/</literal></screen>
 
   </sect2>
 
