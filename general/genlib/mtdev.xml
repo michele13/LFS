@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY mtdev-homepage      "http://bitmath.org/code/mtdev/">
+  <!ENTITY mtdev-wikipedia     " ">
   <!ENTITY mtdev-download-http "http://bitmath.org/code/mtdev/mtdev-&mtdev-version;.tar.bz2">
   <!ENTITY mtdev-download-ftp  " ">
   <!ENTITY mtdev-md5sum        "73a915d6075b31db4f08ab8c6d314695">
@@ -22,17 +24,26 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to mtdev</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>mtdev</application> package contains Multitouch
-      Protocol Translation Library which is used to transform all
-      variants of kernel MT (Multitouch) events to the slotted type B
-      protocol.
+      The mtdev package contains Multitouch Protocol Translation Library which
+      is used to transform all variants of kernel MT (Multitouch) events to the
+      slotted type B protocol.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&mtdev-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&mtdev-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&mtdev-download-http;"/>
@@ -68,19 +79,15 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of mtdev</title>
+    <title>Installation</title>
 
     <para>
-      Install <application>mtdev</application> by running the following
-      commands:
+      Install mtdev by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -89,53 +96,23 @@ make</userinput></screen>
 <screen role="root"><userinput>make install</userinput></screen>
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="mtdev">
+      <primary sortas="b-mtdev-test">mtdev-test</primary>
+    </indexterm>
+    <indexterm zone="mtdev">
+      <primary sortas="c-libmtdev.so">libmtdev.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          mtdev-test
-        </seg>
-        <seg>
-          libmtdev.so
-        </seg>
-        <seg>
-          None
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libmtdev">
-        <term><filename class="libraryfile">libmtdev.so</filename></term>
-        <listitem>
-          <para>
-            contains Multitouch Protocol Translation API functions.
-          </para>
-          <indexterm zone="mtdev libmtdev">
-            <primary sortas="c-libmtdev">libmtdev.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/mtdev-test
+/usr/include/mtdev.h
+/usr/include/mtdev-mapping.h
+/usr/include/mtdev-plumbing.h
+/usr/lib/libmtdev.so
+/usr/lib/libmtdev.so.1
+/usr/lib/libmtdev.so.1.0.0</literal></screen>
 
   </sect2>
 
