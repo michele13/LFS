@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY pm-utils-homepage      "http://pm-utils.freedesktop.org/">
+  <!ENTITY pm-utils-wikipedia     " ">
   <!ENTITY pm-utils-download-http
   "http://pm-utils.freedesktop.org/releases/pm-utils-&pm-utils-version;.tar.gz">
   <!ENTITY pm-utils-download-ftp  " ">
@@ -27,9 +28,9 @@
     <title>Introduction</title>
 
     <para>
-      The <application>Power Management Utilities</application> is a small
-      collection of scripts to suspend and hibernate computer that can be used
-      to run user supplied scripts on suspend and resume.
+      The Power Management Utilities is a small collection of scripts to suspend
+      and hibernate computer that can be used to run user supplied scripts on
+      suspend and resume.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -37,6 +38,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&pm-utils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pm-utils-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -73,11 +79,6 @@
 
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="xmlto"/> (to generate man pages)
-    </para>
-
     <bridgehead renderas="sect4">Optional (runtime)</bridgehead>
     <para role="optional">
       <xref linkend="ethtool"/>,
@@ -95,8 +96,7 @@
     <title>Installation</title>
 
     <para>
-      Install <application>Power Management Utilities</application> by
-      running the following commands:
+      Install Power Management Utilities by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -108,14 +108,8 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-    <para>
-      If you don't have <xref linkend="xmlto"/> installed, copy pregenerated
-      man pages:
-    </para>
-
-<screen role="root"><userinput>install -v -m644 man/*.1 /usr/share/man/man1 &amp;&amp;
+<screen role="root"><userinput>make install &amp;&amp;
+install -v -m644 man/*.1 /usr/share/man/man1 &amp;&amp;
 install -v -m644 man/*.8 /usr/share/man/man8 &amp;&amp;
 ln -sv pm-action.8 /usr/share/man/man8/pm-suspend.8 &amp;&amp;
 ln -sv pm-action.8 /usr/share/man/man8/pm-hibernate.8 &amp;&amp;
@@ -139,112 +133,46 @@ ln -sv pm-action.8 /usr/share/man/man8/pm-suspend-hybrid.8</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-on_ac_power">on_ac_power</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-is-supported">pm-is-supported</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-hibernate">pm-hibernate</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-powersave">pm-powersave</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-suspend">pm-suspend</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-suspend-hybrid">pm-suspend-hybrid</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          on_ac_power, pm-hibernate, pm-is-supported, pm-powersave, pm-suspend
-          and pm-suspend-hybrid
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /etc/pm, /usr/lib/pm-utils and
-          /usr/share/doc/pm-utils-&pm-utils-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="on_ac_power">
-        <term><command>on_ac_power</command></term>
-        <listitem>
-          <para>
-            is a script that determines whether the system is running on AC
-            power (rather than a battery).
-          </para>
-          <indexterm zone="pm-utils on_ac_power">
-            <primary sortas="b-on_ac_power">on_ac_power</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pm-hibernate">
-        <term><command>pm-hibernate</command></term>
-        <listitem>
-          <para>
-            is a symlink to pm-action script that puts the computer into
-            hibernate mode (the system is fully powered off and system state is
-            saved to disk). 
-          </para>
-          <indexterm zone="pm-utils pm-hibernate">
-            <primary sortas="b-pm-hibernate">pm-hibernate</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pm-is-supported">
-        <term><command>pm-is-supported</command></term>
-        <listitem>
-          <para>
-            is a script that checks whether power management features such as
-            suspend and hibernate are supported.
-          </para>
-          <indexterm zone="pm-utils pm-is-supported">
-            <primary sortas="b-pm-is-supported">pm-is-supported</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pm-powersave">
-        <term><command>pm-powersave</command></term>
-        <listitem>
-          <para>
-            is a script that puts the computer into powersaving (low power)
-            mode.
-          </para>
-          <indexterm zone="pm-utils pm-powersave">
-            <primary sortas="b-pm-powersave">pm-powersave</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pm-suspend">
-        <term><command>pm-suspend</command></term>
-        <listitem>
-          <para>
-            is a symlink to pm-action script that puts the computer into suspend
-            mode (most devices are shut down and system state is saved in RAM).
-          </para>
-          <indexterm zone="pm-utils pm-suspend">
-            <primary sortas="b-pm-suspend">pm-suspend</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pm-suspend-hybrid">
-        <term><command>pm-suspend-hybrid</command></term>
-        <listitem>
-          <para>
-            is a symlink to pm-action script that puts the computer into
-            hybrid-suspend mode (the system does everything it needs to
-            hibernate, but suspends instead of shutting down).
-          </para>
-          <indexterm zone="pm-utils pm-suspend-hybrid">
-            <primary sortas="b-pm-suspend-hybrid">pm-suspend-hybrid</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/pm/
+/usr/bin/on_ac_power
+/usr/bin/pm-is-supported
+/usr/lib/pm-utils/
+/usr/sbin/pm-hibernate
+/usr/sbin/pm-powersave
+/usr/sbin/pm-suspend
+/usr/sbin/pm-suspend-hybrid
+/usr/share/doc/pm-utils-&pm-utils-version;/
+/usr/share/man/man1/on_ac_power.1
+/usr/share/man/man1/pm-is-supported.1
+/usr/share/man/man8/pm-action.8
+/usr/share/man/man8/pm-hibernate.8
+/usr/share/man/man8/pm-pmu.8
+/usr/share/man/man8/pm-powersave.8
+/usr/share/man/man8/pm-suspend.8
+/usr/share/man/man8/pm-suspend-hybrid.8</literal></screen>
 
   </sect2>
 
