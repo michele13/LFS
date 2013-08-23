@@ -4,8 +4,13 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY alsa-utils-download-http "&alsa-download-http;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
-  <!ENTITY alsa-utils-download-ftp  "&alsa-download-ftp;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
+  <!ENTITY alsa-utils-homepage      "http://www.alsa-project.org/">
+  <!ENTITY alsa-utils-wikipedia
+  "http://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture">
+  <!ENTITY alsa-utils-download-http
+  "&alsa-download-http;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
+  <!ENTITY alsa-utils-download-ftp
+  "&alsa-download-ftp;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
   <!ENTITY alsa-utils-md5sum        "b65e9a04181bd7c9db7667a4566f8dc3">
   <!ENTITY alsa-utils-size          "1.1 MB">
   <!ENTITY alsa-utils-buildsize     "7 MB">
@@ -22,16 +27,25 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to ALSA Utilities</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>ALSA Utilities</application> package contains
-      various utilities which are useful for controlling your sound
-      card.
+      The ALSA Utilities package contains various utilities which are useful for
+      controlling your sound card.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&alsa-utils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&alsa-utils-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&alsa-utils-download-http;"/>
@@ -64,7 +78,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">ALSA Utilities Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -73,27 +87,21 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <xref linkend="libsamplerate"/>,
-      <ulink url="http://hightek.org/dialog/">Dialog</ulink> and
-      <xref linkend="xmlto"/>
+      <xref linkend="libsamplerate"/>
     </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of ALSA Utilities</title>
+    <title>Installation</title>
 
     <para>
-      Install <application>ALSA Utilities</application> by
-      running the following commands:
+      Install ALSA Utilities by running the following commands:
     </para>
 
-<screen><userinput>./configure --disable-alsaconf --disable-xmlto &amp;&amp;
+<screen><userinput>./configure --disable-alsaconf \
+            --disable-xmlto &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -101,101 +109,81 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--disable-alsaconf</parameter>: This switch disables building
+        the <command>alsaconf</command> configuration tool which is incompatible
+        with Udev.
+      </para>
 
-    <para>
-      <option>--disable-alsaconf</option>: This switch disables building the
-      <command>alsaconf</command> configuration tool which is incompatible with
-      <application>Udev</application>.
-    </para>
+      <para>
+        <parameter>--disable-xmlto</parameter>: This switch disables man page
+        creation end ensures successful build without <command>xmlto</command>
+        installed.
+      </para>
 
-    <para>
-      <option>--disable-xmlto</option>: Omit this switch if you have installed
-      <xref linkend="xmlto"/> and don't wish to install pregenerated man pages.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="configuration">
-    <title>Configuring ALSA Utilities</title>
+    <title>Configuration</title>
 
-    <sect3 id="alsa-utils-config">
-      <title>Config Files</title>
+    <para>
+      Note that all channels of your sound card are muted by default. You can
+      use the <command>alsamixer</command> program to change this. Use
+      <command>speaker-test</command> to check that your settings have been
+      applied correctly. You should hear <quote>pink noise</quote> on your
+      speakers.
+    </para>
 
-      <para>
-        <filename>/var/lib/alsa/asound.state</filename>
-      </para>
-
-      <indexterm zone="alsa-utils alsa-utils-config">
-        <primary sortas="e-var-lib-alsa-asound.state">/var/lib/alsa/asound.state</primary>
-      </indexterm>
-
-    </sect3>
-
-    <sect3 id="alsa-utils-init">
-      <title>Configuration Information</title>
-
-      <para>
-        Use a bootscript to store the values at shutdown.
-      </para>
-
-      <indexterm zone="alsa-utils alsa-utils-init">
-        <primary sortas="f-alsa">alsa</primary>
-      </indexterm>
-
-      <para>
-        As the <systemitem class="username">root</systemitem> user,
-        install the init script <filename>/etc/rc.d/init.d/alsa</filename> included
-        in the <xref linkend="bootscripts"/> package.
-      </para>
-
-<screen role="root"><userinput>make install-alsa</userinput></screen>
-
-      <para>
-        Note that all channels of your sound card are muted by default.
-        You can use the <command>alsamixer</command> program to change
-        this. Use <command>speaker-test</command> to check that your
-        settings have been applied correctly. You should hear
-        <quote>pink noise</quote> on your speakers.
-      </para>
-
-      <para>
-        The <filename>alsactl</filename> program is normally run from a
-        standard <application>udev</application> rule. The first time it
-        is run, it will complain that there is no state in
-        <filename>/var/lib/alsa/asound.state</filename>. You can prevent
-        this by running the following commands as the
-        <systemitem class="username">root</systemitem> user:
-      </para>
+    <para>
+      The <filename>alsactl</filename> program is normally run from a standard
+      udev rule. The first time it is run, it will complain that there is no
+      state in <filename>/var/lib/alsa/asound.state</filename>. You can prevent
+      this by running the following commands as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>touch /var/lib/alsa/asound.state &amp;&amp;
 alsactl store</userinput></screen>
 
-      <para>
-        The volume settings will be restored from the saved state by
-        <application>Udev</application> when the device is detected
-        (during boot or when plugged in for USB devices).
-      </para>
+    <para>
+      The volume settings should be restored from the saved state by Udev when
+      the device is detected (during boot or when plugged in for USB devices).
+    </para>
 
-      <para>
-        All sound devices are not accessible for any user except
-        <systemitem class="username">root</systemitem> and members of the
-        <systemitem class="groupname">audio</systemitem> group. Add any
-        users that might use the sound devices to that group:
-      </para>
+    <para>
+      All sound devices are not accessible for any user except <systemitem
+      class="username">root</systemitem> and members of the <systemitem
+      class="groupname">audio</systemitem> group. Add any users that might use
+      the sound devices to that group:
+    </para>
 
 <screen role="root"><userinput>usermod -a -G audio <replaceable>&lt;username&gt;</replaceable></userinput></screen>
 
-      <note>
-        <para>
-          You may need to log out and back in again to refresh your group
-          memberships. '<command>su <replaceable>&lt;username&gt;</replaceable></command>'
-          should work as well.
-        </para>
-      </note>
+    <note>
+      <para>
+        You may need to log out and back in again to refresh your group
+        memberships. '<command>su
+        <replaceable>&lt;username&gt;</replaceable></command>' should work as
+        well.
+      </para>
+    </note>
+
+    <sect3 id="alsa-utils-init">
+      <title>Boot Script</title>
+
+      <para>
+        To automatically store and restore volume settings (if udev rule doesn't
+        work for you) when the system is rebooted, install the
+        <filename>/etc/rc.d/init.d/alsa</filename> boot script from the <xref
+        linkend="bootscripts"/> package.
+      </para>
+
+<screen role="root"><userinput>make install-alsa</userinput></screen>
 
     </sect3>
 
@@ -204,213 +192,95 @@ alsactl store</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-aconnect">aconnect</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-alsaloop">alsaloop</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-alsamixer">alsamixer</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-alsaucm">alsaucm</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-amidi">amidi</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-amixer">amixer</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-aplay">aplay</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-aplaymidi">aplaymidi</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-arecord">arecord</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-arecordmidi">arecordmidi</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-aseqdump">aseqdump</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-aseqnet">aseqnet</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-iecset">iecset</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-speaker-test">speaker-test</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="b-alsactl">alsactl</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="f-alsa">alsa</primary>
+    </indexterm>
+    <indexterm zone="alsa-utils">
+      <primary sortas="g-var-lib-alsa-asound.state">/var/lib/alsa/asound.state</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          aconnect, alsactl, alsaloop, alsamixer,
-          alsaucm, amidi, amixer, aplay, aplaymidi, arecord,
-          arecordmidi, aseqdump, aseqnet, iecset and
-          speaker-test
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/share/sounds/alsa and /var/lib/alsa
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="aconnect">
-        <term><command>aconnect</command></term>
-        <listitem>
-          <para>
-            is a utility for connecting and disconnecting two
-            existing ports in the ALSA sequencer system.
-          </para>
-          <indexterm zone="alsa-utils aconnect">
-            <primary sortas="b-aconnect">aconnect</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="alsactl">
-        <term><command>alsactl</command></term>
-        <listitem>
-          <para>
-            is used to control advanced settings for the
-            ALSA sound card drivers.
-          </para>
-          <indexterm zone="alsa-utils alsactl">
-            <primary sortas="b-alsactl">alsactl</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="alsaloop">
-        <term><command>alsaloop</command></term>
-        <listitem>
-          <para>
-            allows creation of a PCM loopback between a PCM capture
-            device and a PCM playback device.
-          </para>
-          <indexterm zone="alsa-utils alsaloop">
-            <primary sortas="b-alsaloop">alsaloop</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="alsamixer">
-        <term><command>alsamixer</command></term>
-        <listitem>
-          <para>
-            is an Ncurses based mixer program for use with
-            the ALSA sound card drivers.
-          </para>
-          <indexterm zone="alsa-utils alsamixer">
-            <primary sortas="b-alsamixer">alsamixer</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="amidi">
-        <term><command>amidi</command></term>
-        <listitem>
-          <para>
-            is used to read from and write to ALSA
-            RawMIDI ports.
-          </para>
-          <indexterm zone="alsa-utils amidi">
-            <primary sortas="b-amidi">amidi</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="amixer">
-        <term><command>amixer</command></term>
-        <listitem>
-          <para> allows command-line control of the mixers for the
-          ALSA sound card drivers.</para>
-          <indexterm zone="alsa-utils amixer">
-            <primary sortas="b-amixer">amixer</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="aplay">
-        <term><command>aplay</command></term>
-        <listitem>
-          <para>
-            is a command-line soundfile player for the
-            ALSA sound card drivers.
-          </para>
-          <indexterm zone="alsa-utils aplay">
-            <primary sortas="b-aplay">aplay</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="aplaymidi">
-        <term><command>aplaymidi</command></term>
-        <listitem>
-          <para>
-            is a command-line utility that plays the specified
-            MIDI file(s) to one or more ALSA sequencer ports.
-          </para>
-          <indexterm zone="alsa-utils aplaymidi">
-            <primary sortas="b-aplaymidi">aplaymidi</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="arecord">
-        <term><command>arecord</command></term>
-        <listitem>
-          <para>
-            is a command-line soundfile recorder for the
-            ALSA sound card drivers.
-          </para>
-          <indexterm zone="alsa-utils arecord">
-            <primary sortas="b-arecord">arecord</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="arecordmidi">
-        <term><command>arecordmidi</command></term>
-        <listitem>
-          <para>
-            is a command-line utility that records a standard
-            MIDI file from one or more ALSA sequencer ports.
-          </para>
-          <indexterm zone="alsa-utils arecordmidi">
-            <primary sortas="b-arecordmidi">arecordmidi</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="aseqdump">
-        <term><command>aseqdump</command></term>
-        <listitem>
-          <para>
-            is a command-line utility that prints the sequencer events it
-            receives as text.
-          </para>
-          <indexterm zone="alsa-utils aseqdump">
-            <primary sortas="b-aseqdump">aseqdump</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="aseqnet">
-        <term><command>aseqnet</command></term>
-        <listitem>
-          <para>
-            is an ALSA sequencer client which sends and
-            receives event packets over a network.
-          </para>
-          <indexterm zone="alsa-utils aseqnet">
-            <primary sortas="b-aseqnet">aseqnet</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="iecset">
-        <term><command>iecset</command></term>
-        <listitem>
-          <para>
-            is a small utility to set or dump the IEC958 (or so-called
-            <quote>S/PDIF</quote>) status bits of the specified sound
-            card via the ALSA control API.
-          </para>
-          <indexterm zone="alsa-utils iecset">
-            <primary sortas="b-iecset">iecset</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="speaker-test">
-        <term><command>speaker-test</command></term>
-        <listitem>
-          <para>
-            is a command-line speaker test tone generator for ALSA.
-          </para>
-          <indexterm zone="alsa-utils speaker-test">
-            <primary sortas="b-speaker-test">speaker-test</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/lib/udev/rules.d/90-alsa-restore.rules
+/usr/bin/aconnect
+/usr/bin/alsaloop
+/usr/bin/alsamixer
+/usr/bin/alsaucm
+/usr/bin/amidi
+/usr/bin/amixer
+/usr/bin/aplay
+/usr/bin/aplaymidi
+/usr/bin/arecord
+/usr/bin/arecordmidi
+/usr/bin/aseqdump
+/usr/bin/aseqnet
+/usr/bin/iecset
+/usr/bin/speaker-test
+/usr/sbin/alsactl
+/usr/share/alsa/
+/usr/share/man/man1/aconnect.1
+/usr/share/man/man1/alsactl.1
+/usr/share/man/man1/alsaloop.1
+/usr/share/man/man1/alsamixer.1
+/usr/share/man/man1/amidi.1
+/usr/share/man/man1/amixer.1
+/usr/share/man/man1/aplay.1
+/usr/share/man/man1/aplaymidi.1
+/usr/share/man/man1/arecord.1
+/usr/share/man/man1/arecordmidi.1
+/usr/share/man/man1/aseqdump.1
+/usr/share/man/man1/aseqnet.1
+/usr/share/man/man1/iecset.1
+/usr/share/man/man1/speaker-test.1
+/usr/share/sounds/alsa/
+/var/lib/alsa/</literal></screen>
 
   </sect2>
 
