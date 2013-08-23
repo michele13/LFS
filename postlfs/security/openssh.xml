@@ -5,6 +5,7 @@
   %general-entities;
 
   <!ENTITY openssh-homepage      "http://www.openssh.org/">
+  <!ENTITY openssh-wikipedia     "http://en.wikipedia.org/wiki/OpenSSH">
   <!ENTITY openssh-download-http
   "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-&openssh-version;.tar.gz">
   <!ENTITY openssh-download-ftp
@@ -28,12 +29,11 @@
     <title>Introduction</title>
 
   <para>
-    The <application>OpenSSH</application> package contains
-    <command>ssh</command> clients and the <command>sshd</command> daemon. This
-    is useful for encrypting authentication and subsequent traffic over a
-    network. The <command>ssh</command> and <command>scp</command> commands are
-    secure implementions of <command>telnet</command> and <command>rcp</command>
-    respectively.
+    The OpenSSH package contains <command>ssh</command> clients and the
+    <command>sshd</command> daemon. This is useful for encrypting authentication
+    and subsequent traffic over a network. The <command>ssh</command> and
+    <command>scp</command> commands are secure implementions of
+    <command>telnet</command> and <command>rcp</command> respectively.
   </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -41,6 +41,11 @@
       <listitem>
         <para>
           Homepage: <ulink url="&openssh-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&openssh-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
@@ -101,12 +106,12 @@
     <title>Installation</title>
 
     <para>
-      <application>OpenSSH</application> runs as two processes when connecting
-      to other computers. The first process is a privileged process and controls
-      the issuance of privileges as necessary. The second process communicates
-      with the network. Additional installation steps are necessary to set up
-      the proper environment, which are performed by issuing the following
-      commands as the <systemitem class="username">root</systemitem> user:
+      OpenSSH runs as two processes when connecting to other computers. The
+      first process is a privileged process and controls the issuance of
+      privileges as necessary. The second process communicates with the network.
+      Additional installation steps are necessary to set up the proper
+      environment, which are performed by issuing the following commands as the
+      <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>install -v -m700 -d /var/lib/sshd &amp;&amp;
@@ -116,8 +121,7 @@ useradd -c 'sshd PrivSep' -d /var/lib/sshd -g sshd \
     -s /bin/false -u 50 sshd</userinput></screen>
 
     <para>
-      Install <application>OpenSSH</application> by running the following
-      commands:
+      Install OpenSSH by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -136,334 +140,210 @@ make</userinput></screen>
 install -v -m755 contrib/ssh-copy-id /usr/bin &amp;&amp;
 install -v -m644 contrib/ssh-copy-id.1 /usr/share/man/man1</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--sysconfdir=/etc/ssh</parameter>: This prevents the
+        configuration files from being installed in <filename
+        class="directory">/usr/etc</filename>.
+      </para>
 
-    <para>
-      <parameter>--sysconfdir=/etc/ssh</parameter>: This prevents the
-      configuration files from being installed in
-      <filename class="directory">/usr/etc</filename>.
-    </para>
+      <para>
+        <parameter>--datadir=/usr/share/sshd</parameter>: This switch puts the
+        Ssh.bin file (used for SmartCard authentication) in <filename
+        class="directory">/usr/share/sshd</filename>.
+      </para>
 
-    <para>
-      <parameter>--datadir=/usr/share/sshd</parameter>: This switch puts the
-      Ssh.bin file (used for SmartCard authentication) in
-      <filename class="directory">/usr/share/sshd</filename>.
-    </para>
+      <para>
+        <parameter>--with-md5-passwords</parameter>: This enables the use of MD5
+        passwords.
+      </para>
 
-    <para>
-      <parameter>--with-md5-passwords</parameter>: This enables the use of MD5
-      passwords.
-    </para>
+      <para>
+        <option>--with-xauth=/usr/bin/xauth</option>: Set the default location
+        for the <command>xauth</command> binary for X authentication. This can
+        also be controlled from <filename>sshd_config</filename> with the
+        XAuthLocation keyword. You can omit this switch if Xorg is already
+        installed.
+      </para>
 
-    <para>
-      <option>--with-xauth=/usr/bin/xauth</option>: Set the default location
-      for the <command>xauth</command> binary for X authentication.  This can
-      also be controlled from <filename>sshd_config</filename> with the
-      XAuthLocation keyword. You can omit this switch if
-      <application>Xorg</application> is already installed.
-    </para>
+      <para>
+        <option>--with-kerberos5=/usr</option>: This option is used to include
+        Kerberos 5 support in the build.
+      </para>
 
-    <para>
-      <option>--with-kerberos5=/usr</option>: This option is used to
-      include Kerberos 5 support in the build.
-    </para>
+      <para>
+        <option>--with-libedit</option>: This option enables line editing and
+        history features for <command>sftp</command>.
+      </para>
 
-    <para>
-      <option>--with-libedit</option>: This option enables line editing
-      and history features for <command>sftp</command>.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="configuration">
     <title>Configuration</title>
 
-    <sect3 id="openssh-config">
-      <title>Config Files</title>
-
-      <para>
-        <filename>~/.ssh/*</filename>,
-        <filename>/etc/ssh/ssh_config</filename>, and
-        <filename>/etc/ssh/sshd_config</filename>
-      </para>
-
-      <indexterm zone="openssh openssh-config">
-        <primary sortas="e-AA.ssh">~/.ssh/*</primary>
-      </indexterm>
-
-      <indexterm zone="openssh openssh-config">
-        <primary sortas="e-etc-ssh-ssh_config">/etc/ssh/ssh_config</primary>
-      </indexterm>
-
-      <indexterm zone="openssh openssh-config">
-        <primary sortas="e-etc-ssh-sshd_config">/etc/ssh/sshd_config</primary>
-      </indexterm>
-
-    </sect3>
-
-    <sect3>
-      <title>Configuration Information</title>
-
-      <para>
-        There are no required changes to any of these files. However,
-        you may wish to view the
-        <filename class='directory'>/etc/ssh/</filename> files and make any
-        changes appropriate for the security of your system. One recommended
-        change is that you disable
-        <systemitem class='username'>root</systemitem> login via
-        <command>ssh</command>. Execute the following command as the
-        <systemitem class='username'>root</systemitem> user to disable
-        <systemitem class='username'>root</systemitem> login via
-        <command>ssh</command>:
-      </para>
+    <para>
+      There are no required changes to any of these files. However,
+      you may wish to view the
+      <filename class='directory'>/etc/ssh/</filename> files and make any
+      changes appropriate for the security of your system. One recommended
+      change is that you disable
+      <systemitem class='username'>root</systemitem> login via
+      <command>ssh</command>. Execute the following command as the
+      <systemitem class='username'>root</systemitem> user to disable
+      <systemitem class='username'>root</systemitem> login via
+      <command>ssh</command>:
+    </para>
 
 <screen role="root"><userinput>echo "PermitRootLogin no" &gt;&gt; /etc/ssh/sshd_config</userinput></screen>
 
-      <para>
-        If you want to be able to log in without typing in your password, first
-        create ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub with
-        <command>ssh-keygen</command> and then copy ~/.ssh/id_rsa.pub to
-        ~/.ssh/authorized_keys on the remote computer that you want to log into.
-        You'll need to change REMOTE_HOSTNAME for the hostname of the remote
-        computer and you'll also need to enter you password for the ssh command
-        to succeed:
-      </para>
+    <para>
+      If you want to be able to log in without typing in your password, first
+      create ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub with
+      <command>ssh-keygen</command> and then copy ~/.ssh/id_rsa.pub to
+      ~/.ssh/authorized_keys on the remote computer that you want to log into.
+      You'll need to change REMOTE_HOSTNAME for the hostname of the remote
+      computer and you'll also need to enter you password for the ssh command
+      to succeed:
+    </para>
 
 <screen><userinput>ssh-keygen &amp;&amp;
 public_key="$(cat ~/.ssh/id_rsa.pub)" &amp;&amp;
 ssh REMOTE_HOSTNAME "echo ${public_key} &gt;&gt; ~/.ssh/authorized_keys" &amp;&amp;
 unset public_key</userinput></screen>
 
-      <para>
-        Once you've got passwordless logins working it's actually more secure
-        than logging in with a password (as the private key is much longer than
-        most people's passwords). If you would like to now disable password
-        logins, as the <systemitem class="username">root</systemitem> user:
-      </para>
+    <para>
+      Once you've got passwordless logins working it's actually more secure
+      than logging in with a password (as the private key is much longer than
+      most people's passwords). If you would like to now disable password
+      logins, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 
 <screen role="root"><userinput>echo "PasswordAuthentication no" >> /etc/ssh/sshd_config &amp;&amp;
 echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></screen>
 
-      <para>
-        Additional configuration information can be found in the man
-        pages for <command>sshd</command>, <command>ssh</command> and
-        <command>ssh-agent</command>.
-      </para>
-    </sect3>
+    <para>
+      Additional configuration information can be found in the man
+      pages for <command>sshd</command>, <command>ssh</command> and
+      <command>ssh-agent</command>.
+    </para>
 
     <sect3  id="openssh-init">
       <title>Boot Script</title>
 
       <para>
         To start the SSH server at system boot, install the
-      <filename>/etc/rc.d/init.d/sshd</filename> init script included
-      in the <xref linkend="bootscripts"/> package.
-        </para>
-
-      <indexterm zone="openssh openssh-init">
-        <primary sortas="f-sshd">sshd</primary>
-      </indexterm>
+        <filename>/etc/rc.d/init.d/sshd</filename> init script included in the
+        <xref linkend="bootscripts"/> package.
+      </para>
 
 <screen role="root"><userinput>make install-sshd</userinput></screen>
+
     </sect3>
+
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="openssh">
+      <primary sortas="b-scp">scp</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-sftp">sftp</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-slogin">slogin</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh">ssh</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh-add">ssh-add</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh-agent">ssh-agent</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh-copy-id">ssh-copy-id</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh-keygen">ssh-keygen</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-ssh-keyscan">ssh-keyscan</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="b-sshd">sshd</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="e-AA.ssh">~/.ssh/*</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="e-etc-ssh-ssh_config">/etc/ssh/ssh_config</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="e-etc-ssh-sshd_config">/etc/ssh/sshd_config</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="f-sshd">sshd</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="g-etc-ssh-moduli">/etc/ssh/moduli</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="g-usr-lib-openssh-sftp-server">/usr/lib/openssh/sftp-server</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="g-usr-lib-openssh-ssh-keysign">/usr/lib/openssh/ssh-keysign</primary>
+    </indexterm>
+    <indexterm zone="openssh">
+      <primary sortas="g-usr-lib-openssh-ssh-pkcs11-helper">/usr/lib/openssh/ssh-pkcs11-helper</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          scp, sftp, sftp-server, slogin, ssh, sshd, ssh-add, ssh-agent,
-          ssh-copy-id, ssh-keygen, ssh-keyscan, ssh-keysign and
-          ssh-pkcs11-helper
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /etc/ssh,
-          /var/lib/sshd and
-          /usr/lib/openssh
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
+<screen><literal>/etc/ssh/
+/etc/ssh/moduli
+/etc/ssh/ssh_config
+/etc/ssh/sshd_config
+/usr/bin/scp
+/usr/bin/sftp
+/usr/bin/slogin
+/usr/bin/ssh
+/usr/bin/ssh-add
+/usr/bin/ssh-agent
+/usr/bin/ssh-copy-id
+/usr/bin/ssh-keygen
+/usr/bin/ssh-keyscan
+/usr/lib/openssh/
+/usr/lib/openssh/sftp-server
+/usr/lib/openssh/ssh-keysign
+/usr/lib/openssh/ssh-pkcs11-helper
+/usr/sbin/sshd
+/usr/share/man/man1/scp.1
+/usr/share/man/man1/sftp.1
+/usr/share/man/man1/slogin.1
+/usr/share/man/man1/ssh.1
+/usr/share/man/man1/ssh-add.1
+/usr/share/man/man1/ssh-agent.1
+/usr/share/man/man1/ssh-copy-id.1
+/usr/share/man/man1/ssh-keygen.1
+/usr/share/man/man1/ssh-keyscan.1
+/usr/share/man/man5/moduli.5
+/usr/share/man/man5/ssh_config.5
+/usr/share/man/man5/sshd_config.5
+/usr/share/man/man8/sftp-server.8
+/usr/share/man/man8/sshd.8
+/usr/share/man/man8/ssh-keysign.8
+/usr/share/man/man8/ssh-pkcs11-helper.8</literal></screen>
 
-      <varlistentry id="scp">
-        <term><command>scp</command></term>
-        <listitem>
-          <para>
-            is a file copy program that acts like <command>rcp</command> except
-            it uses an encrypted protocol.
-          </para>
-          <indexterm zone="openssh scp">
-            <primary sortas="b-scp">scp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="sftp">
-        <term><command>sftp</command></term>
-        <listitem>
-          <para>
-            is an FTP-like program that works over the SSH1 and SSH2 protocols.
-          </para>
-          <indexterm zone="openssh sftp">
-            <primary sortas="b-sftp">sftp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="sftp-server">
-        <term><command>sftp-server</command></term>
-        <listitem>
-          <para>
-            is an SFTP server subsystem. This program is not normally called
-            directly by the user.
-          </para>
-          <indexterm zone="openssh sftp-server">
-            <primary sortas="b-sftp-server">sftp-server</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="slogin">
-        <term><command>slogin</command></term>
-        <listitem>
-          <para>
-            is a symlink to <command>ssh</command>.
-          </para>
-          <indexterm zone="openssh slogin">
-            <primary sortas="b-slogin">slogin</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh">
-        <term><command>ssh</command></term>
-        <listitem>
-          <para>
-            is an <command>rlogin</command>/<command>rsh</command>-like client
-            program except it uses an encrypted protocol.
-          </para>
-          <indexterm zone="openssh ssh">
-            <primary sortas="b-ssh">ssh</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="sshd">
-        <term><command>sshd</command></term>
-        <listitem>
-          <para>
-            is a daemon that listens for <command>ssh</command> login requests.
-          </para>
-          <indexterm zone="openssh sshd">
-            <primary sortas="b-sshd">sshd</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-add">
-        <term><command>ssh-add</command></term>
-        <listitem>
-          <para>
-            is a tool which adds keys to the <command>ssh-agent</command>.
-          </para>
-          <indexterm zone="openssh ssh-add">
-            <primary sortas="b-ssh-add">ssh-add</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-agent">
-        <term><command>ssh-agent</command></term>
-        <listitem>
-          <para>
-            is an authentication agent that can store private keys.
-          </para>
-          <indexterm zone="openssh ssh-agent">
-            <primary sortas="b-ssh-agent">ssh-agent</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-copy-id">
-        <term><command>ssh-copy-id</command></term>
-        <listitem>
-          <para>
-            is a script that enables logins on remote machine using local keys.
-          </para>
-          <indexterm zone="openssh ssh-copy-id">
-            <primary sortas="b-ssh-copy-id">ssh-copy-id</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-keygen">
-        <term><command>ssh-keygen</command></term>
-        <listitem>
-          <para>
-            is a key generation tool.
-          </para>
-          <indexterm zone="openssh ssh-keygen">
-            <primary sortas="b-ssh-keygen">ssh-keygen</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-keyscan">
-        <term><command>ssh-keyscan</command></term>
-        <listitem>
-          <para>
-            is a utility for gathering public host keys from a number of hosts.
-          </para>
-          <indexterm zone="openssh ssh-keyscan">
-            <primary sortas="b-ssh-keyscan">ssh-keyscan</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-keysign">
-        <term><command>ssh-keysign</command></term>
-        <listitem>
-          <para>
-            is used by <command>ssh</command> to access the local host keys and
-            generate the digital signature required during hostbased
-            authentication with SSH protocol version 2. This program is not
-            normally called directly by the user.
-          </para>
-          <indexterm zone="openssh ssh-keysign">
-            <primary sortas="b-ssh-keysign">ssh-keysign</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ssh-pkcs11-helper">
-        <term><command>ssh-pkcs11-helper</command></term>
-        <listitem>
-          <para>
-            is a <command>ssh-agent</command> helper program for PKCS#11 support.
-          </para>
-          <indexterm zone="openssh ssh-pkcs11-helper">
-            <primary sortas="b-ssh-pkcs11-helper">ssh-pkcs11-helper</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
   </sect2>
+
 </sect1>
