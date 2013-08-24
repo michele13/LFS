@@ -70,16 +70,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;qt/qt-&qt5-version;-bison_fixes-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Qt Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -137,7 +127,11 @@
       following commands:
     </para>
 
-<screen><userinput>patch -Np1 -i ../qt-&qt5-version;-bison_fixes-1.patch &amp;&amp;
+<screen><userinput>sed -i "s:Context\* context}:&amp;\n%lex-param {YYLEX_PARAM}:" \
+     qtwebkit/Source/ThirdParty/ANGLE/src/compiler/glslang.y &amp;&amp;
+
+sed -i -e "/#if/d" -e "/#error/d" -e "/#endif/d" \
+     qtimageformats/config.tests/libmng/libmng.cpp &amp;&amp;
 
 ./configure -prefix /usr                \
             -sysconfdir /etc/xdg        \
@@ -161,8 +155,9 @@
 make</userinput></screen>
 
     <para>
-      Remove references to the build directory from pkg-confg
-      files by running the following command:
+      Remove references to the build directory from the installed
+      <filename class="extension">.pc</filename> files by running
+      the following command:
     </para>
 
 <screen><userinput>find . -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;</userinput></screen>
@@ -298,6 +293,13 @@ EOF</userinput></screen>
     <title>Command Explanations</title>
 
     <para>
+      <command>sed -i "..." ...</command>: First command fixes
+      building with <application>Bison</application> 3.0 and
+      second command fixes detection of
+      <application>libmng</application> 2.0.
+    </para>
+
+    <para>
       <parameter>-confirm-license</parameter>: Accept license
       without prompting user during configuration.
     </para>
@@ -337,13 +339,6 @@ EOF</userinput></screen>
       <application>OpenSSL</application> libraries into
       <application>Qt</application> libraries instead of
       <command>dlopen()</command>-ing them.
-    </para>
-
-    <para>
-      <parameter>-plugin-sql-<replaceable>&lt;driver&gt;</replaceable></parameter>:
-      These switches enable SQL support in the
-      <application>Qt</application> libraries. Available drivers are:
-      ibase, mysql, psql, sqlite and odbc.
     </para>
 
     <para>

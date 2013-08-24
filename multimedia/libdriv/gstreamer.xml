@@ -98,7 +98,11 @@
       commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>sed -i  -e '/YYLEX_PARAM/d'                                       \
+        -e '/parse-param.*scanner/i %lex-param { void *scanner }' \
+            gst/parse/grammar.y &amp;&amp;
+
+./configure --prefix=/usr \
             --libexecdir=/usr/lib \
             --disable-static &amp;&amp;
 make</userinput></screen>
@@ -141,6 +145,11 @@ make</userinput></screen>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para>
+      <command>sed ... gst/parse/grammar.y</command>: This command corrects
+      a problem caused by the most recent version of Bison.
+    </para>
 
     <para>
       <parameter>--libexecdir=/usr/lib</parameter>: This parameter is used
