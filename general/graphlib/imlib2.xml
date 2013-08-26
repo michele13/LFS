@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY imlib2-homepage      "http://www.enlightenment.org/">
+  <!ENTITY imlib2-wikipedia     " ">
   <!ENTITY imlib2-download-http "&sourceforge-repo;/enlightenment/imlib2-&imlib2-version;.tar.bz2">
   <!ENTITY imlib2-download-ftp  " ">
   <!ENTITY imlib2-md5sum        "859e5fede51ec819f4314eee11da3ea5">
@@ -22,122 +24,168 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Imlib2</title>
+    <title>Introduction</title>
 
-    <para><application>Imlib2</application> is a graphics library for fast file
-    loading, saving, rendering and manipulation.</para>
+    <para>
+      Imlib2 is a graphics library for fast file loading, saving, rendering and
+      manipulation.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&imlib2-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&imlib2-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&imlib2-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&imlib2-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &imlib2-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&imlib2-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &imlib2-size;</para>
+        <para>
+          Download (FTP): <ulink url="&imlib2-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &imlib2-buildsize;</para>
+        <para>
+          Download MD5 sum: &imlib2-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &imlib2-time;</para>
+        <para>
+          Download size: &imlib2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &imlib2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &imlib2-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Imlib2 Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="freetype2"/>,
-    <xref linkend="libpng"/>, and
-    <xref linkend="libjpeg"/></para>
+    <para role="required">
+      <xref linkend="freetype2"/>
+    </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended"><xref linkend="x-window-system"/></para>
+    <para role="recommended">
+      <xref linkend="x-window-system"/>
+    </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><xref linkend="libtiff"/>,
-    <xref linkend="giflib"/>, and
-    <ulink url="http://sourceforge.net/projects/mad">libid3tag</ulink></para>
+    <para role="optional">
+      <xref linkend="libpng"/>,
+      <xref linkend="libjpeg"/>,
+      <xref linkend="libtiff"/>,
+      <xref linkend="giflib"/>, and
+      <ulink url="http://sourceforge.net/projects/mad">libid3tag</ulink>
+    </para>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Imlib2</title>
-
-    <para>Install <application>Imlib2</application> by running the
-    following commands:</para>
-
-<screen><userinput>sed -i "/DGifOpen/s:fd:&amp;, NULL:" src/modules/loaders/loader_gif.c &amp;&amp;
-./configure --prefix=/usr --disable-static &amp;&amp;
-make</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /usr/share/doc/imlib2-&imlib2-version; &amp;&amp;
-install -v -m644    doc/{*.gif,index.html} \
-                    /usr/share/doc/imlib2-&imlib2-version;</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+    <title>Installation</title>
 
     <para>
-      <command>sed -i "/DGifOpen/s:fd:&amp;, NULL:" ...</command>:
-      This sed fixes building with recent versions of
-      <application>Giflib</application>.
+      Install Imlib2 by running the following commands:
     </para>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
+<screen><userinput>sed -i "/DGifOpen/s:fd:&amp;, NULL:" src/modules/loaders/loader_gif.c &amp;&amp;
+./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
 
-    <para><parameter>--without-x</parameter>: Add this parameter if you do not
-    have an X Window System installed.</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i "/DGifOpen/s:fd:&amp;, NULL:" ...</command>: This sed
+        fixes building with recent versions of Giflib.
+      </para>
+
+      <para>
+        <option>--without-x</option>: Add this parameter if you do not have an X
+        Window System installed.
+      </para>
+
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_bumpmap">imlib2_bumpmap</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_colorspace">imlib2_colorspace</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2-config">imlib2-config</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_conv">imlib2_conv</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_grab">imlib2_grab</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_poly">imlib2_poly</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_show">imlib2_show</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_test">imlib2_test</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="b-imlib2_view">imlib2_view</primary>
+    </indexterm>
+    <indexterm zone="imlib2">
+      <primary sortas="c-libImlib2.so">libImlib2.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>imlib2_bumpmap, imlib2_colorspace, imlib2-config, imlib2_conv,
-        imlib2_grab, imlib2_poly, imlib2_show, imlib2_test, and imlib2_view</seg>
-        <seg>libImlib2.so and various filters and image loader modules.</seg>
-        <seg>/usr/lib/imlib2, /usr/share/doc/imlib2-&imlib2-version;, and
-        /usr/share/imlib2</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libImlib2">
-        <term><filename class='libraryfile'>libImlib2.so</filename></term>
-        <listitem>
-          <para>provides the functions for programs to deal with various
-          image data formats.</para>
-          <indexterm zone="imlib2 libImlib2">
-            <primary sortas="c-libImlib2">libImlib2.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/imlib2_bumpmap
+/usr/bin/imlib2_colorspace
+/usr/bin/imlib2-config
+/usr/bin/imlib2_conv
+/usr/bin/imlib2_grab
+/usr/bin/imlib2_poly
+/usr/bin/imlib2_show
+/usr/bin/imlib2_test
+/usr/bin/imlib2_view
+/usr/include/Imlib2.h
+/usr/lib/imlib2/
+/usr/lib/libImlib2.so
+/usr/lib/libImlib2.so.1
+/usr/lib/libImlib2.so.&imlib2-version;
+/usr/share/imlib2/</literal></screen>
 
   </sect2>
 
