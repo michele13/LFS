@@ -13,7 +13,7 @@ book with the goals to:
   example programs or testing
 
 * add a bunch of packages I regularly compile but don't want to place the burden
-  of maintainance on the official book editors.
+  of maintenance on the official book editors.
 
 
 This book is periodically generated at: http://igor-zivkovic.from.hr/BLFS/
