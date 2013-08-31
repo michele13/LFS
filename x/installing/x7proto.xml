@@ -4,7 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY x7proto-download-http "http://xorg.freedesktop.org/releases/individual/proto/">
+  <!ENTITY x7proto-homepage      " ">
+  <!ENTITY x7proto-wikipedia     " ">
+  <!ENTITY x7proto-download-http
+  "http://xorg.freedesktop.org/releases/individual/proto/">
   <!ENTITY x7proto-download-ftp  "ftp://ftp.x.org/pub/individual/proto/">
   <!ENTITY x7proto-size          "3.0 MB">
   <!ENTITY x7proto-buildsize     "25 MB">
@@ -94,60 +97,78 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Xorg Protocol Headers</title>
+    <title>Introduction</title>
 
-    <para>The <application>Xorg</application> protocol headers provide the
-    header files required to build the system, and to allow other
-    applications to build against the installed X Window system.</para>
+    <para>
+      The Xorg protocol headers provide the header files required to build the
+      system, and to allow other applications to build against the installed X
+      Window system.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&x7proto-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&x7proto-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&x7proto-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&x7proto-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &x7proto-size;</para>
+        <para>
+          Download (HTTP): <ulink url="&x7proto-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &x7proto-buildsize;</para>
+        <para>
+          Download (FTP): <ulink url="&x7proto-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &x7proto-time;</para>
+        <para>
+          Download size: &x7proto-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &x7proto-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &x7proto-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Xorg Protocol Headers Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"> <xref linkend="util-macros"/></para>
+    <para role="required">
+      <xref linkend="util-macros"/>
+    </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="required"> <xref linkend="sudo"/> and
-    <xref linkend="wget"/></para>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><ulink url="http://xmlgraphics.apache.org/fop/">FOP</ulink>, <xref linkend="xmlto"/> and
-    <ulink url="http://www.methods.co.nz/asciidoc/">AsciiDoc</ulink> (to build
-    additional documentation)</para>
-
-    <note><para>There is a reciprocal dependency with <ulink url="http://xmlgraphics.apache.org/fop/">FOP</ulink>. If
-    you wish to build the documentation, you'll need to re-install the
-    Protocol Headers after the installation is complete and
-    <ulink url="http://xmlgraphics.apache.org/fop/">FOP</ulink> has been installed.</para></note>
+    <para role="required">
+      <xref linkend="sudo"/> and
+      <xref linkend="wget"/>
+    </para>
 
   </sect2>
 
   <sect2>
     <title>Downloading Xorg Protocol Headers</title>
 
-    <para>First, create a list of files to be downloaded. This file will also
-    be used to verify the integrity of the downloads when complete:</para>
+    <para>
+      First, create a list of files to be downloaded. This file will also be
+      used to verify the integrity of the downloads when complete:
+    </para>
 
 <screen><userinput>cat &gt; proto-&xorg-version;.md5 &lt;&lt; "EOF"
-&bigreqsproto-md5sum;  bigreqsproto-&bigreqsproto-version;.tar.bz2
+<literal>&bigreqsproto-md5sum;  bigreqsproto-&bigreqsproto-version;.tar.bz2
 &compositeproto-md5sum;  compositeproto-&compositeproto-version;.tar.bz2
 &damageproto-md5sum;  damageproto-&damageproto-version;.tar.bz2
 &dmxproto-md5sum;  dmxproto-&dmxproto-version;.tar.bz2
@@ -170,11 +191,12 @@
 &xf86driproto-md5sum;  xf86driproto-&xf86driproto-version;.tar.bz2
 &xf86vidmodeproto-md5sum;  xf86vidmodeproto-&xf86vidmodeproto-version;.tar.bz2
 &xineramaproto-md5sum;  xineramaproto-&xineramaproto-version;.tar.bz2
-&xproto-md5sum;  xproto-&xproto-version;.tar.bz2
+&xproto-md5sum;  xproto-&xproto-version;.tar.bz2</literal>
 EOF</userinput></screen>
 
-    <para>To download the needed files using <application>wget</application>,
-    use the following commands:</para>
+    <para>
+      To download the needed files using Wget, use the following commands:
+    </para>
 
 <screen><userinput>mkdir proto &amp;&amp;
 cd proto &amp;&amp;
@@ -185,16 +207,19 @@ md5sum -c ../proto-&xorg-version;.md5</userinput></screen>
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Xorg Protocol Headers</title>
+    <title>Installation</title>
 
     &as_root;
 
-    <para>First, start a subshell that will exit on error:</para>
+    <para>
+      First, start a subshell that will exit on error:
+    </para>
 
 <screen><userinput>bash -e</userinput></screen>
 
-    <para>Install all of the applications by running the following
-    commands:</para>
+    <para>
+      Install all of the packages by running the following commands:
+    </para>
 
 <screen><userinput>for package in $(grep -v '^#' ../proto-&xorg-version;.md5 | awk '{print $2}')
 do
@@ -207,55 +232,76 @@ do
   rm -r $packagedir
 done</userinput></screen>
 
-    <para>Finally, exit the shell that was started earlier:</para>
+    <para>
+      Finally, exit the shell that was started earlier:
+    </para>
 
 <screen><userinput>exit</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <command>bash -e</command>: This command starts a subshell that will
+        exit if any command returns a value other than 0, causing the for loop
+        to exit immediately if an error occurs. This also eliminates the need
+        for the <command>&amp;&amp;</command> construct used elsewhere in the
+        book.
+      </para>
 
-    <para><command>bash -e</command>: This command starts a subshell that will
-    exit if any command returns a value other than 0, causing the for loop to
-    exit immediately if an error occurs. This also eliminates the need for the
-    <command>&amp;&amp;</command> construct used elsewhere in the book.</para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>None</seg>
-        <seg>
-          /usr/include/GL,
-          /usr/include/X11,
-          /usr/share/doc/bigreqsproto,
-          /usr/share/doc/compositeproto,
-          /usr/share/doc/damageproto,
-          /usr/share/doc/dri2proto,
-          /usr/share/doc/fixesproto,
-          /usr/share/doc/fontsproto,
-          /usr/share/doc/kbproto,
-          /usr/share/doc/randrproto,
-          /usr/share/doc/recordproto,
-          /usr/share/doc/renderproto,
-          /usr/share/doc/resourceproto,
-          /usr/share/doc/scrnsaverproto,
-          /usr/share/doc/videoproto,
-          /usr/share/doc/xcmiscproto,
-          /usr/share/doc/xextproto and
-          /usr/share/doc/xproto
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+<screen><literal>/usr/include/GL/
+/usr/include/X11/
+/usr/lib/pkgconfig/bigreqsproto.pc
+/usr/lib/pkgconfig/compositeproto.pc
+/usr/lib/pkgconfig/damageproto.pc
+/usr/lib/pkgconfig/dmxproto.pc
+/usr/lib/pkgconfig/dri2proto.pc
+/usr/lib/pkgconfig/fixesproto.pc
+/usr/lib/pkgconfig/fontsproto.pc
+/usr/lib/pkgconfig/glproto.pc
+/usr/lib/pkgconfig/inputproto.pc
+/usr/lib/pkgconfig/kbproto.pc
+/usr/lib/pkgconfig/randrproto.pc
+/usr/lib/pkgconfig/recordproto.pc
+/usr/lib/pkgconfig/renderproto.pc
+/usr/lib/pkgconfig/resourceproto.pc
+/usr/lib/pkgconfig/scrnsaverproto.pc
+/usr/lib/pkgconfig/videoproto.pc
+/usr/lib/pkgconfig/xcmiscproto.pc
+/usr/lib/pkgconfig/xextproto.pc
+/usr/lib/pkgconfig/xf86bigfontproto.pc
+/usr/lib/pkgconfig/xf86dgaproto.pc
+/usr/lib/pkgconfig/xf86driproto.pc
+/usr/lib/pkgconfig/xf86vidmodeproto.pc
+/usr/lib/pkgconfig/xineramaproto.pc
+/usr/lib/pkgconfig/xproto.pc
+/usr/share/doc/bigreqsproto/
+/usr/share/doc/compositeproto/
+/usr/share/doc/damageproto/
+/usr/share/doc/dri2proto/
+/usr/share/doc/fixesproto/
+/usr/share/doc/fontsproto/
+/usr/share/doc/kbproto/
+/usr/share/doc/randrproto/
+/usr/share/doc/recordproto/
+/usr/share/doc/renderproto/
+/usr/share/doc/resourceproto/
+/usr/share/doc/scrnsaverproto/
+/usr/share/doc/videoproto/
+/usr/share/doc/xcmiscproto/
+/usr/share/doc/xextproto/
+/usr/share/doc/xproto/</literal></screen>
 
   </sect2>
 
