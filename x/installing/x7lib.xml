@@ -4,7 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY x7libs-download-http "http://xorg.freedesktop.org/releases/individual/lib/">
+  <!ENTITY x7libs-homepage      " ">
+  <!ENTITY x7libs-wikipedia     " ">
+  <!ENTITY x7libs-download-http
+  "http://xorg.freedesktop.org/releases/individual/lib/">
   <!ENTITY x7libs-download-ftp  "ftp://ftp.x.org/pub/individual/lib/">
   <!ENTITY x7libs-size          "13 MB">
   <!ENTITY x7libs-buildsize     "280 MB">
@@ -114,53 +117,69 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Xorg Libraries</title>
+    <title>Introduction</title>
 
-    <para>The <application>Xorg</application> libraries provide library
-    routines that are used within all X Window applications.</para>
+    <para>
+      The Xorg libraries provide library routines that are used within all X
+      Window applications.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&x7libs-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&x7libs-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&x7libs-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&x7libs-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &x7libs-size;</para>
+        <para>
+          Download (HTTP): <ulink url="&x7libs-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &x7libs-buildsize;</para>
+        <para>
+          Download (FTP): <ulink url="&x7libs-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &x7libs-time;</para>
+        <para>
+          Download size: &x7libs-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &x7libs-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &x7libs-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Xorg Libraries Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="fontconfig"/>,
-    <xref linkend="xorg7-proto"/>,
-    <xref linkend="libxdmcp"/>, and
-    <xref linkend="libxcb"/></para>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><xref linkend="xmlto"/> with one or more of the
-    following: <ulink url="http://xmlgraphics.apache.org/fop/">FOP</ulink>,
-    <xref linkend="Links"/>,
-    <xref linkend="lynx"/>,
-    and <xref linkend="w3m"/> (to generate additional PDF or text
-    documentation for the libXfont package).</para>
+    <para role="required">
+      <xref linkend="libxcb"/> and
+      <xref linkend="fontconfig"/>
+    </para>
 
   </sect2>
 
   <sect2>
     <title>Downloading Xorg Libraries</title>
 
-    <para>First, create a list of files to be downloaded. This file will also
-    be used to verify the integrity of the downloads when complete:</para>
+    <para>
+      First, create a list of files to be downloaded. This file will also be
+      used to verify the integrity of the downloads when complete:
+    </para>
 
 <screen><userinput>cat &gt; lib-&xorg-version;.md5 &lt;&lt; "EOF"
 <literal>&xtrans-md5sum;  xtrans-&xtrans-version;.tar.bz2
@@ -196,8 +215,9 @@
 &libxkbfile-md5sum;  libxkbfile-&libxkbfile-version;.tar.bz2</literal>
 EOF</userinput></screen>
 
-    <para>To download the needed files using <application>wget</application>,
-    use the following commands:</para>
+    <para>
+      To download the needed files using Wget, use the following commands:
+    </para>
 
 <screen><userinput>mkdir lib &amp;&amp;
 cd lib &amp;&amp;
@@ -208,16 +228,19 @@ md5sum -c ../lib-&xorg-version;.md5</userinput></screen>
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Xorg Libraries</title>
+    <title>Installation</title>
 
-&as_root;
+    &as_root;
 
-    <para>First, start a subshell that will exit on error:</para>
+    <para>
+      First, start a subshell that will exit on error:
+    </para>
 
 <screen><userinput>bash -e</userinput></screen>
 
-    <para>Install all of the packages by running the following
-    commands:</para>
+    <para>
+      Install all of the packages by running the following commands:
+    </para>
 
 <screen><userinput>for package in $(grep -v '^#' ../lib-&xorg-version;.md5 | awk '{print $2}')
 do
@@ -225,9 +248,6 @@ do
   tar -xf $package
   pushd $packagedir
   case $packagedir in
-    libXfont-[0-9]* )
-      ./configure $XORG_CONFIG --disable-devel-docs
-    ;;
     libXt-[0-9]* )
       ./configure $XORG_CONFIG \
                   --with-appdefaultdir=/etc/X11/app-defaults
@@ -243,440 +263,132 @@ do
   as_root /sbin/ldconfig
 done</userinput></screen>
 
-    <para>Finally, exit the shell that was started earlier:</para>
+    <para>
+      Finally, exit the shell that was started earlier:
+    </para>
 
 <screen><userinput>exit</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><parameter>--with-fop</parameter>: Use <ulink url="http://xmlgraphics.apache.org/fop/">FOP</ulink> to
-    generate PDF documentation (only for the libXfont package).</para>
-
-    <para><parameter>--disable-devel-docs</parameter>: Disable generation of
-    text documentation in the libXfont package if
-    <xref linkend="xmlto"/> is installed without a text browser. Omit
-    this parameter (or the entire <command>case</command> statement) if a text
-    browser is installed.</para>
-  </sect2>
-
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="b-cxpm">cxpm</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="b-sxpm">sxpm</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libdmx.so">libdmx.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libfontenc.so">libfontenc.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libFS.so">libFS.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libICE.so">libICE.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libpciaccess.so">libpciaccess.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libSM.so">libSM.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libX11.so">libX11.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXaw6.so">libXaw6.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXaw7.so">libXaw7.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXaw.so">libXaw.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXcomposite.so">libXcomposite.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXcursor.so">libXcursor.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXdamage.so">libXdamage.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXext.so">libXext.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXfixes.so">libXfixes.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXfont.so">libXfont.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXft.so">libXft.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXinerama.so">libXinerama.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXi.so">libXi.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libxkbfile.so">libxkbfile.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXmu.so">libXmu.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXmuu.so">libXmuu.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXpm.so">libXpm.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXrandr.so">libXrandr.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXrender.so">libXrender.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXRes.so">libXRes.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXss.so">libXss.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXt.so">libXt.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXtst.so">libXtst.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXvMC.so">libXvMC.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXvMCW.so">libXvMCW.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXv.so">libXv.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXxf86dga.so">libXxf86dga.so</primary>
+    </indexterm>
+    <indexterm zone="xorg7-lib">
+      <primary sortas="c-libXxf86vm.so">libXxf86vm.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          cxpm and sxpm
-        </seg>
-        <seg>
-          libdmx.so, libfontenc.so, libFS.so, libICE.so,
-          libpciaccess.so, libSM.so, libX11.so, libXaw6.so,
-          libXaw7.so, libXaw.so, libXcomposite.so,
-          libXcursor.so, libXdamage.so, libXext.so,
-          libXfixes.so, libXfont.so, libXft.so, libXinerama.so,
-          libXi.so, libxkbfile.so, libXmu.so, libXmuu.so,
-          libXpm.so, libXrandr.so, libXrender.so, libXRes.so,
-          libXss.so, libXt.so, libXtst.so, libXvMC.so,
-          libXvMCW.so, libXv.so, libXxf86dga.so and
-          libXxf86vm.so
-        </seg>
-        <seg>
-          /usr/share/doc/libFS,
-          /usr/share/doc/libICE,
-          /usr/share/doc/libSM,
-          /usr/share/doc/libX11,
-          /usr/share/doc/libXaw,
-          /usr/share/doc/libXext,
-          /usr/share/doc/libXi,
-          /usr/share/doc/libXmu,
-          /usr/share/doc/libXrender,
-          /usr/share/doc/libXt,
-          /usr/share/doc/libXtst,
-          /usr/share/doc/libXvMC,
-          /usr/share/doc/xtrans and
-          /usr/share/X11/locale
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="cxpm">
-        <term><command>cxpm</command></term>
-        <listitem>
-          <para>checks the format of an XPM file.</para>
-          <indexterm zone="xorg7-lib cxpm">
-            <primary sortas="b-cxpm">cxpm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="sxpm">
-        <term><command>sxpm</command></term>
-        <listitem>
-          <para>shows an XPM file and/or converts XPM 1 or 2 files to
-          XPM 3.</para>
-          <indexterm zone="xorg7-lib sxpm">
-            <primary sortas="b-sxpm">sxpm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libdmx">
-        <term><filename class="libraryfile">libdmx.so</filename></term>
-        <listitem>
-          <para>is the X Window System DMX (Distributed Multihead X) extension
-          library.</para>
-          <indexterm zone="xorg7-lib libdmx">
-            <primary sortas="c-libdmx">libdmx.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libfontenc">
-        <term><filename class="libraryfile">libfontenc.so</filename></term>
-        <listitem>
-          <para>is the X11 font encoding library.</para>
-          <indexterm zone="xorg7-lib libfontenc">
-            <primary sortas="c-libfontenc">libfontenc.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libFS">
-        <term><filename class="libraryfile">libFS.so</filename></term>
-        <listitem>
-          <para>is the library interface to the X Font Server.</para>
-          <indexterm zone="xorg7-lib libFS">
-            <primary sortas="c-libFS">libFS.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libICE">
-        <term><filename class="libraryfile">libICE.so</filename></term>
-        <listitem>
-          <para>is the X Inter Client Exchange Library.</para>
-          <indexterm zone="xorg7-lib libICE">
-            <primary sortas="c-libICE">libICE.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libpciaccess">
-        <term><filename class="libraryfile">libpciaccess.so</filename></term>
-        <listitem>
-          <para>is the generic PCI Access library for X.</para>
-          <indexterm zone="xorg7-lib libpciaccess">
-            <primary sortas="c-libpciaccess">libpciaccess.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libSM">
-        <term><filename class="libraryfile">libSM.so</filename></term>
-        <listitem>
-          <para>is the X Session Management Library.</para>
-          <indexterm zone="xorg7-lib libSM">
-            <primary sortas="c-libSM">libSM.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libX11">
-        <term><filename class="libraryfile">libX11.so</filename></term>
-        <listitem>
-          <para>is the Xlib Library.</para>
-          <indexterm zone="xorg7-lib libX11">
-            <primary sortas="c-libX11">libX11.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXaw6">
-        <term><filename class="libraryfile">libXaw6.so</filename></term>
-        <listitem>
-          <para>is the X Athena Widgets Library, version 6.</para>
-          <indexterm zone="xorg7-lib libXaw6">
-            <primary sortas="c-libXaw6">libXaw6.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXaw7">
-        <term><filename class="libraryfile">libXaw7.so</filename></term>
-        <listitem>
-          <para>is the X Athena Widgets Library, version 7.</para>
-          <indexterm zone="xorg7-lib libXaw7">
-            <primary sortas="c-libXaw7">libXaw7.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXaw">
-        <term><filename class="libraryfile">libXaw.so</filename></term>
-        <listitem>
-          <para>are symbolic links to the current X Athena Widgets Library,
-          version 7.</para>
-          <indexterm zone="xorg7-lib libXaw">
-            <primary sortas="c-libXaw">libXaw.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXcomposite">
-        <term><filename class="libraryfile">libXcomposite.so</filename></term>
-        <listitem>
-          <para>is the X Composite Library.</para>
-          <indexterm zone="xorg7-lib libXcomposite">
-            <primary sortas="c-libXcomposite">libXcomposite.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXcursor">
-        <term><filename class="libraryfile">libXcursor.so</filename></term>
-        <listitem>
-          <para>is the X Cursor management library.</para>
-          <indexterm zone="xorg7-lib libXcursor">
-            <primary sortas="c-libXcursor">libXcursor.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXdamage">
-        <term><filename class="libraryfile">libXdamage.so</filename></term>
-        <listitem>
-          <para>is the X Damage Library.</para>
-          <indexterm zone="xorg7-lib libXdamage">
-            <primary sortas="c-libXdamage">libXdamage.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXext">
-        <term><filename class="libraryfile">libXext.so</filename></term>
-        <listitem>
-          <para>is the Misc X Extension Library.</para>
-          <indexterm zone="xorg7-lib libXext">
-            <primary sortas="c-libXext">libXext.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXfixes">
-        <term><filename class="libraryfile">libXfixes.so</filename></term>
-        <listitem>
-          <para>provides augmented versions of core protocol
-          requests.</para>
-          <indexterm zone="xorg7-lib libXfixes">
-            <primary sortas="c-libXfixes">libXfixes.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXfont">
-        <term><filename class="libraryfile">libXfont.so</filename></term>
-        <listitem>
-          <para>is the X font library.</para>
-          <indexterm zone="xorg7-lib libXfont">
-            <primary sortas="c-libXfont">libXfont.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXft">
-        <term><filename class="libraryfile">libXft.so</filename></term>
-        <listitem>
-          <para>is the X FreeType interface library.</para>
-          <indexterm zone="xorg7-lib libXft">
-            <primary sortas="c-libXft">libXft.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXinerama">
-        <term><filename class="libraryfile">libXinerama.so</filename></term>
-        <listitem>
-          <para>is the Xinerama Library.</para>
-          <indexterm zone="xorg7-lib libXinerama">
-            <primary sortas="c-libXinerama">libXinerama.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXi">
-        <term><filename class="libraryfile">libXi.so</filename></term>
-        <listitem>
-          <para>is the X Input Extension Library.</para>
-          <indexterm zone="xorg7-lib libXi">
-            <primary sortas="c-libXi">libXi.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libxkbfile">
-        <term><filename class="libraryfile">libxkbfile.so</filename></term>
-        <listitem>
-          <para>is the xkbfile Library.</para>
-          <indexterm zone="xorg7-lib libxkbfile">
-            <primary sortas="c-libxkbfile">libxkbfile.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXmu">
-        <term><filename class="libraryfile">libXmu.so</filename></term>
-        <listitem>
-          <para>is the X interface library for miscellaneous utilities not
-          part of the Xlib standard.</para>
-          <indexterm zone="xorg7-lib libXmu">
-            <primary sortas="c-libXmu">libXmu.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXmuu">
-        <term><filename class="libraryfile">libXmuu.so</filename></term>
-        <listitem>
-          <para>is the Mini Xmu Library.</para>
-          <indexterm zone="xorg7-lib libXmuu">
-            <primary sortas="c-libXmuu">libXmuu.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXpm">
-        <term><filename class="libraryfile">libXpm.so</filename></term>
-        <listitem>
-          <para>is the X Pixmap Library.</para>
-          <indexterm zone="xorg7-lib libXpm">
-            <primary sortas="c-libXpm">libXpm.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXrandr">
-        <term><filename class="libraryfile">libXrandr.so</filename></term>
-        <listitem>
-          <para>is the X Resize, Rotate and Reflection extension library.</para>
-          <indexterm zone="xorg7-lib libXrandr">
-            <primary sortas="c-libXrandr">libXrandr.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXrender">
-        <term><filename class="libraryfile">libXrender.so</filename></term>
-        <listitem>
-          <para>is the X Render Library.</para>
-          <indexterm zone="xorg7-lib libXrender">
-            <primary sortas="c-libXrender">libXrender.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXRes">
-        <term><filename class="libraryfile">libXRes.so</filename></term>
-        <listitem>
-          <para>is the X-Resource extension client library.</para>
-          <indexterm zone="xorg7-lib libXRes">
-            <primary sortas="c-libXRes">libXRes.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXss">
-        <term><filename class="libraryfile">libXss.so</filename></term>
-        <listitem>
-          <para>is the X11 Screen Saver extension client library.</para>
-          <indexterm zone="xorg7-lib libXss">
-            <primary sortas="c-libXss">libXss.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXt">
-        <term><filename class="libraryfile">libXt.so</filename></term>
-        <listitem>
-          <para>is the X Toolkit Library.</para>
-          <indexterm zone="xorg7-lib libXt">
-            <primary sortas="c-libXt">libXt.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXtst">
-        <term><filename class="libraryfile">libXtst.so</filename></term>
-        <listitem>
-          <para>is the Xtst Library.</para>
-          <indexterm zone="xorg7-lib libXtst">
-            <primary sortas="c-libXtst">libXtst.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXvMC">
-        <term><filename class="libraryfile">libXvMC.so</filename></term>
-        <listitem>
-          <para>is the X-Video Motion Compensation Library.</para>
-          <indexterm zone="xorg7-lib libXvMC">
-            <primary sortas="c-libXvMC">libXvMC.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXvMCW">
-        <term><filename class="libraryfile">libXvMCW.so</filename></term>
-        <listitem>
-          <para>is the XvMC Wrapper including the Nonstandard VLD
-          extension.</para>
-          <indexterm zone="xorg7-lib libXvMCW">
-            <primary sortas="c-libXvMCW">libXvMCW.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXv">
-        <term><filename class="libraryfile">libXv.so</filename></term>
-        <listitem>
-          <para>is the X Window System video extension library.</para>
-          <indexterm zone="xorg7-lib libXv">
-            <primary sortas="c-libXv">libXv.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXxf86dga">
-        <term><filename class="libraryfile">libXxf86dga.so</filename></term>
-        <listitem>
-          <para>is the client library for the XFree86-DGA extension.</para>
-          <indexterm zone="xorg7-lib libXxf86dga">
-            <primary sortas="c-libXxf86dga">libXxf86dga.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libXxf86vm">
-        <term><filename class="libraryfile">libXxf86vm.so</filename></term>
-        <listitem>
-          <para>is the client library for the XFree86-VidMode X extension.</para>
-          <indexterm zone="xorg7-lib libXxf86vm">
-            <primary sortas="c-libXxf86vm">libXxf86vm.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>
+</literal></screen>
 
   </sect2>
 
