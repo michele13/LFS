@@ -4,8 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY elfutils-homepage      "https://fedorahosted.org/elfutils/">
+  <!ENTITY elfutils-wikipedia     " ">
   <!ENTITY elfutils-download-http
-          "https://fedorahosted.org/releases/e/l/elfutils/&elfutils-version;/elfutils-&elfutils-version;.tar.bz2">
+  "https://fedorahosted.org/releases/e/l/elfutils/&elfutils-version;/elfutils-&elfutils-version;.tar.bz2">
   <!ENTITY elfutils-download-ftp  " ">
   <!ENTITY elfutils-md5sum        "f3b5cbb63b0757f571c6cc109df4c55b">
   <!ENTITY elfutils-size          "2.6 MB">
@@ -23,15 +25,25 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to elfutils</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>elfutils</application> package contains set of utilities
-      and libraries for handling ELF (Executable and Linkable Format) files.
+      The elfutils package contains set of utilities and libraries for handling
+      ELF (Executable and Linkable Format) files.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&elfutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&elfutils-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&elfutils-download-http;"/>
@@ -67,20 +79,16 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of elfutils</title>
+    <title>Installation</title>
 
     <para>
-      Install <application>elfutils</application> by running the following
-      commands:
+      Install elfutils by running the following commands:
     </para>
 
 <!-- don't disable static libs, disable-static switch doesn't work anyways -->
-<screen><userinput>./configure --prefix=/usr --program-prefix="eu-" &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --program-prefix="eu-" &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -88,42 +96,127 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--program-prefix="eu-"</parameter>: This switch renames
+        installed programs to avoid conflict with Binutils programs installed in
+        LFS.
+      </para>
 
-    <para>
-      <parameter>--program-prefix="eu-"</parameter>: This switch renames installed
-      programs to avoid conflict with <application>Binutils</application> programs
-      installed in LFS.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-addr2line">eu-addr2line</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-ar">eu-ar</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-elfcmp">eu-elfcmp</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-elflint">eu-elflint</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-findtextrel">eu-findtextrel</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-ld">eu-ld</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-make-debug-archive">eu-make-debug-archive</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-nm">eu-nm</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-objdump">eu-objdump</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-ranlib">eu-ranlib</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-readelf">eu-readelf</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-size">eu-size</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-strings">eu-strings</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-strip">eu-strip</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="b-eu-unstrip">eu-unstrip</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libasm.a">libasm.a</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libasm.so">libasm.so</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libdw.a">libdw.a</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libdw.so">libdw.so</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libebl.a">libebl.a</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libelf.a">libelf.a</primary>
+    </indexterm>
+    <indexterm zone="elfutils">
+      <primary sortas="c-libelf.so">libelf.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          eu-addr2line, eu-ar, eu-elfcmp, eu-elflint, eu-findtextrel, eu-ld,
-          eu-make-debug-archive, eu-nm, eu-objdump, eu-ranlib, eu-readelf,
-          eu-size, eu-strings, eu-strip and eu-unstrip
-        </seg>
-        <seg>
-          libasm.{a,so}, libdw.{a,so}, libebl.a and libelf.{a,so}
-        </seg>
-        <seg>
-          /usr/include/elfutils and
-          /usr/lib/elfutils
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/eu-addr2line
+/usr/bin/eu-ar
+/usr/bin/eu-elfcmp
+/usr/bin/eu-elflint
+/usr/bin/eu-findtextrel
+/usr/bin/eu-ld
+/usr/bin/eu-make-debug-archive
+/usr/bin/eu-nm
+/usr/bin/eu-objdump
+/usr/bin/eu-ranlib
+/usr/bin/eu-readelf
+/usr/bin/eu-size
+/usr/bin/eu-strings
+/usr/bin/eu-strip
+/usr/bin/eu-unstrip
+/usr/include/dwarf.h
+/usr/include/elfutils/
+/usr/include/gelf.h
+/usr/include/libelf.h
+/usr/include/nlist.h
+/usr/lib/elfutils/
+/usr/lib/libasm-0.156.so
+/usr/lib/libasm.a
+/usr/lib/libasm.so
+/usr/lib/libasm.so.1
+/usr/lib/libdw-0.156.so
+/usr/lib/libdw.a
+/usr/lib/libdw.so
+/usr/lib/libdw.so.1
+/usr/lib/libebl.a
+/usr/lib/libelf-0.156.so
+/usr/lib/libelf.a
+/usr/lib/libelf.so
+/usr/lib/libelf.so.1</literal></screen>
 
   </sect2>
 
