@@ -4,7 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY xcb-util-download-http "http://xcb.freedesktop.org/dist/xcb-util-&xcb-util-version;.tar.bz2">
+  <!ENTITY xcb-util-homepage      "http://xcb.freedesktop.org/XcbUtil/">
+  <!ENTITY xcb-util-wikipedia     " ">
+  <!ENTITY xcb-util-download-http
+  "http://xcb.freedesktop.org/dist/xcb-util-&xcb-util-version;.tar.bz2">
   <!ENTITY xcb-util-download-ftp  " ">
   <!ENTITY xcb-util-md5sum        "01dcc7a16d5020530552712710646ea2">
   <!ENTITY xcb-util-size          "284 KB">
@@ -22,17 +25,26 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to xcb-util</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>xcb-util</application> package provides additional
-      extensions to the <application>XCB</application> library, many that were
-      previously found in <application>Xlib</application>, but are not part of
-      core X protocol.
+      The xcb-util package provides additional extensions to the XCB library,
+      many that were previously found in Xlib, but are not part of core X
+      protocol.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&xcb-util-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&xcb-util-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&xcb-util-download-http;"/>
@@ -65,7 +77,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">xcb-util Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -75,17 +87,14 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of xcb-util</title>
+    <title>Installation</title>
 
     <para>
-      Install <application>xcb-util</application> by running the following
-      commands:
+      Install xcb-util by running the following commands:
     </para>
 
 <screen><userinput>./configure $XORG_CONFIG &amp;&amp;
 make</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -98,36 +107,25 @@ make</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="xcb-util">
+      <primary sortas="c-libxcb-util.so">libxcb-util.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>libxcb-util.so</seg>
-        <seg>None</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libxcb-util">
-        <term><filename class='libraryfile'>libxcb-util.so</filename></term>
-        <listitem>
-          <para>
-            Provides utility functions for other XCB utilities.
-          </para>
-          <indexterm zone="xcb-util libxcb-util">
-            <primary sortas="c-libxcb-util">libxcb-util.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/xcb/xcb_atom.h
+/usr/include/xcb/xcb_aux.h
+/usr/include/xcb/xcb_event.h
+/usr/include/xcb/xcb_util.h
+/usr/lib/libxcb-util.so
+/usr/lib/libxcb-util.so.1
+/usr/lib/libxcb-util.so.1.0.0
+/usr/lib/pkgconfig/xcb-atom.pc
+/usr/lib/pkgconfig/xcb-aux.pc
+/usr/lib/pkgconfig/xcb-event.pc
+/usr/lib/pkgconfig/xcb-util.pc</literal></screen>
 
   </sect2>
 
