@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY x7apps-homepage      " ">
+  <!ENTITY x7apps-wikipedia     " ">
   <!ENTITY x7apps-download-http "http://xorg.freedesktop.org/releases/individual/app/">
   <!ENTITY x7apps-download-ftp  "ftp://ftp.x.org/pub/individual/app/">
   <!ENTITY x7apps-size          "4.9 MB">
@@ -136,38 +138,59 @@
   </indexterm>
 
   <sect2 role="package">
-    <title>Introduction to Xorg Applications</title>
+    <title>Introduction</title>
 
-    <para>The <application>Xorg</application> applications provide the
-    expected applications available in previous X Window
-    implementations.</para>
+    <para>
+      The Xorg applications provide the expected applications available in
+      previous X Window implementations.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&x7apps-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&x7apps-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&x7apps-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&x7apps-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &x7apps-size;</para>
+        <para>
+          Download (HTTP): <ulink url="&x7apps-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &x7apps-buildsize;</para>
+        <para>
+          Download (FTP): <ulink url="&x7apps-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &x7apps-time;</para>
+        <para>
+          Download size: &x7apps-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &x7apps-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &x7apps-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Xorg Applications Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
       <xref linkend="xcb-util"/>,
-      <xref linkend="xbitmaps"/>,
-      <xref linkend="mesalib"/>, and
+      <xref linkend="mesalib"/>,
+      <xref linkend="xbitmaps"/>, and
       <xref linkend="libpng"/>
    </para>
 
@@ -176,8 +199,10 @@
   <sect2>
     <title>Downloading Xorg Applications</title>
 
-    <para>First, create a list of files to be downloaded. This file will also
-    be used to verify the integrity of the downloads when complete:</para>
+    <para>
+      First, create a list of files to be downloaded. This file will also be
+      used to verify the integrity of the downloads when complete:
+    </para>
 
 <screen><userinput>cat &gt; app-&xorg-version;.md5 &lt;&lt; "EOF"
 <literal>&bdftopcf-md5sum;  bdftopcf-&bdftopcf-version;.tar.bz2
@@ -220,8 +245,9 @@
 &xwud-md5sum;  xwud-&xwud-version;.tar.bz2</literal>
 EOF</userinput></screen>
 
-    <para>To download the needed files using <application>wget</application>,
-    use the following commands:</para>
+    <para>
+      To download the needed files using Wget, use the following commands:
+    </para>
 
 <screen><userinput>mkdir app &amp;&amp;
 cd app &amp;&amp;
@@ -232,16 +258,19 @@ md5sum -c ../app-&xorg-version;.md5</userinput></screen>
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Xorg Applications</title>
+    <title>Installation</title>
 
-&as_root;
+    &as_root;
 
-    <para>First, start a subshell that will exit on error:</para>
+    <para>
+      First, start a subshell that will exit on error:
+    </para>
 
 <screen><userinput>bash -e</userinput></screen>
 
-    <para>Install all of the packages by running the following
-    commands:</para>
+    <para>
+      Install all of the packages by running the following commands:
+    </para>
 
 <screen><userinput>for package in $(grep -v '^#' ../app-&xorg-version;.md5 | awk '{print $2}')
 do
@@ -274,7 +303,9 @@ do
   rm -rf $packagedir
 done</userinput></screen>
 
-    <para>Finally, exit the shell that was started earlier:</para>
+    <para>
+      Finally, exit the shell that was started earlier:
+    </para>
 
 <screen><userinput>exit</userinput></screen>
 
@@ -283,457 +314,229 @@ done</userinput></screen>
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-bdftopcf">bdftopcf</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-iceauth">iceauth</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-luit">luit</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-mkfontdir">mkfontdir</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-mkfontscale">mkfontscale</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-sessreg">sessreg</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-setxkbmap">setxkbmap</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-smproxy">smproxy</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-x11perf">x11perf</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-x11perfcomp">x11perfcomp</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xauth">xauth</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xbacklight">xbacklight</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xcmsdb">xcmsdb</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xcursorgen">xcursorgen</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xdpr">xdpr</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xdpyinfo">xdpyinfo</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xdriinfo">xdriinfo</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xev">xev</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xgamma">xgamma</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xhost">xhost</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xinput">xinput</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkbbell">xkbbell</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkbcomp">xkbcomp</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkbevd">xkbevd</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkbvleds">xkbvleds</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkbwatch">xkbwatch</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkeystone">xkeystone</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xkill">xkill</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xlsatoms">xlsatoms</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xlsclients">xlsclients</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xmessage">xmessage</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xmodmap">xmodmap</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xpr">xpr</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xprop">xprop</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xrandr">xrandr</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xrdb">xrdb</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xrefresh">xrefresh</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xset">xset</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xsetroot">xsetroot</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xvinfo">xvinfo</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xwd">xwd</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xwininfo">xwininfo</primary>
+    </indexterm>
+    <indexterm zone="xorg7-app">
+      <primary sortas="b-xwud">xwud</primary>
+    </indexterm>
 
-      <seglistitem>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-        <seg>bdftopcf, iceauth, luit, mkfontdir, mkfontscale, sessreg,
-        setxkbmap, smproxy, x11perf, x11perfcomp, xauth, xbacklight,
-        xcmsdb, xcursorgen, xdpr, xdpyinfo, xdriinfo, xev, xgamma, xhost,
-        xkbbell, xkbcomp, xkbevd, xkbvleds, xkbwatch, xkill, xlsatoms,
-        xlsclients, xmessage, xmodmap, xpr, xprop, xrandr, xrdb, xrefresh,
-        xset, xsetroot, xvinfo, xwd, xwininfo, and xwud</seg>
-        <seg>None</seg>
-        <seg>None</seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="appres-x7">
-        <term><command>appres</command></term>
-        <listitem>
-          <para>lists the X application resource database.</para>
-          <indexterm zone="xorg7-app appres-x7">
-            <primary sortas="b-appres">appres</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="bdftopcf-x7">
-        <term><command>bdftopcf</command></term>
-        <listitem>
-          <para>converts an X font from Bitmap Distribution Format to Portable
-          Compiled Format.</para>
-          <indexterm zone="xorg7-app bdftopcf-x7">
-            <primary sortas="b-bdftopcf">bdftopcf</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="iceauth-x7">
-        <term><command>iceauth</command></term>
-        <listitem>
-          <para>is the ICE authority file utility.</para>
-          <indexterm zone="xorg7-app iceauth-x7">
-            <primary sortas="b-iceauth">iceauth</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="luit-x7">
-        <term><command>luit</command></term>
-        <listitem>
-          <para>provides locale and ISO 2022 support for Unicode
-          terminals.</para>
-          <indexterm zone="xorg7-app luit-x7">
-            <primary sortas="b-luit">luit</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="mkfontdir-x7">
-        <term><command>mkfontdir</command></term>
-        <listitem>
-          <para>creates an index of X font files in a directory.</para>
-          <indexterm zone="xorg7-app mkfontdir-x7">
-            <primary sortas="b-mkfontdir">mkfontdir</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="mkfontscale-x7">
-        <term><command>mkfontscale</command></term>
-        <listitem>
-          <para>creates an index of scalable font files for X.</para>
-          <indexterm zone="xorg7-app mkfontscale-x7">
-            <primary sortas="b-mkfontscale">mkfontscale</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="sessreg-x7">
-        <term><command>sessreg</command></term>
-        <listitem>
-          <para>manages utmp/wtmp entries for non-init clients.</para>
-          <indexterm zone="xorg7-app sessreg-x7">
-            <primary sortas="b-sessreg">sessreg</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="setxkbmap-x7">
-        <term><command>setxkbmap</command></term>
-        <listitem>
-          <para>sets the keyboard using the X Keyboard Extension.</para>
-          <indexterm zone="xorg7-app setxkbmap-x7">
-            <primary sortas="b-setxkbmap">setxkbmap</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="smproxy-x7">
-        <term><command>smproxy</command></term>
-        <listitem>
-          <para>is the Session Manager Proxy.</para>
-          <indexterm zone="xorg7-app smproxy-x7">
-            <primary sortas="b-smproxy">smproxy</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="x11perf-x7">
-        <term><command>x11perf</command></term>
-        <listitem>
-          <para>is an X11 server performance test program.</para>
-          <indexterm zone="xorg7-app x11perf-x7">
-            <primary sortas="b-x11perf">x11perf</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="x11perfcomp-x7">
-        <term><command>x11perfcomp</command></term>
-        <listitem>
-          <para>is an X11 server performance comparison program.</para>
-          <indexterm zone="xorg7-app x11perfcomp-x7">
-            <primary sortas="b-x11perfcomp">x11perfcomp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xauth-x7">
-        <term><command>xauth</command></term>
-        <listitem>
-          <para>is the X authority file utility.</para>
-          <indexterm zone="xorg7-app xauth-x7">
-            <primary sortas="b-xauth">xauth</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xbacklight-x7">
-        <term><command>xbacklight</command></term>
-        <listitem>
-          <para>adjusts backlight brightness using RandR extension.</para>
-          <indexterm zone="xorg7-app xbacklight-x7">
-            <primary sortas="b-xbacklight">xbacklight</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xcmsdb-x7">
-        <term><command>xcmsdb</command></term>
-        <listitem>
-          <para>is the Device Color Characterization utility for the X
-          Color Management System.</para>
-          <indexterm zone="xorg7-app xcmsdb-x7">
-            <primary sortas="b-xcmsdb">xcmsdb</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xcursorgen-x7">
-        <term><command>xcursorgen</command></term>
-        <listitem>
-          <para>creates an X cursor file from a collection of PNG
-          images.</para>
-          <indexterm zone="xorg7-app xcursorgen-x7">
-            <primary sortas="b-xcursorgen">xcursorgen</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xdpr-x7">
-        <term><command>xdpr</command></term>
-        <listitem>
-          <para>dumps an X window directly to a printer.</para>
-          <indexterm zone="xorg7-app xdpr-x7">
-            <primary sortas="b-xdpr">xdpr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xdpyinfo-x7">
-        <term><command>xdpyinfo</command></term>
-        <listitem>
-          <para>is a display information utility for X.</para>
-          <indexterm zone="xorg7-app xdpyinfo-x7">
-            <primary sortas="b-xdpyinfo">xdpyinfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xdriinfo-x7">
-        <term><command>xdriinfo</command></term>
-        <listitem>
-          <para>queries configuration information of DRI drivers.</para>
-          <indexterm zone="xorg7-app xdriinfo-x7">
-            <primary sortas="b-xdriinfo">xdriinfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xev-x7">
-        <term><command>xev</command></term>
-        <listitem>
-          <para>prints contents of X events.</para>
-          <indexterm zone="xorg7-app xev-x7">
-            <primary sortas="b-xev">xev</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xgamma-x7">
-        <term><command>xgamma</command></term>
-        <listitem>
-          <para>alters a monitor's gamma correction through the X
-          server.</para>
-          <indexterm zone="xorg7-app xgamma-x7">
-            <primary sortas="b-xgamma">xgamma</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xhost-x7">
-        <term><command>xhost</command></term>
-        <listitem>
-          <para>is a server access control program for X.</para>
-          <indexterm zone="xorg7-app xhost-x7">
-            <primary sortas="b-xhost">xhost</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkbbell-x7">
-        <term><command>xkbbell</command></term>
-        <listitem>
-          <para>is an XKB utility program that raises a bell event.</para>
-          <indexterm zone="xorg7-app xkbbell-x7">
-            <primary sortas="b-xkbbell">xkbbell</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkbcomp-x7">
-        <term><command>xkbcomp</command></term>
-        <listitem>
-          <para>compiles an XKB keyboard description.</para>
-          <indexterm zone="xorg7-app xkbcomp-x7">
-            <primary sortas="b-xkbcomp">xkbcomp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkbevd-x7">
-        <term><command>xkbevd</command></term>
-        <listitem>
-          <para>is the XKB event daemon.</para>
-          <indexterm zone="xorg7-app xkbevd-x7">
-            <primary sortas="b-xkbevd">xkbevd</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkbvleds-x7">
-        <term><command>xkbvleds</command></term>
-        <listitem>
-          <para>shows the XKB status of keyboard LEDs.</para>
-          <indexterm zone="xorg7-app xkbvleds-x7">
-            <primary sortas="b-xkbvleds">xkbvleds</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkbwatch-x7">
-        <term><command>xkbwatch</command></term>
-        <listitem>
-          <para>monitors modifier keys and LEDs.</para>
-          <indexterm zone="xorg7-app xkbwatch-x7">
-            <primary sortas="b-xkbwatch">xkbwatch</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xkill-x7">
-        <term><command>xkill</command></term>
-        <listitem>
-          <para>kills a client by its X resource.</para>
-          <indexterm zone="xorg7-app xkill-x7">
-            <primary sortas="b-xkill">xkill</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xlsatoms-x7">
-        <term><command>xlsatoms</command></term>
-        <listitem>
-          <para>lists interned atoms defined on the server.</para>
-          <indexterm zone="xorg7-app xlsatoms-x7">
-            <primary sortas="b-xlsatoms">xlsatoms</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xlsclients-x7">
-        <term><command>xlsclients</command></term>
-        <listitem>
-          <para>lists client applications running on a display.</para>
-          <indexterm zone="xorg7-app xlsclients-x7">
-            <primary sortas="b-xlsclients">xlsclients</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xmessage-x7">
-        <term><command>xmessage</command></term>
-        <listitem>
-          <para>displays a message or query in a window.</para>
-          <indexterm zone="xorg7-app xmessage-x7">
-            <primary sortas="b-xmessage">xmessage</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xmodmap-x7">
-        <term><command>xmodmap</command></term>
-        <listitem>
-          <para>is a utility for modifying keymaps and pointer button
-          mappings in X.</para>
-          <indexterm zone="xorg7-app xmodmap-x7">
-            <primary sortas="b-xmodmap">xmodmap</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xpr-x7">
-        <term><command>xpr</command></term>
-        <listitem>
-          <para>prints an X window dump.</para>
-          <indexterm zone="xorg7-app xpr-x7">
-            <primary sortas="b-xpr">xpr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xprop-x7">
-        <term><command>xprop</command></term>
-        <listitem>
-          <para>is a property displayer for X.</para>
-          <indexterm zone="xorg7-app xprop-x7">
-            <primary sortas="b-xprop">xprop</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xrandr-x7">
-        <term><command>xrandr</command></term>
-        <listitem>
-          <para>is a primitive command line interface to RandR
-          extension.</para>
-          <indexterm zone="xorg7-app xrandr-x7">
-            <primary sortas="b-xrandr">xrandr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xrdb-x7">
-        <term><command>xrdb</command></term>
-        <listitem>
-          <para>is the X server resource database utility.</para>
-          <indexterm zone="xorg7-app xrdb-x7">
-            <primary sortas="b-xrdb">xrdb</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xrefresh-x7">
-        <term><command>xrefresh</command></term>
-        <listitem>
-          <para>refreshes all or part of an X screen.</para>
-          <indexterm zone="xorg7-app xrefresh-x7">
-            <primary sortas="b-xrefresh">xrefresh</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xset-x7">
-        <term><command>xset</command></term>
-        <listitem>
-          <para>is the user preference utility for X.</para>
-          <indexterm zone="xorg7-app xset-x7">
-            <primary sortas="b-xset">xset</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xsetroot-x7">
-        <term><command>xsetroot</command></term>
-        <listitem>
-          <para>is the root window parameter setting utility for X.</para>
-          <indexterm zone="xorg7-app xsetroot-x7">
-            <primary sortas="b-xsetroot">xsetroot</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xvinfo-x7">
-        <term><command>xvinfo</command></term>
-        <listitem>
-          <para>prints out X-Video extension adaptor information.</para>
-          <indexterm zone="xorg7-app xvinfo-x7">
-            <primary sortas="b-xvinfo">xvinfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xwd-x7">
-        <term><command>xwd</command></term>
-        <listitem>
-          <para>dumps an image of an X window.</para>
-          <indexterm zone="xorg7-app xwd-x7">
-            <primary sortas="b-xwd">xwd</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xwininfo-x7">
-        <term><command>xwininfo</command></term>
-        <listitem>
-          <para>is a window information utility for X.</para>
-          <indexterm zone="xorg7-app xwininfo-x7">
-            <primary sortas="b-xwininfo">xwininfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xwud-x7">
-        <term><command>xwud</command></term>
-        <listitem>
-          <para>is an image displayer for X.</para>
-          <indexterm zone="xorg7-app xwud-x7">
-            <primary sortas="b-xwud">xwud</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/X11/
+/usr/bin/bdftopcf
+/usr/bin/iceauth
+/usr/bin/luit
+/usr/bin/mkfontdir
+/usr/bin/mkfontscale
+/usr/bin/sessreg
+/usr/bin/setxkbmap
+/usr/bin/smproxy
+/usr/bin/x11perf
+/usr/bin/x11perfcomp
+/usr/bin/xauth
+/usr/bin/xbacklight
+/usr/bin/xcmsdb
+/usr/bin/xcursorgen
+/usr/bin/xdpr
+/usr/bin/xdpyinfo
+/usr/bin/xdriinfo
+/usr/bin/xev
+/usr/bin/xgamma
+/usr/bin/xhost
+/usr/bin/xinput
+/usr/bin/xkbbell
+/usr/bin/xkbcomp
+/usr/bin/xkbevd
+/usr/bin/xkbvleds
+/usr/bin/xkbwatch
+/usr/bin/xkeystone
+/usr/bin/xkill
+/usr/bin/xlsatoms
+/usr/bin/xlsclients
+/usr/bin/xmessage
+/usr/bin/xmodmap
+/usr/bin/xpr
+/usr/bin/xprop
+/usr/bin/xrandr
+/usr/bin/xrdb
+/usr/bin/xrefresh
+/usr/bin/xset
+/usr/bin/xsetroot
+/usr/bin/xvinfo
+/usr/bin/xwd
+/usr/bin/xwininfo
+/usr/bin/xwud
+/usr/lib/pkgconfig/xkbcomp.pc
+/usr/lib/X11/
+/usr/share/man/man1/bdftopcf.1
+/usr/share/man/man1/iceauth.1
+/usr/share/man/man1/luit.1
+/usr/share/man/man1/mkfontdir.1
+/usr/share/man/man1/mkfontscale.1
+/usr/share/man/man1/sessreg.1
+/usr/share/man/man1/setxkbmap.1
+/usr/share/man/man1/smproxy.1
+/usr/share/man/man1/x11perf.1
+/usr/share/man/man1/x11perfcomp.1
+/usr/share/man/man1/xauth.1
+/usr/share/man/man1/xbacklight.1
+/usr/share/man/man1/xcmsdb.1
+/usr/share/man/man1/xcursorgen.1
+/usr/share/man/man1/xdpr.1
+/usr/share/man/man1/xdpyinfo.1
+/usr/share/man/man1/xdriinfo.1
+/usr/share/man/man1/xev.1
+/usr/share/man/man1/xgamma.1
+/usr/share/man/man1/xhost.1
+/usr/share/man/man1/xinput.1
+/usr/share/man/man1/xkbbell.1
+/usr/share/man/man1/xkbcomp.1
+/usr/share/man/man1/xkbevd.1
+/usr/share/man/man1/xkbvleds.1
+/usr/share/man/man1/xkbwatch.1
+/usr/share/man/man1/xkill.1
+/usr/share/man/man1/xlsatoms.1
+/usr/share/man/man1/xlsclients.1
+/usr/share/man/man1/Xmark.1
+/usr/share/man/man1/xmessage.1
+/usr/share/man/man1/xmodmap.1
+/usr/share/man/man1/xpr.1
+/usr/share/man/man1/xprop.1
+/usr/share/man/man1/xrandr.1
+/usr/share/man/man1/xrdb.1
+/usr/share/man/man1/xrefresh.1
+/usr/share/man/man1/xset.1
+/usr/share/man/man1/xsetroot.1
+/usr/share/man/man1/xvinfo.1
+/usr/share/man/man1/xwd.1
+/usr/share/man/man1/xwininfo.1
+/usr/share/man/man1/xwud.1</literal></screen>
 
   </sect2>
 
