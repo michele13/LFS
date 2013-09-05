@@ -58,6 +58,11 @@
       <xref linkend="sane"/> (back ends)
     </para>
 
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="required">
+      <xref linkend="xdg-utils"/> (for the help docummentation at runtime)
+    </para>
+
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
       <xref linkend="libtiff"/>,
@@ -84,8 +89,12 @@ make</userinput></screen>
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
 <screen role="root"><userinput>make xsanedocdir=/usr/share/doc/xsane-&xsane-version; install &amp;&amp;
-ln -v -s ../../doc/xsane-&xsane-version; /usr/share/sane/xsane/doc &amp;&amp;
-ln -v -s &lt;browser&gt; /usr/bin/netscape</userinput></screen>
+ln -v -s ../../doc/xsane-&xsane-version; /usr/share/sane/xsane/doc</userinput></screen>
+
+    <para>If you have not installed <xref linkend="xdg-utils"/> and have not
+    issued the first sed:</para>
+
+<screen role="root"><userinput>ln -v -s &lt;browser&gt; /usr/bin/netscape</userinput></screen>
 
     <note><para>Be sure to replace &lt;browser&gt; with the browser of your
     choice on your system.</para></note>
@@ -99,6 +108,10 @@ ln -v -s &lt;browser&gt; /usr/bin/netscape</userinput></screen>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para><command>sed -i -e 's/netscape/xdg-open/' src/xsane.h </command>:
+    This is to use<command>xdg-open</command> for the help documentation,
+    instead of the hardcoded browser.</para>
 
     <para><command>ln -v -s ../../doc/xsane-&xsane-version;
     /usr/share/sane/xsane/doc</command>: This symlink is created to ensure that
