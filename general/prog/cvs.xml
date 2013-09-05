@@ -113,9 +113,11 @@
 
 <screen><userinput>patch -Np1 -i ../cvs-&cvs-version;-zlib-1.patch</userinput></screen>
 
-    <para>Now fix a conflict with newer libraries:</para>
+    <para>Now fix some conflicts with newer libraries:</para>
 
-<screen><userinput>sed -i -e 's/getline /get_line /' lib/getline.{c,h}</userinput></screen>
+<screen><userinput>sed -i -e 's/getline /get_line /' lib/getline.{c,h} &amp;&amp;
+sed -i -e 's/^@sp$/&amp; 1/'          doc/cvs.texinfo 
+</userinput></screen>
 
     <para>Install <application>CVS</application> by running
     the following commands:</para>
