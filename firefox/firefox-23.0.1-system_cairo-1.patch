@@ -1,0 +1,50 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2013-09-05
+Initial Package Version: 23.0.1
+Upstream Status:         Fixed
+Origin:                  Upstream
+Description:             Fixes compilation with system-installed cairo.
+
+diff -Naur mozilla-release.orig/gfx/thebes/gfxPlatform.cpp mozilla-release/gfx/thebes/gfxPlatform.cpp
+--- mozilla-release.orig/gfx/thebes/gfxPlatform.cpp	2013-08-14 15:49:26.000000000 +0200
++++ mozilla-release/gfx/thebes/gfxPlatform.cpp	2013-09-05 16:14:49.019835614 +0200
+@@ -552,6 +552,7 @@
+   delete static_cast<SourceSurfaceUserData*>(srcSurfUD);
+ }
+ 
++#if MOZ_TREE_CAIRO
+ void SourceSnapshotDetached(cairo_surface_t *nullSurf)
+ {
+   gfxImageSurface* origSurf =
+@@ -559,6 +560,13 @@
+ 
+   origSurf->SetData(&kSourceSurface, NULL, NULL);
+ }
++#else
++void SourceSnapshotDetached(void *nullSurf)
++{
++  gfxImageSurface* origSurf = static_cast<gfxImageSurface*>(nullSurf);
++  origSurf->SetData(&kSourceSurface, NULL, NULL);
++}
++#endif
+ 
+ RefPtr<SourceSurface>
+ gfxPlatform::GetSourceSurfaceForSurface(DrawTarget *aTarget, gfxASurface *aSurface)
+@@ -671,6 +679,7 @@
+ 
+     }
+ 
++#if MOZ_TREE_CAIRO
+     cairo_surface_t *nullSurf =
+ 	cairo_null_surface_create(CAIRO_CONTENT_COLOR_ALPHA);
+     cairo_surface_set_user_data(nullSurf,
+@@ -679,6 +688,9 @@
+                                 NULL);
+     cairo_surface_attach_snapshot(imgSurface->CairoSurface(), nullSurf, SourceSnapshotDetached);
+     cairo_surface_destroy(nullSurf);
++#else
++    cairo_surface_set_mime_data(imgSurface->CairoSurface(), "mozilla/magic", (const unsigned char*) "data", 4, SourceSnapshotDetached, imgSurface.get());
++#endif
+   }
+ 
+   SourceSurfaceUserData *srcSurfUD = new SourceSurfaceUserData;
