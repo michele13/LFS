@@ -4,27 +4,26 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY gsl-homepage      "http://www.gnu.org/software/gsl/">
+  <!ENTITY gsl-wikipedia
+  "https://en.wikipedia.org/wiki/GNU_Scientific_Library">
   <!ENTITY gsl-download-http
-    "http://ftp.gnu.org/pub/gnu/gsl/gsl-&gsl-version;.tar.gz">
+  "http://ftp.gnu.org/pub/gnu/gsl/gsl-&gsl-version;.tar.gz">
   <!ENTITY gsl-download-ftp
-    "ftp://ftp.gnu.org/pub/gnu/gsl/gsl-&gsl-version;.tar.gz">
+  "ftp://ftp.gnu.org/pub/gnu/gsl/gsl-&gsl-version;.tar.gz">
   <!ENTITY gsl-md5sum        "e49a664db13d81c968415cd53f62bc8b">
   <!ENTITY gsl-size          "3.4 MB">
   <!ENTITY gsl-buildsize     "208 MB">
   <!ENTITY gsl-time          "2.2 SBU">
 ]>
 
-<sect1 id="gsl" xreflabel="Gsl-&gsl-version;">
+<sect1 id="gsl" xreflabel="GSL-&gsl-version;">
   <?dbhtml filename="gsl.html"?>
 
-  <title>Gsl-&gsl-version;</title>
-
-  <indexterm zone="gsl">
-    <primary sortas="a-gsl">Gsl</primary>
-  </indexterm>
+  <title>GSL-&gsl-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Gsl</title>
+    <title>Introduction</title>
 
     <para>
       The GNU Scientific Library (GSL) is a numerical library for C and C++
@@ -34,6 +33,16 @@
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gsl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gsl-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gsl-download-http;"/>
@@ -67,128 +76,60 @@
     </itemizedlist>
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Gsl</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Gsl</application> by running the following commands:
+      Install GSL by running the following commands:
     </para>
 
-<screen><userinput>
-./configure --prefix=/usr --disable-static &amp;&amp;
-make                                       &amp;&amp;
-make html</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install                  &amp;&amp;
-mkdir /usr/share/doc/gsl-&gsl-version; &amp;&amp;
-cp doc/gsl-ref.html/* /usr/share/doc/gsl-&gsl-version;</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-    href="../../xincludes/static-libraries.xml"/>
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="gsl">
+      <primary sortas="b-gsl-config">gsl-config</primary>
+    </indexterm>
+    <indexterm zone="gsl">
+      <primary sortas="b-gsl-histogram">gsl-histogram</primary>
+    </indexterm>
+    <indexterm zone="gsl">
+      <primary sortas="b-gsl-randist">gsl-randist</primary>
+    </indexterm>
+    <indexterm zone="gsl">
+      <primary sortas="c-libgslcblas.so">libgslcblas.so</primary>
+    </indexterm>
+    <indexterm zone="gsl">
+      <primary sortas="c-libgsl.so">libgsl.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          gsl-config, gsl-histogram, and gsl-randist.
-        </seg>
-        <seg>
-          libgslcblas.so and libgsl.so.
-        </seg>
-        <seg>
-          /usr/include/gsl
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
+<screen><literal>/usr/bin/gsl-config
+/usr/bin/gsl-histogram
+/usr/bin/gsl-randist
+/usr/include/gsl/
+/usr/lib/libgslcblas.so
+/usr/lib/libgsl.so
+/usr/lib/pkgconfig/gsl.pc
+/usr/share/aclocal/gsl.m4
+/usr/share/man/man1/gsl-config.1
+/usr/share/man/man1/gsl-histogram.1
+/usr/share/man/man1/gsl-randist.1
+/usr/share/man/man3/gsl.3</literal></screen>
 
-      <varlistentry id="gsl-config">
-        <term><command>gsl-config</command></term>
-        <listitem>
-          <para>
-            is a shell script to get the version number and compiler flags of
-            the installed <application>Gsl</application> library.
-          </para>
-          <indexterm zone="gsl gsl-config">
-            <primary sortas="b-gsl-config">gsl-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gsl-histogram">
-        <term><command>gsl-histogram</command></term>
-        <listitem>
-          <para>
-            is a demonstration program for the GNU Scientific Library that
-            computes a histogram from data taken from stdin.
-          </para>
-          <indexterm zone="gsl gsl-histogram">
-            <primary sortas="b-gsl-histogram">gsl-histogram</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gsl-randist">
-        <term><command>gsl-randist</command></term>
-        <listitem>
-          <para>
-            is a demonstration program for the GNU Scientific Library that
-            generates random samples from various distributions.
-          </para>
-          <indexterm zone="gsl gsl-randist">
-            <primary sortas="b-gsl-randist">gsl-randist</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgslcblas">
-        <term><filename class="libraryfile">libgslcblas.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that implement a C interface to Basic Linear
-            Algebra Subprograms.
-          </para>
-          <indexterm zone="gsl libgslcblas">
-            <primary sortas="c-libgslcblas">libgslcblas.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgsl.so">
-        <term><filename class="libraryfile">libgsl.so.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that provide a collection of numerical routines
-            for scientific computing.
-          </para>
-          <indexterm zone="gsl libgsl.so">
-            <primary sortas="c-libgsl.so">libgsl.so.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-    </variablelist>
   </sect2>
+
 </sect1>
