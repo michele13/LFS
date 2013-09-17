@@ -4,7 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libmng-download-http "&sourceforge-repo;/libmng/libmng-&libmng-version;.tar.xz">
+  <!ENTITY libmng-homepage      "http://www.libpng.org/pub/mng/">
+  <!ENTITY libmng-wikipedia
+  "http://en.wikipedia.org/wiki/Multiple-image_Network_Graphics">
+  <!ENTITY libmng-download-http
+  "&sourceforge-repo;/libmng/libmng-&libmng-version;.tar.xz">
   <!ENTITY libmng-download-ftp  " ">
   <!ENTITY libmng-md5sum        "3804bf2523af9b4e0670b5982b3bf984">
   <!ENTITY libmng-size          "932 KB">
@@ -17,40 +21,60 @@
 
   <title>libmng-&libmng-version;</title>
 
-  <indexterm zone="libmng">
-    <primary sortas="a-Libmng">Libmng</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libmng</title>
+    <title>Introduction</title>
 
-    <para>The <application>libmng</application> libraries are used by
-    programs wanting to read and write Multiple-image Network Graphics
-    (MNG) files which are the animation equivalents to PNG files.</para>
+    <para>
+      The libmng libraries are used by programs wanting to read and write
+      Multiple-image Network Graphics (MNG) files which are the animation
+      equivalents to PNG files.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&libmng-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&libmng-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&libmng-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&libmng-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &libmng-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&libmng-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &libmng-size;</para>
+        <para>
+          Download (FTP): <ulink url="&libmng-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &libmng-buildsize;</para>
+        <para>
+          Download MD5 sum: &libmng-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &libmng-time;</para>
+        <para>
+          Download size: &libmng-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libmng-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libmng-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libmng Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -60,73 +84,56 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libmng</title>
-
-    <para>Install <application>libmng</application> by running the following
-    commands:</para>
-
-<screen><userinput>sed -i "s:#include &lt;jpeg:#include &lt;stdio.h&gt;\n&amp;:" libmng_types.h &amp;&amp;
-./configure --prefix=/usr --disable-static &amp;&amp;
-make</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /usr/share/doc/libmng-&libmng-version; &amp;&amp;
-install -v -m644 doc/*.txt /usr/share/doc/libmng-&libmng-version;</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      <command>sed -i "..." libmng_types.h</command>: This command adds a
-      missing header which would cause other apps that link to this
-      package fail to compile.
+      Install libmng by running the following commands:
     </para>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
+<screen><userinput>sed -i "s:#include &lt;jpeg:#include &lt;stdio.h&gt;\n&amp;:" libmng_types.h &amp;&amp;
+./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i "..." libmng_types.h</command>: This command adds a
+        missing header which would cause other apps that link to this package
+        fail to compile.
+      </para>
+
+    </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libmng">
+      <primary sortas="c-libmng.so">libmng.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>libmng.so</seg>
-        <seg>/usr/share/doc/libmng-&libmng-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libmng-lib">
-        <term><filename class='libraryfile'>libmng.so</filename></term>
-        <listitem>
-          <para>provides functions for programs wishing to read and write
-          MNG files which are animation files without the patent problems associated
-          with certain other formats.</para>
-          <indexterm zone="libmng libmng-lib">
-            <primary sortas="c-libmng">libmng.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/libmng_conf.h
+/usr/include/libmng.h
+/usr/include/libmng_types.h
+/usr/lib/libmng.so
+/usr/lib/pkgconfig/libmng.pc
+/usr/share/man/man3/libmng.3
+/usr/share/man/man5/jng.5
+/usr/share/man/man5/mng.5</literal></screen>
 
   </sect2>
 
