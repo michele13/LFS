@@ -4,8 +4,12 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY mesalib-homepage      "http://www.mesa3d.org/">
+  <!ENTITY mesalib-wikipedia
+  "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
-  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/9.2/MesaLib-&mesalib-version;.tar.bz2">
+  <!ENTITY mesalib-download-ftp
+  "ftp://ftp.freedesktop.org/pub/mesa/9.2/MesaLib-&mesalib-version;.tar.bz2">
   <!ENTITY mesalib-md5sum        "4185b6aae890bc62a964f4b24cc1aca8">
   <!ENTITY mesalib-size          "6.4 MB">
   <!ENTITY mesalib-buildsize     "420 MB">
@@ -17,20 +21,25 @@
 
   <title>MesaLib-&mesalib-version;</title>
 
-  <indexterm zone="mesalib">
-    <primary sortas="a-MesaLib">MesaLib</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to MesaLib</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Mesa</application> is an OpenGL compatible 3D graphics
-      library.
+      Mesa is an OpenGL compatible 3D graphics library.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&mesalib-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&mesalib-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&mesalib-download-http;"/>
@@ -69,12 +78,11 @@
         <para>
           Recommended patch:
           <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-add_xdemos-1.patch"/>
-          (Needed if testing the Xorg installation per BLFS instructions).
         </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">MesaLib Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -100,39 +108,25 @@
 
     <note>
       <para>
-        The instructions below assume that <application>elfutils</application>
-        and <application>LLVM</application> are installed. You will
-        need to modify the instructions if you choose not to install them.
-        Please note that <application>elfutils</application> and
-        <application>LLVM</application> are <emphasis>required</emphasis>
-        for Radeon 3D drivers.  For an explanation of gallium please see
-        <ulink url="https://en.wikipedia.org/wiki/Gallium3D"></ulink>.
+        The instructions below assume that elfutils and LLVM are installed. You
+        will need to modify the instructions if you choose not to install them.
+        Please note that elfutils and LLVM are <emphasis>required</emphasis> for
+        Radeon 3D drivers. For an explanation of gallium please see <ulink
+        url="https://en.wikipedia.org/wiki/Gallium3D"></ulink>.
       </para>
     </note>
 
     <note>
       <para>
-        The <application>libxml2</application>
-        <application>Python</application> module must have been built
-        during the installation of <application>libxml2</application>
-        or else <application>MesaLib</application> build will fail.
+        The libxml2 Python module must have been built during the installation
+        of libxml2 or else MesaLib build will fail.
       </para>
     </note>
 
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of MesaLib</title>
-
-    <note>
-      <para>
-        Unlike other packages, the
-        <filename>MesaLib-&mesalib-version;.tar.bz2</filename>
-        archive will extract to the
-        <filename class="directory">Mesa-&mesalib-version;</filename>
-        directory.
-      </para>
-    </note>
+    <title>Installation</title>
 
     <para>
       If you have downloaded the recommended patch, apply it by running the
@@ -142,28 +136,27 @@
 <screen><userinput>patch -Np1 -i ../MesaLib-&mesalib-version;-add_xdemos-1.patch</userinput></screen>
 
     <para>
-      Install <application>MesaLib</application> by running the following
-      commands:
+      Install MesaLib by running the following commands:
     </para>
 
 <!-- - -with-dri-drivers="nouveau"
      - -with-gallium-drivers="nouveau" -->
 
 <screen><userinput>autoreconf -fi &amp;&amp;
-./configure CFLAGS="-O2" CXXFLAGS="-O2"    \
-            --prefix=/usr                  \
-            --sysconfdir=/etc              \
-            --enable-texture-float         \
-            --enable-gles1                 \
-            --enable-gles2                 \
-            --enable-openvg                \
-            --enable-osmesa                \
-            --enable-xa                    \
-            --enable-gbm                   \
-            --enable-gallium-egl           \
-            --enable-gallium-gbm           \
-            --enable-glx-tls               \
-            --with-llvm-shared-libs        \
+./configure CFLAGS="-O2" CXXFLAGS="-O2" \
+            --prefix=/usr \
+            --sysconfdir=/etc \
+            --enable-texture-float \
+            --enable-gles1 \
+            --enable-gles2 \
+            --enable-openvg \
+            --enable-osmesa \
+            --enable-xa \
+            --enable-gbm \
+            --enable-gallium-egl \
+            --enable-gallium-gbm \
+            --enable-glx-tls \
+            --with-llvm-shared-libs \
             --with-egl-platforms="drm,x11" \
             --with-gallium-drivers="nouveau,r300,r600,radeonsi,svga,swrast" &amp;&amp;
 make</userinput></screen>
@@ -176,303 +169,196 @@ make</userinput></screen>
 <screen><userinput>make -C xdemos DEMOS_PREFIX=/usr</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
     <para>
-      If you have built the demo programs, install them by running the
-      following command as the
-      <systemitem class="username">root</systemitem> user:
+      If you have built the demo programs, install them by running the following
+      command as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make -C xdemos DEMOS_PREFIX=/usr install</userinput></screen>
 
-    <para>
-      If desired, install the optional documentation by running
-      the following commands as the
-      <systemitem class="username">root</systemitem> user:
-    </para>
+    <sect3>
+      <title>Command Explanations</title>
 
-<screen role="root"><userinput>install -v -dm755 /usr/share/doc/MesaLib-&mesalib-version; &amp;&amp;
-cp -rfv docs/* /usr/share/doc/MesaLib-&mesalib-version;</userinput></screen>
+      <para>
+        <parameter>CFLAGS="-O2" CXXFLAGS="-O2"</parameter>: By default, Autoconf
+        sets CFLAGS and CXXFLAGS to "-g -O2". That results in binaries and
+        libraries being built with debugging symbols which make them bigger.
+        Override the default flags to omit -g compiler flag so the final
+        libraries are smaller.
+      </para>
 
-  </sect2>
+      <para>
+        <parameter>--enable-texture-float</parameter>: This switch enables
+        floating-point textures and render buffers. Please consult
+        <filename>docs/patents.txt</filename> to see if there are any legal
+        issues if you use this feature.
+      </para>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--enable-gles1</parameter>: This switch enables support for
+        OpenGL ES 1.x API.
+      </para>
 
-    <para>
-      <parameter>CFLAGS="-O2" CXXFLAGS="-O2"</parameter>: By default,
-      <application>Autoconf</application> sets CFLAGS and CXXFLAGS to
-      "-g -O2". That results in binaries and libraries being built with
-      debugging symbols which make them bigger. Override the default
-      flags to omit -g compiler flag so the final libraries are smaller.
-    </para>
+      <para>
+        <parameter>--enable-gles2</parameter>: This switch enables support for
+        OpenGL ES 2.x API.
+      </para>
 
-    <para>
-      <option>--enable-texture-float</option>: This switch enables
-      floating-point textures and render buffers. Please consult
-      <filename>docs/patents.txt</filename> to see if there are
-      any legal issues if you use this feature.
-    </para>
+      <para>
+        <parameter>--enable-openvg</parameter>: This switch enables support for
+        OpenVG API.
+      </para>
 
-    <para>
-      <option>--enable-gles1</option>: This switch enables support for
-      OpenGL ES 1.x API.
-    </para>
+      <para>
+        <parameter>--enable-osmesa</parameter>: This switch enables building of
+        the <filename class="libraryfile">libOSMesa</filename> library.
+      </para>
 
-    <para>
-      <option>--enable-gles2</option>: This switch enables support for
-      OpenGL ES 2.x API.
-    </para>
+      <para>
+        <parameter>--enable-xa</parameter>: This switch enables building of the
+        XA X Acceleration API (Required for VMware 3D Driver).
+      </para>
 
-    <para>
-      <option>--enable-openvg</option>: This switch enables support for
-      OpenVG API.
-    </para>
+      <para>
+        <parameter>--enable-gbm</parameter>: This switch enables building of the
+        Mesa Graphics Buffer Manager library.
+      </para>
 
-    <para>
-      <option>--enable-osmesa</option>: This switch enables building of
-      the <filename class="libraryfile">libOSMesa</filename> library.
-    </para>
+      <para>
+        <parameter>--enable-gallium-egl</parameter>: This switch enables
+        parameteral EGL state tracker for Gallium.
+      </para>
 
-    <para>
-      <option>--enable-xa</option>: This switch enables building of the
-      XA X Acceleration API (Required for VMware 3D Driver).
-    </para>
+      <para>
+        <parameter>--enable-gallium-gbm</parameter>: This switch enables
+        parameteral GBM state tracker for Gallium.
+      </para>
 
-    <para>
-      <option>--enable-gbm</option>: This switch enables building of the
-      <application>Mesa</application> Graphics Buffer Manager library.
-    </para>
+      <para>
+        <parameter>--enable-glx-tls</parameter>: This switch enables TLS (Thread
+        Local Storage) support in GLX.
+      </para>
 
-    <para>
-      <option>--enable-gallium-egl</option>: This switch enables optional
-      EGL state tracker for Gallium.
-    </para>
+      <para>
+        <parameter>--with-llvm-shared-libs</parameter>: This switch is used so
+        Gallium drivers will link against shared LLVM libraries instead of the
+        static ones. Remove if you did not install LLVM. 
+      </para>
 
-    <para>
-      <option>--enable-gallium-gbm</option>: This switch enables optional
-      GBM state tracker for Gallium.
-    </para>
+      <para>
+        <parameter>--with-egl-platforms="..."</parameter>: This parameter
+        controls for which platforms EGL should be built. Available platforms
+        are drm, x11 and wayland.
+      </para>
 
-    <para>
-      <option>--enable-glx-tls</option>: This switch enables TLS (Thread Local
-      Storage) support in GLX.
-    </para>
+      <para>
+        <parameter>--with-gallium-drivers="..."</parameter>: This parameter
+        controls which Gallium drivers should be built. Available drivers are:
+        i915, ilo, nouveau, r300, r600, radeonsi, svga and swrast. You will need
+        to remove r300, r600 and radeonsi from the list if you did not install
+        elfutils and LLVM.
+      </para>
 
-    <para>
-      <option>--with-llvm-shared-libs</option>: This switch is used so
-      Gallium drivers will link against shared
-      <application>LLVM</application> libraries instead of the static
-      ones. Remove if you did not install <application>LLVM</application>. 
-    </para>
+      <para>
+        <option>--enable-r600-llvm-compiler</option>: Use this switch to enable
+        experimental R600 LLVM backend for graphics shaders which claims to
+        speed up the driver.
+      </para>
 
-    <para>
-      <parameter>--with-egl-platforms="..."</parameter>: This parameter
-      controls for which platforms EGL should be built. Available
-      platforms are drm, x11 and wayland.
-    </para>
-
-    <para>
-      <parameter>--with-gallium-drivers="..."</parameter>: This parameter
-      controls which Gallium drivers should be built. Available drivers
-      are: i915, ilo, nouveau, r300, r600, radeonsi, svga and swrast. You
-      will need to remove r300, r600 and radeonsi from the list if you did
-      not install <application>elfutils</application> and
-      <application>LLVM</application>.
-    </para>
-
-    <para>
-      <option>--enable-r600-llvm-compiler</option>: Use this switch to
-      enable experimental R600 <application>LLVM</application> backend
-      for graphics shaders which claims to speed up the driver.
-    </para>
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="mesalib">
+      <primary sortas="b-glxgears">glxgears</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="b-glxinfo">glxinfo</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libdricore9.2.0.so">libdricore9.2.0.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libEGL.so">libEGL.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libgbm.so">libgbm.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libglapi.so">libglapi.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libGLESv1_CM.so">libGLESv1_CM.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libGLESv2.so">libGLESv2.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libGL.so">libGL.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libOpenVG.so">libOpenVG.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libOSMesa.so">libOSMesa.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="c-libXvMCnouveau.so">libXvMCnouveau.so</primary>
+    </indexterm>
+    <indexterm zone="mesalib">
+      <primary sortas="e-etc-drirc">/etc/drirc</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          glxgears and glxinfo
-        </seg>
-        <seg>
-          libdricore&mesalib-version;.so, libEGL.so, libgbm.so, libglapi.so,
-          libGLESv1_CM.so, libGLESv2.so, libGL.so, libOpenVG.so,
-          libOSMesa.so, libxatracker.so, libXvMCnouveau.so, libXvMCr300.so,
-          libXvMCr600.so and libXvMCsoftpipe.so
-        </seg>
-        <seg>
-          /usr/include/EGL,
-          /usr/include/GLES,
-          /usr/include/GLES2,
-          /usr/include/GLES3,
-          /usr/include/KHR,
-          /usr/include/VG,
-          /usr/lib/dri,
-          /usr/lib/egl,
-          /usr/lib/gallium-pipe,
-          /usr/lib/gbm and
-          /usr/lib/vdpau
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="glxgears">
-        <term><command>glxgears</command></term>
-        <listitem>
-          <para>
-            is a GL demo useful for troubleshooting graphics
-            problems.
-          </para>
-          <indexterm zone="mesalib glxgears">
-            <primary sortas="b-glxgears">glxgears</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="glxinfo">
-        <term><command>glxinfo</command></term>
-        <listitem>
-          <para>
-            is a diagnostic program that displays information about the
-            graphics hardware and installed GL libraries.
-          </para>
-          <indexterm zone="mesalib glxinfo">
-            <primary sortas="b-glxinfo">glxinfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libdricore">
-        <term><filename class="libraryfile">libdricore&mesalib-version;.so</filename></term>
-        <listitem>
-          <para>
-            contains common DRI routines used by <application>Mesa</application>
-            DRI drivers.
-          </para>
-          <indexterm zone="mesalib libdricore">
-            <primary sortas="c-libdricore">libdricore&mesalib-version;.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libEGL">
-        <term><filename class="libraryfile">libEGL.so</filename></term>
-        <listitem>
-          <para>
-            provides a native platform graphics interface as
-            defined by the EGL-1.4 specification.
-          </para>
-          <indexterm zone="mesalib libEGL">
-            <primary sortas="c-libGL">libEGL.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgbm">
-        <term><filename class="libraryfile">libgbm.so</filename></term>
-        <listitem>
-          <para>
-            is the <application>Mesa</application> Graphics Buffer
-            Manager library.
-          </para>
-          <indexterm zone="mesalib libgbm">
-            <primary sortas="c-libgbm">libgbm.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libGLESv1_CM">
-        <term><filename class="libraryfile">libGLESv1_CM.so</filename></term>
-        <listitem>
-          <para>
-            is the <application>Mesa</application> OpenGL ES 1.1 library.
-          </para>
-          <indexterm zone="mesalib libGLESv1_CM">
-            <primary sortas="c-libGLESv1_CM">libGLESv1_CM.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libGLES2">
-        <term><filename class="libraryfile">libGLES2.so</filename></term>
-        <listitem>
-          <para>
-            is the <application>Mesa</application> OpenGL ES 2.0 library.
-          </para>
-          <indexterm zone="mesalib libGLES2">
-            <primary sortas="c-libGLES2">libGLES2.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libGL">
-        <term><filename class="libraryfile">libGL.so</filename></term>
-        <listitem>
-          <para>
-            is the main <application>Mesa</application> OpenGL library.
-          </para>
-          <indexterm zone="mesalib libGL">
-            <primary sortas="c-libGL">libGL.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libOpenVG">
-        <term><filename class="libraryfile">libOpenVG.so</filename></term>
-        <listitem>
-          <para>
-            is the <application>Mesa</application> OpenVG 1.0 library.
-          </para>
-          <indexterm zone="mesalib libOpenVG">
-            <primary sortas="c-libOpenVG">libOpenVG.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libOSMesa">
-        <term><filename class="libraryfile">libOSMesa.so</filename></term>
-        <listitem>
-          <para>
-            is the <application>Mesa</application> Off-screen Rendering library.
-          </para>
-          <indexterm zone="mesalib libOSMesa">
-            <primary sortas="c-libOSMesa">libOSMesa.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libxatracker">
-        <term><filename class="libraryfile">libxatracker.so</filename></term>
-        <listitem>
-          <para>
-            is the Xorg Gallium3D acceleration library.
-          </para>
-          <indexterm zone="mesalib libxatracker">
-            <primary sortas="c-libxatracker">libxatracker.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-    </variablelist>
+<screen><literal>/etc/drirc
+/usr/bin/glxgears
+/usr/bin/glxinfo
+/usr/include/EGL/
+/usr/include/gbm.h
+/usr/include/GL/
+/usr/include/GLES/
+/usr/include/GLES2/
+/usr/include/GLES3/
+/usr/include/KHR/
+/usr/include/VG/
+/usr/include/xa_composite.h
+/usr/include/xa_context.h
+/usr/include/xa_tracker.h
+/usr/lib/dri/
+/usr/lib/egl/
+/usr/lib/gallium-pipe/
+/usr/lib/gbm/
+/usr/lib/libdricore9.2.0.so
+/usr/lib/libEGL.so
+/usr/lib/libgbm.so
+/usr/lib/libglapi.so
+/usr/lib/libGLESv1_CM.so
+/usr/lib/libGLESv2.so
+/usr/lib/libGL.so
+/usr/lib/libOpenVG.so
+/usr/lib/libOSMesa.so
+/usr/lib/libXvMCnouveau.so
+/usr/lib/pkgconfig/dri.pc
+/usr/lib/pkgconfig/egl.pc
+/usr/lib/pkgconfig/gbm.pc
+/usr/lib/pkgconfig/glesv1_cm.pc
+/usr/lib/pkgconfig/glesv2.pc
+/usr/lib/pkgconfig/gl.pc
+/usr/lib/pkgconfig/osmesa.pc
+/usr/lib/pkgconfig/vg.pc
+/usr/share/man/man1/glxgears.1
+/usr/share/man/man1/glxinfo.1</literal></screen>
 
   </sect2>
 
