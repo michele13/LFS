@@ -70,14 +70,16 @@
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="libgusb"/>,
-      <xref linkend="lcms2"/> and
+      <xref linkend="glib2"/>,
+      <xref linkend="intltool"/>,
+      <xref linkend="lcms2"/>, and
       <xref linkend="sqlite"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="polkit"/>
+      <xref linkend="libgusb"/> and
+      <xref linkend="udev-extras"/> (for GUdev)
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -117,6 +119,7 @@ useradd -c "Color Daemon Owner" -d /var/lib/colord -u 71 \
             --libexecdir=/usr/lib/colord \
             --with-daemon-user=colord    \
             --disable-bash-completion    \
+            --disable-polkit             \
             --disable-systemd-login      \
             --disable-static             \
             --disable-examples &amp;&amp;
@@ -147,13 +150,13 @@ make</userinput></screen>
     </para>
 
     <para>
-      <option>--disable-bash-completion</option>: This switch
+      <parameter>--disable-bash-completion</parameter>: This switch
       disables <application>Bash Completion</application>
       support for <application>Colord</application> apps.
     </para>
 
     <para>
-      <option>--disable-systemd-login</option>: This switch
+      <parameter>--disable-systemd-login</parameter>: This switch
       prevents <command>configure</command> to look for
       <application>Systemd</application> libraries since
       <application>Systemd</application> is not part of
@@ -162,6 +165,16 @@ make</userinput></screen>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/static-libraries.xml"/>
+
+    <para>
+      <option>--disable-gusb</option>: Use this switch if you don't have
+      <application>libgusb</application> installed.
+    </para>
+
+    <para>
+      <option>--disable-gudev</option>: Use this switch if you don't have GUdev
+      installed.
+    </para>
 
   </sect2>
 
