@@ -4,14 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY xorg-fbdev-driver-version "0.4.3">
+  <!ENTITY xorg-fbdev-driver-version "0.4.4">
 
   <!ENTITY xorg-fbdev-driver-download-http "&xorg-download-http;/driver/xf86-video-fbdev-&xorg-fbdev-driver-version;.tar.bz2">
   <!ENTITY xorg-fbdev-driver-download-ftp  "&xorg-download-ftp;/driver/xf86-video-fbdev-&xorg-fbdev-driver-version;.tar.bz2">
-  <!ENTITY xorg-fbdev-driver-md5sum        "1d99f1dfb3f0fea077b6b61caa3dc85a">
-  <!ENTITY xorg-fbdev-driver-size          "284 KB">
-  <!ENTITY xorg-fbdev-driver-buildsize     "2.3 MB">
-  <!ENTITY xorg-fbdev-driver-time          "less than 0.1 SBU">
+  <!ENTITY xorg-fbdev-driver-md5sum        "3931c0e19d441cc576dc088f9eb9fd73">
+  <!ENTITY xorg-fbdev-driver-size          "287 KB">
+  <!ENTITY xorg-fbdev-driver-buildsize     "2.5 MB">
+  <!ENTITY xorg-fbdev-driver-time          "0.1 SBU">
 ]>
 
   <!-- Begin Xorg Fbdev Driver -->
@@ -86,9 +86,7 @@
         commands:
       </para>
 
-<screen><userinput>sed -e "/mibstore.h/d" -e "/miInitializeBackingStore/d" \
-    -i src/fbdev.c &amp;&amp;
-./configure $XORG_CONFIG &amp;&amp;
+<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
 make</userinput></screen>
 
       <para>
@@ -100,16 +98,6 @@ make</userinput></screen>
       </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
-    </sect3>
-
-    <sect3 role="commands">
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -e "/mibstore.h/d" ...</command>: Fixes building
-        with <application>Xorg Server</application> 1.14.0.
-      </para>
-
     </sect3>
 
     <sect3 role="content">
