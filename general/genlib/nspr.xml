@@ -4,10 +4,12 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY nspr-homepage      "https://developer.mozilla.org/en-US/docs/NSPR">
+  <!ENTITY nspr-wikipedia     "http://en.wikipedia.org/wiki/Netscape_portable_runtime">
   <!ENTITY nspr-download-http
-           "http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
+  "http://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
   <!ENTITY nspr-download-ftp
-           "ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
+  "ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
   <!ENTITY nspr-md5sum        "2e354084ca2bc5fbbb820762597f3890">
   <!ENTITY nspr-size          "1.1 MB">
   <!ENTITY nspr-buildsize     "11 MB">
@@ -19,20 +21,26 @@
 
   <title>NSPR-&nspr-version;</title>
 
-  <indexterm zone="nspr">
-    <primary sortas="a-NSPR">NSPR</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to NSPR</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Netscape Portable Runtime</application> (NSPR) provides a
-      platform-neutral API for system level and libc like functions.
+      Netscape Portable Runtime (NSPR) provides a platform-neutral API for
+      system level and libc like functions.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&nspr-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&nspr-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&nspr-download-http;"/>
@@ -67,17 +75,16 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of NSPR</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>NSPR</application> by running the following commands:
+      Install NSPR by running the following commands:
     </para>
 
-<screen><userinput>cd nspr                                                     &amp;&amp;
+<screen><userinput>cd nspr &amp;&amp;
 sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in &amp;&amp;
-sed -i 's#$(LIBRARY) ##' config/rules.mk                    &amp;&amp;
-
+sed -i 's#$(LIBRARY) ##' config/rules.mk &amp;&amp;
 ./configure --prefix=/usr \
             --with-mozilla \
             --with-pthreads \
@@ -85,132 +92,76 @@ sed -i 's#$(LIBRARY) ##' config/rules.mk                    &amp;&amp;
 make</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -ri 's#^(RELEASE_BINS =).*#\1#'
+        pr/src/misc/Makefile.in</command>: This sed disables installing two
+        unneeded scripts.
+      </para>
+
+      <para>
+        <command>sed -i 's#$(LIBRARY) ##' config/rules.mk</command>: This sed
+        disables installing the static libraries.
+      </para>
+
+      <para>
+        <parameter>--with-mozilla</parameter>: This parameter adds Mozilla
+        support to the libraries (required if you want to build any other
+        Mozilla products and link them to these libraries).
+      </para>
+
+      <para>
+        <parameter>--with-pthreads</parameter>: This parameter forces use of the
+        system pthread library.
+      </para>
+
+      <para>
+        <parameter>$([ $(uname -m) = x86_64 ] &amp;&amp; echo
+        --enable-64bit)</parameter>: The --enable-64bit parameter is
+        <emphasis>required</emphasis> on an x86_64 system to prevent
+        <command>configure</command> failing with a claim that this is a system
+        without pthread support. The [ $(uname -m) = x86_64 ] test ensures it
+        has no effect on a 32 bit system.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <command>sed -ri 's#^(RELEASE_BINS =).*#\1#'
-      pr/src/misc/Makefile.in</command>: This sed disables installing two unneeded
-      scripts.
-    </para>
-
-    <para>
-      <command>sed -i 's#$(LIBRARY) ##' config/rules.mk</command>: This sed disables
-      installing the static libraries.
-    </para>
-
-    <para>
-      <parameter>--with-mozilla</parameter>: This parameter adds Mozilla support
-      to the libraries (required if you want to build any other Mozilla
-      products and link them to these libraries).
-    </para>
-
-    <para>
-      <parameter>--with-pthreads</parameter>: This parameter forces use of the
-      system pthread library.
-    </para>
-
-    <para>
-      <parameter>$([ $(uname -m) = x86_64 ] &amp;&amp; echo
-      --enable-64bit)</parameter>: The --enable-64bit parameter is
-      <emphasis>required</emphasis> on an x86_64 system to prevent
-      <command>configure</command> failing with a claim that this is a system
-      without pthread support. The [ $(uname -m) = x86_64 ] test ensures it has
-      no effect on a 32 bit system.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="nspr">
+      <primary sortas="b-nspr-config">nspr-config</primary>
+    </indexterm>
+    <indexterm zone="nspr">
+      <primary sortas="c-libnspr4.so">libnspr4.so</primary>
+    </indexterm>
+    <indexterm zone="nspr">
+      <primary sortas="c-libplc4.so">libplc4.so</primary>
+    </indexterm>
+    <indexterm zone="nspr">
+      <primary sortas="c-libplds4.so">libplds4.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          nspr-config
-        </seg>
-        <seg>
-          libnspr4.so, libplc4.so and libplds4.so
-        </seg>
-        <seg>
-          /usr/include/nspr
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="nspr-config">
-        <term><command>nspr-config</command></term>
-        <listitem>
-          <para>
-            provides compiler and linker options to other packages that use
-            <application>NSPR</application>.
-          </para>
-          <indexterm zone="nspr nspr-config">
-            <primary sortas="b-nspr-config">nspr-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libnspr4">
-        <term><filename class='libraryfile'>libnspr4.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that provide platform independence for non-GUI
-            operating system facilities such as threads, thread synchronization,
-            normal file and network I/O, interval timing and calendar time,
-            basic memory management and shared library linking.
-          </para>
-          <indexterm zone="nspr libnspr4">
-            <primary sortas="c-libnspr4">libnspr4.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libplc4">
-        <term><filename class='libraryfile'>libplc4.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that implement many of the features offered by
-            libnspr4
-          </para>
-          <indexterm zone="nspr libplc4">
-            <primary sortas="c-libplc4">libplc4.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libplds4">
-        <term><filename class='libraryfile'>libplds4.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that provide data structures.
-          </para>
-          <indexterm zone="nspr libplds4">
-            <primary sortas="c-libplds4">libplds4.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/nspr-config
+/usr/include/nspr/
+/usr/lib/libnspr4.so
+/usr/lib/libplc4.so
+/usr/lib/libplds4.so
+/usr/lib/pkgconfig/nspr.pc
+/usr/share/aclocal/nspr.m4</literal></screen>
 
   </sect2>
 
