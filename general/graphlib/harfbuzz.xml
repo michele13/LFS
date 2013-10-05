@@ -4,8 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY harfbuzz-homepage
+  "http://www.freedesktop.org/wiki/Software/HarfBuzz/">
+  <!ENTITY harfbuzz-wikipedia     "http://en.wikipedia.org/wiki/HarfBuzz">
   <!ENTITY harfbuzz-download-http
-           "http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-&harfbuzz-version;.tar.bz2">
+  "http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-&harfbuzz-version;.tar.bz2">
   <!ENTITY harfbuzz-download-ftp  " ">
   <!ENTITY harfbuzz-md5sum        "d3c1bcd7073cbca29fea37fab50ded7d">
   <!ENTITY harfbuzz-size          "894 KB">
@@ -18,20 +21,25 @@
 
   <title>Harfbuzz-&harfbuzz-version;</title>
 
-  <indexterm zone="harfbuzz">
-    <primary sortas="a-Harfbuzz">Harfbuzz</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Harfbuzz</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>Harfbuzz</application> package contains an OpenType text
-      shaping engine.
+      The Harfbuzz package contains an OpenType text shaping engine.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&harfbuzz-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&harfbuzz-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&harfbuzz-download-http;"/>
@@ -64,7 +72,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Harfbuzz Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
@@ -81,123 +89,74 @@
 
     <warning>
       <para>
-        Recommended dependencies are not strictly required to build
-        the package. However, you might not get expected results at
-        runtime if you don't install them. Please do not report bugs
-        with this package if you <emphasis>have not</emphasis>
-        installed the recommended dependencies.
+        Recommended dependencies are not strictly required to build the package.
+        However, you might not get expected results at runtime if you don't
+        install them. Please do not report bugs with this package if you
+        <emphasis>have not</emphasis> installed the recommended dependencies.
       </para>
     </warning>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Harfbuzz</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Harfbuzz</application> by running the following
-      commands:
+      Install Harfbuzz by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--with-graphite2</option>: This switch enables Graphite2
+        support.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <option>--with-graphite2</option>: This switch enables
-      <application>Graphite</application> support.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="harfbuzz">
+      <primary sortas="b-hb-ot-shape-closure">hb-ot-shape-closure</primary>
+    </indexterm>
+    <indexterm zone="harfbuzz">
+      <primary sortas="b-hb-shape">hb-shape</primary>
+    </indexterm>
+    <indexterm zone="harfbuzz">
+      <primary sortas="b-hb-view">hb-view</primary>
+    </indexterm>
+    <indexterm zone="harfbuzz">
+      <primary sortas="c-libharfbuzz-icu.so">libharfbuzz-icu.so</primary>
+    </indexterm>
+    <indexterm zone="harfbuzz">
+      <primary sortas="c-libharfbuzz.so">libharfbuzz.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          hb-ot-shape-closure, hb-shape and hb-view
-        </seg>
-        <seg>
-          libharfbuzz.so and libharfbuzz-icu.so
-        </seg>
-        <seg>
-          /usr/include/harfbuzz
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <!-- <varlistentry id="hb-ot-shape-closure">
-        <term><command>hb-ot-shape-closure</command></term>
-        <listitem>
-          <para>
-            does this .....
-          </para>
-          <indexterm zone="harfbuzz hb-ot-shape-closure">
-            <primary sortas="b-hb-ot-shape-closure">hb-ot-shape-closure</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="hb-shape">
-        <term><command>hb-shape</command></term>
-        <listitem>
-          <para>
-            does this .....
-          </para>
-          <indexterm zone="harfbuzz hb-shape">
-            <primary sortas="b-hb-shape">hb-shape</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    <varlistentry id="hb-view">
-        <term><command>hb-view</command></term>
-        <listitem>
-          <para>
-            does this .....
-          </para>
-          <indexterm zone="harfbuzz hb-view">
-            <primary sortas="b-hb-view">hb-view</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry> -->
-
-      <varlistentry id="libharfbuzz">
-        <term><filename class="libraryfile">libharfbuzz.so</filename></term>
-        <listitem>
-          <para>
-            contains functions for complex text shaping.
-          </para>
-          <indexterm zone="harfbuzz libharfbuzz">
-            <primary sortas="c-libharfbuzz">libharfbuzz.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/hb-ot-shape-closure
+/usr/bin/hb-shape
+/usr/bin/hb-view
+/usr/include/harfbuzz/
+/usr/lib/libharfbuzz-icu.so
+/usr/lib/libharfbuzz.so
+/usr/lib/pkgconfig/harfbuzz-icu.pc
+/usr/lib/pkgconfig/harfbuzz.pc</literal></screen>
 
   </sect2>
 
