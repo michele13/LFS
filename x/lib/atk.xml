@@ -4,8 +4,13 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY atk-download-http "&gnome-download-http;/atk/2.10/atk-&atk-version;.tar.xz">
-  <!ENTITY atk-download-ftp  "&gnome-download-ftp;/atk/2.10/atk-&atk-version;.tar.xz">
+  <!ENTITY atk-homepage      "https://developer.gnome.org/atk/">
+  <!ENTITY atk-wikipedia
+  "http://en.wikipedia.org/wiki/Accessibility_Toolkit">
+  <!ENTITY atk-download-http
+  "&gnome-download-http;/atk/2.10/atk-&atk-version;.tar.xz">
+  <!ENTITY atk-download-ftp
+  "&gnome-download-ftp;/atk/2.10/atk-&atk-version;.tar.xz">
   <!ENTITY atk-md5sum        "e77833d4445ebe6842e9f9a0667b0be7">
   <!ENTITY atk-size          "628 KB">
   <!ENTITY atk-buildsize     "13 MB">
@@ -17,22 +22,27 @@
 
   <title>ATK-&atk-version;</title>
 
-  <indexterm zone="atk">
-    <primary sortas="a-ATK">ATK</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to ATK</title>
+    <title>Introduction</title>
 
     <para>
-      <application>ATK</application> provides the set of accessibility
-      interfaces that are implemented by other toolkits and applications.
-      Using the <application>ATK</application> interfaces, accessibility
+      ATK provides the set of accessibility interfaces that are implemented by
+      other toolkits and applications. Using the ATK interfaces, accessibility
       tools have full access to view and control running applications.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&atk-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&atk-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&atk-download-http;"/>
@@ -65,7 +75,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">ATK Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -74,20 +84,15 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of ATK</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>ATK</application> by running
-      the following commands:
+      Install ATK by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a testsuite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -97,47 +102,20 @@ make</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="atk">
+      <primary sortas="c-libatk-1.0.so">libatk-1.0.so</primary>
+    </indexterm>
 
-      <seglistitem>
-	<seg>
-	  None
-	</seg>
-        <seg>
-          libatk-1.0.so
-        </seg>
-        <seg>
-          /usr/include/atk-1.0 and
-          /usr/share/gtk-doc/html/atk
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libatk">
-        <term><filename class="libraryfile">libatk-1.0.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that are used by assistive technologies
-            to interact with the desktop applications.
-          </para>
-          <indexterm zone="atk libatk">
-            <primary sortas="c-libatk">libatk-1.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/atk-1.0/
+/usr/lib/libatk-1.0.so
+/usr/lib/pkgconfig/atk.pc</literal></screen>
 
   </sect2>
 
