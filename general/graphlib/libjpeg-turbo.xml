@@ -94,15 +94,15 @@
             --mandir=/usr/share/man \
             --disable-static \
             --with-jpeg8 &amp;&amp;
+sed -i -e '/^docdir/ s/$/\/libjpeg-turbo/' \
+       -e '/^exampledir/ s/$/\/libjpeg-turbo/' Makefile &amp;&amp;
 make</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>sed -i -e '/^docdir/ s/$/\/libjpeg-turbo/' \
-       -e '/^exampledir/ s/$/\/libjpeg-turbo/' Makefile &amp;&amp;
-make install</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
