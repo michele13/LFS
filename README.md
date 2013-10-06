@@ -5,7 +5,7 @@ official project.
 
 Since this is my playground, I removed packages I don't use like desktop
 environments, Java, GTK+3, D-Bus, PulseAudio, polkit, GObject introspection,
-Linux-PAM and similar. I also removed instructons for additional documentation
+Linux-PAM and similar. I also removed instructions for additional documentation
 and examples installation, testing, debugging and all associated dependencies.
 
 This book is periodically generated at: http://igor-zivkovic.from.hr/BLFS/
