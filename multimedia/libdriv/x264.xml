@@ -6,9 +6,9 @@
 
   <!ENTITY x264-homepage      "http://www.videolan.org/developers/x264.html">
   <!ENTITY x264-wikipedia     "http://en.wikipedia.org/wiki/X264">
-  <!ENTITY x264-download-http
+  <!ENTITY x264-download-http " ">
+  <!ENTITY x264-download-ftp
   "ftp://ftp.videolan.org/pub/videolan/x264/snapshots/x264-snapshot-&x264-version;-stable.tar.bz2">
-  <!ENTITY x264-download-ftp  " ">
   <!ENTITY x264-md5sum        "e484bc07c97d596f996a2d33fc436349">
   <!ENTITY x264-size          "605 KB">
   <!ENTITY x264-buildsize     "8.7 MB">
@@ -72,6 +72,13 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="recommended">
+      <xref linkend="yasm"/>
+    </para>
+
   </sect2>
 
   <sect2>
@@ -93,6 +100,22 @@ make</userinput></screen>
 <screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--disable-cli</parameter>: This switch disables building the
+        command-line encoder which is redundant since it requires FFmpeg for
+        most of the input formats.
+      </para>
+
+      <para>
+        <option>--disable-asm</option>: Use this switch if you didn't install
+        yasm.
+      </para>
+
+    </sect3>
 
   <sect2>
     <title>Contents</title>
