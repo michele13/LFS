@@ -4,7 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY keyutils-download-http "http://people.redhat.com/~dhowells/keyutils/keyutils-&keyutils-version;.tar.bz2">
+  <!ENTITY keyutils-homepage      " ">
+  <!ENTITY keyutils-wikipedia     " ">
+  <!ENTITY keyutils-download-http
+  "http://people.redhat.com/~dhowells/keyutils/keyutils-&keyutils-version;.tar.bz2">
   <!ENTITY keyutils-download-ftp  " ">
   <!ENTITY keyutils-md5sum        "3c7f463039b83833c12a9414c2fcb389">
   <!ENTITY keyutils-size          "64 KB">
@@ -17,70 +20,89 @@
 
   <title>keyutils-&keyutils-version;</title>
 
-  <indexterm zone="keyutils">
-    <primary sortas="a-keyutils">keyutils</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to keyutils</title>
+    <title>Introduction</title>
 
-    <para>Keyutils is a set of utilities for managing the key retention
-    facility in the kernel, which can be used by filesystems, block devices and
-    more to gain and retain the authorization and encryption keys required to
-    perform secure operations.</para>
+    <para>
+      Keyutils is a set of utilities for managing the key retention facility in
+      the kernel, which can be used by filesystems, block devices and more to
+      gain and retain the authorization and encryption keys required to perform
+      secure operations.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&keyutils-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&keyutils-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&keyutils-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&keyutils-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &keyutils-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&keyutils-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &keyutils-size;</para>
+        <para>
+          Download (FTP): <ulink url="&keyutils-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &keyutils-buildsize;</para>
+        <para>
+          Download MD5 sum: &keyutils-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &keyutils-time;</para>
+        <para>
+          Download size: &keyutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &keyutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &keyutils-time;
+        </para>
       </listitem>
     </itemizedlist>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of keyutils</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>keyutils</application> by running the following
-    commands:</para>
+    <para>
+      Install keyutils by running the following commands:
+    </para>
 
 <screen><userinput>make</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
 
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
 <screen role="root"><userinput>make NO_ARLIB=1 install</userinput></screen>
 
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>NO_ARLIB=1</parameter>: This make flag disables installing
+        the static library.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <parameter>NO_ARLIB=1</parameter>: This make flag disables installing the
-      static library.
-    </para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring keyutils</title>
+  <sect2>
+    <title>Configuration</title>
 
     <sect3 id="keyutils-config">
       <title>Config Files</title>
@@ -90,11 +112,10 @@
         <filename>/etc/request-key.d/*</filename>
       </para>
 
-      <indexterm zone="keyutils keyutils-config">
+      <indexterm zone="keyutils">
         <primary sortas="e-etc-request-key.conf">/etc/request-key.conf</primary>
       </indexterm>
-
-      <indexterm zone="keyutils keyutils-config">
+      <indexterm zone="keyutils">
         <primary sortas="e-etc-request-key.d">/etc/request-key.d/*</primary>
       </indexterm>
 
@@ -102,48 +123,39 @@
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="keyutils">
+      <primary sortas="b-keyctl">keyctl</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="b-key.dns_resolver">key.dns_resolver</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="b-request-key">request-key</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="c-libkeyutils.so">libkeyutils.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>keyctl, key.dns_resolver, and request-key</seg>
-        <seg>libkeyutils.so</seg>
-        <seg>/usr/share/keyutils</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="keyctl">
-        <term><command>keyctl</command></term>
-        <listitem>
-          <para>is to control the key management facility in various ways
-          using a variety of subcommands.</para>
-          <indexterm zone="keyutils keyctl">
-            <primary sortas="b-keyctl">keyctl</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libkeyutils">
-        <term><filename class='libraryfile'>libkeyutils.so</filename></term>
-        <listitem>
-          <para> contains the keyuils library API instantiation.</para>
-          <indexterm zone="keyutils libkeyutils">
-            <primary sortas="c-libkeyutils">libkeyutils.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/bin/keyctl
+/etc/request-key.conf
+/etc/request-key.d/
+/sbin/key.dns_resolver
+/sbin/request-key
+/usr/include/keyutils.h
+/usr/lib/libkeyutils.so
+/usr/share/keyutils/
+/usr/share/man/man1/keyctl.1
+/usr/share/man/man3/keyctl.3
+/usr/share/man/man5/request-key.conf.5
+/usr/share/man/man8/key.dns_resolver.8
+/usr/share/man/man8/request-key.8</literal></screen>
 
   </sect2>
 
