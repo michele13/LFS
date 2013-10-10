@@ -85,7 +85,7 @@
       <xref linkend="curl"/>,
       <xref linkend="gst-ffmpeg"/> or
       <xref linkend="ffmpeg"/>,
-      <xref linkend="firefox"/> and
+      <xref linkend="npapi-sdk"/>, and
       <xref linkend="giflib"/>
     </para>
 
@@ -123,7 +123,7 @@ sed -i '/^LIBS/s/\(.*\)/\1 -lboost_system/' \
   gui/Makefile.in utilities/Makefile.in &amp;&amp;
 sed -i "/DGifOpen/s:Data:&amp;, NULL:" libbase/GnashImageGif.cpp &amp;&amp;
 ./configure --prefix=/usr --sysconfdir=/etc               \
-  --with-npapi-incl=/usr/include/npapi --enable-media=gst \
+  --with-npapi-incl=/usr/include/npapi-sdk --enable-media=gst \
   --with-npapi-plugindir=/usr/lib/mozilla/plugins         \
   --without-gconf &amp;&amp;
 make</userinput></screen>
@@ -161,9 +161,8 @@ make install-plugin</userinput></screen>
     </para>
 
     <para>
-      <option>--with-npapi-incl=/usr/include/npapi</option>: This option tells
-      it where to find some Mozilla headers that it needs. You should have
-      installed these headers when you installed <xref linkend="npapi-firefox"/>.
+      <option>--with-npapi-incl=/usr/include/npapi-sdk</option>: This option tells
+      it where to find some Mozilla headers that it needs.
     </para>
 
     <para>
