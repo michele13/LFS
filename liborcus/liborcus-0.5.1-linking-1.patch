@@ -1,0 +1,19 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2013-10-11
+Initial Package Version: 0.5.1
+Upstream Status:         Unknown
+Origin:                  Gentoo
+Description:             Fixes linking with Boost libraries.
+
+diff -Naur liborcus-0.5.1.orig/src/parser/Makefile.am liborcus-0.5.1/src/parser/Makefile.am
+--- liborcus-0.5.1.orig/src/parser/Makefile.am	2013-04-12 16:25:03.000000000 +0200
++++ liborcus-0.5.1/src/parser/Makefile.am	2013-10-09 18:04:16.214339489 +0200
+@@ -20,7 +20,7 @@
+ 
+ liborcus_parser_@ORCUS_API_VERSION@_la_LDFLAGS = -no-undefined
+ liborcus_parser_@ORCUS_API_VERSION@_la_LIBADD = \
+-	 $(ZLIB_LIBS)
++	$(BOOST_SYSTEM_LIB) $(ZLIB_LIBS)
+ 
+ EXTRA_PROGRAMS = \
+ 	parser-test-string-pool \
