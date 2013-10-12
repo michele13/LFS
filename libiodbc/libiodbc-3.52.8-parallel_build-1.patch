@@ -1,0 +1,30 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2013-10-12
+Initial Package Version: 3.52.8
+Upstream Status:         Unknown
+Origin:                  Gentoo
+Description:             Fixes building with make -jX, if X > 1
+
+diff -Naur libiodbc-3.52.8.orig/iodbcadm/Makefile.am libiodbc-3.52.8/iodbcadm/Makefile.am
+--- libiodbc-3.52.8.orig/iodbcadm/Makefile.am	2012-03-27 14:39:12.000000000 +0200
++++ libiodbc-3.52.8/iodbcadm/Makefile.am	2013-10-12 11:58:48.391972253 +0200
+@@ -96,7 +96,7 @@
+ 
+ if GTK
+ libiodbcadm_la_LIBADD	= \
+-	../iodbcadm/gtk/libiodbcadm-gtk.la \
++	gtk/libiodbcadm-gtk.la \
+ 	$(LIBADD_DL) \
+ 	@GTK_LIBS@ \
+ 	../iodbcinst/libiodbc_common.la \
+@@ -117,8 +117,8 @@
+ 
+ iodbcadm_gtk_SOURCES	=
+ iodbcadm_gtk_LDADD	= \
+-	../iodbcadm/gtk/main.lo \
+-	../iodbcadm/libiodbcadm.la \
++	gtk/main.lo \
++	libiodbcadm.la \
+ 	../iodbcinst/libiodbcinst.la \
+ 	../iodbc/libiodbc.la \
+ 	@GTK_LIBS@
