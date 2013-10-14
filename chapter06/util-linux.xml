@@ -59,13 +59,13 @@ mkdir -pv /var/lib/hwclock</userinput></screen>
   <sect2 role="installation">
     <title>Installation of Util-linux</title>
 
-<screen><userinput remap="configure">./configure --disable-su --disable-sulogin --disable-login</userinput></screen>
+<screen><userinput remap="configure">./configure --disable-su --disable-sulogin --disable-login --disable-static</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure option:</title>
 
       <varlistentry>
-        <term><parameter>--disable-*</parameter></term>
+        <term><parameter>--disable-su --disable-sulogin --disable-login</parameter></term>
         <listitem>
           <para>These switches disable building su, sulogin, and login.  They
           duplicate the same programs provided by <xref
@@ -125,7 +125,7 @@ su nobody -s /bin/bash -c "PATH=$PATH make check"</userinput></screen>
         taskset, ul, umount, unshare, utmpdump, uuidd, uuidgen, wall,
         wdctl, whereis, wipefs, and x86_64</seg>
 
-        <seg>libblkid.{a,so}, libmount.{a,so}, libuuid.{a,so}</seg>
+        <seg>libblkid.so, libmount.so, libuuid.so</seg>
 
         <seg>/usr/include/blkid, /usr/include/libmount, /usr/include/uuid,
         /usr/share/getopt, /var/lib/hwclock</seg>
