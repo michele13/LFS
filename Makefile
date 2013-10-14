@@ -1,6 +1,6 @@
 BASEDIR = ~/lfs-book
 DUMPDIR = ~/lfs-commands
-RENDERTMP = $(HOME)/tmp
+RENDERTMP = /tmp
 CHUNK_QUIET = 1
 ROOT_ID =
 PDF_OUTPUT = LFS-BOOK.pdf
