@@ -55,7 +55,7 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
 
     <para>Prepare Readline for compilation:</para>
 
-<screen><userinput remap="configure">./configure --prefix=/usr --libdir=/lib</userinput></screen>
+<screen><userinput remap="configure">./configure --prefix=/usr --libdir=/lib --disable-static</userinput></screen>
 
     <para>Compile the package:</para>
 
@@ -81,10 +81,6 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
 
 <screen><userinput remap="install">make install</userinput></screen>
 
-    <para>Now move the static libraries to a more appropriate location:</para>
-
-<screen><userinput remap="install">mv -v /lib/lib{readline,history}.a /usr/lib</userinput></screen>
-
     <para>Next, remove the <filename class="extension">.so</filename> files in
     <filename class="directory">/lib</filename> and relink them into <filename
     class="directory">/usr/lib</filename>:</para>
@@ -109,7 +105,7 @@ install -v -m644 doc/*.{ps,pdf,html,dvi} \
       <segtitle>Installed directories</segtitle>
 
       <seglistitem>
-        <seg>libhistory.{a,so}, and libreadline.{a,so}</seg>
+        <seg>libhistory.so, and libreadline.so</seg>
         <seg>/usr/include/readline, /usr/share/readline,
         /usr/share/doc/readline-&readline-version;</seg>
       </seglistitem>
