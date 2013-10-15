@@ -9,29 +9,29 @@
   <?dbhtml filename="kernel.html"?>
 
   <sect1info condition="script">
-    <productname>linux-libre</productname>
-    <productnumber>&linux-libre-version;-gnu</productnumber>
-    <address>&linux-libre-url;</address>
+    <productname>linux</productname>
+    <productnumber>&linux-version;</productnumber>
+    <address>&linux-url;</address>
   </sect1info>
 
-  <title>Linux-libre-&linux-libre-version;-gnu</title>
+  <title>Linux-&linux-version;</title>
 
   <indexterm zone="ch-bootable-kernel">
-    <primary sortas="a-Linux-libre">Linux-libre</primary>
+    <primary sortas="a-Linux">Linux</primary>
   </indexterm>
 
   <sect2 role="package">
     <title/>
 
-    <para>The Linux-libre package contains the Linux-libre kernel.</para>
+    <para>The Linux package contains the Linux kernel.</para>
 
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
       <segtitle>&diskspace;</segtitle>
 
       <seglistitem>
-        <seg>&linux-libre-ch8-sbu;</seg>
-        <seg>&linux-libre-ch8-du;</seg>
+        <seg>&linux-ch8-sbu;</seg>
+        <seg>&linux-ch8-du;</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -105,7 +105,7 @@
     <para>If desired, skip kernel configuration by copying the kernel
     config file, <filename>.config</filename>, from the host system
     (assuming it is available) to the unpacked <filename
-    class="directory">linux-&linux-libre-version;</filename> directory. However,
+    class="directory">linux-&linux-version;</filename> directory. However,
     we do not recommend this option. It is often better to explore all the
     configuration menus and create the kernel configuration from
     scratch.</para>
@@ -119,7 +119,7 @@
     Information pertaining to modules and kernel configuration is
     located in <xref linkend="ch-scripts-udev"/> and in the kernel
     documentation in the <filename
-    class="directory">linux-&linux-libre-version;/Documentation</filename> directory.
+    class="directory">linux-&linux-version;/Documentation</filename> directory.
     Also, <filename>modprobe.conf(5)</filename> may be of interest.</para>
 
     <para>Install the modules, if the kernel configuration uses them:</para>
@@ -136,7 +136,7 @@
     the automatic setup of the boot process described in the next section.  The
     following command assumes an x86 architecture:</para>
 
-<screen><userinput remap="install">cp -v arch/x86/boot/bzImage /boot/vmlinuz-&linux-libre-version;-gnu-lfs-&version;</userinput></screen>
+<screen><userinput remap="install">cp -v arch/x86/boot/bzImage /boot/vmlinuz-&linux-version;-lfs-&version;</userinput></screen>
 
     <para><filename>System.map</filename> is a symbol file for the kernel.
     It maps the function entry points of every function in the kernel API,
@@ -144,7 +144,7 @@
     kernel.  It is used as a resource when investigating kernel problems.
     Issue the following command to install the map file:</para>
 
-<screen><userinput remap="install">cp -v System.map /boot/System.map-&linux-libre-version;-gnu</userinput></screen>
+<screen><userinput remap="install">cp -v System.map /boot/System.map-&linux-version;</userinput></screen>
 
     <para>The kernel configuration file <filename>.config</filename>
     produced by the <command>make menuconfig</command> step
@@ -152,12 +152,12 @@
     that was just compiled. It is a good idea to keep this file for future
     reference:</para>
 
-<screen><userinput remap="install">cp -v .config /boot/config-&linux-libre-version;-gnu</userinput></screen>
+<screen><userinput remap="install">cp -v .config /boot/config-&linux-version;</userinput></screen>
 
     <para>Install the documentation for the Linux kernel:</para>
 
-<screen><userinput remap="install">install -d /usr/share/doc/linux-libre-&linux-libre-version;-gnu
-cp -r Documentation/* /usr/share/doc/linux-libre-&linux-libre-version;-gnu</userinput></screen>
+<screen><userinput remap="install">install -d /usr/share/doc/linux-&linux-version;
+cp -r Documentation/* /usr/share/doc/linux-&linux-version;</userinput></screen>
 
     <para>It is important to note that the files in the kernel source
     directory are not owned by <emphasis>root</emphasis>. Whenever a
@@ -173,7 +173,7 @@ cp -r Documentation/* /usr/share/doc/linux-libre-&linux-libre-version;-gnu</user
 
     <para>If the kernel source tree is going to be retained, run
     <command>chown -R 0:0</command> on the <filename
-    class="directory">linux-&linux-libre-version;</filename> directory to ensure
+    class="directory">linux-&linux-version;</filename> directory to ensure
     all files are owned by user <emphasis>root</emphasis>.</para>
 
     <warning>
@@ -197,13 +197,13 @@ cp -r Documentation/* /usr/share/doc/linux-libre-&linux-libre-version;-gnu</user
   </sect2>
 
   <sect2 id="conf-modprobe" role="configuration">
-    <title>Configuring Linux-libre Module Load Order</title>
+    <title>Configuring Linux Module Load Order</title>
 
     <indexterm zone="conf-modprobe">
       <primary sortas="e-/etc/modprobe.d/usb.conf">/etc/modprobe.d/usb.conf</primary>
     </indexterm>
 
-    <para>Most of the time Linux-libre modules are loaded automatically, but
+    <para>Most of the time Linux modules are loaded automatically, but
     sometimes it needs some specific direction.  The program that loads
     modules, <command>modprobe</command> or <command>insmod</command>, uses
     <filename>/etc/modprobe.d/usb.conf</filename> for this purpose.  This file
@@ -228,17 +228,17 @@ EOF</userinput></screen>
   </sect2>
 
   <sect2 id="contents-kernel" role="content">
-    <title>Contents of Linux-libre</title>
+    <title>Contents of Linux</title>
 
     <segmentedlist>
       <segtitle>Installed files</segtitle>
       <segtitle>Installed directories</segtitle>
 
       <seglistitem>
-        <seg>config-&linux-libre-version;-gnu,
-        vmlinuz-&linux-libre-version;-lfs-&version;-gnu, and
-        System.map-&linux-libre-version;-gnu</seg>
-        <seg>/lib/modules, /usr/share/doc/linux-libre-&linux-libre-version;-gnu</seg>
+        <seg>config-&linux-version;,
+        vmlinuz-&linux-version;-lfs-&version;, and
+        System.map-&linux-version;</seg>
+        <seg>/lib/modules, /usr/share/doc/linux-&linux-version;</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -248,17 +248,17 @@ EOF</userinput></screen>
       <?dbhtml list-presentation="table"?>
 
       <varlistentry id="config">
-        <term><filename>config-&linux-libre-version;-gnu</filename></term>
+        <term><filename>config-&linux-version;</filename></term>
         <listitem>
           <para>Contains all the configuration selections for the kernel</para>
           <indexterm zone="ch-bootable-kernel config">
-            <primary sortas="e-/boot/config">/boot/config-&linux-libre-version;-gnu</primary>
+            <primary sortas="e-/boot/config">/boot/config-&linux-version;</primary>
           </indexterm>
         </listitem>
       </varlistentry>
 
       <varlistentry id="lfskernel">
-        <term><filename>vmlinuz-&linux-libre-version;-lfs-&version;-gnu</filename></term>
+        <term><filename>vmlinuz-&linux-version;-lfs-&version;</filename></term>
         <listitem>
           <para>The engine of the Linux system. When turning on the computer,
           the kernel is the first part of the operating system that gets loaded.
@@ -267,19 +267,19 @@ EOF</userinput></screen>
           software and turns a single CPU into a multitasking machine capable
           of running scores of programs seemingly at the same time</para>
           <indexterm zone="ch-bootable-kernel lfskernel">
-            <primary sortas="b-lfskernel">lfskernel-&linux-libre-version;-gnu</primary>
+            <primary sortas="b-lfskernel">lfskernel-&linux-version;</primary>
           </indexterm>
         </listitem>
       </varlistentry>
 
       <varlistentry id="System.map">
-        <term><filename>System.map-&linux-libre-version;-gnu</filename></term>
+        <term><filename>System.map-&linux-version;</filename></term>
         <listitem>
           <para>A list of addresses and symbols; it maps the entry points and
           addresses of all the functions and data structures in the
           kernel</para>
           <indexterm zone="ch-bootable-kernel System.map">
-            <primary sortas="e-/boot/System.map">/boot/System.map-&linux-libre-version;-gnu</primary>
+            <primary sortas="e-/boot/System.map">/boot/System.map-&linux-version;</primary>
           </indexterm>
         </listitem>
       </varlistentry>
