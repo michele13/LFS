@@ -1,0 +1,36 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2013-10-16
+Initial Package Version: 4.1.2.3
+Upstream Status:         Fixed
+Origin:                  LibreOffice devel mailing list
+Description:             Fixes building with system-installed mdds version >= 0.9
+
+diff -Naur libreoffice-4.1.2.3.orig/sc/inc/mtvelements.hxx libreoffice-4.1.2.3/sc/inc/mtvelements.hxx
+--- libreoffice-4.1.2.3.orig/sc/inc/mtvelements.hxx	2013-09-29 01:20:00.000000000 +0200
++++ libreoffice-4.1.2.3/sc/inc/mtvelements.hxx	2013-10-16 18:42:58.992843809 +0200
+@@ -63,11 +63,11 @@
+ namespace sc {
+ 
+ // Broadcaster storage container
+-typedef mdds::mtv::custom_block_func1<sc::element_type_broadcaster, sc::custom_broadcaster_block> BCBlkFunc;
++typedef mdds::mtv::custom_block_func1<sc::custom_broadcaster_block> BCBlkFunc;
+ typedef mdds::multi_type_vector<BCBlkFunc> BroadcasterStoreType;
+ 
+ // Cell text attribute container.
+-typedef mdds::mtv::custom_block_func1<sc::element_type_celltextattr, sc::custom_celltextattr_block> CTAttrFunc;
++typedef mdds::mtv::custom_block_func1<sc::custom_celltextattr_block> CTAttrFunc;
+ typedef mdds::multi_type_vector<CTAttrFunc> CellTextAttrStoreType;
+ 
+ /**
+diff -Naur libreoffice-4.1.2.3.orig/sc/source/core/tool/scmatrix.cxx libreoffice-4.1.2.3/sc/source/core/tool/scmatrix.cxx
+--- libreoffice-4.1.2.3.orig/sc/source/core/tool/scmatrix.cxx	2013-09-29 01:20:00.000000000 +0200
++++ libreoffice-4.1.2.3/sc/source/core/tool/scmatrix.cxx	2013-10-16 18:44:09.712846964 +0200
+@@ -89,7 +89,7 @@
+             }
+         }
+ 
+-        static void delete_block(mdds::mtv::base_element_block* p)
++        static void delete_block(const mdds::mtv::base_element_block* p)
+         {
+             if (!p)
+                 return;
