@@ -6,9 +6,9 @@
 
   <!ENTITY curl-download-http "http://curl.haxx.se/download/curl-&curl-version;.tar.bz2">
   <!ENTITY curl-download-ftp  " ">
-  <!ENTITY curl-md5sum        "30d04b0a8c43c6770039d1bf033dfe79">
-  <!ENTITY curl-size          "2.6 MB">
-  <!ENTITY curl-buildsize     "29 MB (additional 7 MB for tests)">
+  <!ENTITY curl-md5sum        "57409d6bf0bd97053b8378dbe0cadcef">
+  <!ENTITY curl-size          "2.7 MB">
+  <!ENTITY curl-buildsize     "31 MB (additional 7 MB for tests)">
   <!ENTITY curl-time          "0.5 SBU (additional 2.9 SBU for tests)">
 ]>
 
@@ -77,14 +77,13 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <ulink url="http://daniel.haxx.se/projects/c-ares/">c-ares</ulink>,
       <xref linkend="libidn"/>,
-      <ulink url="https://launchpad.net/libmetalink/">libmetalink</ulink>,
-      <ulink url="http://www.libssh2.org">libssh2</ulink>,
       <xref linkend="mitkrb"/>,
-      <xref linkend="openldap"/> and
-      <ulink url="http://www.vintela.com/resources/topics/spnego/">
-      SPNEGO</ulink>
+      <xref linkend="openldap"/>,
+      <ulink url="http://daniel.haxx.se/projects/c-ares/">c-ares</ulink>,
+      <ulink url="https://launchpad.net/libmetalink/">libmetalink</ulink>,
+      <ulink url="http://www.libssh2.org">libssh2</ulink>, and
+      <ulink url="http://www.vintela.com/resources/topics/spnego/">SPNEGO</ulink>
     </para>
 
     <bridgehead renderas="sect4">Optional for Running the Test Suite</bridgehead>
@@ -104,8 +103,7 @@
 
 <screen><userinput>./configure --prefix=/usr              \
             --disable-static           \
-            --enable-threaded-resolver \
-            --with-ca-path=/etc/ssl/certs &amp;&amp;
+            --enable-threaded-resolver &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -132,14 +130,6 @@ cp -v -R docs/*     /usr/share/doc/curl-&curl-version;</userinput></screen>
     <para>
       <parameter>--enable-threaded-resolver</parameter>: This switch enables
       <application>cURL</application>'s builtin threaded DNS resolver.
-    </para>
-
-    <para>
-      <parameter>--with-ca-path=/etc/ssl/certs</parameter>: This parameter
-      sets the directory to use as the path to the SSL certificates.
-      If you've not installed <xref linkend="openssl"/>
-      and the <xref linkend="cacerts"/> you can
-      remove this option.
     </para>
 
     <para>
