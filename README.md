@@ -1,1 +1,1 @@
-My personal modifications to the BLFS (http://www.linuxfromscratch.org/blfs/) book.
+My personal modifications to the LFS (http://www.linuxfromscratch.org/lfs/) book.
