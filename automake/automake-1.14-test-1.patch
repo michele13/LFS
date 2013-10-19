@@ -1,0 +1,66 @@
+Submitted By:            Matt Burgess <matthew_at_linuxfromscratch_dot_org>
+Date:                    2013-08-18
+Initial Package Version: 1.14
+Upstream Status:         From Upstream
+Origin:                  https://lists.nongnu.org/archive/html/bug-automake/2013-07/msg00022.html
+Description:             Fixes an intermittent test failure in
+                         t/primary-prefix-invalid-couples.tap caused by
+                         Perl-5.18.
+
+diff -Naur automake-1.14.orig/lib/Automake/Variable.pm automake-1.14/lib/Automake/Variable.pm
+--- automake-1.14.orig/lib/Automake/Variable.pm	2013-06-20 08:44:16.000000000 +0000
++++ automake-1.14/lib/Automake/Variable.pm	2013-08-17 19:46:26.841630215 +0000
+@@ -317,21 +317,21 @@
+ sub variables (;$)
+ {
+   my ($suffix) = @_;
++  my @vars = ();
+   if ($suffix)
+     {
+       if (exists $_primary_dict{$suffix})
+ 	{
+-	  return values %{$_primary_dict{$suffix}};
+-	}
+-      else
+-	{
+-	  return ();
++	  @vars = values %{$_primary_dict{$suffix}};
+ 	}
+     }
+   else
+     {
+-      return values %_variable_dict;
++      @vars = values %_variable_dict;
+     }
++  # The behaviour of the 'sort' built-in is undefined in scalar
++  # context, hence we need an ad-hoc handling for such context.
++  return wantarray ? sort { $a->name cmp $b->name } @vars : scalar @vars;
+ }
+ 
+ =item C<Automake::Variable::reset>
+@@ -1080,7 +1080,7 @@
+ sub variables_dump ()
+ {
+   my $text = "all variables:\n{\n";
+-  foreach my $var (sort { $a->name cmp $b->name } variables)
++  foreach my $var (variables())
+     {
+       $text .= $var->dump;
+     }
+diff -Naur automake-1.14.orig/t/preproc-errmsg.sh automake-1.14/t/preproc-errmsg.sh
+--- automake-1.14.orig/t/preproc-errmsg.sh	2013-06-19 09:29:50.000000000 +0000
++++ automake-1.14/t/preproc-errmsg.sh	2013-08-17 19:47:30.491966226 +0000
+@@ -58,11 +58,11 @@
+ sub/local.mk:3: 'sub-two.a' is not a standard library name
+ sub/local.mk:3: did you mean 'libsub-two.a'?
+ Makefile.am:2: 'sub/local.mk' included from here
+-Makefile.am:1: variable 'x1_SOURCES' is defined but no program or
+-Makefile.am:1: library has 'x1' as canonical name (possible typo)
+ sub/local.mk:4: variable 'sub_x2_SOURCES' is defined but no program or
+ sub/local.mk:4: library has 'sub_x2' as canonical name (possible typo)
+ Makefile.am:2: 'sub/local.mk' included from here
++Makefile.am:1: variable 'x1_SOURCES' is defined but no program or
++Makefile.am:1: library has 'x1' as canonical name (possible typo)
+ END
+ 
+ # We need to break these substitutions into multiple sed invocations
