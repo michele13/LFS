@@ -126,21 +126,57 @@ make</userinput></screen>
 
   </sect2>
 
-<!--
   <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cp -rv /usr/share/doc/dovecot/example-config/* /etc/dovecot/ &amp;&amp;
-sed -i '/^\!include / s/^/#/' /etc/dovecot/dovecot.conf &amp;&amp;
+    <para>
+      Copy an example configuration, which you can use as your starting point:
+    </para>
 
+<screen role="root"><userinput>cp -rv /usr/share/doc/dovecot/example-config/* /etc/dovecot</userinput></screen>
+
+    <para>
+      The following configuration is a simple proof of concept with IMAP service
+      using local users for authentication and mailbox location. Reading files
+      from the <filename class="directory">conf.d</filename> directory is
+      commented out since the included example configuration requires OpenSSL
+      and Linux PAM.
+    </para>
+
+<screen role="root"><userinput>sed -i '/^\!include / s/^/#/' /etc/dovecot/dovecot.conf &amp;&amp;
+chmod -v 1777 /var/mail &amp;&amp;
 cat &gt; /etc/dovecot/local.conf &lt;&lt; "EOF"
-<literal>passdb {
+<literal>protocols = imap
+ssl = no
+mail_location = mbox:~/Mail:INBOX=/var/mail/%u
+userdb {
+  driver = passwd
+}
+passdb {
   driver = shadow
 }</literal>
 EOF</userinput></screen>
 
+    <para>
+      You will definitely want to read the official documentation at <ulink
+      url="http://wiki2.dovecot.org/"/> if you plan to use Dovecot in production
+      environment.
+    </para>
+
+    <sect3>
+      <title>Boot Script</title>
+
+      <para>
+        If you want the Dovecot server to start automatically when the system is
+        booted, install the <filename>/etc/rc.d/init.d/dovecot</filename> init
+        script included in the <xref linkend="bootscripts"/> package.
+      </para>
+
+<screen role="root"><userinput>make install-dovecot</userinput></screen>
+
+    </sect3>
+
   </sect2>
--->
 
   <sect2>
     <title>Contents</title>
@@ -156,6 +192,18 @@ EOF</userinput></screen>
     </indexterm>
     <indexterm zone="dovecot">
       <primary sortas="b-dsync">dsync</primary>
+    </indexterm>
+    <indexterm zone="dovecot">
+      <primary sortas="e-etc-dovecot-dovecot.conf">/etc/dovecot/dovecot.conf</primary>
+    </indexterm>
+    <indexterm zone="dovecot">
+      <primary sortas="e-etc-dovecot-conf.d">/etc/dovecot/conf.d/*</primary>
+    </indexterm>
+    <indexterm zone="dovecot">
+      <primary sortas="e-etc-dovecot-local.conf">/etc/dovecot/local.conf</primary>
+    </indexterm>
+    <indexterm zone="dovecot">
+      <primary sortas="f-dovecot">dovecot</primary>
     </indexterm>
 
     <para>
