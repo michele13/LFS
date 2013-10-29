@@ -4,8 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY xterm-homepage      "http://invisible-island.net/xterm/">
+  <!ENTITY xterm-wikipedia     "http://en.wikipedia.org/wiki/Xterm">
   <!ENTITY xterm-download-http " ">
-  <!ENTITY xterm-download-ftp  "ftp://invisible-island.net/xterm/xterm-&xterm-version;.tgz">
+  <!ENTITY xterm-download-ftp
+  "ftp://invisible-island.net/xterm/xterm-&xterm-version;.tgz">
   <!ENTITY xterm-md5sum        "45610ae6fe90cf086fcd75b9cb97bbaf">
   <!ENTITY xterm-size          "1.1 MB">
   <!ENTITY xterm-buildsize     "14 MB">
@@ -17,52 +20,64 @@
 
   <title>xterm-&xterm-version;</title>
 
-  <indexterm zone="xterm2">
-    <primary sortas="a-xterm2">xterm</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to xterm</title>
+    <title>Introduction</title>
 
-    <para><application>xterm</application> is a terminal emulator for
-    the X Window System.</para>
+    <para>
+      xterm is a terminal emulator for the X Window System.
+    </para>
 
     &not-katamari;
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&xterm-download-http;"/></para>
+        <para>
+          Download (HTTP): <ulink url="&xterm-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&xterm-download-ftp;"/></para>
+        <para>
+          Download (FTP): <ulink url="&xterm-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &xterm-md5sum;</para>
+        <para>
+          Download MD5 sum: &xterm-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &xterm-size;</para>
+        <para>
+          Download size: &xterm-size;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &xterm-buildsize;</para>
+        <para>
+          Estimated disk space required: &xterm-buildsize;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &xterm-time;</para>
+        <para>
+          Estimated build time: &xterm-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">xterm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="xorg7-app"/></para>
+    <para role="required">
+      <xref linkend="xorg7-app"/>
+    </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of xterm</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>xterm</application> by running the
-    following commands:</para>
+    <para>
+      Install xterm by running the following commands:
+    </para>
 
 <screen><userinput>sed -i '/v0/,+1s/new:/new:kb=^?:/' termcap &amp;&amp;
 echo -e '\tkbs=\\177,' &gt;&gt;terminfo &amp;&amp;
@@ -70,51 +85,59 @@ TERMINFO=/usr/share/terminfo ./configure $XORG_CONFIG \
     --with-app-defaults=/etc/X11/app-defaults &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem>
-    user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
 make install-ti</userinput></screen>
 
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i ... termcap</command>, <command>echo ... >>terminfo</command>:
+        These commands modify the terminal description, so that the Backspace
+        key is expected to send the character with ASCII code 127, for
+        consistency with the Linux console.
+      </para>
+
+      <para>
+        <parameter>TERMINFO=/usr/share/terminfo</parameter>: This ensures that
+        the <command>xterm</command> terminfo files are installed to the system
+        terminfo database when the installation prefix is not <filename
+        class="directory">/usr</filename>.
+      </para>
+
+      <para>
+        <parameter>--with-app-defaults=...</parameter>: Sets the location for
+        the <filename class="directory">app-defaults</filename> directory.
+      </para>
+
+      <para>
+        <command>make install-ti</command>: This command installs corrected
+        terminfo description files for use with xterm.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+  <sect2>
+    <title>Configuration</title>
 
-    <para><command>sed -i ... termcap</command>,
-    <command>echo ... >>terminfo</command>: These commands modify the terminal
-    description, so that the Backspace key is expected to send the character
-    with ASCII code 127, for consistency with the Linux console.</para>
+    <para>
+      There are two ways to configure xterm. You can add X resource definitions
+      to the user's <filename>~/.Xresources</filename> file, or add them to the
+      system-wide <filename>/usr/share/X11/app-defaults/Xterm</filename> file.
+    </para>
 
-    <para><parameter>TERMINFO=/usr/share/terminfo</parameter>: This ensures
-    that the <command>xterm</command> terminfo files are installed to the
-    system terminfo database when the installation prefix is not
-    <filename class="directory">/usr</filename>.</para>
-
-    <para><parameter>--with-app-defaults=...</parameter>: Sets the location
-    for the <filename class="directory">app-defaults</filename>
-    directory.</para>
-
-    <para><command>make install-ti</command>: This command installs corrected
-    terminfo description files for use with
-    <application>xterm</application>.</para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring xterm</title>
-
-    <para>There are two ways to configure xterm.  You can add X resource
-    definitions to the user's <filename>~/.Xresources</filename> file, or
-    add them to the system-wide
-    <filename>/usr/share/X11/app-defaults/Xterm</filename> file.</para>
-
-    <para>In order for xterm to follow the locale settings in the environment,
-    use TrueType fonts, and follow the Linux convention about the code sent by
-    the Backspace key, add the following definitions as the
-    <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      In order for xterm to follow the locale settings in the environment, use
+      TrueType fonts, and follow the Linux convention about the code sent by the
+      Backspace key, add the following definitions as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>cat &gt;&gt; /etc/X11/app-defaults/XTerm &lt;&lt; "EOF"
 <literal>*VT100*locale: true
@@ -126,72 +149,61 @@ EOF</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="xterm2">
+      <primary sortas="b-koi8rxterm">koi8rxterm</primary>
+    </indexterm>
+    <indexterm zone="xterm2">
+      <primary sortas="b-resize">resize</primary>
+    </indexterm>
+    <indexterm zone="xterm2">
+      <primary sortas="b-uxterm">uxterm</primary>
+    </indexterm>
+    <indexterm zone="xterm2">
+      <primary sortas="b-xterm2">xterm</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>koi8rxterm, resize, uxterm, and xterm</seg>
-        <seg>None</seg>
-        <seg>None</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="koi8rxterm">
-        <term><command>koi8rxterm</command></term>
-        <listitem>
-          <para>is a wrapper script to set up xterm with a KOI8-R locale.</para>
-          <indexterm zone="xterm2 koi8rxterm">
-            <primary sortas="b-koi8rxterm">koi8rxterm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-
-
-      <varlistentry id="resize">
-        <term><command>resize</command></term>
-        <listitem>
-          <para>prints a shell command for setting the TERM and TERMCAP
-          environment  variables to indicate the current size of xterm
-          window.</para>
-          <indexterm zone="xterm2 resize">
-            <primary sortas="b-resize">resize</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="uxterm">
-        <term><command>uxterm</command></term>
-        <listitem>
-          <para>is a wrapper script that modifies the current locale to use UTF-8
-          and starts xterm with the proper settings.</para>
-          <indexterm zone="xterm2 uxterm">
-            <primary sortas="b-uxterm">uxterm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xterm-bin">
-        <term><command>xterm</command></term>
-        <listitem>
-          <para>is a terminal emulator for the X Window System.</para>
-          <indexterm zone="xterm2 xterm2">
-            <primary sortas="b-xterm2">xterm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/etc/X11/app-defaults/KOI8RXTerm
+/etc/X11/app-defaults/KOI8RXTerm-color
+/etc/X11/app-defaults/UXTerm
+/etc/X11/app-defaults/UXTerm-color
+/etc/X11/app-defaults/XTerm
+/etc/X11/app-defaults/XTerm-color
+/usr/bin/koi8rxterm
+/usr/bin/resize
+/usr/bin/uxterm
+/usr/bin/xterm
+/usr/share/man/man1/koi8rxterm.1
+/usr/share/man/man1/resize.1
+/usr/share/man/man1/uxterm.1
+/usr/share/man/man1/xterm.1
+/usr/share/pixmaps/
+/usr/share/terminfo/x/xterm-65
+/usr/share/terminfo/x/xterm+app+pc
+/usr/share/terminfo/x/xterm-boldso
+/usr/share/terminfo/x/xterm+decedit
+/usr/share/terminfo/x/xterm-ic
+/usr/share/terminfo/x/xterm+kbs
+/usr/share/terminfo/x/xterm-mono
+/usr/share/terminfo/x/xterm+noapp+pc
+/usr/share/terminfo/x/xterm-nrc
+/usr/share/terminfo/x/xterm+pce0
+/usr/share/terminfo/x/xterm+pce1
+/usr/share/terminfo/x/xterm+pce3
+/usr/share/terminfo/x/xterm+pcf1
+/usr/share/terminfo/x/xterm+pcf3
+/usr/share/terminfo/x/xterm+pcfn
+/usr/share/terminfo/x/xterm+pcfN
+/usr/share/terminfo/x/xterm-rep
+/usr/share/terminfo/x/xterm+tmux
+/usr/share/terminfo/x/xterm-vi
+/usr/share/terminfo/x/xterm-xmc</literal></screen>
 
   </sect2>
 
