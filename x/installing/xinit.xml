@@ -4,8 +4,12 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY xinit-download-http "http://xorg.freedesktop.org/releases/individual/app/xinit-&xinit-version;.tar.bz2">
-  <!ENTITY xinit-download-ftp  "ftp://ftp.x.org/pub/individual/app/xinit-&xinit-version;.tar.bz2">
+  <!ENTITY xinit-homepage      " ">
+  <!ENTITY xinit-wikipedia     "http://en.wikipedia.org/wiki/Xinit">
+  <!ENTITY xinit-download-http
+  "http://xorg.freedesktop.org/releases/individual/app/xinit-&xinit-version;.tar.bz2">
+  <!ENTITY xinit-download-ftp
+  "ftp://ftp.x.org/pub/individual/app/xinit-&xinit-version;.tar.bz2">
   <!ENTITY xinit-md5sum        "3b8da0e6237aee9828cc809c647510a7">
   <!ENTITY xinit-size          "161 KB">
   <!ENTITY xinit-buildsize     "1.6 MB">
@@ -17,108 +21,108 @@
 
   <title>xinit-&xinit-version;</title>
 
-  <indexterm zone="xinit">
-    <primary sortas="a-xinit">xinit</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to xinit</title>
+    <title>Introduction</title>
 
-    <para>The <application>xinit</application> package contains a usable script
-    to start the xserver.</para>
+    <para>
+      The xinit package contains a usable script to start the xserver.
+    </para>
 
     &not-katamari;
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&xinit-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&xinit-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&xinit-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&xinit-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &xinit-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&xinit-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &xinit-size;</para>
+        <para>
+          Download (FTP): <ulink url="&xinit-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &xinit-buildsize;</para>
+        <para>
+          Download MD5 sum: &xinit-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &xinit-time;</para>
+        <para>
+          Download size: &xinit-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &xinit-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &xinit-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">xinit Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required (runtime only)</bridgehead>
-    <para role="required"><xref linkend="xclock"/> and
-    <xref linkend="xterm2"/></para>
+    <para role="required">
+      <xref linkend="xterm2"/> and
+      <xref linkend="xclock"/>
+    </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of xinit</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>xinit</application> by running the
-    following commands:</para>
+    <para>
+      Install xinit by running the following commands:
+    </para>
 
 <screen><userinput>./configure $XORG_CONFIG \
             --with-xinitdir=/etc/X11/app-defaults &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem>
-    user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="xinit">
+      <primary sortas="b-startx">startx</primary>
+    </indexterm>
+    <indexterm zone="xinit">
+      <primary sortas="b-xinit">xinit</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>xinit and startx</seg>
-        <seg>None</seg>
-        <seg>None</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
+<screen><literal>/etc/X11/app-defaults/xinitrc
+/usr/bin/startx
+/usr/bin/xinit
+/usr/share/man/man1/startx.1
+/usr/share/man/man1/xinit.1</literal></screen>
 
-      <varlistentry id="startx">
-        <term><command>startx</command></term>
-        <listitem>
-          <para>initializes an X session.</para>
-          <indexterm zone="xinit startx">
-            <primary sortas="b-startx">startx</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xinit-bin">
-        <term><command>xinit</command></term>
-        <listitem>
-          <para>is the X Window System initializer.</para>
-          <indexterm zone="xinit xinit">
-            <primary sortas="b-xinit">xinit</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
   </sect2>
 
 </sect1>
