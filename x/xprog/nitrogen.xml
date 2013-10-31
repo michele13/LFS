@@ -6,10 +6,11 @@
 
   <!ENTITY nitrogen-homepage      "http://projects.l3ib.org/nitrogen/">
   <!ENTITY nitrogen-wikipedia     " ">
-  <!ENTITY nitrogen-download-http "http://projects.l3ib.org/nitrogen/files/nitrogen-&nitrogen-version;.tar.gz">
+<!--  <!ENTITY nitrogen-download-http "http://projects.l3ib.org/nitrogen/files/nitrogen-&nitrogen-version;.tar.gz"> -->
+  <!ENTITY nitrogen-download-http " ">
   <!ENTITY nitrogen-download-ftp  " ">
-  <!ENTITY nitrogen-md5sum        "dd779a252a222eb9d329d74b809cfe73">
-  <!ENTITY nitrogen-size          "301 KB">
+  <!ENTITY nitrogen-md5sum        " ">
+  <!ENTITY nitrogen-size          "1.1 MB">
   <!ENTITY nitrogen-buildsize     "20 MB">
   <!ENTITY nitrogen-time          "0.3 SBU">
 ]>
@@ -48,11 +49,13 @@
           Download (FTP): <ulink url="&nitrogen-download-ftp;"/>
         </para>
       </listitem>
+<!--
       <listitem>
         <para>
           Download MD5 sum: &nitrogen-md5sum;
         </para>
       </listitem>
+-->
       <listitem>
         <para>
           Download size: &nitrogen-size;
@@ -70,21 +73,12 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch: <ulink
-          url="&patch-root;nitrogen/nitrogen-&nitrogen-version;-build_fix-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="gtkmm2"/>
+      <xref linkend="gtkmm2"/> and
+      <xref linkend="git"/>
     </para>
 
   </sect2>
@@ -93,11 +87,17 @@
     <title>Installation</title>
 
     <para>
+      Obtain the source code:
+    </para>
+
+<screen><userinput>git clone git://github.com/l3ib/nitrogen &amp;&amp;
+cd nitrogen</userinput></screen>
+
+    <para>
       Install Nitrogen by running the following commands:
     </para>
 
-<screen><userinput>patch -Np1 -i ../nitrogen-&nitrogen-version;-build_fix-1.patch &amp;&amp;
-autoreconf -fiv &amp;&amp;
+<screen><userinput>./bootstrap &amp;&amp;
 ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
