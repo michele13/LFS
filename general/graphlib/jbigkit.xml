@@ -97,6 +97,9 @@
     </para>
 
 <screen><userinput>patch -Np1 -i ../jbigkit-2.0-fixes-1.patch &amp;&amp;
+sed -e 's/all: lib pbm/all: lib/' \
+    -e '/install.*bin/ s/^/#/' \
+    -e '/install.*man/ s/^/#/' -i Makefile &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -110,13 +113,24 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-chmod -v 755 /usr/lib/libjbig.so.0.0.0</userinput></screen>
+chmod -v 755 /usr/lib/libjbig.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed ...</command>: This command disables building and
+        installing file converter programs since it is currently broken.
+      </para>
+
+    </sect3>
 
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
+<!--
     <indexterm zone="jbigkit">
       <primary sortas="b-jbgtopbm">jbgtopbm</primary>
     </indexterm>
@@ -129,6 +143,7 @@ chmod -v 755 /usr/lib/libjbig.so.0.0.0</userinput></screen>
     <indexterm zone="jbigkit">
       <primary sortas="b-pbmtojbg85">pbmtojbg85</primary>
     </indexterm>
+-->
     <indexterm zone="jbigkit">
       <primary sortas="c-libjbig.so">libjbig.so</primary>
     </indexterm>
@@ -137,6 +152,7 @@ chmod -v 755 /usr/lib/libjbig.so.0.0.0</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
+<!--
 <screen><literal>/usr/bin/jbgtopbm
 /usr/bin/jbgtopbm85
 /usr/bin/pbmtojbg
@@ -145,10 +161,13 @@ chmod -v 755 /usr/lib/libjbig.so.0.0.0</userinput></screen>
 /usr/include/jbig_ar.h
 /usr/include/jbig.h
 /usr/lib/libjbig.so
-/usr/lib/libjbig.so.0
-/usr/lib/libjbig.so.0.0.0
 /usr/share/man/man1/jbgtopbm.1
 /usr/share/man/man1/pbmtojbg.1</literal></screen>
+-->
+<screen><literal>/usr/include/jbig85.h
+/usr/include/jbig_ar.h
+/usr/include/jbig.h
+/usr/lib/libjbig.so</literal></screen>
 
   </sect2>
 
