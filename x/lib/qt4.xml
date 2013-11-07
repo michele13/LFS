@@ -166,13 +166,11 @@ install -v -Dm644 tools/linguist/linguist/images/icons/linguist-128-32.png \
       class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>for file in 3Support CLucene Core Declarative DesignerComponents \
-            Designer Gui Help Multimedia Network OpenGL Script \
-            ScriptTools Sql Svg Test UiTools WebKit XmlPatterns Xml
++<screen role="root"><userinput>for file in `basename -a -s .prl /usr/lib/lib*.prl`; do
 do
   sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' \
-       /usr/lib/libQt${file}.prl
-  perl -pi -e "s, -L$PWD/?\S+,,g" /usr/lib/pkgconfig/Qt${file}.pc
+       $QTDIR/lib/${file}.prl
+  perl -pi -e "s, -L$PWD/?\S+,,g" $QTDIR/lib/pkgconfig/${file##lib}.pc
 done
 unset file</userinput></screen>
 
