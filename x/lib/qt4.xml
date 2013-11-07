@@ -146,6 +146,13 @@ sed -i '/CONFIG -/ a\isEmpty(OUTPUT_DIR): OUTPUT_DIR = ../..' \
 make</userinput></screen>
 
     <para>
+      Remove references to the build directory from the <filename
+      class="extension">.pc</filename> files by running the following command:
+    </para>
+
+<screen><userinput>find . -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;</userinput></screen>
+
+    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
@@ -166,11 +173,12 @@ install -v -Dm644 tools/linguist/linguist/images/icons/linguist-128-32.png \
       class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>for file in `basename -a -s .prl /usr/lib/lib*.prl`; do
+<screen role="root"><userinput>for file in 3Support CLucene Core DBus Declarative DesignerComponents \
+            Designer Gui Help Multimedia Network OpenGL Script \
+            ScriptTools Sql Svg Test UiTools WebKit XmlPatterns Xml phonon
 do
-  sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' \
-       /usr/lib/${file}.prl
-  perl -pi -e "s, -L$PWD/?\S+,,g" /usr/lib/pkgconfig/${file##lib}.pc
+  [ -e /usr/lib/libQt${file}.prl ] &amp;&amp; sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' \
+                                              /usr/lib/libQt${file}.prl
 done
 unset file</userinput></screen>
 
