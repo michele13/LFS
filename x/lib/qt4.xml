@@ -166,11 +166,11 @@ install -v -Dm644 tools/linguist/linguist/images/icons/linguist-128-32.png \
       class="username">root</systemitem> user:
     </para>
 
-+<screen role="root"><userinput>for file in `basename -a -s .prl /usr/lib/lib*.prl`; do
+<screen role="root"><userinput>for file in `basename -a -s .prl /usr/lib/lib*.prl`; do
 do
   sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' \
-       $QTDIR/lib/${file}.prl
-  perl -pi -e "s, -L$PWD/?\S+,,g" $QTDIR/lib/pkgconfig/${file##lib}.pc
+       /usr/lib/${file}.prl
+  perl -pi -e "s, -L$PWD/?\S+,,g" /usr/lib/pkgconfig/${file##lib}.pc
 done
 unset file</userinput></screen>
 
