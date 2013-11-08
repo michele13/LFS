@@ -9,9 +9,9 @@
   <!ENTITY libxcb-download-http
   "http://xcb.freedesktop.org/dist/libxcb-&libxcb-version;.tar.bz2">
   <!ENTITY libxcb-download-ftp  " ">
-  <!ENTITY libxcb-md5sum        "ed632cb0dc31b6fbd7ea5c0f931cf5a4">
-  <!ENTITY libxcb-size          "365 KB">
-  <!ENTITY libxcb-buildsize     "39 MB">
+  <!ENTITY libxcb-md5sum        "1ca999ca94f760d917ef2d8466a88742">
+  <!ENTITY libxcb-size          "391 KB">
+  <!ENTITY libxcb-buildsize     "45 MB">
   <!ENTITY libxcb-time          "0.3 SBU">
 ]>
 
@@ -78,16 +78,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing='compact'>
-      <listitem>
-        <para>
-          Required patch: <ulink
-          url="&patch-root;libxcb/libxcb-&libxcb-version;-automake_bug-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -107,9 +97,8 @@
       Install libxcb by running the following commands:
     </para>
 
-<screen><userinput>patch -Np1 -i ../libxcb-&libxcb-version;-automake_bug-1.patch &amp;&amp;
-sed -e "s/pthread-stubs//" -i configure.ac &amp;&amp;
-autoreconf -fi &amp;&amp;
+<screen><userinput>sed -e "s/pthread-stubs//" -i configure.ac &amp;&amp;
+autoreconf -fiv &amp;&amp;
 ./configure $XORG_CONFIG \
             --enable-xinput \
             --enable-xkb &amp;&amp;
@@ -146,7 +135,82 @@ make</userinput></screen>
     <title>Contents</title>
 
     <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-composite.so">libxcb-composite.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-damage.so">libxcb-damage.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-dpms.so">libxcb-dpms.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-dri2.so">libxcb-dri2.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-dri3.so">libxcb-dri3.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-glx.so">libxcb-glx.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-present.so">libxcb-present.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-randr.so">libxcb-randr.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-record.so">libxcb-record.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-render.so">libxcb-render.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-res.so">libxcb-res.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-screensaver.so">libxcb-screensaver.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-shape.so">libxcb-shape.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-shm.so">libxcb-shm.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
       <primary sortas="c-libxcb.so">libxcb.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-sync.so">libxcb-sync.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xevie.so">libxcb-xevie.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xf86dri.so">libxcb-xf86dri.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xfixes.so">libxcb-xfixes.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xinerama.so">libxcb-xinerama.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xinput.so">libxcb-xinput.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xkb.so">libxcb-xkb.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xprint.so">libxcb-xprint.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xtest.so">libxcb-xtest.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xvmc.so">libxcb-xvmc.so</primary>
+    </indexterm>
+    <indexterm zone="libxcb">
+      <primary sortas="c-libxcb-xv.so">libxcb-xv.so</primary>
     </indexterm>
 
     <para>
@@ -158,7 +222,9 @@ make</userinput></screen>
 /usr/lib/libxcb-damage.so
 /usr/lib/libxcb-dpms.so
 /usr/lib/libxcb-dri2.so
+/usr/lib/libxcb-dri3.so
 /usr/lib/libxcb-glx.so
+/usr/lib/libxcb-present.so
 /usr/lib/libxcb-randr.so
 /usr/lib/libxcb-record.so
 /usr/lib/libxcb-render.so
@@ -168,7 +234,7 @@ make</userinput></screen>
 /usr/lib/libxcb-shm.so
 /usr/lib/libxcb.so
 /usr/lib/libxcb-sync.so
-/usr/lib/libxcb-xevie.so                                                                                                              
+/usr/lib/libxcb-xevie.so
 /usr/lib/libxcb-xf86dri.so
 /usr/lib/libxcb-xfixes.so
 /usr/lib/libxcb-xinerama.so
@@ -182,8 +248,10 @@ make</userinput></screen>
 /usr/lib/pkgconfig/xcb-damage.pc
 /usr/lib/pkgconfig/xcb-dpms.pc
 /usr/lib/pkgconfig/xcb-dri2.pc
+/usr/lib/pkgconfig/xcb-dri3.pc
 /usr/lib/pkgconfig/xcb-glx.pc
 /usr/lib/pkgconfig/xcb.pc
+/usr/lib/pkgconfig/xcb-present.pc
 /usr/lib/pkgconfig/xcb-randr.pc
 /usr/lib/pkgconfig/xcb-record.pc
 /usr/lib/pkgconfig/xcb-render.pc
@@ -193,7 +261,7 @@ make</userinput></screen>
 /usr/lib/pkgconfig/xcb-shm.pc
 /usr/lib/pkgconfig/xcb-sync.pc
 /usr/lib/pkgconfig/xcb-xevie.pc
-/usr/lib/pkgconfig/xcb-xf86dri.pc                                                                                                    
+/usr/lib/pkgconfig/xcb-xf86dri.pc
 /usr/lib/pkgconfig/xcb-xfixes.pc
 /usr/lib/pkgconfig/xcb-xinerama.pc
 /usr/lib/pkgconfig/xcb-xinput.pc
