@@ -5,62 +5,90 @@
   %general-entities;
 ]>
 
-<sect1 id="ch-system-udev" role="wrap">
-  <?dbhtml filename="udev.html"?>
+<sect1 id="ch-system-eudev" role="wrap">
+  <?dbhtml filename="eudev.html"?>
 
   <sect1info condition="script">
-    <productname>udev</productname>
-    <productnumber>&systemd-version;</productnumber>
-    <address>&systemd-url;</address>
+    <productname>eudev</productname>
+    <productnumber>&eudev-version;</productnumber>
+    <address>&eudev-url;</address>
   </sect1info>
 
-  <title>Udev-&systemd-version; (Extracted from systemd-&systemd-version;)</title>
+  <title>eudev-&eudev-version;</title>
 
-  <indexterm zone="ch-system-udev">
-    <primary sortas="a-Udev">Udev</primary>
+  <indexterm zone="ch-system-eudev">
+    <primary sortas="a-eudev">eudev</primary>
   </indexterm>
 
   <sect2 role="package">
     <title/>
 
-    <para>The Udev package contains programs for dynamic creation of device
-    nodes.  The development of udev has been merged with systemd, but
-    most of systemd is incompatible with LFS.  Here we build and install just
-    the needed udev files.</para>
+    <para>The eudev package contains programs for dynamic creation of device
+    nodes.</para>
 
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
       <segtitle>&diskspace;</segtitle>
 
       <seglistitem>
-        <seg>&systemd-ch6-sbu;</seg>
-        <seg>&systemd-ch6-du;</seg>
+        <seg>&eudev-ch6-sbu;</seg>
+        <seg>&eudev-ch6-du;</seg>
       </seglistitem>
     </segmentedlist>
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of Udev</title>
+    <title>Installation of eudev</title>
 
-    <note><para>This package is a little different from other packages.  The
-    initial package that is extracted is
-    <filename>systemd-&systemd-version;.tar.xz</filename> even though the
-    application we are installing is udev. After changing to the
-    systemd directory, follow the instructions below.</para></note>
+    <para>Prepare eudev for compilation:</para>
 
-    <para>The udev-lfs tarball contains LFS-specific files used to build
-    Udev. Unpack it into the systemd source directory:</para>
+<screen><userinput remap="configure">./configure --sbindir=/sbin \
+            --sysconfdir=/etc \
+            --disable-static \
+            --enable-split-usr \
+            --disable-gudev \
+            --disable-keymap \
+            --enable-libkmod \
+            --enable-rule-generator \
+            --with-rootlibdir=/lib \
+            --with-rootprefix= \
+            --with-firmware-path=/lib/firmware</userinput></screen>
 
-<screen><userinput remap="pre">tar -xvf ../&udev-lfs;.tar.bz2</userinput></screen>
+    <variablelist>
+      <title>The meaning of the new configure options</title>
+
+      <varlistentry>
+        <term><parameter>--disable-gudev and --disabe-keymap</parameter></term>
+        <listitem>
+          <para>These options prevent eudev from installing helper programs and
+          other extras which require more external libraries.  These libraries
+          are not part of the base LFS system.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-rule_generator</parameter></term>
+        <listitem>
+          <para>This allows persistent rules to be generated for network and
+          optical media devices</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
     <para>Compile the package:</para>
 
-<screen><userinput remap="make">make -f &udev-lfs;/Makefile.lfs</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
+
+    <para>To test the results, issue:</para>
+
+<screen><userinput remap="test">make check</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make -f &udev-lfs;/Makefile.lfs install</userinput></screen>
+<screen><userinput remap="install">make install &amp;&amp;
+ln -svf /sbin/udevd /lib/udev</userinput></screen>
 
+<!--
     <caution><para>There are several places within the
     <application>systemd</application> source code that have explicit directory
     paths embedded.  For instance, the binary version of the hardware
@@ -70,7 +98,7 @@
 
     <para>Now initialize the hardware database:</para>
 
-<screen><userinput remap="install">build/udevadm hwdb --update</userinput></screen>
+<screen><userinput remap="install">build/udevadm hwdb - -update</userinput></screen>
 
     <para>Finally set up the persistent network udev rules.  This task will be
     explained in detail in <xref linkend='stable-net-names'/>.  Note that the
@@ -80,10 +108,31 @@
     following script to work.</para>
 
 <screen><userinput remap="install">bash &udev-lfs;/init-net-rules.sh</userinput></screen>
+-->
+
+    <para>Install LFS-specific file used to configure eudev:</para>
+
+<screen><userinput remap="install">cat > /etc/udev/rules.d/55-lfs.rules &lt;&lt; EOF
+<literal># /etc/udev/rules.d/55-lfs.rules: Rule definitions for LFS.
+
+# Core kernel devices
+
+# This causes the system clock to be set as soon as /dev/rtc becomes available.
+SUBSYSTEM=="rtc", ACTION=="add", MODE="0644", RUN+="/etc/rc.d/init.d/setclock start"
+KERNEL=="rtc", ACTION=="add", MODE="0644", RUN+="/etc/rc.d/init.d/setclock start"
+
+# Comms devices
+
+KERNEL=="ippp[0-9]*",       GROUP="dialout"
+KERNEL=="isdn[0-9]*",       GROUP="dialout"
+KERNEL=="isdnctrl[0-9]*",   GROUP="dialout"
+KERNEL=="dcbri[0-9]*",      GROUP="dialout"</literal>
+EOF</userinput></screen>
+
   </sect2>
 
-  <sect2 id="contents-udev" role="content">
-    <title>Contents of Udev</title>
+  <sect2 id="contents-eudev" role="content">
+    <title>Contents of eudev</title>
 
     <segmentedlist>
       <segtitle>Installed programs</segtitle>
@@ -96,7 +145,7 @@
 
         <seg>libudev.so</seg>
 
-        <seg>/etc/udev, /lib/udev, /lib/firmware, /usr/share/doc/udev</seg>
+        <seg>/etc/udev, /lib/udev, /lib/firmware</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -110,7 +159,7 @@
         <listitem>
           <para>Provides Udev with a unique string and
           additional information (uuid, label) for an ATA drive</para>
-          <indexterm zone="ch-system-udev ata_id">
+          <indexterm zone="ch-system-eudev ata_id">
             <primary sortas="b-ata_id">ata_id</primary>
           </indexterm>
         </listitem>
@@ -121,7 +170,7 @@
         <listitem>
           <para>Provides Udev with the capabilities of a
           CD-ROM or DVD-ROM drive</para>
-          <indexterm zone="ch-system-udev cdrom_id">
+          <indexterm zone="ch-system-eudev cdrom_id">
             <primary sortas="b-cdrom_id">cdrom_id</primary>
           </indexterm>
         </listitem>
@@ -133,7 +182,7 @@
           <para>Given an ID for the current uevent and a list of
           IDs (for all target uevents), registers the current ID
           and indicates whether all target IDs have been registered</para>
-          <indexterm zone="ch-system-udev collect">
+          <indexterm zone="ch-system-eudev collect">
             <primary sortas="b-collect">collect</primary>
           </indexterm>
         </listitem>
@@ -145,7 +194,7 @@
           <para>Provides Udev with a unique SCSI identifier
           based on the data returned from sending a SCSI INQUIRY command to
           the specified device</para>
-          <indexterm zone="ch-system-udev scsi_id">
+          <indexterm zone="ch-system-eudev scsi_id">
             <primary sortas="b-scsi_id">scsi_id</primary>
           </indexterm>
         </listitem>
@@ -158,7 +207,7 @@
           provides info from the Udev database, monitors uevents, waits for
           uevents to finish, tests Udev configuration, and triggers uevents
           for a given device</para>
-          <indexterm zone="ch-system-udev udevadm">
+          <indexterm zone="ch-system-eudev udevadm">
             <primary sortas="b-udevadm">udevadm</primary>
           </indexterm>
         </listitem>
@@ -170,7 +219,7 @@
           <para>A daemon that listens for uevents on the netlink socket,
           creates devices and runs the configured external programs in
           response to these uevents</para>
-          <indexterm zone="ch-system-udev udevd">
+          <indexterm zone="ch-system-eudev udevd">
             <primary sortas="b-udevd">udevd</primary>
           </indexterm>
         </listitem>
@@ -180,7 +229,7 @@
         <term><filename class="libraryfile">libudev</filename></term>
         <listitem>
           <para>A library interface to udev device information</para>
-          <indexterm zone="ch-system-udev libudev">
+          <indexterm zone="ch-system-eudev libudev">
             <primary sortas="c-libudev">libudev</primary>
           </indexterm>
         </listitem>
@@ -191,7 +240,7 @@
         <listitem>
           <para>Contains Udev configuration files,
           device permissions, and rules for device naming</para>
-          <indexterm zone="ch-system-udev etc-udev">
+          <indexterm zone="ch-system-eudev etc-udev">
             <primary sortas="e-/etc/udev">/etc/udev</primary>
           </indexterm>
         </listitem>
