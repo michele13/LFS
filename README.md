@@ -13,4 +13,4 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * removed docdir configure switches
 * utf8 for html output encoding
 * change render directory to /tmp
-* various other minor fixes
+* various other minor changes
