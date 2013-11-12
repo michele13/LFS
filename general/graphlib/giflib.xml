@@ -4,7 +4,11 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY giflib-download-http "&sourceforge-repo;/giflib/giflib-&giflib-version;.tar.bz2">
+  <!ENTITY giflib-homepage      "http://giflib.sourceforge.net/">
+  <!ENTITY giflib-wikipedia
+  "http://en.wikipedia.org/wiki/Graphics_Interchange_Format">
+  <!ENTITY giflib-download-http
+  "&sourceforge-repo;/giflib/giflib-&giflib-version;.tar.bz2">
   <!ENTITY giflib-download-ftp  " ">
   <!ENTITY giflib-http-md5sum   "c3262ba0a3dad31ba876fb5ba1d71a02">
   <!ENTITY giflib-http-size     "637 KB">
@@ -17,200 +21,123 @@
 
   <title>giflib-&giflib-version;</title>
 
-  <indexterm zone="giflib">
-    <primary sortas="a-giflib">giflib</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to giflib</title>
+    <title>Introduction</title>
 
-    <para>The <application>giflib</application> package contains libraries
-    for reading and writing GIFs as well as programs for converting and
-    working with GIF files.</para>
+    <para>
+      The giflib package contains libraries for reading and writing GIFs as well
+      as programs for converting and working with GIF files.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&giflib-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&giflib-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (HTTP) MD5 sum: &giflib-http-md5sum;</para>
+        <para>
+          Wikipedia: <ulink url="&giflib-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (HTTP) size: &giflib-http-size;</para>
+        <para>
+          Download (HTTP): <ulink url="&giflib-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &giflib-buildsize;</para>
+        <para>
+          Download (HTTP) MD5 sum: &giflib-http-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &giflib-time;</para>
+        <para>
+          Download (HTTP) size: &giflib-http-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &giflib-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &giflib-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">giflib Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="xmlto"/> (for html documentation)
-    </para>
-
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of giflib</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>giflib</application> by running the following
-    commands:</para>
+    <para>
+      Install giflib by running the following commands:
+    </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not have a working test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>If you generated html documentation, install it as the
-    <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>install -v -dm755           /usr/share/doc/giflib-&giflib-version;/html &amp;&amp;
-install -v -m644 doc/*.html /usr/share/doc/giflib-&giflib-version;/html</userinput></screen>
-
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="giflib">
+      <primary sortas="b-gif2raw">gif2raw</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-gif2rgb">gif2rgb</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-gifbuild">gifbuild</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-gifclrmp">gifclrmp</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-gifecho">gifecho</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-giffix">giffix</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-gifinto">gifinto</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-giftext">giftext</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="b-giftool">giftool</primary>
+    </indexterm>
+    <indexterm zone="giflib">
+      <primary sortas="c-libgif.so">libgif.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>gif2raw, gif2rgb, gifbuild, gifclrmp, gifecho, giffix, gifinto,
-        giftext and giftool</seg>
-        <seg>libgif.so</seg>
-        <seg>/usr/share/doc/giflib-&giflib-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="gif2raw">
-        <term><command>gif2raw</command></term>
-        <listitem>
-          <para>converts images saved as GIF to raw pixel data.</para>
-          <indexterm zone="giflib gif2raw">
-            <primary sortas="b-gif2raw">gif2raw</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gif2rgb">
-        <term><command>gif2rgb</command></term>
-        <listitem>
-          <para>converts images saved as GIF to 24-bit RGB images.</para>
-          <indexterm zone="giflib gif2rgb">
-            <primary sortas="b-gif2rgb">gif2rgb</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gifbuild">
-        <term><command>gifbuild</command></term>
-        <listitem>
-          <para>dumps GIF data in a textual format, or undumps it to a GIF.</para>
-          <indexterm zone="giflib gifbuild">
-            <primary sortas="b-gifbuild">gifbuild</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gifclrmp">
-        <term><command>gifclrmp</command></term>
-        <listitem>
-          <para>modifies GIF image colormaps.</para>
-          <indexterm zone="giflib gifclrmp">
-            <primary sortas="b-gifclrmp">gifclrmp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gifecho">
-        <term><command>gifecho</command></term>
-        <listitem>
-          <para>generates a GIF from ASCII text.</para>
-          <indexterm zone="giflib gifecho">
-            <primary sortas="b-gifecho">gifecho</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="giffix">
-        <term><command>giffix</command></term>
-        <listitem>
-          <para>clumsily attempts to fix truncated GIF images.</para>
-          <indexterm zone="giflib giffix">
-            <primary sortas="b-giffix">giffix</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gifinto">
-        <term><command>gifinto</command></term>
-        <listitem>
-          <para>is an end-of-pipe fitting for GIF-processing pipelines.</para>
-          <indexterm zone="giflib gifinto">
-            <primary sortas="b-gifinto">gifinto</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="giftext">
-        <term><command>giftext</command></term>
-        <listitem>
-          <para>prints (text only) general information about a GIF file.</para>
-          <indexterm zone="giflib giftext">
-            <primary sortas="b-giftext">giftext</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="giftool">
-        <term><command>giftool</command></term>
-        <listitem>
-          <para>is a GIF transformation tool.</para>
-          <indexterm zone="giflib giftool">
-            <primary sortas="b-giftool">giftool</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgif">
-        <term><filename class="libraryfile">libgif.so</filename></term>
-        <listitem>
-          <para>contains API functions required by the
-          <application>giflib</application> programs and any other programs needing
-          library functionality to read, write and manipulate GIF images.</para>
-          <indexterm zone="giflib libgif">
-            <primary sortas="c-libgif">libgif.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/gif2raw
+/usr/bin/gif2rgb
+/usr/bin/gifbuild
+/usr/bin/gifclrmp
+/usr/bin/gifecho
+/usr/bin/giffix
+/usr/bin/gifinto
+/usr/bin/giftext
+/usr/bin/giftool
+/usr/include/gif_lib.h
+/usr/lib/libgif.so</literal></screen>
 
   </sect2>
 
