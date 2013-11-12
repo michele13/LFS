@@ -4,8 +4,12 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libcroco-download-http "&gnome-download-http;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
-  <!ENTITY libcroco-download-ftp  "&gnome-download-ftp;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
+  <!ENTITY libcroco-homepage      " ">
+  <!ENTITY libcroco-wikipedia     " ">
+  <!ENTITY libcroco-download-http
+  "&gnome-download-http;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
+  <!ENTITY libcroco-download-ftp
+  "&gnome-download-ftp;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
   <!ENTITY libcroco-md5sum        "767e73c4174f75b99695d4530fd9bb80">
   <!ENTITY libcroco-size          "456 KB">
   <!ENTITY libcroco-buildsize     "11 MB">
@@ -17,20 +21,26 @@
 
   <title>libcroco-&libcroco-version;</title>
 
-  <indexterm zone="libcroco">
-    <primary sortas="a-libcroco">libcroco</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libcroco</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>libcroco</application> package contains
-      a standalone CSS2 parsing and manipulation library.
+      The libcroco package contains a standalone CSS2 parsing and manipulation
+      library.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libcroco-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libcroco-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libcroco-download-http;"/>
@@ -63,7 +73,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libcroco Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -73,21 +83,16 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libcroco</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>libcroco</application> by running the following
-      commands:
+      Install libcroco by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To run the test suite, run
-      <command>LD_LIBRARY_PATH=$(pwd)/src/.libs make test</command>.
-   </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -97,67 +102,28 @@ make</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libcroco">
+      <primary sortas="b-croco-0.6-config">croco-0.6-config</primary>
+    </indexterm>
+    <indexterm zone="libcroco">
+      <primary sortas="b-csslint-0.6">csslint-0.6</primary>
+    </indexterm>
+    <indexterm zone="libcroco">
+      <primary sortas="c-libcroco-0.6.so">libcroco-0.6.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          croco-0.6-config and csslint-0.6
-        </seg>
-        <seg>
-          libcroco-0.6.so
-        </seg>
-        <seg>
-          /usr/include/libcroco-0.6 and
-          /usr/share/gtk-doc/html/libcroco
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="csslint-0.6">
-        <term><command>csslint-0.6</command></term>
-        <listitem>
-          <para>
-            is used to parse one or more CSS files specified on
-            the command line.
-          </para>
-          <indexterm zone="libcroco csslint-0.6">
-            <primary sortas="b-csslint-0.6">csslint-0.6</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libcroco-0">
-        <term><filename class="libraryfile">libcroco-0.6.so</filename></term>
-        <listitem>
-          <para>
-            contains the API functions for CSS2 parsing and manipulation.
-          </para>
-          <indexterm zone="libcroco libcroco-0">
-            <primary sortas="c-libcroco-0">libcroco-0.6.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/croco-0.6-config
+/usr/bin/csslint-0.6
+/usr/include/libcroco-0.6/
+/usr/lib/libcroco-0.6.so
+/usr/lib/pkgconfig/libcroco-0.6.pc</literal></screen>
 
   </sect2>
 
