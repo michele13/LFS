@@ -6,9 +6,9 @@
 
   <!ENTITY pciutils-download-http "http://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
   <!ENTITY pciutils-download-ftp  "ftp://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
-  <!ENTITY pciutils-md5sum        "adb27c2d6ca54405115c532ae4c348e6">
-  <!ENTITY pciutils-size          "272 KB">
-  <!ENTITY pciutils-buildsize     "3.7 MB">
+  <!ENTITY pciutils-md5sum        "fe7806d075994db0e28894e42668a02a">
+  <!ENTITY pciutils-size          "276 KB">
+  <!ENTITY pciutils-buildsize     "3.0 MB">
   <!ENTITY pciutils-time          "0.1 SBU">
 ]>
 
@@ -76,8 +76,7 @@
 
 <screen><userinput>make PREFIX=/usr \
      SHAREDIR=/usr/share/misc \
-     MANDIR=/usr/share/man \
-     SHARED=yes all</userinput></screen>
+     SHARED=yes</userinput></screen>
 
     <para>
       This package does not come with a test suite.
@@ -89,10 +88,9 @@
 
 <screen role="root"><userinput>make PREFIX=/usr \
      SHAREDIR=/usr/share/misc \
-     MANDIR=/usr/share/man \
      SHARED=yes \
      install install-lib &amp;&amp;
-chmod -v 755 /usr/lib/libpci.so.&pciutils-version;</userinput></screen>
+chmod -v 755 /usr/lib/libpci.so</userinput></screen>
 
   </sect2>
 
@@ -102,6 +100,11 @@ chmod -v 755 /usr/lib/libpci.so.&pciutils-version;</userinput></screen>
     <para>
       <parameter>SHARED=yes</parameter>: This parameter enables building of
       shared library instead of static one.
+    </para>
+
+    <para>
+      <option>ZLIB=no</option>: This option prevents compression of
+      the <filename>pci.ids</filename> file.
     </para>
 
   </sect2>
