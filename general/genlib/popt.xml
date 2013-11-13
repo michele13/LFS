@@ -4,121 +4,109 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY popt-homepage      "http://rpm5.org/">
+  <!ENTITY popt-wikipedia     "http://en.wikipedia.org/wiki/Popt">
   <!ENTITY popt-download-http "http://rpm5.org/files/popt/popt-&popt-version;.tar.gz">
-  <!ENTITY popt-download-ftp  "&sources-anduin-ftp;/p/popt-&popt-version;.tar.gz">
+  <!ENTITY popt-download-ftp  " ">
   <!ENTITY popt-md5sum        "3743beefa3dd6247a73f8f7a32c14c33">
   <!ENTITY popt-size          "702 kB">
-  <!ENTITY popt-buildsize     "8 MB (includes installing documentation)">
+  <!ENTITY popt-buildsize     "8 MB">
   <!ENTITY popt-time          "0.1 SBU">
 ]>
 
 <sect1 id="popt" xreflabel="popt-&popt-version;">
   <?dbhtml filename="popt.html"?>
 
-  <title>Popt-&popt-version;</title>
-
-  <indexterm zone="popt">
-    <primary sortas="a-Popt">Popt</primary>
-  </indexterm>
+  <title>popt-&popt-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Popt</title>
+    <title>Introduction</title>
 
-    <para>The <application>popt</application> package contains the
-    <application>popt</application> libraries which are used by
-    some programs to parse command-line options.</para>
+    <para>
+      The popt package contains the popt library which is used by some programs
+      to parse command-line options.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&popt-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&popt-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&popt-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&popt-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &popt-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&popt-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &popt-size;</para>
+        <para>
+          Download (FTP): <ulink url="&popt-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &popt-buildsize;</para>
+        <para>
+          Download MD5 sum: &popt-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &popt-time;</para>
+        <para>
+          Download size: &popt-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &popt-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &popt-time;
+        </para>
       </listitem>
     </itemizedlist>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Popt</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>popt</application> by running the following
-    commands:</para>
+    <para>
+      Install popt by running the following commands:
+    </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
-    <para>If you have <xref linkend="doxygen"/> installed and wish to build
-    the API documentation, issue <command>doxygen</command>.</para>
-
-    <para>To test the results, issue:</para>
-
-<screen><userinput>make check</userinput></screen>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>If you built the API documentation, install it using the following
-    commands issued by the <systemitem class="username">root</systemitem>
-    user:</para>
-
-<screen role="root"><userinput>install -v -m755 -d /usr/share/doc/popt-&popt-version; &amp;&amp;
-install -v -m644 doxygen/html/* /usr/share/doc/popt-&popt-version;</userinput></screen>
-
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="popt">
+      <primary sortas="c-libpopt.so">libpopt.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>libpopt.so</seg>
-        <seg>/usr/share/doc/popt-&popt-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libpopt">
-      <term><filename role='library'>libpopt.so</filename></term>
-      <listitem>
-        <para> is used to parse command-line options.</para>
-        <indexterm zone="popt libpopt">
-          <primary sortas="c-libpopt">libpopt.so</primary>
-        </indexterm>
-      </listitem>
-      </varlistentry>
-    </variablelist>
+<screen><literal>/usr/include/popt.h
+/usr/lib/libpopt.so
+/usr/lib/pkgconfig/popt.pc
+/usr/share/man/man3/popt.3</literal></screen>
 
   </sect2>
 
