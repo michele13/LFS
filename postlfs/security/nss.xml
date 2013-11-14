@@ -6,10 +6,10 @@
 
   <!ENTITY nss-url "ftp.mozilla.org/pub/mozilla.org/security/nss/releases">
 
-  <!ENTITY nss-download-http
-           "http://&nss-url;/NSS_3_&nss-minor-version;_&nss-micro-version;_RTM/src/nss-&nss-version;.tar.gz">
-  <!ENTITY nss-download-ftp
-           "ftp://&nss-url;/NSS_3_&nss-minor-version;_&nss-micro-version;_RTM/src/nss-&nss-version;.tar.gz">
+  <!ENTITY nss-homepage      "https://developer.mozilla.org/en/docs/NSS">
+  <!ENTITY nss-wikipedia     "http://en.wikipedia.org/wiki/Network_Security_Services">
+  <!ENTITY nss-download-http "http://&nss-url;/NSS_3_&nss-minor-version;_&nss-micro-version;_RTM/src/nss-&nss-version;.tar.gz">
+  <!ENTITY nss-download-ftp "ftp://&nss-url;/NSS_3_&nss-minor-version;_&nss-micro-version;_RTM/src/nss-&nss-version;.tar.gz">
   <!ENTITY nss-md5sum        "1bb267452359bd37e34d072a215873d5">
   <!ENTITY nss-size          "6.0 MB">
   <!ENTITY nss-buildsize     "74 MB">
@@ -21,25 +21,31 @@
 
   <title>NSS-&nss-version;</title>
 
-  <indexterm zone="nss">
-    <primary sortas="a-NSS">NSS</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to NSS</title>
+    <title>Introduction</title>
 
     <para>
-      The Network Security Services (<application>NSS</application>) package is
-      a set of libraries designed to support cross-platform development of
-      security-enabled client and server applications. Applications built with
-      NSS can support SSL v2 and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12,
-      S/MIME, X.509 v3 certificates, and other security standards. This is
-      useful for implementing SSL and S/MIME or other Internet security
-      standards into an application.
+      The Network Security Services (NSS) package is a set of libraries designed
+      to support cross-platform development of security-enabled client and
+      server applications. Applications built with NSS can support SSL v2 and
+      v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509 v3
+      certificates, and other security standards. This is useful for
+      implementing SSL and S/MIME or other Internet security standards into an
+      application.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&nss-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&nss-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&nss-download-http;"/>
@@ -82,7 +88,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">NSS Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -96,8 +102,8 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of NSS</title>
+  <sect2>
+    <title>Installation</title>
 
     <note>
       <para>
@@ -106,21 +112,17 @@
     </note>
 
     <para>
-      Install <application>NSS</application> by running the following commands:
+      Install NSS by running the following commands:
     </para>
 
 <screen><userinput>patch -Np1 -i ../nss-&nss-version;-standalone-2.patch &amp;&amp;
 cd nss &amp;&amp;
-make BUILD_OPT=1                      \
-  NSPR_INCLUDE_DIR=/usr/include/nspr  \
-  USE_SYSTEM_ZLIB=1                   \
-  ZLIB_LIBS=-lz                       \
-  $([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1) \
-  $([ -f /usr/include/sqlite3.h ] &amp;&amp; echo NSS_USE_SYSTEM_SQLITE=1)</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
+make BUILD_OPT=1 \
+     NSPR_INCLUDE_DIR=/usr/include/nspr \
+     USE_SYSTEM_ZLIB=1 \
+     ZLIB_LIBS=-lz \
+     $([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1) \
+     $([ -f /usr/include/sqlite3.h ] &amp;&amp; echo NSS_USE_SYSTEM_SQLITE=1)</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -135,130 +137,119 @@ chmod -v 644 /usr/include/nss/* &amp;&amp;
 install -v -m755 Linux*/bin/{certutil,nss-config,pk12util} /usr/bin &amp;&amp;
 install -v -m644 Linux*/lib/pkgconfig/nss.pc /usr/lib/pkgconfig</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>BUILD_OPT=1</parameter>: This option is passed to
+        <command>make</command> so that the build is performed with no debugging
+        symbols built into the binaries and the default compiler optimizations
+        are used.
+      </para>
 
-    <para>
-      <parameter>BUILD_OPT=1</parameter>: This option is passed to
-      <command>make</command> so that the build is performed with no debugging
-      symbols built into the binaries and the default compiler optimizations are
-      used.
-    </para>
+      <para>
+        <parameter>NSPR_INCLUDE_DIR=/usr/include/nspr</parameter>: This option
+        sets the location of the nspr headers.
+      </para>
 
-    <para>
-      <parameter>NSPR_INCLUDE_DIR=/usr/include/nspr</parameter>: This option
-      sets the location of the nspr headers.
-    </para>
+      <para>
+        <parameter>USE_SYSTEM_ZLIB=1</parameter>: This option is passed to
+        <command>make</command> to ensure that the <filename
+        class="libraryfile">libssl3.so</filename> library is linked to the
+        system installed zlib instead of the in-tree version.
+      </para>
 
-    <para>
-      <parameter>USE_SYSTEM_ZLIB=1</parameter>: This option is passed to
-      <command>make</command> to ensure that the
-      <filename class="libraryfile">libssl3.so</filename> library is linked to
-      the system installed <application>zlib</application> instead of the
-      in-tree version.
-    </para>
+      <para>
+        <parameter>ZLIB_LIBS=-lz</parameter>: This option provides the linker
+        flags needed to link to the system zlib.
+      </para>
 
-    <para>
-      <parameter>ZLIB_LIBS=-lz</parameter>: This option provides the
-      linker flags needed to link to the system <application>zlib</application>.
-    </para>
+      <para>
+        <command>$([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1)</command>:
+        The <parameter>USE_64=1</parameter> option is <emphasis>required on
+        x86_64</emphasis>, otherwise <command>make</command> will try (and fail)
+        to create 32-bit objects. The [ $(uname -m) = x86_64 ] test ensures it
+        has no effect on a 32 bit system.
+      </para>
 
-    <para>
-      <command>$([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1)</command>:
-      The <parameter>USE_64=1</parameter> option is <emphasis>required on
-      x86_64</emphasis>, otherwise <command>make</command> will try (and fail)
-      to create 32-bit objects. The [ $(uname -m) = x86_64 ] test ensures it
-      has no effect on a 32 bit system.
-    </para>
+      <para>
+        <command>([ -f /usr/include/sqlite3.h ] &amp;&amp; echo
+        NSS_USE_SYSTEM_SQLITE=1)</command>: This tests if sqlite is installed
+        and if so it <command>echo</command>s the option NSS_USE_SYSTEM_SQLITE=1
+        to <command>make</command> so that <filename
+        class="libraryfile">libsoftokn3.so</filename> will link against the
+        system version of sqlite.
+      </para>
 
-    <para>
-      <command>([ -f /usr/include/sqlite3.h ] &amp;&amp; echo
-      NSS_USE_SYSTEM_SQLITE=1)</command>: This tests if
-      <application>sqlite</application> is installed and if so it
-      <command>echo</command>s the option NSS_USE_SYSTEM_SQLITE=1 to
-      <command>make</command> so that
-      <filename class="libraryfile">libsoftokn3.so</filename> will link against
-      the system version of sqlite.
-    </para>
+    </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="nss">
+      <primary sortas="b-certutil">certutil</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="b-nss-config">nss-config</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="b-pk12util">pk12util</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libcrmf.a">libcrmf.a</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libfreebl3.so">libfreebl3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libnss3.so">libnss3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libnssckbi.so">libnssckbi.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libnssdbm3.so">libnssdbm3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libnsssysinit.so">libnsssysinit.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libnssutil3.so">libnssutil3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libsmime3.so">libsmime3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libsoftokn3.so">libsoftokn3.so</primary>
+    </indexterm>
+    <indexterm zone="nss">
+      <primary sortas="c-libssl3.so">libssl3.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          certutil, nss-config, and pk12util
-        </seg>
-        <seg>
-          libcrmf.a, libfreebl3.so, libnss3.so, libnssckbi.so,
-          libnssdbm3.so, libnsssysinit.so, libnssutil3.so,
-          libsmime3.so, libsoftokn3.so, and libssl3.so
-        </seg>
-        <seg>
-          /usr/include/nss
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="certutil">
-        <term><command>certutil</command></term>
-        <listitem>
-          <para>
-            is the Mozilla Certificate Database Tool. It is a command-line
-            utility that can create and modify the Netscape Communicator
-            cert8.db and key3.db database files. It can also list, generate,
-            modify, or delete certificates within the cert8.db file and create
-            or change the password, generate new public and private key pairs,
-            display the contents of the key database, or delete key pairs within
-            the key3.db file.
-          </para>
-          <indexterm zone="nss certutil">
-            <primary sortas="b-certutil">certutil</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="nss-config">
-        <term><command>nss-config</command></term>
-        <listitem>
-          <para>
-            is used to determine the NSS library settings of the installed NSS
-            libraries.
-          </para>
-          <indexterm zone="nss nss-config">
-            <primary sortas="b-nss-config">nss-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pk12util">
-        <term><command>pk12util</command></term>
-        <listitem>
-          <para>
-            is a tool for importing certificates and keys from pkcs #12 files
-            into NSS or exporting them. It can also list certificates and keys
-            in such files.
-          </para>
-          <indexterm zone="nss pk12util">
-            <primary sortas="b-pk12util">pk12util</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/certutil
+/usr/bin/nss-config
+/usr/bin/pk12util
+/usr/include/nss/
+/usr/lib/libcrmf.a
+/usr/lib/libfreebl3.chk
+/usr/lib/libfreebl3.so
+/usr/lib/libnss3.so
+/usr/lib/libnssckbi.so
+/usr/lib/libnssdbm3.chk
+/usr/lib/libnssdbm3.so
+/usr/lib/libnsssysinit.so
+/usr/lib/libnssutil3.so
+/usr/lib/libsmime3.so
+/usr/lib/libsoftokn3.chk
+/usr/lib/libsoftokn3.so
+/usr/lib/libssl3.so
+/usr/lib/pkgconfig/nss.pc</literal></screen>
 
   </sect2>
 
