@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY libmad-homepage      "http://www.underbit.com/products/mad/">
+  <!ENTITY libmad-wikipedia     "http://en.wikipedia.org/wiki/MPEG_Audio_Decoder">
   <!ENTITY libmad-download-http "&sourceforge-repo;/mad/libmad-&libmad-version;.tar.gz">
   <!ENTITY libmad-download-ftp  "ftp://ftp.mars.org/pub/mpeg/libmad-&libmad-version;.tar.gz">
   <!ENTITY libmad-md5sum        "1be543bc30c56fb6bea1d7bf6a64e66c">
@@ -17,35 +19,54 @@
 
   <title>libmad-&libmad-version;</title>
 
-  <indexterm zone="libmad">
-    <primary sortas="a-Libmad">Libmad</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libmad</title>
+    <title>Introduction</title>
 
-    <para><application>libmad</application> is a high-quality
-    MPEG audio decoder capable of 24-bit output.</para>
+    <para>
+      libmad is a high-quality MPEG audio decoder capable of 24-bit output.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&libmad-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&libmad-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&libmad-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&libmad-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &libmad-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&libmad-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &libmad-size;</para>
+        <para>
+          Download (FTP): <ulink url="&libmad-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &libmad-buildsize;</para>
+        <para>
+          Download MD5 sum: &libmad-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &libmad-time;</para>
+        <para>
+          Download size: &libmad-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libmad-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libmad-time;
+        </para>
       </listitem>
     </itemizedlist>
 
@@ -59,30 +80,34 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libmad</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>libmad</application> by running the
-    following commands:</para>
+    <para>
+      Install libmad by running the following commands:
+    </para>
 
 <screen><userinput>patch -Np1 -i ../libmad-&libmad-version;-fixes-1.patch &amp;&amp;
 touch NEWS AUTHORS ChangeLog &amp;&amp;
 autoreconf -fi &amp;&amp;
-./configure --prefix=/usr --disable-static &amp;&amp;
+./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
   <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>Some packages check for the <application>pkg-config</application> file
-    for <application>libmad</application>. This file is particularly needed so
-    that <application>Cdrdao</application> can recognize the installed
-    <application>libmad</application>.</para>
+    <para>
+      Some packages check for the pkg-config file for libmad. This file is
+      particularly needed so that Cdrdao can recognize the installed libmad.
+    </para>
 
-    <para>As the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      As the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>cat &gt; /usr/lib/pkgconfig/mad.pc &lt;&lt; "EOF"
 <literal>prefix=/usr
@@ -98,52 +123,32 @@ Libs: -L${libdir} -lmad
 Cflags: -I${includedir}</literal>
 EOF</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <command>touch NEWS AUTHORS ChangeLog</command>: Prevent autoreconf from
+        returning an error.
+      </para>
 
-    <para>
-      <command>touch NEWS AUTHORS ChangeLog</command>: Prevent autoreconf from
-      returning an error.
-    </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
+    </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libmad">
+      <primary sortas="c-libmad.so">libmad.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>libmad.so</seg>
-        <seg>None</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libmad-lib">
-        <term><filename class='libraryfile'>libmad.so</filename></term>
-        <listitem>
-          <para>is a MPEG audio decoder library.</para>
-          <indexterm zone="libmad libmad-lib">
-            <primary sortas="c-libmad">libmad.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/mad.h
+/usr/lib/libmad.so
+/usr/lib/pkgconfig/mad.pc</literal></screen>
 
   </sect2>
 
