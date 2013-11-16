@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY liba52-download-http
-  "http://liba52.sourceforge.net/files/a52dec-&liba52-version;.tar.gz">
+  <!ENTITY liba52-homepage      "http://liba52.sourceforge.net/">
+  <!ENTITY liba52-wikipedia     " ">
+  <!ENTITY liba52-download-http "http://liba52.sourceforge.net/files/a52dec-&liba52-version;.tar.gz">
   <!ENTITY liba52-download-ftp  " ">
   <!ENTITY liba52-md5sum        "caa9f5bc44232dc8aeea773fea56be80">
   <!ENTITY liba52-size          "236 KB">
@@ -16,138 +17,134 @@
 <sect1 id="liba52" xreflabel="liba52-&liba52-version;">
   <?dbhtml filename="liba52.html"?>
 
-  <title>Liba52-&liba52-version;</title>
-
-  <indexterm zone="liba52">
-    <primary sortas="a-Liba52">Liba52</primary>
-  </indexterm>
+  <title>liba52-&liba52-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Liba52</title>
+    <title>Introduction</title>
 
-    <para><application>liba52</application> is a free library for decoding
-    ATSC A/52 (also known as AC-3) streams. The A/52 standard is used
-    in a variety of applications, including digital television and DVD.</para>
+    <para>
+      liba52 is a free library for decoding ATSC A/52 (also known as AC-3)
+      streams. The A/52 standard is used in a variety of applications, including
+      digital television and DVD.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&liba52-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&liba52-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&liba52-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&liba52-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &liba52-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&liba52-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &liba52-size;</para>
+        <para>
+          Download (FTP): <ulink url="&liba52-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &liba52-buildsize;</para>
+        <para>
+          Download MD5 sum: &liba52-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &liba52-time;</para>
+        <para>
+          Download size: &liba52-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &liba52-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &liba52-time;
+        </para>
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><ulink
-    url="http://cr.yp.to/djbfft.html">djbfft</ulink></para>
+    <para role="optional">
+      <ulink url="http://cr.yp.to/djbfft.html">djbfft</ulink>
+    </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Liba52</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>liba52</application> by running the
-    following commands:</para>
+    <para>
+      Install liba52 by running the following commands:
+    </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --mandir=/usr/share/man \
             --enable-shared \
             --disable-static \
-           CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] &amp;&amp; echo -fPIC)" &amp;&amp;
+            CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] &amp;&amp; echo -fPIC)" &amp;&amp;
 make</userinput></screen>
 
-    <para>To test the results, issue: <command>make check</command>.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem>
-    user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-cp liba52/a52_internal.h /usr/include/a52dec &amp;&amp;
-install -v -m644 -D doc/liba52.txt \
-    /usr/share/doc/liba52-&liba52-version;/liba52.txt</userinput></screen>
+cp liba52/a52_internal.h /usr/include/a52dec</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>CFLAGS="-g -O2 ...</parameter>: This sets CFLAGS to -g -O2
+        (which is the default) but then on x86_64 adds -fPIC. This is needed to
+        compile liba52 on x86_64.
+      </para>
+
+      <para>
+        <command>cp liba52/a52_internal.h ...</command>: Copying this header
+        file into /usr/include/a52dec allows some other programs (such as
+        xine-lib) to compile and link against a system installed liba52.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><parameter>CFLAGS="-g -O2 ...</parameter>: This sets CFLAGS to -g -O2
-    (which is the default) but then on x86_64 adds -fPIC. This is needed to
-    compile <application>liba52</application> on x86_64.</para>
-
-    <para><option>--disable-static</option>: This option stops it installing
-    the static version of the library.</para>
-
-    <para><command>cp liba52/a52_internal.h ...</command>: Copying this header
-    file into /usr/include/a52dec allows some other programs (such as
-    <application>xine-lib</application>) to compile and link against a system
-    installed <application>liba52</application>.</para>
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="liba52">
+      <primary sortas="b-a52dec">a52dec</primary>
+    </indexterm>
+    <indexterm zone="liba52">
+      <primary sortas="b-extract_a52">extract_a52</primary>
+    </indexterm>
+    <indexterm zone="liba52">
+      <primary sortas="c-liba52.so">liba52.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>a52dec and extract_a52</seg>
-        <seg>liba52.so</seg>
-        <seg>/usr/include/a52dec and
-        /usr/share/doc/liba52-&liba52-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
+<screen><literal>/usr/bin/a52dec
+/usr/bin/extract_a52
+/usr/include/a52dec/
+/usr/lib/liba52.so
+/usr/share/man/man1/a52dec.1
+/usr/share/man/man1/extract_a52.1</literal></screen>
 
-      <varlistentry id="a52dec">
-        <term><command>a52dec</command></term>
-        <listitem>
-          <para>plays ATSC A/52 audio streams.</para>
-          <indexterm zone="liba52 a52dec">
-            <primary sortas="b-a52dec">a52dec</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="extract_a52">
-        <term><command>extract_a52</command></term>
-        <listitem>
-          <para>extracts ATSC A/52 audio from an MPEG stream.</para>
-          <indexterm zone="liba52 extract_a52">
-            <primary sortas="b-extract_a52">extract_a52</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="liba52-lib">
-        <term><filename class='libraryfile'>liba52.so</filename></term>
-        <listitem>
-          <para>provides functions for the programs dealing with
-          ATSC A/52 streams.</para>
-          <indexterm zone="liba52 liba52-lib">
-            <primary sortas="c-liba52">liba52.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-    </variablelist>
   </sect2>
+
 </sect1>
