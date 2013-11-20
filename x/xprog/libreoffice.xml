@@ -91,36 +91,6 @@
           Dictionaries size: &libreoffice-dict-size;
         </para>
       </listitem>
-      <listitem>
-        <para>
-          Help Files: <ulink url="&libreoffice-help-download-http;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Help Files MD5 sum: &libreoffice-help-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Help Files size: &libreoffice-help-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Translations: <ulink url="&libreoffice-translations-download-http;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Translations MD5 sum: &libreoffice-translations-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Translations size: &libreoffice-translations-size;
-        </para>
-      </listitem>
     </itemizedlist>
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
@@ -201,6 +171,7 @@
       <xref linkend="clucene"/>,
       <xref linkend="openldap"/> (client only),
       <xref linkend="openssl"/>,
+      <xref linkend="lp_solve"/>,
       <xref linkend="poppler"/>,
       <xref linkend="redland"/>, and
       <xref linkend="unixodbc"/>
@@ -249,33 +220,13 @@
 cd libreoffice-&libreoffice-dlversion;</userinput></screen>
 
     <para>
-      Unpack the dictionaries file and create symlinks to tarballs from the
-      source directory so they won't get downloaded again (it is not necessary
-      to unpack the help nor the translations tarballs):
+      Unpack the dictionaries file and create symlink to tarball from the
+      source directory so it won't get downloaded again:
     </para>
 
 <screen><userinput>install -dm755 src &amp;&amp;
-
 tar -xf ../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz --no-overwrite-dir --strip-components=1 &amp;&amp;
-<!-- Not necessary for this version
-tar -xf ../libreoffice-help-&libreoffice-dlversion;.tar.xz -\-no-overwrite-dir -\-strip-components=1 &amp;&amp;
--->
-ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz src/ &amp;&amp;
-ln -sv ../../libreoffice-help-&libreoffice-dlversion;.tar.xz src/</userinput></screen>
-
-<!-- Not necessary for this version
-    <para>
-      If you have downloaded the translations tarball, unpack it:
-    </para>
-
-<screen><userinput>tar -xf ../libreoffice-translations-&libreoffice-dlversion;.tar.xz -\-no-overwrite-dir -\-strip-components=1 &amp;&amp;
-ln -sv ../../libreoffice-translations-&libreoffice-dlversion;.tar.xz src/</userinput></screen>
--->
-    <para>
-      If you have downloaded the translations tarball, create a symlink:
-    </para>
-
-<screen><userinput>ln -sv ../../libreoffice-translations-&libreoffice-dlversion;.tar.xz src/</userinput></screen>
+ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz src/</userinput></screen>
 
     <note>
       <para>
@@ -289,13 +240,7 @@ ln -sv ../../libreoffice-translations-&libreoffice-dlversion;.tar.xz src/</useri
     <para>
       In the rest of the page, locales "en-US" and "pt-BR" are examples; the
       user will change them to suit his needs - you might want to read the
-      "Command Explanations", further below, before proceeding. Due to the
-      large size of the package, the user may prefer to install in
-      <filename class="directory">/opt</filename>, instead of
-      <filename class="directory">/usr</filename>. In order to do that, replace
-      <filename class="directory">/usr</filename> by
-      <filename class="directory">/opt/libreoffice-&libreoffice-dlversion;</filename>
-      in the rest of the page, except in the commands fixing the menu icons.
+      "Command Explanations", further below, before proceeding.
       Prepare <application>LibreOffice</application> for compilation by running
       the following commands:
     </para>
@@ -317,8 +262,7 @@ patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-libmwaw0.2-1.patch &amp;&am
 
 ./autogen.sh --prefix=/usr \
              --with-vendor="BLFS" \
-             --with-lang="en-US" \
-             --with-help \
+             --with-lang="en-US pt-BR" \
              --with-alloc=system \
              --with-parallelism=$(getconf _NPROCESSORS_ONLN) \
              --without-java \
@@ -329,8 +273,7 @@ patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-libmwaw0.2-1.patch &amp;&am
              --with-system-libs \
              --with-system-headers \
              --without-system-sane \
-             --without-system-cppunit \
-             --without-system-lpsolve</userinput></screen>
+             --without-system-cppunit</userinput></screen>
 
     <para>
       The instructions below will only build the package without running
@@ -361,25 +304,6 @@ cp -vR dictionaries/en/*    /usr/lib/libreoffice/share/extensions/dict-en    &am
 mkdir -pv /usr/lib/libreoffice/share/extensions/dict-pt-BR                   &amp;&amp;
 cp -vR dictionaries/pt_BR/* /usr/lib/libreoffice/share/extensions/dict-pt-BR</userinput></screen>
 
-    <para>
-       In the following, do not replace
-       <filename class="directory">/usr</filename> by
-       <filename class="directory">/opt/libreoffice-&libreoffice-dlversion;</filename>.
-       If installed in <filename class="directory">/opt</filename> and there
-       are no icons in the new items of the desktop menu, optionally run
-       the following commands, as <systemitem class="username">root</systemitem>
-       user (it may be necessary to logout the session, before the
-       icons appear):
-    </para>
-
-<screen role="root"><userinput>mkdir -pv /usr/share/pixmaps &amp;&amp;
-for i in writer base calc draw impress math startcenter writer
-do
-  ln -svf /opt/libreoffice-&libreoffice-dlversion;/share/icons/hicolor/32x32/apps/libreoffice-$i.png \
-          /usr/share/pixmaps/
-done
-unset i</userinput></screen>
-
   </sect2>
 
   <sect2 role="commands">
@@ -409,23 +333,10 @@ unset i</userinput></screen>
 -->
 
     <para>
-      <parameter>--with-lang="en-US"</parameter>: This switch sets
+      <parameter>--with-lang="en-US pt-BR"</parameter>: This switch sets
       what languages to support. To list several languages, separate them with
       a space. For all languages, use
       <parameter>--with-lang=ALL</parameter>.
-    </para>
-
-    <para>
-      For a list of the available languages, you can uncompress the
-      translations tarball, <command>tar -xf
-      ../libreoffice-translations-&libreoffice-dlversion;.tar.xz
-      --no-overwrite-dir -C /tmp</command>, and run <command>ls
-      /tmp/libreoffice-&libreoffice-dlversion;/translations/source</command>.
-    </para>
-
-    <para>
-      <parameter>--with-help</parameter>: Without this switch, the help files
-      are not built.
     </para>
 
     <para>
