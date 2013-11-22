@@ -4,13 +4,12 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY ffmpeg-download-http
-           "http://ffmpeg.org/releases/ffmpeg-&ffmpeg-version;.tar.bz2">
+  <!ENTITY ffmpeg-download-http "http://ffmpeg.org/releases/ffmpeg-&ffmpeg-version;.tar.bz2">
   <!ENTITY ffmpeg-download-ftp  " ">
-  <!ENTITY ffmpeg-md5sum        "4ec1cedd4c7753512462f70b347c338a">
+  <!ENTITY ffmpeg-md5sum        "2719ab2b3311ac3775b9cdeb66c54849">
   <!ENTITY ffmpeg-size          "6.4 MB">
-  <!ENTITY ffmpeg-buildsize     "106 MB">
-  <!ENTITY ffmpeg-time          "2.4 SBU">
+  <!ENTITY ffmpeg-buildsize     "114 MB">
+  <!ENTITY ffmpeg-time          "3.1 SBU">
 ]>
 
 <sect1 id="ffmpeg" xreflabel="FFmpeg-&ffmpeg-version;">
@@ -67,16 +66,6 @@
       <listitem>
         <para>
           Estimated build time: &ffmpeg-time;
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;ffmpeg/ffmpeg-&ffmpeg-version;-libavformat_cookies-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -154,8 +143,7 @@
       commands:
     </para>
 
-<screen><userinput>patch -Np1 -i ../ffmpeg-&ffmpeg-version;-libavformat_cookies-1.patch &amp;&amp;
-sed -i 's/-lflite"/-lflite -lasound"/' configure &amp;&amp;
+<screen><userinput>sed -i 's/-lflite"/-lflite -lasound"/' configure &amp;&amp;
 ./configure --prefix=/usr        \
             --enable-gpl         \
             --enable-version3    \
@@ -198,7 +186,7 @@ unset DOCNAME</userinput></screen>
 
     <para>
       If you have <xref linkend="doxygen"/> installed and wish to create the API
-      documentation (takes about 300 MB of space), issue the command
+      documentation (takes about 350 MB of space), issue the command
       <command>doxygen doc/Doxyfile</command>.
     </para>
 
@@ -206,8 +194,9 @@ unset DOCNAME</userinput></screen>
       To properly test the installation you must have <xref linkend="rsync"/>
       installed and follow the instructions for the
       <ulink url="http://ffmpeg.org/fate.html">
-      FFmpeg Automated Testing Environment</ulink>. Note that the BLFS team has
-      not performed this regression testing.
+      FFmpeg Automated Testing Environment</ulink> (fate). First, about 736 MB
+      of data files used to run fate are downloaded. Next, fate is executed.
+      Estimated values in "Package Information" do not include the download SBU.
     </para>
 
     <para>
