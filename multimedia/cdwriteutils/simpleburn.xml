@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY simpleburn-homepage      "http://simpleburn.tuxfamily.org/">
+  <!ENTITY simpleburn-wikipedia     "http://en.wikipedia.org/wiki/SimpleBurn_&#40;software&#41;">
+  <!ENTITY simpleburn-download-http "http://simpleburn.tuxfamily.org/IMG/bz2/simpleburn-&simpleburn-version;.tar.bz2">
+  <!ENTITY simpleburn-download-ftp  " ">
+  <!ENTITY simpleburn-md5sum        "de658ab5af00e7bcb1e948d5c45da7b9">
+  <!ENTITY simpleburn-size          "44 KB">
+  <!ENTITY simpleburn-buildsize     "1.7 MB">
+  <!ENTITY simpleburn-time          "0.1 SBU">
+]>
+
+<sect1 id="simpleburn" xreflabel="SimpleBurn-&simpleburn-version;">
+  <?dbhtml filename="simpleburn.html"?>
+
+  <title>SimpleBurn-&simpleburn-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      SimpleBurn is a minimalistic application for burning and extracting CDs
+      and DVDs.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&simpleburn-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&simpleburn-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&simpleburn-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&simpleburn-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &simpleburn-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &simpleburn-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &simpleburn-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &simpleburn-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="cmake"/> and
+      <xref linkend="gtk2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="recommended">
+      <xref linkend="libisoburn"/>,
+      <xref linkend="cdparanoia"/>, and
+      <xref linkend="cdrdao"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="flac"/>,
+      <xref linkend="mpg123"/>,
+      <xref linkend="vorbistools"/>,
+      <xref linkend="lame"/>,
+      <xref linkend="mplayer"/>, and
+      <ulink url="http://normalize.nongnu.org/">normalize</ulink>
+<!--
+      <ulink url="http://www.gnu.org/software/libcdio/">libcdio</ulink>,
+      <ulink url="http://mpg321.sourceforge.net/">mpg321</ulink>,
+-->
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install SimpleBurn by running the following commands:
+    </para>
+
+<screen><userinput>mkdir build &amp;&amp;
+cd build &amp;&amp;
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DBURNING=LIBBURNIA .. &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <para>
+      All optical devices are not accessible for any user except <systemitem
+      class="username">root</systemitem> and members of the <systemitem
+      class="groupname">cdrom</systemitem> group. Add any users that might use
+      the optical devices to that group:
+    </para>
+
+<screen role="root"><userinput>usermod -a -G cdrom <replaceable>&lt;username&gt;</replaceable></userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>-DBURNING=LIBBURNIA</parameter>: This switch changes the
+        burning suite from the default cdrtools.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn">simpleburn</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-abort-operation">simpleburn-abort-operation</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-blank-media">simpleburn-blank-media</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-burn-audio">simpleburn-burn-audio</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-burn-data">simpleburn-burn-data</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-burning-suite">simpleburn-burning-suite</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-burn-iso">simpleburn-burn-iso</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-copy-audio">simpleburn-copy-audio</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-copy-data">simpleburn-copy-data</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-extract-audio">simpleburn-extract-audio</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-extract-iso">simpleburn-extract-iso</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-gauges">simpleburn-gauges</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-get-datasize">simpleburn-get-datasize</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-media-detection">simpleburn-media-detection</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-ripdvd-detection">simpleburn-ripdvd-detection</primary>
+    </indexterm>
+    <indexterm zone="simpleburn">
+      <primary sortas="b-simpleburn-ripdvd-encoding">simpleburn-ripdvd-encoding</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/simpleburn
+/usr/bin/simpleburn-abort-operation
+/usr/bin/simpleburn-blank-media
+/usr/bin/simpleburn-burn-audio
+/usr/bin/simpleburn-burn-data
+/usr/bin/simpleburn-burning-suite
+/usr/bin/simpleburn-burn-iso
+/usr/bin/simpleburn-copy-audio
+/usr/bin/simpleburn-copy-data
+/usr/bin/simpleburn-extract-audio
+/usr/bin/simpleburn-extract-iso
+/usr/bin/simpleburn-gauges
+/usr/bin/simpleburn-get-datasize
+/usr/bin/simpleburn-media-detection
+/usr/bin/simpleburn-ripdvd-detection
+/usr/bin/simpleburn-ripdvd-encoding
+/usr/share/doc/simpleburn-1.6.5/
+/usr/share/applications/simpleburn.desktop
+/usr/share/pixmaps/simpleburn.png
+/usr/share/simpleburn/</literal></screen>
+
+  </sect2>
+
+</sect1>
