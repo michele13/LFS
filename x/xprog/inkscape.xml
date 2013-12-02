@@ -64,6 +64,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;inkscape/inkscape-&inkscape-version;-gc-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Inkscape Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -107,7 +117,8 @@
       commands:
     </para>
 
-<screen><userinput>sed -e "s@commands_toolbox,@commands_toolbox@" -i src/widgets/desktop-widget.h &amp;&amp;
+<screen><userinput>patch -Np1 -i ../inkscape-&inkscape-version;-gc-1.patch &amp;&amp;
+sed -e "s@commands_toolbox,@commands_toolbox@" -i src/widgets/desktop-widget.h &amp;&amp;
 ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
