@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libisofs-download-http
-           "http://files.libburnia-project.org/releases/libisofs-&libisofs-version;.tar.gz">
+  <!ENTITY libisofs-homepage      "http://libburnia-project.org/wiki/Libisofs">
+  <!ENTITY libisofs-wikipedia     " ">
+  <!ENTITY libisofs-download-http "http://files.libburnia-project.org/releases/libisofs-&libisofs-version;.tar.gz">
   <!ENTITY libisofs-download-ftp  " ">
   <!ENTITY libisofs-md5sum        "dcd2cb0485579b4973e4ce7291fda647">
   <!ENTITY libisofs-size          "753 KB">
@@ -18,20 +19,26 @@
 
   <title>libisofs-&libisofs-version;</title>
 
-  <indexterm zone="libisofs">
-    <primary sortas="a-libisofs">libisofs</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libisofs</title>
+    <title>Introduction</title>
 
     <para>
-      <application>libisofs</application> is a library to create an ISO-9660
-      filesystem with extensions like RockRidge or Joliet.
+      libisofs is a library to create an ISO-9660 filesystem with extensions
+      like RockRidge or Joliet.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libisofs-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libisofs-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libisofs-download-http;"/>
@@ -64,7 +71,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libisofs Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
@@ -74,75 +81,39 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libisofs</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>libisofs</application> by running the following
-      commands:
+      Install libisofs by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libisofs">
+      <primary sortas="c-libisofs.so">libisofs.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libisofs.so
-        </seg>
-        <seg>
-          /usr/include/libisofs
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libisofs-lib">
-        <term><filename class="libraryfile">libisofs.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>libisofs</application> API functions.
-          </para>
-          <indexterm zone="libisofs libisofs-lib">
-            <primary sortas="c-libisofs">libisofs.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/libisofs/
+/usr/lib/libisofs.so
+/usr/lib/pkgconfig/libisofs-1.pc</literal></screen>
 
   </sect2>
 
