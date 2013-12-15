@@ -149,15 +149,61 @@ make</userinput></screen>
       Root privileges are required to run Gparted. If you wish to run the
       application from the menu, further applications and configurations are
       necessary. Examples of applications that may be used:
-      <ulink url="http://people.debian.org/~kov/gksu">gksu and gksudo</ulink>,
+      <ulink url="http://people.debian.org/~kov/gksu">gksu</ulink>,
       <ulink url="https://launchpad.net/kdesudo">kdesudo</ulink>, or
       <ulink url="https://github.com/tarakbumba/xdg-su">xdg-su</ulink>.
       Another simple solution is the <application>GTK+</application> based
-      <application>gnome-ssh-askpass2</application> (does not need
-      <application>GNOME</application>) that comes with
-      <xref linkend="openssh"/>, under the
-      <filename class="directory">contrib</filename> directory in the source.
+      <application>ssh-askpass</application> (does not need
+      <application>GNOME</application>). Below, we describe these two
+      alternatives: "ssh-askpass" and "pkexec".
     </para>
+
+    <sect3 role="ssh-askpass">
+      <title>ssh-askpass</title>
+        <para>
+          To optionally use <application>ssh-askpass</application>, you need
+          <xref linkend="sudo"/> and <xref linkend="openssh"/> to be installed.
+          Uncompress the <xref linkend="openssh"/> tarball and, inside the
+          source directory, install <application>ssh-askpass</application> by
+          running the following commands:
+        </para>
+
+<screen><userinput>cd contrib &amp;&amp;
+make gnome-ssh-askpass2</userinput></screen>
+
+        <para>
+          Now, as the <systemitem class="username">root</systemitem> user:
+        </para>
+
+<screen role="root"><userinput>install -v -d -m755                  /usr/lib/openssh/contrib     &amp;&amp;
+install -v -m755  gnome-ssh-askpass2 /usr/lib/openssh/contrib     &amp;&amp;
+ln -sv -f contrib/gnome-ssh-askpass2 /usr/lib/openssh/ssh-askpass</userinput></screen>
+
+        <para>
+          Still as the <systemitem class="username">root</systemitem> user,
+          configure <xref linkend="gparted"/> and <xref linkend="sudo"/> to
+          use <application>ssh-askpass</application>:
+        </para>
+
+<screen role="root"><userinput>cp -v /usr/share/applications/gparted.desktop /usr/share/applications/gparted.desktop.back &amp;&amp;
+sed -i 's/Exec=/Exec=sudo -A /'               /usr/share/applications/gparted.desktop      &amp;&amp;
+
+cat &gt;&gt; /etc/sudo.conf &lt;&lt; "EOF" &amp;&amp;
+# Path to askpass helper program
+Path askpass /usr/lib/openssh/ssh-askpass
+EOF
+chmod -v 0644 /etc/sudo.conf</userinput></screen>
+
+        <para>
+         Now, clicking in the menu item for Gparted, a dialog appears in the
+         screen, asking for the administrator password. Any graphical program
+         requiring root privileges can be run using "sudo -A &lt;program&gt;",
+         e.g. from a terminal, from a desktop launcher, or including it in the
+         desktop file.
+        </para>
+
+    </sect3>
+
   </sect2>
 
   <sect2 role="content">
