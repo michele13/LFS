@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libburn-download-http
-           "http://files.libburnia-project.org/releases/libburn-&libburn-version;.tar.gz">
+  <!ENTITY libburn-homepage      "http://libburnia-project.org/wiki/Libburn">
+  <!ENTITY libburn-wikipedia     " ">
+  <!ENTITY libburn-download-http "http://files.libburnia-project.org/releases/libburn-&libburn-version;.tar.gz">
   <!ENTITY libburn-download-ftp  " ">
   <!ENTITY libburn-md5sum        "6aaaf2cfb09584e69991250e619789b4">
   <!ENTITY libburn-size          "932 KB">
@@ -18,20 +19,26 @@
 
   <title>libburn-&libburn-version;</title>
 
-  <indexterm zone="libburn">
-    <primary sortas="a-libburn">libburn</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libburn</title>
+    <title>Introduction</title>
 
     <para>
-      <application>libburn</application> is a library for writing preformatted
-      data onto optical media: CD, DVD and BD (Blu-Ray).
+      libburn is a library for writing preformatted data onto optical media: CD,
+      DVD and BD (Blu-Ray).
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libburn-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libburn-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libburn-download-http;"/>
@@ -66,20 +73,16 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libburn</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>libburn</application> by running the
-      following commands:
+      Install libburn by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -89,58 +92,25 @@ make</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libburn">
+      <primary sortas="b-cdrskin">cdrskin</primary>
+    </indexterm>
+    <indexterm zone="libburn">
+      <primary sortas="c-libburn.so">libburn.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          cdrskin
-        </seg>
-        <seg>
-          libburn.so
-        </seg>
-        <seg>
-          /usr/include/libburn
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="cdrskin">
-        <term><command>cdrskin</command></term>
-        <listitem>
-          <para>
-            burns preformatted data to CD, DVD, and BD via
-            <application>libburn</application>.
-          </para>
-          <indexterm zone="libburn cdrskin">
-            <primary sortas="b-cdrskin">cdrskin</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libburn-lib">
-        <term><filename class="libraryfile">libburn.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>libburn</application> API functions.
-          </para>
-          <indexterm zone="libburn libburn-lib">
-            <primary sortas="c-libburn">libburn.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/cdrskin
+/usr/include/libburn/
+/usr/lib/libburn.so
+/usr/lib/pkgconfig/libburn-1.pc
+/usr/share/man/man1/cdrskin.1</literal></screen>
 
   </sect2>
 
