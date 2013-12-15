@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libisoburn-download-http
-           "http://files.libburnia-project.org/releases/libisoburn-&libisoburn-version;.tar.gz">
+  <!ENTITY libisoburn-homepage      "http://libburnia-project.org/wiki/Libisoburn">
+  <!ENTITY libisoburn-wikipedia     " ">
+  <!ENTITY libisoburn-download-http "http://files.libburnia-project.org/releases/libisoburn-&libisoburn-version;.tar.gz">
   <!ENTITY libisoburn-download-ftp  " ">
   <!ENTITY libisoburn-md5sum        "d8ebfe9407aca0d6b799706647703692">
   <!ENTITY libisoburn-size          "1.4 MB">
@@ -18,24 +19,29 @@
 
   <title>libisoburn-&libisoburn-version;</title>
 
-  <indexterm zone="libisoburn">
-    <primary sortas="a-libisoburn">libisoburn</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libisoburn</title>
+    <title>Introduction</title>
 
     <para>
-      <application>libisoburn</application> is a frontend for libraries
-      <application>libburn</application> and <application>libisofs</application>
-      which enables creation and expansion of ISO-9660 filesystems on all
-      CD/DVD/BD media supported by <application>libburn</application>. This
-      includes media like DVD+RW, which do not support multi-session management
-      on media level and even plain disk files or block devices.
+      libisoburn is a frontend for libraries libburn and libisofs which enables
+      creation and expansion of ISO-9660 filesystems on all CD/DVD/BD media
+      supported by libburn. This includes media like DVD+RW, which do not
+      support multi-session management on media level and even plain disk files
+      or block devices.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libisoburn-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libisoburn-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libisoburn-download-http;"/>
@@ -68,7 +74,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libisoburn Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -79,34 +85,22 @@
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
       <xref linkend="acl"/>,
-      <xref linkend="attr"/>,
-      <xref linkend="doxygen"/> (to generate HTML documentation) and
-      <xref linkend="tk"/> (for <command>xorriso-tcltk</command>)
+      <xref linkend="attr"/>, and
+      <xref linkend="tk"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libisoburn</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>libisoburn</application> by running the following
-      commands:
+      Install libisoburn by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      If you have installed <application>Doxygen</application> and wish to
-      generate the HTML documentation, issue the following command:
-    </para>
-
-<screen><userinput>doxygen doc/doxygen.conf</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -114,121 +108,45 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>
-      If you have built the HTML documentation, install it by running the
-      following commands as the
-      <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>install -v -dm755 /usr/share/doc/libisoburn-&libisoburn-version; &amp;&amp;
-install -v -m644 doc/html/* /usr/share/doc/libisoburn-&libisoburn-version;</userinput></screen>
-
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="libisoburn">
+      <primary sortas="b-osirrox">osirrox</primary>
+    </indexterm>
+    <indexterm zone="libisoburn">
+      <primary sortas="b-xorrecord">xorrecord</primary>
+    </indexterm>
+    <indexterm zone="libisoburn">
+      <primary sortas="b-xorriso">xorriso</primary>
+    </indexterm>
+    <indexterm zone="libisoburn">
+      <primary sortas="b-xorrisofs">xorrisofs</primary>
+    </indexterm>
+    <indexterm zone="libisoburn">
+      <primary sortas="b-xorriso-tcltk">xorriso-tcltk</primary>
+    </indexterm>
+    <indexterm zone="libisoburn">
+      <primary sortas="c-libisoburn.so">libisoburn.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          osirrox,
-          xorrecord,
-          xorriso,
-          xorrisofs and
-          xorriso-tcltk
-        </seg>
-        <seg>
-          libisoburn.so
-        </seg>
-        <seg>
-          /usr/include/libisoburn and
-          /usr/share/doc/libisoburn-&libisoburn-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="osirrox">
-        <term><command>osirrox</command></term>
-        <listitem>
-          <para>
-            is a symbolic link to <command>xorriso</command> that copies files
-            from ISO image to a disk filesystem.
-          </para>
-          <indexterm zone="libisoburn osirrox">
-            <primary sortas="b-osirrox">osirrox</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xorrecord">
-        <term><command>xorrecord</command></term>
-        <listitem>
-          <para>
-            is a symbolic link to <command>xorriso</command> that provides a
-            cdrecord type user interface.
-          </para>
-          <indexterm zone="libisoburn xorrecord">
-            <primary sortas="b-xorrecord">xorrecord</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xorriso">
-        <term><command>xorriso</command></term>
-        <listitem>
-          <para>
-            is a program to create, load, manipulate, read, and write ISO 9660
-            filesystem images with Rock Ridge extensions.
-          </para>
-          <indexterm zone="libisoburn xorriso">
-            <primary sortas="b-xorriso">xorriso</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="xorrisofs">
-        <term><command>xorrisofs</command></term>
-        <listitem>
-          <para>
-            is a symbolic link to <command>xorriso</command> that that provides
-            a mkisofs type user interface.
-          </para>
-          <indexterm zone="libisoburn xorrisofs">
-            <primary sortas="b-xorrisofs">xorrisofs</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libisoburn-lib">
-        <term><filename class="libraryfile">libisoburn.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>libisoburn</application> API functions.
-          </para>
-          <indexterm zone="libisoburn libisoburn-lib">
-            <primary sortas="c-libisoburn">libisoburn.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/osirrox
+/usr/bin/xorrecord
+/usr/bin/xorriso
+/usr/bin/xorrisofs
+/usr/bin/xorriso-tcltk
+/usr/include/libisoburn/
+/usr/lib/libisoburn.so
+/usr/lib/pkgconfig/libisoburn-1.pc
+/usr/share/man/man1/xorrecord.1
+/usr/share/man/man1/xorriso.1
+/usr/share/man/man1/xorrisofs.1</literal></screen>
 
   </sect2>
 
