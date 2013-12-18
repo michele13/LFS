@@ -4,9 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY freeglut-download-http
-           "&sourceforge-repo;/freeglut/freeglut-&freeglut-version;.tar.gz">
-  <!ENTITY freeglut-download-ftp " ">
+  <!ENTITY freeglut-homepage      "http://freeglut.sourceforge.net/">
+  <!ENTITY freeglut-wikipedia     "http://en.wikipedia.org/wiki/Freeglut">
+  <!ENTITY freeglut-download-http "&sourceforge-repo;/freeglut/freeglut-&freeglut-version;.tar.gz">
+  <!ENTITY freeglut-download-ftp  " ">
   <!ENTITY freeglut-md5sum        "918ffbddcffbac83c218bc52355b6d5a">
   <!ENTITY freeglut-size          "984 KB">
   <!ENTITY freeglut-buildsize     "11 MB">
@@ -18,23 +19,28 @@
 
   <title>Freeglut-&freeglut-version;</title>
 
-  <indexterm zone="freeglut">
-    <primary sortas="a-Freeglut">Freeglut</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Freeglut</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Freeglut</application> is intended to be a 100%
-      compatible, completely opensourced clone of the GLUT library.
-      GLUT is a window system independent toolkit for writing OpenGL
-      programs, implementing a simple windowing API, which makes
+      Freeglut is intended to be a 100% compatible, completely opensourced clone
+      of the GLUT library. GLUT is a window system independent toolkit for
+      writing OpenGL programs, implementing a simple windowing API, which makes
       learning about and exploring OpenGL programming very easy.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&freeglut-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&freeglut-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&freeglut-download-http;"/>
@@ -67,87 +73,50 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Freeglut Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="mesalib"/>
+      <xref linkend="glu"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Freeglut</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Freeglut</application> by running the
-      following commands:
+      Install Freeglut by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
-    </para>
-
-    <para>
-      Now, as the <systemitem class="username">root</systemitem>
-      user:
+      Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="freeglut">
+      <primary sortas="c-libglut.so">libglut.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libglut.so
-        </seg>
-        <seg>
-          None
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libglut">
-        <term><filename class="libraryfile">libglut.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that implement the OpenGL Utility
-            Toolkit.
-          </para>
-          <indexterm zone="freeglut libglut">
-            <primary sortas="c-libglut">libglut.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/GL/freeglut_ext.h
+/usr/include/GL/freeglut.h
+/usr/include/GL/freeglut_std.h
+/usr/include/GL/glut.h
+/usr/lib/libglut.so</literal></screen>
 
   </sect2>
 
