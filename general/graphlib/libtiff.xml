@@ -78,7 +78,7 @@
     <para role="optional">
       <xref linkend="libjpeg"/>,
       <xref linkend="jbigkit"/>, and
-      <xref linkend="freeglut"/>
+      <xref linkend="freeglut"/> (required for <command>tiffgt</command>)
     </para>
 
   </sect2>
@@ -90,7 +90,8 @@
       Install LibTIFF by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>sed -i '/glDrawPixels/a glFlush();' tools/tiffgt.c &amp;&amp;
+./configure --prefix=/usr \
             --disable-static &amp;&amp;
 make</userinput></screen>
 
@@ -100,6 +101,17 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i ...</command>: This command fixes a bug which is causing
+        <command>tiffgt</command> to open blank windows in some cases.
+      </para>
+
+    </sect3>
+
   </sect2>
 
   <sect2>
