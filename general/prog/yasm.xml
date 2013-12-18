@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY yasm-homepage      "http://yasm.tortall.net/">
+  <!ENTITY yasm-wikipedia     "http://en.wikipedia.org/wiki/Yasm">
   <!ENTITY yasm-download-http "http://www.tortall.net/projects/yasm/releases/yasm-&yasm-version;.tar.gz">
   <!ENTITY yasm-download-ftp  " ">
   <!ENTITY yasm-md5sum        "4cfc0686cf5350dd1305c4d905eb55a6">
@@ -17,41 +19,60 @@
 
   <title>yasm-&yasm-version;</title>
 
-  <indexterm zone="yasm">
-    <primary sortas="a-yasm">yasm</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to yasm</title>
+    <title>Introduction</title>
 
-    <para><application>Yasm</application> is a complete rewrite of the
-    <xref linkend="NASM"/> assembler. It supports the x86 and AMD64 instruction
-    sets, accepts NASM and GAS assembler syntaxes and outputs binary, ELF32 and
-    ELF64 object formats.</para>
+    <para>
+      Yasm is a complete rewrite of the <xref linkend="NASM"/> assembler. It
+      supports the x86 and AMD64 instruction sets, accepts NASM and GAS
+      assembler syntaxes and outputs binary, ELF32 and ELF64 object formats.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&yasm-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&yasm-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&yasm-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&yasm-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &yasm-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&yasm-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &yasm-size;</para>
+        <para>
+          Download (FTP): <ulink url="&yasm-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &yasm-buildsize;</para>
+        <para>
+          Download MD5 sum: &yasm-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &yasm-time;</para>
+        <para>
+          Download size: &yasm-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &yasm-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &yasm-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">yasm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
@@ -61,78 +82,56 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of yasm</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>yasm</application> by running the following
-    commands:</para>
+    <para>
+      Install yasm by running the following commands:
+    </para>
 
 <screen><userinput>sed -i 's#) ytasm.*#)#' Makefile.in &amp;&amp;
 ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
-    <para>To test the results, issue: <command>make check</command>.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i 's#) ytasm.*#)#' Makefile.in</command>: This sed
+        prevents it compiling 2 programs (vsyasm and ytasm) that are only of use
+        on Microsoft Windows.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><command>sed -i 's#) ytasm.*#)#' Makefile.in</command>: This sed
-    prevents it compiling 2 programs (vsyasm and ytasm) that are only of use
-    on Microsoft Windows.</para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="yasm">
+      <primary sortas="b-yasm">yasm</primary>
+    </indexterm>
+    <indexterm zone="yasm">
+      <primary sortas="c-libyasm.a">libyasm.a</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>yasm</seg>
-        <seg>libyasm.a</seg>
-        <seg>/usr/include/libyasm</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="yasm-prog">
-        <term><command>yasm</command></term>
-        <listitem>
-          <para>is a portable, retargetable assembler that supports the x86 and
-          AMD64 instruction sets, accepts NASM and GAS assembler syntaxes and
-          outputs binaries in ELF32 and ELF64 object formats.</para>
-          <indexterm zone="yasm yasm">
-            <primary sortas="b-yasm">yasm</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libyasm">
-        <term><filename class='libraryfile'>libyasm.a</filename></term>
-        <listitem>
-          <para>provides all of the core functionality of
-          <command>yasm</command>, for manipulating machine instructions and
-          object file constructs.</para>
-          <indexterm zone="yasm libyasm">
-            <primary sortas="c-libyasm">libyasm.a</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/yasm
+/usr/include/libyasm/
+/usr/include/libyasm.h
+/usr/include/libyasm-stdint.h
+/usr/lib/libyasm.a
+/usr/share/man/man1/yasm.1</literal></screen>
 
   </sect2>
 
