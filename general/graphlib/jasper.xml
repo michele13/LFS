@@ -4,11 +4,13 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY jasper-homepage      "http://www.ece.uvic.ca/~frodo/jasper/">
+  <!ENTITY jasper-wikipedia     "http://en.wikipedia.org/wiki/JasPer">
   <!ENTITY jasper-download-http "http://www.ece.uvic.ca/~mdadams/jasper/software/jasper-&jasper-version;.zip">
   <!ENTITY jasper-download-ftp  " ">
   <!ENTITY jasper-md5sum        "a342b2b4495b3e1394e161eb5d85d754">
   <!ENTITY jasper-size          "1.4 MB">
-  <!ENTITY jasper-buildsize     "11.1 MB (without the static library)">
+  <!ENTITY jasper-buildsize     "11 MB">
   <!ENTITY jasper-time          "0.3 SBU">
 ]>
 
@@ -17,181 +19,154 @@
 
   <title>JasPer-&jasper-version;</title>
 
-  <indexterm zone="jasper">
-    <primary sortas="a-jasper-&jasper-version;">JasPer</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to JasPer</title>
+    <title>Introduction</title>
 
-    <para>The <application>JasPer</application> Project is an open-source
-    initiative to provide a free software-based reference implementation of the
-    JPEG-2000 codec.</para>
+    <para>
+      The JasPer Project is an open-source initiative to provide a free
+      software-based reference implementation of the JPEG-2000 codec.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&jasper-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&jasper-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&jasper-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&jasper-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &jasper-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&jasper-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &jasper-size;</para>
+        <para>
+          Download (FTP): <ulink url="&jasper-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &jasper-buildsize;</para>
+        <para>
+          Download MD5 sum: &jasper-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &jasper-time;</para>
+        <para>
+          Download size: &jasper-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &jasper-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &jasper-time;
+        </para>
       </listitem>
     </itemizedlist>
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Required patch: <ulink
-        url="&patch-root;jasper/jasper-&jasper-version;-security_fixes-1.patch"/></para>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;jasper/jasper-&jasper-version;-security_fixes-1.patch"/>
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">JasPer Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="unzip"/></para>
+    <para role="required">
+      <xref linkend="unzip"/>
+    </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="optional"><xref linkend="libjpeg"/>,
-    <xref linkend="x-window-system"/>, and
-    <xref linkend="freeglut"/></para>
+    <para role="recommended">
+      <xref linkend="libjpeg"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="freeglut"/> (required for <command>jiv</command>)
+    </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of JasPer</title>
+  <sect2>
+    <title>Installation</title>
 
-<note>
-  <para>The package source is distributed in <filename class="extension">.zip</filename>
-  format and requires <command>unzip</command>, but it has been correctly packaged
-  and will create the jasper-&jasper-version; directory when you unzip it.</para>
-</note>
+    <note>
+      <para>
+        The package source is distributed in <filename
+        class="extension">.zip</filename> format and requires
+        <command>unzip</command>, but it has been correctly packaged and will
+        create the jasper-&jasper-version; directory when you unzip it.
+      </para>
+    </note>
+
+    <para>
+      Install JasPer by running the following commands:
+    </para>
 
 <screen><userinput>patch -Np1 -i ../jasper-&jasper-version;-security_fixes-1.patch &amp;&amp;
-./configure --prefix=/usr --enable-shared --disable-static &amp;&amp;
+./configure --prefix=/usr \
+            --disable-static \
+            --enable-shared &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a testsuite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>If you wish to install the PDF files for the Reference Manual and a
-    tutorial on the JPEG-2000 standard, run the following commands as the
-    <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>install -v -m755 -d /usr/share/doc/jasper-&jasper-version; &amp;&amp;
-install -v -m644 doc/*.pdf /usr/share/doc/jasper-&jasper-version;</userinput></screen>
-
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><option>--enable-shared</option>: This command
-    causes the shared library to be built.</para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="jasper">
+      <primary sortas="b-imgcmp">imgcmp</primary>
+    </indexterm>
+    <indexterm zone="jasper">
+      <primary sortas="b-imginfo">imginfo</primary>
+    </indexterm>
+    <indexterm zone="jasper">
+      <primary sortas="b-jasper">jasper</primary>
+    </indexterm>
+    <indexterm zone="jasper">
+      <primary sortas="b-jiv">jiv</primary>
+    </indexterm>
+    <indexterm zone="jasper">
+      <primary sortas="b-tmrdemo">tmrdemo</primary>
+    </indexterm>
+    <indexterm zone="jasper">
+      <primary sortas="c-libjasper.so">libjasper.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>imgcmp, imginfo, jasper, jiv, and tmrdemo</seg>
-        <seg>libjasper.so</seg>
-        <seg>/usr/include/jasper and /usr/share/doc/jasper-&jasper-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="imgcmp">
-        <term><command>imgcmp</command></term>
-        <listitem>
-          <para>compares two images of the same geometry.</para>
-          <indexterm zone="jasper imgcmp">
-            <primary sortas="b-imgcmp">imgcmp</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="imginfo">
-        <term><command>imginfo</command></term>
-        <listitem>
-          <para>displays information about an image.</para>
-          <indexterm zone="jasper imginfo">
-            <primary sortas="b-imginfo">imginfo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="jasper-command">
-        <term><command>jasper</command></term>
-        <listitem>
-          <para>converts images between formats (BMP, JPS, JPC, JPG, PGX, PNM, MIF,
-          and RAS).</para>
-          <indexterm zone="jasper jasper">
-            <primary sortas="b-jasper">jasper</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="jiv">
-        <term><command>jiv</command></term>
-        <listitem>
-          <para>displays images.</para>
-          <indexterm zone="jasper jiv">
-            <primary sortas="b-jiv">jiv</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="tmrdemo">
-        <term><command>tmrdemo</command></term>
-        <listitem>
-          <para>is a timer demonstration program.</para>
-          <indexterm zone="jasper tmrdemo">
-            <primary sortas="b-tmrdemo">tmrdemo</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="jasper-lib">
-        <term><filename class='libraryfile'>libjasper.so</filename></term>
-        <listitem>
-          <para>a library used by programs for reading and writing
-          JPEG2000 format files.</para>
-          <indexterm zone="jasper jasper-lib">
-            <primary sortas="c-libjasper">libjasper.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/imgcmp
+/usr/bin/imginfo
+/usr/bin/jasper
+/usr/bin/jiv
+/usr/bin/tmrdemo
+/usr/include/jasper/
+/usr/lib/libjasper.so
+/usr/share/man/man1/imgcmp.1
+/usr/share/man/man1/imginfo.1
+/usr/share/man/man1/jasper.1
+/usr/share/man/man1/jiv.1</literal></screen>
 
   </sect2>
 
