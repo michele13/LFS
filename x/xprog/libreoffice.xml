@@ -238,9 +238,6 @@ ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz src/</useri
     </note>
 
     <para>
-      In the rest of the page, locales "en-US" and "pt-BR" are examples; the
-      user will change them to suit his needs - you might want to read the
-      "Command Explanations", further below, before proceeding.
       Prepare <application>LibreOffice</application> for compilation by running
       the following commands:
     </para>
@@ -262,7 +259,6 @@ patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-libmwaw0.2-1.patch &amp;&am
 
 ./autogen.sh --prefix=/usr \
              --with-vendor="BLFS" \
-             --with-lang="en-US pt-BR" \
              --with-alloc=system \
              --with-parallelism=$(getconf _NPROCESSORS_ONLN) \
              --without-java \
@@ -322,21 +318,6 @@ cp -vR dictionaries/pt_BR/* /usr/lib/libreoffice/share/extensions/dict-pt-BR</us
     <para>
       <parameter>--with-vendor=BLFS</parameter>: This switch sets BLFS as
       the vendor which is mentioned when you click "About" on the toolbar.
-    </para>
-<!-- I believe en-US is not necessary anymore
-    <para>
-      <parameter>-\-with-lang="en-US pt-BR"</parameter>: This switch sets
-      what languages to support. en-US is always needed. To list several
-      languages, separate them with a space. For all languages, use
-      <parameter>-\-with-lang=ALL</parameter>
-    </para>
--->
-
-    <para>
-      <parameter>--with-lang="en-US pt-BR"</parameter>: This switch sets
-      what languages to support. To list several languages, separate them with
-      a space. For all languages, use
-      <parameter>--with-lang=ALL</parameter>.
     </para>
 
     <para>
