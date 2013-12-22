@@ -1,5 +1,5 @@
-Submitted by:            Matt Burgess (matthew_at_linuxfromscratch_dot_org)
-Date:                    2013-12-16
+Submitted by:            William Immendorf (will.immendorf_at_gmail_dot_com)
+Date:                    2013-12-20
 Initial Package Version: 8.22
 Upstream Status:         Rejected
 Origin:                  Based on Fedora's i18n patch at
@@ -7,8 +7,8 @@ Origin:                  Based on Fedora's i18n patch at
 Description:             Fixes several i18n issues with various Coreutils programs
 
 diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
---- coreutils-8.22.orig/lib/linebuffer.h	2013-12-04 14:53:33.000000000 +0000
-+++ coreutils-8.22/lib/linebuffer.h	2013-12-16 08:54:31.726015866 +0000
+--- coreutils-8.22.orig/lib/linebuffer.h	2013-12-20 09:58:18.696357204 -0500
++++ coreutils-8.22/lib/linebuffer.h	2013-12-20 09:58:22.416416808 -0500
 @@ -21,6 +21,11 @@
  
  # include <stdio.h>
@@ -32,8 +32,8 @@ diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
  
  /* Initialize linebuffer LINEBUFFER for use. */
 diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
---- coreutils-8.22.orig/src/cut.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/cut.c	2013-12-16 08:54:31.727015871 +0000
+--- coreutils-8.22.orig/src/cut.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/cut.c	2013-12-20 09:58:22.426416126 -0500
 @@ -28,6 +28,11 @@
  #include <assert.h>
  #include <getopt.h>
@@ -174,7 +174,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
                else
                  error (0, 0,
                         _("field number %s is too large"), quote (bad_num));
-@@ -505,6 +584,80 @@
+@@ -505,6 +584,79 @@
      }
  }
  
@@ -190,7 +190,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +static void
 +cut_characters_or_cut_bytes_no_split (FILE *stream)
 +{
-+  int idx;                /* number of bytes or characters in the line so far. */
++  size_t idx;                /* number of bytes or characters in the line so far. */
 +  char buf[MB_LEN_MAX + BUFSIZ];  /* For spooling a read byte sequence. */
 +  char *bufpos;                /* Next read position of BUF. */
 +  size_t buflen;        /* The length of the byte sequence in buf. */
@@ -232,7 +232,6 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +      else
 +        {
 +          next_item (&idx);
-+          //idx += (operating_mode == byte_mode) ? mblength : 1;
 +          if (print_kth (idx))
 +            {
 +              if (output_delimiter_specified)
@@ -255,7 +254,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  /* Read from stream STREAM, printing to standard output any selected fields.  */
  
  static void
-@@ -629,13 +782,198 @@
+@@ -629,13 +781,198 @@
      }
  }
  
@@ -264,7 +263,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +cut_fields_mb (FILE *stream)
 +{
 +  int c;
-+  unsigned int field_idx;
++  size_t field_idx;
 +  int found_any_selected_field;
 +  int buffer_first_field;
 +  int empty_input;
@@ -457,7 +456,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  }
  
  /* Process file FILE to standard output.
-@@ -687,6 +1025,8 @@
+@@ -687,6 +1024,8 @@
    bool ok;
    bool delim_specified = false;
    char *spec_list_string IF_LINT ( = NULL);
@@ -466,7 +465,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
-@@ -709,7 +1049,6 @@
+@@ -709,7 +1048,6 @@
        switch (optc)
          {
          case 'b':
@@ -474,7 +473,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            /* Build the byte list. */
            if (operating_mode != undefined_mode)
              FATAL_ERROR (_("only one type of list may be specified"));
-@@ -717,6 +1056,14 @@
+@@ -717,6 +1055,14 @@
            spec_list_string = optarg;
            break;
  
@@ -489,7 +488,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
          case 'f':
            /* Build the field list. */
            if (operating_mode != undefined_mode)
-@@ -728,10 +1075,36 @@
+@@ -728,10 +1074,36 @@
          case 'd':
            /* New delimiter. */
            /* Interpret -d '' to mean 'use the NUL byte as the delimiter.'  */
@@ -530,7 +529,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            break;
  
          case OUTPUT_DELIMITER_OPTION:
-@@ -744,6 +1117,7 @@
+@@ -744,6 +1116,7 @@
            break;
  
          case 'n':
@@ -538,7 +537,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            break;
  
          case 's':
-@@ -783,15 +1157,34 @@
+@@ -783,15 +1156,34 @@
      }
  
    if (!delim_specified)
@@ -580,8 +579,8 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  
    if (optind == argc)
 diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
---- coreutils-8.22.orig/src/expand.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/expand.c	2013-12-16 08:54:31.728015877 +0000
+--- coreutils-8.22.orig/src/expand.c	2013-12-20 09:58:18.593021824 -0500
++++ coreutils-8.22/src/expand.c	2013-12-20 09:58:22.429749303 -0500
 @@ -37,12 +37,29 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -770,8 +769,8 @@ diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
    if (have_read_stdin && fclose (stdin) != 0)
      error (EXIT_FAILURE, errno, "-");
 diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
---- coreutils-8.22.orig/src/fold.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/fold.c	2013-12-16 08:54:31.729015882 +0000
+--- coreutils-8.22.orig/src/fold.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/fold.c	2013-12-20 09:58:22.433082418 -0500
 @@ -22,12 +22,34 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -1170,8 +1169,8 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
  
          case 's':		/* Break at word boundaries. */
 diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
---- coreutils-8.22.orig/src/join.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/join.c	2013-12-16 08:54:31.731015893 +0000
+--- coreutils-8.22.orig/src/join.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/join.c	2013-12-20 09:58:22.433082418 -0500
 @@ -22,18 +22,32 @@
  #include <sys/types.h>
  #include <getopt.h>
@@ -1461,7 +1460,7 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 +        for (i = 0; i < 2; i++)
 +          {
 +            mallocd = 1;
-+            copy[i] = xmalloc (len[i] + 1);
++            copy[i] = xcalloc (0, len[i] + 1);
 +
 +            for (j = 0; j < MIN (len[0], len[1]);)
 +              {
@@ -1663,8 +1662,8 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
  
          case 'z':
 diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
---- coreutils-8.22.orig/src/pr.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/pr.c	2013-12-16 08:54:31.734015910 +0000
+--- coreutils-8.22.orig/src/pr.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/pr.c	2013-12-20 09:58:22.436415552 -0500
 @@ -312,6 +312,32 @@
  
  #include <getopt.h>
@@ -2419,8 +2418,8 @@ diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
     looking for more options and printing the next batch of files.
  
 diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
---- coreutils-8.22.orig/src/sort.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/sort.c	2013-12-16 08:54:31.738015932 +0000
+--- coreutils-8.22.orig/src/sort.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/sort.c	2013-12-20 09:58:22.443081895 -0500
 @@ -29,6 +29,14 @@
  #include <sys/wait.h>
  #include <signal.h>
@@ -3394,8 +3393,8 @@ diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
            break;
  
 diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
---- coreutils-8.22.orig/src/unexpand.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/unexpand.c	2013-12-16 08:54:31.739015937 +0000
+--- coreutils-8.22.orig/src/unexpand.c	2013-12-20 09:58:18.596355312 -0500
++++ coreutils-8.22/src/unexpand.c	2013-12-20 09:58:22.443081895 -0500
 @@ -38,12 +38,29 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -3652,8 +3651,8 @@ diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
    if (have_read_stdin && fclose (stdin) != 0)
      error (EXIT_FAILURE, errno, "-");
 diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
---- coreutils-8.22.orig/src/uniq.c	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/src/uniq.c	2013-12-16 08:54:31.740015942 +0000
+--- coreutils-8.22.orig/src/uniq.c	2013-12-20 09:58:18.599688767 -0500
++++ coreutils-8.22/src/uniq.c	2013-12-20 09:58:22.446415181 -0500
 @@ -21,6 +21,16 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -3861,7 +3860,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
 +
 +  for (i = 0; i < 2; i++)
 +    {
-+      copy[i] = xmalloc (len[i] + 1);
++      copy[i] = xcalloc (0, len[i] + 1);
 +
 +      for (j = 0, chars = 0; j < len[i] && chars < check_chars; chars++)
 +        {
@@ -3912,7 +3911,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
  /* Output the line in linebuffer LINE to standard output
     provided that the switches say it should be output.
     MATCH is true if the line matches the previous line.
-@@ -356,18 +547,45 @@
+@@ -356,18 +547,55 @@
        char *prevfield IF_LINT ( = NULL);
        size_t prevlen IF_LINT ( = 0);
        bool first_group_printed = false;
@@ -3937,12 +3936,20 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
            thisfield = find_field (thisline);
            thislen = thisline->length - 1 - (thisfield - thisline->buffer);
 +#if HAVE_MBRTOWC
-+          if (MB_CUR_MAX > 1)
++        if (MB_CUR_MAX > 1)
 +            {
 +            thisstate = thisline->state;
 +
-+            if (prevline->length == 0 || different_multi
-+              (thisfield, prevfield, thislen, prevlen, thisstate, prevstate))
++            new_group = (prevline->length == 0 || different_multi
++              (thisfield, prevfield, thislen, prevlen, thisstate, prevstate));
++
++            if (new_group && grouping != GM_NONE
++                && (grouping == GM_PREPEND || grouping == GM_BOTH
++                || (first_group_printed && (grouping == GM_APPEND
++                || grouping == GM_SEPARATE))))
++              putchar (delimiter);
++
++            if (new_group || grouping != GM_NONE)
 +              {
 +                fwrite (thisline->buffer, sizeof (char),
 +                        thisline->length, stdout);
@@ -3951,14 +3958,35 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
 +                prevfield = thisfield;
 +                prevlen = thislen;
 +                prevstate = thisstate;
++                first_group_printed = true;
 +              }
 +          }
 +        else
++        {
 +#endif
  
            new_group = (prevline->length == 0
                         || different (thisfield, prevfield, thislen, prevlen));
-@@ -398,17 +616,26 @@
+@@ -376,7 +604,7 @@
+               && (grouping == GM_PREPEND || grouping == GM_BOTH
+                   || (first_group_printed && (grouping == GM_APPEND
+                                               || grouping == GM_SEPARATE))))
+-            putchar (delimiter);
++		putchar (delimiter);
+ 
+           if (new_group || grouping != GM_NONE)
+             {
+@@ -388,6 +616,9 @@
+               prevlen = thislen;
+               first_group_printed = true;
+             }
++#if HAVE_MBRTOWC
++        }
++#endif
+         }
+       if ((grouping == GM_BOTH || grouping == GM_APPEND) && first_group_printed)
+         putchar (delimiter);
+@@ -398,17 +629,26 @@
        size_t prevlen;
        uintmax_t match_count = 0;
        bool first_delimiter = true;
@@ -3985,7 +4013,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
            if (readlinebuffer_delim (thisline, stdin, delimiter) == 0)
              {
                if (ferror (stdin))
-@@ -417,6 +644,14 @@
+@@ -417,6 +657,14 @@
              }
            thisfield = find_field (thisline);
            thislen = thisline->length - 1 - (thisfield - thisline->buffer);
@@ -4000,7 +4028,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
            match = !different (thisfield, prevfield, thislen, prevlen);
            match_count += match;
  
-@@ -449,6 +684,9 @@
+@@ -449,6 +697,9 @@
                SWAP_LINES (prevline, thisline);
                prevfield = thisfield;
                prevlen = thislen;
@@ -4010,7 +4038,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
                if (!match)
                  match_count = 0;
              }
-@@ -495,6 +733,19 @@
+@@ -495,6 +746,19 @@
  
    atexit (close_stdout);
  
@@ -4031,8 +4059,8 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
    skip_fields = 0;
    check_chars = SIZE_MAX;
 diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
---- coreutils-8.22.orig/tests/local.mk	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/local.mk	2013-12-16 08:54:31.740015942 +0000
+--- coreutils-8.22.orig/tests/local.mk	2013-12-20 09:58:18.683023669 -0500
++++ coreutils-8.22/tests/local.mk	2013-12-20 09:58:22.446415181 -0500
 @@ -324,6 +324,7 @@
    tests/misc/sort-discrim.sh			\
    tests/misc/sort-files0-from.pl		\
@@ -4042,8 +4070,8 @@ diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
    tests/misc/sort-merge-fdlimit.sh		\
    tests/misc/sort-month.sh			\
 diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.pl
---- coreutils-8.22.orig/tests/misc/cut.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/cut.pl	2013-12-16 08:54:31.740015942 +0000
+--- coreutils-8.22.orig/tests/misc/cut.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/cut.pl	2013-12-20 09:58:22.446415181 -0500
 @@ -23,9 +23,11 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4067,8 +4095,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.p
        }
      push @Tests, @new;
 diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/expand.pl
---- coreutils-8.22.orig/tests/misc/expand.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/expand.pl	2013-12-16 08:54:31.741015948 +0000
+--- coreutils-8.22.orig/tests/misc/expand.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/expand.pl	2013-12-20 09:58:22.446415181 -0500
 @@ -23,6 +23,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4124,8 +4152,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/ex
  my $verbose = $ENV{VERBOSE};
  
 diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold.pl
---- coreutils-8.22.orig/tests/misc/fold.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/fold.pl	2013-12-16 08:54:31.741015948 +0000
+--- coreutils-8.22.orig/tests/misc/fold.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/fold.pl	2013-12-20 09:58:22.446415181 -0500
 @@ -20,9 +20,18 @@
  
  (my $program_name = $0) =~ s|.*/||;
@@ -4196,8 +4224,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold
  my $fail = run_tests ($program_name, $prog, \@Tests, $save_temps, $verbose);
  exit $fail;
 diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join.pl
---- coreutils-8.22.orig/tests/misc/join.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/join.pl	2013-12-16 08:54:31.741015948 +0000
+--- coreutils-8.22.orig/tests/misc/join.pl	2013-12-20 09:58:18.676356897 -0500
++++ coreutils-8.22/tests/misc/join.pl	2013-12-20 09:58:22.449748513 -0500
 @@ -25,6 +25,15 @@
  
  my $prog = 'join';
@@ -4265,8 +4293,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join
  my $verbose = $ENV{VERBOSE};
  
 diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/misc/sort-mb-tests.sh
---- coreutils-8.22.orig/tests/misc/sort-mb-tests.sh	1970-01-01 00:00:00.000000000 +0000
-+++ coreutils-8.22/tests/misc/sort-mb-tests.sh	2013-12-16 08:54:31.742015953 +0000
+--- coreutils-8.22.orig/tests/misc/sort-mb-tests.sh	1969-12-31 19:00:00.000000000 -0500
++++ coreutils-8.22/tests/misc/sort-mb-tests.sh	2013-12-20 09:58:22.449748513 -0500
 @@ -0,0 +1,45 @@
 +#!/bin/sh
 +# Verify sort's multi-byte support.
@@ -4314,8 +4342,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/
 +
 +Exit $fail
 diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/misc/sort-merge.pl
---- coreutils-8.22.orig/tests/misc/sort-merge.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/sort-merge.pl	2013-12-16 08:54:31.742015953 +0000
+--- coreutils-8.22.orig/tests/misc/sort-merge.pl	2013-12-20 09:58:18.676356897 -0500
++++ coreutils-8.22/tests/misc/sort-merge.pl	2013-12-20 09:58:22.449748513 -0500
 @@ -26,6 +26,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4373,8 +4401,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/mis
  my $verbose = $ENV{VERBOSE};
  
 diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort.pl
---- coreutils-8.22.orig/tests/misc/sort.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/sort.pl	2013-12-16 08:54:31.742015953 +0000
+--- coreutils-8.22.orig/tests/misc/sort.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/sort.pl	2013-12-20 09:58:22.449748513 -0500
 @@ -24,10 +24,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4439,8 +4467,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
 diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/unexpand.pl
---- coreutils-8.22.orig/tests/misc/unexpand.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/unexpand.pl	2013-12-16 08:54:31.743015959 +0000
+--- coreutils-8.22.orig/tests/misc/unexpand.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/unexpand.pl	2013-12-20 09:58:22.449748513 -0500
 @@ -27,6 +27,14 @@
  
  my $prog = 'unexpand';
@@ -4495,8 +4523,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/
  my $verbose = $ENV{VERBOSE};
  
 diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq.pl
---- coreutils-8.22.orig/tests/misc/uniq.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/misc/uniq.pl	2013-12-16 08:54:31.743015959 +0000
+--- coreutils-8.22.orig/tests/misc/uniq.pl	2013-12-20 09:58:18.679690299 -0500
++++ coreutils-8.22/tests/misc/uniq.pl	2013-12-20 09:58:22.449748513 -0500
 @@ -23,9 +23,17 @@
  my $prog = 'uniq';
  my $try = "Try '$prog --help' for more information.\n";
@@ -4515,7 +4543,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
  # When possible, create a "-z"-testing variant of each test.
  sub add_z_variants($)
  {
-@@ -261,6 +269,44 @@
+@@ -261,6 +269,45 @@
        and push @$t, {ENV=>'_POSIX2_VERSION=199209'};
    }
  
@@ -4542,7 +4570,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
 +            push @new_t, $sub;
 +            push @$t, $sub;
 +          }
-+        next if ($test_name =~ "schar" or $test_name =~ "^obs-plus" or $test_name =~ "119" or $test_name =~ "128" or $test_name =~ "129" or $test_name =~ "130" or $test_name =~ "131" or $test_name =~ "132" or $test_name =~ "133" or $test_name =~ "145");
++          next if ($test_name =~ "schar" or $test_name =~ "^obs-plus"
++          or $test_name =~ "119" or $test_name =~ "145");
 +        push @new, ["$test_name-mb", @new_t, {ENV => "LC_ALL=$mb_locale"}];
 +      }
 +    push @Tests, @new;
@@ -4561,8 +4590,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
  @Tests = triple_test \@Tests;
  
 diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-tests.pl
---- coreutils-8.22.orig/tests/pr/pr-tests.pl	2013-12-04 14:48:30.000000000 +0000
-+++ coreutils-8.22/tests/pr/pr-tests.pl	2013-12-16 08:54:31.743015959 +0000
+--- coreutils-8.22.orig/tests/pr/pr-tests.pl	2013-12-20 09:58:18.666356739 -0500
++++ coreutils-8.22/tests/pr/pr-tests.pl	2013-12-20 09:58:22.453081899 -0500
 @@ -23,6 +23,15 @@
  
  my $prog = 'pr';
@@ -4629,8 +4658,8 @@ diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-t
  my $verbose = $ENV{VERBOSE};
 
 diff -Naur coreutils-8.22.orig/Makefile.in coreutils-8.22/Makefile.in
---- coreutils-8.22.orig/Makefile.in	2013-12-13 15:20:00.000000000 +0000
-+++ coreutils-8.22/Makefile.in	2013-12-16 08:54:57.016154042 +0000
+--- coreutils-8.22.orig/Makefile.in	2013-12-20 09:58:18.593021824 -0500
++++ coreutils-8.22/Makefile.in	2013-12-20 09:58:24.766451094 -0500
 @@ -3896,6 +3896,7 @@
    tests/misc/sort-discrim.sh			\
    tests/misc/sort-files0-from.pl		\
