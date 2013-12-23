@@ -6,6 +6,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * added attr, acl, and libcap
 * eudev instead of systemd-udev
 * pkgconf instead of pkg-config
+* removed gettext and texinfo
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * moved patches to github repo

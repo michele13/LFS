@@ -41,6 +41,10 @@
   <sect2 role="installation">
     <title>Installation of Bc</title>
 
+    <para>Disable building documentation as it requires Texinfo:</para>
+
+<screen><userinput remap="pre">sed -i '/SUBDIRS/ s/doc//' Makefile.in</userinput></screen>
+
     <para>Prepare Bc for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr --with-readline</userinput></screen>
@@ -73,7 +77,8 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make install
+install -v -m644 doc/*.1 /usr/share/man/man1</userinput></screen>
 
   </sect2>
 
