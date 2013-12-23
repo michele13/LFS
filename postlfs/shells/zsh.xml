@@ -65,13 +65,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">zsh Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="pcre"/>
-    </para>
-
   </sect2>
 
   <sect2 role="installation">
@@ -89,7 +82,8 @@
             --bindir=/bin         \
             --sysconfdir=/etc/zsh \
             --enable-etcdir=/etc/zsh \
-            --enable-cap                              &amp;&amp;
+            --enable-cap \
+            --enable-pcre &amp;&amp;
 make                                                  &amp;&amp;
 
 makeinfo  Doc/zsh.texi --html      -o Doc/html        &amp;&amp;
@@ -149,12 +143,12 @@ install -v -m644 Doc/zsh.dvi /usr/share/doc/zsh-&zsh-version;</userinput></scree
     <para><parameter>--enable-cap</parameter>: This parameter enables
     POSIX 1003.1e capabilities.</para>
 
+    <para><parameter>--enable-pcre</parameter>: This parameter allows to use
+    the <application>PCRE</application> regular expression library in shell
+    builtins.</para>
+
     <para><option>--disable-gdbm</option>: This option disables the
     use of the <application>GDBM</application> library.</para>
-
-    <para><option>--enable-pcre</option>: This option allows to use
-    the <application>pcre</application> regular expression library in shell
-    builtins.</para>
 
     <sect3 id="mountpoints">
       <title>Multiple partitions</title>
