@@ -4,55 +4,74 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY startup-notification-homepage      "http://www.freedesktop.org/wiki/Software/startup-notification/">
+  <!ENTITY startup-notification-wikipedia     " ">
   <!ENTITY startup-notification-download-http "http://www.freedesktop.org/software/startup-notification/releases/startup-notification-&startup-notification-version;.tar.gz">
   <!ENTITY startup-notification-download-ftp  " ">
   <!ENTITY startup-notification-md5sum        "2cd77326d4dcaed9a5a23a1232fb38e9">
   <!ENTITY startup-notification-size          "347 KB">
   <!ENTITY startup-notification-buildsize     "4 MB">
-  <!ENTITY startup-notification-time          "less than 0.1 SBU">
+  <!ENTITY startup-notification-time          "SBU">
 ]>
 
-<sect1 id="startup-notification"
-xreflabel="startup-notification-&startup-notification-version;">
+<sect1 id="startup-notification" xreflabel="startup-notification-&startup-notification-version;">
   <?dbhtml filename="startup-notification.html"?>
 
   <title>startup-notification-&startup-notification-version;</title>
 
-  <indexterm zone="startup-notification">
-    <primary sortas="a-startup-notification">startup-notification</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to startup-notification</title>
+    <title>Introduction</title>
 
-    <para>The <application>startup-notification</application> package
-    contains <filename class="libraryfile">startup-notification</filename>
-    libraries. These are useful for building a consistent manner to notify
-    the user through the cursor that the application is loading.</para>
+    <para>
+      startup-notification package contains a reference implementation of the
+      startup notification protocol.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&startup-notification-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&startup-notification-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&startup-notification-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&startup-notification-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &startup-notification-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&startup-notification-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &startup-notification-size;</para>
+        <para>
+          Download (FTP): <ulink url="&startup-notification-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &startup-notification-buildsize;</para>
+        <para>
+          Download MD5 sum: &startup-notification-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &startup-notification-time;</para>
+        <para>
+          Download size: &startup-notification-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &startup-notification-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &startup-notification-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">startup-notification Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -62,67 +81,37 @@ xreflabel="startup-notification-&startup-notification-version;">
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of startup-notification</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>startup-notification</application> by running the
-    following commands:</para>
+    <para>
+      Install startup-notification by running the following commands:
+    </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
 
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m644 -D doc/startup-notification.txt \
-    /usr/share/doc/startup-notification-&startup-notification-version;/startup-notification.txt</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="startup-notification">
+      <primary sortas="c-libstartup-notification-1.so">libstartup-notification-1.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>None</seg>
-        <seg>libstartup-notification-1.so</seg>
-        <seg>/usr/include/startup-notification-1.0 and
-        /usr/share/doc/startup-notification-&startup-notification-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libstartup-notification-1">
-        <term><filename class='libraryfile'>libstartup-notification-1.so</filename></term>
-        <listitem>
-          <para>provides the functions to assist applications in communicating
-          with the cursor system to provide feedback to the user that the
-          application is loading.</para>
-          <indexterm zone="startup-notification libstartup-notification-1">
-            <primary sortas="c-libstartup-notification-1">libstartup-notification-1.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/startup-notification-1.0/
+/usr/lib/libstartup-notification-1.so
+/usr/lib/pkgconfig/libstartup-notification-1.0.pc</literal></screen>
 
   </sect2>
 
