@@ -4,10 +4,10 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY gdk-pixbuf-download-http
-           "&gnome-download-http;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
-  <!ENTITY gdk-pixbuf-download-ftp
-           "&gnome-download-ftp;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
+  <!ENTITY gdk-pixbuf-homepage      " ">
+  <!ENTITY gdk-pixbuf-wikipedia     " ">
+  <!ENTITY gdk-pixbuf-download-http "&gnome-download-http;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
+  <!ENTITY gdk-pixbuf-download-ftp  "&gnome-download-ftp;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
   <!ENTITY gdk-pixbuf-md5sum        "04c04e5042acd85cff6c439aba1995f1">
   <!ENTITY gdk-pixbuf-size          "1.1 MB">
   <!ENTITY gdk-pixbuf-buildsize     "31 MB">
@@ -19,24 +19,26 @@
 
   <title>gdk-pixbuf-&gdk-pixbuf-version;</title>
 
-  <indexterm zone="gdk-pixbuf">
-    <primary sortas="a-gdk-pixbuf">gdk-pixbuf</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Gdk Pixbuf</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>Gdk Pixbuf</application> is a toolkit for image
-      loading and pixel buffer manipulation. It is used by
-      <application>GTK+ 2</application> and <application>GTK+ 3</application> to
-      load and manipulate images. In the past it was distributed as part of
-      <application>GTK+ 2</application> but it was split off into a separate
-      package in preparation for the change to <application>GTK+ 3</application>.
+      The Gdk Pixbuf is a toolkit for image loading and pixel buffer
+      manipulation. It is used by GTK+ to load and manipulate images.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gdk-pixbuf-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gdk-pixbuf-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gdk-pixbuf-download-http;"/>
@@ -69,7 +71,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Gdk Pixbuf Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
@@ -82,8 +84,6 @@
       <xref linkend="libtiff"/>,
       <xref linkend="libpng"/>, and
       <xref linkend="xorg7-lib"/>
-      (<emphasis>Many</emphasis> <application>GTK+</application>
-      applications <emphasis>require</emphasis> gdk-pixbuf-xlib).
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -93,20 +93,16 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Gdk Pixbuf</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Gdk Pixbuf</application> by running the following
-      commands:
+      Install Gdk Pixbuf by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --with-x11 &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --with-x11 &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -123,111 +119,62 @@ make</userinput></screen>
       </para>
 
 <screen role="root"><userinput>gdk-pixbuf-query-loaders --update-cache</userinput></screen>
+
     </note>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-x11</parameter>: This switch enables building of the
+        Gdk Pixbuf X11 library which is needed for <emphasis>many</emphasis>
+        packages.
+      </para>
+
+      <para>
+        <option>--with-libjasper</option>: If you've installed <xref
+        linkend="jasper"/> and you want Gdk Pixbuf to use it to compile a
+        JPEG2000 image loader, pass this switch to configure.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <option>--with-x11</option>: This switch enables building of the
-      <application>Gdk Pixbuf</application> <application>X11</application>
-      library which is needed for <emphasis>many</emphasis> packages.
-    </para>
-
-    <para>
-      <option>--with-libjasper</option>: If you've installed
-      <xref linkend="jasper"/> and you want
-      <application>Gdk Pixbuf</application> to use it to compile a
-      JPEG2000 image loader, pass this switch to configure.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-csource">gdk-pixbuf-csource</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-pixdata">gdk-pixbuf-pixdata</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-query-loaders">gdk-pixbuf-query-loaders</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="c-libgdk_pixbuf-2.0.so">libgdk_pixbuf-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="c-libgdk_pixbuf_xlib-2.0.so">libgdk_pixbuf_xlib-2.0.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          gdk-pixbuf-csource, 
-          gdk-pixbuf-pixdata, and 
-          gdk-pixbuf-query-loaders
-        </seg>
-        <seg>
-          libgdk_pixbuf-2.0.so and 
-          libgdk_pixbuf_xlib-2.0.so
-        </seg>
-        <seg>
-          /usr/include/gdk-pixbuf-2.0,
-          /usr/lib/gdk-pixbuf-2.0, and
-          /usr/share/gtk-doc/html/gdk-pixbuf
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="gdk-pixbuf-csource">
-        <term><command>gdk-pixbuf-csource</command></term>
-        <listitem>
-          <para>
-            is a small utility that generates C code containing images, used
-            for compiling images directly into programs.
-          </para>
-          <indexterm zone="gdk-pixbuf gdk-pixbuf-csource">
-            <primary sortas="b-gdk-pixbuf-csource">gdk-pixbuf-csource</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="gdk-pixbuf-query-loaders">
-        <term><command>gdk-pixbuf-query-loaders</command></term>
-        <listitem>
-          <para>
-            collects information about loadable modules for
-            <application>Gdk Pixbuf</application> and writes it
-            to the default cache file location, or to stdout.
-          </para>
-          <indexterm zone="gdk-pixbuf gdk-pixbuf-query-loaders">
-            <primary sortas="b-gdk-pixbuf-query-loaders">gdk-pixbuf-query-loaders</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgdk_pixbuf-2">
-        <term><filename class="libraryfile">libgdk_pixbuf-2.0.so</filename></term>
-        <listitem>
-          <para>
-            contains functions used to load and render images.
-          </para>
-          <indexterm zone="gdk-pixbuf libgdk_pixbuf-2">
-            <primary sortas="c-libgdk_pixbuf-2">libgdk_pixbuf-2.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgdk_pixbuf_xlib-2">
-        <term><filename class="libraryfile">libgdk_pixbuf_xlib-2.0.so</filename></term>
-        <listitem>
-          <para>
-            contains functions used to manipulate images and interfaces with
-            <application>Xlib</application>.
-          </para>
-          <indexterm zone="gdk-pixbuf libgdk_pixbuf_xlib-2">
-            <primary sortas="c-libgdk_pixbuf_xlib-2">libgdk_pixbuf_xlib-2.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/gdk-pixbuf-csource
+/usr/bin/gdk-pixbuf-pixdata
+/usr/bin/gdk-pixbuf-query-loaders
+/usr/include/gdk-pixbuf-2.0/
+/usr/lib/gdk-pixbuf-2.0/
+/usr/lib/libgdk_pixbuf-2.0.so
+/usr/lib/libgdk_pixbuf_xlib-2.0.so
+/usr/lib/pkgconfig/gdk-pixbuf-2.0.pc
+/usr/lib/pkgconfig/gdk-pixbuf-xlib-2.0.pc
+/usr/share/man/man1/gdk-pixbuf-csource.1
+/usr/share/man/man1/gdk-pixbuf-query-loaders.1</literal></screen>
 
   </sect2>
 
