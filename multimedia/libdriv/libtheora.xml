@@ -4,11 +4,13 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY libtheora-homepage      "http://www.theora.org/">
+  <!ENTITY libtheora-wikipedia     "http://en.wikipedia.org/wiki/Theora">
   <!ENTITY libtheora-download-http "http://downloads.xiph.org/releases/theora/libtheora-&libtheora-version;.tar.xz">
   <!ENTITY libtheora-download-ftp  " ">
   <!ENTITY libtheora-md5sum        "9eeabf1ad65b7f41533854a59f7a716d">
   <!ENTITY libtheora-size          "1.4 MB">
-  <!ENTITY libtheora-buildsize     "13.4 MB (without static libs or API docs and without installing the examples)">
+  <!ENTITY libtheora-buildsize     "13 MB">
   <!ENTITY libtheora-time          "0.2 SBU">
 ]>
 
@@ -17,131 +19,111 @@
 
   <title>libtheora-&libtheora-version;</title>
 
-  <indexterm zone="libtheora">
-    <primary sortas="a-Libtheora">Libtheora</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libtheora</title>
+    <title>Introduction</title>
 
-    <para>Theora is a free and open video compression format.</para>
+    <para>
+      Theora is a free and open video compression format.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&libtheora-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&libtheora-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&libtheora-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&libtheora-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &libtheora-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&libtheora-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &libtheora-size;</para>
+        <para>
+          Download (FTP): <ulink url="&libtheora-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &libtheora-buildsize;</para>
+        <para>
+          Download MD5 sum: &libtheora-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &libtheora-time;</para>
+        <para>
+          Download size: &libtheora-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libtheora-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libtheora-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libtheora Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="libogg"/></para>
-
-    <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended"><xref linkend="libvorbis"/></para>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><xref linkend="sdl"/> and
-    <xref linkend="libpng"/> (both to build the example players),
-    <xref linkend="doxygen"/>,
-    <xref linkend="texlive"/>,
-    <ulink url="http://bibtexml.sourceforge.net">BibTex</ulink>, and
-    <ulink url="http://www.xfig.org/">Transfig</ulink>
-    (all four to build the API documentation),
-    <ulink url="http://www.valgrind.org">Valgrind</ulink></para>
+    <para role="required">
+      <xref linkend="libogg"/>
+    </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libtheora</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>libtheora</application> by running the following
-    commands:</para>
+    <para>
+      Install libtheora by running the following commands:
+    </para>
 
-<screen><userinput>sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c &amp;&amp;
-./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --disable-examples &amp;&amp;
 make</userinput></screen>
 
-    <para>If you wish to run the tests, issue: <command>make check</command>.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <para>If you wish to install the examples (so that you can hack on
-    <literal>theora</literal>), install them as the <systemitem
-    class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>cd examples/.libs &amp;&amp;
-for E in *; do
-  install -v -m755 $E /usr/bin/theora_${E}
-done</userinput></screen>
-
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <command>sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c</command>:
-      This <command>sed</command> fixes build with
-      <application>libpng</application> 1.6.
-    </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+     <indexterm zone="libtheora">
+       <primary sortas="c-libtheora.so">libtheora.so</primary>
+     </indexterm>
+     <indexterm zone="libtheora">
+       <primary sortas="c-libtheoradec.so">libtheoradec.so</primary>
+     </indexterm>
+     <indexterm zone="libtheora">
+       <primary sortas="c-libtheoraenc.so">libtheoraenc.so</primary>
+     </indexterm>
 
-      <seglistitem>
-        <seg>None, unless you installed the examples</seg>
-        <seg>libtheora.so, libtheoraenc.so, and
-        libtheoradec.so</seg>
-        <seg>/usr/include/theora and /usr/share/doc/libtheora-&libtheora-version;</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libtheora-lib">
-        <term><filename class='libraryfile'>libtheora*.so</filename></term>
-        <listitem>
-          <para>libraries provide the functions to read and write video
-          files.</para>
-          <indexterm zone="libtheora libtheora-lib">
-            <primary sortas="c-libtheora">libtheora*.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/include/theora/
+/usr/lib/libtheora.so
+/usr/lib/libtheoradec.so
+/usr/lib/libtheoraenc.so
+/usr/lib/pkgconfig/theora.pc
+/usr/lib/pkgconfig/theoradec.pc
+/usr/lib/pkgconfig/theoraenc.pc
+/usr/share/doc/libtheora-&libtheora-version;/</literal></screen>
 
   </sect2>
 
