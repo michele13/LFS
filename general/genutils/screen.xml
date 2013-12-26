@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY screen-homepage      "http://www.gnu.org/software/screen/">
+  <!ENTITY screen-wikipedia     "http://en.wikipedia.org/wiki/GNU_Screen">
   <!ENTITY screen-download-http "http://ftp.gnu.org/gnu/screen/screen-&screen-version;.tar.gz">
-  <!ENTITY screen-download-ftp "ftp://ftp.gnu.org/gnu/screen/screen-&screen-version;.tar.gz">
-  <!ENTITY screen-md5sum "8506fd205028a96c741e4037de6e3c42">
-  <!ENTITY screen-size "821 KB">
-  <!ENTITY screen-buildsize "5.8 MB">
-  <!ENTITY screen-time "0.2 SBU">
+  <!ENTITY screen-download-ftp  "ftp://ftp.gnu.org/gnu/screen/screen-&screen-version;.tar.gz">
+  <!ENTITY screen-md5sum        "8506fd205028a96c741e4037de6e3c42">
+  <!ENTITY screen-size          "821 KB">
+  <!ENTITY screen-buildsize     "5.8 MB">
+  <!ENTITY screen-time          "0.2 SBU">
 ]>
 
 <sect1 id="screen" xreflabel="Screen-&screen-version;">
@@ -17,149 +19,153 @@
 
   <title>Screen-&screen-version;</title>
 
-  <indexterm zone="screen">
-    <primary sortas="a-Screen">Screen</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Screen</title>
+    <title>Introduction</title>
 
-    <para><application>Screen</application> is a terminal multiplexor that
-    runs several separate processes, typically interactive shells, on a single
-    physical character-based terminal. Each virtual terminal emulates a DEC
-    VT100 plus several ANSI X3.64 and ISO 2022 functions and also provides
-    configurable input and output translation, serial port support,
-    configurable logging, multi-user support, and many character encodings,
-    including UTF-8. Screen sessions can be detached and resumed
-    later on a different terminal.</para>
+    <para>
+      Screen is a terminal multiplexor that runs several separate processes,
+      typically interactive shells, on a single physical character-based
+      terminal. Each virtual terminal emulates a DEC VT100 plus several ANSI
+      X3.64 and ISO 2022 functions and also provides configurable input and
+      output translation, serial port support, configurable logging, multi-user
+      support, and many character encodings, including UTF-8. Screen sessions
+      can be detached and resumed later on a different terminal.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&screen-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&screen-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&screen-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&screen-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &screen-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&screen-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &screen-size;</para>
+        <para>
+          Download (FTP): <ulink url="&screen-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &screen-buildsize;</para>
+        <para>
+          Download MD5 sum: &screen-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &screen-time;</para>
+        <para>
+          Download size: &screen-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &screen-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &screen-time;
+        </para>
       </listitem>
     </itemizedlist>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Screen</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>Screen</application> by running the
-    following commands:</para>
+    <para>
+      Install Screen by running the following commands:
+    </para>
 
-<screen><userinput>./configure --prefix=/usr                     \
+<screen><userinput>./configure --prefix=/usr \
             --with-socket-dir=/var/run/screen \
-            --with-pty-group=5                \
-            --with-sys-screenrc=/etc/screenrc                    &amp;&amp;
+            --with-pty-group=5 \
+            --with-sys-screenrc=/etc/screenrc &amp;&amp;
 sed -i -e "s%/usr/local/etc/screenrc%/etc/screenrc%" {etc,doc}/* &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a test suite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-install -m 644 etc/etcscreenrc /etc/screenrc</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><parameter>--with-socket-dir=/var/run/screen</parameter>: This option
-    places the per-user sockets in a standard location.</para>
-
-    <para><parameter>--with-sys-screenrc=/etc/screenrc</parameter>: This option
-    places the global screenrc file in <filename
-    class='directory'>/etc</filename>.  </para>
-
-    <para><parameter>--with-pty-group=5</parameter>: This option sets the gid
-    to the value used by LFS.</para>
-
-    <para><command>sed -i -e "s%/usr/local/etc/screenrc%/etc/screenrc%"
-    {etc,doc}/*</command>: This command corrects the configuration and
-    documentation files to the location that is used here for the global
-    screenrc file.</para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring Screen</title>
-
-    <sect3 id ="screen-config">
-      <title>Config Files</title>
-
-      <para><filename>/etc/screenrc</filename> and
-      <filename>~/.screenrc</filename></para>
-
-      <indexterm zone="screen screen-config">
-        <primary sortas="e-AA.screenrc">~/.screenrc</primary>
-      </indexterm>
-
-      <indexterm zone="screen screen-config">
-        <primary sortas="e-etc-screenrc">/etc/screenrc</primary>
-      </indexterm>
-
-    </sect3>
+install -v -m 644 etc/etcscreenrc /etc/screenrc</userinput></screen>
 
     <sect3>
-      <title>Configuration Information</title>
+      <title>Command Explanations</title>
 
-      <para>You may want to look at the example configuration file that was
-      installed and customize it for your needs.</para>
+      <para>
+        <parameter>--with-socket-dir=/var/run/screen</parameter>: This option
+        places the per-user sockets in a standard location.
+      </para>
+
+      <para>
+        <parameter>--with-sys-screenrc=/etc/screenrc</parameter>: This option
+        places the global screenrc file in <filename
+        class="directory">/etc</filename>.
+      </para>
+
+      <para>
+        <parameter>--with-pty-group=5</parameter>: This option sets the gid to
+        the value used by LFS.
+      </para>
+
+      <para>
+        <command>sed -i -e ...</command>: This command corrects the
+        configuration and documentation files to the location that is used here
+        for the global screenrc file.
+      </para>
 
     </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      You may want to look at the example configuration file that was installed
+      and customize it for your needs.
+    </para>
+
+    <sect3>
+      <title>Config Files</title>
+
+      <para>
+        <filename>/etc/screenrc</filename> and
+        <filename>~/.screenrc</filename>
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="screen">
+      <primary sortas="b-screen">screen</primary>
+    </indexterm>
+    <indexterm zone="screen">
+      <primary sortas="e-AA.screenrc">~/.screenrc</primary>
+    </indexterm>
+    <indexterm zone="screen">
+      <primary sortas="e-etc-screenrc">/etc/screenrc</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>screen</seg>
-        <seg>None</seg>
-        <seg>/var/run/screen</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="screen-prog">
-        <term><command>screen</command></term>
-        <listitem>
-          <para>is a terminal multiplexor with VT100/ANSI
-          terminal emulation.</para>
-          <indexterm zone="screen screen-prog">
-            <primary sortas="b-screen">screen</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal></literal></screen>
 
   </sect2>
 
