@@ -75,7 +75,6 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-      <xref linkend="libxml2"/> or
       <xref linkend="expat"/>,
       <xref linkend="LZO"/>, and
       <xref linkend="openssl"/>
@@ -91,7 +90,9 @@
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
+            --disable-static \
+            --without-xml2 \
+            --without-nettle &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -104,8 +105,14 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <option>--without-xml2</option>: This switch sets expat for xar archive
-        format support instead of preferred libxml2 if both packages are
+        <parameter>--without-xml2</parameter>: This switch sets expat for xar
+        archive format support instead of preferred libxml2 if both packages are
+        installed.
+      </para>
+
+      <para>
+        <parameter>--without-nettle</parameter>: This switch sets OpenSSL for
+        crypto support instead of preferred Nettle if both packages are
         installed.
       </para>
 
