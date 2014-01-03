@@ -43,9 +43,10 @@
   <sect2 role="installation">
     <title>Installation of Libcap</title>
 
-    <para>Disable installing the static library:</para>
+    <para>Disable installing the static library and apply upstream fixes:</para>
 
-<screen><userinput remap="pre">sed -i '/install.*STALIBNAME/ s/^/#/' libcap/Makefile</userinput></screen>
+<screen><userinput remap="pre">sed -i '/install.*STALIBNAME/ s/^/#/' libcap/Makefile
+patch -Np1 -i ../&libcap-uapi-patch;</userinput></screen>
 
     <para>Compile the package:</para>
 
