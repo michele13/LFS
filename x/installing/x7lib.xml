@@ -18,9 +18,6 @@
   <!ENTITY libXScrnSaver-version           "1.2.2">
   <!ENTITY libXScrnSaver-md5sum            "7a773b16165e39e938650bcc9027c1d5">
 
-  <!ENTITY libXt-version                   "1.1.4">
-  <!ENTITY libXt-md5sum                    "03149823ae57bb02d0cec90d5b97d56c">
-
   <!ENTITY libXmu-version                  "1.1.2">
   <!ENTITY libXmu-md5sum                   "41d92ab627dfa06568076043f3e089e4">
 
@@ -143,7 +140,6 @@
 <screen><userinput>cat &gt; lib-&xorg-version;.md5 &lt;&lt; "EOF"
 <literal>&libFS-md5sum;  libFS-&libFS-version;.tar.bz2
 &libXScrnSaver-md5sum;  libXScrnSaver-&libXScrnSaver-version;.tar.bz2
-&libXt-md5sum;  libXt-&libXt-version;.tar.bz2
 &libXmu-md5sum;  libXmu-&libXmu-version;.tar.bz2
 &libXpm-md5sum;  libXpm-&libXpm-version;.tar.bz2
 &libXaw-md5sum;  libXaw-&libXaw-version;.tar.bz2
@@ -200,10 +196,6 @@ do
           -e 's/_FSTransReadv(svr->trans_conn/readv(svr->trans_conn->fd/' \
           -i src/FSlibInt.c
       ./configure $XORG_CONFIG
-    ;;
-    libXt-[0-9]* )
-      ./configure $XORG_CONFIG \
-                  --with-appdefaultdir=/etc/X11/app-defaults
     ;;
     * )
       ./configure $XORG_CONFIG
@@ -279,9 +271,6 @@ done</userinput></screen>
       <primary sortas="c-libXss.so">libXss.so</primary>
     </indexterm>
     <indexterm zone="xorg7-lib">
-      <primary sortas="c-libXt.so">libXt.so</primary>
-    </indexterm>
-    <indexterm zone="xorg7-lib">
       <primary sortas="c-libXtst.so">libXtst.so</primary>
     </indexterm>
     <indexterm zone="xorg7-lib">
@@ -322,7 +311,6 @@ done</userinput></screen>
 /usr/lib/libXRes.so
 /usr/lib/libxshmfence.so
 /usr/lib/libXss.so
-/usr/lib/libXt.so
 /usr/lib/libXtst.so
 /usr/lib/libXvMC.so
 /usr/lib/libXvMCW.so
@@ -346,7 +334,6 @@ done</userinput></screen>
 /usr/lib/pkgconfig/xres.pc
 /usr/lib/pkgconfig/xscrnsaver.pc
 /usr/lib/pkgconfig/xshmfence.pc
-/usr/lib/pkgconfig/xt.pc
 /usr/lib/pkgconfig/xtst.pc
 /usr/lib/pkgconfig/xvmc.pc
 /usr/lib/pkgconfig/xv.pc
@@ -356,7 +343,6 @@ done</userinput></screen>
 /usr/share/doc/libXaw/
 /usr/share/doc/libXi/
 /usr/share/doc/libXmu/
-/usr/share/doc/libXt/
 /usr/share/doc/libXtst/
 /usr/share/doc/libXvMC/
 /usr/share/man/man1/cxpm.1
