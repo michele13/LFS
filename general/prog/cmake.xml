@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY cmake-homepage      "http://www.cmake.org/">
+  <!ENTITY cmake-wikipedia     "http://en.wikipedia.org/wiki/CMake">
   <!ENTITY cmake-download-http "http://www.cmake.org/files/v&cmake-major-version;/cmake-&cmake-version;.tar.gz">
   <!ENTITY cmake-download-ftp  " ">
   <!ENTITY cmake-md5sum        "9d38cd4e2c94c3cea97d0e2924814acc">
   <!ENTITY cmake-size          "5.8 MB">
-  <!ENTITY cmake-buildsize     "247 MB (additional 176 MB for tests)">
-  <!ENTITY cmake-time          "0.9 SBU (additional 5.5 SBU for tests)">
+  <!ENTITY cmake-buildsize     "247 MB">
+  <!ENTITY cmake-time          "0.9 SBU">
 ]>
 
 <sect1 id="cmake" xreflabel="CMake-&cmake-version;">
@@ -17,24 +19,28 @@
 
   <title>CMake-&cmake-version;</title>
 
-  <indexterm zone="cmake">
-    <primary sortas="a-CMake">CMake</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to CMake</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>CMake</application> package contains a modern
-      toolset used for generating Makefiles. It is a successor of the
-      auto-generated <command>configure</command> script and aims to
-      be platform- and compiler-independent. A significant user of
-      <application>CMake</application> is <application>KDE</application>
-      since version 4.
+      The CMake package contains a modern toolset used for generating Makefiles.
+      It is a successor of the auto-generated <command>configure</command>
+      script and aims to be platform- and compiler-independent. A significant
+      user of CMake is KDE since version 4.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&cmake-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&cmake-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&cmake-download-http;"/>
@@ -67,7 +73,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">CMake Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
@@ -76,35 +82,20 @@
       <xref linkend="expat"/>
     </para>
 
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="subversion"/> (for testing) and
-      <xref linkend="qt4"/> (for the Qt-based GUI)
-    </para>
-
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of CMake</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>CMake</application> by running the following
-      commands:
+      Install CMake by running the following commands:
     </para>
 
-<screen><userinput>./bootstrap --prefix=/usr       \
-            --system-libs       \
+<screen><userinput>./bootstrap --prefix=/usr \
+            --docdir=/share/doc/cmake-&cmake-major-version; \
             --mandir=/share/man \
-            --docdir=/share/doc/cmake-&cmake-version; &amp;&amp;
+            --system-libs &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <userinput>make -k test</userinput>. Almost
-      99% of the tests passes. The following tests fail, for unknown reasons:
-      CTestTestFailedSubmit-ftp (known to fail),
-      CTestTestFailedSubmit-http and
-      CTestTestFailedSubmit-https.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -112,118 +103,50 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
+      <para>
+        <parameter>--system-libs</parameter>: This switch forces the build
+        system to link against Zlib, Bzip2, cURL, Expat and libarchive installed
+        on the system.
+      </para>
 
-    <para>
-      <parameter>--system-libs</parameter>: This switch forces the build system
-      to link against <application>Zlib</application>,
-      <application>Bzip2</application>, <application>cURL</application>,
-      <application>Expat</application> and <application>libarchive</application>
-      installed on the system.
-    </para>
-
-    <para>
-      <option>--qt-gui</option>: This switch enables building of the
-      <application>Qt</application>-based  GUI for
-      <application>CMake</application>.
-    </para>
+    </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="cmake">
+      <primary sortas="b-ccmake">ccmake</primary>
+    </indexterm>
+    <indexterm zone="cmake">
+      <primary sortas="b-cmake">cmake</primary>
+    </indexterm>
+    <indexterm zone="cmake">
+      <primary sortas="b-cpack">cpack</primary>
+    </indexterm>
+    <indexterm zone="cmake">
+      <primary sortas="b-ctest">ctest</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          ccmake, cmake, cmake-gui, cpack and ctest
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/share/cmake-&cmake-major-version; and
-          /usr/share/doc/cmake-&cmake-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="ccmake">
-        <term><command>ccmake</command></term>
-        <listitem>
-          <para>
-            is a curses based interactive frontend to
-            <command>cmake</command>.
-          </para>
-          <indexterm zone="cmake ccmake">
-            <primary sortas="b-ccmake">ccmake</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="cmake-prog">
-        <term><command>cmake</command></term>
-        <listitem>
-          <para>
-            is the makefile generator.
-          </para>
-          <indexterm zone="cmake cmake-prog">
-            <primary sortas="b-cmake">cmake</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="cmake-gui">
-        <term><command>cmake-gui</command></term>
-        <listitem>
-          <para>
-            is the <application>Qt</application>-based frontent to
-            <command>cmake</command>.
-          </para>
-          <indexterm zone="cmake cmake-gui">
-            <primary sortas="b-cmake-gui">cmake-gui</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="cpack">
-        <term><command>cpack</command></term>
-        <listitem>
-          <para>
-            is the <application>CMake</application> packaging program.
-          </para>
-          <indexterm zone="cmake cpack">
-            <primary sortas="b-cpack">cpack</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ctest">
-        <term><command>ctest</command></term>
-        <listitem>
-          <para>
-            is a testing utility for cmake-generated build trees.
-          </para>
-          <indexterm zone="cmake ctest">
-            <primary sortas="b-ctest">ctest</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/ccmake
+/usr/bin/cmake
+/usr/bin/cpack
+/usr/bin/ctest
+/usr/share/aclocal/cmake.m4
+/usr/share/cmake-2.8/
+/usr/share/doc/cmake-2.8/
+/usr/share/man/man1/ccmake.1
+/usr/share/man/man1/cmake.1
+/usr/share/man/man1/cpack.1
+/usr/share/man/man1/ctest.1</literal></screen>
 
   </sect2>
 
