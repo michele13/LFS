@@ -6,24 +6,18 @@
 
   <!ENTITY openssl-homepage      "http://www.openssl.org/">
   <!ENTITY openssl-wikipedia     "http://en.wikipedia.org/wiki/OpenSSL">
-  <!ENTITY openssl-download-http
-  "http://www.openssl.org/source/openssl-&openssl-version;.tar.gz">
-  <!ENTITY openssl-download-ftp
-  "ftp://ftp.openssl.org/source/openssl-&openssl-version;.tar.gz">
-  <!ENTITY openssl-md5sum        "66bf6f10f060d561929de96f9dfe5b8c">
-  <!ENTITY openssl-size          "4.3 MB">
-  <!ENTITY openssl-buildsize     "55 MB">
-  <!ENTITY openssl-time          "1.5 SBU">
+  <!ENTITY openssl-download-http "http://www.openssl.org/source/openssl-&openssl-version;.tar.gz">
+  <!ENTITY openssl-download-ftp  "ftp://ftp.openssl.org/source/openssl-&openssl-version;.tar.gz">
+  <!ENTITY openssl-md5sum        "f26b09c028a0541cab33da697d522b25">
+  <!ENTITY openssl-size          "4.4 MB">
+  <!ENTITY openssl-buildsize     "52 MB">
+  <!ENTITY openssl-time          "1.4 SBU">
 ]>
 
 <sect1 id="openssl" xreflabel="OpenSSL-&openssl-version;">
   <?dbhtml filename="openssl.html"?>
 
   <title>OpenSSL-&openssl-version;</title>
-
-  <indexterm zone="openssl">
-    <primary sortas="a-OpenSSL">OpenSSL</primary>
-  </indexterm>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -104,7 +98,7 @@
 
   </sect2>
 
-  <sect2 role="installation">
+  <sect2>
     <title>Installation</title>
 
     <para>
@@ -115,9 +109,13 @@
 patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
 ./config --prefix=/usr \
          --openssldir=/etc/ssl \
+         --libdir=lib \
          shared \
          zlib-dynamic &amp;&amp;
 make</userinput></screen>
+
+<!-- libdir=lib so it doesn't write over /usr/lib64 symlink on 64 bit system.
+     Might break packaging. -->
 
     <para>
       Disable installing the static libraries:
@@ -128,6 +126,8 @@ make</userinput></screen>
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
+
+<!-- dev note: make INSTALL_PREFIX=<DESTDIR> MANDIR=/usr/share/man MANSUFFIX=ssl install -->
 
 <screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install</userinput></screen>
 
@@ -165,7 +165,7 @@ make</userinput></screen>
 
   </sect2>
 
-  <sect2 role="configuration">
+  <sect2>
     <title>Configuration</title>
 
     <para>
@@ -179,7 +179,7 @@ make</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
     <indexterm zone="openssl">
@@ -209,10 +209,14 @@ make</userinput></screen>
 /usr/include/openssl/
 /usr/lib/engines/
 /usr/lib/libcrypto.so
-/usr/lib/libcrypto.so.1.0.0
 /usr/lib/libssl.so
-/usr/lib/libssl.so.1.0.0
-/usr/share/man/man1/openssl.1ssl</literal></screen>
+/usr/lib/pkgconfig/libcrypto.pc
+/usr/lib/pkgconfig/libssl.pc
+/usr/lib/pkgconfig/openssl.pc
+/usr/share/man/man1/openssl.1ssl
+/usr/share/man/man3/crypto.3ssl
+/usr/share/man/man3/ssl.3ssl
+/usr/share/man/man5/config.5ssl</literal></screen>
 
   </sect2>
 
