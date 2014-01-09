@@ -1,0 +1,2068 @@
+Submitted By:            Igor ¿ivkovi¿ <contact@igor-zivkovic.from.hr>
+Date:                    2014-01-10
+Initial Package Version: 0.5.1
+Upstream Status:         Fixed
+Origin:                  Upstream
+Description:
+    
+    nicklan: Switch to Xkbkeycodetokeysym as XKeycodeToKeysym is deprecated
+    nicklan: Remove unused variable
+    nicklan: Updates for new version of autotools
+     fluxer: fix compilation with libnotify < 0.7.0
+     fluxer: added pixmap for the .desktop file
+     fluxer: remove deprecated category 'Application' from .desktop file
+
+diff -Naur pnmixer-0.5.1/autogen.sh pnmixer-fluxer/autogen.sh
+--- pnmixer-0.5.1/autogen.sh	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/autogen.sh	2014-01-10 00:31:41.412191046 +0100
+@@ -14,7 +14,7 @@
+ 	export LD_LIBRARY_PATH
+ fi
+ 
+-(test -f $srcdir/configure.in) || {
++(test -f $srcdir/configure.ac) || {
+     echo -n "**Error**: Directory "\`$srcdir\'" does not look like the"
+     echo " top-level package directory"
+     exit 1
+@@ -28,7 +28,7 @@
+   DIE=1
+ }
+ 
+-(grep "^AC_PROG_INTLTOOL" $srcdir/configure.in >/dev/null) && {
++(grep "^AC_PROG_INTLTOOL" $srcdir/configure.ac >/dev/null) && {
+   (intltoolize --version) < /dev/null > /dev/null 2>&1 || {
+     echo 
+     echo "**Error**: You must have \`intltool' installed."
+@@ -38,7 +38,7 @@
+   }
+ }
+ 
+-(grep "^AM_PROG_XML_I18N_TOOLS" $srcdir/configure.in >/dev/null) && {
++(grep "^AM_PROG_XML_I18N_TOOLS" $srcdir/configure.ac >/dev/null) && {
+   (xml-i18n-toolize --version) < /dev/null > /dev/null 2>&1 || {
+     echo
+     echo "**Error**: You must have \`xml-i18n-toolize' installed."
+@@ -48,7 +48,7 @@
+   }
+ }
+ 
+-(grep "^AM_PROG_LIBTOOL" $srcdir/configure.in >/dev/null) && {
++(grep "^AM_PROG_LIBTOOL" $srcdir/configure.ac >/dev/null) && {
+   (libtool --version) < /dev/null > /dev/null 2>&1 || {
+     echo
+     echo "**Error**: You must have \`libtool' installed."
+@@ -57,8 +57,8 @@
+   }
+ }
+ 
+-(grep "^AM_GLIB_GNU_GETTEXT" $srcdir/configure.in >/dev/null) && {
+-  (grep "sed.*POTFILES" $srcdir/configure.in) > /dev/null || \
++(grep "^AM_GLIB_GNU_GETTEXT" $srcdir/configure.ac >/dev/null) && {
++  (grep "sed.*POTFILES" $srcdir/configure.ac) > /dev/null || \
+   (glib-gettextize --version) < /dev/null > /dev/null 2>&1 || {
+     echo
+     echo "**Error**: You must have \`glib' installed."
+@@ -101,7 +101,7 @@
+   am_opt=--include-deps;;
+ esac
+ 
+-for coin in `find $srcdir -name configure.in -print`
++for coin in `find $srcdir -name configure.ac -print`
+ do 
+   dr=`dirname $coin`
+   if test -f $dr/NO-AUTO-GEN; then
+@@ -112,7 +112,7 @@
+ 
+       aclocalinclude="$ACLOCAL_FLAGS"
+ 
+-      if grep "^AM_GLIB_GNU_GETTEXT" configure.in >/dev/null; then
++      if grep "^AM_GLIB_GNU_GETTEXT" configure.ac >/dev/null; then
+ 	echo "Creating $dr/aclocal.m4 ..."
+ 	test -r $dr/aclocal.m4 || touch $dr/aclocal.m4
+ 	echo "Running glib-gettextize...  Ignore non-fatal messages."
+@@ -120,15 +120,15 @@
+ 	echo "Making $dr/aclocal.m4 writable ..."
+ 	test -r $dr/aclocal.m4 && chmod u+w $dr/aclocal.m4
+       fi
+-      if grep "^AC_PROG_INTLTOOL" configure.in >/dev/null; then
++      if grep "^AC_PROG_INTLTOOL" configure.ac >/dev/null; then
+         echo "Running intltoolize..."
+ 	intltoolize --copy --force --automake
+       fi
+-      if grep "^AM_PROG_XML_I18N_TOOLS" configure.in >/dev/null; then
++      if grep "^AM_PROG_XML_I18N_TOOLS" configure.ac >/dev/null; then
+         echo "Running xml-i18n-toolize..."
+ 	xml-i18n-toolize --copy --force --automake
+       fi
+-      if grep "^AM_PROG_LIBTOOL" configure.in >/dev/null; then
++      if grep "^AM_PROG_LIBTOOL" configure.ac >/dev/null; then
+ 	if test -z "$NO_LIBTOOLIZE" ; then 
+ 	  echo "Running libtoolize..."
+ 	  libtoolize --force --copy
+@@ -136,7 +136,7 @@
+       fi
+       echo "Running aclocal $aclocalinclude ..."
+       aclocal $aclocalinclude
+-      if grep "^AM_CONFIG_HEADER" configure.in >/dev/null; then
++      if grep "^AM_CONFIG_HEADER" configure.ac >/dev/null; then
+ 	echo "Running autoheader..."
+ 	autoheader
+       fi
+diff -Naur pnmixer-0.5.1/configure.ac pnmixer-fluxer/configure.ac
+--- pnmixer-0.5.1/configure.ac	1970-01-01 01:00:00.000000000 +0100
++++ pnmixer-fluxer/configure.ac	2014-01-10 00:31:41.412191046 +0100
+@@ -0,0 +1,101 @@
++dnl Process this file with autoconf to produce a configure script.
++
++AC_INIT([pnmixer], 0.6-dev)
++AM_INIT_AUTOMAKE
++AM_MAINTAINER_MODE
++
++OLD_CFLAGS=$CFLAGS
++AC_ISC_POSIX
++AC_PROG_CC
++AC_HEADER_STDC
++CFLAGS=$OLD_CXXFLAGS
++
++pkg_modules="gtk+-2.0 >= 2.16.0"
++
++echo -n "checking for alsasound ... "
++if pkg-config --exists  alsa ; then
++        echo "yes"
++pkg_modules="$pkg_modules alsa"
++else
++        echo "no"
++        AC_MSG_ERROR(alsa not found)
++fi
++
++##########################################################################
++# debug compilation support
++##########################################################################
++
++AC_MSG_CHECKING([whether to build with debug information])
++AC_ARG_ENABLE([debug],
++    [AS_HELP_STRING([--enable-debug],
++        [enable debug data generation (def=no)])],
++    [debugit="$enableval"],
++    [debugit=no])
++AC_MSG_RESULT([$debugit])
++
++if test x"$debugit" = x"yes"; then
++    AC_DEFINE([DEBUG],[],[Debug Mode])
++    AM_CFLAGS="$AM_CFLAGS -g -Wall -Werror -Wno-uninitialized -Wformat -Wformat-security -O0 -export-dynamic"
++else
++    AC_DEFINE([NDEBUG],[],[No-debug Mode])
++    AM_CFLAGS="$AM_CFLAGS -O2 -export-dynamic"
++fi
++
++##########################################################################
++
++# Make sure we have X11, and also have it added to LIBS
++AC_CHECK_LIB(X11,XOpenDisplay,,AC_MSG_FAILURE([libX11 not found. Check 'config.log' for more details.]))
++# Check that we have -lm and add it to LIBS
++AC_CHECK_LIB(m,ceil,,AC_MSG_FAILURE([libm not found. Check 'config.log' for more details.]))
++
++
++#######################
++# Check for libnotify #
++#######################
++AC_ARG_WITH(libnotify,
++   [AS_HELP_STRING([--with-libnotify],
++      [Enable sending of notifications @<:@default=check@:>@])],
++   [with_libnotify=$withval],
++   [with_libnotify="check"])
++
++AS_IF([test "x$with_libnotify" != xno],
++  [PKG_CHECK_EXISTS([libnotify], HAVE_LIBN=1, )]
++,)
++
++if test "$with_libnotify" = "yes" || test "$HAVE_LIBN" = "1"; then
++   PKG_CHECK_MODULES(LIBNOTIFY, [libnotify], 
++                     [],
++                     AS_IF([test "x$with_libnotify" != xcheck],[AC_MSG_FAILURE(["--with-libnotify was given but test for libnotify failed"])]))
++   HAVE_LIBN=1
++   AC_SUBST(LIBNOTIFY_CFLAGS)
++   AC_SUBST(LIBNOTIFY_LIBS)
++   AC_DEFINE([HAVE_LIBN],1,[Defined if you have libnotify])
++fi
++
++AC_SUBST([AM_CFLAGS])
++
++PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
++AC_SUBST(PACKAGE_CFLAGS)
++AC_SUBST(PACKAGE_LIBS)
++
++GETTEXT_PACKAGE=pnmixer
++AC_SUBST(GETTEXT_PACKAGE)
++AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
++
++dnl Add the languages which your application supports here.
++ALL_LINGUAS="de fr it"
++AM_GLIB_GNU_GETTEXT
++
++AC_OUTPUT([
++Makefile
++src/Makefile
++po/Makefile.in
++])
++
++if test "$HAVE_LIBN" != "1"; then
++  AS_ECHO(["-----------------------------------------------NOTICE-------------------------------------------------"])
++  AS_ECHO(["| libnotify not found on your system, or explicitly disabled.  Notification support will be disabled |"])
++  AS_ECHO(["------------------------------------------------------------------------------------------------------"])
++fi
++
++
+diff -Naur pnmixer-0.5.1/configure.in pnmixer-fluxer/configure.in
+--- pnmixer-0.5.1/configure.in	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/configure.in	1970-01-01 01:00:00.000000000 +0100
+@@ -1,72 +0,0 @@
+-dnl Process this file with autoconf to produce a configure script.
+-
+-AC_INIT(configure.in)
+-AM_INIT_AUTOMAKE(pnmixer, 0.5.1)
+-AM_CONFIG_HEADER(config.h)
+-AM_MAINTAINER_MODE
+-
+-OLD_CFLAGS=$CFLAGS
+-AC_ISC_POSIX
+-AC_PROG_CC
+-AM_PROG_CC_STDC
+-AC_HEADER_STDC
+-CFLAGS=$OLD_CXXFLAGS
+-
+-pkg_modules="gtk+-2.0 >= 2.16.0"
+-
+-echo -n "checking for alsasound ... "
+-if pkg-config --exists  alsa ; then
+-        echo "yes"
+-pkg_modules="$pkg_modules alsa"
+-else
+-        echo "no"
+-        AC_MSG_ERROR(alsa not found)
+-fi
+-
+-##########################################################################
+-# debug compilation support
+-##########################################################################
+-
+-AC_MSG_CHECKING([whether to build with debug information])
+-AC_ARG_ENABLE([debug],
+-    [AS_HELP_STRING([--enable-debug],
+-        [enable debug data generation (def=no)])],
+-    [debugit="$enableval"],
+-    [debugit=no])
+-AC_MSG_RESULT([$debugit])
+-
+-if test x"$debugit" = x"yes"; then
+-    AC_DEFINE([DEBUG],[],[Debug Mode])
+-    AM_CFLAGS="$AM_CFLAGS -g -Wall -Werror -Wno-uninitialized -Wformat -Wformat-security -O0 -export-dynamic"
+-else
+-    AC_DEFINE([NDEBUG],[],[No-debug Mode])
+-    AM_CFLAGS="$AM_CFLAGS -O2 -export-dynamic"
+-fi
+-
+-##########################################################################
+-
+-# Make sure we have X11, and also have it added to LIBS
+-AC_CHECK_LIB(X11,XOpenDisplay,,AC_MSG_FAILURE([libX11 not found. Check 'config.log' for more details.]))
+-# Check that we have -lm and add it to LIBS
+-AC_CHECK_LIB(m,ceil,,AC_MSG_FAILURE([libm not found. Check 'config.log' for more details.]))
+-
+-AC_SUBST([AM_CFLAGS])
+-
+-PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
+-AC_SUBST(PACKAGE_CFLAGS)
+-AC_SUBST(PACKAGE_LIBS)
+-
+-GETTEXT_PACKAGE=pnmixer
+-AC_SUBST(GETTEXT_PACKAGE)
+-AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package.])
+-
+-dnl Add the languages which your application supports here.
+-ALL_LINGUAS="de fr"
+-AM_GLIB_GNU_GETTEXT
+-
+-AC_OUTPUT([
+-Makefile
+-src/Makefile
+-po/Makefile.in
+-])
+-
+diff -Naur pnmixer-0.5.1/data/pnmixer.desktop pnmixer-fluxer/data/pnmixer.desktop
+--- pnmixer-0.5.1/data/pnmixer.desktop	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/data/pnmixer.desktop	2014-01-10 00:31:41.412191046 +0100
+@@ -12,4 +12,4 @@
+ Icon=pnmixer
+ Terminal=false
+ Type=Application
+-Categories=Application;AudioVideo;
+\ No newline at end of file
++Categories=AudioVideo;
+\ No newline at end of file
+diff -Naur pnmixer-0.5.1/data/pnmixer.png pnmixer-fluxer/data/pnmixer.png
+--- pnmixer-0.5.1/data/pnmixer.png	1970-01-01 01:00:00.000000000 +0100
++++ pnmixer-fluxer/data/pnmixer.png	2014-01-10 00:31:41.412191046 +0100
+@@ -0,0 +1,61 @@
++‰PNG
++
++   IHDR   €   €   Ã>aË   sRGB ®Îé   bKGD ÿ ÿ ÿ ½§“   	pHYs     šœ   tIMEÛ
++&‡êQ   iTXtComment     Created with GIMPd.e    IDATxÚí½y”dW}çù¹÷í±eäVKÖ¢Z¥ªR©VIhA Ë°=#l#™Í¸Û½Îé±§{¦—évgÆæôpNÏğ‡ÍĞîÅà¶lc·wÆ $Õ¾ï{eeVÆñÖ{çû"•ÊÚ„ 	åïœwbxñ~ßû»¿ı‹´H‹´H‹´H‹´H‹´H‹´H‹ô"ñ½üñm|pMµjı=ß;,KD–-ÚaOÕ¤û…àyËÇ¾üGŸ«/²éû >ò¡W«ò_xX¡hZk¤4§¤©e‰3iÊWm[şi§­şâÏşâs×Yö:Àº5S+ì=>nıS­!ËÓm[¢Ñd©FkÖù	
++”¥\H3ı{åŠûÙßùßØ³Èº×! Ö­yqÙrû×&'íŸSÊ0wtÔÇó-,[@ˆ4SÄaF¦Ä±"ËB˜÷#ˆ<×şR«ÿû¿ÿÿıõ"_G xË›˜‡’$[¦TG}Æ'T¦Í3ÙfKˆ¢Œ(Êèt¢0ƒNSñ_]×ú·_üÒo.J„WHÖwãG6¬û€œ«Ò;wíJ„ĞÌ2½\­úFôkÈ¡˜¦šn7¥ÑQ™&(8xE¥â6Ò’d©"Ë´’-Rê>ôĞCÁ½w;|dO{‘¥wGöwãG”2;ºm!ÓT[¤%ÌÂ‚$QÌÎvÃ„4ÍÈ²)%¶%p]›‘Ñ•²ÇÄ¤M¥âÑlD´Z1iªFêµğŸ!Ÿù±w=óÙÊˆóÙßú­_?»ÈÚ×¨Õğ¶zÜn·ÒO&©ZbIA¹âaY\›nÓlvÉTF–¦¨,%Mb¢(&ŒBêsz½)%Aà‚ÀF+Mk@W<™&ê'7mŞ9¾aÃ‹Çï½¾Èâ×  ^²ûôºİäç³LOHKR©¸X– 3õ{ïİÆÌÌâ8@+MØx…H²4¡ÓéÑiGÄ‰¢Tò¨ŒxHK…)*­)+¥Ÿ’§ï¹gÛä>rdOk‘Õ¯ Œm­Ú6ÿHk]’RP®¸H)ètBF««¸÷Şí:ôJEÅ’K–)‚À!SšJÅ¥×‹èõ"¢(E)Á=÷¬Äóv‡$VH)
++¶ÃchıãÛ·?¨7Ş»ãÈÑ£{£E–ßHò»ùcå²\	Œßø¬Æ¶-îßò iš’$±A¦%p]Û)HÓ!ZkÒTS*Ûhréâe.^¨ócïzšıÔ{Y½f‚$	IÓ¬oV®ívãÿ;K³¯½ç=Ï¾ÿVç·qıÄÆõ‹à;D›6íØ¡µú°RÏ·)—]Ò4e||)÷Şû&®\¹Àñãûq=Ç±ğ\;ƒ²TS(8t:1‚4Ø V»‚¦Ç3Ï|˜·¾õq.]ºD»İC
++Ëø`©VúıÛ¶í^²eË®o>¼§÷r	u¿˜«ZÀw‚yÓÃ¢(ûi¥4Å‚C±è¦)Û¶í`¤²š“§pæÌ1
++E4Q‹qœ¡”ÌÑé$XRbÙ6K–Œ.çròä)<È£>ÊO¼™íÛ7Ñé4¸páiª‘R"d‰zHkıCëÖn?pòä¾‹Ãç7W;¤¿›Ìß¸şâ{¶ï* Ö¬¹Mšª¸®E¡à)ÅÃ?ºÂ‘#û¹|ùã ¤Àu%Ijœ?¾oÑí¦H–-ñ=ß·ÑZ`Û6Apùòe¾õ­o±lÙ2¶mÛÎC=Èò©1._¹@½Ö$B
++´f9è§ØºKLNnıÆ¹óûÕ÷ââ¿$ÍwÙ
++Øµ:NÒg”FøC¡h£5¼éá‡°í2ûöíczú<Aà[h­IR…emKÂ0Åól¤ß÷p]ó )%…BV«ÅW¾òºİ.›7ofóæÍlß~?õÚW®\EeF»”R8Zë§´fÇæM;ÿìÄ‰}İE+à;Dë×ş„\¹b¿ùñ{æjWŸ£H
++.A`cÛ’‰ñ¤‰Ç‘£û¸rå<RZ”Ê.JA–*<Ï& (l:Ïspİ—û±\×ÅqöíÛÇ/¼Àää$›7oá¡‡$I:\º|(Ê(Û÷Ù¶xò‘Gùë½û^¸¾€ïˆù·ÅÒ›6İ?öj­×¯ËR) P´6l¼Ÿ^ÏãÂ…\¼xÏóŠiœ¡„QŠc,K0Ï7~„ù$„ P(077ÇW¿úU¦§§Ù´i3=ş8årÀ¹s§H’”,£sXÇé{¶nİuáğ‘½‡ğªïu‡Õììı‹¿ø‹±R|øøñÃeß÷(]²,c×®b„óçÏrşü	ÇÁ²Y¦±,Ê™R›$QØE–)J%?0Ÿ´Ö8ƒmÛ:tˆo~ó›ŒòÔSO±nİÎ=N¯×#MMJ)FÒT½÷ƒ97îúæÑ£{’E?À«L“Åî²e«›¾_ ´Òh­P*¦Rq)—ÇÒ‡ºİ„,Ó(eÂÃ–%‘R’e¡ˆã‘4µÖ(¥PJ‘eÙà>Àèè(õzO}êSüò/ÿïŒŒŒñOşÉÿÄö÷R*ñi„@´[ñ?‹£ä¿ÿÔ‡>şÀ¢x•é}?şiÙåg/œ;µ¼Ñ˜£:ZSS+±íIæ®×8~b/Ji„8Ìg‘eFáË”Â¶I’b;Î t|+êKƒS§Nóş\·ÄûŞ÷^”¸|åqb\Ï¹Ï`uš©÷ïÚõàÅƒ÷\” ¯ÕQ*İ•«Ö“$	İn‚pùòe’$Åõ|lÇCimB¾©F`rG…)¶i’aÛ’n7¢İîBÉ·"rŒV°ì”ßşüçø•_ù5xà!~ú'˜˜ğ2OKej¢ÕŒÿã»ìÙ¾€W‰şĞãJ©¬µbÅlÇ¦×MBÒhÔğ|m»Ø–h4fB€ei’D!-HS³úMÚ˜¦Óí’¦ê@  ”Æ²lFFJ\¼t’÷ï~×-ğñ„•«FB¡ù6ƒ€ì_ıàS?ókï|Ç³r ¯EaX :2N§ÓCe‚z½m‡‹E\Ï¼7‰3¢8A
++A–)Ç"M ¢0AJˆ£„v»‹w÷W´ßóÉ²ˆÏ|æ3œ<y–O~òl¼w®«9‰JAğñ«‹ xhÅÊ‘£®°téJÂ(B)èt:t»×™œ¬RÊ¹—!$$‰Ñ²,­P¹(OòUoÛa…PÜ}Ç²l\×æw÷|õ«_ãcû[X‹m«^a¶„ìıØ»ı×‹ ø6it4¸‚©©5$Qœ¢5LO_¦2àû%t¾óLÑjEh­É2eHò¬a¥Às%Y–Ñh´_ ú^Ä ø“?ùşğ¿ÌÏüÌ‡Ù¾}=ÒêÇ!ÌÖ¡Tö¿¼ï½?ûğmP«u•Ê˜œXçôz1RJ.^ºD¹láû¾1ì´F¥Z)’8Åq$i¦p\I’(úÁ!DIœÄt:a?àåoØ<¼Ù¡”"şú¯ÿš/|á|ø™sÿ–µ8®lB@’¤Ÿzúƒ}z ¯¦§›PŒŒŒ±rÅZZZG¬_¿ËrPY†Æø4‚nÇdüôõ~"i–i $ÔëmÒ4Ckucû
++ãP©Tâë_ÿ:¿û»ÿŸıÈ3lŞ¼šbI@ ´Ûñ¿öÙŸ{Ë¢àĞC»ß¹ª2RùÇvçÔ©#øEš%Ü{ïZV¯ŞÊù—¸té¶í˜=X
++ÒTáûËÂH ®g‘¦ÊH‡T!¥F)¹`ŒànÈó<?F¡Pàé§ŸæØ±ƒ4›m²l W‚8ÉŞñä“ıñóÏ??³(î‚ÊeÿªÖ:JÓ„%KW°nífêµN¾×XµºÈ£¼ju‚4MÍåV
++¥4YÖ?Œ©&s`€I'7¾.i¦^±>0,	¾øÅ/²wï^>ùÉO2µ¢Êè˜›»I¬¦fgz¿õó?ÿw&p7îà‰%—@4M- ¢22J¯—Å/^¦P€Õ÷LñÈ#ï@kõR™˜†0L‰¢)L&Pß3¨5Ø¶ƒÖÍFçÛ>O!Ağ¿ñÌÎ^çãÿ8¥’ÃØ˜——«	z½tçìLï³ŸøÄßqp‡tíZMeY–  ËW¸e¹´[	—.]&CîY]bÓ¦Œ/%M“—L±TÓë¦har•Ò8¶ÌC’$6+¿ÙhÓnwo(ºë@JÉ§?ıiªÕ*O?ı!OS©8(¥s$?ÚiÇÿj wHS+üĞvŒHÒHY²dívÄåKWùË¿ú+&&Œ—©V'Q*»áóYf@`
++Fw*ÓhãÂ%:.İnü2«ànÉqÚí6¿ú«¿Êîİ»yç;~×7éj*4›Ñ/=ûì'~êµÊäë? _3 ğürìØVCkÃB&ÜwßJ<·H£ò¿ı'NeË–å”JUcíİhØ‘¥Šf#&Ë-i™·9m* ææÄqúmK‚ 8sæŸùÌgxï{ßË®;	
++Ï³•¢¡v=ü÷?ó3ŸxÓkú5€şá]™çÚ ÛíG“KŠlŞ¼V+¡ÙŒøıßÿ}â¤Ášµ÷ yÉïÿ’)gŠF{İ”NË„„5+gt&h­HÒ„Ú\}`6Ş‰/ o6ö· Ë²RR.—ùÊW¾Â¾ğ>úÑ±ví=TF$c©L©‘V3üìûâ£“¯5îŸ8õyıš1{ôİo©l¯×g¹~ıcã#ÕõZ™™:Bftºuvîx3ÇOœ¢V»–ÛÿÆ3g;VºKRE%¨Ì8‡Œ«X£µ@
++š0L	ï|FÁ“/»•Râ8àşûïç­o}’_|ÈèõLÍ‚RzÄ†·¼õÑßyá…ç5¯ú à=ïùéõAPz{£>Ç\m†±ñgQ(ø\º8:ããclXÿÇí§RcjÅkÖLR*û‹…¢C¡àäÉ¡‚81Î!)ó±c¼†Y–eP(ø·eY70½ôŸÓZsôèQ~ôG”•+W²ÿ¤%éõ2@ ”ÚŒáÁƒ/~m 7¡öOÿÙ²Ú\ô“íN“Ù¹kŒV},‚À%M×çjŒ–˜›»Ì–Í;Q*À÷|ŞûãÏ°eËN–/»åËïcù²”J£‚ × (ºØ¶ME1M5cÑëÅø¾‡ãXÜıŞÃ¢ÿ¥~"O"µ©Õj\¹r…÷½ï}X–Í©SÇPJ…R
++¢(}rÇÎ‡ö:´çØ"  ğÿ±77}¤ÛéX³³ÓT«ıo-2{­I/±mh¶fØ½ë)N>†ãøşP©Œ1>¾œU+ïeÍšm¬\±™±ñ• iâ89‹2¤„n7¢T
++^€¾Óh Ã«Ş¶m,ËÂ¶íÁã3gÎ`Yïz×»èözy¢©1U¥2KÕSïİùåãÇ÷Î,`=¸ûGB!ÜŸMâ¨<}õ"•Š‹_°Qyî_¥\äü…kxMµĞÀºµ»9}úË–­Ìó3²,Eå©½APbÉäJÖ®ÙÊŠ©ûğıQÜ",ËÂ²-¢0&Œ’}'ÒK
++æüÕŞgv Ã[‚mÛ<xµk×ò¶|³³3LO_$Šuë¨‹–%Ştÿ–İŸ?rtO´€!Ú|ßSjrrüCY–,»:}JÅ£P0UÀNM†çzÌÌÔ©¸~ı
++cc+)ÇèvZT«ã&X¤Ò²ÒT9 S<¯ÈÊU÷²nİ6
++…¢¨C–õ
++Q”¥¾ïŞ°êûR`şŞßgv?§°/,Ë"Ë2<ÈÎ;yüñÇ¹xñ<³³ÓÄ‘î²NiÍÊbáş/]¹z@ß`ãzÓ
++ævï{óãïÒ£”–½æêÕ‹‹6AÁFƒééi*•"i*P:Ãu-®^=ÇêUÛHUB«Q£X¬P®Œˆ£ŒÑQŸ©%–.-"¥ İØL-_Ëºõ;ü*µÚU,;#ËL@ÉèzAí¿ôW¾eY7}…±İnsôèQ{ì1vìØÁÙ³'™»>Gé¼—‘Ş¦´è;¿ÿo¾ï0>v¿¸ üÍ×¿¤ÿå¿üç_¾ÜxhúêElGS*¹!i·Û„aHš&XÒDû
++$	™™™eã†|ã¹?ç[ßúKÚ™ê¡2ğ=›v;cÛö)ÖmgéÒ#èvcÒT²bj«Wo¡×‹hµ®‘eY.ÚÅ>†… Ğ?æ¤¯NOOsåÊŞò–·pï½÷qêÔQ®Ï6È³Ò)åcÅÂ–?¾rõà•ïk Ü	óûô¾÷}ts»¼ıêÕ¤iÌØx€‚N§C’$X–íHâ8ÁvlŠÅµ¹kD±dÇöGyî¹?çÅ¿ÎáC{Øà9{îk:üaÔ&ìET*>k×M²bEÇµh·"¤ôÙ°îÊå%\½zZí:ç¾ÌSØñ} +} +¶msúôi ~øaÖ¬YÍÁƒ{i¶¢~ó3Ç÷äºM÷íş­ã'ö.ê  ë×>ºiÉÒ%ï¾DETGÇ¢Óé¦éà¢»®ñëû¾O¡èqîÜi–-]Ï=÷läôéÃ$©"ÍRâ8¤Ñ¨Ñív8sæ4W®\åúõ–ëÖ-aÕêQ´‚z=d|bŠµk¶233Ë¥Kg	÷`ø~õ÷÷ÿáÕ?¬8J)9zô(k×®eóæ-4›5NŸ>=Ğ<O¬·mëü‘£{ö, øàO~lÊq½]Ÿ&ŠºŒOX–•‹ÿt°ÊÇÆqlÚí6…BÁ4¸x™İ»€$‰9{ö8ãäUÃ£ÕQÊ•"Íf“4M™¹6Ã…—Ğ:eíº	–O˜ì"åpÿ–İ(%9zü0gá8ÎËÌÁ¾4Ş†·Š~õ‘”’89tè»wïfıúìÛ÷İ^L›,ã4Uoşxüw^xáùÚ ?ıÓÏvŞ3Ó×®¢(¢Tvq=IÆDQ4X} ¾ï“e½^‘‘2İnƒn7c÷î·pîì1js×°,Ç¶Òft´„Öšv»M©TÂu]jµ:³³³h²rU™B±ÄÜ\ÈÚ5›(—Æ8}ú–­°,S²nYrà\È94”~üÀ²,æææ8{ö,ï|ç;iµšœ9sŠ8Ä0
++BŠÕ›7=øùC‡_|càÿø?ÿMgf&|ßÕé«+Â^—‘ªOXÄqLÇ/Ûo=Ï£×ë‘$	•J‘Ë—/0>¾šuk7qôØ^¢0Â¶Mí mÛ”ËE„€F£çyT«#!èõBææ®32b±úeôº	Õê
++&'Wræìq²¬;Ùşó½ƒ}_B? dÛ6.\ Ûíòö·¿ƒ½û^¤×‰B…”‚$Ê6·»ÙµS§ö}ë€OúßéŸû¹¿·óÚôÜCÍfrÉgt´@’¤„a8XqÃŠ–mÛt:6çÏ_dûöÇq,›c'`YMF¯Q.WŸşvP©T°,ãq¬ÕêdY‡û·®&ËÀ’UV­º“'’¤\Ç½aŞ
++†•Åş0U´,‹C‡±zõjV®\É‰ÇPJ’$&hdIxë“ñÅŸŸ}Ã àïşİ¸ìÒ¥Ú»kµ‚Àel, ívû‘ÛÂx‡RŠ(Š±m	„´›»w¿•«WÏ1=}	Ïs€ŒN§Ç’%¸®‹”&W0C
++…¶m£µ¦Ñh233ÍÖÖày.aÏæ{6sâäQ::AÁGğ’êrÃ«¿ôiÿşı<öØãÌÌ\#I{ôzıŠ#í¥©^{ÿ–‡şËáÃ/ê7, ŞûLµ;Ñ‡æ®_Ã±mFÇ|„0ÊT%Í·ãÇ1išá8’zc–Ri	÷İ»#G÷Ğëuq=—n·K–eŒá86–e†!ív×uq]w 'œ¿põë—R­Vh5÷¬ŞÄñãGHÓçâeVB”J)Ò4½ fî¤ÓépõêU¶oßÎÅ‹ç±›n'1ñ‰Xm
++ÖÑƒ_<ø†ÀÇ>şI'ùÈìì´“f)£c>c8ú²¿÷öW¡é˜’¦¶­™aãÆ]”Ê#9º×Äîm‹n§G¦,Y2eYx‡”’^Ïtˆ‚`À¨S§N±lY™+–ÒiIV­º—Ç tˆm;/Sü†W Ã½	´Ö} T*’¤G+“ÉlJÚïòÉÇ?÷üóßŠß øÔ§şuxmºóì•+Ó#Q12âS(¸Äq|ÃEÑ÷oã8Î_WÄI›^˜²cÛ\¿~…Î`;¾oÓht±mÉää¶íV’$„aˆã˜çÒ4åôé³LL˜Z¹Œ^×¡:²”c'öbY†™ÃÁ£~öPš¦@öWÿps
++!çÏŸgÉ’¥$I”û:LcšªIÇ–³ûö¿ø·oH ¼ç=ïñzçï^»6;…!oÚÂg™¹°}m|8H3ßô2âYÓh\Ãu+lºwÇï§İj<„€N§‡Ö099ëš|×5Á ^¯‡Rj`uœ>}–jÕeÉ’¥h=‚ïW8qr/Y–`YÎ¢xÕ3RJšÍ&ZkªÕ*`ÚÛ†İÔ¿¦zó“O>ş[Ï?ÿ­î qœîpİ‰¿/„°z]Óê¿:êV¸bÀ¨ao­S®];ËøÄ=¬Zµ‘cÇö‘¦	¾ç ¥ ÙìÕj×uV…”’$I@H’„C‡1±¤H¹8A±°Œ4É8rìĞê†ß–İ[
++ív›õë×†#èõRÓ-S#ZéÊÁC{şğ€6ğÊÕ™^¶ln!*Ï3Š^_èƒ ¿¢úA˜0Ì A–õ¸6}ëw³dÉ
++Ù›7‹2ï©×Z)X²dÇq€êwÇ\¼x‘ÙÙëœ=sšõ–Œ®¦Ñ¨séÒñ¼JX¶„şJû}ëFƒB¡ÀÔÔÍfÇµétâ~uÓ®w}óø‰½§Ş0 xÿO|HÎÕz¿ÚjÔV•Ê#†ÂÆ÷-ŠEû†¡}ô}ïıU˜¦é`7à°‰ãíö}ì)l»Â‘Ã{‘BâäE#®+Ã²l†3¦“$afæõz›éé9Î;Æ¶m‘²Â’	ÓY¬İÄ@BõİÁÃÅÃy‡} $IÂÜÜ6l4Ÿ••iÂ0Ã²„ˆ"µµ\Úò¯NŒß Ø°aÓQ”ş¯Y–ÙIS)U‘Ò,FG=@Óh„„aF8y`È½!eÛ¶mšÍæ@"‰aÑj×év¯ñà®§Ğ8œ8q ¥AàÄŠ¹Z“(L˜˜Á²ìíŞív™››C)ÍµkMÂ°Ã¥K§Ù²e+èK–¬äÀçÑÚ0?Š¢H‡·ƒù–‚én–™FQÊêÕ«i4j‡nÇ$¬º®XÖëªã—.Ü÷† ÀêÕ÷ÿ¬Rê¦¹¢:2›‘<ITe)cëºƒÕÖ_ùÍfs Ò¯Àeff†(®ñğCï 3N<ŒçyØ¶…ï[\›©Ç!Åb0øV«E½næT6m@çµuÖ­Û‚ãT‚€ãÇ÷`Y¦emÅyøÚx	‡0\ Ú?çf³É²eKóç2lÇ¢Ó1€ò}Û>qrßş¾À¶­ï/yú¤Ğ–””Ëàe²4¥R)P,Z„aô²\?=«_9Ü/İŠãØ4™¦0Äqljõ Ão£ÓérúÌQ,ÛÆuL‡Òv»C­ÖÄum\Ï¥ÕlÑj5h6;ÄqHšHjõkLLT(—39¹‚VëçÏŸa#…@
++ˆ¢hĞœr˜ñÃ’ I’üü"ÆÆÆÃĞä=Æq”á8bíÆ;Ï?±wÿ÷5 }lÛûÓT}DŞ5ÜìùÅÒB@+–-!M£¼«—õ²,]ÇqÁ—8adÇqH’Ä4PĞéÖĞD<ğÀ[©×®sáÂÙœIfPE«Õ1I(qH†´Z]´VÌ]oã8f)ãríÚV¯Úˆ´J¬Z5ÅÙs¸r¹Nšš-É²ÅÀƒÙ·0†u !Ìë–%i5[”+|ßC)“òÖë&äÎÏ‡&'øíóç÷·¾/ğwü¤£”ş•Ò+…€ññ~švŠV.år…n×$pèõÂSµM;Yk`´ÛÆŒÃˆBÁG
++A&$IFœ4±¤b÷îwR«ÍréâÇíçìÑíFÔë¤TDQ†šf£ƒËD‘FÊŒ0j±rÅ}øşãc%^Üó-´–8®…ç†§iJÇ7Xım¡ï70SRlª##„a„ç™|Èn7©V÷ğá½ôšÀÆõãc÷ÛsµCwÕkË–Íoc~ÉHFcKzaŠcKâ8¥T2Úy»19YÂum’$}™#¨¿ô/´éû›"„QæúSGâ8¥İ–Û·ÿ ×f®pùòüÀÅ’¦Ô¼İéõ"â(!Sâ$Îİ¹¦!¥çt:×©,%ÆX²dŠFã.\2úG>Ç Ÿ)”eI’Eq¶ˆşÿh·Û¤™&„0Pã(#*Ó[wîxèK‡í¹öšÀøØı°çj‡²;ıÌCş¤=2bıJ–° PtÃŒ°—aY!´v)WªÄqdT*c\·Ãvû°?À²,¢(¢ÛíöÛ0mäL+º!»h»¶ÿ —.ŸcfæAàÇR›Z•’eŠ$Éò‚S•kê½°ÅÊ›Q™dË–U8ğB>üÒô+°mù²ˆaÿœn´J¥AiI¤8®E§ ¸a¨J'Nîûo¯Y ÌÕq7àƒãi  ãIDATÌ˜Z¾õ-~ ÿBHø¾CšwüJ3…ë
++Úí.ãcK°¤éîùAPÀu\‰zyd®ï2n47øë“$!”Jql›f«‡Àf×®§8şÍælì1íg\·¯p¾Ä4)Q”˜BÚ¦Xœ TgbbÛîpúÔI‚‚O+²¼g€mßxi_DJ·°%=GbÛ¥4½^Še±qÓ}~şØñ=sßI |[åáw;akjÊ~·Ê´†BÁ!22eÄ¢V&Æ›73{Çuˆ#M£Ğë™ü€R©tCEÏ°ËutttğúÉœ&³x®VG©”Ë—®s}î(ÍÖeŞû¾OP)/§Ñhc&™«8™é2ï7 …1	{F)½xñ0hÅÕ«|ğIFª#(¥p=´êvôàs¼Ì*èÏFA§Ó¦6×ô¨úx¾RºàyüìkZ	¼›™7ïÿ‰Ÿ-¦Yúi­E¥)—]£9G¹İ,%Y¦(ÍF“±±¥Ø®K·“P.Û¹¸,"yÃ?ú"×qÆ 0Ó‰ãØD‘RG4|?¦Œ±uëc=¶F½´|ß´£µl3ÖVë¼=}îì±,›(î01¾† Pbbrœn·Á™3§ Ûîç
++˜s3‰+:„ƒÎ§¡e€Äõ||¿Ÿp"è´´Ö7¬ßùŸNœØÛ~Mànhıº?fÙÇà8V® åÁ…¹0JkÇÆvQ˜11¾”8ÎÈ”©ü‰ã„BÁ€ ïŠ6ãØt
++ËÃ´}MÜó’D“$1½^—V«‡í„”KËØ´i§N¦İiã:Ò’o	R
++”6ÙÉfa†ã
++„pY¾|““>¥b•ƒ÷ uòeI3ÅTA¦ÈKÖÅ Ÿñ°HR
++ÇöPÚè8¾oÅa˜–ª£nıÀ=_y]`×ÎËRŸ
++|k½éïgSñi4"„¦%<ı!ÒšjÕ§Óix#”J%šM*.ŒEP,şõa ôM-­õ ºg^7'Ç"™ÇívËî±téF6nÜÆ‰ãûhuºhÕÏÈ<×6]Èèg%…,]²JÙcíº)8M£q°±mËhø›(Ê-ìŒbøR”PkM™ş†–%Ib›RÉD/Ç(„i¦î{ğÁG>wàÀİ×œp§´t™·ªP°ÓÊhå¾g£y{3TXfĞ@£S*YÌ^¿ˆÇv˜î‘e­Mi¼äÂí_Ğ¾“Èó<FGG_¦}_¿ŞÁä*À¢ÓnsîÜ)NüJ¥Şıà{¾Ù.ºYJŞ”Úœ—çæj-Ã&×®çúl„@³õş]HËAº˜šVr¶-ñ}‰RE¦‰ÄğÖe]’^¯C/ÛãÈ¼bZ¯˜¹Ö}æu-~à{§şT puÔ§ÓNˆ£l0bÀD‘…¥M9W¥R%ìÅ$‰bl<0>tÛÆ÷}¢(z™èt:7$|ôC­qM³èõB´Ñ„ÜsÏN–L®àô©CdYJ¦*KZ¦!•6'’D‘&!,V¬Ø@±(€“''íA“mKâÈxúLğ(Ÿtg(M¾eexIƒëõJÅ"~`’SĞĞjÅø¾µêíïxâ7¿ùÍç’×% 6İ·ó¢l›”Ë–¦”ÛµèvMKx!òmÀ<0{cŞó/IºT«X¶C·£T«>I’àûşéa}u»]”Rø¾?pÆ˜ò,‡0Jp]iôË˜xíN$iaÉ˜ûî{˜±±e\¸p’$‰‘–ñ#$‰"ã“$L8zÕª{)—=FGKœ=7ÃÌÌ9£/`¦ÅI†ï“VJãú{Yî…„°—Æá¡H‰xÆŸ İnJšªI×µìÙóÂ¡× }æKÛäWA5‚‘'/à#e0Æ#0ŒÁ4…N3MšÆÆóJHË¡Õ2LéÏ.Š7$bJ)qÃto!lœM‚ë³<ÏÔHË$ÎÎµ	Ã:®±bÅF&ÆWrıúU’$ÊÅ¶~©&å8¨,eÙÒUŒM06î13rşÂsa¥DHP™©aHSÓÍÔ²i¦ÒÁL2Õ¹n‘7ÂV.Å¢›["¦/"B,yê©ÇÿÃsÏ=§_W X·nÇOiÍA µ ğm
++E‡Fİ‹ùR˜¡Mıl!En&Ä8®"Mm|¿@«•à¸&qDkS:Ö—RÊ?ŒFnÛöÀKèº6ZéAÿ@)Y^^^¯w©×g‰¢ëe&'W“)EuRJ+£ZR‚€ (²bj-ããİàÜùStÚu<ß!o…ëÚƒYÆ*Ñ¹Ø7¥ÃÒŒ³Íd&„¡&<<ßÂu,z½”8Ê–Šöo¿ğÂó×_7 xh÷‡¥K'?­‰W*¥°-ÓW¯P4+YkÆû%…¤Pt	|›L™ş>h‘OÉĞ$t;M²Lã{:m3=¤Xz©l»¿êMñH4¸à®k
++Jz½^gèĞíÆXDef€ÌÍ·(Jh6;4uª£.¥âåò8Qæñ{3×X)…e›pğŠXº¬ˆÓÓuÎŸ;A©ìÚË»®E’¨<‹I‘e:—
++¦Ó¹év®ñ}ì…	–eº¦?‚ İNlÛ–3û÷¿ø•× ¶Şÿ–7mÚ²ö_diš{ó,J%£œÅ±"ÍŒ‰å:6kÖ35U¥2âS.»f0´‚81#cãHåf_(
++±mŸ(2>øbÑüN§;Èèv{´š1caY’ ğó­!#I!SšN'Âól#}´QÚTJgtÚ=”Ê7%ê¥Ò$BÚÄQÛrŒûXJ’$bùòuŒVË¸¤Û‘œ:}¥SlÛ˜tI>ë¨ßcØ²¤™d	ã+@š¶v±ixe×óÌx]GÒí&Dq¶ú‰Çıì‹{^ X¿îáÛ¹sİãJÙ~»İ$I6"×¤MÄ=k&+˜²l<Ï¥Tò©V|ßFe:Ÿ÷kößRQ1W«¡µ Mm¢ÈtqÉÜÜ\â¥i5c¦§[¡ISA±è3w½…ãØ¤© ­L(V†€ÀõŒ4‰“„z½Gš(–,Òª‚ B’&˜~×‚,K™œ\Áøøah1;{…«W¯ ¥…ç»>®k&š fŠcµ·5zOàY„aŠmyÛ6Ñ;tÌ/XGöí{qÿk ×@ô]Ä#•MGÖoXvÊ²ü÷i­étš8®…ï;Ä±"NãcE¦¦ª¹ıËP!¦ã¸”ÊªU(Îˆc´$##×¦gó0°EJJå€BÁ¦Õ2¹Å’G«•ĞëD(ÒhÄ¤YF½Ö@é,/Û±òÆ…+MzI’R«õè´Ãü»-Ò,Ãs‹Ha†\$qL©XaÍÚõTGê×c2•qæÌQ²LeÎ’y“iiïØZ@å PjçÚ9àMÏƒ `ƒ„°—ÒëfËÖ­İñNÚ—½&0¸ru_üÄ?<.…ı¬ëxôÂB˜´—(ÌĞJ³|ªJ©ä¸á‚Ğá¸u´@±è…)­fŒíX¹Ë4¤Õj†1aÏÆ±ƒ\94×§\ñ¹~=DkÓá[
++ßwèv;XVîoÈ'“ö‡RXRä­çlÒ$¥İi6zxMu¤€ë
++ÀFZ&£'MÆÆ–°~ıRjµÛö9sö(IçsœÁä4Õ¸ÌKáº’0T=úÊ`J–šVú¾oã{6½nJ’¨UBÈÿ~âäŞ¯+àM?¹Úu‚g,ÛHÓ„6Î•¦¦ª¸®7füÌ‚”Aà16V$Ë³×» …‚CeÄ¡6W§ÕjÇ­‹¹‡1Ãu%¥¢‡eKêõ.å’‹ãúxOš&DQŒçšñôBbti¦‘¹"ìå’£Ş%Iª£Å’‹ëJ,éÑét8~ü W¯^¦Û‹(—Æèv[LO_D+3ìÊ¶$-IRëZyE‘ÂqMDÇ‘Ä±±l[E™RHéâ86Å¢C³£•"Í¨:µïO^ ¸÷ŞÇÇGª•Ù¶--i\¿®«L7a19YÎ ìÓ;¿e«eYŒ—LJx#¤ÛM)—*#Ff³×á—ˆ"‹(Jñ<#	Šf#6N"Ï¥P(aÛ‚^æÊ£EklGây–ñúÅ†Q£¶Z]j53èjl¬HeÄÃ²ÒTpáÂÎ=ÁÅ‹'ÑZÑí¶Ñygsi	<¿¯ù‹¼*Hãæ	+}¿€çÛFèÏBJ4BØJNò–!+7oÚıÇï^ó )ß§îY½ü×sK¶å¤K–TMâ’¥ËÊ7TŞ§€/Ô·Ï„år`ÀãIjs!•ŠkæGŠv»I§ÓÀqlY¦Ó…N;Æu“E¤eQ«‡ùğ)×qĞ¤D‘eë8’,ƒn7%³ÜO‘'¡HÓŒz½E½ÖÁ¶l&–°-KzyvRË4“T
++„(½&ja“o;¹¦Æg µñ‰¸$ŠZÓµZõŒG2ÎF\Ï~îÈ‘=G_ó 8wş…ÎOüÈçßgYV"ÍX15I±8ÂúK)•ÊA€çy¸®;H§š¿%ô~$Í²%Õj×³™¾ÚÆ²$®k2k:íˆV»R	ÅâB´ÛíV2Ğ‚Àcé²"…b€ey—òÉÍ‹2:ybÚÄğ¤)‘Ë8™›kĞl†‹K—–ñ};OwÒT0i•‘¤Fšx=ˆ]ô£ÆÑ×E™2)Ìg,Ù¯—´Z1å’sğÀ¿úºˆ¬\ùàÔŠKßÖ8®K§Q,ØŒ•]—B¡@¹\¦R©066Æèèèà¨T*‹E
++…¾ïò MnF¡àcÙ6FøÒ³Yªév»tÚ\Ï£P(#¥K‰<•’$šBÑcb¢Ää’q&&«¸…íÊe pŒ-nË~1'*¯E”Ò˜¥½^™kuzaB¹0>^¤PtÂB
++Çñs¦¦¨Ìä:hŒ¥Ñ|e@-ÒAç¹½nŠ2…ãáy6ÍfŒ”¢~èğŞÏ¿. ğ®wıÈ•‰‰ecåY–…ëxDqÊè¨G±h:„öK¶Çç™ş€……Bb±˜7[Û„mÛ¹»Õ¢Z5–B§›L[ßˆóv;¢Ñ˜C©ßp=×õAÛtº	ss]êõz#¤ÛÑ =„´ñ\‰¸xÇÈHj5 P4 °¤ N:Sy„_Ñjv™™iÄ)…Àcl¼€ï™ğ±myfĞ©”(­‰Â¥e`Y ¥‘®kLRKš Y·›€Î3Œ´E±ä§P”¹+Vlûõ³g÷'¯y |õkVø¡'î/•Æ¶)•å›}‚ÀÅÌÜŞ~/Ÿù»‡õƒş­ã8ô=æ½fÕ”Ë>Z)ºİß·0]^4µÚÍV0Vˆëy‚"ã‘eš¨Ÿgd™EKZ­ˆF½G»“’$`Y…¢G¹äS*ùø‡˜à˜$•z½ÅÌLƒV+ÂvlF*>AààºRºØ¶‹íØ$IFØKĞJ£4yB)¹ÀÎîvb¤Ø¶K¹\ T6irI¢F:mıå\|-@Ì;8şêµ'ßòCÏJi‹~1G’8LL¢ç+}óÃù€(
++ƒÆQ}Ašš´¬bÑÃó$­¦Q”GÇ\ÇD
++¯_¿N½6C§]'#\×ÁqŒT0Á!ÓÇÇ¶lÇÃÎOâ(¥×Kèt³…Äy`È²p=—RÑ§T)äÕ>!µZ‡N7Á`Ò‰‘p.äÛƒÌ\)vL™ùˆa˜â¹…RÇõ°mA»• µ’İ®üÛ÷ïy- @Üâ µÚ•óB”ÃuëVmóÜRIe¶c>+VİÎ½ÕÔáœ:“tiS(eÚı-!MM`¡àÒlEt;	££¾1ãXt»1—ÑlÖ¨7fh6ëtº]<×gùòÕdYR‹ãv×ñ¼ OHõŒ°×¥Í4Ó$5õ½nJ/Lˆ“ÌhíM¹`ÛİnD»İ£Ùè¤)Å¢M©äQ(8ø¾‹c»x~ÇpË2~‘b¡L±XF`ÌÒjÕ3Óš1RZt»õ+.ûƒï úÌ·¸ß¿µ yúÔùƒÇO¼ğGÛ·=øT©46¦•"I5ã%ÆÇ+ƒğéBóz:†3ƒûºB?;È4^0™j5@)E§“à8&»Çq$q¢QÊÂ¶ÆF—²nİf–-Y¿°ç¯~íşà·şÇcÇöüÎµk÷O_½t¼×ë¶AÛã$¿`»®gI)y˜'w M¨·Ÿ<ÒÓ<ë7OÿÒQSoth6ÃÜaÂã¥¢ƒm›À“ç™ÿâ:(W&&33ÉúJ I¢ÃÏ~NëDßkv—L|¥ï—·‘ óŸGJ×UJG7®ßü÷áß~©XŸŠã©©
++[XB¿ñB?«w~Öïpã……Ú³ô3€[­ssst:Aóé4M8~v^{à¸%ÆÇ–²bjåÊÇíî÷~ï7?}øÈ·şpˆ ¸ãx‹•¥££÷—Ë£kKÅêƒ¬u·d[VA›Š“¤’O6!«1C¯•ê‚†…íXØƒëß?qDp]™Ó1aäF#2>×£V¯}ã¯şêKkªœš[Ìüv0Ÿ±ò&âşVÏI!¤­µª?ğÀƒOıƒ¿ÿ+ÿÉ¶¼JœÄìÜµœ©©ij˜†¦ZwxœËpš÷0óçwîS®]¯×©×ë4›-tü¹|©G¥2†ï21¾”Ri„³çşò—ÿã¯ÿí7şâ¯²,‹€ gºÎoU†4¿óC!Dø…jÆ*•ÑûŠÅòÚr©º¹TÙæ¸nÕ¶)¤4 Ğ¨~öR^ 3e€‚¤Åõı–”¹©9´ òõ4O=và—?ğÙ!¾3_¿Ú C·Ã"¾Xó[è¾5´õ4ÜıÄ»~áşÍ§…°‹¶¥Ùpï+W–‘ÁAW¼ìz¡9?óÛ³ô»võß[«ÕÃ.çÓi;´Û[ X*ÒjÏÖşø?ÿ_şè¾ğ»½^§‘3^1]- „ù÷3 É(l9Sqİ ¥¥Ry£ï–yW-Ë÷¸n°Á²²eÙ%„#mÛÓÚÌ<ÔJVy~¤Ä’–´–D
++A’¤+W.şç'÷ÿoÆÌ•\Ré¡óán$xJ5tkçGŸ¹Ö<0X7Kÿ=Í‡|ËüÂ/üòÿåØF÷¬á¾McØ–8I²,4‘nÊ¸ú¯õıÅ¢O§“q}VS¯+\×£Ó¹ŞŞào¾öÅ/~î·Ï;s:g¼5Áú ¸Ùû†ï§CÀH†^wlÛ):W²,+0[JéÇöV	iù[qİB%M»Zé$µ,ßQYš*Fa¯{øúÜì_¶š­ÓZ§Z“p“óºcˆW°ú­!æ;C·Öìy ˜ÏøaÉĞ~ó›ÿ‡g?öÑ_úù‘‘ªÓl¶qØ°¡Êød) ¡Ïà$IÇp›Öáßw	‚"õ:\ºØ#
++5qÒì~íkø§úgÿõËçÎ¾0tîzèXˆÁÙ-^¿“ûóoÓy[Jÿ6ç‰#¥tlP©RIYöÒwJ_,­UfÚã©ô&ëU€X`ÕÛ€—‹ göM¤¼ÉsÒ¸‹7lúÀ>üÎ7?öî§ÒLÈ8©V]V­*31ibğ¦€Rç­Úú+?¯D›Z,!ğ\—nWpîl—fS#P|íoşà›_øÏüöùó§Ïä¿ßïB¹ĞE[ˆq·’ú€pÛï”Â‘ÖY,„%¥´¥RY"¥-…°¥ â¤İ6ôİ${¥ wiòYC¯Ï|oÚÄ-ô„şû yä­üÔ‡şáû×¬Ş4•fE!K–ŒùØ¶Àó­Á°'Sü‘’Ä)q8–ÌÍ%ÌÎÎD'Nì;ıå?úÏ_{î¹?ÿF®¸YùŠ•1Dß ô-Vùí t“[“=ô Z©ÌÿÕÙTRónçKƒÛnß. üüX7[íó}öq U(Ç¶nİµáÑG~hÇ®]Om]âÅQL’F 4¾k™.b¹¹E®¢(dïŞ¯_>yjÏÑ¿ùú¿pîÜÉK¹r&s ¤C ¾8·“w*ôM@²ĞV¢ïFBÌ{.[@
++¤ó×¯& Ä¼½ Ã X 1~T}æ»ùÑÿŒ75µfå›ßü­ozøm÷­^½qÜ÷B)òÁ‘&?Ğó\êõÙî±ã{/}å+¿øk_ûÓÃqÖç)dñĞJn€áÌ¼•t; ¨;·É¯IaLà,YàsÃÌÏn!Ô«	 y ô¥À°Äà& ˜€aô¿ßË²«Öo]5µbíÔêUëFFG'=×u:IöìıÆô‘£{/_¼xöZÎh=d–õ€2ºZ«Ş Xˆ±¯T?x5ß¹‚ó²ïÉn‚a½à–ÛÀİ €! Ø9“ü¶gEPÜB
++Ü Î<cØâğsÓÍwN"@˜3¾t€m–VY#Sñì<³ìf àÌ¿SfÏTö
++ s³mèVRà·ûĞ÷5Ïßƒ’y{û°™ãÜbÕÏ÷+¤CG_Œ¹C&!¤Â1«X×@Ø¹‡05®£§ÿg;@Dœ¦a:œgré;8Ôm ğJúí<¯ïÖÔ»Ùwù~5$úŒvCö™hiÜâûÿüm /Yìyæ¥8Z+{X´ĞF5Vó ”ÜèŒÑÃ¯e\¼;a¾ºCåğN¿’ïç6‡¾[é~7 –Ù<ÆëyŞ/{ ØÄÖÅ|ç’3ï9{RÉ¼U¯nâ`™è¤7q©ŞŠêHnˆÛævJèBæç«*†¿0[@:$CL `xå³€°æ1z¾>q3`-$¢³%Ù-&]dnÁˆù+òN{'(pw*¥Ô ~Õ 0Ÿábè‡û+3»ITğv‡\ ¦0Ì|kÀ“X  ú&Úò­öÌ….Ø0I]u‡[Ë­˜Ë]>¾T¸mdP¼Bæ‹Vñ|Ï<1Í-òne\È¼"ÉmVò*Kwsá¹&Şîş­^ç.¾o!iÅHÁ·G·b°Xàµ… ´Ğço•]$nÂ|qÑ~'ÿYßfkà&•[=ÖwpNú6·wòùÛ}çw wÂĞ[ı–¸Ék·Ê,·ø7‘·û¿â6›;xıNŞûí¼v·çpGI!¯ îæ{ï„iâ6@¯à?ˆ»ü¿ú.ßYâ6Û¾‹óà.~—ï ¾İßß×o÷Ü+aÎ«Â„!“ô•~ö»Æ˜ï5‰×ØÒ¯ÒgÄ·ËÈ7
++ ¾ÛÿQ³H‹´H‹´H‹´H‹´H‹´H‹´H‹´H¯;Ú¸şrñ*,^ÈEZ¤E¦ÿ7&'Šf)b‹    IEND®B`‚
+\ No newline at end of file
+diff -Naur pnmixer-0.5.1/data/prefs.xml pnmixer-fluxer/data/prefs.xml
+--- pnmixer-0.5.1/data/prefs.xml	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/data/prefs.xml	2014-01-10 00:31:41.413190976 +0100
+@@ -179,6 +179,178 @@
+       </row>
+     </data>
+   </object>
++  <object class="GtkLabel" id="no_notification_label">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <property name="label" translatable="yes">Notification support not
++enabled at compile time</property>
++    <property name="justify">center</property>
++    <attributes>
++      <attribute name="weight" value="bold"/>
++    </attributes>
++  </object>
++  <object class="GtkVBox" id="notification_vbox">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <child>
++      <object class="GtkFrame" id="frame9">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="label_xalign">0</property>
++        <property name="shadow_type">none</property>
++        <child>
++          <object class="GtkAlignment" id="alignment10">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="left_padding">12</property>
++            <child>
++              <object class="GtkVBox" id="vbox7">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="spacing">3</property>
++                <child>
++                  <object class="GtkCheckButton" id="enable_noti_check">
++                    <property name="label" translatable="yes">Enable Notifications</property>
++                    <property name="use_action_appearance">False</property>
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <property name="receives_default">False</property>
++                    <property name="draw_indicator">True</property>
++                    <signal name="toggled" handler="on_notification_toggle" swapped="no"/>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="padding">8</property>
++                    <property name="position">0</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkLabel" id="label26">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="xalign">0</property>
++                    <property name="label" translatable="yes">Notify for volume changes from:</property>
++                    <attributes>
++                      <attribute name="weight" value="bold"/>
++                    </attributes>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="padding">2</property>
++                    <property name="position">1</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkAlignment" id="alignment11">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="left_padding">10</property>
++                    <child>
++                      <object class="GtkCheckButton" id="hotkey_noti_check">
++                        <property name="label" translatable="yes">HotKeys</property>
++                        <property name="use_action_appearance">False</property>
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="receives_default">False</property>
++                        <property name="draw_indicator">True</property>
++                      </object>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="position">2</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkAlignment" id="alignment12">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="left_padding">10</property>
++                    <child>
++                      <object class="GtkCheckButton" id="mouse_noti_check">
++                        <property name="label" translatable="yes">Mouse Scroll</property>
++                        <property name="use_action_appearance">False</property>
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="receives_default">False</property>
++                        <property name="draw_indicator">True</property>
++                      </object>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="position">3</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkAlignment" id="alignment13">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="left_padding">10</property>
++                    <child>
++                      <object class="GtkCheckButton" id="popup_noti_check">
++                        <property name="label" translatable="yes">Adjustment in Popup Window</property>
++                        <property name="use_action_appearance">False</property>
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="receives_default">False</property>
++                        <property name="draw_indicator">True</property>
++                      </object>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="position">4</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkAlignment" id="alignment14">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="left_padding">10</property>
++                    <child>
++                      <object class="GtkCheckButton" id="external_noti_check">
++                        <property name="label" translatable="yes">External Change</property>
++                        <property name="use_action_appearance">False</property>
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="receives_default">False</property>
++                        <property name="draw_indicator">True</property>
++                      </object>
++                    </child>
++                  </object>
++                  <packing>
++                    <property name="expand">True</property>
++                    <property name="fill">True</property>
++                    <property name="position">5</property>
++                  </packing>
++                </child>
++              </object>
++            </child>
++          </object>
++        </child>
++        <child type="label">
++          <object class="GtkLabel" id="label28">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <property name="label" translatable="yes">&lt;b&gt;Notification Options&lt;/b&gt;</property>
++            <property name="use_markup">True</property>
++          </object>
++        </child>
++      </object>
++      <packing>
++        <property name="expand">False</property>
++        <property name="fill">False</property>
++        <property name="padding">5</property>
++        <property name="position">0</property>
++      </packing>
++    </child>
++  </object>
+   <object class="GtkAdjustment" id="scroll_step_adjustment">
+     <property name="upper">100</property>
+     <property name="step_increment">1</property>
+diff -Naur pnmixer-0.5.1/Makefile.am pnmixer-fluxer/Makefile.am
+--- pnmixer-0.5.1/Makefile.am	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/Makefile.am	2014-01-10 00:31:41.412191046 +0100
+@@ -9,6 +9,11 @@
+ desktopdir = $(datadir)/applications
+ dist_desktop_DATA = data/pnmixer.desktop
+ 
++# Install "pnmixer.png" file
++logodir = $(datadir)/pixmaps
++dist_logo_DATA = data/pnmixer.png
++
++
+ # Install .xml interface files
+ uidir = $(datadir)/pnmixer/ui
+ ui_DATA = data/about.xml data/popup_window.xml data/prefs.xml
+diff -Naur pnmixer-0.5.1/po/it.po pnmixer-fluxer/po/it.po
+--- pnmixer-0.5.1/po/it.po	1970-01-01 01:00:00.000000000 +0100
++++ pnmixer-fluxer/po/it.po	2014-01-10 00:31:41.414190906 +0100
+@@ -0,0 +1,440 @@
++# Italian translation for pnmixer.
++# Copyright (C) 2011
++# This file is distributed under the same license as the pnmixer package.
++# mattia.b89 <tia.tif@fastwebnet.it>, 2011.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: pnmixer master\n"
++"Report-Msgid-Bugs-To: \n"
++"POT-Creation-Date: 2011-11-18 15:43+0100\n"
++"PO-Revision-Date: 2011-12-07 22:13+0100\n"
++"Last-Translator: mattia.b89 <tia.tif@fastwebnet.it>\n"
++"Language-Team: Italiano <gnome-it@gnome.org>\n"
++"Language: \n"
++"MIME-Version: 1.0\n"
++"Content-Type: text/plain; charset=UTF-8\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++#: ../src/main.c:47
++#: ../src/main.c:69
++msgid "PNMixer Error"
++msgstr "Errore PNMixer"
++
++#: ../src/main.c:63
++msgid "Warning: Connection to sound system failed."
++msgstr "Attenzione: Connessione al sistema sonoro fallita."
++
++#: ../src/main.c:65
++#, c-format
++msgid ""
++"Do you want to re-initialize the connection to alsa?\n"
++"\n"
++"If you do not, you will either need to restart PNMixer or select the 'Reload Alsa' option in the right click menu in order for PNMixer to function."
++msgstr ""
++"Vuoi re-inizializzare la connessione ad ALSA?\n"
++"\n"
++"Se non vuoi, avrai bisogno di riavviare PNMixer oppure selezionare l'opzione \"Ricarica ALSA\" nel menÃ¹ del click destro perchÃ¨ PNMixer funzioni."
++
++#: ../src/main.c:73
++#, c-format
++msgid "Warning: Connection to sound system failed, you probably need to restart pnmixer\n"
++msgstr "Attenzione: la Connessione al sistema sonoro Ã¨ fallita, probabilmente Ã¨ necessario riavviare PNMixer\n"
++
++#: ../src/main.c:115
++msgid "An unknown error occured trying to launch your volume control command"
++msgstr "Un errore sconosciuto Ã¨ avvenuto provando a lanciare il tuo comando per il controllo del volume"
++
++#: ../src/main.c:117
++#, c-format
++msgid ""
++"Unable to launch volume command \"%s\".\n"
++"\n"
++"%s"
++msgstr ""
++"Impossibile lanciare il comando del volume \"%s\".\n"
++"\n"
++"%s"
++
++#: ../src/main.c:122
++msgid ""
++"\n"
++"No mixer application was found on your system.\n"
++"\n"
++"Please open preferences and set the command you want to run for volume control."
++msgstr ""
++"\n"
++"Nessuna applicazione mixer Ã¨ stata trovata nel tuo sistema.\n"
++"\n"
++"per favore apri le preferenze ed imposta il comando che vuoi sia eseguito per controllare il volume."
++
++#: ../src/main.c:149
++#, c-format
++msgid "Couldn't execute custom command: \"%s\"\n"
++msgstr "Impossibile eseguire il comando personalizzato: \"%s\"\n"
++
++#: ../src/main.c:203
++msgid "Can't find main user interface file.  Please insure PNMixer is installed correctly.  Exiting\n"
++msgstr "Impossibile trovare il file dell'interfaccia utente principale. Per favore assicurati che PNMixer sia installato correttamente. Uscita\n"
++
++#: ../src/main.c:259
++msgid "Can't find about interface file.  Please insure PNMixer is installed correctly."
++msgstr "Impossibile trovare trovare il file dell'interfaccia. Per favore assicurarsi che ONMixer sia installato correttamente."
++
++#: ../src/main.c:334
++#, c-format
++msgid "Volume: %d %%"
++msgstr "Volume: %d %%"
++
++#: ../src/main.c:348
++#, c-format
++msgid ""
++"Volume: %d %%\n"
++"Muted"
++msgstr ""
++"Volume: %d %%\n"
++"Muto"
++
++#: ../src/main.c:453
++msgid "- A mixer for the system tray."
++msgstr "- Un mixer per la tray di sistema."
++
++#: ../src/main.c:463
++#, c-format
++msgid "%s version: %s\n"
++msgstr "%s versione: %s\n"
++
++#: ../src/callbacks.c:203
++#, c-format
++msgid "Couldn't write preferences file: %s\n"
++msgstr "Impossibile scrivere nel file delle preferenze: %s\n"
++
++#: ../src/support.c:66
++#: ../src/support.c:88
++#, c-format
++msgid "Couldn't find pixmap file: %s"
++msgstr "Impossibile trovare il file pixmap: %s"
++
++#: ../src/support.c:95
++#, c-format
++msgid "Failed to load pixbuf file: %s: %s\n"
++msgstr "Fallito il caricamento del file pixbuf: %s: %s\n"
++
++#: ../src/support.c:112
++#, c-format
++msgid "Unable to load icon %s: %s\n"
++msgstr "Impossibile caricare l'icona %s: %s\n"
++
++#: ../src/prefs.c:63
++msgid "PNMixer Icons"
++msgstr "Icone di PNMixer"
++
++#. corrupt value somehow
++#: ../src/prefs.c:130
++msgid "Invalid color for volume meter in config file.  Reverting to default."
++msgstr "Colore invalido per la scala del volume nel file di configurazione. Ripristino ai valori di default."
++
++#: ../src/prefs.c:145
++#, c-format
++msgid ""
++"\n"
++"Error: %s exists but is not a directory, will not be able to save preferences"
++msgstr ""
++"\n"
++"Errore: %s esiste ma non Ã¨ una cartella, sarÃ  impossibile salvare le preferenze."
++
++#: ../src/prefs.c:165
++#, c-format
++msgid ""
++"\n"
++"Couldn't load preferences file: %s\n"
++msgstr ""
++"\n"
++"Impossibile caricare il file delle preferenze: %s\n"
++
++#: ../src/prefs.c:173
++#, c-format
++msgid ""
++"\n"
++"Couldn't load default preferences: %s\n"
++msgstr ""
++"\n"
++"Impossibile caricare le preferenze: %s\n"
++
++#: ../src/prefs.c:381
++#: ../data/prefs.xml.h:31
++msgid "Mute/Unmute"
++msgstr "Muto/Non muto"
++
++#: ../src/prefs.c:384
++msgid "Volume Up"
++msgstr "Alza Volume"
++
++#: ../src/prefs.c:387
++msgid "Volume Down"
++msgstr "Abbassa Volume"
++
++#: ../src/prefs.c:416
++msgid "Could not grab the keyboard."
++msgstr "Impossibile attivare la tastiera."
++
++#: ../src/prefs.c:474
++msgid "Can't find preferences user interface file.  Please insure PNMixer is installed correctly.\n"
++msgstr "Impossibile trovare il file delle preferenze dell'interfaccia utente. Per favore assicurati che PNMixer sia installato correttamente.\n"
++
++#: ../src/hotkeys.c:127
++#, c-format
++msgid "Could not bind the following hotkeys:\n"
++msgstr "Impossibile assegnare i seguenti HotKeys:\n"
++
++#: ../data/about.xml.h:1
++msgid "A mixer for the system tray."
++msgstr "Un mixer per la tray di sistema."
++
++#: ../data/about.xml.h:2
++msgid "Copyright Â© 2010-2011 Nick Lanham"
++msgstr "Copyright Â© 2010-2011 Nick Lanham"
++
++#: ../data/about.xml.h:3
++msgid ""
++"French: Matthieu Bresson\n"
++"German: Mario BlÃ¤ttermann"
++msgstr ""
++"Tedesco: Mario BlÃ¤ttermann\n"
++"Francese: Matthieu BressonItaliano: Mattia Bertoni"
++
++#: ../data/about.xml.h:5
++msgid ""
++"PNMixer is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.\n"
++"\n"
++"PNMixer is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.\n"
++"\n"
++"You should have received a copy of the GNU General Public License along with PNMixer; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
++msgstr ""
++"PNMixer Ã¨ un software libero; puoi ridistribuirlo e/o modificarlo sotto i termini della GNU General Public License come pubblicato dalla Free Software Foundation; sia la versione 3 della Licenza, o (a tua scelta) tutte le versioni successive.\n"
++"\n"
++"PNMixer Ã¨ distribuito nella speranza che sia utile, ma SENZA NESSUNA GARANZIA; senza neppure la garanzia implicita di COMMERCIABILITÃ€ o IDONEITÃ€ PER UN PARTICOLARE SCOPO. Vedi la GNU General Public License per maggiori dettagli.\n"
++"\n"
++"Dovreste aver ricevuto una copia della GNU General Public License con PNMixer; se cosÃ¬ non fosse, scrivi alla Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
++
++#: ../data/popup_window.xml.h:1
++msgid "About"
++msgstr "Informazioni"
++
++#: ../data/popup_window.xml.h:2
++msgid "Mute"
++msgstr "Muto"
++
++#: ../data/popup_window.xml.h:3
++msgid "Mute/Unmute Volume"
++msgstr "Volume Muto/Non Muto"
++
++#: ../data/popup_window.xml.h:4
++msgid "Open Volume Control"
++msgstr "Apri Controllo del Volume"
++
++#: ../data/popup_window.xml.h:5
++msgid "Preferences"
++msgstr "Preferenze"
++
++#: ../data/popup_window.xml.h:6
++msgid "Quit"
++msgstr "Esci"
++
++#: ../data/popup_window.xml.h:7
++msgid "Reload Alsa"
++msgstr "Ricarica ALSA"
++
++#: ../data/popup_window.xml.h:8
++msgid "Volume Control..."
++msgstr "Controllo del Volume..."
++
++#: ../data/popup_window.xml.h:9
++msgid "_Mute/Unmute"
++msgstr "_Muto/Non muto"
++
++#: ../data/popup_window.xml.h:10
++msgid "_Reload Alsa"
++msgstr "_Ricarica ALSA"
++
++#: ../data/popup_window.xml.h:11
++msgid "_Volume Control"
++msgstr "_Controllo del Volume"
++
++#: ../data/prefs.xml.h:1
++msgid "(None)"
++msgstr "(Nessuno)"
++
++#: ../data/prefs.xml.h:2
++msgid "(Unknown)"
++msgstr "(Sconosciuto)"
++
++#: ../data/prefs.xml.h:3
++msgid "<b>HotKey Settings</b>"
++msgstr "<b>Impostazioni HotKeys</b>"
++
++#: ../data/prefs.xml.h:4
++msgid "<b>Hotkeys</b>"
++msgstr "<b>HotKeys</b>"
++
++#: ../data/prefs.xml.h:5
++msgid "<b>Icon Theme</b>"
++msgstr "<b>Tema delle Icone</b>"
++
++#: ../data/prefs.xml.h:6
++msgid "<b>Mouse</b>"
++msgstr "<b>Mouse</b>"
++
++#: ../data/prefs.xml.h:7
++msgid "<b>Sound Device</b>"
++msgstr "<b>Dispositivo Audio</b>"
++
++#: ../data/prefs.xml.h:8
++msgid "<b>Text</b>"
++msgstr "<b>Testo</b>"
++
++#: ../data/prefs.xml.h:9
++msgid "<b>Volume Control Command</b>"
++msgstr "<b>Comando per il Controllo del Volume</b>"
++
++#: ../data/prefs.xml.h:10
++msgid "<b>Volume Meter</b>"
++msgstr "<b>Scala del Volume</b>"
++
++#: ../data/prefs.xml.h:11
++msgid "Behavior"
++msgstr "Comportamento"
++
++#: ../data/prefs.xml.h:12
++msgid "Bottom"
++msgstr "Sotto"
++
++#: ../data/prefs.xml.h:13
++msgid "Card:"
++msgstr "Scheda:"
++
++#: ../data/prefs.xml.h:14
++msgid "Channel:"
++msgstr "Canale:"
++
++#: ../data/prefs.xml.h:15
++msgid "Command"
++msgstr "Comando"
++
++#: ../data/prefs.xml.h:16
++msgid "Custom (set below)"
++msgstr "Personalizza (imposta sotto)"
++
++#: ../data/prefs.xml.h:17
++msgid "Custom Command:"
++msgstr "Comando Personalizzato:"
++
++#: ../data/prefs.xml.h:18
++msgid "Defining HotKey"
++msgstr "Definizione HotKey"
++
++#: ../data/prefs.xml.h:19
++msgid "Device"
++msgstr "Dispositivo"
++
++#: ../data/prefs.xml.h:20
++msgid "Display Text Volume"
++msgstr "Mostra un Testo per il Volume"
++
++#: ../data/prefs.xml.h:21
++msgid "Double click a HotKey to assign a new Hotkey"
++msgstr "Doppio click su un HotKey per assegnare un nuovo HotKey"
++
++#: ../data/prefs.xml.h:22
++msgid ""
++"Draw Volume Meter on Tray Icon\n"
++"(Will cause slightly higher CPU usage)"
++msgstr ""
++"Disegna la Scala del Volume nella Trayicon\n"
++"(CauserÃ  un leggero aumento del consumo della CPU)"
++
++#: ../data/prefs.xml.h:24
++msgid "Enable HotKeys"
++msgstr "Abilita HotKeys"
++
++#: ../data/prefs.xml.h:25
++msgid "HotKey"
++msgstr "HotKey"
++
++#: ../data/prefs.xml.h:26
++msgid "HotKey Volume Step:"
++msgstr "Passo del Volume attraverso HotKey:"
++
++#: ../data/prefs.xml.h:27
++msgid "Hotkeys"
++msgstr "Hotkeys"
++
++#: ../data/prefs.xml.h:28
++msgid "Left"
++msgstr "Sinistra"
++
++#: ../data/prefs.xml.h:29
++msgid "Middle Click Action:"
++msgstr "Azione del Click Centrale:"
++
++#: ../data/prefs.xml.h:30
++msgid "Mouse Scroll Step:"
++msgstr "Passo della Rotellina del Mouse"
++
++#: ../data/prefs.xml.h:32
++msgid "Mute/Unmute:"
++msgstr "Muto/Non muto:"
++
++#: ../data/prefs.xml.h:33
++msgid "PNMixer Preferences"
++msgstr "Preferenze di PNMixer"
++
++#: ../data/prefs.xml.h:34
++msgid "Press new HotKey for:"
++msgstr "Premere il nuovo HotKey per:"
++
++#: ../data/prefs.xml.h:35
++msgid "Right"
++msgstr "Destra"
++
++#: ../data/prefs.xml.h:36
++msgid "Set Hotkey"
++msgstr "Assegna HotKey"
++
++#: ../data/prefs.xml.h:37
++msgid "Show Preferences"
++msgstr "Mostra le Preferenze"
++
++#: ../data/prefs.xml.h:38
++msgid "Top"
++msgstr "Alto"
++
++#: ../data/prefs.xml.h:39
++msgid "View"
++msgstr "Vista"
++
++#: ../data/prefs.xml.h:40
++msgid "Volume Control"
++msgstr "Controllo del Volume"
++
++#: ../data/prefs.xml.h:41
++msgid "Volume Down:"
++msgstr "Abbassare il Volume:"
++
++#: ../data/prefs.xml.h:42
++msgid "Volume Meter Color:"
++msgstr "Colore Scala del Volume:"
++
++#: ../data/prefs.xml.h:43
++msgid "Volume Meter Offset:"
++msgstr "Offset Scala del Volume:"
++
++#: ../data/prefs.xml.h:44
++msgid "Volume Text Position:"
++msgstr "Posizione del Testo:"
++
++#: ../data/prefs.xml.h:45
++msgid "Volume Up:"
++msgstr "Alza il Volume:"
++
++
+diff -Naur pnmixer-0.5.1/po/Makefile.in.in pnmixer-fluxer/po/Makefile.in.in
+--- pnmixer-0.5.1/po/Makefile.in.in	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/po/Makefile.in.in	2014-01-10 00:31:41.414190906 +0100
+@@ -35,7 +35,7 @@
+ 
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+-MKINSTALLDIRS = $(top_srcdir)/@MKINSTALLDIRS@
++MKINSTALLDIRS = mkdir -p
+ 
+ CC = @CC@
+ GENCAT = @GENCAT@
+@@ -79,7 +79,7 @@
+ 	$(MSGFMT) -o $@ $<
+ 
+ .po.gmo:
+-	file=$(srcdir)/`echo $* | sed 's,.*/,,'`.gmo \
++	$(AM_V_GEN) file=$(srcdir)/`echo $* | sed 's,.*/,,'`.gmo \
+ 	  && rm -f $$file && $(GMSGFMT) $(MSGFMT_OPTS) -o $$file $<
+ 
+ .po.cat:
+@@ -93,7 +93,8 @@
+ all-no:
+ 
+ $(srcdir)/$(GETTEXT_PACKAGE).pot: $(POTFILES)
+-	$(XGETTEXT) --default-domain=$(GETTEXT_PACKAGE) --directory=$(top_srcdir) \
++	$(XGETTEXT) --default-domain=$(GETTEXT_PACKAGE) \
++	  --msgid-bugs-address='http://bugzilla.gnome.org/enter_bug.cgi?product=glib&keywords=I18N+L10N&component=general' \
+ 	  --add-comments --keyword=_ --keyword=N_ \
+ 	  --keyword=C_:1c,2 \
+ 	  --keyword=NC_:1c,2 \
+@@ -119,7 +120,7 @@
+           --flag=g_snprintf:3:c-format \
+           --flag=g_scanner_error:2:c-format \
+           --flag=g_scanner_warn:2:c-format \
+-	  --files-from=$(srcdir)/POTFILES.in \
++	  $(POTFILES) \
+ 	&& test ! -f $(GETTEXT_PACKAGE).po \
+ 	   || ( rm -f $(srcdir)/$(GETTEXT_PACKAGE).pot \
+ 		&& mv $(GETTEXT_PACKAGE).po $(srcdir)/$(GETTEXT_PACKAGE).pot )
+@@ -129,12 +130,8 @@
+ install-data: install-data-@USE_NLS@
+ install-data-no: all
+ install-data-yes: all
+-	if test -r "$(MKINSTALLDIRS)"; then \
+-	  $(MKINSTALLDIRS) $(DESTDIR)$(datadir); \
+-	else \
+-	  $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(datadir); \
+-	fi
+-	@catalogs='$(CATALOGS)'; \
++	$(MKINSTALLDIRS) $(DESTDIR)$(datadir); \
++	catalogs='$(CATALOGS)'; \
+ 	for cat in $$catalogs; do \
+ 	  cat=`basename $$cat`; \
+ 	  case "$$cat" in \
+@@ -143,11 +140,7 @@
+ 	  esac; \
+ 	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+ 	  dir=$(DESTDIR)$$destdir/$$lang/LC_MESSAGES; \
+-	  if test -r "$(MKINSTALLDIRS)"; then \
+-	    $(MKINSTALLDIRS) $$dir; \
+-	  else \
+-	    $(SHELL) $(top_srcdir)/mkinstalldirs $$dir; \
+-	  fi; \
++	  $(MKINSTALLDIRS) $$dir; \
+ 	  if test -r $$cat; then \
+ 	    $(INSTALL_DATA) $$cat $$dir/$(GETTEXT_PACKAGE)$(INSTOBJEXT); \
+ 	    echo "installing $$cat as $$dir/$(GETTEXT_PACKAGE)$(INSTOBJEXT)"; \
+@@ -171,11 +164,7 @@
+ 	  fi; \
+ 	done
+ 	if test "$(PACKAGE)" = "glib"; then \
+-	  if test -r "$(MKINSTALLDIRS)"; then \
+-	    $(MKINSTALLDIRS) $(DESTDIR)$(gettextsrcdir); \
+-	  else \
+-	    $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(gettextsrcdir); \
+-	  fi; \
++	  $(MKINSTALLDIRS) $(DESTDIR)$(gettextsrcdir); \
+ 	  $(INSTALL_DATA) $(srcdir)/Makefile.in.in \
+ 			  $(DESTDIR)$(gettextsrcdir)/Makefile.in.in; \
+ 	else \
+diff -Naur pnmixer-0.5.1/README.md pnmixer-fluxer/README.md
+--- pnmixer-0.5.1/README.md	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/README.md	2014-01-10 00:31:41.412191046 +0100
+@@ -3,10 +3,12 @@
+ 
+ PNMixer is a simple mixer application designed to run in your system
+ tray.  It integrates nicely into desktop environments that don't have
+-a panel and therefore can't run a mixer applet.  In particular it's
+-been used quite a lot with tint2.
++a panel that supports applets, and therefore can't run a mixer applet.
++In particular it's been used quite a lot with fbpanel and tint2, but
++should run fine in any system tray.
+ 
+-PNMixer is a fork of [OBMixer](http://jpegserv.com/?page_id=282) with a number of additions.  These include:
++PNMixer is a fork of [OBMixer](http://jpegserv.com/?page_id=282) with
++a number of additions.  These include: 
+ 
+ - Volume adjustment with the scroll wheel
+ - Select which ALSA device and channel to use
+diff -Naur pnmixer-0.5.1/src/alsa.c pnmixer-fluxer/src/alsa.c
+--- pnmixer-0.5.1/src/alsa.c	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/alsa.c	2014-01-10 00:31:41.414190906 +0100
+@@ -14,6 +14,7 @@
+ 
+ #include "alsa.h"
+ #include "main.h"
++#include "notify.h"
+ #include "prefs.h"
+ 
+ #include <math.h>
+@@ -133,8 +134,16 @@
+ }
+ 
+ static int alsa_cb(snd_mixer_elem_t *e, unsigned int mask) {
++  int muted;
+   get_current_levels();
+-  get_mute_state();
++  muted = get_mute_state(TRUE);
++  if (enable_noti && external_noti) {
++    int vol = getvol();
++    if (muted)
++      do_notify(vol,FALSE);
++    else
++      do_notify(vol,TRUE);
++  }
+   return 0;
+ }
+ 
+@@ -278,7 +287,7 @@
+   return rint(val/(double)range * 100);
+ }
+ 
+-void setvol(int vol) {
++void setvol(int vol, gboolean notify) {
+   long pmin = 0, pmax = 0, target, current;
+   int cur_perc;
+   snd_mixer_selem_get_playback_volume_range(elem, &pmin, &pmax);
+@@ -310,13 +319,22 @@
+ 
+   snd_mixer_selem_set_playback_volume_all(elem, target);
+   snd_mixer_selem_set_playback_volume_all(elem, target);
++
++  if (enable_noti && notify && cur_perc != vol)
++    do_notify(vol,FALSE);
+ }
+ 
+-void setmute() {
+-  if (ismuted())
++void setmute(gboolean notify) {
++  if (ismuted()) {
+     snd_mixer_selem_set_playback_switch_all(elem, 0);
+-  else
++    if (enable_noti && notify)
++      do_notify(getvol(),TRUE);
++  }
++  else {
+     snd_mixer_selem_set_playback_switch_all(elem, 1);
++    if (enable_noti && notify)
++      do_notify(getvol(),FALSE);
++  }
+ }
+ 
+ int ismuted() {
+diff -Naur pnmixer-0.5.1/src/alsa.h pnmixer-fluxer/src/alsa.h
+--- pnmixer-0.5.1/src/alsa.h	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/alsa.h	2014-01-10 00:31:41.414190906 +0100
+@@ -20,8 +20,8 @@
+ };
+ GSList* cards;
+ 
+-void setvol(int vol);
+-void setmute();
++void setvol(int vol,gboolean notify);
++void setmute(gboolean notify);
+ int getvol();
+ int ismuted();
+ void alsa_init();
+diff -Naur pnmixer-0.5.1/src/callbacks.c pnmixer-fluxer/src/callbacks.c
+--- pnmixer-0.5.1/src/callbacks.c	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/callbacks.c	2014-01-10 00:31:41.414190906 +0100
+@@ -23,10 +23,12 @@
+ int volume;
+ extern int volume;
+ 
+-void on_mute_clicked(GtkButton *button,
+-		     gpointer  user_data) {
+-  setmute();
+-  get_mute_state();
++gboolean on_mute_clicked(GtkButton *button,
++			 GdkEvent  *event,
++			 gpointer  user_data) {
++  setmute(popup_noti);
++  get_mute_state(FALSE);
++  return TRUE;
+ }
+ 
+ 
+@@ -37,10 +39,10 @@
+   int volumeset;
+   volumeset = (int)gtk_adjustment_get_value(vol_adjustment);
+   
+-  setvol(volumeset);
+-  if (get_mute_state() == 0) {
+-    setmute();
+-    get_mute_state();
++  setvol(volumeset,popup_noti);
++  if (get_mute_state(TRUE) == 0) {
++    setmute(popup_noti);
++    get_mute_state(TRUE);
+   }
+   return FALSE;
+ }
+@@ -48,13 +50,13 @@
+ gboolean on_scroll(GtkWidget *widget, GdkEventScroll *event) {
+   int cv = getvol();
+   if (event->direction == GDK_SCROLL_UP)
+-    setvol(cv+scroll_step);
++    setvol(cv+scroll_step,mouse_noti);
+   else 
+-    setvol(cv-scroll_step);
++    setvol(cv-scroll_step,mouse_noti);
+ 
+-  if (get_mute_state() == 0) {
+-    setmute();
+-    get_mute_state();
++  if (get_mute_state(TRUE) == 0) {
++    setmute(mouse_noti);
++    get_mute_state(TRUE);
+   }
+ 
+   // this will set the slider value
+@@ -198,6 +200,29 @@
+   g_key_file_set_integer(keyFile,"PNMixer","VolDownKey",keycode);
+   g_key_file_set_integer(keyFile,"PNMixer","VolDownMods",mods);
+ 
++#ifdef HAVE_LIBN
++  // notification prefs
++  GtkWidget* nc = data->enable_noti_check;
++  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nc));
++  g_key_file_set_boolean(keyFile,"PNMixer","EnableNotifications",active);
++  
++  nc = data->hotkey_noti_check;
++  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nc));
++  g_key_file_set_boolean(keyFile,"PNMixer","HotkeyNotifications",active);
++
++  nc = data->mouse_noti_check;
++  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nc));
++  g_key_file_set_boolean(keyFile,"PNMixer","MouseNotifications",active);
++
++  nc = data->popup_noti_check;
++  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nc));
++  g_key_file_set_boolean(keyFile,"PNMixer","PopupNotifications",active);
++
++  nc = data->external_noti_check;
++  active = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(nc));
++  g_key_file_set_boolean(keyFile,"PNMixer","ExternalNotifications",active);
++#endif
++
+   gchar* filename = g_strconcat(g_get_user_config_dir(), "/pnmixer/config", NULL);
+   gchar* filedata = g_key_file_to_data(keyFile,&len,NULL);
+   g_file_set_contents(filename,filedata,len,&err);
+diff -Naur pnmixer-0.5.1/src/callbacks.h pnmixer-fluxer/src/callbacks.h
+--- pnmixer-0.5.1/src/callbacks.h	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/callbacks.h	2014-01-10 00:31:41.415190836 +0100
+@@ -15,9 +15,9 @@
+ #include <gtk/gtk.h>
+ 
+ 
+-void
+-on_mute_clicked                (GtkButton       *button,
+-				gpointer         user_data);
++gboolean on_mute_clicked(GtkButton *button,
++			 GdkEvent  *event,
++			 gpointer  user_data);
+ 
+ 
+ gboolean 
+diff -Naur pnmixer-0.5.1/src/hotkeys.c pnmixer-fluxer/src/hotkeys.c
+--- pnmixer-0.5.1/src/hotkeys.c	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/hotkeys.c	2014-01-10 00:31:41.415190836 +0100
+@@ -10,8 +10,10 @@
+ 
+ #include "support.h"
+ #include "main.h"
++#include "prefs.h"
+ #include "alsa.h"
+ #include <gdk/gdkx.h>
++#include <X11/XKBlib.h>
+ 
+ #ifdef HAVE_CONFIG_H
+ #  include <config.h>
+@@ -41,23 +43,21 @@
+     state = ((XKeyEvent *)xevent)->state;
+ 
+     if (key == volMuteKey && state == volMuteMods) {
+-      setmute();
+-      get_mute_state();
++      setmute(enable_noti&&hotkey_noti);
++      get_mute_state(TRUE);
+       return GDK_FILTER_CONTINUE;
+     } else {
+       int cv = getvol();
+       if (key == volUpKey && state == volUpMods) {
+-	setvol(cv+volStep);
++	setvol(cv+volStep,enable_noti&&hotkey_noti);
+       }
+       else if (key == volDownKey && state == volDownMods) {
+-	setvol(cv-volStep);
++	setvol(cv-volStep,enable_noti&&hotkey_noti);
+       } 
+       // just ignore unknown hotkeys
+ 
+-      if (get_mute_state() == 0) {
+-	setmute();
+-	get_mute_state();
+-      }
++      if (get_mute_state(TRUE) == 0)
++	setmute(enable_noti&&hotkey_noti);
+ 
+       // this will set the slider value
+       get_current_levels();
+@@ -130,9 +130,9 @@
+   if (muteSymStr) g_free(muteSymStr);
+   if (upSymStr)   g_free(upSymStr);
+   if (downSymStr) g_free(downSymStr);
+-  muteSymStr = gtk_accelerator_name(XKeycodeToKeysym(GDK_DISPLAY(), volMuteKey, 0),volMuteMods);
+-  upSymStr = gtk_accelerator_name(XKeycodeToKeysym(GDK_DISPLAY(),volUpKey,0),volUpMods);
+-  downSymStr = gtk_accelerator_name(XKeycodeToKeysym(GDK_DISPLAY(), volDownKey, 0),volDownMods);
++  muteSymStr = gtk_accelerator_name(XkbKeycodeToKeysym(GDK_DISPLAY(), volMuteKey, 0, 0),volMuteMods);
++  upSymStr = gtk_accelerator_name(XkbKeycodeToKeysym(GDK_DISPLAY(),volUpKey,0, 0),volUpMods);
++  downSymStr = gtk_accelerator_name(XkbKeycodeToKeysym(GDK_DISPLAY(), volDownKey, 0, 0),volDownMods);
+ 
+   XErrorHandler old_hdlr = XSetErrorHandler(errhdl);
+   if (volMuteKey > 0) {
+diff -Naur pnmixer-0.5.1/src/main.c pnmixer-fluxer/src/main.c
+--- pnmixer-0.5.1/src/main.c	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/main.c	2014-01-10 00:31:41.415190836 +0100
+@@ -24,6 +24,7 @@
+ #include "alsa.h"
+ #include "callbacks.h"
+ #include "main.h"
++#include "notify.h"
+ #include "support.h"
+ #include "hotkeys.h"
+ #include "prefs.h"
+@@ -75,55 +76,62 @@
+     fprintf(stderr,_("Warning: Connection to sound system failed, you probably need to restart pnmixer\n"));
+ }
+ 
+-void on_mixer(void) {
++static gboolean idle_report_error(gpointer data) {
++  report_error("Error running command:\n%s",data);
++  g_free(data);
++  return FALSE;
++}
++
++static void mix_hdlr(int sig, siginfo_t *siginfo, void *context) {
++  int stat;
++  signed char exit_stat;
++  switch(sig) {
++  case SIGCHLD:
++    waitpid(siginfo->si_pid,&stat,0);
++    exit_stat = (signed char)(WEXITSTATUS(stat));
++    if (exit_stat) 
++      g_idle_add(idle_report_error, g_strdup(strerror(exit_stat)));
++    break;
++  default:
++    g_warning("Unexpected signal received: %i\n",sig);
++  }
++}
++
++void run_command(gchar* cmd) {
+   pid_t pid;
+-  int status;
+-  gchar* cmd = get_vol_command();
+ 
+   if (cmd) {
+-    pid = fork();
++    struct sigaction act;
++    act.sa_sigaction = &mix_hdlr;
++    act.sa_flags = SA_SIGINFO;
++
++    if (sigaction(SIGCHLD, &act, NULL) < 0) {
++      report_error(_("Unable to run command: sigaction failed: %s"),strerror(errno));
++      return;
++    }
+ 
+-    if (pid == 0) {
++    pid = fork();
++    
++    if (pid < 0)
++      report_error(_("Unable to run command: fork failed"));
++    else if (pid == 0) { // child command, try to exec
+       if (execlp (cmd, cmd, NULL))
+ 	_exit(errno);
+       _exit (EXIT_FAILURE);
+     }
+-    else if (pid < 0)
+-      status = -1;
+-    else {
+-      /* this is a bit hacky, but seems the best way to
+-	 figure out launching the command failed.  this
+-	 is basically a waitpid with a timeout (.5 seconds)
+-	 to give time for the command to try and start.
+-	 if it hasn't failed within 0.5 seconds we assume
+-	 it started okay. */
+-      int wr;
+-      int tl = 5;
+-      do {
+-	wr = waitpid (pid, &status, WNOHANG);
+-	if (wr && wr != pid) {
+-	  status = -1;
+-	  break;
+-	}
+-	usleep(100000);
+-	tl--;
+-      }	while(!wr && tl);
+-      if (!tl)
+-	status = 0;
+-    }
++  }
+ 
+-    if (status) {
+-      if (status == -1)
+-	report_error(_("An unknown error occured trying to launch your volume control command"));
+-      else 
+-	report_error(_("Unable to launch volume command \"%s\".\n\n%s"),cmd,strerror(WEXITSTATUS(status)));
+-    }
++  gtk_widget_hide (popup_window);
++}
+ 
++void on_mixer(void) {
++  gchar* cmd = get_vol_command();
++  if (cmd) {
++    run_command(cmd);
+     g_free(cmd);
+-  } else 
++  }
++  else
+     report_error(_("\nNo mixer application was found on your system.\n\nPlease open preferences and set the command you want to run for volume control."));
+-
+-  gtk_widget_hide (popup_window);
+ }
+ 
+ void tray_icon_button(GtkStatusIcon *status_icon, GdkEventButton *event, gpointer user_data) {
+@@ -133,26 +141,27 @@
+       act = g_key_file_get_integer(keyFile,"PNMixer","MiddleClickAction",NULL);
+     switch (act) {
+     case 0: // mute/unmute
+-      setmute();
+-      get_mute_state();
++      setmute(mouse_noti);
++      get_mute_state(TRUE);
+       break;
+     case 1:
+       do_prefs();
+       break;
+-    case 2:
++    case 2: {
+       on_mixer();
+       break;
++    }
+     case 3:
+       if (g_key_file_has_key(keyFile,"PNMixer","CustomCommand",NULL)) {
+-	gchar* cc = g_key_file_get_string(keyFile,"PNMixer","CustomCommand",NULL);
+-	if (cc != NULL) {
+-	  gchar* cmd = g_strconcat(cc, "&", NULL);
+-	  if (system(cmd)) 
+-	    report_error(_("Couldn't execute custom command: \"%s\"\n"),cc);
++	gchar* cmd = g_key_file_get_string(keyFile,"PNMixer","CustomCommand",NULL);
++	if (cmd) {
++	  run_command(cmd);
+ 	  g_free(cmd);
+-	  g_free(cc);
+-	}
++	}  else // This shouldn't ever happen, so let's just write to console
++	  g_warning("KeyFile has CustomCommand key, but get_string returned NULL");
+       }
++      else
++	report_error(_("You have not specified a custom command to run, please specify one in preferences."));
+       break;
+     default: {} // nothing
+     }
+@@ -247,7 +256,7 @@
+   alsa_init();
+   update_status_icons();
+   update_vol_text();
+-  get_mute_state();
++  get_mute_state(TRUE);
+ }
+ 
+ void create_about (void) {
+@@ -318,7 +327,7 @@
+ 
+ static int draw_offset = 0;
+ static GdkPixbuf *icon_copy = NULL;
+-int get_mute_state() {
++int get_mute_state(gboolean set_check) {
+   int muted;
+   int tmpvol = getvol();
+   char tooltip [60];
+@@ -327,7 +336,8 @@
+ 
+   if( muted == 1 ) {
+     GdkPixbuf *icon;
+-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mute_check), FALSE);
++    if (set_check)
++      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mute_check), FALSE);
+     if (tmpvol < 33) 
+       icon = status_icons[1];
+     else if (tmpvol < 66)
+@@ -346,7 +356,8 @@
+     } else
+       gtk_status_icon_set_from_pixbuf(tray_icon, icon);
+   } else {
+-    gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mute_check), TRUE);
++    if (set_check)
++      gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (mute_check), TRUE);
+     gtk_status_icon_set_from_pixbuf(tray_icon, status_icons[0]);
+     sprintf(tooltip, _("Volume: %d %%\nMuted"), tmpvol);
+   }
+@@ -411,7 +422,7 @@
+   }
+   draw_offset = g_key_file_get_integer(keyFile,"PNMixer","VolMeterPos",NULL);
+   if (tray_icon)
+-    get_mute_state();
++    get_mute_state(TRUE);
+   for(i = 0;i < 4;i++)
+     if(old_icons[i]) 
+       g_object_unref(old_icons[i]);
+@@ -482,6 +493,7 @@
+   load_prefs();
+   cards = NULL; // so we don't try and free on first run
+   alsa_init();
++  init_libnotify();
+   create_popups();
+   add_filter();
+   apply_prefs(0);
+@@ -494,5 +506,6 @@
+ 
+   gtk_main ();
+   alsa_close();
++  uninit_libnotify();
+   return 0;
+ }
+diff -Naur pnmixer-0.5.1/src/main.h pnmixer-fluxer/src/main.h
+--- pnmixer-0.5.1/src/main.h	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/main.h	2014-01-10 00:31:41.415190836 +0100
+@@ -32,7 +32,7 @@
+ void report_error(char*,...);
+ void warn_sound_conn_lost(void);
+ void get_current_levels();
+-int get_mute_state();
++int get_mute_state(gboolean);
+ int update_mute_state();
+ void hide_me();
+ gint tray_icon_size();
+diff -Naur pnmixer-0.5.1/src/Makefile.am pnmixer-fluxer/src/Makefile.am
+--- pnmixer-0.5.1/src/Makefile.am	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/Makefile.am	2014-01-10 00:31:41.414190906 +0100
+@@ -2,9 +2,10 @@
+ 
+ AM_CFLAGS = @AM_CFLAGS@
+ 
+-INCLUDES = \
++AM_CPPFLAGS = \
+ 	-DPACKAGE_DATA_DIR=\""$(datadir)"\" \
+ 	-DPACKAGE_LOCALE_DIR=\""$(prefix)/$(DATADIRNAME)/locale"\" \
++	@LIBNOTIFY_CFLAGS@ \
+ 	@PACKAGE_CFLAGS@
+ 
+ bin_PROGRAMS = pnmixer
+@@ -13,9 +14,10 @@
+ 	support.c support.h \
+ 	main.c main.h \
+ 	hotkeys.c hotkeys.h \
++	notify.c notify.h \
+ 	alsa.c alsa.h \
+ 	callbacks.c callbacks.h \
+ 	prefs.c prefs.h
+ 
+-pnmixer_LDADD = @PACKAGE_LIBS@ $(INTLLIBS)
++pnmixer_LDADD = @PACKAGE_LIBS@ @LIBNOTIFY_LIBS@ $(INTLLIBS)
+ 
+diff -Naur pnmixer-0.5.1/src/notify.c pnmixer-fluxer/src/notify.c
+--- pnmixer-0.5.1/src/notify.c	1970-01-01 01:00:00.000000000 +0100
++++ pnmixer-fluxer/src/notify.c	2014-01-10 00:31:41.415190836 +0100
+@@ -0,0 +1,91 @@
++/* prefs.h
++ * PNmixer is written by Nick Lanham, a fork of OBmixer
++ * which was programmed by Lee Ferrett, derived 
++ * from the program "AbsVolume" by Paul Sherman
++ * This program is free software; you can redistribute 
++ * it and/or modify it under the terms of the GNU General 
++ * Public License v3. source code is available at 
++ * <http://github.com/nicklan/pnmixer>
++ */
++
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#include "main.h"
++#include "notify.h"
++#include "support.h"
++
++#ifdef HAVE_LIBN
++
++// code for when we have libnotify
++
++
++// need to report error in idle moment since we can't report_error before gtk_main is called
++static gboolean idle_report_error(gpointer data) {
++  report_error("Unable to initialize libnotify.  Notifications will not be sent");
++  return FALSE;
++}
++
++static NotifyNotification* notification = NULL;
++
++void init_libnotify() {
++  if (!notify_is_initted())
++    if (!notify_init(PACKAGE))
++      g_idle_add(idle_report_error, NULL);
++}
++
++void uninit_libnotify() {
++  if (notify_is_initted())
++    notify_uninit();
++}
++
++void do_notify(gint level,gboolean muted) {
++  gchar  *summary, *icon;
++  GError *error = NULL;
++
++  if (level < 0) level = 0;
++  if (level > 100) level = 100;
++
++  if (muted)
++    summary = g_strdup("Volume muted");
++  else 
++    summary = g_strdup_printf("Volume: %d%%\n",level);
++
++  if (muted)
++    icon = "audio-volume-muted";
++  else if (level < 33) 
++    icon = "audio-volume-low";
++  else if (level < 66)
++    icon = "audio-volume-medium";
++  else 
++    icon = "audio-volume-high";
++  
++  if (notification == NULL)
++#if NOTIFY_CHECK_VERSION > (0, 6, 9)
++      notification = notify_notification_new(summary,NULL,icon);
++#else
++      notification = notify_notification_new(summary,NULL,icon,NULL);
++#endif
++  else
++    notify_notification_update(notification,summary,NULL,icon);
++
++  notify_notification_set_hint_int32(notification,"value",level);
++  notify_notification_set_hint_string(notification,"x-canonical-private-synchronous","");
++  
++  if (!notify_notification_show(notification,&error)) {
++    g_warning("Could not send notification: %s",error->message);
++    report_error(_("Could not send notification: %s\n"),error->message);
++    g_error_free(error);
++  }
++}
++
++#else
++
++// without libnotify everything is a no-op
++void init_libnotify() {}
++void uninit_libnotify() {}
++void do_notify(gint level,gboolean muted) {}
++
++#endif // HAVE_LIBN
+diff -Naur pnmixer-0.5.1/src/notify.h pnmixer-fluxer/src/notify.h
+--- pnmixer-0.5.1/src/notify.h	1970-01-01 01:00:00.000000000 +0100
++++ pnmixer-fluxer/src/notify.h	2014-01-10 00:31:41.415190836 +0100
+@@ -0,0 +1,28 @@
++/* prefs.h
++ * PNmixer is written by Nick Lanham, a fork of OBmixer
++ * which was programmed by Lee Ferrett, derived 
++ * from the program "AbsVolume" by Paul Sherman
++ * This program is free software; you can redistribute 
++ * it and/or modify it under the terms of the GNU General 
++ * Public License v3. source code is available at 
++ * <http://github.com/nicklan/pnmixer>
++ */
++
++
++#ifdef HAVE_CONFIG_H
++#include <config.h>
++#endif
++
++#ifndef NOTIFY_H_
++#define NOTIFY_H_
++
++#ifdef HAVE_LIBN
++// only include if we have libnotify
++#include <libnotify/notify.h>
++#endif // HAVE_LIBN
++
++void init_libnotify();
++void uninit_libnotify();
++void do_notify(gint level,gboolean muted);
++
++#endif // PREFS_H_
+diff -Naur pnmixer-0.5.1/src/prefs.c pnmixer-fluxer/src/prefs.c
+--- pnmixer-0.5.1/src/prefs.c	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/prefs.c	2014-01-10 00:31:41.416190765 +0100
+@@ -23,6 +23,7 @@
+ #include <glib/gstdio.h>
+ #include <gdk/gdkkeysyms.h>
+ #include <gdk/gdkx.h>
++#include <X11/XKBlib.h>
+ 
+ #include "alsa.h"
+ #include "callbacks.h"
+@@ -51,7 +52,7 @@
+   GKeyFile      *index_file;
+   const gchar   *file;
+   gchar         *index_filename;
+-  const gchar   *theme_name;
++  gchar         *theme_name;
+   gchar         *active_theme_name;
+   gint          i,j,n,act;
+   gboolean      is_dup;
+@@ -65,10 +66,7 @@
+   theme = gtk_icon_theme_get_default();
+   index_file = g_key_file_new();
+ 
+-  if (g_key_file_has_key(keyFile,"PNMixer","IconTheme",NULL)) 
+-    active_theme_name = g_key_file_get_string(keyFile,"PNMixer","IconTheme",NULL);
+-  else 
+-    active_theme_name = NULL;
++  active_theme_name = g_key_file_get_string(keyFile,"PNMixer","IconTheme",NULL);
+   act = 1;
+   
+ 
+@@ -104,12 +102,15 @@
+ 	if (g_key_file_has_key(index_file,"Icon Theme","Directories",NULL) &&
+ 	    !g_key_file_get_boolean(index_file,"Icon Theme","Hidden",NULL)) {
+ 	  theme_name = g_key_file_get_string (index_file, "Icon Theme","Name",NULL);
+-	  gtk_list_store_append(store, &iter);
+-	  gtk_list_store_set(store, &iter, 0, _(theme_name), -1);
+-	  if ((active_theme_name != NULL) && g_strcmp0(theme_name,active_theme_name) == 0)
+-	    gtk_combo_box_set_active (GTK_COMBO_BOX (icon_theme_combo), act);
+-	  else
+-	    act++;
++	  if (theme_name) {
++	    gtk_list_store_append(store, &iter);
++	    gtk_list_store_set(store, &iter, 0, _(theme_name), -1);
++	    if ((active_theme_name != NULL) && g_strcmp0(theme_name,active_theme_name) == 0)
++	      gtk_combo_box_set_active (GTK_COMBO_BOX (icon_theme_combo), act);
++	    else
++	      act++;
++	    g_free(theme_name);
++	  }
+ 	}
+       }
+       g_free(index_filename);
+@@ -124,7 +125,9 @@
+ 
+ gint* get_vol_meter_colors() {
+   gsize numcols = 3;
+-  gint* vol_meter_clrs = g_key_file_get_integer_list(keyFile,"PNMixer","VolMeterColor",&numcols,NULL);
++  gint* vol_meter_clrs = NULL;
++  if (g_key_file_has_key(keyFile,"PNMixer","VolMeterColor",NULL))
++    vol_meter_clrs = g_key_file_get_integer_list(keyFile,"PNMixer","VolMeterColor",&numcols,NULL);
+   if (!vol_meter_clrs || (numcols != 3)) {
+     if (vol_meter_clrs) { // corrupt value somehow
+       report_error(_("Invalid color for volume meter in config file.  Reverting to default."));
+@@ -183,35 +186,61 @@
+   g_free(filename);
+ }
+ 
++static gboolean g_key_file_get_boolean_with_default(GKeyFile *keyFile,
++						    gchar *group,
++						    gchar *key,
++						    gboolean def) {
++  gboolean ret;
++  GError *error = NULL;
++  ret = g_key_file_get_boolean(keyFile,group,key,&error);
++  if (error) {
++    g_error_free(error);
++    return def;
++  }
++  return ret;
++}
++
++static gint g_key_file_get_integer_with_default(GKeyFile *keyFile,
++						gchar *group,
++						gchar *key,
++						gint def) {
++  gboolean ret;
++  GError *error = NULL;
++  ret = g_key_file_get_integer(keyFile,group,key,&error);
++  if (error) {
++    g_error_free(error);
++    return def;
++  }
++  return ret;
++}
++
++static void set_notifications_booleans() {
++  enable_noti   = g_key_file_get_boolean_with_default(keyFile,"PNMixer","EnableNotifications",FALSE);
++  hotkey_noti   = g_key_file_get_boolean_with_default(keyFile,"PNMixer","HotkeyNotifications",TRUE);
++  mouse_noti    = g_key_file_get_boolean_with_default(keyFile,"PNMixer","MouseNotifications",TRUE);
++  popup_noti    = g_key_file_get_boolean_with_default(keyFile,"PNMixer","PopupNotifications",FALSE);
++  external_noti = g_key_file_get_boolean_with_default(keyFile,"PNMixer","ExternalNotifications",FALSE);
++}
++
+ void apply_prefs(gint alsa_change) {
+   gint* vol_meter_clrs;
+-  scroll_step = 1;
+-  if (g_key_file_has_key(keyFile,"PNMixer","MouseScrollStep",NULL))
+-    scroll_step = g_key_file_get_integer(keyFile,"PNMixer","MouseScrollStep",NULL);
++  scroll_step = g_key_file_get_integer_with_default(keyFile,"PNMixer","MouseScrollStep",1);
+ 
+-  if (g_key_file_get_boolean(keyFile,"PNMixer","EnableHotKeys",NULL)) {
++  if (g_key_file_get_boolean_with_default(keyFile,"PNMixer","EnableHotKeys",FALSE)) {
+     gint mk,uk,dk,mm,um,dm,hstep;
+-    mk = uk = dk = -1;
+-    mm = um = dm = 0;
+-    hstep = 1;
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolMuteKey",NULL))
+-      mk = g_key_file_get_integer(keyFile,"PNMixer", "VolMuteKey", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolUpKey",NULL))
+-      uk = g_key_file_get_integer(keyFile,"PNMixer", "VolUpKey", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolDownKey",NULL))
+-      dk = g_key_file_get_integer(keyFile,"PNMixer", "VolDownKey", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolMuteMods",NULL))
+-      mm = g_key_file_get_integer(keyFile,"PNMixer", "VolMuteMods", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolUpMods",NULL))
+-      um = g_key_file_get_integer(keyFile,"PNMixer", "VolUpMods", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolDownMods",NULL))
+-      dm = g_key_file_get_integer(keyFile,"PNMixer", "VolDownMods", NULL);
+-    if (g_key_file_has_key(keyFile,"PNMixer","HotkeyVolumeStep",NULL))
+-      hstep = g_key_file_get_integer(keyFile,"PNMixer", "HotkeyVolumeStep", NULL);
++    mk = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolMuteKey", -1);
++    uk = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolUpKey", -1);
++    dk = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolDownKey", -1);
++    mm = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolMuteMods", 0);
++    um = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolUpMods", 0);
++    dm = g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolDownMods", 0);
++    hstep = g_key_file_get_integer_with_default(keyFile,"PNMixer", "HotkeyVolumeStep", 1);
+     grab_keys(mk,uk,dk,mm,um,dm,hstep);
+   } else 
+     grab_keys(-1,-1,-1,0,0,0,1); // will actually just ungrab everything
+   
++  set_notifications_booleans();
++
+   get_icon_theme();
+   if (alsa_change)
+     alsa_init();
+@@ -336,6 +365,16 @@
+   gtk_widget_set_sensitive(data->custom_entry,cust);
+ }
+ 
++void on_notification_toggle(GtkToggleButton* button, PrefsData* data) {
++#ifdef HAVE_LIBN
++  gboolean active  = gtk_toggle_button_get_active (button);
++  gtk_widget_set_sensitive(data->hotkey_noti_check,active);
++  gtk_widget_set_sensitive(data->mouse_noti_check,active);
++  gtk_widget_set_sensitive(data->popup_noti_check,active);
++  gtk_widget_set_sensitive(data->external_noti_check,active);
++#endif
++}
++
+ static const char* vol_cmds[] = {"pavucontrol",
+ 				 "gnome-alsamixer",
+ 				 "xfce4-mixer",
+@@ -452,7 +491,7 @@
+   int keysym;
+   gchar *key_text;
+   if (code < 0) return;
+-  keysym = XKeycodeToKeysym(GDK_DISPLAY(), code, 0);
++  keysym = XkbKeycodeToKeysym(GDK_DISPLAY(), code, 0, 0);
+   key_text = gtk_accelerator_name (keysym, mods);
+   gtk_label_set_text(GTK_LABEL(label),key_text);
+   g_free(key_text);
+@@ -464,7 +503,7 @@
+ 
+   GdkColor   vol_meter_color_button_color;
+   gint       *vol_meter_clrs;
+-  gchar      *vol_cmd,*uifile;
++  gchar      *vol_cmd,*uifile,*custcmd;
+ 
+   PrefsData  *prefs_data;
+ 
+@@ -512,26 +551,33 @@
+   GO(mute_hotkey_label);
+   GO(up_hotkey_label);
+   GO(down_hotkey_label);
++#ifdef HAVE_LIBN
++  GO(enable_noti_check);
++  GO(hotkey_noti_check);
++  GO(mouse_noti_check);
++  GO(popup_noti_check);
++  GO(external_noti_check);
++#endif
+ #undef GO
+ 
+   // vol text display
+   gtk_toggle_button_set_active
+     (GTK_TOGGLE_BUTTON(prefs_data->vol_text_check),
+-     g_key_file_get_boolean(keyFile,"PNMixer","DisplayTextVolume",NULL));
++     g_key_file_get_boolean_with_default(keyFile,"PNMixer","DisplayTextVolume",FALSE));
+   gtk_combo_box_set_active
+     (GTK_COMBO_BOX (prefs_data->vol_pos_combo),
+-     g_key_file_get_integer(keyFile,"PNMixer","TextVolumePosition",NULL));
++     g_key_file_get_integer_with_default(keyFile,"PNMixer","TextVolumePosition",0));
+ 
+   // volume meter
+   gtk_toggle_button_set_active
+     (GTK_TOGGLE_BUTTON(prefs_data->draw_vol_check),
+-     g_key_file_get_boolean(keyFile,"PNMixer","DrawVolMeter",NULL));
++     g_key_file_get_boolean_with_default(keyFile,"PNMixer","DrawVolMeter",FALSE));
+   gtk_adjustment_set_upper
+     (GTK_ADJUSTMENT(gtk_builder_get_object(builder,"vol_meter_pos_adjustment")),
+      tray_icon_size()-10);
+   gtk_spin_button_set_value
+     (GTK_SPIN_BUTTON(prefs_data->vol_meter_pos_spin),
+-     g_key_file_get_integer(keyFile,"PNMixer","VolMeterPos",NULL));
++     g_key_file_get_integer_with_default(keyFile,"PNMixer","VolMeterPos",0));
+ 
+   // load available icon themes into icon theme combo box.  also sets active
+   load_icon_themes(prefs_data->icon_theme_combo,
+@@ -560,19 +606,20 @@
+ 
+   // mouse scroll step
+   gtk_spin_button_set_value(GTK_SPIN_BUTTON(prefs_data->scroll_step_spin),
+-			    g_key_file_get_integer(keyFile,"PNMixer","MouseScrollStep",NULL));
++			    g_key_file_get_integer_with_default(keyFile,"PNMixer","MouseScrollStep",1));
+ 
+   //  middle click
+   gtk_combo_box_set_active(GTK_COMBO_BOX(prefs_data->middle_click_combo),
+-			   g_key_file_get_integer(keyFile,"PNMixer","MiddleClickAction",NULL));
++			   g_key_file_get_integer_with_default(keyFile,"PNMixer","MiddleClickAction",0));
+ 
+   // custom command
+   gtk_entry_set_invisible_char(GTK_ENTRY(prefs_data->custom_entry), 8226);
+-  // MEMORY LEAK
+-  gtk_entry_set_text(GTK_ENTRY(prefs_data->custom_entry),
+-		     g_key_file_get_string(keyFile,"PNMixer","CustomCommand",NULL));
+-
+ 
++  custcmd =  g_key_file_get_string(keyFile,"PNMixer","CustomCommand",NULL);
++  if (custcmd) {
++    gtk_entry_set_text(GTK_ENTRY(prefs_data->custom_entry),custcmd);
++    g_free(custcmd);
++  }
+ 
+   on_vol_text_toggle(GTK_TOGGLE_BUTTON(prefs_data->vol_text_check),
+ 		     prefs_data);
+@@ -584,37 +631,46 @@
+   // hotkeys
+   gtk_toggle_button_set_active
+     (GTK_TOGGLE_BUTTON(prefs_data->enable_hotkeys_check),
+-     g_key_file_get_boolean(keyFile,"PNMixer","EnableHotKeys",NULL));
++     g_key_file_get_boolean_with_default(keyFile,"PNMixer","EnableHotKeys",FALSE));
+   
+   // hotkey step
+-  if (g_key_file_has_key(keyFile,"PNMixer","HotkeyVolumeStep",NULL))
+-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(prefs_data->hotkey_spin),
+-			      g_key_file_get_integer(keyFile,"PNMixer","HotkeyVolumeStep",NULL));
+-  else
+-    gtk_spin_button_set_value(GTK_SPIN_BUTTON(prefs_data->hotkey_spin),1);
++  gtk_spin_button_set_value(GTK_SPIN_BUTTON(prefs_data->hotkey_spin),
++			    g_key_file_get_integer_with_default(keyFile,"PNMixer","HotkeyVolumeStep",1));
+ 
+-  if (g_key_file_has_key(keyFile,"PNMixer","VolMuteKey",NULL)) {
+-    gint mod = 0;
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolMuteMods",NULL)) 
+-      mod = g_key_file_get_integer(keyFile,"PNMixer", "VolMuteMods", NULL);
++
++  if (g_key_file_has_key(keyFile,"PNMixer","VolMuteKey",NULL)) 
+     set_label_for_keycode(prefs_data->mute_hotkey_label,
+-			  g_key_file_get_integer(keyFile,"PNMixer", "VolMuteKey", NULL),mod);
+-  }
+-  if (g_key_file_has_key(keyFile,"PNMixer","VolUpKey",NULL)) {
+-    gint mod = 0;
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolUpMods",NULL)) 
+-      mod = g_key_file_get_integer(keyFile,"PNMixer", "VolUpMods", NULL);
++			  g_key_file_get_integer(keyFile,"PNMixer", "VolMuteKey", NULL),
++			  g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolMuteMods", 0));
++
++  if (g_key_file_has_key(keyFile,"PNMixer","VolUpKey",NULL)) 
+     set_label_for_keycode(prefs_data->up_hotkey_label,
+-			  g_key_file_get_integer(keyFile,"PNMixer", "VolUpKey", NULL),mod);
+-  }
+-  if (g_key_file_has_key(keyFile,"PNMixer","VolDownKey",NULL)) {
+-    gint mod = 0;
+-    if (g_key_file_has_key(keyFile,"PNMixer","VolDownMods",NULL)) 
+-      mod = g_key_file_get_integer(keyFile,"PNMixer", "VolDownMods", NULL);
++			  g_key_file_get_integer(keyFile,"PNMixer", "VolUpKey", NULL),
++			  g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolUpMods", 0));
++  if (g_key_file_has_key(keyFile,"PNMixer","VolDownKey",NULL)) 
+     set_label_for_keycode(prefs_data->down_hotkey_label,
+-			  g_key_file_get_integer(keyFile,"PNMixer", "VolDownKey", NULL),mod);
+-  }
++			  g_key_file_get_integer(keyFile,"PNMixer", "VolDownKey", NULL),
++			  g_key_file_get_integer_with_default(keyFile,"PNMixer", "VolDownMods", 0));
++
+ 
++  gtk_notebook_append_page(GTK_NOTEBOOK(gtk_builder_get_object(builder,"notebook1")),
++#ifdef HAVE_LIBN
++			   GTK_WIDGET(gtk_builder_get_object(builder,"notification_vbox")),			   
++#else
++			   GTK_WIDGET(gtk_builder_get_object(builder,"no_notification_label")),
++#endif
++			   gtk_label_new("Notifications"));
++
++#ifdef HAVE_LIBN
++  // notification checkboxes
++  set_notifications_booleans();
++  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(prefs_data->enable_noti_check),enable_noti);
++  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(prefs_data->hotkey_noti_check),hotkey_noti);
++  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(prefs_data->mouse_noti_check),mouse_noti);
++  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(prefs_data->popup_noti_check),popup_noti);
++  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(prefs_data->external_noti_check),external_noti);
++  on_notification_toggle(GTK_TOGGLE_BUTTON(prefs_data->enable_noti_check),prefs_data);
++#endif
+ 
+   gtk_builder_connect_signals(builder, prefs_data);
+   g_object_unref (G_OBJECT (builder));
+diff -Naur pnmixer-0.5.1/src/prefs.h pnmixer-fluxer/src/prefs.h
+--- pnmixer-0.5.1/src/prefs.h	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/prefs.h	2014-01-10 00:31:41.416190765 +0100
+@@ -19,6 +19,7 @@
+ 
+ GKeyFile* keyFile;
+ int scroll_step;
++gboolean enable_noti,hotkey_noti,mouse_noti,popup_noti,external_noti;
+ GtkIconTheme* icon_theme;
+ 
+ GtkWidget* create_prefs_window (void);
+diff -Naur pnmixer-0.5.1/src/support.h pnmixer-fluxer/src/support.h
+--- pnmixer-0.5.1/src/support.h	2011-12-19 00:34:56.000000000 +0100
++++ pnmixer-fluxer/src/support.h	2014-01-10 00:31:41.416190765 +0100
+@@ -67,6 +67,13 @@
+   GtkWidget* mute_hotkey_label;
+   GtkWidget* up_hotkey_label;
+   GtkWidget* down_hotkey_label;
++#ifdef HAVE_LIBN
++  GtkWidget* enable_noti_check;
++  GtkWidget* hotkey_noti_check;
++  GtkWidget* mouse_noti_check;
++  GtkWidget* popup_noti_check;
++  GtkWidget* external_noti_check;
++#endif
+ } PrefsData;
+ 
+ 
