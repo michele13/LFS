@@ -43,10 +43,9 @@
   <sect2 role="installation">
     <title>Installation of Libcap</title>
 
-    <para>Disable installing the static library and apply upstream fixes:</para>
+    <para>Disable installing the static library:</para>
 
-<screen><userinput remap="pre">sed -i '/install.*STALIBNAME/ s/^/#/' libcap/Makefile
-patch -Np1 -i ../&libcap-uapi-patch;</userinput></screen>
+<screen><userinput remap="pre">sed -i '/install.*STALIBNAME/ s/^/#/' libcap/Makefile</userinput></screen>
 
     <para>Compile the package:</para>
 
@@ -54,9 +53,9 @@ patch -Np1 -i ../&libcap-uapi-patch;</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make RAISE_SETFCAP=no \
-     prefix=/usr \
-     SBINDIR=/sbin install
+<screen><userinput remap="install">make prefix=/usr \
+     SBINDIR=/sbin \
+     RAISE_SETFCAP=no install
 chmod -v 755 /usr/lib/libcap.so</userinput></screen>
 
     <para>The shared library needs to be moved to
