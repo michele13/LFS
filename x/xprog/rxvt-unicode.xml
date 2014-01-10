@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY rxvt-unicode-homepage      "http://software.schmorp.de/pkg/rxvt-unicode.html">
+  <!ENTITY rxvt-unicode-wikipedia     "http://en.wikipedia.org/wiki/Rxvt-unicode">
+  <!ENTITY rxvt-unicode-download-http "http://dist.schmorp.de/rxvt-unicode/Attic/rxvt-unicode-&rxvt-unicode-version;.tar.bz2">
+  <!ENTITY rxvt-unicode-download-ftp  " ">
+  <!ENTITY rxvt-unicode-md5sum        "45ad197eb9b5a840c0f65e3a8131921c">
+  <!ENTITY rxvt-unicode-size          "893 KB">
+  <!ENTITY rxvt-unicode-buildsize     "30 MB">
+  <!ENTITY rxvt-unicode-time          "0.3 SBU">
+]>
+
+<sect1 id="rxvt-unicode" xreflabel="rxvt-unicode-&rxvt-unicode-version;">
+  <?dbhtml filename="rxvt-unicode.html"?>
+
+  <title>rxvt-unicode-&rxvt-unicode-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      rxvt-unicode is a modern, Unicode-aware color xterm replacement that uses
+      significantly less memory than a conventional xterm and many other Unicode
+      supporting terminal emulators. It supports using multiple fonts at the
+      same time, including Xft fonts, and client-server technology to reduce
+      memory consumption when using multiple windows.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&rxvt-unicode-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&rxvt-unicode-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&rxvt-unicode-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&rxvt-unicode-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &rxvt-unicode-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &rxvt-unicode-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &rxvt-unicode-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &rxvt-unicode-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="libx11"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="recommended">
+      <xref linkend="libxft"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="libxrender"/> (for simulated transparency),
+      <xref linkend="gdk-pixbuf"/> (for background images), and
+      <xref linkend="startup-notification"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install rxvt-unicode by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --enable-everything &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-everything</parameter>: Add support for all
+        non-multichoice options. Details about the different options can be
+        found in the file <filename>README.configure</filename>.
+      </para>
+
+      <para>
+        <option>--disable-xft</option>: Remove support for Xft fonts.
+      </para>
+
+      <para>
+        <option>--disable-perl</option>: Disable the embedded Perl interpreter.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The rxvt-unicode terminal emulator uses the resource class
+      <classname>URxvt</classname> and the resource name
+      <classname>urxvt</classname>. You can add X resource definitions to a
+      user's <filename>~/.Xresources</filename> file or to the system-wide
+      <filename>/etc/X11/app-defaults/URxvt</filename> file. The following
+      example will load the <classname>matcher</classname> Perl extension
+      (assuming Perl support wasn't disabled), which enables a middle button
+      click to open an underlined URL in the specified browser, sets a
+      background and foreground color and loads an Xft font:
+    </para>
+
+<screen><userinput>cat &gt;&gt; /etc/X11/app-defaults/URxvt &lt;&lt; "EOF"
+<literal>URxvt*perl-ext: matcher
+URxvt*urlLauncher: firefox
+URxvt.background: black
+URxvt.foreground: yellow
+URxvt*font: xft:Monospace:pixelsize=12</literal>
+EOF</userinput></screen>
+
+    <para>
+      The rxvt-unicode application can also run in a daemon mode, which makes it
+      possible to open multiple terminal windows within the same process. The
+      <command>urxvtc</command> client then connects to the
+      <command>urxvtd</command> daemon and requests a new terminal window. Use
+      this option with caution. If the daemon crashes, all the running processes
+      in the terminal windows are terminated.
+    </para>
+
+    <para>
+      You can start the <command>urxvtd</command> daemon in the system or
+      personal startup <command>X</command> session script (e.g.,
+      <filename>~/.xinitrc</filename>) by adding the following lines near the
+      top of the script:
+    </para>
+
+<screen><userinput><literal># Start the urxvtd daemon
+urxvtd -q -f -o &amp;</literal></userinput></screen>
+
+    <para>
+      For more information, examine the <command>urxvt</command>,
+      <command>urxvtd</command>, <command>urxvtc</command>, and
+      <filename>urxvtperl</filename> man pages.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="rxvt-unicode">
+      <primary sortas="b-urxvt-bin">urxvt</primary>
+    </indexterm>
+    <indexterm zone="rxvt-unicode">
+      <primary sortas="b-urxvtc">urxvtc</primary>
+    </indexterm>
+    <indexterm zone="rxvt-unicode">
+      <primary sortas="b-urxvtd">urxvtd</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/urxvt
+/usr/bin/urxvtc
+/usr/bin/urxvtd
+/usr/lib/urxvt/
+/usr/share/man/man1/urxvt.1
+/usr/share/man/man1/urxvtc.1
+/usr/share/man/man1/urxvtd.1
+/usr/share/man/man3/urxvtperl.3
+/usr/share/man/man7/urxvt.7</literal></screen>
+
+  </sect2>
+
+</sect1>
