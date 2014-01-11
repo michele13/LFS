@@ -139,40 +139,6 @@ OpenGL version string: 2.1 Mesa 9.1-devel (git-cb3b172)</computeroutput></screen
 
     </sect2>
 
-    <sect2 role="configuration" id="hybrid-graphics" xreflabel="Hybrid Graphics">
-    <title>Hybrid Graphics</title>
-
-    <para>
-      Hybrid Graphics is still in experimental state for Linux. Xorg Developers have
-      developed a technology called PRIME that can be used for switching between
-      integrated and muxless discrete GPU at will. Automatic switching is not
-      possible at the moment.
-    </para>
-
-    <para>
-      In order to use PRIME for GPU switching, make sure that you are using Linux
-      Kernel 3.4 or later (recommended). You will need latest DRI and DDX drivers
-      for your hardware and <application>Xorg Server</application> 1.13 or later
-      with an optional patch applied.
-    </para>
-
-    <para>
-      <application>Xorg Server</application> should load both GPU drivers automaticaly.
-      In order to run a GLX application on a discrete GPU, you will need to export
-      the <envar>DRI_PRIME=1</envar> environment variable. For example,
-
-<screen><userinput>DRI_PRIME=1 glxinfo | egrep "(OpenGL vendor|OpenGL renderer|OpenGL version)"</userinput></screen>
-
-      will show OpenGL vendor, renderer and version for the discrete GPU.
-    </para>
-
-    <para>
-      If the last command reports same OpenGL renderer with and without
-      <envar>DRI_PRIME=1</envar>, you will need to check your installation.
-    </para>
-
-    </sect2>
-
     <sect2 role="configuration" id="xft-font-protocol"  xreflabel="Xft Font Protocol">
       <title>Xft Font Protocol</title>
 
