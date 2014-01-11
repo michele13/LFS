@@ -6,23 +6,20 @@
 
   <!ENTITY llvm-homepage      "http://www.llvm.org/">
   <!ENTITY llvm-wikipedia     "https://en.wikipedia.org/wiki/LLVM">
-  <!ENTITY llvm-download-http
-  "http://llvm.org/releases/&llvm-version;/llvm-&llvm-version;.src.tar.gz">
+  <!ENTITY llvm-download-http "http://llvm.org/releases/&llvm-version;/llvm-&llvm-version;.src.tar.gz">
   <!ENTITY llvm-download-ftp  " ">
-  <!ENTITY llvm-md5sum        "40564e1dc390f9844f1711c08b08e391">
-  <!ENTITY llvm-size          "13 MB">
-  <!ENTITY llvm-buildsize     "900 MB">
-  <!ENTITY llvm-time          "13 SBU (additional 7.0 SBU for Clang)">
+  <!ENTITY llvm-md5sum        "46ed668a1ce38985120dbf6344cf6116">
+  <!ENTITY llvm-size          "16 MB">
+  <!ENTITY llvm-buildsize     "1.1 GB">
+  <!ENTITY llvm-time          "27 SBU">
 
-  <!ENTITY clang-download-http
-  "http://llvm.org/releases/&llvm-version;/cfe-&llvm-version;.src.tar.gz">
-  <!ENTITY clang-md5sum        "8284891e3e311829b8e44ac813d0c9ef">
-  <!ENTITY clang-size          "9.0 MB">
+  <!ENTITY clang-download-http "http://llvm.org/releases/&llvm-version;/clang-&llvm-version;.src.tar.gz">
+  <!ENTITY clang-md5sum        "b378f1e2c424e03289effc75268d3d2c">
+  <!ENTITY clang-size          "11 MB">
 
-  <!ENTITY compiler-rt-download-http
-  "http://llvm.org/releases/&llvm-version;/compiler-rt-&llvm-version;.src.tar.gz">
-  <!ENTITY compiler-rt-md5sum        "9c129ce24514467cfe492cf2fed8e2c4">
-  <!ENTITY compiler-rt-size          "1.5 MB">
+  <!ENTITY compiler-rt-download-http "http://llvm.org/releases/&llvm-version;/compiler-rt-&llvm-version;.src.tar.gz">
+  <!ENTITY compiler-rt-md5sum        "7938353e3a3bda85733a165e7ac4bb84">
+  <!ENTITY compiler-rt-size          "1.8 MB">
 ]>
 
 <sect1 id="llvm" xreflabel="LLVM-&llvm-version;">
@@ -145,6 +142,7 @@
       <xref linkend="doxygen"/>,
       <xref linkend="graphviz"/>,
       <xref linkend="libxml2"/>,
+      <xref linkend="texlive"/>,
       <xref linkend="zip"/>,
       <ulink url="http://www.ocaml.org/">OCaml</ulink>,
       <ulink url="http://pypi.python.org/pypi/Sphinx">Sphinx</ulink> and
@@ -161,10 +159,10 @@
       tree by running the following commands:
     </para>
 
-<screen><userinput>tar xvf ../cfe-&llvm-version;.src.tar.gz -C tools &amp;&amp;
+<screen><userinput>tar xvf ../clang-&llvm-version;.src.tar.gz -C tools &amp;&amp;
 tar xvf ../compiler-rt-&llvm-version;.src.tar.gz -C projects &amp;&amp;
-mv -v tools/cfe-&llvm-version;.src tools/clang &amp;&amp;
-mv -v projects/compiler-rt-&llvm-version;.src projects/compiler-rt</userinput></screen>
+mv -v tools/clang-&llvm-version; tools/clang &amp;&amp;
+mv -v projects/compiler-rt-&llvm-version; projects/compiler-rt</userinput></screen>
 
     <para>
       Install LLVM by running the following commands:
@@ -178,11 +176,7 @@ CC=gcc CXX=g++ \
             --enable-libffi \
             --enable-optimized \
             --enable-shared \
-            --enable-targets=all \
-            --disable-assertions \
-            --disable-debug-runtime \
-            --disable-expensive-checks \
-            --enable-experimental-targets=R600 &amp;&amp;
+            --disable-assertions &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -190,7 +184,7 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-for file in /usr/lib/lib{clang,LLVM,LTO,profile_rt}*.a
+for file in /usr/lib/lib{clang,LLVM,LTO}*.a
 do
   test -f $file &amp;&amp; chmod -v 644 $file
 done</userinput></screen>
@@ -235,21 +229,8 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
       </para>
 
       <para>
-        <parameter>--enable-targets=all</parameter>: This switch ensures that
-        all LLVM targets are built.
-      </para>
-
-      <para>
-        <parameter>--disable-*</parameter>: These switches disable features
-        which are used for debugging and are not necessary on a production
-        system.
-      </para>
-
-      <para>
-        <parameter>--enable-experimental-targets=R600</parameter>: This switch
-        enables R600 target which is required by Mesa to build the radeonsi 3D
-        driver. It can be used for R600 LLVM backend and OpenCL state tracker in
-        Mesa.
+        <parameter>--disable-assertions</parameter>: Disable some compile
+        checks, not necessary on a production system.
       </para>
 
     </sect3>
@@ -285,6 +266,9 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
     </indexterm>
     <indexterm zone="llvm">
       <primary sortas="b-lli">lli</primary>
+    </indexterm>
+    <indexterm zone="llvm">
+      <primary sortas="b-lli-child-target">lli-child-target</primary>
     </indexterm>
     <indexterm zone="llvm">
       <primary sortas="b-llvm-ar">llvm-ar</primary>
@@ -329,9 +313,6 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
       <primary sortas="b-llvm-objdump">llvm-objdump</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="b-llvm-prof">llvm-prof</primary>
-    </indexterm>
-    <indexterm zone="llvm">
       <primary sortas="b-llvm-ranlib">llvm-ranlib</primary>
     </indexterm>
     <indexterm zone="llvm">
@@ -368,379 +349,13 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
       <primary sortas="c-BugpointPasses.so">BugpointPasses.so</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="c-libclang.a">libclang.a</primary>
+      <primary sortas="c-LLVMHello.so">LLVMHello.so</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="c-libclangAnalysis.a">libclangAnalysis.a</primary>
+      <primary sortas="c-libLLVM-3.4.so">libLLVM-3.4.so</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="c-libclangARCMigrate.a">libclangARCMigrate.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangAST.a">libclangAST.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangASTMatchers.a">libclangASTMatchers.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangBasic.a">libclangBasic.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangCodeGen.a">libclangCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangDriver.a">libclangDriver.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangEdit.a">libclangEdit.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangFormat.a">libclangFormat.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangFrontend.a">libclangFrontend.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangFrontendTool.a">libclangFrontendTool.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangLex.a">libclangLex.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangParse.a">libclangParse.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangRewriteCore.a">libclangRewriteCore.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangRewriteFrontend.a">libclangRewriteFrontend.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangSema.a">libclangSema.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangSerialization.a">libclangSerialization.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclang.so">libclang.so</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangStaticAnalyzerCheckers.a">libclangStaticAnalyzerCheckers.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangStaticAnalyzerCore.a">libclangStaticAnalyzerCore.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangStaticAnalyzerFrontend.a">libclangStaticAnalyzerFrontend.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libclangTooling.a">libclangTooling.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVM-3.3.so">libLLVM-3.3.so</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64AsmParser.a">libLLVMAArch64AsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64AsmPrinter.a">libLLVMAArch64AsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64CodeGen.a">libLLVMAArch64CodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64Desc.a">libLLVMAArch64Desc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64Disassembler.a">libLLVMAArch64Disassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64Info.a">libLLVMAArch64Info.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAArch64Utils.a">libLLVMAArch64Utils.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAnalysis.a">libLLVMAnalysis.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMArchive.a">libLLVMArchive.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMAsmParser.a">libLLVMARMAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMAsmPrinter.a">libLLVMARMAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMCodeGen.a">libLLVMARMCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMDesc.a">libLLVMARMDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMDisassembler.a">libLLVMARMDisassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMARMInfo.a">libLLVMARMInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAsmParser.a">libLLVMAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMAsmPrinter.a">libLLVMAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMBitReader.a">libLLVMBitReader.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMBitWriter.a">libLLVMBitWriter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMCodeGen.a">libLLVMCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMCore.a">libLLVMCore.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMCppBackendCodeGen.a">libLLVMCppBackendCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMCppBackendInfo.a">libLLVMCppBackendInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMDebugInfo.a">libLLVMDebugInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMExecutionEngine.a">libLLVMExecutionEngine.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMHexagonAsmPrinter.a">libLLVMHexagonAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMHexagonCodeGen.a">libLLVMHexagonCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMHexagonDesc.a">libLLVMHexagonDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMHexagonInfo.a">libLLVMHexagonInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMInstCombine.a">libLLVMInstCombine.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMInstrumentation.a">libLLVMInstrumentation.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMInterpreter.a">libLLVMInterpreter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMipa.a">libLLVMipa.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMipo.a">libLLVMipo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMIRReader.a">libLLVMIRReader.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMJIT.a">libLLVMJIT.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMLinker.a">libLLVMLinker.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeAsmParser.a">libLLVMMBlazeAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeAsmPrinter.a">libLLVMMBlazeAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeCodeGen.a">libLLVMMBlazeCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeDesc.a">libLLVMMBlazeDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeDisassembler.a">libLLVMMBlazeDisassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMBlazeInfo.a">libLLVMMBlazeInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMC.a">libLLVMMC.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMCDisassembler.a">libLLVMMCDisassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMCJIT.a">libLLVMMCJIT.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMCParser.a">libLLVMMCParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsAsmParser.a">libLLVMMipsAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsAsmPrinter.a">libLLVMMipsAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsCodeGen.a">libLLVMMipsCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsDesc.a">libLLVMMipsDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsDisassembler.a">libLLVMMipsDisassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMipsInfo.a">libLLVMMipsInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMSP430AsmPrinter.a">libLLVMMSP430AsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMSP430CodeGen.a">libLLVMMSP430CodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMSP430Desc.a">libLLVMMSP430Desc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMMSP430Info.a">libLLVMMSP430Info.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMNVPTXAsmPrinter.a">libLLVMNVPTXAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMNVPTXCodeGen.a">libLLVMNVPTXCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMNVPTXDesc.a">libLLVMNVPTXDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMNVPTXInfo.a">libLLVMNVPTXInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMObjCARCOpts.a">libLLVMObjCARCOpts.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMObject.a">libLLVMObject.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMOption.a">libLLVMOption.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMPowerPCAsmParser.a">libLLVMPowerPCAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMPowerPCAsmPrinter.a">libLLVMPowerPCAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMPowerPCCodeGen.a">libLLVMPowerPCCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMPowerPCDesc.a">libLLVMPowerPCDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMPowerPCInfo.a">libLLVMPowerPCInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMR600AsmPrinter.a">libLLVMR600AsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMR600CodeGen.a">libLLVMR600CodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMR600Desc.a">libLLVMR600Desc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMR600Info.a">libLLVMR600Info.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMRuntimeDyld.a">libLLVMRuntimeDyld.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMScalarOpts.a">libLLVMScalarOpts.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSelectionDAG.a">libLLVMSelectionDAG.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSparcCodeGen.a">libLLVMSparcCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSparcDesc.a">libLLVMSparcDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSparcInfo.a">libLLVMSparcInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSupport.a">libLLVMSupport.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSystemZAsmParser.a">libLLVMSystemZAsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSystemZAsmPrinter.a">libLLVMSystemZAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSystemZCodeGen.a">libLLVMSystemZCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSystemZDesc.a">libLLVMSystemZDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMSystemZInfo.a">libLLVMSystemZInfo.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMTableGen.a">libLLVMTableGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMTarget.a">libLLVMTarget.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMTransformUtils.a">libLLVMTransformUtils.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMVectorize.a">libLLVMVectorize.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86AsmParser.a">libLLVMX86AsmParser.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86AsmPrinter.a">libLLVMX86AsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86CodeGen.a">libLLVMX86CodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86Desc.a">libLLVMX86Desc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86Disassembler.a">libLLVMX86Disassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86Info.a">libLLVMX86Info.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMX86Utils.a">libLLVMX86Utils.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMXCoreAsmPrinter.a">libLLVMXCoreAsmPrinter.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMXCoreCodeGen.a">libLLVMXCoreCodeGen.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMXCoreDesc.a">libLLVMXCoreDesc.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMXCoreDisassembler.a">libLLVMXCoreDisassembler.a</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-libLLVMXCoreInfo.a">libLLVMXCoreInfo.a</primary>
+      <primary sortas="c-libLLVM*.a">libLLVM*.a</primary>
     </indexterm>
     <indexterm zone="llvm">
       <primary sortas="c-libLTO.a">libLTO.a</primary>
@@ -749,13 +364,10 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
       <primary sortas="c-libLTO.so">libLTO.so</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="c-libprofile_rt.a">libprofile_rt.a</primary>
+      <primary sortas="c-libclang*.a">libclang*.a</primary>
     </indexterm>
     <indexterm zone="llvm">
-      <primary sortas="c-libprofile_rt.so">libprofile_rt.so</primary>
-    </indexterm>
-    <indexterm zone="llvm">
-      <primary sortas="c-LLVMHello.so">LLVMHello.so</primary>
+      <primary sortas="c-libclang.so">libclang.so</primary>
     </indexterm>
 
     <para>
@@ -771,6 +383,7 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
 /usr/bin/clang-tblgen
 /usr/bin/llc
 /usr/bin/lli
+/usr/bin/lli-child-target
 /usr/bin/llvm-ar
 /usr/bin/llvm-as
 /usr/bin/llvm-bcanalyzer
@@ -785,7 +398,6 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
 /usr/bin/llvm-mcmarkup
 /usr/bin/llvm-nm
 /usr/bin/llvm-objdump
-/usr/bin/llvm-prof
 /usr/bin/llvm-ranlib
 /usr/bin/llvm-readobj
 /usr/bin/llvm-rtdyld
@@ -802,138 +414,15 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
 /usr/include/llvm/
 /usr/include/llvm-c/
 /usr/lib/BugpointPasses.so
+/usr/lib/LLVMHello.so
 /usr/lib/clang/
 /usr/lib/clang-analyzer/
-/usr/lib/libclang.a
-/usr/lib/libclangAnalysis.a
-/usr/lib/libclangARCMigrate.a
-/usr/lib/libclangAST.a
-/usr/lib/libclangASTMatchers.a
-/usr/lib/libclangBasic.a
-/usr/lib/libclangCodeGen.a
-/usr/lib/libclangDriver.a
-/usr/lib/libclangEdit.a
-/usr/lib/libclangFormat.a
-/usr/lib/libclangFrontend.a
-/usr/lib/libclangFrontendTool.a
-/usr/lib/libclangLex.a
-/usr/lib/libclangParse.a
-/usr/lib/libclangRewriteCore.a
-/usr/lib/libclangRewriteFrontend.a
-/usr/lib/libclangSema.a
-/usr/lib/libclangSerialization.a
-/usr/lib/libclang.so
-/usr/lib/libclangStaticAnalyzerCheckers.a
-/usr/lib/libclangStaticAnalyzerCore.a
-/usr/lib/libclangStaticAnalyzerFrontend.a
-/usr/lib/libclangTooling.a
-/usr/lib/libLLVM-3.3.so
-/usr/lib/libLLVMAArch64AsmParser.a
-/usr/lib/libLLVMAArch64AsmPrinter.a
-/usr/lib/libLLVMAArch64CodeGen.a
-/usr/lib/libLLVMAArch64Desc.a
-/usr/lib/libLLVMAArch64Disassembler.a
-/usr/lib/libLLVMAArch64Info.a
-/usr/lib/libLLVMAArch64Utils.a
-/usr/lib/libLLVMAnalysis.a
-/usr/lib/libLLVMArchive.a
-/usr/lib/libLLVMARMAsmParser.a
-/usr/lib/libLLVMARMAsmPrinter.a
-/usr/lib/libLLVMARMCodeGen.a
-/usr/lib/libLLVMARMDesc.a
-/usr/lib/libLLVMARMDisassembler.a
-/usr/lib/libLLVMARMInfo.a
-/usr/lib/libLLVMAsmParser.a
-/usr/lib/libLLVMAsmPrinter.a
-/usr/lib/libLLVMBitReader.a
-/usr/lib/libLLVMBitWriter.a
-/usr/lib/libLLVMCodeGen.a
-/usr/lib/libLLVMCore.a
-/usr/lib/libLLVMCppBackendCodeGen.a
-/usr/lib/libLLVMCppBackendInfo.a
-/usr/lib/libLLVMDebugInfo.a
-/usr/lib/libLLVMExecutionEngine.a
-/usr/lib/libLLVMHexagonAsmPrinter.a
-/usr/lib/libLLVMHexagonCodeGen.a
-/usr/lib/libLLVMHexagonDesc.a
-/usr/lib/libLLVMHexagonInfo.a
-/usr/lib/libLLVMInstCombine.a
-/usr/lib/libLLVMInstrumentation.a
-/usr/lib/libLLVMInterpreter.a
-/usr/lib/libLLVMipa.a
-/usr/lib/libLLVMipo.a
-/usr/lib/libLLVMIRReader.a
-/usr/lib/libLLVMJIT.a
-/usr/lib/libLLVMLinker.a
-/usr/lib/libLLVMMBlazeAsmParser.a
-/usr/lib/libLLVMMBlazeAsmPrinter.a
-/usr/lib/libLLVMMBlazeCodeGen.a
-/usr/lib/libLLVMMBlazeDesc.a
-/usr/lib/libLLVMMBlazeDisassembler.a
-/usr/lib/libLLVMMBlazeInfo.a
-/usr/lib/libLLVMMC.a
-/usr/lib/libLLVMMCDisassembler.a
-/usr/lib/libLLVMMCJIT.a
-/usr/lib/libLLVMMCParser.a
-/usr/lib/libLLVMMipsAsmParser.a
-/usr/lib/libLLVMMipsAsmPrinter.a
-/usr/lib/libLLVMMipsCodeGen.a
-/usr/lib/libLLVMMipsDesc.a
-/usr/lib/libLLVMMipsDisassembler.a
-/usr/lib/libLLVMMipsInfo.a
-/usr/lib/libLLVMMSP430AsmPrinter.a
-/usr/lib/libLLVMMSP430CodeGen.a
-/usr/lib/libLLVMMSP430Desc.a
-/usr/lib/libLLVMMSP430Info.a
-/usr/lib/libLLVMNVPTXAsmPrinter.a
-/usr/lib/libLLVMNVPTXCodeGen.a
-/usr/lib/libLLVMNVPTXDesc.a
-/usr/lib/libLLVMNVPTXInfo.a
-/usr/lib/libLLVMObjCARCOpts.a
-/usr/lib/libLLVMObject.a
-/usr/lib/libLLVMOption.a
-/usr/lib/libLLVMPowerPCAsmParser.a
-/usr/lib/libLLVMPowerPCAsmPrinter.a
-/usr/lib/libLLVMPowerPCCodeGen.a
-/usr/lib/libLLVMPowerPCDesc.a
-/usr/lib/libLLVMPowerPCInfo.a
-/usr/lib/libLLVMR600AsmPrinter.a
-/usr/lib/libLLVMR600CodeGen.a
-/usr/lib/libLLVMR600Desc.a
-/usr/lib/libLLVMR600Info.a
-/usr/lib/libLLVMRuntimeDyld.a
-/usr/lib/libLLVMScalarOpts.a
-/usr/lib/libLLVMSelectionDAG.a
-/usr/lib/libLLVMSparcCodeGen.a
-/usr/lib/libLLVMSparcDesc.a
-/usr/lib/libLLVMSparcInfo.a
-/usr/lib/libLLVMSupport.a
-/usr/lib/libLLVMSystemZAsmParser.a
-/usr/lib/libLLVMSystemZAsmPrinter.a
-/usr/lib/libLLVMSystemZCodeGen.a
-/usr/lib/libLLVMSystemZDesc.a
-/usr/lib/libLLVMSystemZInfo.a
-/usr/lib/libLLVMTableGen.a
-/usr/lib/libLLVMTarget.a
-/usr/lib/libLLVMTransformUtils.a
-/usr/lib/libLLVMVectorize.a
-/usr/lib/libLLVMX86AsmParser.a
-/usr/lib/libLLVMX86AsmPrinter.a
-/usr/lib/libLLVMX86CodeGen.a
-/usr/lib/libLLVMX86Desc.a
-/usr/lib/libLLVMX86Disassembler.a
-/usr/lib/libLLVMX86Info.a
-/usr/lib/libLLVMX86Utils.a
-/usr/lib/libLLVMXCoreAsmPrinter.a
-/usr/lib/libLLVMXCoreCodeGen.a
-/usr/lib/libLLVMXCoreDesc.a
-/usr/lib/libLLVMXCoreDisassembler.a
-/usr/lib/libLLVMXCoreInfo.a
+/usr/lib/libLLVM-3.4.so
+/usr/lib/libLLVM*.a
 /usr/lib/libLTO.a
 /usr/lib/libLTO.so
-/usr/lib/libprofile_rt.a
-/usr/lib/libprofile_rt.so
-/usr/lib/LLVMHello.so
+/usr/lib/libclang*.a
+/usr/lib/libclang.so
 /usr/share/doc/llvm/
 /usr/share/man/man1/clang.1
 /usr/share/man/man1/scan-build.1</literal></screen>
