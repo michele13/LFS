@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY openjpeg-homepage      "http://www.openjpeg.org/">
+  <!ENTITY openjpeg-wikipedia     "http://en.wikipedia.org/wiki/OpenJPEG">
   <!ENTITY openjpeg-download-http "https://openjpeg.googlecode.com/files/openjpeg-&openjpeg-version;.tar.gz">
   <!ENTITY openjpeg-download-ftp  " ">
   <!ENTITY openjpeg-md5sum        "b5f74cec2688fb918331bb014061be6f">
@@ -17,136 +19,120 @@
 
   <title>OpenJPEG-&openjpeg-version;</title>
 
-  <indexterm zone="openjpeg">
-    <primary sortas="a-openjpeg">OpenJPEG</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to OpenJPEG</title>
+    <title>Introduction</title>
 
-    <para><application>OpenJPEG</application> is an open-source implementation
-    of the JPEG-2000 standard. OpenJPEG fully respects the JPEG-2000 specifications
-    and can compress/decompress lossless 16-bit images.</para>
+    <para>
+      OpenJPEG is an open-source implementation of the JPEG-2000 standard.
+      OpenJPEG fully respects the JPEG-2000 specifications and can
+      compress/decompress lossless 16-bit images.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&openjpeg-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&openjpeg-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&openjpeg-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&openjpeg-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &openjpeg-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&openjpeg-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &openjpeg-size;</para>
+        <para>
+          Download (FTP): <ulink url="&openjpeg-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &openjpeg-buildsize;</para>
+        <para>
+          Download MD5 sum: &openjpeg-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &openjpeg-time;</para>
+        <para>
+          Download size: &openjpeg-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &openjpeg-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &openjpeg-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">OpenJPEG Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
-    <xref linkend="lcms2"/>,
-    <xref linkend="libpng"/>,
-    <xref linkend="libtiff"/> and
-    <xref linkend="doxygen"/> (to build the API documentation)
+      <xref linkend="lcms2"/>,
+      <xref linkend="libpng"/>, and
+      <xref linkend="libtiff"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of OpenJPEG</title>
+  <sect2>
+    <title>Installation</title>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
-    <para>This package does not come with a testsuite.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><option>--disable-static</option>: This prevents the
-    static library from being built.</para>
-
-  </sect2>
-
-  <!--
-  <sect2 role="configuration">
-    <title>Configuring OpenJPEG</title>
-
-    <sect3>
-      <title>Configuration Information</title>
-
-    </sect3>
-
-  </sect2>
-  -->
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="openjpeg">
+      <primary sortas="b-image_to_j2k">image_to_j2k</primary>
+    </indexterm>
+    <indexterm zone="openjpeg">
+      <primary sortas="b-j2k_dump">j2k_dump</primary>
+    </indexterm>
+    <indexterm zone="openjpeg">
+      <primary sortas="b-j2k_to_image">j2k_to_image</primary>
+    </indexterm>
+    <indexterm zone="openjpeg">
+      <primary sortas="c-libopenjpeg.so">libopenjpeg.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>image_to_j2k, j2k_dump and j2k_to_image</seg>
-        <seg>libopenjpeg.so</seg>
-        <seg>/usr/include/openjpeg-1.5 and /usr/share/doc/openjpeg-1.5</seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="image_to_j2k">
-        <term><command>image_to_j2k</command></term>
-        <listitem>
-          <para>converts various image formats to the jpeg2000 format.</para>
-          <indexterm zone="openjpeg image_to_j2k">
-            <primary sortas="b-image_to_j2k">image_to_j2k</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="j2k_dump">
-        <term><command>j2k_dump</command></term>
-        <listitem>
-          <para>reads in a jpeg2000 image and dumps the contents to stdout.</para>
-          <indexterm zone="openjpeg j2k_dump">
-            <primary sortas="b-j2k_dump">j2k_dump</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="j2k_to_image">
-        <term><command>j2k_to_image</command></term>
-        <listitem>
-          <para>converts jpeg2000 images to other image types.</para>
-          <indexterm zone="openjpeg j2k_to_image">
-            <primary sortas="b-j2k_to_image">j2k_to_image</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/image_to_j2k
+/usr/bin/j2k_dump
+/usr/bin/j2k_to_image
+/usr/include/openjpeg-1.5/
+/usr/lib/libopenjpeg.so
+/usr/lib/pkgconfig/libopenjpeg.pc
+/usr/lib/pkgconfig/libopenjpeg1.pc
+/usr/share/doc/openjpeg-1.5/
+/usr/share/man/man1/image_to_j2k.1
+/usr/share/man/man1/j2k_dump.1
+/usr/share/man/man1/j2k_to_image.1
+/usr/share/man/man1/jpwl_image_to_j2k.1
+/usr/share/man/man1/jpwl_j2k_to_image.1
+/usr/share/man/man3/jpwl_libopenjpeg.3
+/usr/share/man/man3/libopenjpeg.3</literal></screen>
 
   </sect2>
 
