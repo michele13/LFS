@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY pango-homepage      "http://www.pango.org/">
+  <!ENTITY pango-wikipedia     "http://en.wikipedia.org/wiki/Pango">
   <!ENTITY pango-download-http "&gnome-download-http;/pango/1.32/pango-&pango-version;.tar.xz">
   <!ENTITY pango-download-ftp  "&gnome-download-ftp;/pango/1.32/pango-&pango-version;.tar.xz">
   <!ENTITY pango-md5sum        "8e846804d6e219bc795a26a4a39b5bfd">
@@ -18,23 +20,28 @@
 
   <title>Pango-&pango-version;</title>
 
-  <indexterm zone="pango">
-    <primary sortas="a-Pango">Pango</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Pango</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Pango</application> is a library for laying out and rendering
-      of text, with an emphasis on internationalization. It can be used anywhere
-      that text layout is needed, though most of the work on
-      <application>Pango</application> so far has been done in the context of
-      the <application>GTK+</application> widget toolkit.
+      Pango is a library for laying out and rendering of text, with an emphasis
+      on internationalization. It can be used anywhere that text layout is
+      needed, though most of the work on Pango so far has been done in the
+      context of the GTK+ widget toolkit.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pango-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pango-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&pango-download-http;"/>
@@ -67,35 +74,33 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Pango Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="cairo"/> and
+      <xref linkend="fontconfig"/>,
+      <xref linkend="glib"/>, and
       <xref linkend="harfbuzz"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
+      <xref linkend="cairo"/> and
       <xref linkend="libxft"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Pango</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Pango</application> by running the following
-      commands:
+      Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --sysconfdir=/etc &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --sysconfdir=/etc &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -112,12 +117,19 @@ make</userinput></screen>
       </para>
 
 <screen role="root"><userinput>pango-querymodules --update-cache</userinput></screen>
+
     </note>
 
   </sect2>
 
-  <sect2 role="configuration">
-    <title>Configuring Pango</title>
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The Pango module path is specified by the key
+      <userinput><parameter>Pango/ModulesPath</parameter></userinput> in the
+      Pango config database, which is read from the config files listed below.
+    </para>
 
     <sect3 id="pango-config">
       <title>Config Files</title>
@@ -128,100 +140,58 @@ make</userinput></screen>
         <envar>PANGO_RC_FILE</envar>
       </para>
 
-      <indexterm zone="pango pango-config">
+      <indexterm zone="pango">
         <primary sortas="e-etc-pango-pangorc">/etc/pango/pangorc</primary>
       </indexterm>
 
-      <indexterm zone="pango pango-config">
+      <indexterm zone="pango">
         <primary sortas="e-AA.pangorc">~/.pangorc</primary>
       </indexterm>
-    </sect3>
-
-    <sect3>
-      <title>Configuration Information</title>
-
-      <para>
-        The <application>Pango</application> module path is specified by the key
-        <userinput><parameter>Pango/ModulesPath</parameter></userinput> in the
-        <application>Pango</application> config database, which is read from the
-        config files listed above.
-      </para>
 
     </sect3>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="pango">
+      <primary sortas="b-pango-querymodules">pango-querymodules</primary>
+    </indexterm>
+    <indexterm zone="pango">
+      <primary sortas="b-pango-view">pango-view</primary>
+    </indexterm>
+    <indexterm zone="pango">
+      <primary sortas="c-libpango-1.0.so">libpango-1.0.so</primary>
+    </indexterm>
+    <indexterm zone="pango">
+      <primary sortas="c-libpangocairo-1.0.so">libpangocairo-1.0.so</primary>
+    </indexterm>
+    <indexterm zone="pango">
+      <primary sortas="c-libpangoft2-1.0.so">libpangoft2-1.0.so</primary>
+    </indexterm>
+    <indexterm zone="pango">
+      <primary sortas="c-libpangoxft-1.0.so">libpangoxft-1.0.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          pango-querymodules and pango-view
-        </seg>
-        <seg>
-          libpango-1.0.so, libpangocairo-1.0.so, libpangoft2-1.0.so,
-          and libpangoxft-1.0.so
-        </seg>
-        <seg>
-          /etc/pango,
-          /usr/include/pango-1.0,
-          /usr/lib/pango, and
-          /usr/share/gtk-doc/html/pango
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="pango-querymodules">
-        <term><command>pango-querymodules</command></term>
-        <listitem>
-          <para>
-            is a module registration utility that collects information about
-            <application>Pango</application> loadable modules.
-          </para>
-          <indexterm zone="pango pango-querymodules">
-            <primary sortas="b-pango-querymodules">pango-querymodules</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="pango-view">
-        <term><command>pango-view</command></term>
-        <listitem>
-          <para>
-            renders a given file through <application>Pango</application> for
-            viewing purposes.
-          </para>
-          <indexterm zone="pango pango-view">
-            <primary sortas="b-pango-view">pango-view</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libpango-1">
-        <term><filename class="libraryfile">libpango-1.0.so</filename></term>
-        <listitem>
-          <para>
-            contain low level layout rendering routines, a high level driver for
-            laying out entire blocks of text, and routines to assist in editing
-            internationalized text.
-          </para>
-          <indexterm zone="pango libpango-1">
-            <primary sortas="c-libpango-1">libpango-1.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/pango-querymodules
+/usr/bin/pango-view
+/usr/include/pango-1.0/
+/usr/lib/libpango-1.0.so
+/usr/lib/libpangocairo-1.0.so
+/usr/lib/libpangoft2-1.0.so
+/usr/lib/libpangoxft-1.0.so
+/usr/lib/pango/
+/usr/lib/pkgconfig/pango.pc
+/usr/lib/pkgconfig/pangocairo.pc
+/usr/lib/pkgconfig/pangoft2.pc
+/usr/lib/pkgconfig/pangoxft.pc
+/usr/share/man/man1/pango-querymodules.1
+/usr/share/man/man1/pango-view.1</literal></screen>
 
   </sect2>
 
