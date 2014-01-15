@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY boost-homepage      "http://www.boost.org/">
+  <!ENTITY boost-wikipedia     "http://en.wikipedia.org/wiki/Boost_&#40;C++_libraries&#41;">
   <!ENTITY boost-download-http "&sourceforge-repo;/boost/boost_&boost-dl-version;.tar.bz2">
   <!ENTITY boost-download-ftp  " ">
   <!ENTITY boost-md5sum        "d6eef4b4cacb2183f2bf265a5a03a354">
   <!ENTITY boost-size          "56 MB">
   <!ENTITY boost-buildsize     "828 MB">
-  <!ENTITY boost-time          "11.7 SBU">
+  <!ENTITY boost-time          "12 SBU">
 ]>
 
 <sect1 id="boost" xreflabel="Boost-&boost-version;">
@@ -17,22 +19,27 @@
 
   <title>Boost-&boost-version;</title>
 
-  <indexterm zone="boost">
-    <primary sortas="a-Boost">Boost</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Boost</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Boost</application> provides a set of free peer-reviewed
-      portable C++ source libraries. It includes libraries for linear algebra,
-      pseudorandom number generation, multithreading, image processing, regular
-      expressions and unit testing.
+      Boost provides a set of free peer-reviewed portable C++ source libraries.
+      It includes libraries for linear algebra, pseudorandom number generation,
+      multithreading, image processing, regular expressions and unit testing.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&boost-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&boost-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&boost-download-http;"/>
@@ -65,7 +72,7 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Boost Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
@@ -75,20 +82,15 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Boost</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Boost</application> by running the following
-      commands:
+      Install the package by running the following commands:
     </para>
 
 <screen><userinput>./bootstrap.sh --prefix=/usr &amp;&amp;
 ./b2 stage threading=multi link=shared</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
@@ -98,55 +100,73 @@
 
 <screen role="root"><userinput>./b2 install threading=multi link=shared</userinput></screen>
 
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>threading=multi</parameter>: This parameter ensures that
+        Boost is built with multithreading support.
+      </para>
+
+      <para>
+        <parameter>link=shared</parameter>: This parameter ensures that only
+        shared libraries are created, except for libboost_exception and
+        libboost_test_exec_monitor which are created as static. Most people will
+        not need the static libraries, indeed most programs using Boost only use
+        the headers, but omit this parameter if you do need them.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <parameter>threading=multi</parameter>: This parameter ensures that
-      <application>Boost</application> is built with multithreading support.
-    </para>
-
-    <para>
-      <parameter>link=shared</parameter>: This parameter ensures that only shared
-      libraries are created, except for libboost_exception and libboost_test_exec_monitor
-      which are created as static. Most people will not need the static libraries, indeed
-      most programs using <application>Boost</application> only use the headers, but omit
-      this parameter if you do need them.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="boost">
+      <primary sortas="c-libboost_*.so">libboost_*.so</primary>
+    </indexterm>
+    <indexterm zone="boost">
+      <primary sortas="c-libboost_*.a">libboost_*.a</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libboost_atomic.so, libboost_chrono.so, libboost_context.so, libboost_coroutine.so,
-          libboost_date_time.so, libboost_exception.a, libboost_filesystem.so,
-          libboost_graph.so, libboost_iostreams.so, libboost_locale.so, libboost_log_setup.so, libboost_log.so,
-          libboost_math_c99f.so, libboost_math_c99l.so, libboost_math_c99.so,
-          libboost_math_tr1f.so, libboost_math_tr1l.so, libboost_math_tr1.so,
-          libboost_prg_exec_monitor.so, libboost_program_options.so, libboost_python.so,
-          libboost_random.so, libboost_regex.so, libboost_serialization.so,
-          libboost_signals.so, libboost_system.so, libboost_test_exec_monitor.a,
-          libboost_thread.so, libboost_timer.so, libboost_unit_test_framework.so,
-          libboost_wave.so and libboost_wserialization.so
-        </seg>
-        <seg>
-          /usr/include/boost
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/include/boost/
+/usr/lib/libboost_atomic.so
+/usr/lib/libboost_chrono.so
+/usr/lib/libboost_context.so
+/usr/lib/libboost_coroutine.so
+/usr/lib/libboost_date_time.so
+/usr/lib/libboost_exception.a
+/usr/lib/libboost_filesystem.so
+/usr/lib/libboost_graph.so
+/usr/lib/libboost_iostreams.so
+/usr/lib/libboost_locale.so
+/usr/lib/libboost_log.so
+/usr/lib/libboost_log_setup.so
+/usr/lib/libboost_math_c99.so
+/usr/lib/libboost_math_c99f.so
+/usr/lib/libboost_math_c99l.so
+/usr/lib/libboost_math_tr1.so
+/usr/lib/libboost_math_tr1f.so
+/usr/lib/libboost_math_tr1l.so
+/usr/lib/libboost_prg_exec_monitor.so
+/usr/lib/libboost_program_options.so
+/usr/lib/libboost_python.so
+/usr/lib/libboost_random.so
+/usr/lib/libboost_regex.so
+/usr/lib/libboost_serialization.so
+/usr/lib/libboost_signals.so
+/usr/lib/libboost_system.so
+/usr/lib/libboost_test_exec_monitor.a
+/usr/lib/libboost_thread.so
+/usr/lib/libboost_timer.so
+/usr/lib/libboost_unit_test_framework.so
+/usr/lib/libboost_wave.so
+/usr/lib/libboost_wserialization.so</literal></screen>
 
   </sect2>
 
