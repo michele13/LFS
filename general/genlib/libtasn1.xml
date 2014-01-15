@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY libtasn1-homepage      "http://www.gnu.org/software/libtasn1/">
+  <!ENTITY libtasn1-wikipedia     "http://en.wikipedia.org/wiki/Abstract_Syntax_Notation_One">
   <!ENTITY libtasn1-download-http "http://ftp.gnu.org/gnu/libtasn1/libtasn1-&libtasn1-version;.tar.gz">
   <!ENTITY libtasn1-download-ftp  "ftp://ftp.gnu.org/gnu/libtasn1/libtasn1-&libtasn1-version;.tar.gz">
   <!ENTITY libtasn1-md5sum        "2bdd687f487c50a0382b99553866a6e0">
@@ -17,20 +19,26 @@
 
   <title>libtasn1-&libtasn1-version;</title>
 
-  <indexterm zone="libtasn1">
-    <primary sortas="a-libtasn1">libtasn1</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to libtasn1</title>
+    <title>Introduction</title>
 
     <para>
-      <application>libtasn1</application> is a highly portable C library
-      that encodes and decodes DER/BER data following an ASN.1 schema.
+      libtasn1 is a highly portable C library that encodes and decodes DER/BER
+      data following an ASN.1 schema.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libtasn1-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libtasn1-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&libtasn1-download-http;"/>
@@ -63,124 +71,57 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">libtasn1 Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <ulink url="http://valgrind.org/">Valgrind</ulink>
-    </para>
-
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of libtasn1</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>libtasn1</application> by running the
-      following commands:
+      Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
-    </para>
-
-    <para>
-      Now, as the <systemitem class="username">root</systemitem>
-      user:
+      Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="libtasn1">
+      <primary sortas="b-asn1Coding">asn1Coding</primary>
+    </indexterm>
+    <indexterm zone="libtasn1">
+      <primary sortas="b-asn1Decoding">asn1Decoding</primary>
+    </indexterm>
+    <indexterm zone="libtasn1">
+      <primary sortas="b-asn1Parser">asn1Parser</primary>
+    </indexterm>
+    <indexterm zone="libtasn1">
+      <primary sortas="c-libtasn1.so">libtasn1.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          asn1Coding, asn1Decoding and asn1Parser
-        </seg>
-        <seg>
-          libtasn1.so
-        </seg>
-        <seg>
-          /usr/share/gtk-doc/html/libtasn1
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="asn1Coding">
-        <term><command>asn1Coding</command></term>
-        <listitem>
-          <para>
-            is an ASN.1 DER encoder.
-          </para>
-          <indexterm zone="libtasn1 asn1Coding">
-            <primary sortas="b-asn1Coding">asn1Coding</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="asn1Decoding">
-        <term><command>asn1Decoding</command></term>
-        <listitem>
-          <para>
-            is an ASN.1 DER decoder.
-          </para>
-          <indexterm zone="libtasn1 asn1Decoding">
-            <primary sortas="b-asn1Decoding">asn1Decoding</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="asn1Parser">
-        <term><command>asn1Parser</command></term>
-        <listitem>
-          <para>
-            is an ASN.1 syntax tree generator for
-            <application>libtasn1</application>.
-          </para>
-          <indexterm zone="libtasn1 asn1Parser">
-            <primary sortas="b-asn1Parser">asn1Parser</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libtasn1-lib">
-        <term><filename class="libraryfile">libtasn1.so</filename></term>
-        <listitem>
-          <para>
-            is a library for Abstract Syntax Notation One (ASN.1) and
-            Distinguish Encoding Rules (DER) manipulation.
-          </para>
-          <indexterm zone="libtasn1 libtasn1-lib">
-            <primary sortas="c-libtasn1">libtasn1.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/asn1Coding
+/usr/bin/asn1Decoding
+/usr/bin/asn1Parser
+/usr/include/libtasn1.h
+/usr/lib/libtasn1.so
+/usr/lib/pkgconfig/libtasn1.pc
+/usr/share/man/man1/asn1Coding.1
+/usr/share/man/man1/asn1Decoding.1
+/usr/share/man/man1/asn1Parser.1
+/usr/share/man/man3/asn1_*.3</literal></screen>
 
   </sect2>
 
