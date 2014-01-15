@@ -1,5 +1,5 @@
 Submitted by:            Igor Živković <contact@igor-zivkovic.from.hr>
-Date:                    2014-01-12
+Date:                    2014-01-15
 Initial Package Version: 8.22
 Upstream Status:         Rejected
 Origin:                  Based on Fedora's i18n patch at
@@ -8,7 +8,7 @@ Description:             Fixes several i18n issues with various Coreutils progra
 
 diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
 --- coreutils-8.22.orig/lib/linebuffer.h	2013-12-04 15:53:33.000000000 +0100
-+++ coreutils-8.22/lib/linebuffer.h	2014-01-12 15:25:22.496490194 +0100
++++ coreutils-8.22/lib/linebuffer.h	2014-01-15 11:34:10.407909087 +0100
 @@ -21,6 +21,11 @@
  
  # include <stdio.h>
@@ -33,7 +33,7 @@ diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
  /* Initialize linebuffer LINEBUFFER for use. */
 diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 --- coreutils-8.22.orig/src/cut.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/cut.c	2014-01-12 15:25:22.498490104 +0100
++++ coreutils-8.22/src/cut.c	2014-01-15 11:34:10.408909096 +0100
 @@ -28,6 +28,11 @@
  #include <assert.h>
  #include <getopt.h>
@@ -266,7 +266,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  /* Read from stream STREAM, printing to standard output any selected fields.  */
  
  static void
-@@ -629,13 +786,207 @@
+@@ -629,13 +786,211 @@
      }
  }
  
@@ -451,8 +451,12 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +        case field_mode:
 +          if (delimlen == 1)
 +            {
++              /* Check if we have utf8 multibyte locale, so we can use this
++                 optimization because of uniqueness of characters, which is
++                 not true for e.g. SJIS */
 +              char * loc = setlocale(LC_CTYPE, NULL);
-+              if (loc && (strstr (loc, "UTF-8") || strstr (loc, "utf-8")))
++              if (loc && (strstr (loc, "UTF-8") || strstr (loc, "utf-8") ||
++                  strstr (loc, "UTF8") || strstr (loc, "utf8")))
 +                {
 +                  cut_fields (stream);
 +                  break;
@@ -477,7 +481,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  }
  
  /* Process file FILE to standard output.
-@@ -687,6 +1038,7 @@
+@@ -687,6 +1042,7 @@
    bool ok;
    bool delim_specified = false;
    char *spec_list_string IF_LINT ( = NULL);
@@ -485,7 +489,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  
    initialize_main (&argc, &argv);
    set_program_name (argv[0]);
-@@ -709,7 +1061,6 @@
+@@ -709,7 +1065,6 @@
        switch (optc)
          {
          case 'b':
@@ -493,7 +497,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            /* Build the byte list. */
            if (operating_mode != undefined_mode)
              FATAL_ERROR (_("only one type of list may be specified"));
-@@ -717,6 +1068,14 @@
+@@ -717,6 +1072,14 @@
            spec_list_string = optarg;
            break;
  
@@ -508,7 +512,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
          case 'f':
            /* Build the field list. */
            if (operating_mode != undefined_mode)
-@@ -728,10 +1087,38 @@
+@@ -728,10 +1091,38 @@
          case 'd':
            /* New delimiter. */
            /* Interpret -d '' to mean 'use the NUL byte as the delimiter.'  */
@@ -551,7 +555,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            break;
  
          case OUTPUT_DELIMITER_OPTION:
-@@ -744,6 +1131,7 @@
+@@ -744,6 +1135,7 @@
            break;
  
          case 'n':
@@ -559,7 +563,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
            break;
  
          case 's':
-@@ -783,15 +1171,34 @@
+@@ -783,15 +1175,34 @@
      }
  
    if (!delim_specified)
@@ -602,7 +606,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
    if (optind == argc)
 diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
 --- coreutils-8.22.orig/src/expand.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/expand.c	2014-01-12 15:25:22.498490104 +0100
++++ coreutils-8.22/src/expand.c	2014-01-15 11:34:10.408909096 +0100
 @@ -37,12 +37,34 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -797,7 +801,7 @@ diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
      error (EXIT_FAILURE, errno, "-");
 diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
 --- coreutils-8.22.orig/src/fold.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/fold.c	2014-01-12 15:25:22.499490059 +0100
++++ coreutils-8.22/src/fold.c	2014-01-15 11:34:10.409909097 +0100
 @@ -22,12 +22,34 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -1197,7 +1201,7 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
          case 's':		/* Break at word boundaries. */
 diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 --- coreutils-8.22.orig/src/join.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/join.c	2014-01-12 15:25:22.500490013 +0100
++++ coreutils-8.22/src/join.c	2014-01-15 11:34:10.409909097 +0100
 @@ -22,18 +22,32 @@
  #include <sys/types.h>
  #include <getopt.h>
@@ -1692,7 +1696,7 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
          case 'z':
 diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
 --- coreutils-8.22.orig/src/pr.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/pr.c	2014-01-12 15:25:22.501489968 +0100
++++ coreutils-8.22/src/pr.c	2014-01-15 11:34:10.411909086 +0100
 @@ -312,6 +312,24 @@
  
  #include <getopt.h>
@@ -2458,7 +2462,7 @@ diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
  
 diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
 --- coreutils-8.22.orig/src/sort.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/sort.c	2014-01-12 15:25:22.503489878 +0100
++++ coreutils-8.22/src/sort.c	2014-01-15 11:34:10.413909085 +0100
 @@ -29,6 +29,14 @@
  #include <sys/wait.h>
  #include <signal.h>
@@ -3440,7 +3444,7 @@ diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
  
 diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
 --- coreutils-8.22.orig/src/unexpand.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/unexpand.c	2014-01-12 15:25:22.504489833 +0100
++++ coreutils-8.22/src/unexpand.c	2014-01-15 11:34:10.413909085 +0100
 @@ -38,12 +38,29 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -3698,7 +3702,7 @@ diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
      error (EXIT_FAILURE, errno, "-");
 diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
 --- coreutils-8.22.orig/src/uniq.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/uniq.c	2014-01-12 15:25:22.504489833 +0100
++++ coreutils-8.22/src/uniq.c	2014-01-15 11:34:10.413909085 +0100
 @@ -21,6 +21,17 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -4085,7 +4089,7 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
    check_chars = SIZE_MAX;
 diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
 --- coreutils-8.22.orig/tests/local.mk	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/local.mk	2014-01-12 15:25:22.505489787 +0100
++++ coreutils-8.22/tests/local.mk	2014-01-15 11:34:10.413909085 +0100
 @@ -324,6 +324,7 @@
    tests/misc/sort-discrim.sh			\
    tests/misc/sort-files0-from.pl		\
@@ -4096,7 +4100,7 @@ diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
    tests/misc/sort-month.sh			\
 diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.pl
 --- coreutils-8.22.orig/tests/misc/cut.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/cut.pl	2014-01-12 15:25:22.505489787 +0100
++++ coreutils-8.22/tests/misc/cut.pl	2014-01-15 11:34:10.413909085 +0100
 @@ -23,9 +23,11 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4121,7 +4125,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.p
      push @Tests, @new;
 diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/expand.pl
 --- coreutils-8.22.orig/tests/misc/expand.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/expand.pl	2014-01-12 15:25:22.505489787 +0100
++++ coreutils-8.22/tests/misc/expand.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -23,6 +23,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4178,7 +4182,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/ex
  
 diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold.pl
 --- coreutils-8.22.orig/tests/misc/fold.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/fold.pl	2014-01-12 15:25:22.506489742 +0100
++++ coreutils-8.22/tests/misc/fold.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -20,9 +20,18 @@
  
  (my $program_name = $0) =~ s|.*/||;
@@ -4250,7 +4254,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold
  exit $fail;
 diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join.pl
 --- coreutils-8.22.orig/tests/misc/join.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/join.pl	2014-01-12 15:25:22.506489742 +0100
++++ coreutils-8.22/tests/misc/join.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -25,6 +25,15 @@
  
  my $prog = 'join';
@@ -4319,7 +4323,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join
  
 diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/misc/sort-mb-tests.sh
 --- coreutils-8.22.orig/tests/misc/sort-mb-tests.sh	1970-01-01 01:00:00.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort-mb-tests.sh	2014-01-12 15:25:22.506489742 +0100
++++ coreutils-8.22/tests/misc/sort-mb-tests.sh	2014-01-15 11:34:10.414909089 +0100
 @@ -0,0 +1,45 @@
 +#!/bin/sh
 +# Verify sort's multi-byte support.
@@ -4368,7 +4372,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/
 +Exit $fail
 diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/misc/sort-merge.pl
 --- coreutils-8.22.orig/tests/misc/sort-merge.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort-merge.pl	2014-01-12 15:25:22.507489697 +0100
++++ coreutils-8.22/tests/misc/sort-merge.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -26,6 +26,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4427,7 +4431,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/mis
  
 diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort.pl
 --- coreutils-8.22.orig/tests/misc/sort.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort.pl	2014-01-12 15:25:22.507489697 +0100
++++ coreutils-8.22/tests/misc/sort.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -24,10 +24,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4493,7 +4497,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort
  my $verbose = $ENV{VERBOSE};
 diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/unexpand.pl
 --- coreutils-8.22.orig/tests/misc/unexpand.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/unexpand.pl	2014-01-12 15:25:22.507489697 +0100
++++ coreutils-8.22/tests/misc/unexpand.pl	2014-01-15 11:34:10.414909089 +0100
 @@ -27,6 +27,14 @@
  
  my $prog = 'unexpand';
@@ -4549,7 +4553,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/
  
 diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq.pl
 --- coreutils-8.22.orig/tests/misc/uniq.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/uniq.pl	2014-01-12 15:25:22.508489652 +0100
++++ coreutils-8.22/tests/misc/uniq.pl	2014-01-15 11:34:10.415909094 +0100
 @@ -23,9 +23,17 @@
  my $prog = 'uniq';
  my $try = "Try '$prog --help' for more information.\n";
@@ -4624,7 +4628,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
  
 diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-tests.pl
 --- coreutils-8.22.orig/tests/pr/pr-tests.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/pr/pr-tests.pl	2014-01-12 15:25:22.508489652 +0100
++++ coreutils-8.22/tests/pr/pr-tests.pl	2014-01-15 11:34:10.415909094 +0100
 @@ -23,6 +23,15 @@
  
  my $prog = 'pr';
@@ -4692,12 +4696,12 @@ diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-t
  
 diff -Naur coreutils-8.22.orig/Makefile.in coreutils-8.22/Makefile.in
 --- coreutils-8.22.orig/Makefile.in	2013-12-13 16:20:00.000000000 +0100
-+++ coreutils-8.22/Makefile.in	2014-01-12 15:27:03.875918735 +0100
++++ coreutils-8.22/Makefile.in	2014-01-15 11:35:47.722696737 +0100
 @@ -3700,6 +3700,7 @@
    tests/misc/chcon.sh				\
    tests/misc/chroot-credentials.sh		\
    tests/misc/selinux.sh				\
-+  tests/misc/sort-mb-tests.sh		\
++  tests/misc/sort-mb-tests.sh			\
    tests/misc/truncate-owned-by-other.sh		\
    tests/mkdir/writable-under-readonly.sh	\
    tests/mv/sticky-to-xpart.sh			\
