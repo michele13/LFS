@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY exiv2-homepage      "http://www.exiv2.org/">
+  <!ENTITY exiv2-wikipedia     " ">
   <!ENTITY exiv2-download-http "http://www.exiv2.org/exiv2-&exiv2-version;.tar.gz">
   <!ENTITY exiv2-download-ftp  " ">
   <!ENTITY exiv2-md5sum        "b8a23dc56a98ede85c00718a97a8d6fc">
@@ -17,20 +19,26 @@
 
   <title>Exiv2-&exiv2-version;</title>
 
-  <indexterm zone="exiv2">
-    <primary sortas="a-Exiv2">Exiv2</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Exiv2</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Exiv2</application> is a C++ library and a command
-      line utility for managing image metadata.
+      Exiv2 is a C++ library and a command line utility for managing image
+      metadata.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&exiv2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&exiv2-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&exiv2-download-http;"/>
@@ -63,86 +71,51 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Exiv2 Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="expat"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Exiv2</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Exiv2</application> by running the following
-      commands:
+      Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-chmod -v 755 /usr/lib/libexiv2.so</userinput></screen>
+chmod -v +x /usr/lib/libexiv2.so</userinput></screen>
 
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directory</segtitle>
+    <indexterm zone="exiv2">
+      <primary sortas="b-exiv2">exiv2</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          exiv2
-        </seg>
-        <seg>
-          libexiv2.so
-        </seg>
-        <seg>
-          /usr/include/exiv2
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="exiv2-prog">
-        <term><command>exiv2</command></term>
-        <listitem>
-          <para>
-            is an utility used to dump Exif data.
-          </para>
-          <indexterm zone="exiv2 exiv2-prog">
-            <primary sortas="b-exiv2">exiv2</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/exiv2
+/usr/include/exiv2/
+/usr/lib/libexiv2.so
+/usr/lib/pkgconfig/exiv2.pc
+/usr/share/man/man1/exiv2.1</literal></screen>
 
   </sect2>
 
