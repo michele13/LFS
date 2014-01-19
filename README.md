@@ -7,6 +7,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced systemd-udev with eudev
 * replaced pkg-config with pkgconf
 * removed texinfo
+* added postlfs chapter (moved from blfs)
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * moved patches to github repo
