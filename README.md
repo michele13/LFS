@@ -3,7 +3,7 @@ My personal modifications to the LFS (http://www.linuxfromscratch.org/lfs/) book
 This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 
 ## Modifications:
-* added attr, acl, libcap, pcre, and which
+* added attr, acl, libcap, pcre, and which (moved from blfs)
 * replaced systemd-udev with eudev
 * replaced pkg-config with pkgconf
 * removed texinfo
