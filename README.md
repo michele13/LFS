@@ -3,11 +3,11 @@ My personal modifications to the LFS (http://www.linuxfromscratch.org/lfs/) book
 This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 
 ## Modifications:
-* added attr, acl, libcap, pcre, and which
+* added attr, acl, libcap, lsb-release, pcre, and which packages
+* added parts of postlfs chapter from blfs
 * replaced systemd-udev with eudev
 * replaced pkg-config with pkgconf
 * removed texinfo
-* added parts of postlfs chapter from blfs
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * moved patches to github repo
