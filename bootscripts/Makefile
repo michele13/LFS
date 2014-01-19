@@ -38,6 +38,7 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
+	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/reboot        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
@@ -91,26 +92,32 @@ rc0: files
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S70mountfs
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S90localnet
 	ln -sf ../init.d/halt        ${EXTDIR}/rc.d/rc0.d/S99halt
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/K45random
 
 rc1: files
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc1.d/K80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc1.d/K90sysklogd
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc1.d/S25random
 
 rc2: files
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc2.d/K80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc2.d/K90sysklogd
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc2.d/S25random
 
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
 
 rc4: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc4.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc4.d/S20network
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc4.d/S25random
 
 rc5: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc5.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc5.d/S20network
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc5.d/S25random
 
 rc6: files
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc6.d/K80network
@@ -120,6 +127,7 @@ rc6: files
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc6.d/S70mountfs
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc6.d/S90localnet
 	ln -sf ../init.d/reboot      ${EXTDIR}/rc.d/rc6.d/S99reboot
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc6.d/K45random
 
 uninstall:
 	rm -rf ${DESTDIR}/lib/services ${DESTDIR}/lib/lsb ${EXTDIR}/rc.d ${EXTDIR}/init.d \
