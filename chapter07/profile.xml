@@ -10,153 +10,312 @@
 
   <title>The Bash Shell Startup Files</title>
 
-  <indexterm zone="ch-scripts-profile">
-    <primary sortas="e-/etc/profile">/etc/profile</primary>
-  </indexterm>
-
-  <para>The shell program <command>/bin/bash</command> (hereafter referred to
-  as <quote>the shell</quote>) uses a collection of startup files to help
-  create an environment to run in. Each file has a specific use and may affect
-  login and interactive environments differently. The files in the <filename
-  class="directory">/etc</filename> directory provide global settings. If an
-  equivalent file exists in the home directory, it may override the global
-  settings.</para>
+  <para>The shell program <filename>/bin/bash</filename> (hereafter
+  referred to as just "the shell") uses a collection of startup files to
+  help create an environment.  Each file has a specific use and
+  may affect login and interactive environments differently.  The files in
+  the <filename class="directory">/etc</filename> directory generally provide
+  global settings. If an equivalent file exists in your home directory it may
+  override the global settings.</para>
 
   <para>An interactive login shell is started after a successful login, using
-  <command>/bin/login</command>, by reading the <filename>/etc/passwd</filename>
-  file. An interactive non-login shell is started at the command-line (e.g.,
-  <prompt>[prompt]$</prompt><command>/bin/bash</command>). A non-interactive
-  shell is usually present when a shell script is running. It is non-interactive
-  because it is processing a script and not waiting for user input between
-  commands.</para>
+  <filename>/bin/login</filename>, by reading the <filename>/etc/passwd</filename>
+  file.  This shell invocation normally reads <filename>/etc/profile</filename>
+  and its private equivalent <filename>~/.bash_profile</filename> upon
+  startup.</para>
 
-  <para>For more information, see <command>info bash</command> under the
-  <emphasis>Bash Startup Files and Interactive Shells</emphasis> section.</para>
+  <para>An interactive non-login shell is normally started at the command-line
+  using a shell program (e.g.,
+  <prompt>[prompt]$</prompt><command>/bin/bash</command>) or by the
+  <command>/bin/su</command> command.  An interactive non-login shell is also
+  started with a terminal program such as <command>xterm</command>
+  from within a graphical environment. This type of
+  shell invocation normally copies the parent environment and then reads the
+  user's <filename>~/.bashrc</filename> file for additional startup configuration
+  instructions.</para>
 
-  <para>The files <filename>/etc/profile</filename> and
-  <filename>~/.bash_profile</filename> are read when the shell is
-  invoked as an interactive login shell.</para>
+  <para>A non-interactive shell is usually present when a shell script is
+  running.  It is non-interactive because it is processing a script and not
+  waiting for user input between commands. For these shell invocations, only
+  the environment inherited from the parent shell is used.</para>
 
-  <para>The base <filename>/etc/profile</filename> below sets some
-  environment variables necessary for native language support. Setting
-  them properly results in:</para>
+  <para> The file <filename>~/.bash_logout</filename> is not used for an
+  invocation of the shell.  It is read and executed when a user exits from an
+  interactive login shell.</para>
 
-  <itemizedlist>
-    <listitem>
-      <para>The output of programs translated into the native language</para>
-    </listitem>
-    <listitem>
-      <para>Correct classification of characters into letters, digits and other
-      classes. This is necessary for <command>bash</command> to properly accept
-      non-ASCII characters in command lines in non-English locales</para>
-    </listitem>
-    <listitem>
-      <para>The correct alphabetical sorting order for the country</para>
-    </listitem>
-    <listitem>
-      <para>Appropriate default paper size</para>
-    </listitem>
-    <listitem>
-      <para>Correct formatting of monetary, time, and date values</para>
-    </listitem>
-  </itemizedlist>
+  <para>Many distributions use <filename>/etc/bashrc</filename> for system wide
+  initialization of non-login shells. This file is usually called from the
+  user's <filename>~/.bashrc</filename> file and is not built directly into
+  <command>bash</command> itself.  This convention is followed in this
+  section.</para>
 
-  <para>Replace <replaceable>&lt;ll&gt;</replaceable> below with the two-letter code
-  for the desired language (e.g., <quote>en</quote>) and
-  <replaceable>&lt;CC&gt;</replaceable> with the two-letter code for the appropriate
-  country (e.g., <quote>GB</quote>). <replaceable>&lt;charmap&gt;</replaceable> should
-  be replaced with the canonical charmap for your chosen locale. Optional
-  modifiers such as <quote>@euro</quote> may also be present.</para>
+  <sect2>
+    <title>/etc/profile</title>
 
-  <para>The list of all locales supported by Glibc can be obtained by running
-  the following command:</para>
-
-<screen role="nodump"><userinput>locale -a</userinput></screen>
-
-  <para>Charmaps can have a number of aliases, e.g., <quote>ISO-8859-1</quote>
-  is also referred to as <quote>iso8859-1</quote> and <quote>iso88591</quote>.
-  Some applications cannot handle the various synonyms correctly (e.g., require
-  that <quote>UTF-8</quote> is written as <quote>UTF-8</quote>, not
-  <quote>utf8</quote>), so it is safest in most
-  cases to choose the canonical name for a particular locale. To determine
-  the canonical name, run the following command, where <replaceable>&lt;locale
-  name&gt;</replaceable> is the output given by <command>locale -a</command> for
-  your preferred locale (<quote>en_GB.iso88591</quote> in our example).</para>
-
-<screen role="nodump"><userinput>LC_ALL=<replaceable>&lt;locale name&gt;</replaceable> locale charmap</userinput></screen>
-
-  <para>For the <quote>en_GB.iso88591</quote> locale, the above command
-  will print:</para>
-
-<screen><computeroutput>ISO-8859-1</computeroutput></screen>
-
-  <para>This results in a final locale setting of <quote>en_GB.ISO-8859-1</quote>.
-  It is important that the locale found using the heuristic above is tested prior
-  to it being added to the Bash startup files:</para>
-
-<screen role="nodump"><userinput>LC_ALL=&lt;locale name&gt; locale language
-LC_ALL=&lt;locale name&gt; locale charmap
-LC_ALL=&lt;locale name&gt; locale int_curr_symbol
-LC_ALL=&lt;locale name&gt; locale int_prefix</userinput></screen>
-
-  <para>The above commands should print the language name, the character
-  encoding used by the locale, the local currency, and the prefix to dial
-  before the telephone number in order to get into the country. If any of the
-  commands above fail with a message similar to the one shown below, this means
-  that your locale was either not installed in Chapter 6 or is not supported by
-  the default installation of Glibc.</para>
-
-<screen><computeroutput>locale: Cannot set LC_* to default locale: No such file or directory</computeroutput></screen>
-
-  <para>If this happens, you should either install the desired locale using the
-  <command>localedef</command> command, or consider choosing a different locale.
-  Further instructions assume that there are no such error messages from
-  Glibc.</para>
-
-  <!-- FIXME: the xlib example will became obsolete real soon -->
-  <para>Some packages beyond LFS may also lack support for your chosen locale. One
-  example is the X library (part of the X Window System), which outputs the
-  following error message if the locale does not exactly match one of the character
-  map names in its internal files:</para>
-
-<screen><computeroutput>Warning: locale not supported by Xlib, locale set to C</computeroutput></screen>
-
-  <para>In several cases Xlib expects that the character map will be listed in
-  uppercase notation with canonical dashes. For instance, "ISO-8859-1" rather
-  than "iso88591". It is also  possible to find an appropriate specification by
-  removing the charmap part of the locale specification.  This can be checked
-  by running the <command>locale charmap</command> command in both locales.
-  For example, one would have to change "de_DE.ISO-8859-15@euro" to
-  "de_DE@euro" in order to get this locale recognized by Xlib.</para>
-
-  <para>Other packages can also function incorrectly (but may not necessarily
-  display any error messages) if the locale name does not meet their expectations.
-  In those cases, investigating how other Linux distributions support your locale
-  might provide some useful information.</para>
-
-  <para>Once the proper locale settings have been determined, create the
-  <filename>/etc/profile</filename> file:</para>
+    <para>Here is a base <filename>/etc/profile</filename>. This file starts by
+    setting up some helper functions and some basic parameters.  It specifies some
+    <command>bash</command> history parameters and, for security purposes,
+    disables keeping a permanent history file for the <systemitem
+    class="username">root</systemitem> user.  It also sets a
+    default user prompt.  It then calls small, single purpose scripts in the
+    <filename class='directory'>/etc/profile.d</filename> directory to provide most
+    of the initialization.</para>
 
 <screen><userinput>cat &gt; /etc/profile &lt;&lt; "EOF"
 <literal># Begin /etc/profile
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+# modifications by Dagmar d'Surreal &lt;rivyqntzne@pbzpnfg.arg&gt;
 
-export LANG=<replaceable>&lt;ll&gt;_&lt;CC&gt;.&lt;charmap&gt;&lt;@modifiers&gt;</replaceable>
+# System wide environment variables and startup programs.
+
+# System wide aliases and functions should go in /etc/bashrc.  Personal
+# environment variables and startup programs should go into
+# ~/.bash_profile.  Personal aliases and functions should go into
+# ~/.bashrc.
+
+# Functions to help us manage paths.  Second argument is the name of the
+# path variable to be modified (default: PATH)
+pathremove () {
+        local IFS=':'
+        local NEWPATH
+        local DIR
+        local PATHVARIABLE=${2:-PATH}
+        for DIR in ${!PATHVARIABLE} ; do
+                if [ "$DIR" != "$1" ] ; then
+                  NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+                fi
+        done
+        export $PATHVARIABLE="$NEWPATH"
+}
+
+pathprepend () {
+        pathremove $1 $2
+        local PATHVARIABLE=${2:-PATH}
+        export $PATHVARIABLE="$1${!PATHVARIABLE:+:${!PATHVARIABLE}}"
+}
+
+pathappend () {
+        pathremove $1 $2
+        local PATHVARIABLE=${2:-PATH}
+        export $PATHVARIABLE="${!PATHVARIABLE:+${!PATHVARIABLE}:}$1"
+}
+
+
+# Set the initial path
+export PATH=/bin:/usr/bin
+
+if [ $EUID -eq 0 ] ; then
+        pathappend /sbin:/usr/sbin
+        unset HISTFILE
+fi
+
+# Setup some environment variables.
+export HISTSIZE=1000
+export HISTIGNORE="&amp;:[bf]g:exit"
+
+# Setup a red prompt for root and a green one for users.
+NORMAL="\[\e[0m\]"
+RED="\[\e[1;31m\]"
+GREEN="\[\e[1;32m\]"
+if [[ $EUID == 0 ]] ; then
+  PS1="$RED\u [ $NORMAL\w$RED ]# $NORMAL"
+else
+  PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
+fi
+
+for script in /etc/profile.d/*.sh ; do
+        if [ -r $script ] ; then
+                . $script
+        fi
+done
+
+# Now to clean up
+unset pathremove pathprepend pathappend
 
 # End /etc/profile</literal>
 EOF</userinput></screen>
 
-  <para>The <quote>C</quote> (default) and <quote>en_US</quote> (the recommended
-  one for United States English users) locales are different. <quote>C</quote>
-  uses the US-ASCII 7-bit character set, and treats bytes with the high bit set
-  as invalid characters. That's why, e.g., the <command>ls</command> command
-  substitutes them with question marks in that locale. Also, an attempt to send
-  mail with such characters from Mutt or Pine results in non-RFC-conforming
-  messages being sent (the charset in the outgoing mail is indicated as <quote>unknown
-  8-bit</quote>). So you can use the <quote>C</quote> locale only if you are sure that
-  you will never need 8-bit characters.</para>
+    <sect3>
+      <title>The /etc/profile.d Directory</title>
 
-  <para>UTF-8 based locales are not supported well by many programs.
-  Work is in progress to document and, if possible, fix such problems, see
-  <ulink url="&blfs-root;view/svn/introduction/locale-issues.html"/>.</para>
+      <para>Now create the <filename class='directory'>/etc/profile.d</filename>
+      directory, where the individual initialization scripts are placed:</para>
+
+<screen><userinput>install -v --directory --mode=0755 --owner=root --group=root /etc/profile.d</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>/etc/profile.d/dircolors.sh</title>
+
+      <para>This script uses the <filename>~/.dircolors</filename> and
+      <filename>/etc/dircolors</filename> files to control the colors of file names in a
+      directory listing. They control colorized output of things like <command>ls
+      --color</command>.  The explanation of how to initialize these files is at the
+      end of this section.</para>
+
+<screen><userinput>cat &gt; /etc/profile.d/dircolors.sh &lt;&lt; "EOF"
+<literal># Setup for /bin/ls and /bin/grep to support color, the alias is in /etc/bashrc.
+if [ -f "/etc/dircolors" ] ; then
+        eval $(dircolors -b /etc/dircolors)
+
+        if [ -f "$HOME/.dircolors" ] ; then
+                eval $(dircolors -b $HOME/.dircolors)
+        fi
+fi
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'</literal>
+EOF</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>/etc/profile.d/extrapaths.sh</title>
+
+      <para>This script adds several useful paths to the <envar>PATH</envar> and
+      <envar>PKG_CONFIG_PATH</envar> environment variables.  If you want, you
+      can uncomment the last section to put a dot at the end of your path. This will
+      allow executables in the current working directory to be executed without
+      specifying a ./, however you are warned that this is generally considered a
+      security hazard.</para>
+
+<screen><userinput>cat &gt; /etc/profile.d/extrapaths.sh &lt;&lt; "EOF"
+<literal>if [ -d /usr/local/lib/pkgconfig ] ; then
+        pathappend /usr/local/lib/pkgconfig PKG_CONFIG_PATH
+fi
+if [ -d /usr/local/bin ]; then
+        pathprepend /usr/local/bin
+fi
+if [ -d /usr/local/sbin -a $EUID -eq 0 ]; then
+        pathprepend /usr/local/sbin
+fi
+
+if [ -d ~/bin ]; then
+        pathprepend ~/bin
+fi
+#if [ $EUID -gt 99 ]; then
+#        pathappend .
+#fi</literal>
+EOF</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>/etc/profile.d/readline.sh</title>
+
+      <para>This script sets up the default <filename>inputrc</filename>
+      configuration file. If the user does not have individual settings, it uses the
+      global file.</para>
+
+<screen><userinput>cat &gt; /etc/profile.d/readline.sh &lt;&lt; "EOF"
+<literal># Setup the INPUTRC environment variable.
+if [ -z "$INPUTRC" -a ! -f "$HOME/.inputrc" ] ; then
+        INPUTRC=/etc/inputrc
+fi
+export INPUTRC</literal>
+EOF</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>/etc/profile.d/umask.sh</title>
+
+      <para>Setting the <command>umask</command> value is important for security.
+      Here the default group write permissions are turned off for system users and when
+      the user name and group name are not the same.</para>
+
+<screen><userinput>cat &gt; /etc/profile.d/umask.sh &lt;&lt; "EOF"
+<literal># By default, the umask should be set.
+if [ "$(id -gn)" = "$(id -un)" -a $EUID -gt 99 ] ; then
+  umask 002
+else
+  umask 022
+fi</literal>
+EOF</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>/etc/profile.d/i18n.sh</title>
+
+      <para>This script sets an environment variable necessary for
+      native language support.</para>
+
+<screen><userinput>cat &gt; /etc/profile.d/i18n.sh &lt;&lt; "EOF"
+<literal># Set up i18n variables
+export LANG=en_US.UTF-8</literal>
+EOF</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>Other Initialization Values</title>
+
+      <para>Other initialization can easily be added to the
+      <filename>profile</filename> by adding additional scripts to the
+      <filename class='directory'>/etc/profile.d</filename> directory.</para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>/etc/bashrc</title>
+
+    <para>Here is a base <filename>/etc/bashrc</filename>.  Comments in the
+    file should explain everything you need.</para>
+
+<screen><userinput>cat &gt; /etc/bashrc &lt;&lt; "EOF"
+<literal># Begin /etc/bashrc
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+# updated by Bruce Dubbs &lt;bdubbs@linuxfromscratch.org&gt;
+
+# System wide aliases and functions.
+
+# System wide environment variables and startup programs should go into
+# /etc/profile.  Personal environment variables and startup programs
+# should go into ~/.bash_profile.  Personal aliases and functions should
+# go into ~/.bashrc
+
+# Provides colored /bin/ls and /bin/grep commands.  Used in conjunction
+# with code in /etc/profile.
+
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+
+# Provides prompt for non-login shells, specifically shells started
+# in the X environment. [Review the LFS archive thread titled
+# PS1 Environment Variable for a great case study behind this script
+# addendum.]
+
+NORMAL="\[\e[0m\]"
+RED="\[\e[1;31m\]"
+GREEN="\[\e[1;32m\]"
+if [[ $EUID == 0 ]] ; then
+  PS1="$RED\u [ $NORMAL\w$RED ]# $NORMAL"
+else
+  PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
+fi
+
+# End /etc/bashrc</literal>
+EOF</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>/etc/dircolors</title>
+
+    <para>If you want to use the <filename>dircolors</filename> capability, then
+    run the following command.</para>
+
+<screen><userinput>dircolors -p > /etc/dircolors</userinput></screen>
+
+    <para>If you wish to customize the colors used for different file types, you can
+    edit the <filename>/etc/dircolors</filename> file.  The instructions for setting
+    the colors are embedded in the file.</para>
+
+  </sect2>
 
 </sect1>

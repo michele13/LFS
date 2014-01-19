@@ -69,36 +69,113 @@
     <filename class="directory">/etc/skel</filename> and
     different permissions may be needed for them.</para>
 
-<!--
-  <para>Decide which initialization files should be provided in every (or most)
-  new user's home directory. The decisions you make will affect what you
-  do in the next two sections, <xref linkend="postlfs-config-profile"/> and
-  <xref linkend="postlfs-config-vimrc"/>. Some or all of those files will be
-  useful for <systemitem class="username">root</systemitem>, any
-  already-existing users, and new users.</para>
+    <sect3>
+      <title>~/.bashrc</title>
 
-  <para>The files from those sections that you might want to place in
-  <filename class="directory">/etc/skel</filename> include
-  <filename>.inputrc</filename>, <filename>.bash_profile</filename>,
-  <filename>.bashrc</filename>, <filename>.bash_logout</filename>,
-  <filename>.dircolors</filename>, and <filename>.vimrc</filename>. If
-  you are unsure which of these should be placed there, just continue to
-  the following sections, read each section and any references provided,
-  and then make your decision.</para>
+    <para>Here is a base <filename>~/.bashrc</filename>:</para>
 
-  <para>You will run a slightly modified set of commands for files which
-  are placed in <filename class="directory">/etc/skel</filename>. Each section
-  will remind you of this. In brief, the book's commands have been written for
-  files <emphasis>not</emphasis> added to
-  <filename class="directory">/etc/skel</filename> and instead just sends the
-  results to the user's home directory. If the file is going to be in
-  <filename class="directory">/etc/skel</filename>, change the book's command(s)
-  to send output there instead and then just copy the file from
-  <filename class="directory">/etc/skel</filename> to the appropriate
-  directories, like <filename class="directory">/etc</filename>,
-  <filename class="directory">~</filename> or the home directory
-  of any other user already in the system.</para>
--->
+<screen><userinput>cat &gt; ~/.bashrc &lt;&lt; "EOF"
+<literal># Begin ~/.bashrc
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+
+# Personal aliases and functions.
+
+# Personal environment variables and startup programs should go in
+# ~/.bash_profile.  System wide environment variables and startup
+# programs are in /etc/profile.  System wide aliases and functions are
+# in /etc/bashrc.
+
+if [ -f "/etc/bashrc" ] ; then
+  source /etc/bashrc
+fi
+
+export EDITOR=vim
+
+# End ~/.bashrc</literal>
+EOF
+install -v -m600 ~/.bashrc /etc/skel</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>~/.bash_profile</title>
+
+      <para>Here is a base <filename>~/.bash_profile</filename>:</para>
+
+<screen><userinput>cat &gt; ~/.bash_profile &lt;&lt; "EOF"
+<literal># Begin ~/.bash_profile
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+# updated by Bruce Dubbs &lt;bdubbs@linuxfromscratch.org&gt;
+
+# Personal environment variables and startup programs.
+
+# Personal aliases and functions should go in ~/.bashrc.  System wide
+# environment variables and startup programs are in /etc/profile.
+# System wide aliases and functions are in /etc/bashrc.
+
+append () {
+  # First remove the directory
+  local IFS=':'
+  local NEWPATH
+  for DIR in $PATH; do
+     if [ "$DIR" != "$1" ]; then
+       NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+     fi
+  done
+
+  # Then append the directory
+  export PATH=$NEWPATH:$1
+}
+
+if [ -f "$HOME/.bashrc" ] ; then
+  source $HOME/.bashrc
+fi
+
+if [ -d "$HOME/bin" ] ; then
+  append $HOME/bin
+fi
+
+unset append
+
+# End ~/.bash_profile</literal>
+EOF
+install -v -m600 ~/.bash_profile /etc/skel</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>~/.bash_logout</title>
+
+      <para>This is an empty <filename>~/.bash_logout</filename> that can be used as
+      a template.  You will notice that the base <filename>~/.bash_logout</filename>
+      does not include a <userinput>clear</userinput> command.  This is because the
+      clear is handled in the <filename>/etc/issue</filename> file.</para>
+
+<screen><userinput>cat &gt; ~/.bash_logout &lt;&lt; "EOF"
+<literal># Begin ~/.bash_logout
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+
+# Personal items to perform on logout.
+
+# End ~/.bash_logout</literal>
+EOF
+install -v -m600 ~/.bash_logout /etc/skel</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>~/.dircolors</title>
+
+      <para>Provide a <filename>~/.dircolors</filename> file when a new user is
+      set up:</para>
+
+<screen><userinput>dircolors -p > ~/.dircolors
+dircolors -p > /etc/skel/.dircolors</userinput></screen>
+
+    </sect3>
 
   </sect2>
 
