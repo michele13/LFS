@@ -131,7 +131,7 @@
     <para>The following command creates a sample file for the
     <emphasis>eth0</emphasis> device with a static IP address:</para>
 
-<screen><userinput>cd /etc/sysconfig/
+<screen role="nodump"><userinput>cd /etc/sysconfig/
 cat &gt; ifconfig.eth0 &lt;&lt; "EOF"
 <literal>ONBOOT=yes
 IFACE=eth0
@@ -199,9 +199,11 @@ EOF</userinput></screen>
 <screen><userinput>cat &gt; /etc/resolv.conf &lt;&lt; "EOF"
 <literal># Begin /etc/resolv.conf
 
-domain <replaceable>&lt;Your Domain Name&gt;</replaceable>
-nameserver <replaceable>&lt;IP address of your primary nameserver&gt;</replaceable>
-nameserver <replaceable>&lt;IP address of your secondary nameserver&gt;</replaceable>
+#domain <replaceable>&lt;Your Domain Name&gt;</replaceable>
+#nameserver <replaceable>&lt;IP address of your primary nameserver&gt;</replaceable>
+#nameserver <replaceable>&lt;IP address of your secondary nameserver&gt;</replaceable>
+nameserver 8.8.8.8
+nameserver 8.8.4.4
 
 # End /etc/resolv.conf</literal>
 EOF</userinput></screen>
