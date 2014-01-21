@@ -83,32 +83,6 @@
         <xref linkend="xorg-server"/>
       </para>
 
-      <bridgehead renderas="sect5">Optional</bridgehead>
-      <para role="optional">
-        <xref linkend="libxvmc"/> and
-        <xref linkend="xcb-util"/> (for libIntelXvMC), and
-        <xref linkend="glamor-egl"/>
-      </para>
-
-    </sect3>
-
-    <sect3 role="kernel" id="xorg-intel-driver-kernel">
-      <title>Kernel Configuration</title>
-
-    <para>
-      Enable the following options in the kernel configuration and recompile the
-      kernel if necessary:
-    </para>
-
-<screen><literal>Device Drivers  ---&gt;
-  Graphics support ---&gt;
-    Intel I810: Y or M
-    Intel 8xx/9xx/G3x/G4x/HD Graphics: Y or M
-      Enable modesetting on intel by default: Y</literal></screen>
-
-      <indexterm zone="xorg-intel-driver xorg-intel-driver-kernel">
-        <primary sortas="d-xorg-intel-driver">xorg-intel-driver</primary>
-      </indexterm>
     </sect3>
 
     <sect3 role="installation">
@@ -122,7 +96,7 @@
 <screen><userinput>patch -Np1 -i ../xf86-video-intel-&xorg-intel-driver-version;-api_change-1.patch &amp;&amp;
 ./configure $XORG_CONFIG \
             --enable-kms-only \
-            --with-default-accel=sna &amp;&amp;
+            --disable-uxa &amp;&amp;
 make</userinput></screen>
 
       <para>
@@ -145,55 +119,20 @@ make</userinput></screen>
       </para>
 
       <para>
-        <parameter>--with-default-accel=sna</parameter>: This switch enables
-        SandyBridge New Acceleration method by default.
-      </para>
-
-      <para>
-        <option>--enable-glamor</option>: This switch enables
-        new GL-based 2D acceleration. As well as specifying this in the
-        build, it needs to be enabled at run time (see below).
+        <parameter>--disable-uxa</parameter>: This switch disables Unified
+        Acceleration Architecture and enables SandyBridge's New Acceleration
+        method by default.
       </para>
 
     </sect3>
 
-    <sect3>
-      <title>Glamor Acceleration</title>
-
-      <para>
-        Glamor is an acceleration library which uses cards' 3D capabilities to
-        accelerate 2D rendering. Glamor acceleration is not enabled by default.
-        You have to use a <filename>xorg.conf</filename> file to enable it. To
-        enable Glamor, create the following
-        <filename>/etc/X11/xorg.conf</filename> as the
-        <systemitem class="username">root</systemitem> user:
-      </para>
-
-<screen role="root"><userinput>cat &gt;&gt; /etc/X11/xorg.conf &lt;&lt; "EOF"
-<literal>Section "Module"
-        Load "dri2"
-        Load "glamoregl"
-EndSection
-
-Section "Device"
-        Identifier "intel"
-        Driver "intel"
-        Option "AccelMethod" "glamor"
-EndSection</literal>
-EOF</userinput></screen>
-
-    </sect3>
     <sect3 role="content">
       <title>Contents</title>
 
       <segmentedlist>
-        <segtitle>Installed Library</segtitle>
         <segtitle>Installed Xorg Driver</segtitle>
 
         <seglistitem>
-          <seg>
-            libIntelXvMC.so
-          </seg>
           <seg>
             intel_drv.so
           </seg>
