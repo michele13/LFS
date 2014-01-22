@@ -6,10 +6,10 @@
 
   <!ENTITY cogl-download-http "&gnome-download-http;/cogl/1.16/cogl-&cogl-version;.tar.xz">
   <!ENTITY cogl-download-ftp  "&gnome-download-ftp;/cogl/1.16/cogl-&cogl-version;.tar.xz">
-  <!ENTITY cogl-md5sum        "611a61bed04354cbfffa3dc27feb6d4f">
+  <!ENTITY cogl-md5sum        "aaf32bde135cf3815aa3221726bad71e">
   <!ENTITY cogl-size          "1.6 MB">
-  <!ENTITY cogl-buildsize     "63 MB">
-  <!ENTITY cogl-time          "0.5 SBU">
+  <!ENTITY cogl-buildsize     "56 MB">
+  <!ENTITY cogl-time          "0.6 SBU">
 ]>
 
 <sect1 id="cogl" xreflabel="Cogl-&cogl-version;">
@@ -65,16 +65,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;cogl/cogl-&cogl-version;-wayland_server-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Cogl Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -86,6 +76,7 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
+      <xref linkend="gst10-plugins-base"/>,
       <xref linkend="sdl"/>,
       <ulink url="http://www.libsdl.org/tmp/release/">SDL2</ulink> and
       <ulink url="http://wayland.freedesktop.org/">Wayland</ulink>
@@ -101,8 +92,7 @@
       commands:
     </para>
 
-<screen><userinput>patch -Np1 -i ../cogl-&cogl-version;-wayland_server-1.patch     &amp;&amp;
-./configure --prefix=/usr --enable-gles1 --enable-gles2 &amp;&amp;
+<screen><userinput>./configure --prefix=/usr --enable-gles1 --enable-gles2 &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -132,6 +122,10 @@ make</userinput></screen>
       for OpenGL ES 2.0.
     </para>
 
+    <para>
+      <option>--enable-cogl-gst</option>: This switch enables gstreamer support.
+    </para>
+
   </sect2>
 
   <sect2 role="content">
@@ -147,7 +141,10 @@ make</userinput></screen>
           None
         </seg>
         <seg>
-          libcogl-gles2.so, libcogl-pango.so and libcogl.so
+          libcogl-gles2.so,
+          libcogl-pango.so and 
+          libcogl.so, and optional libraries
+          libcogl-gst.so and /usr/lib/gstreamer-1.0/libgstcogl.so
        </seg>
         <seg>
          /usr/include/cogl and
