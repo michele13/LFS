@@ -10,6 +10,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * removed texinfo
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
+* automatically set number of make jobs depending on /proc/cpuinfo
 * moved patches to github repo
 * disabled static libraries where possible with the configure switch
 * removed steps for additional documentation installation
