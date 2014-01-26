@@ -123,10 +123,9 @@
     ln -sfv ${lib}w.pc        /usr/lib/pkgconfig/${lib}.pc
 done
 
-ln -sfv libncurses++w.a /usr/lib/libncurses++.a
-chmod -v 755 /usr/lib/lib{ncurses,form,menu,panel}*.so</userinput></screen>
+ln -sfv libncurses++w.a /usr/lib/libncurses++.a</userinput></screen>
 
-    <para>Finally, make sure that old applications that look for
+    <para>Make sure that old applications that look for
     <filename class="libraryfile">-lcurses</filename> at build time are still
     buildable:</para>
 
@@ -152,6 +151,12 @@ ln -sfv libncurses.a       /usr/lib/libcurses.a</userinput></screen>
 make sources libs
 cp -av lib/lib*.so.5* /usr/lib</userinput></screen>
     </note>
+
+    <para>
+      Finally, set the correct file mode bits for the shared libraries:
+    </para>
+
+<screen><userinput remap="install">chmod -v 755 /usr/lib/lib*{curses,form,menu,panel}*.so</userinput></screen>
 
   </sect2>
 
