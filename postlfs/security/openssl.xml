@@ -105,6 +105,9 @@
       Install OpenSSL with the following commands:
     </para>
 
+<!-- libdir=lib so it doesn't write over /usr/lib64 symlink on 64 bit system.
+     Might break packaging. -->
+
 <screen><userinput>patch -Np1 -i ../openssl-&openssl-version;-fix_parallel_build-1.patch &amp;&amp;
 patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
 ./config --prefix=/usr \
@@ -113,9 +116,6 @@ patch -Np1 -i ../openssl-&openssl-version;-fix_pod_syntax-1.patch &amp;&amp;
          shared \
          zlib-dynamic &amp;&amp;
 make</userinput></screen>
-
-<!-- libdir=lib so it doesn't write over /usr/lib64 symlink on 64 bit system.
-     Might break packaging. -->
 
     <para>
       Disable installing the static libraries:
