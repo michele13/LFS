@@ -256,7 +256,7 @@ AUXLIBS='-lssl -lcrypto'</literal></screen>
         <application>Postfix</application> by running the following commands:
       </para>
 
-<screen><userinput>make CCARGS="-DNO_NIS -DUSE_TLS -I/usr/include/openssl/            \
+<screen><userinput>make CCARGS="-DUSE_TLS -I/usr/include/openssl/                     \
              -DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl" \
      AUXLIBS="-lssl -lcrypto -lsasl2"                              \
      makefiles &amp;&amp;
@@ -292,12 +292,6 @@ make</userinput></screen>
       <command>make makefiles</command>: This command rebuilds the makefiles
       throughout the source tree to use the options contained in the
       <envar>CCARGS</envar> and <envar>AUXLIBS</envar> variables.
-    </para>
-
-    <para>
-      <parameter>-DNO_NIS</parameter>: This option disables building Network
-      Information Service/Yellow Pages support. The RPC implementation in Glibc
-      (on which NIS/YP depends) is deprecated.
     </para>
 
     <para>
