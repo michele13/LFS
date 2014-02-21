@@ -92,22 +92,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing='compact'>
-      <listitem>
-        <para>Required patch: <ulink
-        url="&patch-root;libreoffice/libreoffice-&libreoffice-dlversion;-libcmis0.4-1.patch"/></para>
-      </listitem>
-      <listitem>
-        <para>Required patch: <ulink
-        url="&patch-root;libreoffice/libreoffice-&libreoffice-dlversion;-mdds0.9-1.patch"/></para>
-      </listitem>
-      <listitem>
-        <para>Required patch: <ulink
-        url="&patch-root;libreoffice/libreoffice-&libreoffice-dlversion;-libmwaw0.2-1.patch"/></para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">LibreOffice Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -253,10 +237,6 @@ sed -e "s/target\.mk/langlist\.mk/"                \
     -e "s/tar -xf/tar -x --strip-components=1 -f/" \
     -e "/tar -x/s/lo_src_dir/start_dir/"           \
     -i bin/unpack-sources &amp;&amp;
-
-patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-libcmis0.4-1.patch &amp;&amp;
-patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-mdds0.9-1.patch &amp;&amp;
-patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-libmwaw0.2-1.patch &amp;&amp;
 
 ./autogen.sh --prefix=/usr \
              --with-vendor="BLFS" \
