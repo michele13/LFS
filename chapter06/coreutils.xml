@@ -80,37 +80,6 @@
 
 <screen><userinput remap="make">make</userinput></screen>
 
-    <para>Skip down to <quote>Install the
-    package</quote> if not running the test suite.</para>
-
-    <para>Now the test suite is ready to be run. First, run the tests that are
-    meant to be run as user <systemitem class="username">root</systemitem>:</para>
-
-<screen><userinput remap="test">make NON_ROOT_USERNAME=nobody check-root</userinput></screen>
-
-    <para>We're going to run the remainder of the tests as the
-    <systemitem class="username">nobody</systemitem> user. Certain tests,
-    however, require that the user be a member of more than one group. So that
-    these tests are not skipped we'll add a temporary group and make the
-    user <systemitem class="username">nobody</systemitem> a part of it:</para>
-
-<screen><userinput remap="test">echo "dummy:x:1000:nobody" &gt;&gt; /etc/group</userinput></screen>
-
-    <para>Fix some of the permissions so that the non-root user can compile and
-    run the tests:</para>
-
-<screen><userinput remap="test">chown -Rv nobody . </userinput></screen>
-
-    <para>Now run the tests. Make sure the PATH in the <userinput>su</userinput>
-    environment includes /tools/bin.</para>
-
-<screen><userinput remap="test">su nobody -s /bin/bash \
-          -c "PATH=$PATH make RUN_EXPENSIVE_TESTS=yes check"</userinput></screen>
-
-    <para>Remove the temporary group:</para>
-
-<screen><userinput remap="test">sed -i '/dummy/d' /etc/group</userinput></screen>
-
     <para>Install the package:</para>
 
 <screen><userinput remap="install">make install</userinput></screen>
