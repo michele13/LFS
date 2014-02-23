@@ -110,38 +110,6 @@ cd ../gcc-build</userinput></screen>
 
 <screen><userinput remap="make">make</userinput></screen>
 
-    <important>
-      <para>In this section, the test suite for GCC is considered
-      critical. Do not skip it under any circumstance.</para>
-    </important>
-
-   <para>One set of tests in the GCC test suite is known to exhaust the stack,
-   so increase the stack size prior to running the tests:</para>
-
-<screen><userinput remap="test">ulimit -s 32768</userinput></screen>
-
-    <para>Test the results, but do not stop at errors:</para>
-
-<screen><userinput remap="test">make -k check</userinput></screen>
-
-    <para>To receive a summary of the test suite results, run:</para>
-
-<screen><userinput remap="test">../gcc-&gcc-version;/contrib/test_summary</userinput></screen>
-
-    <para>For only the summaries, pipe the output through
-    <userinput>grep -A7 Summ</userinput>.</para>
-
-    <para>Results can be compared with those located at <ulink
-    url="&test-results;"/> and <ulink url="http://gcc.gnu.org/ml/gcc-testresults/"/>.</para>
-
-    <para>A few unexpected failures cannot always be avoided. The GCC developers
-    are usually aware of these issues, but have not resolved them yet. In
-    particular, the <filename class="libraryfile">libmudflap</filename> tests
-    are known to be particularly problematic as a result of a bug in GCC
-    (<ulink url="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=20003"/>).
-    Unless the test results are vastly different from those at the above URL,
-    it is safe to continue.</para>
-
     <para>Install the package:</para>
 
 <screen><userinput remap="install">make install</userinput></screen>
