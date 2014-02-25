@@ -57,21 +57,6 @@ fi</userinput></screen>
 
 <screen><userinput remap="pre">mkdir -v ../glibc-build
 cd ../glibc-build</userinput></screen>
-<!--
-    <para>Because Glibc no longer supports i386, its developers say to use the
-    compiler flag <parameter>-march=i486</parameter> when building it for x86
-    machines. There are several ways to accomplish that, but testing shows that
-    the flag is best placed inside the build variable <quote>CFLAGS</quote>.
-    Instead of overriding completely what Glibc's internal build system uses
-    for CFLAGS, append the new flag to the existing contents of CFLAGS by
-    making use of the special file <filename>configparms</filename>. The
-    -mtune=native flag is also necessary to reset a reasonable value for -mtune
-    that is changed when setting -march.</para>
-
-<screen><userinput remap="configure">case `uname -m` in
-  i?86) echo "CFLAGS += -march=i486 -mtune=native" &gt; configparms ;;
-esac</userinput></screen>
--->
 
     <para>Next, prepare Glibc for compilation:</para>
 
@@ -172,20 +157,6 @@ esac</userinput></screen>
     <para>Compile the package:</para>
 
 <screen><userinput remap="make">make</userinput></screen>
-
-    <para>This package does come with a test suite, however, it cannot be
-    run at this time because we do not have a C++ compiler yet.</para>
-
-    <note>
-      <para>The test suite also requires locale data to be installed in order to run
-      successfully. Locale data provides information to the system regarding
-      such things as the date, time, and currency formats accepted and output by
-      system utilities. If the test suites are not being run in this chapter
-      (as per the recommendation), there is no need to install the locales now.
-      The appropriate locales will be installed in the next chapter. To install
-      the Glibc locales anyway, use instructions from <xref
-      linkend="ch-system-glibc" role="."/></para>
-    </note>
 
     <para>Install the package:</para>
 
