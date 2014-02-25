@@ -8,6 +8,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced systemd-udev with mdev from busybox
 * replaced pkg-config with pkgconf
 * removed dejagnu, expect, tcl, and texinfo
+* replaced bzip2, coreutils, diffutils, file, findutils, gettext, gzip, sed,
+  tar, and xz with busybox in chapter 5
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * automatically set number of make jobs depending on /proc/cpuinfo
