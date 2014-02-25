@@ -5,10 +5,9 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 ## Modifications:
 * added attr, acl, libcap, lsb-release, pcre, and which packages
 * added parts of postlfs chapter from blfs
-* replaced systemd-udev with eudev
+* replaced systemd-udev with mdev from busybox
 * replaced pkg-config with pkgconf
-* removed texinfo
-* removed tcl, expect, dejagnu from chapter 5
+* removed dejagnu, expect, tcl, and texinfo
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * automatically set number of make jobs depending on /proc/cpuinfo

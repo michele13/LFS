@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../general.ent">
+  %general-entities;
+]>
+
+<sect1 id="ch-system-busybox" role="wrap">
+  <?dbhtml filename="busybox.html"?>
+
+  <sect1info condition="script">
+    <productname>busybox</productname>
+    <productnumber>&busybox-version;</productnumber>
+    <address>&busybox-url;</address>
+  </sect1info>
+
+  <title>BusyBox-&busybox-version;</title>
+
+  <indexterm zone="ch-system-busybox">
+    <primary sortas="a-BusyBox">BusyBox</primary>
+  </indexterm>
+
+  <sect2 role="package">
+    <title/>
+
+    <para>
+      BusyBox combines tiny versions of many common UNIX utilities into a single
+      small executable. It provides replacements for most of the utilities you
+      usually find in GNU fileutils, shellutils, etc. The utilities in BusyBox
+      generally have fewer options than their full-featured GNU cousins;
+      however, the options that are included provide the expected functionality
+      and behave very much like their GNU counterparts.
+    </para>
+
+    <segmentedlist>
+      <segtitle>&buildtime;</segtitle>
+      <segtitle>&diskspace;</segtitle>
+
+      <seglistitem>
+        <seg>&busybox-ch6-sbu;</seg>
+        <seg>&busybox-ch6-du;</seg>
+      </seglistitem>
+    </segmentedlist>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation of BusyBox</title>
+
+    <para>First ensure the BusyBox source is completely clean:</para>
+
+<screen><userinput remap="pre">make distclean</userinput></screen>
+
+    <para>Prepare BusyBox for compilation:</para>
+
+<screen><userinput remap="configure">make defconfig</userinput></screen>
+
+   <para>Disable RPC support because of issues when building against Glibc:</para>
+
+<screen><userinput remap="configure">sed -e 's/\(CONFIG_FEATURE_HAVE_RPC\)=y/# \1 is not set/' \
+    -e 's/\(CONFIG_FEATURE_INETD_RPC\)=y/# \1 is not set/' -i .config</userinput></screen>
+
+    <para>Compile the package:</para>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+    <para>Install the package:</para>
+
+<screen><userinput remap="install">install -v -m755 busybox /bin
+ln -sv ../bin/busybox /sbin/mdev</userinput></screen>
+
+  </sect2>
+
+  <sect2 id="contents-busybox" role="content">
+    <title>Contents of BusyBox</title>
+
+    <segmentedlist>
+      <segtitle>Installed programs</segtitle>
+
+      <seglistitem>
+        <seg>busybox and mdev (link to busybox)</seg>
+      </seglistitem>
+    </segmentedlist>
+
+    <variablelist>
+      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
+      <?dbfo list-presentation="list"?>
+      <?dbhtml list-presentation="table"?>
+
+      <varlistentry id="busybox">
+        <term><command>busybox</command></term>
+        <listitem>
+          <para>Combines many common Unix utilities into a single
+          executable.</para>
+          <indexterm zone="ch-system-busybox busybox">
+            <primary sortas="b-busybox">busybox</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="mdev">
+        <term><command>mdev</command></term>
+        <listitem>
+          <para>Creates and dynamically updates device files.</para>
+          <indexterm zone="ch-system-busybox mdev">
+            <primary sortas="b-mdev">mdev</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+  </sect2>
+
+</sect1>
