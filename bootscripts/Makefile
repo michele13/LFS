@@ -35,7 +35,7 @@ files: create-dirs
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mdev          ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/modules       ${EXTDIR}/rc.d/init.d/
+#	install -m ${MODE} lfs/init.d/modules       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
@@ -48,8 +48,8 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/sysctl        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sysklogd      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/template      ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/udev          ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/udev_retry    ${EXTDIR}/rc.d/init.d/
+#	install -m ${MODE} lfs/init.d/udev          ${EXTDIR}/rc.d/init.d/
+#	install -m ${MODE} lfs/init.d/udev_retry    ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/sbin/ifup            ${SBIN}
 	install -m ${MODE} lfs/sbin/ifdown          ${SBIN}
 	install -m ${MODE} lfs/sbin/ifup.8          ${MAN8}
