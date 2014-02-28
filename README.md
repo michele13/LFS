@@ -3,7 +3,7 @@ My personal modifications to the LFS (http://www.linuxfromscratch.org/lfs/) book
 This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 
 ## Modifications:
-* added attr, acl, busybox, libcap, lsb-release, mdev-like-a-boss, pcre, and which
+* added attr, acl, busybox, libcap, lsb-release, mdev-like-a-boss, and pcre
 * added parts of postlfs chapter from blfs
 * replaced systemd-udev with mdev from busybox
 * replaced pkg-config with pkgconf
@@ -21,3 +21,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * utf8 for html output encoding
 * change render directory to /tmp
 * various other minor changes
+
+* used busybox commands:
+    /sbin/acpid
+    /sbin/mdev
+    /usr/bin/which
