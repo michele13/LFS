@@ -31,6 +31,12 @@
       packages or by the user.
     </para>
 
+    <note>
+      <para>
+        This package can be replaced with BusyBox applet.
+      </para>
+    </note>
+
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
@@ -84,7 +90,7 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
+<screen><userinput>./configure &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -92,7 +98,7 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /etc/acpi/events</userinput></screen>
+install -v -m755 -d /etc/acpi</userinput></screen>
 
   </sect2>
 
@@ -101,7 +107,9 @@ install -v -m755 -d /etc/acpi/events</userinput></screen>
 
     <para>
       acpid is configured by user defined events. Place event files under
-      <filename class="directory">/etc/acpi/events</filename> directory. If an
+      <filename class="directory">/etc/acpi/events</filename> directory or, if
+      using BusyBox applet, under <filename
+      class="directory">/etc/acpi/&lt;ACTION&gt;</filename> directory. If an
       event occurs, <command>acpid</command> recurses through the event files in
       order to see if the regex defined after "event" matches. If they do,
       action is executed.
@@ -112,7 +120,8 @@ install -v -m755 -d /etc/acpi/events</userinput></screen>
       is closed (it requires <xref linkend="pm-utils"/>):
     </para>
 
-<screen role="root"><userinput>cat &gt; /etc/acpi/events/lid &lt;&lt; "EOF"
+<screen role="root"><userinput>mkdir -v /etc/acpi/events &amp;&amp;
+cat &gt; /etc/acpi/events/lid &lt;&lt; "EOF"
 <literal>event=button/lid
 action=/etc/acpi/lid.sh</literal>
 EOF
@@ -122,6 +131,16 @@ cat &gt; /etc/acpi/lid.sh &lt;&lt; "EOF"
 /usr/sbin/pm-suspend</literal>
 EOF
 chmod +x /etc/acpi/lid.sh</userinput></screen>
+
+    <para>
+      Alternatively, if using BusyBox applet:
+    </para>
+
+<screen role="root"><userinput>mkdir -v /etc/acpi/LID &amp;&amp;
+cat &gt; /etc/acpi/LID/00000080 &lt;&lt; "EOF"
+<literal>pm-suspend</literal>
+EOF
+chmod +x /etc/acpi/LID/00000080</userinput></screen>
 
     <para>
       Unfortunately, not every computer labels ACPI events in the same way. To
@@ -166,14 +185,14 @@ chmod +x /etc/acpi/lid.sh</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/etc/acpi/
-/usr/bin/acpi_listen
-/usr/sbin/acpid
-/usr/sbin/kacpimon
-/usr/share/doc/acpid/
-/usr/share/man/man8/acpid.8
-/usr/share/man/man8/acpi_listen.8
-/usr/share/man/man8/kacpimon.8</literal></screen>
+<screen><literal>/etc/acpi
+/usr/local/bin/acpi_listen
+/usr/local/sbin/acpid
+/usr/local/sbin/kacpimon
+/usr/local/share/doc/acpid/
+/usr/local/share/man/man8/acpid.8
+/usr/local/share/man/man8/acpi_listen.8
+/usr/local/share/man/man8/kacpimon.8</literal></screen>
 
   </sect2>
 
