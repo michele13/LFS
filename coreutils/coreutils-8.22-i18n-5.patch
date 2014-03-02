@@ -6,9 +6,8 @@ Origin:                  Based on Fedora's i18n patch at
   http://pkgs.fedoraproject.org/cgit/coreutils.git/plain/coreutils-i18n.patch
 Description:             Fixes several i18n issues with various Coreutils programs
 
-diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
---- coreutils-8.22.orig/lib/linebuffer.h	2013-12-04 15:53:33.000000000 +0100
-+++ coreutils-8.22/lib/linebuffer.h	2014-01-15 11:34:10.407909087 +0100
+--- coreutils-8.22.orig/lib/linebuffer.h
++++ coreutils-8.22/lib/linebuffer.h
 @@ -21,6 +21,11 @@
  
  # include <stdio.h>
@@ -31,9 +30,8 @@ diff -Naur coreutils-8.22.orig/lib/linebuffer.h coreutils-8.22/lib/linebuffer.h
  };
  
  /* Initialize linebuffer LINEBUFFER for use. */
-diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
---- coreutils-8.22.orig/src/cut.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/cut.c	2014-01-15 11:34:10.408909096 +0100
+--- coreutils-8.22.orig/src/cut.c
++++ coreutils-8.22/src/cut.c
 @@ -28,6 +28,11 @@
  #include <assert.h>
  #include <getopt.h>
@@ -65,7 +63,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "cut"
  
-@@ -53,6 +70,52 @@
+@@ -53,7 +70,53 @@
      }									\
    while (0)
  
@@ -81,7 +79,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +        }                                                                \
 +    }                                                                        \
 +  while (0)
-+
+ 
 +/* Get wide character on BUFPOS. BUFPOS is not included after that.
 +   If byte sequence is not valid as a character, CONVFAIL is true. Otherwise false. */
 +#define GET_NEXT_WC_FROM_BUFFER(WC, BUFPOS, BUFLEN, MBLENGTH, STATE, CONVFAIL) \
@@ -115,9 +113,10 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +    }                                                                        \
 +  while (0)
 +
- 
++
  struct range_pair
    {
+     size_t lo;
 @@ -75,6 +138,8 @@
  /* Number of `struct range_pair's allocated. */
  static size_t n_rp_allocated;
@@ -271,7 +270,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
  }
  
 +#if HAVE_MBRTOWC
-+static void
+ static void
 +cut_fields_mb (FILE *stream)
 +{
 +  int c;
@@ -427,7 +426,7 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
 +}
 +#endif
 +
- static void
++static void
  cut_stream (FILE *stream)
  {
 -  if (operating_mode == byte_mode)
@@ -604,9 +603,8 @@ diff -Naur coreutils-8.22.orig/src/cut.c coreutils-8.22/src/cut.c
      }
  
    if (optind == argc)
-diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
---- coreutils-8.22.orig/src/expand.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/expand.c	2014-01-15 11:34:10.408909096 +0100
+--- coreutils-8.22.orig/src/expand.c
++++ coreutils-8.22/src/expand.c
 @@ -37,12 +37,34 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -799,9 +797,8 @@ diff -Naur coreutils-8.22.orig/src/expand.c coreutils-8.22/src/expand.c
  
    if (have_read_stdin && fclose (stdin) != 0)
      error (EXIT_FAILURE, errno, "-");
-diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
---- coreutils-8.22.orig/src/fold.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/fold.c	2014-01-15 11:34:10.409909097 +0100
+--- coreutils-8.22.orig/src/fold.c
++++ coreutils-8.22/src/fold.c
 @@ -22,12 +22,34 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -900,7 +897,7 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
      {
        if (c == '\b')
          {
-@@ -116,30 +160,14 @@
+@@ -116,31 +160,15 @@
     to stdout, with maximum line length WIDTH.
     Return true if successful.  */
  
@@ -916,7 +913,7 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
    static char *line_out = NULL;
    static size_t allocated_out = 0;
 -  int saved_errno;
--
+ 
 -  if (STREQ (filename, "-"))
 -    {
 -      istream = stdin;
@@ -930,9 +927,10 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
 -      error (0, errno, "%s", filename);
 -      return false;
 -    }
- 
+-
    fadvise (istream, FADVISE_SEQUENTIAL);
  
+   while ((c = getc (istream)) != EOF)
 @@ -169,6 +197,15 @@
                bool found_blank = false;
                size_t logical_end = offset_out;
@@ -955,10 +953,10 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
  
 -  saved_errno = errno;
 +  *saved_errno = errno;
-+
-+  if (offset_out)
-+    fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
-+
+ 
+   if (offset_out)
+     fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
+ 
 +}
 +
 +#if HAVE_MBRTOWC
@@ -1130,10 +1128,10 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
 +    }
 +
 +  *saved_errno = errno;
- 
-   if (offset_out)
-     fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
- 
++
++  if (offset_out)
++    fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
++
 +}
 +#endif
 +
@@ -1199,9 +1197,8 @@ diff -Naur coreutils-8.22.orig/src/fold.c coreutils-8.22/src/fold.c
            break;
  
          case 's':		/* Break at word boundaries. */
-diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
---- coreutils-8.22.orig/src/join.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/join.c	2014-01-15 11:34:10.409909097 +0100
+--- coreutils-8.22.orig/src/join.c
++++ coreutils-8.22/src/join.c
 @@ -22,18 +22,32 @@
  #include <sys/types.h>
  #include <getopt.h>
@@ -1236,7 +1233,7 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "join"
  
-@@ -135,10 +149,12 @@
+@@ -135,11 +149,13 @@
  /* Last element in 'outlist', where a new element can be added.  */
  static struct outlist *outlist_end = &outlist_head;
  
@@ -1247,12 +1244,13 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 +/* Tab character separating fields.  If NULL, fields are separated
 +   by any nonempty string of blanks.  */
 +static char *tab = NULL;
-+
+ 
 +/* The number of bytes used for tab. */
 +static size_t tablen = 0;
- 
++
  /* If nonzero, check that the input is correctly ordered. */
  static enum
+   {
 @@ -269,13 +285,14 @@
    if (ptr == lim)
      return;
@@ -1271,12 +1269,12 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
      {
        /* Skip leading blanks before the first field.  */
        while (isblank (to_uchar (*ptr)))
-@@ -299,6 +316,147 @@
+@@ -299,7 +316,148 @@
    extract_field (line, ptr, lim - ptr);
  }
  
 +#if HAVE_MBRTOWC
-+static void
+ static void
 +xfields_multibyte (struct line *line)
 +{
 +  char *ptr = line->buf.buffer;
@@ -1416,9 +1414,10 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 +}
 +#endif
 + 
- static void
++static void
  freeline (struct line *line)
  {
+   if (line == NULL)
 @@ -320,56 +478,133 @@
          size_t jf_1, size_t jf_2)
  {
@@ -1550,8 +1549,8 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 -      diff = memcmp (beg1, beg2, MIN (len1, len2));
 +      copy[0] = beg[0];
 +      copy[1] = beg[1];
-+    }
-+
+     }
+ 
 +  if (hard_LC_COLLATE)
 +    {
 +      diff = xmemcoll ((char *) copy[0], len[0], (char *) copy[1], len[1]);
@@ -1561,14 +1560,14 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 +          free (copy[i]);
 +
 +      return diff;
-     }
++    }
 +  diff = memcmp (copy[0], copy[1], MIN (len[0], len[1]));
 +
 +  if (mallocd)
 +    for (i = 0; i < 2; i++)
 +      free (copy[i]);
 +
- 
++
    if (diff)
      return diff;
 -  return len1 < len2 ? -1 : len1 != len2;
@@ -1679,14 +1678,14 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
 +                  if (STREQ (newtab, "\\0"))
 +                     newtab[0] = '\0';
 +                }
-+              }
+               }
+-            if (0 <= tab && tab != newtab)
+-              error (EXIT_FAILURE, 0, _("incompatible tabs"));
 +            if (tab != NULL && strcmp (tab, newtab))
 +              {
 +                free (newtab);
 +                error (EXIT_FAILURE, 0, _("incompatible tabs"));
-               }
--            if (0 <= tab && tab != newtab)
--              error (EXIT_FAILURE, 0, _("incompatible tabs"));
++              }
              tab = newtab;
 -          }
 +            tablen = newtablen;
@@ -1694,9 +1693,8 @@ diff -Naur coreutils-8.22.orig/src/join.c coreutils-8.22/src/join.c
            break;
  
          case 'z':
-diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
---- coreutils-8.22.orig/src/pr.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/pr.c	2014-01-15 11:34:10.411909086 +0100
+--- coreutils-8.22.orig/src/pr.c
++++ coreutils-8.22/src/pr.c
 @@ -312,6 +312,24 @@
  
  #include <getopt.h>
@@ -1797,33 +1795,35 @@ diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
  
  /* (-e) Tabstops are at chars_per_tab, 2*chars_per_tab, 3*chars_per_tab, ...
     where the leftmost column is 1. */
-@@ -564,7 +607,10 @@
+@@ -564,8 +607,11 @@
  static bool tabify_output = false;
  
  /* (-i) The output tab character. */
 -static char output_tab_char = '\t';
 +static char output_tab_char[MB_LEN_MAX] = "\t";
-+
+ 
 +/* (-i) The byte length of output tab character. */
 +static int output_tab_char_length = 1;
- 
++
  /* (-i) The width of the output tab. */
  static int chars_per_output_tab = 8;
-@@ -634,7 +680,13 @@
+ 
+@@ -634,8 +680,14 @@
  static bool numbered_lines = false;
  
  /* (-n) Character which follows each line number. */
 -static char number_separator = '\t';
 +static char number_separator[MB_LEN_MAX] = "\t";
-+
+ 
 +/* (-n) The byte length of the character which follows each line number. */
 +static int number_separator_length = 1;
 +
 +/* (-n) The character width of the character which follows each line number. */
 +static int number_separator_width = 0;
- 
++
  /* (-n) line counting starts with 1st line of input file (not with 1st
     line of 1st page printed). */
+ static int line_count = 1;
 @@ -687,6 +739,7 @@
     -a|COLUMN|-m is a 'space' and with the -J option a 'tab'. */
  static char *col_sep_string = (char *) "";
@@ -2295,10 +2295,11 @@ diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
      {
        width = TAB_WIDTH (chars_per_c, input_position);
  
-@@ -2724,6 +2922,164 @@
+@@ -2723,6 +2921,164 @@
+ 
    return chars;
  }
- 
++
 +#ifdef HAVE_MBRTOWC
 +static int
 +char_to_clump_multi (char c)
@@ -2456,13 +2457,11 @@ diff -Naur coreutils-8.22.orig/src/pr.c coreutils-8.22/src/pr.c
 +  return chars;
 +}
 +#endif
-+
+ 
  /* We've just printed some files and need to clean up things before
     looking for more options and printing the next batch of files.
- 
-diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
---- coreutils-8.22.orig/src/sort.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/sort.c	2014-01-15 11:34:10.413909085 +0100
+--- coreutils-8.22.orig/src/sort.c
++++ coreutils-8.22/src/sort.c
 @@ -29,6 +29,14 @@
  #include <sys/wait.h>
  #include <signal.h>
@@ -3402,7 +3401,7 @@ diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
 -            if (optarg[1])
 +#if HAVE_MBRTOWC
 +            if (MB_CUR_MAX > 1)
-+              {
+               {
 +                wchar_t wc;
 +                mbstate_t state;
 +
@@ -3420,7 +3419,7 @@ diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
 +              }
 +#endif
 +            if (newtab_length == 1 && optarg[1])
-               {
++              {
                  if (STREQ (optarg, "\\0"))
 -                  newtab = '\0';
 +                  newtab[0] = '\0';
@@ -3442,9 +3441,8 @@ diff -Naur coreutils-8.22.orig/src/sort.c coreutils-8.22/src/sort.c
            }
            break;
  
-diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
---- coreutils-8.22.orig/src/unexpand.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/unexpand.c	2014-01-15 11:34:10.413909085 +0100
+--- coreutils-8.22.orig/src/unexpand.c
++++ coreutils-8.22/src/unexpand.c
 @@ -38,12 +38,29 @@
  #include <stdio.h>
  #include <getopt.h>
@@ -3700,9 +3698,8 @@ diff -Naur coreutils-8.22.orig/src/unexpand.c coreutils-8.22/src/unexpand.c
  
    if (have_read_stdin && fclose (stdin) != 0)
      error (EXIT_FAILURE, errno, "-");
-diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
---- coreutils-8.22.orig/src/uniq.c	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/src/uniq.c	2014-01-15 11:34:10.413909085 +0100
+--- coreutils-8.22.orig/src/uniq.c
++++ coreutils-8.22/src/uniq.c
 @@ -21,6 +21,17 @@
  #include <getopt.h>
  #include <sys/types.h>
@@ -3721,13 +3718,13 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
  #include "system.h"
  #include "argmatch.h"
  #include "linebuffer.h"
-@@ -32,7 +43,19 @@
+@@ -32,8 +43,20 @@
  #include "stdio--.h"
  #include "xmemcoll.h"
  #include "xstrtol.h"
 -#include "memcasecmp.h"
 +#include "xmemcoll.h"
-+
+ 
 +/* MB_LEN_MAX is incorrectly defined to be 1 in at least one GCC
 +   installation; work around this configuration error.  */
 +#if !defined MB_LEN_MAX || MB_LEN_MAX < 2
@@ -3739,9 +3736,10 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
 +# define mbrtowc(pwc, s, n, ps) (mbrtowc) (pwc, s, n, 0)
 +#endif
 +
- 
++
  /* The official name of this program (e.g., no 'g' prefix).  */
  #define PROGRAM_NAME "uniq"
+ 
 @@ -143,6 +166,10 @@
    GROUP_OPTION = CHAR_MAX + 1
  };
@@ -3971,10 +3969,10 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
        bool first_group_printed = false;
 +#if HAVE_MBRTOWC
 +      mbstate_t prevstate;
-+
+ 
 +      memset (&prevstate, '\0', sizeof (mbstate_t));
 +#endif
- 
++
        while (!feof (stdin))
          {
            char *thisfield;
@@ -4067,10 +4065,11 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
                if (!match)
                  match_count = 0;
              }
-@@ -495,6 +733,19 @@
+@@ -494,6 +732,19 @@
+   hard_LC_COLLATE = hard_locale (LC_COLLATE);
  
    atexit (close_stdout);
- 
++
 +#if HAVE_MBRTOWC
 +  if (MB_CUR_MAX > 1)
 +    {
@@ -4083,13 +4082,11 @@ diff -Naur coreutils-8.22.orig/src/uniq.c coreutils-8.22/src/uniq.c
 +    }
 +
 +
-+
+ 
    skip_chars = 0;
    skip_fields = 0;
-   check_chars = SIZE_MAX;
-diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
---- coreutils-8.22.orig/tests/local.mk	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/local.mk	2014-01-15 11:34:10.413909085 +0100
+--- coreutils-8.22.orig/tests/local.mk
++++ coreutils-8.22/tests/local.mk
 @@ -324,6 +324,7 @@
    tests/misc/sort-discrim.sh			\
    tests/misc/sort-files0-from.pl		\
@@ -4098,9 +4095,8 @@ diff -Naur coreutils-8.22.orig/tests/local.mk coreutils-8.22/tests/local.mk
    tests/misc/sort-merge.pl			\
    tests/misc/sort-merge-fdlimit.sh		\
    tests/misc/sort-month.sh			\
-diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.pl
---- coreutils-8.22.orig/tests/misc/cut.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/cut.pl	2014-01-15 11:34:10.413909085 +0100
+--- coreutils-8.22.orig/tests/misc/cut.pl
++++ coreutils-8.22/tests/misc/cut.pl
 @@ -23,9 +23,11 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4123,9 +4119,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/cut.pl coreutils-8.22/tests/misc/cut.p
          push @new, ["$test_name-mb", @new_t, {ENV => "LC_ALL=$mb_locale"}];
        }
      push @Tests, @new;
-diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/expand.pl
---- coreutils-8.22.orig/tests/misc/expand.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/expand.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/expand.pl
++++ coreutils-8.22/tests/misc/expand.pl
 @@ -23,6 +23,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4142,10 +4137,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/ex
  my @Tests =
    (
     ['t1', '--tabs=3',     {IN=>"a\tb"}, {OUT=>"a  b"}],
-@@ -31,6 +40,37 @@
+@@ -30,6 +39,37 @@
+    ['i1', '--tabs=3 -i', {IN=>"\ta\tb"}, {OUT=>"   a\tb"}],
     ['i2', '--tabs=3 -i', {IN=>" \ta\tb"}, {OUT=>"   a\tb"}],
    );
- 
++
 +if ($mb_locale ne 'C')
 +  {
 +    # Duplicate each test vector, appending "-mb" to the test name and
@@ -4176,13 +4172,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/expand.pl coreutils-8.22/tests/misc/ex
 +
 +
 +@Tests = triple_test \@Tests;
-+
+ 
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
- 
-diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold.pl
---- coreutils-8.22.orig/tests/misc/fold.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/fold.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/fold.pl
++++ coreutils-8.22/tests/misc/fold.pl
 @@ -20,9 +20,18 @@
  
  (my $program_name = $0) =~ s|.*/||;
@@ -4252,9 +4246,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/fold.pl coreutils-8.22/tests/misc/fold
 -my $prog = 'fold';
  my $fail = run_tests ($program_name, $prog, \@Tests, $save_temps, $verbose);
  exit $fail;
-diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join.pl
---- coreutils-8.22.orig/tests/misc/join.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/join.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/join.pl
++++ coreutils-8.22/tests/misc/join.pl
 @@ -25,6 +25,15 @@
  
  my $prog = 'join';
@@ -4271,7 +4264,7 @@ diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join
  my $delim = chr 0247;
  sub t_subst ($)
  {
-@@ -326,8 +335,49 @@
+@@ -326,7 +335,48 @@
      push @Tests, $new_ent;
    }
  
@@ -4314,16 +4307,14 @@ diff -Naur coreutils-8.22.orig/tests/misc/join.pl coreutils-8.22/tests/misc/join
 +  }
 +
  @Tests = triple_test \@Tests;
- 
++
 +#skip invalid-j-mb test, it is failing because of the format
 +@Tests = grep {$_->[0] ne 'invalid-j-mb'} @Tests;
-+
+ 
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
- 
-diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/misc/sort-mb-tests.sh
---- coreutils-8.22.orig/tests/misc/sort-mb-tests.sh	1970-01-01 01:00:00.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort-mb-tests.sh	2014-01-15 11:34:10.414909089 +0100
+--- /dev/null
++++ coreutils-8.22/tests/misc/sort-mb-tests.sh
 @@ -0,0 +1,45 @@
 +#!/bin/sh
 +# Verify sort's multi-byte support.
@@ -4370,9 +4361,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-mb-tests.sh coreutils-8.22/tests/
 +compare exp out || { fail=1; cat out; }
 +
 +Exit $fail
-diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/misc/sort-merge.pl
---- coreutils-8.22.orig/tests/misc/sort-merge.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort-merge.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/sort-merge.pl
++++ coreutils-8.22/tests/misc/sort-merge.pl
 @@ -26,6 +26,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4389,10 +4379,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/mis
  # three empty files and one that says 'foo'
  my @inputs = (+(map{{IN=> {"empty$_"=> ''}}}1..3), {IN=> {foo=> "foo\n"}});
  
-@@ -77,6 +86,39 @@
+@@ -76,6 +85,39 @@
+      ['batch-size', "--batch-size=16 -T$badtmp", {IN=> {big=> $big_input}},
          {OUT=>$big_input}],
      );
- 
++
 +# Add _POSIX2_VERSION=199209 to the environment of each test
 +# that uses an old-style option like +1.
 +if ($mb_locale ne 'C')
@@ -4425,13 +4416,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort-merge.pl coreutils-8.22/tests/mis
 +  }
 +
 +@Tests = triple_test \@Tests;
-+
+ 
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
- 
-diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort.pl
---- coreutils-8.22.orig/tests/misc/sort.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/sort.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/sort.pl
++++ coreutils-8.22/tests/misc/sort.pl
 @@ -24,10 +24,15 @@
  # Turn off localization of executable's output.
  @ENV{qw(LANGUAGE LANG LC_ALL)} = ('C') x 3;
@@ -4495,9 +4484,8 @@ diff -Naur coreutils-8.22.orig/tests/misc/sort.pl coreutils-8.22/tests/misc/sort
  
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
-diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/unexpand.pl
---- coreutils-8.22.orig/tests/misc/unexpand.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/unexpand.pl	2014-01-15 11:34:10.414909089 +0100
+--- coreutils-8.22.orig/tests/misc/unexpand.pl
++++ coreutils-8.22/tests/misc/unexpand.pl
 @@ -27,6 +27,14 @@
  
  my $prog = 'unexpand';
@@ -4513,10 +4501,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/
  my @Tests =
      (
       ['a1', {IN=> ' 'x 1 ."y\n"}, {OUT=> ' 'x 1 ."y\n"}],
-@@ -92,6 +100,37 @@
+@@ -91,6 +99,37 @@
+      ['obs-ovflo', "-$limits->{UINTMAX_OFLOW}", {IN=>''}, {OUT=>''},
        {EXIT => 1}, {ERR => "$prog: tab stop value is too large\n"}],
      );
- 
++
 +if ($mb_locale ne 'C')
 +  {
 +    # Duplicate each test vector, appending "-mb" to the test name and
@@ -4547,13 +4536,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/unexpand.pl coreutils-8.22/tests/misc/
 +  }
 +
 +@Tests = triple_test \@Tests;
-+
+ 
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
- 
-diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq.pl
---- coreutils-8.22.orig/tests/misc/uniq.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/misc/uniq.pl	2014-01-15 11:34:10.415909094 +0100
+--- coreutils-8.22.orig/tests/misc/uniq.pl
++++ coreutils-8.22/tests/misc/uniq.pl
 @@ -23,9 +23,17 @@
  my $prog = 'uniq';
  my $try = "Try '$prog --help' for more information.\n";
@@ -4572,10 +4559,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
  # When possible, create a "-z"-testing variant of each test.
  sub add_z_variants($)
  {
-@@ -261,6 +269,53 @@
+@@ -260,6 +268,53 @@
+     $t->[0] =~ /^obs-plus/
        and push @$t, {ENV=>'_POSIX2_VERSION=199209'};
    }
- 
++
 +if ($mb_locale ne 'C')
 +  {
 +    # Duplicate each test vector, appending "-mb" to the test name and
@@ -4622,13 +4610,11 @@ diff -Naur coreutils-8.22.orig/tests/misc/uniq.pl coreutils-8.22/tests/misc/uniq
 +# The others aren't susceptible because they have three inputs each.
 +
 +@Tests = grep {$_->[0] ne 'output-is-input.p'} @Tests;
-+
+ 
  @Tests = add_z_variants \@Tests;
  @Tests = triple_test \@Tests;
- 
-diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-tests.pl
---- coreutils-8.22.orig/tests/pr/pr-tests.pl	2013-12-04 15:48:30.000000000 +0100
-+++ coreutils-8.22/tests/pr/pr-tests.pl	2014-01-15 11:34:10.415909094 +0100
+--- coreutils-8.22.orig/tests/pr/pr-tests.pl
++++ coreutils-8.22/tests/pr/pr-tests.pl
 @@ -23,6 +23,15 @@
  
  my $prog = 'pr';
@@ -4645,7 +4631,7 @@ diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-t
  my @tv = (
  
  # -b option is no longer an official option. But it's still working to
-@@ -466,8 +475,48 @@
+@@ -466,7 +475,47 @@
      {IN=>{3=>"x\ty\tz\n"}},
       {OUT=>join("\t", qw(a b c m n o x y z)) . "\n"} ];
  
@@ -4682,7 +4668,7 @@ diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-t
 +  }
 +
  @Tests = triple_test \@Tests;
- 
++
 +# Remember that triple_test creates from each test with exactly one "IN"
 +# file two more tests (.p and .r suffix on name) corresponding to reading
 +# input from a file and from a pipe.  The pipe-reading test would fail
@@ -4690,13 +4676,11 @@ diff -Naur coreutils-8.22.orig/tests/pr/pr-tests.pl coreutils-8.22/tests/pr/pr-t
 +# Remove the IN_PIPE version of the "output-is-input" test above.
 +# The others aren't susceptible because they have three inputs each.
 +@Tests = grep {$_->[0] ne 'output-is-input.p'} @Tests;
-+
+ 
  my $save_temps = $ENV{DEBUG};
  my $verbose = $ENV{VERBOSE};
- 
-diff -Naur coreutils-8.22.orig/Makefile.in coreutils-8.22/Makefile.in
---- coreutils-8.22.orig/Makefile.in	2013-12-13 16:20:00.000000000 +0100
-+++ coreutils-8.22/Makefile.in	2014-01-15 11:35:47.722696737 +0100
+--- coreutils-8.22.orig/Makefile.in
++++ coreutils-8.22/Makefile.in
 @@ -3700,6 +3700,7 @@
    tests/misc/chcon.sh				\
    tests/misc/chroot-credentials.sh		\
