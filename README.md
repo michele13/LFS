@@ -29,5 +29,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/acpid
     /sbin/mdev
     /usr/bin/less
+    /usr/bin/unzip
     /usr/bin/wget
     /usr/bin/which
