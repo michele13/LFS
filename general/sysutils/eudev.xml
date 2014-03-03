@@ -6,10 +6,9 @@
 
   <!ENTITY eudev-homepage      "http://www.gentoo.org/proj/en/eudev/">
   <!ENTITY eudev-wikipedia     "https://en.wikipedia.org/wiki/Udev">
-  <!ENTITY eudev-download-http
-  "http://dev.gentoo.org/~blueness/eudev/eudev-&eudev-version;.tar.gz">
+  <!ENTITY eudev-download-http "http://dev.gentoo.org/~blueness/eudev/eudev-&eudev-version;.tar.gz">
   <!ENTITY eudev-download-ftp  " ">
-  <!ENTITY eudev-md5sum        "164df78f6f0093578a20bdd00335845f"> 
+  <!ENTITY eudev-md5sum        "8a993b4bce0c15a956d255123ca0e2a1">
   <!ENTITY eudev-size          "1.7 MB">
   <!ENTITY eudev-buildsize     "25 MB">
   <!ENTITY eudev-time          "0.2 SBU">
@@ -74,13 +73,13 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="glib2"/> (for the gudev library) and
       <xref linkend="gperf"/> (for keymap)
     </para>
 
-    <bridgehead renderas="sect4">Optional Runtime Dependencies</bridgehead>
-    <para role="optional">
+    <bridgehead renderas="sect4">Optional (runtime)</bridgehead>
+    <para>
       <xref linkend="pciutils"/> and
       <xref linkend="usbutils"/>
     </para>
@@ -91,7 +90,7 @@
     <title>Installation</title>
 
     <para>
-      Install eudev by running the following commands:
+      Install the package by running the following commands:
     </para>
 
 <screen><userinput>./configure --sbindir=/sbin \
@@ -109,10 +108,44 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make install &amp;&amp;
+ln -svf /sbin/udevd /lib/udev</userinput></screen>
+
+    <para>
+      Create some directories that eudev cannot handle due to them being
+      required very early in the boot process, or by eudev itself:
+    </para>
+
+<screen role="root"><userinput>install -dv /lib/{firmware,udev/devices/pts}</userinput></screen>
+
+    <para>
+      Install LFS-specific file used to configure eudev:
+    </para>
+
+<screen role="root"><userinput>cat > /etc/udev/rules.d/55-lfs.rules &lt;&lt; EOF
+<literal># /etc/udev/rules.d/55-lfs.rules: Rule definitions for LFS.
+
+# Core kernel devices
+
+# This causes the system clock to be set as soon as /dev/rtc becomes available.
+SUBSYSTEM=="rtc", ACTION=="add", MODE="0644", RUN+="/etc/rc.d/init.d/setclock start"
+KERNEL=="rtc", ACTION=="add", MODE="0644", RUN+="/etc/rc.d/init.d/setclock start"
+
+# Comms devices
+
+KERNEL=="ippp[0-9]*",       GROUP="dialout"
+KERNEL=="isdn[0-9]*",       GROUP="dialout"
+KERNEL=="isdnctrl[0-9]*",   GROUP="dialout"
+KERNEL=="dcbri[0-9]*",      GROUP="dialout"</literal>
+EOF</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-rule_generator</parameter>: This switch allows
+        persistent rules to be generated for network and optical media devices.
+      </para>
 
       <para>
         <option>--disable-gudev</option>: Use this switch if you want to disable
@@ -149,9 +182,12 @@ make</userinput></screen>
     </para>
 
 <screen><literal>/etc/udev/
+/lib/libudev.so.1
+/lib/libudev.so.1.3.0
 /lib/udev/
 /sbin/udevadm
 /sbin/udevd
+/usr/bin/udevadm
 /usr/include/gudev-1.0/
 /usr/include/libudev.h
 /usr/include/udev.h
