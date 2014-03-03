@@ -49,13 +49,7 @@
 <screen><userinput remap="pre">case `uname -m` in
   i?86) sed -i 's/^T_CFLAGS =$/&amp; -fomit-frame-pointer/' gcc/Makefile.in ;;
 esac</userinput></screen>
-<!--
-    <para>Workaround a bug so that GCC doesn't install
-    <filename class="libraryfile">libiberty.a</filename>, which is already
-    provided by Binutils:</para>
 
-<screen><userinput remap="pre">sed -i 's/install_to_$(INSTALL_DEST) //' libiberty/Makefile.in</userinput></screen>
--->
     <para>Also fix an error in one of the check Makefiles and disable one test in
     the g++ libmudflap test suite:</para>
 
@@ -70,16 +64,17 @@ cd ../gcc-build</userinput></screen>
 
     <para>Prepare GCC for compilation:</para>
 
-<screen><userinput remap="configure">SED=sed                                            \
-../gcc-&gcc-version;/configure --prefix=/usr               \
-                       --disable-static            \
-                       --enable-shared             \
-                       --enable-threads=posix      \
-                       --enable-__cxa_atexit       \
-                       --enable-clocale=gnu        \
+<screen><userinput remap="configure">SED=sed \
+../gcc-&gcc-version;/configure --prefix=/usr \
+                       --disable-static \
+                       --disable-nls \
+                       --enable-shared \
+                       --enable-threads=posix \
+                       --enable-__cxa_atexit \
+                       --enable-clocale=gnu \
                        --enable-languages=c,c++,fortran \
-                       --disable-multilib          \
-                       --disable-bootstrap         \
+                       --disable-multilib \
+                       --disable-bootstrap \
                        --with-system-zlib</userinput></screen>
 
     <para>Note that for other languages, there are some prerequisites that

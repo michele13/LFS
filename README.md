@@ -10,6 +10,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * removed dejagnu, expect, tcl, texinfo, less, and vim
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   sed, tar, and xz with busybox in chapter 5
+* disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
 * automatically set number of make jobs depending on /proc/cpuinfo
