@@ -35,7 +35,6 @@ files: create-dirs
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mdev          ${EXTDIR}/rc.d/init.d/
-#	install -m ${MODE} lfs/init.d/modules       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
@@ -48,8 +47,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/sysctl        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sysklogd      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/template      ${EXTDIR}/rc.d/init.d/
-#	install -m ${MODE} lfs/init.d/udev          ${EXTDIR}/rc.d/init.d/
-#	install -m ${MODE} lfs/init.d/udev_retry    ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/sbin/ifup            ${SBIN}
 	install -m ${MODE} lfs/sbin/ifdown          ${SBIN}
 	install -m ${MODE} lfs/sbin/ifup.8          ${MAN8}
@@ -60,12 +57,6 @@ files: create-dirs
 	if [ ! -f ${EXTDIR}/sysconfig/createfiles ]; then \
           install -m ${CONFMODE} lfs/sysconfig/createfiles ${EXTDIR}/sysconfig/ ;\
         fi
-	if [ ! -f ${EXTDIR}/sysconfig/modules     ]; then \
-          install -m ${CONFMODE} lfs/sysconfig/modules     ${EXTDIR}/sysconfig/ ;\
-        fi
-	if [ ! -f ${EXTDIR}/sysconfig/udev_retry  ]; then \
-          install -m ${CONFMODE} lfs/sysconfig/udev_retry  ${EXTDIR}/sysconfig/ ;\
-        fi
 	if [ ! -f ${EXTDIR}/sysconfig/rc.site     ]; then \
           install -m ${CONFMODE} lfs/sysconfig/rc.site     ${EXTDIR}/sysconfig/ ;\
         fi
@@ -75,14 +66,11 @@ links: rcS rc0 rc1 rc2 rc3 rc4 rc5 rc6
 rcS: files
 	ln -sf ../init.d/mountvirtfs ${EXTDIR}/rc.d/rcS.d/S00mountvirtfs
 	ln -sf ../init.d/mdev        ${EXTDIR}/rc.d/rcS.d/S04mdev
-#	ln -sf ../init.d/modules     ${EXTDIR}/rc.d/rcS.d/S05modules
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rcS.d/S08localnet
-#	ln -sf ../init.d/udev        ${EXTDIR}/rc.d/rcS.d/S10udev
 	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rcS.d/S20swap
 	ln -sf ../init.d/checkfs     ${EXTDIR}/rc.d/rcS.d/S30checkfs
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rcS.d/S40mountfs
 	ln -sf ../init.d/cleanfs     ${EXTDIR}/rc.d/rcS.d/S45cleanfs
-#	ln -sf ../init.d/udev_retry  ${EXTDIR}/rc.d/rcS.d/S50udev_retry
 	ln -sf ../init.d/console     ${EXTDIR}/rc.d/rcS.d/S70console
 	ln -sf ../init.d/sysctl      ${EXTDIR}/rc.d/rcS.d/S90sysctl
 
