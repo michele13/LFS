@@ -45,7 +45,7 @@
     across the keymaps in the Kbd package. The following patch fixes this
     issue for i386 keymaps:</para>
 
-<screen><userinput remap="pre">patch -Np1 -i ../&kbd-backspace-patch;</userinput></screen>
+<screen><userinput remap="pre">patch -p1 -i ../&kbd-backspace-patch;</userinput></screen>
 
     <para>After patching, the Backspace key generates the character with code 127,
     and the Delete key generates a well-known escape sequence.</para>
@@ -92,17 +92,6 @@ sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in</userinput></screen>
       the ISO-8859-5 encoding, and the CP1251 keymap is normally used. Users of
       such languages have to download working keymaps separately.</para>
     </note>
-
-<!--
-    <para>Some of the scripts in the LFS-Bootscripts package depend on
-    <command>kbd_mode</command>, <command>loadkeys</command>,
-    <command>openvt</command>, and
-    <command>setfont</command>.  As <filename class="directory">/usr</filename>
-    may not be available during the early stages of booting, those binaries
-    need to be on the root partition:</para>
-
-<screen><userinput remap="install">mv -v /usr/bin/{kbd_mode,loadkeys,openvt,setfont} /bin</userinput></screen>
--->
 
   </sect2>
 
