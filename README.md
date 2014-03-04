@@ -9,7 +9,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced pkg-config with pkgconf
 * removed dejagnu, expect, tcl, texinfo, less, and vim
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
-  patch, sed, tar, and xz with busybox in chapter 5
+  sed, tar, and xz with busybox in chapter 5
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
