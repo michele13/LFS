@@ -7,9 +7,10 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * added parts of postlfs chapter from blfs
 * replaced systemd-udev with mdev from busybox
 * replaced pkg-config with pkgconf
-* removed dejagnu, expect, tcl, texinfo, less, and vim
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
+* replaced less and vim with busybox in chapter 6
+* removed dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
@@ -25,10 +26,13 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 
 * used busybox commands:
     /bin/more
+    /bin/tar
     /bin/vi
     /sbin/acpid
     /sbin/mdev
     /usr/bin/less
+    /usr/bin/patch
     /usr/bin/unzip
     /usr/bin/wget
     /usr/bin/which
+    /usr/bin/whois
