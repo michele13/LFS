@@ -76,10 +76,9 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="mitkrb"/>,
-      <xref linkend="server-mail"/> (that provides a <command>sendmail</command>
-      command),
+      <xref linkend="server-mail"/> (that provides a <command>sendmail</command> command),
       <xref linkend="openldap"/>,
       <ulink url="http://www.openafs.org/">AFS</ulink>,
       <ulink url="http://www.fwtk.org/">FWTK</ulink>,
@@ -97,6 +96,7 @@
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
+            --libexecdir=/usr/lib/sudo \
             --with-timedir=/var/lib/sudo \
             --with-all-insults \
             --with-env-editor \
@@ -111,6 +111,13 @@ make</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <parameter>--libexecdir=/usr/lib/sudo</parameter>: This switch controls
+        where private programs are installed. Everything in that directory is a
+        library, so they belong under <filename class="directory">/usr/lib</filename>
+        instead of <filename class="directory">/usr/libexec</filename>.
+      </para>
 
       <para>
         <parameter>--with-timedir=/var/lib/sudo</parameter>: This switch places
