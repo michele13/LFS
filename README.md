@@ -12,6 +12,3 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/BLFS/
 
 It is tracking changes from the official BLFS in SVN trunk and should be
 compatible with my modified version of LFS (https://github.com/igzivkov/lfs-book).
-
-Changes not in sync with the official book (mostly removed and added packages)
-are noted at: https://raw.github.com/igzivkov/blfs-book/master/ChangeLog
