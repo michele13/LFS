@@ -8,10 +8,10 @@
   <!ENTITY libisoburn-wikipedia     " ">
   <!ENTITY libisoburn-download-http "http://files.libburnia-project.org/releases/libisoburn-&libisoburn-version;.tar.gz">
   <!ENTITY libisoburn-download-ftp  " ">
-  <!ENTITY libisoburn-md5sum        "d8ebfe9407aca0d6b799706647703692">
+  <!ENTITY libisoburn-md5sum        "1f7bea50c44ba69acb5710f14f561f5d">
   <!ENTITY libisoburn-size          "1.4 MB">
-  <!ENTITY libisoburn-buildsize     "19 MB">
-  <!ENTITY libisoburn-time          "0.2 SBU">
+  <!ENTITY libisoburn-buildsize     "25 MB">
+  <!ENTITY libisoburn-time          "0.4 SBU">
 ]>
 
 <sect1 id="libisoburn" xreflabel="libisoburn-&libisoburn-version;">
@@ -77,7 +77,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libburn"/> and
       <xref linkend="libisofs"/>
     </para>
@@ -93,11 +93,12 @@
     <title>Installation</title>
 
     <para>
-      Install libisoburn by running the following commands:
+      Install the package by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
+            --disable-static \
+            --enable-pkg-check-modules &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -145,6 +146,13 @@ make</userinput></screen>
 /usr/share/man/man1/xorrecord.1
 /usr/share/man/man1/xorriso.1
 /usr/share/man/man1/xorrisofs.1</literal></screen>
+
+    <para>
+      <option>--enable-pkg-check-modules</option>: Enable
+      <application>pkg-config</application> check for
+      <application>libburn</application> and
+      <application>libisofs</application>.
+    </para>
 
   </sect2>
 
