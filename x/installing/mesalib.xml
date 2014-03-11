@@ -7,10 +7,10 @@
   <!ENTITY mesalib-homepage      "http://www.mesa3d.org/">
   <!ENTITY mesalib-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
-  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
-  <!ENTITY mesalib-md5sum        "5f9f463ef08129f6762106b434910adb">
-  <!ENTITY mesalib-size          "6.5 MB">
-  <!ENTITY mesalib-buildsize     "324 MB">
+  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/10.1/MesaLib-&mesalib-version;.tar.bz2">
+  <!ENTITY mesalib-md5sum        "3ec43f79dbcd9aa2a4a27bf1f51655b6">
+  <!ENTITY mesalib-size          "6.6 MB">
+  <!ENTITY mesalib-buildsize     "331 MB">
   <!ENTITY mesalib-time          "4.2 SBU">
 ]>
 
@@ -74,6 +74,12 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
+          Required patch:
+          <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-svga_texture-1.patch"/>.
+        </para>
+      </listitem>
+      <listitem>
+        <para>
           Recommended patch:
           <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-add_xdemos-1.patch"/>
         </para>
@@ -83,7 +89,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="expat"/>,
       <xref linkend="libxml2"/>,
       <xref linkend="glproto"/>,
@@ -94,14 +100,14 @@
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="eudev"/>,
       <xref linkend="libxvmc"/>, and
       <xref linkend="libxxf86vm"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="elfutils"/> (required for radeon 3d drivers),
       <xref linkend="libvdpau"/> (to build VDPAU drivers),
       <xref linkend="llvm"/> (required for radeon 3d drivers and also for
@@ -139,13 +145,11 @@
 <screen><userinput>patch -p1 -i ../MesaLib-&mesalib-version;-add_xdemos-1.patch</userinput></screen>
 
     <para>
-      Install MesaLib by running the following commands:
+      Install the package by running the following commands:
     </para>
 
-<!-- - -with-dri-drivers="nouveau"
-     - -with-gallium-drivers="nouveau" -->
-
-<screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
+<screen><userinput>patch -Np1 -i ../MesaLib-&mesalib-version;-svga_texture-1.patch &amp;&amp;
+./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
             --prefix=/usr \
             --sysconfdir=/etc \
             --enable-texture-float \

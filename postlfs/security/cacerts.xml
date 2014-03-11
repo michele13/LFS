@@ -6,22 +6,17 @@
 
   <!ENTITY certhost           "http://mxr.mozilla.org">
   <!ENTITY certdir            "/mozilla/source/security/nss/lib/ckfw/builtins">
-  <!ENTITY cacerts-wikipedia
-  "http://en.wikipedia.org/wiki/Certificate_authority">
-  <!ENTITY ca-bundle-download "&certhost;&certdir;/certdata.txt?raw=1">
+  <!ENTITY cacerts-wikipedia  "http://en.wikipedia.org/wiki/Certificate_authority">
+  <!ENTITY ca-bundle-download "&sources-anduin-other-http;/certdata.txt">
   <!ENTITY ca-bundle-size     "1.2 MB">
   <!ENTITY cacerts-buildsize  "1.2 MB">
-  <!ENTITY cacerts-time       "less than 0.1 SBU">
+  <!ENTITY cacerts-time       "0.1 SBU">
 ]>
 
 <sect1 id="cacerts" xreflabel="Certificate Authority Certificates">
   <?dbhtml filename="cacerts.html"?>
 
   <title>Certificate Authority Certificates</title>
-
-  <indexterm zone="cacerts">
-    <primary sortas="a-cacerts">Certificate Authority Certificates</primary>
-  </indexterm>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -64,16 +59,23 @@
       </listitem>
     </itemizedlist>
 
+    <note><para>The certfile.txt file above is actually retrieved from <ulink
+    url="https://hg.mozilla.org/releases/mozilla-release/file/default/security/nss/lib/ckfw/builtins/certdata.txt"/>.
+    It is really an HTML file, but the text file can be retrieved indirectly
+    from the HTML file.  The Download URL above automates that process and also
+    adds a line where the date can be extracted as a revision number by the
+    scripts below.</para></note>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="openssl"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
+  <sect2>
     <title>Installation</title>
 
     <para>
@@ -341,7 +343,7 @@ unset SSLDIR</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
     <indexterm zone="cacerts">
