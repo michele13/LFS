@@ -4,8 +4,6 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY certhost           "http://mxr.mozilla.org">
-  <!ENTITY certdir            "/mozilla/source/security/nss/lib/ckfw/builtins">
   <!ENTITY cacerts-wikipedia  "http://en.wikipedia.org/wiki/Certificate_authority">
   <!ENTITY ca-bundle-download "&sources-anduin-other-http;/certdata.txt">
   <!ENTITY ca-bundle-size     "1.2 MB">
@@ -307,20 +305,12 @@ EOF
 chmod +x /bin/remove-expired-certs.sh</userinput></screen>
 
     <para>
-      The following commands will fetch the certificates and convert them to the
-      correct format. If desired, a web browser may be used instead of Wget but
-      the file will need to be saved with the name
-      <filename>certdata.txt</filename>. These commands can be repeated as
-      necessary to update the CA Certificates.
+      The following commands will convert the certificates to the correct
+      format. These commands can be repeated as necessary to update the CA
+      Certificates.
     </para>
 
-<screen><userinput>certhost='http://mxr.mozilla.org' &amp;&amp;
-certdir='/mozilla/source/security/nss/lib/ckfw/builtins' &amp;&amp;
-url="$certhost$certdir/certdata.txt?raw=1" &amp;&amp;
-wget --output-document certdata.txt $url &amp;&amp;
-unset certhost certdir url &amp;&amp;
-
-make-ca.sh &amp;&amp;
+<screen><userinput>make-ca.sh &amp;&amp;
 remove-expired-certs.sh certs</userinput></screen>
 
     <para>
