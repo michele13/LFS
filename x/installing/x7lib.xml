@@ -12,8 +12,8 @@
   <!ENTITY x7libs-buildsize     "275 MB">
   <!ENTITY x7libs-time          "3.1 SBU">
 
-  <!ENTITY libFS-version                   "1.0.5">
-  <!ENTITY libFS-md5sum                    "e3c77ca27942ebc5eb2ca99f29363515">
+  <!ENTITY libFS-version                   "1.0.6">
+  <!ENTITY libFS-md5sum                    "a8a0dbd2299b2568d8c919883f5c8501">
 
   <!ENTITY libXxf86dga-version             "1.1.4">
   <!ENTITY libXxf86dga-md5sum              "d7dd9b9df336b7dd4028b6b56542ff2c">
@@ -131,12 +131,6 @@ do
   tar -xf $package
   pushd $packagedir
   case $packagedir in
-    libFS-[0-9]* )
-      sed -e '/#include &lt;X11/ i\#include &lt;X11\/Xtrans\/Xtransint.h>' \
-          -e 's/_FSTransReadv(svr->trans_conn/readv(svr->trans_conn->fd/' \
-          -i src/FSlibInt.c
-      ./configure $XORG_CONFIG
-    ;;
     * )
       ./configure $XORG_CONFIG
     ;;
