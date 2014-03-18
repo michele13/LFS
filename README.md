@@ -30,6 +30,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/tar
     /bin/vi
     /sbin/acpid
+    /sbin/ifconfig
     /sbin/mdev
     /usr/bin/less
     /usr/bin/man
