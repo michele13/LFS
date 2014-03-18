@@ -26,6 +26,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 
 * used busybox commands:
     /bin/more
+    /bin/netstat
     /bin/tar
     /bin/vi
     /sbin/acpid
