@@ -77,6 +77,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;Python/Python-&python2-version;-readline63-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
@@ -100,7 +110,8 @@
       Install Python 2 by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>patch -p1 -i ../Python-&python2-version;-readline63-1.patch &amp;&amp;
+./configure --prefix=/usr \
             --enable-shared \
             --enable-unicode=ucs4 \
             --with-system-ffi \
