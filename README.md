@@ -42,6 +42,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/man
     /usr/bin/patch
     /usr/bin/unzip
+    /usr/bin/uudecode
+    /usr/bin/uuencode
     /usr/bin/wget
     /usr/bin/which
     /usr/bin/whois
