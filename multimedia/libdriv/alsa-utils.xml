@@ -5,12 +5,9 @@
   %general-entities;
 
   <!ENTITY alsa-utils-homepage      "http://www.alsa-project.org/">
-  <!ENTITY alsa-utils-wikipedia
-  "http://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture">
-  <!ENTITY alsa-utils-download-http
-  "&alsa-download-http;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
-  <!ENTITY alsa-utils-download-ftp
-  "&alsa-download-ftp;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
+  <!ENTITY alsa-utils-wikipedia     "http://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture">
+  <!ENTITY alsa-utils-download-http "&alsa-download-http;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
+  <!ENTITY alsa-utils-download-ftp  "&alsa-download-ftp;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
   <!ENTITY alsa-utils-md5sum        "b65e9a04181bd7c9db7667a4566f8dc3">
   <!ENTITY alsa-utils-size          "1.1 MB">
   <!ENTITY alsa-utils-buildsize     "7 MB">
@@ -21,10 +18,6 @@
   <?dbhtml filename="alsa-utils.html"?>
 
   <title>alsa-utils-&alsa-utils-version;</title>
-
-  <indexterm zone="alsa-utils">
-    <primary sortas="a-alsa-utils">alsa-utils</primary>
-  </indexterm>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -81,25 +74,25 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="alsa-lib"/>
     </para>
-
+<!-- runtime for alsaconf: lspci -->
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libsamplerate"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
+  <sect2>
     <title>Installation</title>
 
     <para>
-      Install ALSA Utilities by running the following commands:
+      Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --disable-alsaconf \
+<screen><userinput>./configure --disable-nls \
             --disable-xmlto &amp;&amp;
 make</userinput></screen>
 
@@ -113,22 +106,22 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <parameter>--disable-alsaconf</parameter>: This switch disables building
-        the <command>alsaconf</command> configuration tool which is incompatible
-        with Udev.
-      </para>
-
-      <para>
         <parameter>--disable-xmlto</parameter>: This switch disables man page
         creation and ensures successful build without <command>xmlto</command>
         installed.
+      </para>
+
+      <para>
+        <option>--disable-alsaconf</option>: This switch disables building
+        the <command>alsaconf</command> configuration tool which is incompatible
+        with Udev.
       </para>
 
     </sect3>
 
   </sect2>
 
-  <sect2 role="configuration">
+  <sect2>
     <title>Configuration</title>
 
     <para>
@@ -189,7 +182,7 @@ alsactl store</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
     <indexterm zone="alsa-utils">
@@ -263,6 +256,7 @@ alsactl store</userinput></screen>
 /usr/bin/aseqnet
 /usr/bin/iecset
 /usr/bin/speaker-test
+/usr/sbin/alsaconf
 /usr/sbin/alsactl
 /usr/share/alsa/
 /usr/share/man/man1/aconnect.1
@@ -279,6 +273,7 @@ alsactl store</userinput></screen>
 /usr/share/man/man1/aseqnet.1
 /usr/share/man/man1/iecset.1
 /usr/share/man/man1/speaker-test.1
+/usr/share/man/man8/alsaconf.8
 /usr/share/sounds/alsa/
 /var/lib/alsa/</literal></screen>
 
