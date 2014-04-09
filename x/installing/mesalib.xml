@@ -7,7 +7,7 @@
   <!ENTITY mesalib-homepage      "http://www.mesa3d.org/">
   <!ENTITY mesalib-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
-  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/10.1/MesaLib-&mesalib-version;.tar.bz2">
+  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
   <!ENTITY mesalib-md5sum        "8b148869d2620b0720c8a8d2b7eb3e38">
   <!ENTITY mesalib-size          "6.6 MB">
   <!ENTITY mesalib-buildsize     "331 MB">
@@ -72,12 +72,6 @@
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
     <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-svga_texture-1.patch"/>
-        </para>
-      </listitem>
       <listitem>
         <para>
           Recommended patch:
@@ -149,16 +143,11 @@
     </para>
 
 <!--
-     remove: - -enable-gbm
-             - -enable-gallium-gbm
-             - -with-egl-platforms="drm,x11"
      add:    - -disable-dri3
              - -disable-gbm
-             - -with-egl-platforms="x11"
 -->
 
-<screen><userinput>patch -Np1 -i ../MesaLib-&mesalib-version;-svga_texture-1.patch &amp;&amp;
-./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
+<screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
             --prefix=/usr \
             --sysconfdir=/etc \
             --enable-texture-float \
@@ -167,11 +156,9 @@
             --enable-openvg \
             --enable-osmesa \
             --enable-xa \
-            --enable-gbm \
             --enable-gallium-egl \
-            --enable-gallium-gbm \
             --enable-glx-tls \
-            --with-egl-platforms="drm,x11" \
+            --with-egl-platforms="x11" \
             --with-gallium-drivers="svga,swrast,nouveau,r300,r600,radeonsi" \
             --with-llvm-shared-libs &amp;&amp;
 make</userinput></screen>
