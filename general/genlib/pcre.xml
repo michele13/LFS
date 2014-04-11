@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY pcre-homepage      "http://www.pcre.org/">
+  <!ENTITY pcre-wikipedia     "http://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions">
+  <!ENTITY pcre-download-http "&sourceforge-repo;/pcre/pcre-&pcre-version;.tar.bz2">
+  <!ENTITY pcre-download-ftp  "ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-&pcre-version;.tar.bz2">
+  <!ENTITY pcre-md5sum        "6aacb23986adccd9b3bc626c00979958">
+  <!ENTITY pcre-size          "1.5 MB">
+  <!ENTITY pcre-buildsize     "21 MB">
+  <!ENTITY pcre-time          "0.3 SBU">
+]>
+
+<sect1 id="pcre" xreflabel="PCRE-&pcre-version;">
+  <?dbhtml filename="pcre.html"?>
+
+  <title>PCRE-&pcre-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The PCRE package contains Perl Compatible Regular Expression libraries.
+      These are useful for implementing regular expression pattern matching
+      using the same syntax and semantics as Perl 5.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pcre-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pcre-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&pcre-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&pcre-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &pcre-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &pcre-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &pcre-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &pcre-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install PCRE by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --enable-unicode-properties \
+            --enable-pcre16 \
+            --enable-pcre32 \
+            --enable-pcregrep-libz \
+            --enable-pcregrep-libbz2 \
+            --enable-pcretest-libreadline &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+mv -v /usr/lib/libpcre.so.* /lib &amp;&amp;
+ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-unicode-properties</parameter>: This switch enables
+        Unicode properties support and includes the code for handling UTF-8/16/32
+        character strings in the library. You need this switch if you are going to
+        build GLib with the <parameter>--with-pcre=system</parameter> switch.
+      </para>
+
+      <para>
+        <parameter>--enable-pcre16</parameter>: This switch enables 16 bit
+        character support.
+      </para>
+
+      <para>
+        <parameter>--enable-pcre32</parameter>: This switch enables 32 bit
+        character support.
+      </para>
+
+      <para>
+        <parameter>--enable-pcregrep-libz</parameter>: This switch adds support to
+        <command>pcregrep</command> to read <filename
+        class="extension">.gz</filename> compressed files.
+      </para>
+
+      <para>
+        <parameter>--enable-pcregrep-libbz2</parameter>: This switch adds support
+        to <command>pcregrep</command> to read <filename
+        class="extension">.bz2</filename> compressed files.
+      </para>
+
+      <para>
+        <parameter>--enable-pcretest-libreadline</parameter>: This switch adds
+        line editing and history features to <command>pcretest</command> program.
+      </para>
+
+      <para>
+        <command>mv -v /usr/lib/libpcre.so.* /lib</command>: Moves the PCRE
+        library on the root filesystem so that it is available in case
+        <command>grep</command> gets reinstalled with PCRE support.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="pcre">
+      <primary sortas="b-pcre-config">pcre-config</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="b-pcregrep">pcregrep</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="b-pcretest">pcretest</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre16">libpcre16.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre32">libpcre32.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcrecpp">libpcrecpp.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcreposix">libpcreposix.so</primary>
+    </indexterm>
+    <indexterm zone="pcre">
+      <primary sortas="c-libpcre">libpcre.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/lib/libpcre.so.1
+/lib/libpcre.so.1.2.2
+/usr/bin/pcre-config
+/usr/bin/pcregrep
+/usr/bin/pcretest
+/usr/include/pcrecpparg.h
+/usr/include/pcrecpp.h
+/usr/include/pcre.h
+/usr/include/pcreposix.h
+/usr/include/pcre_scanner.h
+/usr/include/pcre_stringpiece.h
+/usr/lib/libpcre16.so
+/usr/lib/libpcre32.so
+/usr/lib/libpcrecpp.so
+/usr/lib/libpcreposix.so
+/usr/lib/libpcre.so
+/usr/lib/pkgconfig/libpcre16.pc
+/usr/lib/pkgconfig/libpcre32.pc
+/usr/lib/pkgconfig/libpcrecpp.pc
+/usr/lib/pkgconfig/libpcre.pc
+/usr/lib/pkgconfig/libpcreposix.pc
+/usr/share/doc/pcre/
+/usr/share/man/man1/pcre-config.1
+/usr/share/man/man1/pcregrep.1
+/usr/share/man/man1/pcretest.1
+/usr/share/man/man3/pcre.3</literal></screen>
+
+  </sect2>
+
+</sect1>
