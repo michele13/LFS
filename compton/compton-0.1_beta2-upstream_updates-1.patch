@@ -1,0 +1,1908 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2014-04-13
+Initial Package Version: 0.1_beta2
+Upstream Status:         Fixed
+Origin:                  Upstream
+Description:             Updates from the upstream git repository.
+
+diff -Naur compton-0.1_beta2/bin/compton-trans compton-git/bin/compton-trans
+--- compton-0.1_beta2/bin/compton-trans	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/bin/compton-trans	2014-04-13 11:44:16.040636937 +0200
+@@ -26,7 +26,7 @@
+ 
+ # "command" is a shell built-in, faster than "which"
+ if test -z "$(command -v xprop)" -o -z "$(command -v xwininfo)"; then
+-  echo 'Please install x11-utils/xorg-xprop/xorg-xwininfo.' >& 2
++  echo 'The command xwininfo or xprop is not available. They might reside in a package named xwininfo, xprop, x11-utils, xorg-xprop, or xorg-xwininfo.' >& 2
+   exit 1
+ fi
+ 
+diff -Naur compton-0.1_beta2/compton.sample.conf compton-git/compton.sample.conf
+--- compton-0.1_beta2/compton.sample.conf	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/compton.sample.conf	2014-04-13 11:44:16.040636937 +0200
+@@ -69,6 +69,8 @@
+ # glx-no-rebind-pixmap = true;
+ glx-swap-method = "undefined";
+ # glx-use-gpushader4 = true;
++# xrender-sync = true;
++# xrender-sync-fence = true;
+ 
+ # Window type settings
+ wintypes:
+diff -Naur compton-0.1_beta2/dbus-examples/inverter.sh compton-git/dbus-examples/inverter.sh
+--- compton-0.1_beta2/dbus-examples/inverter.sh	1970-01-01 01:00:00.000000000 +0100
++++ compton-git/dbus-examples/inverter.sh	2014-04-13 11:44:16.040636937 +0200
+@@ -0,0 +1,67 @@
++#!/bin/sh
++
++# === Verify `compton --dbus` status === 
++
++if [ -z "`dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep compton`" ]; then
++  echo "compton DBus interface unavailable"
++  if [ -n "`pgrep compton`" ]; then
++    echo "compton running without dbus interface"
++    #killall compton & # Causes all windows to flicker away and come back ugly.
++    #compton --dbus & # Causes all windows to flicker away and come back beautiful
++  else
++    echo "compton not running"
++  fi
++  exit 1;
++fi
++
++# === Setup sed ===
++
++if [ -z "$SED" ]; then
++  SED="sed"
++  command -v gsed > /dev/null && SED="gsed"
++fi
++
++# === Get connection parameters ===
++
++dpy=$(echo -n "$DISPLAY" | tr -c '[:alnum:]' _)
++
++if [ -z "$dpy" ]; then
++  echo "Cannot find display."
++  exit 1;
++fi
++
++service="com.github.chjj.compton.${dpy}"
++interface="com.github.chjj.compton"
++compton_dbus="dbus-send --print-reply --dest="${service}" / "${interface}"."
++type_win='uint32'
++type_enum='uint16'
++
++# === Color Inversion ===
++
++# Get window ID of window to invert
++if [ -z "$1" -o "$1" = "selected" ]; then
++  window=$(xwininfo -frame | sed -n 's/^xwininfo: Window id: \(0x[[:xdigit:]][[:xdigit:]]*\).*/\1/p') # Select window by mouse
++elif [ "$1" = "focused" ]; then
++  # Ensure we are tracking focus
++  ${compton_dbus}opts_set string:track_focus boolean:true &
++  window=$(${compton_dbus}find_win string:focused | $SED -n 's/^[[:space:]]*'${type_win}'[[:space:]]*\([[:digit:]]*\).*/\1/p') # Query compton for the active window
++elif echo "$1" | grep -Eiq '^([[:digit:]][[:digit:]]*|0x[[:xdigit:]][[:xdigit:]]*)$'; then
++  window="$1" # Accept user-specified window-id if the format is correct
++else
++  echo "$0" "[ selected | focused | window-id ]"
++fi
++
++# Color invert the selected or focused window
++if [ -n "$window" ]; then
++  invert_status="$(${compton_dbus}win_get "${type_win}:${window}" string:invert_color | $SED -n 's/^[[:space:]]*boolean[[:space:]]*\([[:alpha:]]*\).*/\1/p')"
++  if [ "$invert_status" = true ]; then
++    invert=0 # Set the window to have normal color
++  else
++    invert=1 # Set the window to have inverted color
++  fi
++  ${compton_dbus}win_set "${type_win}:${window}" string:invert_color_force "${type_enum}:${invert}" &
++else
++  echo "Cannot find $1 window."
++  exit 1;
++fi
++exit 0;
+diff -Naur compton-0.1_beta2/Makefile compton-git/Makefile
+--- compton-0.1_beta2/Makefile	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/Makefile	2014-04-13 11:44:16.039636949 +0200
+@@ -73,6 +73,11 @@
+   OBJS += dbus.o
+ endif
+ 
++# ==== D-Bus ====
++ifeq "$(NO_XSYNC)" ""
++  CFG += -DCONFIG_XSYNC
++endif
++
+ # ==== C2 ====
+ ifeq "$(NO_C2)" ""
+   CFG += -DCONFIG_C2
+diff -Naur compton-0.1_beta2/man/compton.1.asciidoc compton-git/man/compton.1.asciidoc
+--- compton-0.1_beta2/man/compton.1.asciidoc	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/man/compton.1.asciidoc	2014-04-13 11:44:16.041636924 +0200
+@@ -86,6 +86,9 @@
+ *--config* 'PATH'::
+ 	Look for configuration file at the path. See *CONFIGURATION FILES* section below for where compton looks for a configuration file by default.
+ 
++*--write-pid-path* 'PATH'::
++	Write process ID to a file.
++
+ *--shadow-red* 'VALUE'::
+ 	Red color value of shadow (0.0 - 1.0, defaults to 0).
+ 
+@@ -349,7 +352,7 @@
+ -------------------
+ compton could read from a configuration file if libconfig support is compiled in. If *--config* is not used, compton will seek for a configuration file in `$XDG_CONFIG_HOME/compton.conf` (`~/.config/compton.conf`, usually), then `~/.compton.conf`, then `compton.conf` under `$XDG_DATA_DIRS` (often `/etc/xdg/compton.conf`).
+ 
+-compton uses general libconfig configurtion file format. A sample configuration file is available as `compton.sample.conf` in the source tree. Most commandline switches each could be replaced with an option in configuration file, thus documented above. Window-type-specific settings are exposed only in configuration file and has the following format:
++compton uses general libconfig configuration file format. A sample configuration file is available as `compton.sample.conf` in the source tree. Most commandline switches each could be replaced with an option in configuration file, thus documented above. Window-type-specific settings are exposed only in configuration file and has the following format:
+ 
+ ------------
+ wintypes:
+diff -Naur compton-0.1_beta2/src/common.h compton-git/src/common.h
+--- compton-0.1_beta2/src/common.h	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/common.h	2014-04-13 11:44:16.042636912 +0200
+@@ -55,11 +55,23 @@
+ // #define CONFIG_DBUS 1
+ // Whether to enable condition support.
+ // #define CONFIG_C2 1
++// Whether to enable X Sync support.
++// #define CONFIG_XSYNC 1
++// Whether to enable GLX Sync support.
++// #define CONFIG_GLX_XSYNC 1
+ 
+ #if !defined(CONFIG_C2) && defined(DEBUG_C2)
+ #error Cannot enable c2 debugging without c2 support.
+ #endif
+ 
++#if (!defined(CONFIG_XSYNC) || !defined(CONFIG_VSYNC_OPENGL)) && defined(CONFIG_GLX_SYNC)
++#error Cannot enable GL sync without X Sync / OpenGL support.
++#endif
++
++#ifndef COMPTON_VERSION
++#define COMPTON_VERSION "unknown"
++#endif
++
+ // === Includes ===
+ 
+ // For some special functions
+@@ -85,6 +97,9 @@
+ #include <X11/extensions/shape.h>
+ #include <X11/extensions/Xrandr.h>
+ #include <X11/extensions/Xdbe.h>
++#ifdef CONFIG_XSYNC
++#include <X11/extensions/sync.h>
++#endif
+ 
+ #ifdef CONFIG_XINERAMA
+ #include <X11/extensions/Xinerama.h>
+@@ -132,6 +147,12 @@
+ #define MSTR_(s)        #s
+ #define MSTR(s)         MSTR_(s)
+ 
++/// @brief Wrapper for gcc branch prediction builtin, for likely branch.
++#define likely(x)    __builtin_expect(!!(x), 1)
++
++/// @brief Wrapper for gcc branch prediction builtin, for unlikely branch.
++#define unlikely(x)  __builtin_expect(!!(x), 0)
++
+ /// Print out an error message.
+ #define printf_err(format, ...) \
+   fprintf(stderr, format "\n", ## __VA_ARGS__)
+@@ -313,6 +334,7 @@
+ enum backend {
+   BKEND_XRENDER,
+   BKEND_GLX,
++  BKEND_XR_GLX_HYBRID,
+   NUM_BKEND,
+ };
+ 
+@@ -327,6 +349,16 @@
+ typedef struct _glx_texture glx_texture_t;
+ 
+ #ifdef CONFIG_VSYNC_OPENGL
++#ifdef DEBUG_GLX_DEBUG_CONTEXT
++typedef GLXContext (*f_glXCreateContextAttribsARB) (Display *dpy,
++    GLXFBConfig config, GLXContext share_context, Bool direct,
++    const int *attrib_list);
++typedef void (*GLDEBUGPROC) (GLenum source, GLenum type,
++    GLuint id, GLenum severity, GLsizei length, const GLchar* message,
++    GLvoid* userParam);
++typedef void (*f_DebugMessageCallback) (GLDEBUGPROC, void *userParam);
++#endif
++
+ typedef int (*f_WaitVideoSync) (int, int, unsigned *);
+ typedef int (*f_GetVideoSync) (unsigned *);
+ 
+@@ -341,6 +373,47 @@
+ 
+ typedef void (*f_CopySubBuffer) (Display *dpy, GLXDrawable drawable, int x, int y, int width, int height);
+ 
++#ifdef CONFIG_GLX_SYNC
++// Looks like duplicate typedef of the same type is safe?
++typedef int64_t GLint64;
++typedef uint64_t GLuint64;
++typedef struct __GLsync *GLsync;
++
++#ifndef GL_SYNC_FLUSH_COMMANDS_BIT
++#define GL_SYNC_FLUSH_COMMANDS_BIT 0x00000001
++#endif
++
++#ifndef GL_TIMEOUT_IGNORED
++#define GL_TIMEOUT_IGNORED 0xFFFFFFFFFFFFFFFFull
++#endif
++
++#ifndef GL_ALREADY_SIGNALED
++#define GL_ALREADY_SIGNALED 0x911A
++#endif
++
++#ifndef GL_TIMEOUT_EXPIRED
++#define GL_TIMEOUT_EXPIRED 0x911B
++#endif
++
++#ifndef GL_CONDITION_SATISFIED
++#define GL_CONDITION_SATISFIED 0x911C
++#endif
++
++#ifndef GL_WAIT_FAILED
++#define GL_WAIT_FAILED 0x911D
++#endif
++
++typedef GLsync (*f_FenceSync) (GLenum condition, GLbitfield flags);
++typedef GLboolean (*f_IsSync) (GLsync sync);
++typedef void (*f_DeleteSync) (GLsync sync);
++typedef GLenum (*f_ClientWaitSync) (GLsync sync, GLbitfield flags,
++    GLuint64 timeout);
++typedef void (*f_WaitSync) (GLsync sync, GLbitfield flags,
++    GLuint64 timeout);
++typedef GLsync (*f_ImportSyncEXT) (GLenum external_sync_type,
++    GLintptr external_sync, GLbitfield flags);
++#endif
++
+ #ifdef DEBUG_GLX_MARK
+ typedef void (*f_StringMarkerGREMEDY) (GLsizei len, const void *string);
+ typedef void (*f_FrameTerminatorGREMEDY) (void);
+@@ -427,15 +500,24 @@
+ typedef struct _c2_lptr c2_lptr_t;
+ 
+ /// Structure representing all options.
+-typedef struct {
++typedef struct _options_t {
+   // === General ===
+   /// The configuration file we used.
+   char *config_file;
++  /// Path to write PID to.
++  char *write_pid_path;
+   /// The display name we used. NULL means we are using the value of the
+   /// <code>DISPLAY</code> environment variable.
+   char *display;
++  /// Safe representation of display name.
++  char *display_repr;
+   /// The backend in use.
+   enum backend backend;
++  /// Whether to sync X drawing to avoid certain delay issues with
++  /// GLX backend.
++  bool xrender_sync;
++  /// Whether to sync X drawing with X Sync fence.
++  bool xrender_sync_fence;
+   /// Whether to avoid using stencil buffer under GLX backend. Might be
+   /// unsafe.
+   bool glx_no_stencil;
+@@ -498,6 +580,9 @@
+   bool dbe;
+   /// Whether to do VSync aggressively.
+   bool vsync_aggressive;
++  /// Whether to use glFinish() instead of glFlush() for (possibly) better
++  /// VSync yet probably higher CPU usage.
++  bool vsync_use_glfinish;
+ 
+   // === Shadow ===
+   /// Enable/disable shadow for specific window types.
+@@ -599,7 +684,7 @@
+ } options_t;
+ 
+ /// Structure containing all necessary data for a compton session.
+-typedef struct {
++typedef struct _session_t {
+   // === Display related ===
+   /// Display in use.
+   Display *dpy;
+@@ -631,7 +716,10 @@
+   /// A Picture acting as the painting target.
+   Picture tgt_picture;
+   /// Temporary buffer to paint to before sending to display.
+-  Picture tgt_buffer;
++  paint_t tgt_buffer;
++#ifdef CONFIG_XSYNC
++  XSyncFence tgt_buffer_fence;
++#endif
+   /// DBE back buffer for root window. Used in DBE painting mode.
+   XdbeBackBuffer root_dbe;
+   /// Window ID of the window we register as a symbol.
+@@ -765,6 +853,20 @@
+   f_ReleaseTexImageEXT glXReleaseTexImageProc;
+   /// Pointer to glXCopySubBufferMESA function.
+   f_CopySubBuffer glXCopySubBufferProc;
++#ifdef CONFIG_GLX_SYNC
++  /// Pointer to the glFenceSync() function.
++  f_FenceSync glFenceSyncProc;
++  /// Pointer to the glIsSync() function.
++  f_IsSync glIsSyncProc;
++  /// Pointer to the glDeleteSync() function.
++  f_DeleteSync glDeleteSyncProc;
++  /// Pointer to the glClientWaitSync() function.
++  f_ClientWaitSync glClientWaitSyncProc;
++  /// Pointer to the glWaitSync() function.
++  f_WaitSync glWaitSyncProc;
++  /// Pointer to the glImportSyncEXT() function.
++  f_ImportSyncEXT glImportSyncEXT;
++#endif
+ #ifdef DEBUG_GLX_MARK
+   /// Pointer to StringMarkerGREMEDY function.
+   f_StringMarkerGREMEDY glStringMarkerGREMEDY;
+@@ -832,6 +934,14 @@
+   /// Number of Xinerama screens.
+   int xinerama_nscrs;
+ #endif
++#ifdef CONFIG_XSYNC
++  /// Whether X Sync extension exists.
++  bool xsync_exists;
++  /// Event base number for X Sync extension.
++  int xsync_event;
++  /// Error base number for X Sync extension.
++  int xsync_error;
++#endif
+   /// Whether X Render convolution filter exists.
+   bool xrfilter_convolution_exists;
+ 
+@@ -897,6 +1007,10 @@
+   winmode_t mode;
+   /// Whether the window has been damaged at least once.
+   bool damaged;
++#ifdef CONFIG_XSYNC
++  /// X Sync fence of drawable.
++  XSyncFence fence;
++#endif
+   /// Whether the window was damaged after last paint.
+   bool pixmap_damaged;
+   /// Damage of the window.
+@@ -986,7 +1100,7 @@
+   /// _NET_WM_OPACITY value
+   opacity_t opacity_prop_client;
+   /// Last window opacity value we set.
+-  long opacity_set;
++  opacity_t opacity_set;
+ 
+   // Fading-related members
+   /// Do not fade if it's false. Change on window type change.
+@@ -1150,6 +1264,15 @@
+ /// @brief Wrapper of allocchk_().
+ #define allocchk(ptr) allocchk_(__func__, ptr)
+ 
++/// @brief Wrapper of malloc().
++#define cmalloc(nmemb, type) ((type *) allocchk(malloc((nmemb) * sizeof(type))))
++
++/// @brief Wrapper of calloc().
++#define ccalloc(nmemb, type) ((type *) allocchk(calloc((nmemb), sizeof(type))))
++
++/// @brief Wrapper of ealloc().
++#define crealloc(ptr, nmemb, type) ((type *) allocchk(realloc((ptr), (nmemb) * sizeof(type))))
++
+ /**
+  * Return whether a struct timeval value is empty.
+  */
+@@ -1310,10 +1433,7 @@
+  */
+ static inline char *
+ mstrcpy(const char *src) {
+-  char *str = malloc(sizeof(char) * (strlen(src) + 1));
+-
+-  if (!str)
+-    printf_errfq(1, "(): Failed to allocate memory.");
++  char *str = cmalloc(strlen(src) + 1, char);
+ 
+   strcpy(str, src);
+ 
+@@ -1325,10 +1445,7 @@
+  */
+ static inline char *
+ mstrncpy(const char *src, unsigned len) {
+-  char *str = malloc(sizeof(char) * (len + 1));
+-
+-  if (!str)
+-    printf_errfq(1, "(): Failed to allocate memory.");
++  char *str = cmalloc(len + 1, char);
+ 
+   strncpy(str, src, len);
+   str[len] = '\0';
+@@ -1341,7 +1458,7 @@
+  */
+ static inline char *
+ mstrjoin(const char *src1, const char *src2) {
+-  char *str = malloc(sizeof(char) * (strlen(src1) + strlen(src2) + 1));
++  char *str = cmalloc(strlen(src1) + strlen(src2) + 1, char);
+ 
+   strcpy(str, src1);
+   strcat(str, src2);
+@@ -1354,8 +1471,8 @@
+  */
+ static inline char *
+ mstrjoin3(const char *src1, const char *src2, const char *src3) {
+-  char *str = malloc(sizeof(char) * (strlen(src1) + strlen(src2)
+-        + strlen(src3) + 1));
++  char *str = cmalloc(strlen(src1) + strlen(src2)
++        + strlen(src3) + 1, char);
+ 
+   strcpy(str, src1);
+   strcat(str, src2);
+@@ -1369,7 +1486,8 @@
+  */
+ static inline void
+ mstrextend(char **psrc1, const char *src2) {
+-  *psrc1 = realloc(*psrc1, (*psrc1 ? strlen(*psrc1): 0) + strlen(src2) + 1);
++  *psrc1 = crealloc(*psrc1, (*psrc1 ? strlen(*psrc1): 0) + strlen(src2) + 1,
++      char);
+ 
+   strcat(*psrc1, src2);
+ }
+@@ -1472,6 +1590,16 @@
+       ps->o.backend = i;
+       return true;
+     }
++  // Keep compatibility with an old revision containing a spelling mistake...
++  if (!strcasecmp(str, "xr_glx_hybird")) {
++    ps->o.backend = BKEND_XR_GLX_HYBRID;
++    return true;
++  }
++  // cju wants to use dashes
++  if (!strcasecmp(str, "xr-glx-hybrid")) {
++    ps->o.backend = BKEND_XR_GLX_HYBRID;
++    return true;
++  }
+   printf_errf("(\"%s\"): Invalid backend argument.", str);
+   return false;
+ }
+@@ -1694,6 +1822,25 @@
+   return NULL;
+ }
+ 
++
++/**
++ * Check if current backend uses XRender for rendering.
++ */
++static inline bool
++bkend_use_xrender(session_t *ps) {
++  return BKEND_XRENDER == ps->o.backend
++    || BKEND_XR_GLX_HYBRID == ps->o.backend;
++}
++
++/**
++ * Check if current backend uses GLX.
++ */
++static inline bool
++bkend_use_glx(session_t *ps) {
++  return BKEND_GLX == ps->o.backend
++    || BKEND_XR_GLX_HYBRID == ps->o.backend;
++}
++
+ /**
+  * Check if a window is really focused.
+  */
+@@ -1743,6 +1890,29 @@
+ }
+ 
+ /**
++ * Free all regions in ps->all_damage_last .
++ */
++static inline void
++free_all_damage_last(session_t *ps) {
++  for (int i = 0; i < CGLX_MAX_BUFFER_AGE; ++i)
++    free_region(ps, &ps->all_damage_last[i]);
++}
++
++#ifdef CONFIG_XSYNC
++/**
++ * Free a XSync fence.
++ */
++static inline void
++free_fence(session_t *ps, XSyncFence *pfence) {
++  if (*pfence)
++    XSyncDestroyFence(ps->dpy, *pfence);
++  *pfence = None;
++}
++#else
++#define free_fence(ps, pfence) ((void) 0)
++#endif
++
++/**
+  * Crop a rectangle by another rectangle.
+  *
+  * psrc and pdst cannot be the same.
+@@ -1867,6 +2037,11 @@
+  */
+ ///@{
+ 
++#ifdef CONFIG_GLX_SYNC
++void
++xr_glx_sync(session_t *ps, Drawable d, XSyncFence *pfence);
++#endif
++
+ bool
+ glx_init(session_t *ps, bool need_render);
+ 
+@@ -2008,7 +2183,7 @@
+ static inline void
+ glx_mark_(session_t *ps, const char *func, XID xid, bool start) {
+ #ifdef DEBUG_GLX_MARK
+-  if (BKEND_GLX == ps->o.backend && ps->glStringMarkerGREMEDY) {
++  if (bkend_use_glx(ps) && ps->glStringMarkerGREMEDY) {
+     if (!func) func = "(unknown)";
+     const char *postfix = (start ? " (start)": " (end)");
+     char *str = malloc((strlen(func) + 12 + 2
+@@ -2029,13 +2204,67 @@
+ static inline void
+ glx_mark_frame(session_t *ps) {
+ #ifdef DEBUG_GLX_MARK
+-  if (BKEND_GLX == ps->o.backend && ps->glFrameTerminatorGREMEDY)
++  if (bkend_use_glx(ps) && ps->glFrameTerminatorGREMEDY)
+     ps->glFrameTerminatorGREMEDY();
+ #endif
+ }
+ 
+ ///@}
+ 
++#ifdef CONFIG_XSYNC
++#define xr_sync(ps, d, pfence) xr_sync_(ps, d, pfence)
++#else
++#define xr_sync(ps, d, pfence) xr_sync_(ps, d)
++#endif
++
++/**
++ * Synchronizes a X Render drawable to ensure all pending painting requests
++ * are completed.
++ */
++static inline void
++xr_sync_(session_t *ps, Drawable d
++#ifdef CONFIG_XSYNC
++    , XSyncFence *pfence
++#endif
++    ) {
++  if (!ps->o.xrender_sync)
++    return;
++
++  XSync(ps->dpy, False);
++#ifdef CONFIG_XSYNC
++  if (ps->o.xrender_sync_fence && ps->xsync_exists) {
++    // TODO: If everybody just follows the rules stated in X Sync prototype,
++    // we need only one fence per screen, but let's stay a bit cautious right
++    // now
++    XSyncFence tmp_fence = None;
++    if (!pfence)
++      pfence = &tmp_fence;
++    assert(pfence);
++    if (!*pfence)
++      *pfence = XSyncCreateFence(ps->dpy, d, False);
++    if (*pfence) {
++      Bool triggered = False;
++      /* if (XSyncQueryFence(ps->dpy, *pfence, &triggered) && triggered)
++        XSyncResetFence(ps->dpy, *pfence); */
++      // The fence may fail to be created (e.g. because of died drawable)
++      assert(!XSyncQueryFence(ps->dpy, *pfence, &triggered) || !triggered);
++      XSyncTriggerFence(ps->dpy, *pfence);
++      XSyncAwaitFence(ps->dpy, pfence, 1);
++      assert(!XSyncQueryFence(ps->dpy, *pfence, &triggered) || triggered);
++    }
++    else {
++      printf_errf("(%#010lx): Failed to create X Sync fence.", d);
++    }
++    free_fence(ps, &tmp_fence);
++    if (*pfence)
++      XSyncResetFence(ps->dpy, *pfence);
++  }
++#endif
++#ifdef CONFIG_GLX_SYNC
++  xr_glx_sync(ps, d, pfence);
++#endif
++}
++
+ /** @name DBus handling
+  */
+ ///@{
+diff -Naur compton-0.1_beta2/src/compton.c compton-git/src/compton.c
+--- compton-0.1_beta2/src/compton.c	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/compton.c	2014-04-13 11:44:16.044636887 +0200
+@@ -47,6 +47,7 @@
+ const char * const BACKEND_STRS[NUM_BKEND + 1] = {
+   "xrender",      // BKEND_XRENDER
+   "glx",          // BKEND_GLX
++  "xr_glx_hybrid",// BKEND_XR_GLX_HYBRID
+   NULL
+ };
+ 
+@@ -488,6 +489,9 @@
+   w->shadow_paint.pixmap = shadow_pixmap_argb;
+   w->shadow_paint.pict = shadow_picture_argb;
+ 
++  // Sync it once and only once
++  xr_sync(ps, w->shadow_paint.pixmap, NULL);
++
+   bool success = paint_bind_tex(ps, &w->shadow_paint, shadow_image->width, shadow_image->height, 32, true);
+ 
+   XFreeGC(ps->dpy, gc);
+@@ -1244,6 +1248,7 @@
+       t = w;
+     }
+     else {
++      assert(w->destroyed == (w->fade_callback == destroy_callback));
+       check_fade_fin(ps, w);
+     }
+ 
+@@ -1404,6 +1409,7 @@
+ 
+   switch (ps->o.backend) {
+     case BKEND_XRENDER:
++    case BKEND_XR_GLX_HYBRID:
+       {
+         // Normalize blur kernels
+         for (int i = 0; i < MAX_BLUR_PASS; ++i) {
+@@ -1476,12 +1482,13 @@
+     XserverRegion reg_paint, const reg_data_t *pcache_reg) {
+   switch (ps->o.backend) {
+     case BKEND_XRENDER:
++    case BKEND_XR_GLX_HYBRID:
+       {
+         Picture alpha_pict = get_alpha_pict_d(ps, opacity);
+         if (alpha_pict != ps->alpha_picts[0]) {
+           int op = ((!argb && !alpha_pict) ? PictOpSrc: PictOpOver);
+           XRenderComposite(ps->dpy, op, pict, alpha_pict,
+-              ps->tgt_buffer, x, y, 0, 0, dx, dy, wid, hei);
++              ps->tgt_buffer.pict, x, y, 0, 0, dx, dy, wid, hei);
+         }
+         break;
+       }
+@@ -1509,12 +1516,16 @@
+   if (!w->paint.pixmap && ps->has_name_pixmap) {
+     set_ignore_next(ps);
+     w->paint.pixmap = XCompositeNameWindowPixmap(ps->dpy, w->id);
++    if (w->paint.pixmap)
++      free_fence(ps, &w->fence);
+   }
++
++  Drawable draw = w->paint.pixmap;
++  if (!draw)
++    draw = w->id;
++
+   // XRender: Build picture
+-  if (BKEND_XRENDER == ps->o.backend && !w->paint.pict) {
+-    Drawable draw = w->paint.pixmap;
+-    if (!draw)
+-      draw = w->id;
++  if (bkend_use_xrender(ps) && !w->paint.pict) {
+     {
+       XRenderPictureAttributes pa = {
+         .subwindow_mode = IncludeInferiors,
+@@ -1524,6 +1535,10 @@
+           CPSubwindowMode, &pa);
+     }
+   }
++
++  if (IsViewable == w->a.map_state)
++    xr_sync(ps, draw, &w->fence);
++
+   // GLX: Build texture
+   // Let glx_bind_pixmap() determine pixmap size, because if the user
+   // is resizing windows, the width and height we get may not be up-to-date,
+@@ -1547,7 +1562,7 @@
+   Picture pict = w->paint.pict;
+ 
+   // Invert window color, if required
+-  if (BKEND_XRENDER == ps->o.backend && w->invert_color) {
++  if (bkend_use_xrender(ps) && w->invert_color) {
+     Picture newpict = xr_build_picture(ps, wid, hei, w->pictfmt);
+     if (newpict) {
+       // Apply clipping region to save some CPU
+@@ -1571,7 +1586,7 @@
+     }
+   }
+ 
+-  double dopacity = get_opacity_percent(w);;
++  const double dopacity = get_opacity_percent(w);
+ 
+   if (!w->frame_opacity) {
+     win_render(ps, w, 0, 0, wid, hei, dopacity, reg_paint, pcache_reg, pict);
+@@ -1640,6 +1655,7 @@
+ 
+     switch (ps->o.backend) {
+       case BKEND_XRENDER:
++      case BKEND_XR_GLX_HYBRID:
+         {
+           unsigned short cval = 0xffff * dim_opacity;
+ 
+@@ -1655,8 +1671,8 @@
+             .height = hei,
+           };
+ 
+-          XRenderFillRectangles(ps->dpy, PictOpOver, ps->tgt_buffer, &color,
+-              &rect, 1);
++          XRenderFillRectangles(ps->dpy, PictOpOver, ps->tgt_buffer.pict,
++              &color, &rect, 1);
+         }
+         break;
+ #ifdef CONFIG_VSYNC_OPENGL
+@@ -1702,7 +1718,7 @@
+   XserverRegion reg_paint = None, reg_tmp = None, reg_tmp2 = None;
+ 
+ #ifdef CONFIG_VSYNC_OPENGL
+-  if (BKEND_GLX == ps->o.backend) {
++  if (bkend_use_glx(ps)) {
+     glx_paint_pre(ps, &region);
+   }
+ #endif
+@@ -1717,27 +1733,29 @@
+ 
+ #ifdef MONITOR_REPAINT
+   // Note: MONITOR_REPAINT cannot work with DBE right now.
+-  ps->tgt_buffer = ps->tgt_picture;
++  // Picture old_tgt_buffer = ps->tgt_buffer.pict;
++  ps->tgt_buffer.pict = ps->tgt_picture;
+ #else
+-  if (!ps->tgt_buffer) {
++  if (!paint_isvalid(ps, &ps->tgt_buffer)) {
+     // DBE painting mode: Directly paint to a Picture of the back buffer
+-    if (ps->o.dbe) {
+-      ps->tgt_buffer = XRenderCreatePicture(ps->dpy, ps->root_dbe,
++    if (BKEND_XRENDER == ps->o.backend && ps->o.dbe) {
++      ps->tgt_buffer.pict = XRenderCreatePicture(ps->dpy, ps->root_dbe,
+           XRenderFindVisualFormat(ps->dpy, ps->vis),
+           0, 0);
+     }
+     // No-DBE painting mode: Paint to an intermediate Picture then paint
+     // the Picture to root window
+     else {
+-      Pixmap root_pixmap = XCreatePixmap(
+-        ps->dpy, ps->root, ps->root_width, ps->root_height,
+-        ps->depth);
+-
+-      ps->tgt_buffer = XRenderCreatePicture(ps->dpy, root_pixmap,
+-        XRenderFindVisualFormat(ps->dpy, ps->vis),
+-        0, 0);
++      if (!ps->tgt_buffer.pixmap) {
++        free_paint(ps, &ps->tgt_buffer);
++        ps->tgt_buffer.pixmap = XCreatePixmap(ps->dpy, ps->root,
++            ps->root_width, ps->root_height, ps->depth);
++      }
+ 
+-      XFreePixmap(ps->dpy, root_pixmap);
++      if (BKEND_GLX != ps->o.backend)
++        ps->tgt_buffer.pict = XRenderCreatePicture(ps->dpy,
++            ps->tgt_buffer.pixmap, XRenderFindVisualFormat(ps->dpy, ps->vis),
++            0, 0);
+     }
+   }
+ #endif
+@@ -1753,6 +1771,7 @@
+           ps->root_width, ps->root_height);
+       break;
+     case BKEND_GLX:
++    case BKEND_XR_GLX_HYBRID:
+       glClearColor(0.0f, 0.0f, 1.0f, 1.0f);
+       glClear(GL_COLOR_BUFFER_BIT);
+       glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+@@ -1874,7 +1893,7 @@
+         // Blur window background
+         if (w->blur_background && (WMODE_SOLID != w->mode
+               || (ps->o.blur_background_frame && w->frame_opacity))) {
+-          win_blur_background(ps, w, ps->tgt_buffer, reg_paint, &cache_reg);
++          win_blur_background(ps, w, ps->tgt_buffer.pict, reg_paint, &cache_reg);
+         }
+ 
+         // Painting the window
+@@ -1898,7 +1917,10 @@
+     XSync(ps->dpy, False);
+ #ifdef CONFIG_VSYNC_OPENGL
+     if (ps->glx_context) {
+-      glFlush();
++      if (ps->o.vsync_use_glfinish)
++        glFinish();
++      else
++        glFlush();
+       glXWaitX();
+     }
+ #endif
+@@ -1922,14 +1944,36 @@
+         XdbeSwapBuffers(ps->dpy, &swap_info, 1);
+       }
+       // No-DBE painting mode
+-      else if (ps->tgt_buffer != ps->tgt_picture) {
++      else if (ps->tgt_buffer.pict != ps->tgt_picture) {
+         XRenderComposite(
+-          ps->dpy, PictOpSrc, ps->tgt_buffer, None,
++          ps->dpy, PictOpSrc, ps->tgt_buffer.pict, None,
+           ps->tgt_picture, 0, 0, 0, 0,
+           0, 0, ps->root_width, ps->root_height);
+       }
+       break;
+ #ifdef CONFIG_VSYNC_OPENGL
++    case BKEND_XR_GLX_HYBRID:
++      XSync(ps->dpy, False);
++      if (ps->o.vsync_use_glfinish)
++        glFinish();
++      else
++        glFlush();
++      glXWaitX();
++      assert(ps->tgt_buffer.pixmap);
++      xr_sync(ps, ps->tgt_buffer.pixmap, &ps->tgt_buffer_fence);
++      paint_bind_tex_real(ps, &ps->tgt_buffer,
++          ps->root_width, ps->root_height, ps->depth,
++          !ps->o.glx_no_rebind_pixmap);
++      // See #163
++      xr_sync(ps, ps->tgt_buffer.pixmap, &ps->tgt_buffer_fence);
++      if (ps->o.vsync_use_glfinish)
++        glFinish();
++      else
++        glFlush();
++      glXWaitX();
++      glx_render(ps, ps->tgt_buffer.ptex, 0, 0, 0, 0,
++          ps->root_width, ps->root_height, 0, 1.0, false, region_real, NULL);
++      // No break here!
+     case BKEND_GLX:
+       if (ps->o.glx_use_copysubbuffermesa)
+         glx_swap_copysubbuffermesa(ps, region_real);
+@@ -2059,6 +2103,10 @@
+ 
+   win *w = find_win(ps, id);
+ 
++#ifdef DEBUG_EVENTS
++  printf_dbgf("(%#010lx \"%s\"): %p\n", id, (w ? w->name: NULL), w);
++#endif
++
+   // Don't care about window mapping if it's an InputOnly window
+   // Try avoiding mapping a window twice
+   if (!w || InputOnly == w->a.class
+@@ -2081,7 +2129,7 @@
+   }
+ 
+   // Make sure the XSelectInput() requests are sent
+-  XSync(ps->dpy, False);
++  XFlush(ps->dpy);
+ 
+   // Update window mode here to check for ARGB windows
+   win_determine_mode(ps, w);
+@@ -2170,7 +2218,7 @@
+     w->extents = None;
+   }
+ 
+-  free_paint(ps, &w->paint);
++  free_wpaint(ps, w);
+   free_region(ps, &w->border_size);
+   free_paint(ps, &w->shadow_paint);
+ }
+@@ -2184,6 +2232,11 @@
+ unmap_win(session_t *ps, win *w) {
+   if (!w || IsUnmapped == w->a.map_state) return;
+ 
++  // One last synchronization
++  if (w->paint.pixmap)
++    xr_sync(ps, w->paint.pixmap, &w->fence);
++  free_fence(ps, &w->fence);
++
+   // Set focus out
+   win_set_focused(ps, w, false);
+ 
+@@ -2619,7 +2672,7 @@
+       determine_evmask(ps, client, WIN_EVMODE_CLIENT));
+ 
+   // Make sure the XSelectInput() requests are sent
+-  XSync(ps->dpy, False);
++  XFlush(ps->dpy);
+ 
+   win_upd_wintype(ps, w);
+ 
+@@ -2794,6 +2847,10 @@
+   // Allocate and initialize the new win structure
+   win *new = malloc(sizeof(win));
+ 
++#ifdef DEBUG_EVENTS
++  printf_dbgf("(%#010lx): %p\n", id, new);
++#endif
++
+   if (!new) {
+     printf_errf("(%#010lx): Failed to allocate memory for the new window.", id);
+     return false;
+@@ -2937,16 +2994,14 @@
+ configure_win(session_t *ps, XConfigureEvent *ce) {
+   // On root window changes
+   if (ce->window == ps->root) {
+-    if (ps->tgt_buffer) {
+-      XRenderFreePicture(ps->dpy, ps->tgt_buffer);
+-      ps->tgt_buffer = None;
+-    }
++    free_paint(ps, &ps->tgt_buffer);
+ 
+     ps->root_width = ce->width;
+     ps->root_height = ce->height;
+ 
+     rebuild_screen_reg(ps);
+     rebuild_shadow_exclude_reg(ps);
++    free_all_damage_last(ps);
+ 
+ #ifdef CONFIG_VSYNC_OPENGL
+     if (BKEND_GLX == ps->o.backend)
+@@ -3000,7 +3055,7 @@
+ 
+     if (w->a.width != ce->width || w->a.height != ce->height
+         || w->a.border_width != ce->border_width)
+-      free_paint(ps, &w->paint);
++      free_wpaint(ps, w);
+ 
+     if (w->a.width != ce->width || w->a.height != ce->height
+         || w->a.border_width != ce->border_width) {
+@@ -3051,10 +3106,18 @@
+ 
+ static void
+ finish_destroy_win(session_t *ps, Window id) {
+-  win **prev, *w;
++  win **prev = NULL, *w = NULL;
++
++#ifdef DEBUG_EVENTS
++  printf_dbgf("(%#010lx): Starting...\n", id);
++#endif
+ 
+   for (prev = &ps->list; (w = *prev); prev = &w->next) {
+     if (w->id == id && w->destroyed) {
++#ifdef DEBUG_EVENTS
++      printf_dbgf("(%#010lx \"%s\"): %p\n", id, w->name, w);
++#endif
++
+       finish_unmap_win(ps, w);
+       *prev = w->next;
+ 
+@@ -3064,6 +3127,12 @@
+ 
+       free_win_res(ps, w);
+ 
++      // Drop w from all prev_trans to avoid accessing freed memory in
++      // repair_win()
++      for (win *w2 = ps->list; w2; w2 = w2->next)
++        if (w == w2->prev_trans)
++          w2->prev_trans = NULL;
++
+       free(w);
+       break;
+     }
+@@ -3079,6 +3148,10 @@
+ destroy_win(session_t *ps, Window id) {
+   win *w = find_win(ps, id);
+ 
++#ifdef DEBUG_EVENTS
++  printf_dbgf("(%#010lx \"%s\"): %p\n", id, (w ? w->name: NULL), w);
++#endif
++
+   if (w) {
+     unmap_win(ps, w);
+ 
+@@ -3133,10 +3206,10 @@
+  * Xlib error handler function.
+  */
+ static int
+-error(Display __attribute__((unused)) *dpy, XErrorEvent *ev) {
++xerror(Display __attribute__((unused)) *dpy, XErrorEvent *ev) {
+   session_t * const ps = ps_g;
+ 
+-  int o;
++  int o = 0;
+   const char *name = "Unknown";
+ 
+   if (should_ignore(ps, ev->serial)) {
+@@ -3185,6 +3258,17 @@
+   }
+ #endif
+ 
++#ifdef CONFIG_XSYNC
++  if (ps->xsync_exists) {
++    o = ev->error_code - ps->xsync_error;
++    switch (o) {
++      CASESTRRET2(XSyncBadCounter);
++      CASESTRRET2(XSyncBadAlarm);
++      CASESTRRET2(XSyncBadFence);
++    }
++  }
++#endif
++
+   switch (ev->error_code) {
+     CASESTRRET2(BadAccess);
+     CASESTRRET2(BadAlloc);
+@@ -3221,6 +3305,7 @@
+ 
+ static void
+ expose_root(session_t *ps, XRectangle *rects, int nrects) {
++  free_all_damage_last(ps);
+   XserverRegion region = XFixesCreateRegion(ps->dpy, rects, nrects);
+   add_damage(ps, region);
+ }
+@@ -3715,18 +3800,27 @@
+     CASESTRRET(Expose);
+     CASESTRRET(PropertyNotify);
+     CASESTRRET(ClientMessage);
+-    default:
+-      if (isdamagenotify(ps, ev))
+-        return "Damage";
++  }
+ 
+-      if (ps->shape_exists && ev->type == ps->shape_event) {
+-        return "ShapeNotify";
+-      }
++  if (isdamagenotify(ps, ev))
++    return "Damage";
+ 
+-      sprintf(buf, "Event %d", ev->type);
++  if (ps->shape_exists && ev->type == ps->shape_event)
++    return "ShapeNotify";
+ 
+-      return buf;
++#ifdef CONFIG_XSYNC
++  if (ps->xsync_exists) {
++    int o = ev->type - ps->xsync_event;
++    switch (o) {
++      CASESTRRET(CounterNotify);
++      CASESTRRET(AlarmNotify);
++    }
+   }
++#endif
++
++  sprintf(buf, "Event %d", ev->type);
++
++  return buf;
+ }
+ 
+ static Window
+@@ -4309,6 +4403,8 @@
+     "  Enable synchronous operation (for debugging).\n"
+     "--config path\n"
+     "  Look for configuration file at the path.\n"
++    "--write-pid-path path\n"
++    "  Write process ID to a file.\n"
+     "--shadow-red value\n"
+     "  Red color value of shadow (0.0 - 1.0, defaults to 0).\n"
+     "--shadow-green value\n"
+@@ -4468,7 +4564,8 @@
+     "  Crop shadow of a window fully on a particular Xinerama screen to the\n"
+     "  screen." WARNING "\n"
+     "--backend backend\n"
+-    "  Choose backend. Possible choices are xrender and glx" WARNING ".\n"
++    "  Choose backend. Possible choices are xrender, glx, and\n"
++    "  xr_glx_hybrid" WARNING ".\n"
+     "--glx-no-stencil\n"
+     "  GLX backend: Avoid using stencil buffer. Might cause issues\n"
+     "  when rendering transparent content. My tests show a 15% performance\n"
+@@ -4499,6 +4596,18 @@
+     "--glx-use-gpushader4\n"
+     "  GLX backend: Use GL_EXT_gpu_shader4 for some optimization on blur\n"
+     "  GLSL code. My tests on GTX 670 show no noticeable effect.\n"
++    "--xrender-sync\n"
++    "  Attempt to synchronize client applications' draw calls with XSync(),\n"
++    "  used on GLX backend to ensure up-to-date window content is painted.\n"
++#undef WARNING
++#ifndef CONFIG_XSYNC
++#define WARNING WARNING_DISABLED
++#else
++#define WARNING
++#endif
++    "--xrender-sync-fence\n"
++    "  Additionally use X Sync fence to sync clients' draw calls. Needed\n"
++    "  on nvidia-drivers with GLX backend for some users." WARNING "\n"
+ #undef WARNING
+ #ifndef CONFIG_DBUS
+ #define WARNING WARNING_DISABLED
+@@ -4541,8 +4650,31 @@
+   if (ps->redirected)
+     XCompositeUnredirectWindow(ps->dpy, ps->reg_win, CompositeRedirectManual);
+ 
+-  Xutf8SetWMProperties(ps->dpy, ps->reg_win, "xcompmgr", "xcompmgr",
+-      NULL, 0, NULL, NULL, NULL);
++  {
++    XClassHint *h = XAllocClassHint();
++    if (h) {
++      h->res_name = "compton";
++      h->res_class = "xcompmgr";
++    }
++    Xutf8SetWMProperties(ps->dpy, ps->reg_win, "xcompmgr", "xcompmgr",
++        NULL, 0, NULL, NULL, h);
++    cxfree(h);
++  }
++
++  // Set _NET_WM_PID
++  {
++    long pid = getpid();
++    if (!XChangeProperty(ps->dpy, ps->reg_win,
++          get_atom(ps, "_NET_WM_PID"), XA_CARDINAL, 32, PropModeReplace,
++          (unsigned char *) &pid, 1)) {
++      printf_errf("(): Failed to set _NET_WM_PID.");
++    }
++  }
++
++  // Set COMPTON_VERSION
++  if (!wid_set_text_prop(ps, ps->reg_win, get_atom(ps, "COMPTON_VERSION"), COMPTON_VERSION)) {
++    printf_errf("(): Failed to set COMPTON_VERSION.");
++  }
+ 
+   {
+     unsigned len = strlen(REGISTER_PROP) + 2;
+@@ -4584,7 +4716,7 @@
+ /**
+  * Fork program to background and disable all I/O streams.
+  */
+-static bool
++static inline bool
+ fork_after(session_t *ps) {
+   if (getppid() == 1)
+     return true;
+@@ -4628,6 +4760,26 @@
+ }
+ 
+ /**
++ * Write PID to a file.
++ */
++static inline bool
++write_pid(session_t *ps) {
++  if (!ps->o.write_pid_path)
++    return true;
++
++  FILE *f = fopen(ps->o.write_pid_path, "w");
++  if (unlikely(!f)) {
++    printf_errf("(): Failed to write PID to \"%s\".", ps->o.write_pid_path);
++    return false;
++  }
++
++  fprintf(f, "%ld\n", (long) getpid());
++  fclose(f);
++
++  return true;
++}
++
++/**
+  * Parse a long number.
+  */
+ static inline bool
+@@ -5046,7 +5198,9 @@
+     if (config_setting_is_array(setting)) {
+       int i = config_setting_length(setting);
+       while (i--)
+-        parse_rule_opacity(ps, config_setting_get_string_elem(setting, i));
++        if (!parse_rule_opacity(ps, config_setting_get_string_elem(setting,
++                i)))
++          exit(1);
+     }
+     // Treat it as a single pattern if it's a string
+     else if (CONFIG_TYPE_STRING == config_setting_type(setting)) {
+@@ -5259,6 +5413,10 @@
+     exit(1);
+   // --glx-use-gpushader4
+   lcfg_lookup_bool(&cfg, "glx-use-gpushader4", &ps->o.glx_use_gpushader4);
++  // --xrender-sync
++  lcfg_lookup_bool(&cfg, "xrender-sync", &ps->o.xrender_sync);
++  // --xrender-sync-fence
++  lcfg_lookup_bool(&cfg, "xrender-sync-fence", &ps->o.xrender_sync_fence);
+   // Wintype settings
+   {
+     wintype_t i;
+@@ -5360,6 +5518,10 @@
+     { "xinerama-shadow-crop", no_argument, NULL, 307 },
+     { "unredir-if-possible-exclude", required_argument, NULL, 308 },
+     { "unredir-if-possible-delay", required_argument, NULL, 309 },
++    { "write-pid-path", required_argument, NULL, 310 },
++    { "vsync-use-glfinish", no_argument, NULL, 311 },
++    { "xrender-sync", no_argument, NULL, 312 },
++    { "xrender-sync-fence", no_argument, NULL, 313 },
+     // Must terminate with a NULL entry
+     { NULL, 0, NULL, 0 },
+   };
+@@ -5378,6 +5540,8 @@
+         ps->o.config_file = mstrcpy(optarg);
+       else if ('d' == o)
+         ps->o.display = mstrcpy(optarg);
++      else if ('S' == o)
++        ps->o.synchronize = true;
+       else if ('?' == o || ':' == o)
+         usage(1);
+     }
+@@ -5430,6 +5594,7 @@
+         usage(0);
+         break;
+       case 'd':
++      case 'S':
+         break;
+       P_CASELONG('D', fade_delta);
+       case 'I':
+@@ -5454,7 +5619,6 @@
+       case 'F':
+         fading_enable = true;
+         break;
+-      P_CASEBOOL('S', synchronize);
+       P_CASELONG('r', shadow_radius);
+       case 'o':
+         ps->o.shadow_opacity = atof(optarg);
+@@ -5603,6 +5767,13 @@
+         condlst_add(ps, &ps->o.unredir_if_possible_blacklist, optarg);
+         break;
+       P_CASELONG(309, unredir_if_possible_delay);
++      case 310:
++        // --write-pid-path
++        ps->o.write_pid_path = mstrcpy(optarg);
++        break;
++      P_CASEBOOL(311, vsync_use_glfinish);
++      P_CASEBOOL(312, xrender_sync);
++      P_CASEBOOL(313, xrender_sync_fence);
+       default:
+         usage(1);
+         break;
+@@ -5650,6 +5821,9 @@
+   if (ps->o.blur_background_frame)
+     ps->o.blur_background = true;
+ 
++  if (ps->o.xrender_sync_fence)
++    ps->o.xrender_sync = true;
++
+   // Other variables determined by options
+ 
+   // Determine whether we need to track focus changes
+@@ -5932,7 +6106,7 @@
+   if (!ensure_glx_context(ps))
+     return false;
+ 
+-  if (BKEND_GLX != ps->o.backend) {
++  if (!bkend_use_glx(ps)) {
+     printf_errf("(): I'm afraid glXSwapIntervalSGI wouldn't help if you are "
+         "not using GLX backend. You could try, nonetheless.");
+   }
+@@ -5960,7 +6134,7 @@
+   if (!ensure_glx_context(ps))
+     return false;
+ 
+-  if (BKEND_GLX != ps->o.backend) {
++  if (!bkend_use_glx(ps)) {
+     printf_errf("(): I'm afraid glXSwapIntervalMESA wouldn't help if you are "
+         "not using GLX backend. You could try, nonetheless.");
+   }
+@@ -6139,6 +6313,7 @@
+   if (ps->o.blur_background || ps->o.blur_background_frame) {
+     switch (ps->o.backend) {
+       case BKEND_XRENDER:
++      case BKEND_XR_GLX_HYBRID:
+         {
+           // Query filters
+           XFilters *pf = XRenderQueryFilters(ps->dpy, get_tgt_window(ps));
+@@ -6366,7 +6541,7 @@
+     // If we don't destroy them here, looks like the resources are just
+     // kept inaccessible somehow
+     for (win *w = ps->list; w; w = w->next)
+-      free_paint(ps, &w->paint);
++      free_wpaint(ps, w);
+ 
+     XCompositeUnredirectSubwindows(ps->dpy, ps->root, CompositeRedirectManual);
+     // Unmap overlay window
+@@ -6528,7 +6703,7 @@
+     .root_tile_paint = PAINT_INIT,
+     .screen_reg = None,
+     .tgt_picture = None,
+-    .tgt_buffer = None,
++    .tgt_buffer = PAINT_INIT,
+     .root_dbe = None,
+     .reg_win = None,
+     .o = {
+@@ -6740,7 +6915,7 @@
+     }
+   }
+ 
+-  XSetErrorHandler(error);
++  XSetErrorHandler(xerror);
+   if (ps->o.synchronize) {
+     XSynchronize(ps->dpy, 1);
+   }
+@@ -6795,13 +6970,55 @@
+     exit(1);
+   }
+ 
++  // Build a safe representation of display name
++  {
++    char *display_repr = DisplayString(ps->dpy);
++    if (!display_repr)
++      display_repr = "unknown";
++    display_repr = mstrcpy(display_repr);
++
++    // Convert all special characters in display_repr name to underscore
++    {
++      char *pdisp = display_repr;
++
++      while (*pdisp) {
++        if (!isalnum(*pdisp))
++          *pdisp = '_';
++        ++pdisp;
++      }
++    }
++
++    ps->o.display_repr = display_repr;
++  }
++
++  // Second pass
++  get_cfg(ps, argc, argv, false);
++
+   // Query X Shape
+   if (XShapeQueryExtension(ps->dpy, &ps->shape_event, &ps->shape_error)) {
+     ps->shape_exists = true;
+   }
+ 
+-  // Second pass
+-  get_cfg(ps, argc, argv, false);
++  if (ps->o.xrender_sync_fence) {
++#ifdef CONFIG_XSYNC
++    // Query X Sync
++    if (XSyncQueryExtension(ps->dpy, &ps->xsync_event, &ps->xsync_error)) {
++      // TODO: Fencing may require version >= 3.0?
++      int major_version_return = 0, minor_version_return = 0;
++      if (XSyncInitialize(ps->dpy, &major_version_return, &minor_version_return))
++        ps->xsync_exists = true;
++    }
++    if (!ps->xsync_exists) {
++      printf_errf("(): X Sync extension not found. No X Sync fence sync is "
++          "possible.");
++      exit(1);
++    }
++#else
++    printf_errf("(): X Sync support not compiled in. --xrender-sync-fence "
++        "can't work.");
++    exit(1);
++#endif
++  }
+ 
+   // Query X RandR
+   if ((ps->o.sw_opti && !ps->o.refresh_rate) || ps->o.xinerama_shadow_crop) {
+@@ -6847,7 +7064,7 @@
+     init_overlay(ps);
+ 
+   // Initialize DBE
+-  if (ps->o.dbe && BKEND_GLX == ps->o.backend) {
++  if (ps->o.dbe && BKEND_XRENDER != ps->o.backend) {
+     printf_errf("(): DBE couldn't be used on GLX backend.");
+     ps->o.dbe = false;
+   }
+@@ -6856,7 +7073,7 @@
+     exit(1);
+ 
+   // Initialize OpenGL as early as possible
+-  if (BKEND_GLX == ps->o.backend) {
++  if (bkend_use_glx(ps)) {
+ #ifdef CONFIG_VSYNC_OPENGL
+     if (!glx_init(ps, true))
+       exit(1);
+@@ -6974,6 +7191,8 @@
+     }
+   }
+ 
++  write_pid(ps);
++
+   // Free the old session
+   if (ps_old)
+     free(ps_old);
+@@ -7077,17 +7296,17 @@
+   free_picture(ps, &ps->white_picture);
+ 
+   // Free tgt_{buffer,picture} and root_picture
+-  if (ps->tgt_buffer == ps->tgt_picture)
+-    ps->tgt_buffer = None;
+-  else
+-    free_picture(ps, &ps->tgt_buffer);
++  if (ps->tgt_buffer.pict == ps->tgt_picture)
++    ps->tgt_buffer.pict = None;
+ 
+   if (ps->tgt_picture == ps->root_picture)
+     ps->tgt_picture = None;
+   else
+     free_picture(ps, &ps->tgt_picture);
++  free_fence(ps, &ps->tgt_buffer_fence);
+ 
+   free_picture(ps, &ps->root_picture);
++  free_paint(ps, &ps->tgt_buffer);
+ 
+   // Free other X resources
+   free_root_tile(ps);
+@@ -7099,9 +7318,12 @@
+   free(ps->shadow_corner);
+   free(ps->shadow_top);
+   free(ps->gaussian_map);
++
++  free(ps->o.config_file);
++  free(ps->o.write_pid_path);
+   free(ps->o.display);
++  free(ps->o.display_repr);
+   free(ps->o.logpath);
+-  free(ps->o.config_file);
+   for (int i = 0; i < MAX_BLUR_PASS; ++i) {
+     free(ps->o.blur_kerns[i]);
+     free(ps->blur_kerns_cache[i]);
+diff -Naur compton-0.1_beta2/src/compton.h compton-git/src/compton.h
+--- compton-0.1_beta2/src/compton.h	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/compton.h	2014-04-13 11:44:16.044636887 +0200
+@@ -219,7 +219,7 @@
+   if (!ppaint)
+     return false;
+ 
+-  if (BKEND_XRENDER == ps->o.backend && !ppaint->pict)
++  if (bkend_use_xrender(ps) && !ppaint->pict)
+     return false;
+ 
+ #ifdef CONFIG_VSYNC_OPENGL
+@@ -229,25 +229,32 @@
+ 
+   return true;
+ }
++
+ /**
+  * Bind texture in paint_t if we are using GLX backend.
+  */
+ static inline bool
+-paint_bind_tex(session_t *ps, paint_t *ppaint,
++paint_bind_tex_real(session_t *ps, paint_t *ppaint,
+     unsigned wid, unsigned hei, unsigned depth, bool force) {
+ #ifdef CONFIG_VSYNC_OPENGL
+-  if (BKEND_GLX == ps->o.backend) {
+-    if (!ppaint->pixmap)
+-      return false;
++  if (!ppaint->pixmap)
++    return false;
+ 
+-    if (force || !glx_tex_binded(ppaint->ptex, ppaint->pixmap))
+-      return glx_bind_pixmap(ps, &ppaint->ptex, ppaint->pixmap, wid, hei, depth);
+-  }
++  if (force || !glx_tex_binded(ppaint->ptex, ppaint->pixmap))
++    return glx_bind_pixmap(ps, &ppaint->ptex, ppaint->pixmap, wid, hei, depth);
+ #endif
+ 
+   return true;
+ }
+ 
++static inline bool
++paint_bind_tex(session_t *ps, paint_t *ppaint,
++    unsigned wid, unsigned hei, unsigned depth, bool force) {
++  if (BKEND_GLX == ps->o.backend)
++    return paint_bind_tex_real(ps, ppaint, wid, hei, depth, force);
++  return true;
++}
++
+ /**
+  * Free data in a reg_data_t.
+  */
+@@ -269,6 +276,15 @@
+ }
+ 
+ /**
++ * Free w->paint.
++ */
++static inline void
++free_wpaint(session_t *ps, win *w) {
++  free_paint(ps, &w->paint);
++  free_fence(ps, &w->fence);
++}
++
++/**
+  * Destroy all resources in a <code>struct _win</code>.
+  */
+ static inline void
+@@ -337,9 +353,7 @@
+  */
+ static inline XTextProperty *
+ make_text_prop(session_t *ps, char *str) {
+-  XTextProperty *pprop = malloc(sizeof(XTextProperty));
+-  if (!pprop)
+-    printf_errfq(1, "(): Failed to allocate memory.");
++  XTextProperty *pprop = cmalloc(1, XTextProperty);
+ 
+   if (XmbTextListToTextProperty(ps->dpy, &str, 1,  XStringStyle, pprop)) {
+     cxfree(pprop->value);
+@@ -350,6 +364,25 @@
+   return pprop;
+ }
+ 
++
++/**
++ * Set a single-string text property on a window.
++ */
++static inline bool
++wid_set_text_prop(session_t *ps, Window wid, Atom prop_atom, char *str) {
++  XTextProperty *pprop = make_text_prop(ps, str);
++  if (!pprop) {
++    printf_errf("(\"%s\"): Failed to make text property.", str);
++    return false;
++  }
++
++  XSetTextProperty(ps->dpy, wid, pprop, prop_atom);
++  cxfree(pprop->value);
++  cxfree(pprop);
++
++  return true;
++}
++
+ static void
+ run_fade(session_t *ps, win *w, unsigned steps);
+ 
+@@ -662,7 +695,8 @@
+ set_tgt_clip(session_t *ps, XserverRegion reg, const reg_data_t *pcache_reg) {
+   switch (ps->o.backend) {
+     case BKEND_XRENDER:
+-      XFixesSetPictureClipRegion(ps->dpy, ps->tgt_buffer, 0, 0, reg);
++    case BKEND_XR_GLX_HYBRID:
++      XFixesSetPictureClipRegion(ps->dpy, ps->tgt_buffer.pict, 0, 0, reg);
+       break;
+ #ifdef CONFIG_VSYNC_OPENGL
+     case BKEND_GLX:
+@@ -858,7 +892,7 @@
+ damage_win(session_t *ps, XDamageNotifyEvent *de);
+ 
+ static int
+-error(Display *dpy, XErrorEvent *ev);
++xerror(Display *dpy, XErrorEvent *ev);
+ 
+ static void
+ expose_root(session_t *ps, XRectangle *rects, int nrects);
+diff -Naur compton-0.1_beta2/src/dbus.c compton-git/src/dbus.c
+--- compton-0.1_beta2/src/dbus.c	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/dbus.c	2014-04-13 11:44:16.044636887 +0200
+@@ -39,30 +39,10 @@
+ 
+   // Request service name
+   {
+-    // Get display name
+-    char *display = DisplayString(ps->dpy);
+-    if (!display)
+-      display = "unknown";
+-    display = mstrcpy(display);
+-
+-    // Convert all special characters in display name to underscore
+-    {
+-      char *pdisp = display;
+-
+-      while (*pdisp) {
+-        if (!isalnum(*pdisp))
+-          *pdisp = '_';
+-        ++pdisp;
+-      }
+-    }
+-
+     // Build service name
+-    char *service = mstrjoin3(CDBUS_SERVICE_NAME, ".", display);
++    char *service = mstrjoin3(CDBUS_SERVICE_NAME, ".", ps->o.display_repr);
+     ps->dbus_service = service;
+ 
+-    free(display);
+-    display = NULL;
+-
+     // Request for the name
+     int ret = dbus_bus_request_name(ps->dbus_conn, service,
+         DBUS_NAME_FLAG_DO_NOT_QUEUE, &err);
+@@ -735,7 +715,13 @@
+   cdbus_m_win_get_do(class_instance, cdbus_reply_string);
+   cdbus_m_win_get_do(class_general, cdbus_reply_string);
+   cdbus_m_win_get_do(role, cdbus_reply_string);
++
+   cdbus_m_win_get_do(opacity, cdbus_reply_uint32);
++  cdbus_m_win_get_do(opacity_tgt, cdbus_reply_uint32);
++  cdbus_m_win_get_do(opacity_prop, cdbus_reply_uint32);
++  cdbus_m_win_get_do(opacity_prop_client, cdbus_reply_uint32);
++  cdbus_m_win_get_do(opacity_set, cdbus_reply_uint32);
++
+   cdbus_m_win_get_do(frame_opacity, cdbus_reply_double);
+   cdbus_m_win_get_do(left_width, cdbus_reply_uint32);
+   cdbus_m_win_get_do(right_width, cdbus_reply_uint32);
+@@ -889,6 +875,18 @@
+     return true; \
+   }
+ 
++  // version
++  if (!strcmp("version", target)) {
++    cdbus_reply_string(ps, msg, COMPTON_VERSION);
++    return true;
++  }
++
++  // pid
++  if (!strcmp("pid", target)) {
++    cdbus_reply_int32(ps, msg, getpid());
++    return true;
++  }
++
+   // display
+   if (!strcmp("display", target)) {
+     cdbus_reply_string(ps, msg, DisplayString(ps->dpy));
+@@ -896,6 +894,8 @@
+   }
+ 
+   cdbus_m_opts_get_do(config_file, cdbus_reply_string);
++  cdbus_m_opts_get_do(display_repr, cdbus_reply_string);
++  cdbus_m_opts_get_do(write_pid_path, cdbus_reply_string);
+   cdbus_m_opts_get_do(mark_wmwin_focused, cdbus_reply_bool);
+   cdbus_m_opts_get_do(mark_ovredir_focused, cdbus_reply_bool);
+   cdbus_m_opts_get_do(fork_after_register, cdbus_reply_bool);
+diff -Naur compton-0.1_beta2/src/dbus.h compton-git/src/dbus.h
+--- compton-0.1_beta2/src/dbus.h	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/dbus.h	2014-04-13 11:44:16.044636887 +0200
+@@ -10,6 +10,8 @@
+ 
+ #include "common.h"
+ #include <ctype.h>
++#include <sys/types.h>
++#include <unistd.h>
+ 
+ #define CDBUS_SERVICE_NAME      "com.github.chjj.compton"
+ #define CDBUS_INTERFACE_NAME    CDBUS_SERVICE_NAME
+diff -Naur compton-0.1_beta2/src/opengl.c compton-git/src/opengl.c
+--- compton-0.1_beta2/src/opengl.c	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/opengl.c	2014-04-13 11:44:16.045636874 +0200
+@@ -10,6 +10,50 @@
+ 
+ #include "opengl.h"
+ 
++#ifdef CONFIG_GLX_SYNC
++void
++xr_glx_sync(session_t *ps, Drawable d, XSyncFence *pfence) {
++  if (*pfence) {
++    // GLsync sync = ps->glFenceSyncProc(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
++    GLsync sync = ps->glImportSyncEXT(GL_SYNC_X11_FENCE_EXT, *pfence, 0);
++    /* GLenum ret = ps->glClientWaitSyncProc(sync, GL_SYNC_FLUSH_COMMANDS_BIT,
++        1000);
++    assert(GL_CONDITION_SATISFIED == ret); */
++    XSyncTriggerFence(ps->dpy, *pfence);
++    XFlush(ps->dpy);
++    ps->glWaitSyncProc(sync, 0, GL_TIMEOUT_IGNORED);
++    // ps->glDeleteSyncProc(sync);
++    // XSyncResetFence(ps->dpy, *pfence);
++  }
++  glx_check_err(ps);
++}
++#endif
++
++static inline GLXFBConfig
++get_fbconfig_from_visualinfo(session_t *ps, const XVisualInfo *visualinfo) {
++  int nelements = 0;
++  GLXFBConfig *fbconfigs = glXGetFBConfigs(ps->dpy, visualinfo->screen,
++      &nelements);
++  for (int i = 0; i < nelements; ++i) {
++    int visual_id = 0;
++    if (Success == glXGetFBConfigAttrib(ps->dpy, fbconfigs[i], GLX_VISUAL_ID, &visual_id)
++        && visual_id == visualinfo->visualid)
++      return fbconfigs[i];
++  }
++
++  return NULL;
++}
++
++#ifdef DEBUG_GLX_DEBUG_CONTEXT
++static void
++glx_debug_msg_callback(GLenum source, GLenum type,
++    GLuint id, GLenum severity, GLsizei length, const GLchar *message,
++    GLvoid *userParam) {
++  printf_dbgf("(): source 0x%04X, type 0x%04X, id %u, severity 0x%0X, \"%s\"\n",
++      source, type, id, severity, message);
++}
++#endif
++
+ /**
+  * Initialize OpenGL.
+  */
+@@ -56,7 +100,33 @@
+ 
+   if (!ps->glx_context) {
+     // Get GLX context
++#ifndef DEBUG_GLX_DEBUG_CONTEXT
+     ps->glx_context = glXCreateContext(ps->dpy, pvis, None, GL_TRUE);
++#else
++    {
++      GLXFBConfig fbconfig = get_fbconfig_from_visualinfo(ps, pvis);
++      if (!fbconfig) {
++        printf_errf("(): Failed to get GLXFBConfig for root visual %#lx.",
++            pvis->visualid);
++        goto glx_init_end;
++      }
++
++      f_glXCreateContextAttribsARB p_glXCreateContextAttribsARB =
++        (f_glXCreateContextAttribsARB)
++        glXGetProcAddress((const GLubyte *) "glXCreateContextAttribsARB");
++      if (!p_glXCreateContextAttribsARB) {
++        printf_errf("(): Failed to get glXCreateContextAttribsARB().");
++        goto glx_init_end;
++      }
++
++      static const int attrib_list[] = {
++        GLX_CONTEXT_FLAGS_ARB, GLX_CONTEXT_DEBUG_BIT_ARB,
++        None
++      };
++      ps->glx_context = p_glXCreateContextAttribsARB(ps->dpy, fbconfig, NULL,
++          GL_TRUE, attrib_list);
++    }
++#endif
+ 
+     if (!ps->glx_context) {
+       printf_errf("(): Failed to get GLX context.");
+@@ -68,6 +138,20 @@
+       printf_errf("(): Failed to attach GLX context.");
+       goto glx_init_end;
+     }
++
++#ifdef DEBUG_GLX_DEBUG_CONTEXT
++    {
++      f_DebugMessageCallback p_DebugMessageCallback =
++        (f_DebugMessageCallback)
++        glXGetProcAddress((const GLubyte *) "glDebugMessageCallback");
++      if (!p_DebugMessageCallback) {
++        printf_errf("(): Failed to get glDebugMessageCallback(0.");
++        goto glx_init_end;
++      }
++      p_DebugMessageCallback(glx_debug_msg_callback, ps);
++    }
++#endif
++
+   }
+ 
+   // Ensure we have a stencil buffer. X Fixes does not guarantee rectangles
+@@ -114,6 +198,27 @@
+         goto glx_init_end;
+       }
+     }
++
++#ifdef CONFIG_GLX_SYNC
++    ps->glFenceSyncProc = (f_FenceSync)
++      glXGetProcAddress((const GLubyte *) "glFenceSync");
++    ps->glIsSyncProc = (f_IsSync)
++      glXGetProcAddress((const GLubyte *) "glIsSync");
++    ps->glDeleteSyncProc = (f_DeleteSync)
++      glXGetProcAddress((const GLubyte *) "glDeleteSync");
++    ps->glClientWaitSyncProc = (f_ClientWaitSync)
++      glXGetProcAddress((const GLubyte *) "glClientWaitSync");
++    ps->glWaitSyncProc = (f_WaitSync)
++      glXGetProcAddress((const GLubyte *) "glWaitSync");
++    ps->glImportSyncEXT = (f_ImportSyncEXT)
++      glXGetProcAddress((const GLubyte *) "glImportSyncEXT");
++    if (!ps->glFenceSyncProc || !ps->glIsSyncProc || !ps->glDeleteSyncProc
++        || !ps->glClientWaitSyncProc || !ps->glWaitSyncProc
++        || !ps->glImportSyncEXT) {
++      printf_errf("(): Failed to acquire GLX sync functions.");
++      goto glx_init_end;
++    }
++#endif
+   }
+ 
+   // Acquire FBConfigs
+@@ -124,7 +229,8 @@
+   if (need_render) {
+     glx_on_root_change(ps);
+ 
+-    // glEnable(GL_DEPTH_TEST);
++    glDisable(GL_DEPTH_TEST);
++    glDepthMask(GL_FALSE);
+     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+     glDisable(GL_BLEND);
+ 
+@@ -343,9 +449,7 @@
+   }
+ 
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   return true;
+ #else
+@@ -654,9 +758,7 @@
+   glBindTexture(ptex->target, 0);
+   glDisable(ptex->target);
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   return true;
+ }
+@@ -679,9 +781,7 @@
+     ptex->glpixmap = 0;
+   }
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ }
+ 
+ /**
+@@ -802,9 +902,7 @@
+   glx_render_color(ps, 0, 0, ps->root_width, ps->root_height, 0, *preg, NULL);
+ #endif
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ }
+ 
+ /**
+@@ -880,14 +978,12 @@
+ 
+     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+-    glDepthMask(GL_TRUE);
++    // glDepthMask(GL_TRUE);
+   }
+ 
+   cxfree(rects_free);
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ }
+ 
+ #define P_PAINTREG_START() \
+@@ -1173,9 +1269,7 @@
+     free_glx_bc(ps, pbc);
+   }
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   return ret;
+ }
+@@ -1211,9 +1305,7 @@
+   glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+   glDisable(GL_BLEND);
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   return true;
+ }
+@@ -1411,9 +1503,7 @@
+     glActiveTexture(GL_TEXTURE0);
+   }
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   return true;
+ }
+@@ -1451,9 +1541,7 @@
+   }
+   glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ }
+ 
+ /**
+@@ -1491,9 +1579,7 @@
+   }
+   glColor4f(0.0f, 0.0f, 0.0f, 0.0f);
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ }
+ 
+ /**
+@@ -1523,9 +1609,7 @@
+     }
+   }
+ 
+-#ifdef DEBUG_GLX_ERR
+   glx_check_err(ps);
+-#endif
+ 
+   cxfree(rects);
+ }
+diff -Naur compton-0.1_beta2/src/opengl.h compton-git/src/opengl.h
+--- compton-0.1_beta2/src/opengl.h	2013-10-21 16:17:01.000000000 +0200
++++ compton-git/src/opengl.h	2014-04-13 11:44:16.045636874 +0200
+@@ -59,6 +59,8 @@
+ }
+ 
+ #define glx_check_err(ps) glx_check_err_(ps, __func__, __LINE__)
++#else
++#define glx_check_err(ps) ((void) 0)
+ #endif
+ 
+ /**
