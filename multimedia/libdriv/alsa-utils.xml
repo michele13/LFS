@@ -77,7 +77,7 @@
     <para>
       <xref linkend="alsa-lib"/>
     </para>
-<!-- runtime for alsaconf: lspci -->
+
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
       <xref linkend="libsamplerate"/>
@@ -93,6 +93,7 @@
     </para>
 
 <screen><userinput>./configure --disable-nls \
+            --disable-alsaconf \
             --disable-xmlto &amp;&amp;
 make</userinput></screen>
 
@@ -106,15 +107,14 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <parameter>--disable-xmlto</parameter>: This switch disables man page
-        creation and ensures successful build without <command>xmlto</command>
-        installed.
+        <parameter>--disable-alsaconf</option>: This switch disables building
+        the <command>alsaconf</command> configuration tool which is deprecated.
       </para>
 
       <para>
-        <option>--disable-alsaconf</option>: This switch disables building
-        the <command>alsaconf</command> configuration tool which is incompatible
-        with Udev.
+        <parameter>--disable-xmlto</parameter>: This switch disables man page
+        creation and ensures successful build without <command>xmlto</command>
+        installed.
       </para>
 
     </sect3>
@@ -256,7 +256,6 @@ alsactl store</userinput></screen>
 /usr/bin/aseqnet
 /usr/bin/iecset
 /usr/bin/speaker-test
-/usr/sbin/alsaconf
 /usr/sbin/alsactl
 /usr/share/alsa/
 /usr/share/man/man1/aconnect.1
@@ -273,7 +272,6 @@ alsactl store</userinput></screen>
 /usr/share/man/man1/aseqnet.1
 /usr/share/man/man1/iecset.1
 /usr/share/man/man1/speaker-test.1
-/usr/share/man/man8/alsaconf.8
 /usr/share/sounds/alsa/
 /var/lib/alsa/</literal></screen>
 
