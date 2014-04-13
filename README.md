@@ -48,3 +48,4 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/which
     /usr/bin/whois
     /usr/bin/xargs
+    /usr/sbin/ntpd
