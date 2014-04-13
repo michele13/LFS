@@ -31,6 +31,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/grep
     /bin/more
     /bin/netstat
+    /bin/ping
+    /bin/ping6
     /bin/sed
     /bin/tar
     /bin/vi

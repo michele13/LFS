@@ -66,12 +66,16 @@
 
     <para>Install the package:</para>
 
+<!-- ping for regular user requires setuid root -->
 <screen><userinput remap="install">install -v -m755 busybox /bin
+chmod -v +s /bin/busybox
 ln -sv busybox /bin/egrep
 ln -sv busybox /bin/fgrep
 ln -sv busybox /bin/grep
 ln -sv busybox /bin/more
 ln -sv busybox /bin/netstat
+ln -sv busybox /bin/ping
+ln -sv busybox /bin/ping6
 ln -sv busybox /bin/sed
 ln -sv busybox /bin/tar
 ln -sv busybox /bin/vi
@@ -108,8 +112,8 @@ EOF</userinput></screen>
 
       <seglistitem>
         <seg>busybox, acpid, egrep, fgrep, find, grep, ifconfig, less, man,
-        mdev, more, netstat, ntpd, patch, sed, tar, unzip, uudecode, uuencode,
-        vi, wget, which, whois, and xargs</seg>
+        mdev, more, netstat, ntpd, patch, ping, ping6, sed, tar, unzip,
+        uudecode, uuencode, vi, wget, which, whois, and xargs</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -256,6 +260,27 @@ EOF</userinput></screen>
           <para>Modifies files according to a patch file.</para>
           <indexterm zone="ch-system-busybox patch">
             <primary sortas="b-patch">patch</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="ping">
+        <term><command>ping</command></term>
+        <listitem>
+          <para>Sends echo-request packets to network hosts.</para>
+          <indexterm zone="ch-system-busybox ping">
+            <primary sortas="b-ping">ping</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="ping6">
+        <term><command>ping6</command></term>
+        <listitem>
+          <para>Is a version of <command>ping</command> for IPv6
+          networks.</para>
+          <indexterm zone="ch-system-busybox ping6">
+            <primary sortas="b-ping6">ping6</primary>
           </indexterm>
         </listitem>
       </varlistentry>
