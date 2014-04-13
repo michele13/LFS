@@ -5,10 +5,8 @@
   %general-entities;
 
   <!ENTITY ntp-homepage      "http://www.ntp.org/">
-  <!ENTITY ntp-wikipedia
-  "https://en.wikipedia.org/wiki/Network_Time_Protocol">
-  <!ENTITY ntp-download-http
-  "http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-&ntp-version;.tar.gz">
+  <!ENTITY ntp-wikipedia     "https://en.wikipedia.org/wiki/Network_Time_Protocol">
+  <!ENTITY ntp-download-http "http://www.eecis.udel.edu/~ntp/ntp_spool/ntp4/ntp-4.2/ntp-&ntp-version;.tar.gz">
   <!ENTITY ntp-download-ftp  " ">
   <!ENTITY ntp-md5sum        "00df80a84ec9528fcfb09498075525bc">
   <!ENTITY ntp-size          "4.1 MB">
@@ -21,10 +19,6 @@
 
   <title>ntp-&ntp-version;</title>
 
-  <indexterm zone="ntp">
-    <primary sortas="a-ntp">ntp</primary>
-  </indexterm>
-
   <sect2 role="package">
     <title>Introduction</title>
 
@@ -33,6 +27,12 @@
       between various computers over a network. This package is the official
       reference implementation of the NTP protocol.
     </para>
+
+    <note>
+      <para>
+        This package can be replaced with BusyBox applet.
+      </para>
+    </note>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
@@ -81,13 +81,13 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="openssl"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
+  <sect2>
     <title>Installation</title>
 
     <para>
@@ -137,7 +137,7 @@ install -v -o ntp -g ntp -d /var/lib/ntp</userinput></screen>
 
   </sect2>
 
-  <sect2 role="configuration">
+  <sect2>
     <title>Configuration</title>
 
     <para>
@@ -259,22 +259,22 @@ ln -v -sf ../init.d/setclock /etc/rc.d/rc6.d/K46setclock</userinput></screen>
     </para>
 
 <screen><literal>/etc/ntp.conf
-/usr/sbin/ntpd
-/usr/sbin/ntpdate
-/usr/sbin/ntpdc
-/usr/sbin/ntp-keygen
-/usr/sbin/ntpq
-/usr/sbin/ntptime
-/usr/sbin/ntptrace
-/usr/sbin/ntp-wait
-/usr/sbin/sntp
-/usr/sbin/tickadj
-/usr/share/man/man1/ntpd.1
-/usr/share/man/man1/ntpdc.1
-/usr/share/man/man1/ntp-keygen.1
-/usr/share/man/man1/ntpq.1
-/usr/share/man/man1/ntpsnmpd.1
-/usr/share/man/man1/sntp.1
+/usr/local/sbin/ntpd
+/usr/local/sbin/ntpdate
+/usr/local/sbin/ntpdc
+/usr/local/sbin/ntp-keygen
+/usr/local/sbin/ntpq
+/usr/local/sbin/ntptime
+/usr/local/sbin/ntptrace
+/usr/local/sbin/ntp-wait
+/usr/local/sbin/sntp
+/usr/local/sbin/tickadj
+/usr/local/share/man/man1/ntpd.1
+/usr/local/share/man/man1/ntpdc.1
+/usr/local/share/man/man1/ntp-keygen.1
+/usr/local/share/man/man1/ntpq.1
+/usr/local/share/man/man1/ntpsnmpd.1
+/usr/local/share/man/man1/sntp.1
 /var/lib/ntp</literal></screen>
 
   </sect2>
