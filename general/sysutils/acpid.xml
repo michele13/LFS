@@ -97,8 +97,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 -d /etc/acpi</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
   </sect2>
 
@@ -120,7 +119,7 @@ install -v -m755 -d /etc/acpi</userinput></screen>
       is closed (it requires <xref linkend="pm-utils"/>):
     </para>
 
-<screen role="root"><userinput>mkdir -v /etc/acpi/events &amp;&amp;
+<screen role="root"><userinput>mkdir -pv /etc/acpi/events &amp;&amp;
 cat &gt; /etc/acpi/events/lid &lt;&lt; "EOF"
 <literal>event=button/lid
 action=/etc/acpi/lid.sh</literal>
@@ -130,17 +129,17 @@ cat &gt; /etc/acpi/lid.sh &lt;&lt; "EOF"
 /bin/grep -q open /proc/acpi/button/lid/LID/state &amp;&amp; exit 0
 /usr/sbin/pm-suspend</literal>
 EOF
-chmod +x /etc/acpi/lid.sh</userinput></screen>
+chmod -v +x /etc/acpi/lid.sh</userinput></screen>
 
     <para>
       Alternatively, if using BusyBox applet:
     </para>
 
-<screen role="root"><userinput>mkdir -v /etc/acpi/LID &amp;&amp;
+<screen role="root"><userinput>mkdir -pv /etc/acpi/LID &amp;&amp;
 cat &gt; /etc/acpi/LID/00000080 &lt;&lt; "EOF"
 <literal>pm-suspend</literal>
 EOF
-chmod +x /etc/acpi/LID/00000080</userinput></screen>
+chmod -v +x /etc/acpi/LID/00000080</userinput></screen>
 
     <para>
       Unfortunately, not every computer labels ACPI events in the same way. To
