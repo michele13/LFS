@@ -69,9 +69,11 @@
 <!-- ping for regular user requires setuid root -->
 <screen><userinput remap="install">install -v -m755 busybox /bin
 chmod -v +s /bin/busybox
+ln -sv busybox /bin/dnsdomainname
 ln -sv busybox /bin/egrep
 ln -sv busybox /bin/fgrep
 ln -sv busybox /bin/grep
+ln -sv busybox /bin/hostname
 ln -sv busybox /bin/more
 ln -sv busybox /bin/netstat
 ln -sv busybox /bin/ping
@@ -86,6 +88,10 @@ ln -sv ../../bin/busybox /usr/bin/find
 ln -sv ../../bin/busybox /usr/bin/less
 ln -sv ../../bin/busybox /usr/bin/man
 ln -sv ../../bin/busybox /usr/bin/patch
+ln -sv ../../bin/busybox /usr/bin/telnet
+ln -sv ../../bin/busybox /usr/bin/tftp
+ln -sv ../../bin/busybox /usr/bin/traceroute
+ln -sv ../../bin/busybox /usr/bin/traceroute6
 ln -sv ../../bin/busybox /usr/bin/unzip
 ln -sv ../../bin/busybox /usr/bin/uudecode
 ln -sv ../../bin/busybox /usr/bin/uuencode
@@ -93,7 +99,11 @@ ln -sv ../../bin/busybox /usr/bin/wget
 ln -sv ../../bin/busybox /usr/bin/which
 ln -sv ../../bin/busybox /usr/bin/whois
 ln -sv ../../bin/busybox /usr/bin/xargs
-ln -sv ../../bin/busybox /usr/sbin/ntpd</userinput></screen>
+ln -sv ../../bin/busybox /usr/sbin/ftpd
+ln -sv ../../bin/busybox /usr/sbin/inetd
+ln -sv ../../bin/busybox /usr/sbin/ntpd
+ln -sv ../../bin/busybox /usr/sbin/telnetd
+ln -sv ../../bin/busybox /usr/sbin/tftpd</userinput></screen>
 
     <para>Configure the man paths:</para>
 
@@ -111,9 +121,11 @@ EOF</userinput></screen>
       <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>busybox, acpid, egrep, fgrep, find, grep, ifconfig, less, man,
-        mdev, more, netstat, ntpd, patch, ping, ping6, sed, tar, unzip,
-        uudecode, uuencode, vi, wget, which, whois, and xargs</seg>
+        <seg>busybox, acpid, dnsdomainname, egrep, fgrep, find, ftpd, grep,
+        hostname, ifconfig, inetd, less, man, mdev, more, netstat, ntpd, patch,
+        ping, ping6, sed, tar, telnet, telnetd, tftp, tftpd, traceroute,
+        traceroute6, unzip, uudecode, uuencode, vi, wget, which, whois, and
+        xargs</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -140,6 +152,17 @@ EOF</userinput></screen>
           arrival.</para>
           <indexterm zone="ch-system-busybox acpid">
             <primary sortas="b-acpid">acpid</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="dnsdomainname">
+        <term><command>dnsdomainname</command></term>
+        <listitem>
+          <para>Shows domain part of the system's fully qualified host
+          name.</para>
+          <indexterm zone="ch-system-busybox dnsdomainname">
+            <primary sortas="b-dnsdomainname">dnsdomainname</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -174,6 +197,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="ftpd">
+        <term><command>ftpd</command></term>
+        <listitem>
+          <para>Is an anonymous FTP server.</para>
+          <indexterm zone="ch-system-busybox ftpd">
+            <primary sortas="b-ftpd">ftpd</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="grep">
         <term><command>grep</command></term>
         <listitem>
@@ -184,12 +217,32 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="hostname">
+        <term><command>hostname</command></term>
+        <listitem>
+          <para>Shows or sets system host name.</para>
+          <indexterm zone="ch-system-busybox hostname">
+            <primary sortas="b-hostname">hostname</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="ifconfig">
         <term><command>ifconfig</command></term>
         <listitem>
           <para>Configures a network interface.</para>
           <indexterm zone="ch-system-busybox ifconfig">
             <primary sortas="b-ifconfig">ifconfig</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="inetd">
+        <term><command>inetd</command></term>
+        <listitem>
+          <para>Listens for network connections and launches programs.</para>
+          <indexterm zone="ch-system-busybox inetd">
+            <primary sortas="b-inetd">inetd</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -301,6 +354,67 @@ EOF</userinput></screen>
           <para>Creates, extracts, or lists files from a tar file.</para>
           <indexterm zone="ch-system-busybox tar">
             <primary sortas="b-tar">tar</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="telnet">
+        <term><command>telnet</command></term>
+        <listitem>
+          <para>Connects to telnet server.</para>
+          <indexterm zone="ch-system-busybox telnet">
+            <primary sortas="b-telnet">telnet</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="telnetd">
+        <term><command>telnetd</command></term>
+        <listitem>
+          <para>Handles incoming telnet connections.</para>
+          <indexterm zone="ch-system-busybox telnetd">
+            <primary sortas="b-telnetd">telnetd</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="tftp">
+        <term><command>tftp</command></term>
+        <listitem>
+          <para>Transfers a file from and to TFTP server.</para>
+          <indexterm zone="ch-system-busybox tftp">
+            <primary sortas="b-tftp">tftp</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="tftpd">
+        <term><command>tftpd</command></term>
+        <listitem>
+          <para>Transfers a file on TFTP client's request.</para>
+          <indexterm zone="ch-system-busybox tftpd">
+            <primary sortas="b-tftpd">tftpd</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="traceroute">
+        <term><command>traceroute</command></term>
+        <listitem>
+          <para>.</para>
+          <indexterm zone="ch-system-busybox traceroute">
+            <primary sortas="b-traceroute">traceroute</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="traceroute6">
+        <term><command>traceroute6</command></term>
+        <listitem>
+          <para>Is a version of <command>traceroute</command> for IPv6
+          networks.</para>
+          <indexterm zone="ch-system-busybox traceroute6">
+            <primary sortas="b-traceroute6">traceroute6</primary>
           </indexterm>
         </listitem>
       </varlistentry>
