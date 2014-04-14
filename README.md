@@ -11,7 +11,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced diffutils, findutils, grep, inetutils, less, man-db, patch, sed, tar,
   and vim with busybox in chapter 6
-* removed dejagnu, expect, tcl, and texinfo
+* removed autoconf, dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
