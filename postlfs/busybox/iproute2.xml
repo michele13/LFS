@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY iproute2-homepage      "http://www.linuxfoundation.org/collaborate/workgroups/networking/iproute2">
+  <!ENTITY iproute2-wikipedia     "http://en.wikipedia.org/wiki/Iproute2">
+  <!ENTITY iproute2-download-http "http://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-&iproute2-version;.tar.xz">
+  <!ENTITY iproute2-download-ftp  "ftp://ftp.kernel.org/pub/linux/utils/net/iproute2/iproute2-&iproute2-version;.tar.xz">
+  <!ENTITY iproute2-md5sum        "f87386aaaecafab95607fd10e8152c68">
+  <!ENTITY iproute2-size          "416 KB">
+  <!ENTITY iproute2-buildsize     "8.1 MB">
+  <!ENTITY iproute2-time          "0.1 SBU">
+]>
+
+<sect1 id="iproute2" xreflabel="iproute2-&iproute2-version;">
+  <?dbhtml filename="iproute2.html"?>
+
+  <title>iproute2-&iproute2-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The iproute2 package contains programs for basic and advanced IPV4-based
+      networking.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&iproute2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&iproute2-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&iproute2-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&iproute2-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &iproute2-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &iproute2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &iproute2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &iproute2-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="db"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The <command>arpd</command> binary included in this package is dependent
+      on Berkeley DB. Because <command>arpd</command> is not a very common
+      requirement on a base Linux system, remove the dependency on Berkeley DB
+      by applying the commands below.
+    </para>
+
+<screen><userinput>sed -i '/^TARGETS/s@arpd@@g' misc/Makefile &amp;&amp;
+sed -i /ARPD/d Makefile &amp;&amp;
+sed -i 's/arpd.8//' man/man8/Makefile</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>make PREFIX=/usr/local SBINDIR=/usr/local/sbin</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make PREFIX=/usr/local SBINDIR=/usr/local/sbin install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="iproute2">
+      <primary sortas="b-bridge">bridge</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-ctstat">ctstat</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-genl">genl</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-ifcfg">ifcfg</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-ifstat">ifstat</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-ip">ip</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-lnstat">lnstat</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-nstat">nstat</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-routef">routef</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-routel">routel</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-rtacct">rtacct</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-rtmon">rtmon</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-rtpr">rtpr</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-rtstat">rtstat</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-ss">ss</primary>
+    </indexterm>
+    <indexterm zone="iproute2">
+      <primary sortas="b-tc">tc</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/iproute2/
+/usr/local/lib/tc/
+/usr/local/sbin/bridge
+/usr/local/sbin/ctstat
+/usr/local/sbin/genl
+/usr/local/sbin/ifcfg
+/usr/local/sbin/ifstat
+/usr/local/sbin/ip
+/usr/local/sbin/lnstat
+/usr/local/sbin/nstat
+/usr/local/sbin/routef
+/usr/local/sbin/routel
+/usr/local/sbin/rtacct
+/usr/local/sbin/rtmon
+/usr/local/sbin/rtpr
+/usr/local/sbin/rtstat
+/usr/local/sbin/ss
+/usr/local/sbin/tc
+/usr/local/share/doc/iproute2/
+/usr/local/share/man/man3/libnetlink.3
+/usr/local/share/man/man7/tc-hfsc.7
+/usr/local/share/man/man8/bridge.8
+/usr/local/share/man/man8/ctstat.8
+/usr/local/share/man/man8/ip*.8
+/usr/local/share/man/man8/lnstat.8
+/usr/local/share/man/man8/nstat.8
+/usr/local/share/man/man8/routef.8
+/usr/local/share/man/man8/routel.8
+/usr/local/share/man/man8/rtacct.8
+/usr/local/share/man/man8/rtmon.8
+/usr/local/share/man/man8/rtstat.8
+/usr/local/share/man/man8/ss.8
+/usr/local/share/man/man8/tc*.8</literal></screen>
+
+  </sect2>
+
+</sect1>
