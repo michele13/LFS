@@ -148,29 +148,6 @@ EOF</userinput></screen>
     </sect3>
 
     <sect3>
-      <title>/etc/profile.d/dircolors.sh</title>
-
-      <para>This script uses the <filename>~/.dircolors</filename> and
-      <filename>/etc/dircolors</filename> files to control the colors of file names in a
-      directory listing. They control colorized output of things like <command>ls
-      --color</command>.  The explanation of how to initialize these files is at the
-      end of this section.</para>
-
-<screen><userinput>cat &gt; /etc/profile.d/dircolors.sh &lt;&lt; "EOF"
-<literal># Setup for /bin/ls and /bin/grep to support color, the alias is in /etc/bashrc.
-if [ -f "/etc/dircolors" ] ; then
-        eval $(dircolors -b /etc/dircolors)
-
-        if [ -f "$HOME/.dircolors" ] ; then
-                eval $(dircolors -b $HOME/.dircolors)
-        fi
-fi
-alias ls='ls --color=auto'</literal>
-EOF</userinput></screen>
-
-    </sect3>
-
-    <sect3>
       <title>/etc/profile.d/extrapaths.sh</title>
 
       <para>This script adds several useful paths to the <envar>PATH</envar> and
@@ -303,20 +280,6 @@ set +h
 
 # End /etc/bashrc</literal>
 EOF</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>/etc/dircolors</title>
-
-    <para>If you want to use the <filename>dircolors</filename> capability, then
-    run the following command.</para>
-
-<screen><userinput>dircolors -p > /etc/dircolors</userinput></screen>
-
-    <para>If you wish to customize the colors used for different file types, you can
-    edit the <filename>/etc/dircolors</filename> file.  The instructions for setting
-    the colors are embedded in the file.</para>
 
   </sect2>
 
