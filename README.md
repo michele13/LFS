@@ -82,6 +82,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/cut
     /usr/bin/diff
     /usr/bin/dirname
+    /usr/bin/dos2unix
     /usr/bin/du
     /usr/bin/env
     /usr/bin/expand
@@ -134,6 +135,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/tty
     /usr/bin/unexpand
     /usr/bin/uniq
+    /usr/bin/unix2dos
     /usr/bin/unzip
     /usr/bin/uptime
     /usr/bin/users
