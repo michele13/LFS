@@ -99,6 +99,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/killall
     /usr/bin/less
     /usr/bin/logname
+    /usr/bin/lspci
+    /usr/bin/lsusb
     /usr/bin/man
     /usr/bin/md5sum
     /usr/bin/mkfifo
