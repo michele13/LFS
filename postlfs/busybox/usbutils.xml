@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY usbutils-homepage      " ">
+  <!ENTITY usbutils-wikipedia     " ">
+  <!ENTITY usbutils-download-http "http://ftp.kernel.org/pub/linux/utils/usb/usbutils/usbutils-&usbutils-version;.tar.xz">
+  <!ENTITY usbutils-download-ftp  "ftp://ftp.kernel.org/pub/linux/utils/usb/usbutils/usbutils-&usbutils-version;.tar.xz">
+  <!ENTITY usbutils-md5sum        "c9df5107ae9d26b10a1736a261250139">
+  <!ENTITY usbutils-size          "416 KB">
+  <!ENTITY usbutils-buildsize     "4.8 MB">
+  <!ENTITY usbutils-time          "0.1 SBU">
+]>
+
+<sect1 id="usbutils" xreflabel="usbutils-&usbutils-version;">
+  <?dbhtml filename="usbutils.html"?>
+
+  <title>usbutils-&usbutils-version;</title>
+
+  <sect2>
+    <title>Introduction</title>
+
+    <para>
+      The USB Utils package contains an utility used to display information
+      about USB buses in the system and the devices connected to them.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&usbutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&usbutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&usbutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&usbutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &usbutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &usbutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &usbutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &usbutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="libusb"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr/local \
+            --datadir=/usr/local/share/misc &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+mv -v /usr/local/sbin/update-usbids.sh /usr/local/sbin/update-usbids</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The <filename>usb.ids</filename> data file is constantly being updated. To
+      get a current version of this file, run <command>update-usbids</command>
+      as the <systemitem class="username">root</systemitem> user. This program
+      requires <xref linkend="lynx"/> or <xref linkend="wget"/> which are used
+      to download the most current file, and replace the existing file in
+      <filename class="directory">/usr/local/share/misc</filename>.
+    </para>
+
+    <para>
+      You may wish to add an entry to <systemitem
+      class="username">root</systemitem>'s (or any other user who has write
+      privilege to <filename class="directory">/usr/local/share/misc</filename>)
+      crontab to automatically update the <filename>usb.ids</filename> file
+      periodically.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="usbutils">
+      <primary sortas="b-lsusb">lsusb</primary>
+    </indexterm>
+    <indexterm zone="usbutils">
+      <primary sortas="b-lsusb.py">lsusb.py</primary>
+    </indexterm>
+    <indexterm zone="usbutils">
+      <primary sortas="b-usb-devices">usb-devices</primary>
+    </indexterm>
+    <indexterm zone="usbutils">
+      <primary sortas="b-usbhid-dump">usbhid-dump</primary>
+    </indexterm>
+    <indexterm zone="usbutils">
+      <primary sortas="b-update-usbids">update-usbids</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><userinput>/usr/local/bin/lsusb
+/usr/local/bin/lsusb.py
+/usr/local/bin/usb-devices
+/usr/local/bin/usbhid-dump
+/usr/local/sbin/update-usbids
+/usr/local/share/man/man1/usb-devices.1
+/usr/local/share/man/man8/lsusb.8
+/usr/local/share/man/man8/usbhid-dump.8
+/usr/local/share/misc/usb.ids
+/usr/local/share/misc/usb.ids.gz
+/usr/local/share/pkgconfig/usbutils.pc</userinput></screen>
+
+  </sect2>
+
+</sect1>

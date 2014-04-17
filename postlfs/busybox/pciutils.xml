@@ -81,19 +81,16 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>make PREFIX=/usr \
-     SHAREDIR=/usr/share/misc \
+<screen><userinput>make SHAREDIR=/usr/local/share/misc \
      SHARED=yes</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make PREFIX=/usr \
-     SHAREDIR=/usr/share/misc \
-     SHARED=yes \
-     install install-lib &amp;&amp;
-chmod -v 755 /usr/lib/libpci.so</userinput></screen>
+<screen role="root"><userinput>make SHAREDIR=/usr/local/share/misc \
+     SHARED=yes install install-lib &amp;&amp;
+chmod -v 755 /usr/local/lib/libpci.so</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -126,7 +123,7 @@ chmod -v 755 /usr/lib/libpci.so</userinput></screen>
     <para>
       You may wish to add an entry to <systemitem
       class="username">root</systemitem>'s (or any other user who has write
-      privilege to <filename class="directory">/usr/share/misc</filename>)
+      privilege to <filename class="directory">/usr/local/share/misc</filename>)
       crontab to automatically update the <filename>pci.ids</filename> file
       periodically.
     </para>
@@ -153,17 +150,17 @@ chmod -v 755 /usr/lib/libpci.so</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/usr/include/pci/
-/usr/lib/libpci.so
-/usr/lib/pkgconfig/libpci.pc
-/usr/sbin/lspci
-/usr/sbin/setpci
-/usr/sbin/update-pciids
-/usr/share/man/man7/pcilib.7
-/usr/share/man/man8/lspci.8
-/usr/share/man/man8/setpci.8
-/usr/share/man/man8/update-pciids.8
-/usr/share/misc/pci.ids.gz</literal></screen>
+<screen><literal>/usr/local/include/pci/
+/usr/local/lib/libpci.so
+/usr/local/lib/pkgconfig/libpci.pc
+/usr/local/sbin/lspci
+/usr/local/sbin/setpci
+/usr/local/sbin/update-pciids
+/usr/local/share/man/man7/pcilib.7
+/usr/local/share/man/man8/lspci.8
+/usr/local/share/man/man8/setpci.8
+/usr/local/share/man/man8/update-pciids.8
+/usr/local/share/pci.ids.gz</literal></screen>
 
   </sect2>
 
