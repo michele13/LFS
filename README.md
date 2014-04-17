@@ -10,7 +10,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, less,
-  man-db, patch, psmisc, sed, tar, and vim with busybox in chapter 6
+  man-db, patch, procps-ng, psmisc, sed, tar, and vim with busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
@@ -51,9 +51,11 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/mv
     /bin/netstat
     /bin/nice
+    /bin/pidof
     /bin/ping
     /bin/ping6
     /bin/printenv
+    /bin/ps
     /bin/pwd
     /bin/rm
     /bin/rmdir
@@ -67,10 +69,12 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/true
     /bin/uname
     /bin/vi
+    /bin/watch
     /sbin/acpid
     /sbin/ifconfig
     /sbin/ip
     /sbin/mdev
+    /sbin/sysctl
     /usr/bin/basename
     /usr/bin/cksum
     /usr/bin/cmp
@@ -84,6 +88,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/expr
     /usr/bin/find
     /usr/bin/fold
+    /usr/bin/free
     /usr/bin/fuser
     /usr/bin/groups
     /usr/bin/head
@@ -99,8 +104,12 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/nohup
     /usr/bin/od
     /usr/bin/patch
+    /usr/bin/pgrep
+    /usr/bin/pkill
+    /usr/bin/pmap
     /usr/bin/printf
     /usr/bin/pstree
+    /usr/bin/pwdx
     /usr/bin/readlink
     /usr/bin/realpath
     /usr/bin/seq
@@ -118,6 +127,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/test
     /usr/bin/tftp
     /usr/bin/timeout
+    /usr/bin/top
     /usr/bin/tr
     /usr/bin/traceroute
     /usr/bin/traceroute6
@@ -125,6 +135,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/unexpand
     /usr/bin/uniq
     /usr/bin/unzip
+    /usr/bin/uptime
     /usr/bin/users
     /usr/bin/uudecode
     /usr/bin/uuencode

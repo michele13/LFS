@@ -94,9 +94,11 @@ ln -sfv busybox /bin/more
 ln -sfv busybox /bin/mv
 ln -sfv busybox /bin/netstat
 ln -sfv busybox /bin/nice
+ln -sfv busybox /bin/pidof
 ln -sfv busybox /bin/ping
 ln -sfv busybox /bin/ping6
 ln -sfv busybox /bin/printenv
+ln -sfv busybox /bin/ps
 ln -sfv busybox /bin/pwd
 ln -sfv busybox /bin/rm
 ln -sfv busybox /bin/rmdir
@@ -110,10 +112,12 @@ ln -sfv busybox /bin/touch
 ln -sfv busybox /bin/true
 ln -sfv busybox /bin/uname
 ln -sfv busybox /bin/vi
+ln -sfv busybox /bin/watch
 ln -sfv ../bin/busybox /sbin/acpid
 ln -sfv ../bin/busybox /sbin/ifconfig
 ln -sfv ../bin/busybox /sbin/ip
 ln -sfv ../bin/busybox /sbin/mdev
+ln -sfv ../bin/busybox /sbin/sysctl
 ln -sfv ../../bin/busybox /usr/bin/basename
 ln -sfv ../../bin/busybox /usr/bin/cksum
 ln -sfv ../../bin/busybox /usr/bin/cmp
@@ -127,6 +131,7 @@ ln -sfv ../../bin/busybox /usr/bin/expand
 ln -sfv ../../bin/busybox /usr/bin/expr
 ln -sfv ../../bin/busybox /usr/bin/find
 ln -sfv ../../bin/busybox /usr/bin/fold
+ln -sfv ../../bin/busybox /usr/bin/free
 ln -sfv ../../bin/busybox /usr/bin/fuser
 ln -sfv ../../bin/busybox /usr/bin/groups
 ln -sfv ../../bin/busybox /usr/bin/head
@@ -142,8 +147,12 @@ ln -sfv ../../bin/busybox /usr/bin/mkfifo
 ln -sfv ../../bin/busybox /usr/bin/nohup
 ln -sfv ../../bin/busybox /usr/bin/od
 ln -sfv ../../bin/busybox /usr/bin/patch
+ln -sfv ../../bin/busybox /usr/bin/pgrep
+ln -sfv ../../bin/busybox /usr/bin/pkill
+ln -sfv ../../bin/busybox /usr/bin/pmap
 ln -sfv ../../bin/busybox /usr/bin/printf
 ln -sfv ../../bin/busybox /usr/bin/pstree
+ln -sfv ../../bin/busybox /usr/bin/pwdx
 ln -sfv ../../bin/busybox /usr/bin/readlink
 ln -sfv ../../bin/busybox /usr/bin/realpath
 ln -sfv ../../bin/busybox /usr/bin/seq
@@ -161,6 +170,7 @@ ln -sfv ../../bin/busybox /usr/bin/telnet
 ln -sfv ../../bin/busybox /usr/bin/test
 ln -sfv ../../bin/busybox /usr/bin/tftp
 ln -sfv ../../bin/busybox /usr/bin/timeout
+ln -sfv ../../bin/busybox /usr/bin/top
 ln -sfv ../../bin/busybox /usr/bin/tr
 ln -sfv ../../bin/busybox /usr/bin/traceroute
 ln -sfv ../../bin/busybox /usr/bin/traceroute6
@@ -168,6 +178,7 @@ ln -sfv ../../bin/busybox /usr/bin/tty
 ln -sfv ../../bin/busybox /usr/bin/unexpand
 ln -sfv ../../bin/busybox /usr/bin/uniq
 ln -sfv ../../bin/busybox /usr/bin/unzip
+ln -sfv ../../bin/busybox /usr/bin/uptime
 ln -sfv ../../bin/busybox /usr/bin/users
 ln -sfv ../../bin/busybox /usr/bin/uudecode
 ln -sfv ../../bin/busybox /usr/bin/uuencode
@@ -204,15 +215,15 @@ EOF</userinput></screen>
       <seglistitem>
         <seg>acpid, base64, basename, busybox, cat, chgrp, chmod, chown, chroot,
         cksum, cmp, comm, cp, cut, date, dd, df, diff, dirname, dnsdomainname,
-        du, echo, egrep, env, expand, expr, false, fgrep, find, fold, ftpd,
+        du, echo, egrep, env, expand, expr, false, fgrep, find, fold, free, ftpd,
         fuser, grep, groups, head, hostid, hostname, id, ifconfig, inetd,
         install, ip, killall, less, ln, logname, ls, man, md5sum, mdev, mkdir,
-        mkfifo, mknod, mktemp, more, mv, netstat, nice, nohup, ntpd, od, patch,
-        ping, ping6, printenv, printf, pstree, pwd, readlink, realpath, rm,
+        mkfifo, mknod, mktemp, more, mv, netstat, nice, nohup, ntpd, od, patch, pgrep,
+        pidof, ping, ping6, pkill, pmap, printenv, printf, ps, pstree, pwd, pwdx, readlink, realpath, rm,
         rmdir, sed, seq, sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort,
-        split, stat, stty, sum, sync, tac, tail, tar, tee, telnet, telnetd,
-        test, tftp, tftpd, timeout, touch, tr, traceroute, traceroute6, true,
-        tty, uname, unexpand, uniq, unzip, users, uudecode, uuencode, vi, wc,
+        split, stat, stty, sum, sync, sysctl, tac, tail, tar, tee, telnet, telnetd,
+        test, tftp, tftpd, timeout, top, touch, tr, traceroute, traceroute6, true,
+        tty, uname, unexpand, uniq, unzip, uptime, users, uudecode, uuencode, vi, watch, wc,
         wget, which, who, whoami, whois, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
@@ -528,6 +539,16 @@ EOF</userinput></screen>
           <para>Wraps the lines in the given files.</para>
           <indexterm zone="ch-system-busybox fold">
             <primary sortas="b-fold">fold</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="free">
+        <term><command>free</command></term>
+        <listitem>
+          <para>Displays the amount of free and used system memory.</para>
+          <indexterm zone="ch-system-busybox free">
+            <primary sortas="b-free">free</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -854,6 +875,26 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="pgrep">
+        <term><command>pgrep</command></term>
+        <listitem>
+          <para>Displays processes selected by regex pattern.</para>
+          <indexterm zone="ch-system-busybox pgrep">
+            <primary sortas="b-pgrep">pgrep</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="pidof">
+        <term><command>pidof</command></term>
+        <listitem>
+          <para>Looks up processes based on their name.</para>
+          <indexterm zone="ch-system-busybox pidof">
+            <primary sortas="b-pidof">pidof</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="ping">
         <term><command>ping</command></term>
         <listitem>
@@ -871,6 +912,26 @@ EOF</userinput></screen>
           networks.</para>
           <indexterm zone="ch-system-busybox ping6">
             <primary sortas="b-ping6">ping6</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="pkill">
+        <term><command>pkill</command></term>
+        <listitem>
+          <para>Sends a signal to processes selected by regex pattern.</para>
+          <indexterm zone="ch-system-busybox pkill">
+            <primary sortas="b-pkill">pkill</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="pmap">
+        <term><command>pmap</command></term>
+        <listitem>
+          <para>Displays detailed process memory usage.</para>
+          <indexterm zone="ch-system-busybox pmap">
+            <primary sortas="b-pmap">pmap</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -895,6 +956,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="ps">
+        <term><command>ps</command></term>
+        <listitem>
+          <para>Shows list of processes.</para>
+          <indexterm zone="ch-system-busybox ps">
+            <primary sortas="b-ps">ps</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="pstree">
         <term><command>pstree</command></term>
         <listitem>
@@ -911,6 +982,16 @@ EOF</userinput></screen>
           <para>Reports the name of the current working directory.</para>
           <indexterm zone="ch-system-busybox pwd">
             <primary sortas="b-pwd">pwd</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="pwdx">
+        <term><command>pwdx</command></term>
+        <listitem>
+          <para>Reports the current working directory of a process.</para>
+          <indexterm zone="ch-system-busybox pwdx">
+            <primary sortas="b-pwdx">pwdx</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1086,6 +1167,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="sysctl">
+        <term><command>sysctl</command></term>
+        <listitem>
+          <para>Modifies kernel parameters at run time.</para>
+          <indexterm zone="ch-system-busybox sysctl">
+            <primary sortas="b-sysctl">sysctl</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="tac">
         <term><command>tac</command></term>
         <listitem>
@@ -1183,6 +1274,16 @@ EOF</userinput></screen>
           <para>Runs a command with a time limit.</para>
           <indexterm zone="ch-system-busybox timeout">
             <primary sortas="b-timeout">timeout</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="top">
+        <term><command>top</command></term>
+        <listitem>
+          <para>Provides a view of process activity in real time.</para>
+          <indexterm zone="ch-system-busybox top">
+            <primary sortas="b-top">top</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1290,6 +1391,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="uptime">
+        <term><command>uptime</command></term>
+        <listitem>
+          <para>Displays the time since the last boot.</para>
+          <indexterm zone="ch-system-busybox uptime">
+            <primary sortas="b-uptime">uptime</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="users">
         <term><command>users</command></term>
         <listitem>
@@ -1327,6 +1438,16 @@ EOF</userinput></screen>
           <para>Edits files.</para>
           <indexterm zone="ch-system-busybox vi">
             <primary sortas="b-vi">vi</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="watch">
+        <term><command>watch</command></term>
+        <listitem>
+          <para>Runs a given command periodically.</para>
+          <indexterm zone="ch-system-busybox watch">
+            <primary sortas="b-watch">watch</primary>
           </indexterm>
         </listitem>
       </varlistentry>
