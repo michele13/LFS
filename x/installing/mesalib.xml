@@ -8,9 +8,9 @@
   <!ENTITY mesalib-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
   <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
-  <!ENTITY mesalib-md5sum        "8b148869d2620b0720c8a8d2b7eb3e38">
+  <!ENTITY mesalib-md5sum        "1fde7ed079df7aeb9b6a744ca033de8d">
   <!ENTITY mesalib-size          "6.6 MB">
-  <!ENTITY mesalib-buildsize     "331 MB">
+  <!ENTITY mesalib-buildsize     "228 MB">
   <!ENTITY mesalib-time          "4.2 SBU">
 ]>
 
@@ -143,8 +143,7 @@
     </para>
 
 <!--
-     add:    - -disable-dri3
-             - -disable-gbm
+      - -disable-dri3 (needs udev? requires dri3proto and libxshmfence)
 -->
 
 <screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
@@ -159,8 +158,8 @@
             --enable-gallium-egl \
             --enable-glx-tls \
             --with-egl-platforms="x11" \
-            --with-gallium-drivers="svga,swrast,nouveau,r300,r600,radeonsi" \
-            --with-llvm-shared-libs &amp;&amp;
+            --with-gallium-drivers="svga,swrast,r600" \
+            --disable-dri3 &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -223,7 +222,7 @@ make</userinput></screen>
 
       <para>
         <parameter>--enable-xa</parameter>: This switch enables building of the
-        XA X Acceleration API (Required for VMware 3D Driver).
+        XA X Acceleration API (required for VMware 3D Driver).
       </para>
 
       <para>
@@ -234,12 +233,6 @@ make</userinput></screen>
       <para>
         <parameter>--enable-glx-tls</parameter>: This switch enables TLS (Thread
         Local Storage) support in GLX.
-      </para>
-
-      <para>
-        <parameter>--with-llvm-shared-libs</parameter>: This switch is used so
-        Gallium drivers will link against shared LLVM libraries instead of the
-        static ones. Remove if you did not install LLVM. 
       </para>
 
       <para>
@@ -320,7 +313,6 @@ make</userinput></screen>
 /usr/bin/glxgears
 /usr/bin/glxinfo
 /usr/include/EGL/
-/usr/include/gbm.h
 /usr/include/GL/
 /usr/include/GLES/
 /usr/include/GLES2/
@@ -332,25 +324,19 @@ make</userinput></screen>
 /usr/include/xa_tracker.h
 /usr/lib/dri/
 /usr/lib/egl/
-/usr/lib/gallium-pipe/
-/usr/lib/gbm/
 /usr/lib/libEGL.so
-/usr/lib/libgbm.so
-/usr/lib/libglapi.so
+/usr/lib/libGL.so
 /usr/lib/libGLESv1_CM.so
 /usr/lib/libGLESv2.so
-/usr/lib/libGL.so
-/usr/lib/libOpenVG.so
 /usr/lib/libOSMesa.so
+/usr/lib/libOpenVG.so
+/usr/lib/libglapi.so
 /usr/lib/libxatracker.so
-/usr/lib/libXvMCnouveau.so
-/usr/lib/libXvMCr600.so
 /usr/lib/pkgconfig/dri.pc
 /usr/lib/pkgconfig/egl.pc
-/usr/lib/pkgconfig/gbm.pc
+/usr/lib/pkgconfig/gl.pc
 /usr/lib/pkgconfig/glesv1_cm.pc
 /usr/lib/pkgconfig/glesv2.pc
-/usr/lib/pkgconfig/gl.pc
 /usr/lib/pkgconfig/osmesa.pc
 /usr/lib/pkgconfig/vg.pc
 /usr/lib/pkgconfig/xatracker.pc
