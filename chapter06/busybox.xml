@@ -86,6 +86,7 @@ ln -sfv busybox /bin/fgrep
 ln -sfv busybox /bin/grep
 ln -sfv busybox /bin/hostname
 ln -sfv busybox /bin/ln
+ln -sfv busybox /bin/login
 ln -sfv busybox /bin/ls
 ln -sfv busybox /bin/mkdir
 ln -sfv busybox /bin/mknod
@@ -106,6 +107,7 @@ ln -sfv busybox /bin/sed
 ln -sfv busybox /bin/sleep
 ln -sfv busybox /bin/stat
 ln -sfv busybox /bin/stty
+ln -sfv busybox /bin/su
 ln -sfv busybox /bin/sync
 ln -sfv busybox /bin/tar
 ln -sfv busybox /bin/touch
@@ -149,6 +151,7 @@ ln -sfv ../../bin/busybox /usr/bin/md5sum
 ln -sfv ../../bin/busybox /usr/bin/mkfifo
 ln -sfv ../../bin/busybox /usr/bin/nohup
 ln -sfv ../../bin/busybox /usr/bin/od
+ln -sfv ../../bin/busybox /usr/bin/passwd
 ln -sfv ../../bin/busybox /usr/bin/patch
 ln -sfv ../../bin/busybox /usr/bin/pgrep
 ln -sfv ../../bin/busybox /usr/bin/pkill
@@ -194,7 +197,12 @@ ln -sfv ../../bin/busybox /usr/bin/whoami
 ln -sfv ../../bin/busybox /usr/bin/whois
 ln -sfv ../../bin/busybox /usr/bin/xargs
 ln -sfv ../../bin/busybox /usr/bin/yes
+ln -sfv ../../bin/busybox /usr/sbin/addgroup
+ln -sfv ../../bin/busybox /usr/sbin/adduser
+ln -sfv ../../bin/busybox /usr/sbin/chpasswd
 ln -sfv ../../bin/busybox /usr/sbin/chroot
+ln -sfv ../../bin/busybox /usr/sbin/delgroup
+ln -sfv ../../bin/busybox /usr/sbin/deluser
 ln -sfv ../../bin/busybox /usr/sbin/ftpd
 ln -sfv ../../bin/busybox /usr/sbin/inetd
 ln -sfv ../../bin/busybox /usr/sbin/ntpd
@@ -217,20 +225,20 @@ EOF</userinput></screen>
       <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>acpid, base64, basename, busybox, cat, chgrp, chmod, chown, chroot,
-        cksum, cmp, comm, cp, cut, date, dd, df, diff, dirname, dnsdomainname,
-        dos2unix, du, echo, egrep, env, expand, expr, false, fgrep, find, fold,
-        free, ftpd, fuser, grep, groups, head, hostid, hostname, id, ifconfig,
-        inetd, install, ip, killall, less, ln, logname, ls, lspci, lsusb, man,
-        md5sum, mdev, mkdir, mkfifo, mknod, mktemp, more, mv, netstat, nice,
-        nohup, ntpd, od, patch, pgrep, pidof, ping, ping6, pkill, pmap,
-        printenv, printf, ps, pstree, pwd, pwdx, readlink, realpath, rm, rmdir,
-        sed, seq, sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split,
-        stat, stty, sum, sync, sysctl, tac, tail, tar, tee, telnet, telnetd,
-        test, tftp, tftpd, timeout, top, touch, tr, traceroute, traceroute6,
-        true, tty, uname, unexpand, uniq, unix2dos, unzip, uptime, users,
-        uudecode, uuencode, vi, watch, wc, wget, which, who, whoami, whois,
-        xargs, and yes</seg>
+        <seg>acpid, addgroup, adduser, base64, basename, busybox, cat, chgrp,
+        chmod, chown, chpasswd, chroot, cksum, cmp, comm, cp, cut, date, dd,
+        delgroup, deluser, df, diff, dirname, dnsdomainname, dos2unix, du, echo,
+        egrep, env, expand, expr, false, fgrep, find, fold, free, ftpd, fuser,
+        grep, groups, head, hostid, hostname, id, ifconfig, inetd, install, ip,
+        killall, less, ln, login, logname, ls, lspci, lsusb, man, md5sum, mdev,
+        mkdir, mkfifo, mknod, mktemp, more, mv, netstat, nice, nohup, ntpd, od,
+        passwd, patch, pgrep, pidof, ping, ping6, pkill, pmap, printenv, printf,
+        ps, pstree, pwd, pwdx, readlink, realpath, rm, rmdir, sed, seq, sha1sum,
+        sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty, su, sum,
+        sync, sysctl, tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd,
+        timeout, top, touch, tr, traceroute, traceroute6, true, tty, uname,
+        unexpand, uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi,
+        watch, wc, wget, which, who, whoami, whois, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -246,6 +254,28 @@ EOF</userinput></screen>
           arrival.</para>
           <indexterm zone="ch-system-busybox acpid">
             <primary sortas="b-acpid">acpid</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="addgroup">
+        <term><command>addgroup</command></term>
+        <listitem>
+          <para>Creates a new group or adds a user to a group with the given
+          name.</para>
+          <indexterm zone="ch-system-busybox addgroup">
+            <primary sortas="b-addgroup">addgroup</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="adduser">
+        <term><command>adduser</command></term>
+        <listitem>
+          <para>Creates a new user or adds a user to a group with the given
+          name.</para>
+          <indexterm zone="ch-system-busybox adduser">
+            <primary sortas="b-adduser">adduser</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -319,6 +349,16 @@ EOF</userinput></screen>
           directories.</para>
           <indexterm zone="ch-system-busybox chown">
             <primary sortas="b-chown">chown</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="chpasswd">
+        <term><command>chpasswd</command></term>
+        <listitem>
+          <para>Updates user passwords in batch mode.</para>
+          <indexterm zone="ch-system-busybox chpasswd">
+            <primary sortas="b-chpasswd">chpasswd</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -402,6 +442,27 @@ EOF</userinput></screen>
           <para>Copies a file with converting and formatting.</para>
           <indexterm zone="ch-system-busybox dd">
             <primary sortas="b-dd">dd</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="delgroup">
+        <term><command>delgroup</command></term>
+        <listitem>
+          <para>Deletes a group from the system or a user from a group with the
+          given name.</para>
+          <indexterm zone="ch-system-busybox delgroup">
+            <primary sortas="b-delgroup">delgroup</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="deluser">
+        <term><command>deluser</command></term>
+        <listitem>
+          <para>Deletes a user with the given name from the system.</para>
+          <indexterm zone="ch-system-busybox deluser">
+            <primary sortas="b-deluser">deluser</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -721,6 +782,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="login">
+        <term><command>login</command></term>
+        <listitem>
+          <para>Begins a new session on the system.</para>
+          <indexterm zone="ch-system-busybox login">
+            <primary sortas="b-login">login</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="logname">
         <term><command>logname</command></term>
         <listitem>
@@ -897,6 +968,16 @@ EOF</userinput></screen>
           <para>Dumps files in octal and other formats.</para>
           <indexterm zone="ch-system-busybox od">
             <primary sortas="b-od">od</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="passwd">
+        <term><command>passwd</command></term>
+        <listitem>
+          <para>Changes the password for a user account.</para>
+          <indexterm zone="ch-system-busybox passwd">
+            <primary sortas="b-passwd">passwd</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1179,6 +1260,16 @@ EOF</userinput></screen>
           <para>Sets or reports terminal line settings.</para>
           <indexterm zone="ch-system-busybox stty">
             <primary sortas="b-stty">stty</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="su">
+        <term><command>su</command></term>
+        <listitem>
+          <para>Runs a shell with substitute user ID.</para>
+          <indexterm zone="ch-system-busybox su">
+            <primary sortas="b-su">su</primary>
           </indexterm>
         </listitem>
       </varlistentry>

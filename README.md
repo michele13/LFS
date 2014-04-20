@@ -10,7 +10,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, less,
-  man-db, patch, procps-ng, psmisc, sed, tar, and vim with busybox in chapter 6
+  man-db, patch, procps-ng, psmisc, sed, shadow, tar, and vim with busybox in
+  chapter 6
 * removed autoconf, automake, dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
@@ -43,6 +44,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/grep
     /bin/hostname
     /bin/ln
+    /bin/login
     /bin/ls
     /bin/mkdir
     /bin/mknod
@@ -63,6 +65,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/sleep
     /bin/stat
     /bin/stty
+    /bin/su
     /bin/sync
     /bin/tar
     /bin/touch
@@ -106,6 +109,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/mkfifo
     /usr/bin/nohup
     /usr/bin/od
+    /usr/bin/passwd
     /usr/bin/patch
     /usr/bin/pgrep
     /usr/bin/pkill
@@ -151,7 +155,12 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/whois
     /usr/bin/xargs
     /usr/bin/yes
+    /usr/sbin/addgroup
+    /usr/sbin/adduser
+    /usr/sbin/chpasswd
     /usr/sbin/chroot
+    /usr/sbin/delgroup
+    /usr/sbin/deluser
     /usr/sbin/ftpd
     /usr/sbin/inetd
     /usr/sbin/ntpd
