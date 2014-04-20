@@ -71,7 +71,7 @@ mv -v mpc-&mpc-version; mpc</userinput></screen>
 <screen><userinput remap="pre">for file in \
  $(find gcc/config -name linux64.h -o -name linux.h -o -name sysv4.h)
 do
-  cp -uv $file{,.orig}
+  cp -v $file{,.orig}
   sed -e 's@/lib\(64\)\?\(32\)\?/ld@/tools&amp;@g' \
       -e 's@/usr@/tools@g' $file.orig &gt; $file
   echo '
@@ -95,9 +95,7 @@ done</userinput></screen>
     alter the default startfile prefix to the end of the file. Note that the
     trailing <quote>/</quote> in <quote>/tools/lib/</quote> is required.
     Finally, we use <command>touch</command> to update the timestamp on the
-    copied files.  When used in conjunction with <command>cp -u</command>, this
-    prevents unexpected changes to the original files in case the commands are
-    inadvertently run twice.  </para>
+    copied files.</para>
 
     <para>GCC doesn't detect stack protection correctly, which causes problems
     for the build of Glibc-&glibc-version;, so fix that by issuing the following
