@@ -8,10 +8,10 @@
   <!ENTITY icu-wikipedia     "http://en.wikipedia.org/wiki/International_Components_for_Unicode">
   <!ENTITY icu-download-http "http://download.icu-project.org/files/icu4c/&icu-version;/icu4c-&icu-dl-version;-src.tgz">
   <!ENTITY icu-download-ftp  " ">
-  <!ENTITY icu-md5sum        "b73baa6fbdfef197608d1f69300919b9">
+  <!ENTITY icu-md5sum        "9e96ed4c1d99c0d14ac03c140f9f346c">
   <!ENTITY icu-size          "23 MB">
-  <!ENTITY icu-buildsize     "294 MB">
-  <!ENTITY icu-time          "1.2 SBU">
+  <!ENTITY icu-buildsize     "312 MB">
+  <!ENTITY icu-time          "1.1 SBU">
 ]>
 
 <sect1 id="icu" xreflabel="ICU-&icu-version;">
@@ -90,7 +90,7 @@
     </para>
 
 <screen><userinput>cd source &amp;&amp;
-./configure --prefix=/usr &amp;&amp;
+CXX=g++ ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -98,6 +98,17 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <envar>CXX=g++</envar>: This environment variable forces use of
+        <command>g++</command> compiler since building with
+        <command>clang++</command> is currently broken.
+      </para>
+
+    </sect3>
 
   </sect2>
 
