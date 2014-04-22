@@ -60,15 +60,22 @@
 <screen><userinput remap="configure">sed -e 's/\(CONFIG_FEATURE_HAVE_RPC\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_FEATURE_INETD_RPC\)=y/# \1 is not set/' -i .config</userinput></screen>
 
+    <para>Instead of using the default DES method, use the more secure SHA-512
+    method of password encryption:</para>
+
+<screen><userinput remap="configure">sed '/CONFIG_FEATURE_DEFAULT_PASSWD_ALGO/ s/des/sha512/' -i .config</userinput></screen>
+
     <para>Compile the package:</para>
 
 <screen><userinput remap="make">make</userinput></screen>
 
     <para>Install the package:</para>
 
-<!-- ping for regular user requires setuid root -->
+<!--
+     # ping for regular user requires setuid root
+     chmod -v +s /bin/busybox
+-->
 <screen><userinput remap="install">install -v -m755 busybox /bin
-chmod -v +s /bin/busybox
 ln -sfv busybox /bin/base64
 ln -sfv busybox /bin/cat
 ln -sfv busybox /bin/chgrp
@@ -208,6 +215,16 @@ ln -sfv ../../bin/busybox /usr/sbin/inetd
 ln -sfv ../../bin/busybox /usr/sbin/ntpd
 ln -sfv ../../bin/busybox /usr/sbin/telnetd
 ln -sfv ../../bin/busybox /usr/sbin/tftpd</userinput></screen>
+
+  </sect2>
+
+  <sect2 role="configuration">
+    <title>Configuration</title>
+
+    <para>Choose a password for user <emphasis>root</emphasis> and set it
+    by running:</para>
+
+<screen role="nodump"><userinput>passwd root</userinput></screen>
 
     <para>Configure the man paths:</para>
 
