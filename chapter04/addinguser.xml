@@ -20,8 +20,10 @@
   the installation process. As <systemitem class="username">root</systemitem>,
   issue the following commands to add the new user:</para>
 
-<screen><userinput>groupadd lfs
-useradd -s /bin/bash -g lfs -m -k /dev/null lfs</userinput></screen>
+<screen><userinput>addgroup lfs
+adduser -D -H -s /bin/bash -G lfs lfs
+mkdir /home/lfs
+chown -v lfs.lfs /home/lfs</userinput></screen>
 
   <variablelist>
     <title>The meaning of the command line options:</title>
@@ -35,7 +37,7 @@ useradd -s /bin/bash -g lfs -m -k /dev/null lfs</userinput></screen>
     </varlistentry>
 
     <varlistentry>
-      <term><parameter>-g lfs</parameter></term>
+      <term><parameter>-G lfs</parameter></term>
       <listitem>
         <para>This option adds user <systemitem class="username">lfs</systemitem>
         to group <systemitem class="groupname">lfs</systemitem>.</para>
@@ -43,19 +45,19 @@ useradd -s /bin/bash -g lfs -m -k /dev/null lfs</userinput></screen>
     </varlistentry>
 
     <varlistentry>
-      <term><parameter>-m</parameter></term>
+      <term><parameter>-D</parameter></term>
       <listitem>
-        <para>This creates a home directory for <systemitem
+        <para>This option prevents prompting for password assignment.<systemitem
         class="username">lfs</systemitem>.</para>
       </listitem>
     </varlistentry>
 
     <varlistentry>
-      <term><parameter>-k /dev/null</parameter></term>
+      <term><parameter>-H</parameter></term>
       <listitem>
-        <para>This parameter prevents possible copying of files from a skeleton
-        directory (default is <filename class="directory">/etc/skel</filename>)
-        by changing the input location to the special null device.</para>
+        <para>This parameter prevents home directory creation and possible
+        copying of files from a skeleton directory (default is <filename
+        class="directory">/etc/skel</filename>).</para>
       </listitem>
     </varlistentry>
 
