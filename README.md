@@ -9,9 +9,9 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced pkg-config with pkgconf
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
-* replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, less,
-  man-db, patch, procps-ng, psmisc, sed, shadow, tar, and vim with busybox in
-  chapter 6
+* replaced coreutils, diffutils, e2fsprogs, findutils, grep, inetutils,
+  iproute2, less, man-db, patch, procps-ng, psmisc, sed, shadow, tar, and vim
+  with busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
@@ -29,6 +29,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * used busybox commands:
     /bin/base64
     /bin/cat
+    /bin/chattr
     /bin/chgrp
     /bin/chmod
     /bin/chown
@@ -46,6 +47,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/ln
     /bin/login
     /bin/ls
+    /bin/lsattr
     /bin/mkdir
     /bin/mknod
     /bin/mktemp
@@ -74,9 +76,15 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/vi
     /bin/watch
     /sbin/acpid
+    /sbin/fsck
+    /sbin/fsck.minix
     /sbin/ifconfig
     /sbin/ip
     /sbin/mdev
+    /sbin/mke2fs
+    /sbin/mkfs.ext2
+    /sbin/mkfs.minix
+    /sbin/mkfs.vfat
     /sbin/sysctl
     /usr/bin/basename
     /usr/bin/cksum
