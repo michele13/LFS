@@ -60,10 +60,17 @@
 
 <screen><userinput remap="configure">make defconfig</userinput></screen>
 
-   <para>Disable RPC support because of issues when building against Glibc:</para>
+    <para>Disable RPC support because of issues when building against Glibc:</para>
 
 <screen><userinput remap="configure">sed -e 's/\(CONFIG_FEATURE_HAVE_RPC\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_FEATURE_INETD_RPC\)=y/# \1 is not set/' -i .config</userinput></screen>
+
+    <para>Disable support for programs which will be installed from the e2fsprogs package:</para>
+
+<screen><userinput remap="configure">sed -e 's/\(CONFIG_CHATTR\)=y/# \1 is not set/' \
+    -e 's/\(CONFIG_FSCK\)=y/# \1 is not set/' \
+    -e 's/\(CONFIG_LSATTR\)=y/# \1 is not set/' \
+    -e 's/\(CONFIG_MKFS_EXT2\)=y/# \1 is not set/' -i .config</userinput></screen>
 
     <para>Instead of using the default DES method, use the more secure SHA-512
     method of password encryption:</para>
