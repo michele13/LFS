@@ -90,7 +90,6 @@
 <screen><userinput remap="install">install -v -m755 busybox /bin
 ln -sfv busybox /bin/base64
 ln -sfv busybox /bin/cat
-ln -sfv busybox /bin/chattr
 ln -sfv busybox /bin/chgrp
 ln -sfv busybox /bin/chmod
 ln -sfv busybox /bin/chown
@@ -108,7 +107,6 @@ ln -sfv busybox /bin/hostname
 ln -sfv busybox /bin/ln
 ln -sfv busybox /bin/login
 ln -sfv busybox /bin/ls
-ln -sfv busybox /bin/lsattr
 ln -sfv busybox /bin/mkdir
 ln -sfv busybox /bin/mknod
 ln -sfv busybox /bin/mktemp
@@ -137,15 +135,9 @@ ln -sfv busybox /bin/uname
 ln -sfv busybox /bin/vi
 ln -sfv busybox /bin/watch
 ln -sfv ../bin/busybox /sbin/acpid
-ln -sfv ../bin/busybox /sbin/fsck
-ln -sfv ../bin/busybox /sbin/fsck.minix
 ln -sfv ../bin/busybox /sbin/ifconfig
 ln -sfv ../bin/busybox /sbin/ip
 ln -sfv ../bin/busybox /sbin/mdev
-ln -sfv ../bin/busybox /sbin/mke2fs
-ln -sfv ../bin/busybox /sbin/mkfs.ext2
-ln -sfv ../bin/busybox /sbin/mkfs.minix
-ln -sfv ../bin/busybox /sbin/mkfs.vfat
 ln -sfv ../bin/busybox /sbin/sysctl
 ln -sfv ../../bin/busybox /usr/bin/basename
 ln -sfv ../../bin/busybox /usr/bin/cksum
@@ -262,22 +254,20 @@ EOF</userinput></screen>
       <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>acpid, addgroup, adduser, base64, basename, busybox, cat, chattr,
-        chgrp, chmod, chown, chpasswd, chroot, cksum, cmp, comm, cp, cut, date,
-        dd, delgroup, deluser, df, diff, dirname, dnsdomainname, dos2unix, du,
-        echo, egrep, env, expand, expr, false, fgrep, find, fold, free, fsck,
-        fsck.minix, ftpd, fuser, grep, groups, head, hostid, hostname, id,
-        ifconfig, inetd, install, ip, killall, less, ln, login, logname, ls,
-        lsattr, lspci, lsusb, man, md5sum, mdev, mkdir, mke2fs, mkfifo,
-        mkfs.ext2, mkfs.minix, mkfs.vfat, mknod, mktemp, more, mv, netstat,
-        nice, nohup, ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pkill,
-        pmap, printenv, printf, ps, pstree, pwd, pwdx, readlink, realpath, rm,
-        rmdir, sed, seq, sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort,
-        split, stat, stty, su, sum, sync, sysctl, tac, tail, tar, tee, telnet,
-        telnetd, test, tftp, tftpd, timeout, top, touch, tr, traceroute,
-        traceroute6, true, tty, uname, unexpand, uniq, unix2dos, unzip, uptime,
-        users, uudecode, uuencode, vi, watch, wc, wget, which, who, whoami,
-        whois, xargs, and yes</seg>
+        <seg>acpid, addgroup, adduser, base64, basename, busybox, cat, chgrp,
+        chmod, chown, chpasswd, chroot, cksum, cmp, comm, cp, cut, date, dd,
+        delgroup, deluser, df, diff, dirname, dnsdomainname, dos2unix, du, echo,
+        egrep, env, expand, expr, false, fgrep, find, fold, free, ftpd, fuser,
+        grep, groups, head, hostid, hostname, id, ifconfig, inetd, install, ip,
+        killall, less, ln, login, logname, ls, lspci, lsusb, man, md5sum, mdev,
+        mkdir, mkfifo, mknod, mktemp, more, mv, netstat, nice, nohup, ntpd, od,
+        passwd, patch, pgrep, pidof, ping, ping6, pkill, pmap, printenv, printf,
+        ps, pstree, pwd, pwdx, readlink, realpath, rm, rmdir, sed, seq, sha1sum,
+        sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty, su, sum,
+        sync, sysctl, tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd,
+        timeout, top, touch, tr, traceroute, traceroute6, true, tty, uname,
+        unexpand, uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi,
+        watch, wc, wget, which, who, whoami, whois, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -357,16 +347,6 @@ EOF</userinput></screen>
           <para>Concatenates files to standard output.</para>
           <indexterm zone="ch-system-busybox cat">
             <primary sortas="b-cat">cat</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="chattr">
-        <term><command>chattr</command></term>
-        <listitem>
-          <para>Changes the attributes of files on an ext2 file system.</para>
-          <indexterm zone="ch-system-busybox chattr">
-            <primary sortas="b-chattr">chattr</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -679,26 +659,6 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="fsck">
-        <term><command>fsck</command></term>
-        <listitem>
-          <para>Checks and repairs file systems.</para>
-          <indexterm zone="ch-system-busybox fsck">
-            <primary sortas="b-fsck">fsck</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-<!--
-      <varlistentry id="fsck.minix">
-        <term><command>fsck.minix</command></term>
-        <listitem>
-          <para>Checks MINIX file system.</para>
-          <indexterm zone="ch-system-busybox fsck.minix">
-            <primary sortas="b-fsck.minix">fsck.minix</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
--->
       <varlistentry id="ftpd">
         <term><command>ftpd</command></term>
         <listitem>
@@ -881,16 +841,6 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="lsattr">
-        <term><command>lsattr</command></term>
-        <listitem>
-          <para>Lists the attributes of files on an ext2 file system.</para>
-          <indexterm zone="ch-system-busybox lsattr">
-            <primary sortas="b-lsattr">lsattr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
       <varlistentry id="lspci">
         <term><command>lspci</command></term>
         <listitem>
@@ -947,46 +897,6 @@ EOF</userinput></screen>
           <para>Creates directories with the given names.</para>
           <indexterm zone="ch-system-busybox mkdir">
             <primary sortas="b-mkdir">mkdir</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="mke2fs">
-        <term><command>mke2fs</command></term>
-        <listitem>
-          <para>Creates an ext2 file system on the given device.</para>
-          <indexterm zone="ch-system-busybox mke2fs">
-            <primary sortas="b-mke2fs">mke2fs</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="mkfs.ext2">
-        <term><command>mkfs.ext2</command></term>
-        <listitem>
-          <para>Creates ext2 file systems.</para>
-          <indexterm zone="ch-system-busybox mkfs.ext2">
-            <primary sortas="b-mkfs.ext2">mkfs.ext2</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-<!--
-      <varlistentry id="mkfs.minix">
-        <term><command>mkfs.minix</command></term>
-        <listitem>
-          <para>Creates MINIX file systems.</para>
-          <indexterm zone="ch-system-busybox mkfs.minix">
-            <primary sortas="b-mkfs.minix">mkfs.minix</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
--->
-      <varlistentry id="mkfs.vfat">
-        <term><command>mkfs.vfat</command></term>
-        <listitem>
-          <para>Creates VFAT file systems.</para>
-          <indexterm zone="ch-system-busybox mkfs.vfat">
-            <primary sortas="b-mkfs.vfat">mkfs.vfat</primary>
           </indexterm>
         </listitem>
       </varlistentry>
