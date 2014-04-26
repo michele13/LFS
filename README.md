@@ -10,8 +10,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, less,
-  man-db, patch, procps-ng, psmisc, sed, shadow, tar, and vim with busybox in
-  chapter 6
+  man-db, patch, procps-ng, psmisc, sed, shadow, tar, util-linux, and vim with
+  busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
@@ -36,13 +36,19 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/date
     /bin/dd
     /bin/df
+    /bin/dmesg
     /bin/dnsdomainname
     /bin/echo
     /bin/egrep
     /bin/false
     /bin/fgrep
+    /bin/getopt
     /bin/grep
     /bin/hostname
+    /bin/ionice
+    /bin/kill
+    /bin/linux32
+    /bin/linux64
     /bin/ln
     /bin/login
     /bin/ls
@@ -50,6 +56,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/mknod
     /bin/mktemp
     /bin/more
+    /bin/mount
+    /bin/mountpoint
     /bin/mv
     /bin/netstat
     /bin/nice
@@ -59,9 +67,12 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/printenv
     /bin/ps
     /bin/pwd
+    /bin/rev
     /bin/rm
     /bin/rmdir
+    /bin/scriptreplay
     /bin/sed
+    /bin/setarch
     /bin/sleep
     /bin/stat
     /bin/stty
@@ -70,15 +81,33 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/tar
     /bin/touch
     /bin/true
+    /bin/umount
     /bin/uname
     /bin/vi
     /bin/watch
     /sbin/acpid
+    /sbin/blkid
+    /sbin/blockdev
+    /sbin/fdisk
+    /sbin/findfs
+    /sbin/fsck.minix
+    /sbin/fstrim
+    /sbin/hwclock
     /sbin/ifconfig
     /sbin/ip
+    /sbin/losetup
     /sbin/mdev
+    /sbin/mkfs.minix
+    /sbin/mkswap
+    /sbin/pivot_root
+    /sbin/sulogin
+    /sbin/swapoff
+    /sbin/swapon
+    /sbin/switch_root
     /sbin/sysctl
     /usr/bin/basename
+    /usr/bin/cal
+    /usr/bin/chrt
     /usr/bin/cksum
     /usr/bin/cmp
     /usr/bin/comm
@@ -87,20 +116,27 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/dirname
     /usr/bin/dos2unix
     /usr/bin/du
+    /usr/bin/eject
     /usr/bin/env
     /usr/bin/expand
     /usr/bin/expr
     /usr/bin/find
+    /usr/bin/flock
     /usr/bin/fold
     /usr/bin/free
     /usr/bin/fuser
     /usr/bin/groups
     /usr/bin/head
+    /usr/bin/hexdump
     /usr/bin/hostid
     /usr/bin/id
     /usr/bin/install
+    /usr/bin/ipcrm
+    /usr/bin/ipcs
     /usr/bin/killall
+    /usr/bin/last
     /usr/bin/less
+    /usr/bin/logger
     /usr/bin/logname
     /usr/bin/lspci
     /usr/bin/lsusb
@@ -119,7 +155,10 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/pwdx
     /usr/bin/readlink
     /usr/bin/realpath
+    /usr/bin/renice
+    /usr/bin/script
     /usr/bin/seq
+    /usr/bin/setsid
     /usr/bin/sha1sum
     /usr/bin/sha256sum
     /usr/bin/sha3sum
@@ -147,6 +186,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/users
     /usr/bin/uudecode
     /usr/bin/uuencode
+    /usr/bin/wall
     /usr/bin/wc
     /usr/bin/wget
     /usr/bin/which
@@ -161,8 +201,11 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/sbin/chroot
     /usr/sbin/delgroup
     /usr/sbin/deluser
+    /usr/sbin/fdformat
     /usr/sbin/ftpd
     /usr/sbin/inetd
     /usr/sbin/ntpd
+    /usr/sbin/readprofile
+    /usr/sbin/rtcwake
     /usr/sbin/telnetd
     /usr/sbin/tftpd
