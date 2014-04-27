@@ -125,7 +125,7 @@
     </para>
 
 <screen><userinput>patch -p1 -i ../cairo-&cairo-version;-respect_fontconfig-1.patch &amp;&amp;
-./configure --prefix=/usr --disable-static &amp;&amp;
+CFLAGS="$CFLAGS -ffat-lto-objects" ./configure --prefix=/usr --disable-static &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -141,6 +141,11 @@ make</userinput></screen>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para>
+      <envar>CFLAGS="$CFLAGS -ffat-lto-objects"</envar>: This fixes build
+      failure with GCC-4.9.
+    </para>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/static-libraries.xml"/>
