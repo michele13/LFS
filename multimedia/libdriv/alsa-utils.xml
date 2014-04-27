@@ -133,10 +133,9 @@ make</userinput></screen>
     </para>
 
     <para>
-      The <command>alsactl</command> program is normally run from a standard
-      udev rule. The first time it is run, it will complain that there is no
-      state in <filename>/var/lib/alsa/asound.state</filename>. You can prevent
-      this by running the following commands as the <systemitem
+      The first time <command>alsactl</command> program is run, it will complain
+      that there is no state in <filename>/var/lib/alsa/asound.state</filename>.
+      You can prevent this by running the following commands as the <systemitem
       class="username">root</systemitem> user:
     </para>
 
@@ -144,8 +143,7 @@ make</userinput></screen>
 alsactl store</userinput></screen>
 
     <para>
-      The volume settings should be restored from the saved state by Udev when
-      the device is detected (during boot or when plugged in for USB devices).
+      The volume settings should be restored from the saved state during boot.
     </para>
 
     <para>
@@ -170,10 +168,9 @@ alsactl store</userinput></screen>
       <title>Boot Script</title>
 
       <para>
-        To automatically store and restore volume settings (if udev rule doesn't
-        work for you) when the system is rebooted, install the
-        <filename>/etc/rc.d/init.d/alsa</filename> boot script from the <xref
-        linkend="bootscripts"/> package.
+        To automatically store and restore volume settings when the system is
+        rebooted, install the <filename>/etc/rc.d/init.d/alsa</filename> boot
+        script from the <xref linkend="bootscripts"/> package.
       </para>
 
 <screen role="root"><userinput>make install-alsa</userinput></screen>
@@ -241,8 +238,7 @@ alsactl store</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/lib/udev/rules.d/90-alsa-restore.rules
-/usr/bin/aconnect
+<screen><literal>/usr/bin/aconnect
 /usr/bin/alsaloop
 /usr/bin/alsamixer
 /usr/bin/alsaucm
