@@ -153,6 +153,7 @@ ln -sfv ../bin/busybox /sbin/fdisk
 ln -sfv ../bin/busybox /sbin/findfs
 ln -sfv ../bin/busybox /sbin/fsck.minix
 ln -sfv ../bin/busybox /sbin/fstrim
+ln -sfv ../bin/busybox /sbin/getty
 ln -sfv ../bin/busybox /sbin/hwclock
 ln -sfv ../bin/busybox /sbin/ifconfig
 ln -sfv ../bin/busybox /sbin/ip
@@ -302,21 +303,21 @@ EOF</userinput></screen>
         cmp, comm, cp, cut, date, dd, delgroup, deluser, df, diff, dirname,
         dmesg, dnsdomainname, dos2unix, du, echo, egrep, eject, env, expand,
         expr, false, fdformat, fdisk, fgrep, find, findfs, flock, fold, free,
-        fsck.minix, fstrim, ftpd, fuser, getopt, grep, groups, head, hexdump,
-        hostid, hostname, hwclock, id, ifconfig, inetd, install, ionice, ip,
-        ipcrm, ipcs, kill, killall, last, less, linux32, linux64, ln, logger,
-        login, logname, losetup, ls, lspci, lsusb, man, md5sum, mdev, mkdir,
-        mkfifo, mkfs.minix, mknod, mkswap, mktemp, more, mount, mountpoint, mv,
-        netstat, nice, nohup, ntpd, od, passwd, patch, pgrep, pidof, ping,
-        ping6, pivot_root, pkill, pmap, printenv, printf, ps, pstree, pwd, pwdx,
-        readlink, readprofile, realpath, renice, rev, rm, rmdir, rtcwake,
-        script, scriptreplay, sed, seq, setarch, setsid, sha1sum, sha256sum,
-        sha3sum, sha512sum, sleep, sort, split, stat, stty, su, sulogin, sum,
-        swapoff, swapon, switch_root, sync, sysctl, tac, tail, tar, tee, telnet,
-        telnetd, test, tftp, tftpd, timeout, top, touch, tr, traceroute,
-        traceroute6, true, tty, umount, uname, unexpand, uniq, unix2dos, unzip,
-        uptime, users, uudecode, uuencode, vi, wall,
-        watch, wc, wget, which, who, whoami, whois, xargs, and yes</seg>
+        fsck.minix, fstrim, ftpd, fuser, getopt, getty, grep, groups, head,
+        hexdump, hostid, hostname, hwclock, id, ifconfig, inetd, install,
+        ionice, ip, ipcrm, ipcs, kill, killall, last, less, linux32, linux64,
+        ln, logger, login, logname, losetup, ls, lspci, lsusb, man, md5sum,
+        mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap, mktemp, more, mount,
+        mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch, pgrep,
+        pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf, ps,
+        pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
+        rmdir, rtcwake, script, scriptreplay, sed, seq, setarch, setsid,
+        sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
+        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, tac, tail,
+        tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top, touch, tr,
+        traceroute, traceroute6, true, tty, umount, uname, unexpand, uniq,
+        unix2dos, unzip, uptime, users, uudecode, uuencode, vi, wall, watch, wc,
+        wget, which, who, whoami, whois, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -855,6 +856,17 @@ EOF</userinput></screen>
           <para>Parses options in the given command line.</para>
           <indexterm zone="ch-system-busybox getopt">
             <primary sortas="b-getopt">getopt</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="getty">
+        <term><command>getty</command></term>
+        <listitem>
+          <para>Opens a tty port, prompts for a login name, and then invokes the
+          login program.</para>
+          <indexterm zone="ch-system-busybox getty">
+            <primary sortas="b-getty">getty</primary>
           </indexterm>
         </listitem>
       </varlistentry>

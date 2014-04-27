@@ -92,6 +92,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/findfs
     /sbin/fsck.minix
     /sbin/fstrim
+    /sbin/getty
     /sbin/hwclock
     /sbin/ifconfig
     /sbin/ip
