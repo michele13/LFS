@@ -24,7 +24,7 @@
 
     <para>
       The libxcb package provides an interface to the X Window System protocol,
-      which replaces the current Xlib interface.  Xlib can also use XCB as a
+      which replaces the current Xlib interface. Xlib can also use XCB as a
       transport layer, allowing software to make requests and receive responses
       with both.
     </para>
@@ -76,14 +76,13 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
-      <xref linkend="xcb-proto"/>,
-      <xref linkend="libxau"/>, and
-      <xref linkend="automake"/>
+    <para>
+      <xref linkend="xcb-proto"/> and
+      <xref linkend="libxau"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="libxdmcp"/>
     </para>
 
@@ -93,11 +92,10 @@
     <title>Installation of libxcb</title>
 
     <para>
-      Install libxcb by running the following commands:
+      Install the package by running the following commands:
     </para>
 
-<screen><userinput>sed -e "s/pthread-stubs//" -i configure.ac &amp;&amp;
-autoreconf -fiv &amp;&amp;
+<screen><userinput>sed 's/pthread-stubs//' -i configure &amp;&amp;
 ./configure $XORG_CONFIG \
             --enable-xinput \
             --enable-xkb &amp;&amp;
@@ -107,11 +105,11 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install</userinput></screen>
 
-    <sect3 role="commands">
+    <sect3>
       <title>Command Explanations</title>
 
       <para>
-        <command>sed -e "s/pthread-stubs//" -i configure.ac</command>: This sed
+        <command>sed 's/pthread-stubs//' -i configure</command>: This sed
         removes dependency on libpthread-stubs package which is useless on
         Linux.
       </para>
