@@ -70,6 +70,42 @@ chown -v lfs.lfs /home/lfs</userinput></screen>
 
   </variablelist>
 
+  <para>Alternatively, if you are building on a host which doesn't provide
+  BusyBox-like <command>addgroup</command> and <command>adduser</command> commands:</para>
+
+<screen role="nodump"><userinput>groupadd lfs
+useradd -s /bin/bash -g lfs -m -k /dev/null lfs</userinput></screen>
+
+  <variablelist>
+    <title>The meaning of the command line options:</title>
+
+    <varlistentry>
+      <term><parameter>-g lfs</parameter></term>
+      <listitem>
+        <para>This option adds user <systemitem class="username">lfs</systemitem>
+        to group <systemitem class="groupname">lfs</systemitem>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><parameter>-m</parameter></term>
+      <listitem>
+        <para>This creates a home directory for <systemitem
+        class="username">lfs</systemitem>.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><parameter>-k /dev/null</parameter></term>
+      <listitem>
+        <para>This parameter prevents possible copying of files from a skeleton
+        directory (default is <filename class="directory">/etc/skel</filename>)
+        by changing the input location to the special null device.</para>
+      </listitem>
+    </varlistentry>
+
+  </variablelist>
+
   <para>To log in as <systemitem class="username">lfs</systemitem> (as opposed
   to switching to user <systemitem class="username">lfs</systemitem> when logged
   in as <systemitem class="username">root</systemitem>, which does not require
