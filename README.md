@@ -9,9 +9,9 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced pkg-config with pkgconf
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
-* replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, kbd,
-  less, man-db, patch, procps-ng, psmisc, sed, shadow, tar, util-linux, and vim
-  with busybox in chapter 6
+* replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, less,
+  man-db, patch, procps-ng, psmisc, sed, shadow, tar, util-linux, and vim with
+  busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, gettext, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
@@ -38,7 +38,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/df
     /bin/dmesg
     /bin/dnsdomainname
-    /bin/dumpkmap
     /bin/echo
     /bin/egrep
     /bin/false
@@ -47,7 +46,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/grep
     /bin/hostname
     /bin/ionice
-    /bin/kbd_mode
     /bin/kill
     /bin/linux32
     /bin/linux64
@@ -98,7 +96,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/hwclock
     /sbin/ifconfig
     /sbin/ip
-    /sbin/loadkmap
     /sbin/losetup
     /sbin/mdev
     /sbin/mkfs.minix
@@ -112,12 +109,10 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/basename
     /usr/bin/cal
     /usr/bin/chrt
-    /usr/bin/chvt
     /usr/bin/cksum
     /usr/bin/cmp
     /usr/bin/comm
     /usr/bin/cut
-    /usr/bin/deallocvt
     /usr/bin/diff
     /usr/bin/dirname
     /usr/bin/dos2unix
@@ -126,7 +121,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/env
     /usr/bin/expand
     /usr/bin/expr
-    /usr/bin/fgconsole
     /usr/bin/find
     /usr/bin/flock
     /usr/bin/fold
@@ -152,7 +146,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/mkfifo
     /usr/bin/nohup
     /usr/bin/od
-    /usr/bin/openvt
     /usr/bin/passwd
     /usr/bin/patch
     /usr/bin/pgrep
@@ -166,13 +159,11 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/renice
     /usr/bin/script
     /usr/bin/seq
-    /usr/bin/setkeycodes
     /usr/bin/setsid
     /usr/bin/sha1sum
     /usr/bin/sha256sum
     /usr/bin/sha3sum
     /usr/bin/sha512sum
-    /usr/bin/showkey
     /usr/bin/sort
     /usr/bin/split
     /usr/bin/sum
@@ -214,10 +205,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/sbin/fdformat
     /usr/sbin/ftpd
     /usr/sbin/inetd
-    /usr/sbin/loadfont
     /usr/sbin/ntpd
     /usr/sbin/readprofile
     /usr/sbin/rtcwake
-    /usr/sbin/setfont
     /usr/sbin/telnetd
     /usr/sbin/tftpd
