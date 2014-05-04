@@ -187,6 +187,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/users
     /usr/bin/uudecode
     /usr/bin/uuencode
+    /usr/bin/vlock
     /usr/bin/wall
     /usr/bin/wc
     /usr/bin/wget
