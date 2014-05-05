@@ -20,8 +20,7 @@
   the installation process. As <systemitem class="username">root</systemitem>,
   issue the following commands to add the new user:</para>
 
-<screen><userinput>addgroup lfs
-adduser -D -H -s /bin/bash -G lfs lfs
+<screen><userinput>adduser -D -H -s /bin/bash lfs
 mkdir /home/lfs
 chown -v lfs.lfs /home/lfs</userinput></screen>
 
@@ -29,26 +28,9 @@ chown -v lfs.lfs /home/lfs</userinput></screen>
     <title>The meaning of the command line options:</title>
 
     <varlistentry>
-      <term><parameter>-s /bin/bash</parameter></term>
-      <listitem>
-        <para>This makes <command>bash</command> the default shell for user
-        <systemitem class="username">lfs</systemitem>.</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
-      <term><parameter>-G lfs</parameter></term>
-      <listitem>
-        <para>This option adds user <systemitem class="username">lfs</systemitem>
-        to group <systemitem class="groupname">lfs</systemitem>.</para>
-      </listitem>
-    </varlistentry>
-
-    <varlistentry>
       <term><parameter>-D</parameter></term>
       <listitem>
-        <para>This option prevents prompting for password assignment.<systemitem
-        class="username">lfs</systemitem>.</para>
+        <para>This option prevents prompting for password assignment.</para>
       </listitem>
     </varlistentry>
 
@@ -58,6 +40,14 @@ chown -v lfs.lfs /home/lfs</userinput></screen>
         <para>This parameter prevents home directory creation and possible
         copying of files from a skeleton directory (default is <filename
         class="directory">/etc/skel</filename>).</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><parameter>-s /bin/bash</parameter></term>
+      <listitem>
+        <para>This makes <command>bash</command> the default shell for user
+        <systemitem class="username">lfs</systemitem>.</para>
       </listitem>
     </varlistentry>
 
