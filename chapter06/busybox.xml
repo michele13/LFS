@@ -163,6 +163,7 @@ ln -sfv busybox /bin/watch
 ln -sfv ../bin/busybox /sbin/acpid
 ln -sfv ../bin/busybox /sbin/blkid
 ln -sfv ../bin/busybox /sbin/blockdev
+ln -sfv ../bin/busybox /sbin/depmod
 ln -sfv ../bin/busybox /sbin/fdisk
 ln -sfv ../bin/busybox /sbin/findfs
 ln -sfv ../bin/busybox /sbin/fsck.minix
@@ -170,12 +171,17 @@ ln -sfv ../bin/busybox /sbin/fstrim
 ln -sfv ../bin/busybox /sbin/getty
 ln -sfv ../bin/busybox /sbin/hwclock
 ln -sfv ../bin/busybox /sbin/ifconfig
+ln -sfv ../bin/busybox /sbin/insmod
 ln -sfv ../bin/busybox /sbin/ip
 ln -sfv ../bin/busybox /sbin/losetup
+ln -sfv ../bin/busybox /sbin/lsmod
 ln -sfv ../bin/busybox /sbin/mdev
 ln -sfv ../bin/busybox /sbin/mkfs.minix
 ln -sfv ../bin/busybox /sbin/mkswap
+ln -sfv ../bin/busybox /sbin/modinfo
+ln -sfv ../bin/busybox /sbin/modprobe
 ln -sfv ../bin/busybox /sbin/pivot_root
+ln -sfv ../bin/busybox /sbin/rmmod
 ln -sfv ../bin/busybox /sbin/sulogin
 ln -sfv ../bin/busybox /sbin/swapoff
 ln -sfv ../bin/busybox /sbin/swapon
@@ -315,24 +321,25 @@ EOF</userinput></screen>
       <seglistitem>
         <seg>acpid, addgroup, adduser, base64, basename, blkid, blockdev,
         busybox, cal, cat, chgrp, chmod, chown, chpasswd, chroot, chrt, cksum,
-        cmp, comm, cp, cut, date, dd, delgroup, deluser, df, diff, dirname,
-        dmesg, dnsdomainname, dos2unix, du, echo, egrep, eject, env, expand,
-        expr, false, fdformat, fdisk, fgrep, find, findfs, flock, fold, free,
-        fsck.minix, fstrim, ftpd, fuser, getopt, getty, grep, groups, head,
-        hexdump, hostid, hostname, hwclock, id, ifconfig, inetd, install,
-        ionice, ip, ipcrm, ipcs, kill, killall, last, less, linux32, linux64,
-        ln, logger, login, logname, losetup, ls, lspci, lsusb, man, md5sum,
-        mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap, mktemp, more, mount,
-        mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch, pgrep,
-        pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf, ps,
-        pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
-        rmdir, rtcwake, script, scriptreplay, sed, seq, setarch, setsid,
-        sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
-        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, tac, tail,
-        tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top, touch, tr,
-        traceroute, traceroute6, true, tty, umount, uname, unexpand, uniq,
-        unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock, wall,
-        watch, wc, wget, which, who, whoami, whois, xargs, and yes</seg>
+        cmp, comm, cp, cut, date, dd, delgroup, deluser, depmod, df, diff,
+        dirname, dmesg, dnsdomainname, dos2unix, du, echo, egrep, eject, env,
+        expand, expr, false, fdformat, fdisk, fgrep, find, findfs, flock, fold,
+        free, fsck.minix, fstrim, ftpd, fuser, getopt, getty, grep, groups,
+        head, hexdump, hostid, hostname, hwclock, id, ifconfig, inetd, insmod,
+        install, ionice, ip, ipcrm, ipcs, kill, killall, last, less, linux32,
+        linux64, ln, logger, login, logname, losetup, ls, lsmod, lspci, lsusb,
+        man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap, mktemp,
+        modinfo, modprobe, more, mount, mountpoint, mv, netstat, nice, nohup,
+        ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pivot_root, pkill,
+        pmap, printenv, printf, ps, pstree, pwd, pwdx, readlink, readprofile,
+        realpath, renice, rev, rm, rmdir, rmmod, rtcwake, script, scriptreplay,
+        sed, seq, setarch, setsid, sha1sum, sha256sum, sha3sum, sha512sum,
+        sleep, sort, split, stat, stty, su, sulogin, sum, swapoff, swapon,
+        switch_root, sync, sysctl, tac, tail, tar, tee, telnet, telnetd, test,
+        tftp, tftpd, timeout, top, touch, tr, traceroute, traceroute6, true,
+        tty, umount, uname, unexpand, uniq, unix2dos, unzip, uptime, users,
+        uudecode, uuencode, vi, vlock, wall, watch, wc, wget, which, who,
+        whoami, whois, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -597,6 +604,17 @@ EOF</userinput></screen>
           <para>Deletes a user with the given name from the system.</para>
           <indexterm zone="ch-system-busybox deluser">
             <primary sortas="b-deluser">deluser</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="depmod">
+        <term><command>depmod</command></term>
+        <listitem>
+          <para>Creates a dependency file based on the symbols it finds in the
+          existing set of kernel modules.</para>
+          <indexterm zone="ch-system-busybox depmod">
+            <primary sortas="b-depmod">depmod</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -988,6 +1006,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="insmod">
+        <term><command>insmod</command></term>
+        <listitem>
+          <para>Installs a loadable kernel module in the running kernel.</para>
+          <indexterm zone="ch-system-busybox insmod">
+            <primary sortas="b-insmod">insmod</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="install">
         <term><command>install</command></term>
         <listitem>
@@ -1162,6 +1190,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="lsmod">
+        <term><command>lsmod</command></term>
+        <listitem>
+          <para>Lists currently loaded kernel modules.</para>
+          <indexterm zone="ch-system-busybox lsmod">
+            <primary sortas="b-lsmod">lsmod</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="lspci">
         <term><command>lspci</command></term>
         <listitem>
@@ -1269,6 +1307,28 @@ EOF</userinput></screen>
           <para>Creates a temporary file with name based on template.</para>
           <indexterm zone="ch-system-busybox mktemp">
             <primary sortas="b-mktemp">mktemp</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="modinfo">
+        <term><command>modinfo</command></term>
+        <listitem>
+          <para>Examines an object file associated with a kernel module and
+          displays any information that it can glean.</para>
+          <indexterm zone="ch-system-busybox modinfo">
+            <primary sortas="b-modinfo">modinfo</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="modprobe">
+        <term><command>modprobe</command></term>
+        <listitem>
+          <para>Uses a dependency file, created by <command>depmod</command>, to
+          automatically load relevant modules.</para>
+          <indexterm zone="ch-system-busybox modprobe">
+            <primary sortas="b-modprobe">modprobe</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1581,6 +1641,16 @@ EOF</userinput></screen>
           <para>Removes directories if they are empty.</para>
           <indexterm zone="ch-system-busybox rmdir">
             <primary sortas="b-rmdir">rmdir</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="rmmod">
+        <term><command>rmmod</command></term>
+        <listitem>
+          <para>Unloads kernel modules from the running kernel.</para>
+          <indexterm zone="ch-system-busybox rmmod">
+            <primary sortas="b-rmmod">rmmod</primary>
           </indexterm>
         </listitem>
       </varlistentry>
