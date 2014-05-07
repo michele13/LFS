@@ -91,6 +91,21 @@
 
 <screen><userinput remap="configure">sed '/CONFIG_FEATURE_DEFAULT_PASSWD_ALGO/ s/des/sha512/' -i .config</userinput></screen>
 
+    <para>Disable simplified modutils and enable standard utilities for loading
+    kernel modules:</para>
+
+<screen><userinput remap="configure">sed -e 's/\(CONFIG_MODPROBE_SMALL\)=y/# \1 is not set/' \
+    -e 's/# \(CONFIG_INSMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_RMMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_LSMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_LSMOD_PRETTY_2_6_OUTPUT\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_MODPROBE\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODPROBE_BLACKLIST\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_DEPMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_CHECK_TAINTED_MODULE\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODUTILS_ALIAS\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODUTILS_SYMBOLS\) is not set/\1=y/' -i .config</userinput></screen>
+
     <para>Compile the package:</para>
 
 <screen><userinput remap="make">make</userinput></screen>
@@ -1009,7 +1024,8 @@ EOF</userinput></screen>
       <varlistentry id="insmod">
         <term><command>insmod</command></term>
         <listitem>
-          <para>Installs a loadable kernel module in the running kernel.</para>
+          <para>Loads the specified kernel module into the running
+          kernel.</para>
           <indexterm zone="ch-system-busybox insmod">
             <primary sortas="b-insmod">insmod</primary>
           </indexterm>
