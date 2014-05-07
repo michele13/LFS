@@ -12,7 +12,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced coreutils, diffutils, findutils, grep, inetutils, iproute2, kmod,
   less, man-db, patch, procps-ng, psmisc, sed, shadow, tar, util-linux, and vim
   with busybox in chapter 6
-* removed autoconf, automake, dejagnu, expect, gettext, tcl, and texinfo
+* removed autoconf, automake, dejagnu, expect, gettext, libpipeline, tcl, and
+  texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
