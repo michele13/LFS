@@ -111,6 +111,13 @@
     <title>Installation</title>
 
     <para>
+      Fix DoS vulnerability in the GIF image handler:
+    </para>
+
+<screen><userinput>sed -i -e '631a if (image->isNull()) { state = Error; return -1; }' \
+    src/gui/image/qgifhandler.cpp</userinput></screen>
+
+    <para>
       Install the package by running the following commands:
     </para>
 
