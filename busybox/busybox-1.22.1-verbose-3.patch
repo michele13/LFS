@@ -1,13 +1,14 @@
 Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
 Date:                    2014-04-23
 Initial Package Version: 1.22.1
-Upstream Status:         Submitted
+Upstream Status:         Ignored
 Origin:                  Self
-Description:             Adds verbose switch to cp, mv and rm commands
+Description:             Adds verbose switch to cp, install, mkdir, mv, rm, and
+                         rmdir commands
 
 diff -Naur busybox-1.22.1.orig/coreutils/cp.c busybox-1.22.1/coreutils/cp.c
 --- busybox-1.22.1.orig/coreutils/cp.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/coreutils/cp.c	2014-05-15 13:29:49.512675586 +0200
++++ busybox-1.22.1/coreutils/cp.c	2014-05-15 14:35:35.832862010 +0200
 @@ -31,6 +31,7 @@
  //usage:     "\n	-f	Overwrite"
  //usage:     "\n	-i	Prompt before overwrite"
@@ -24,9 +25,73 @@ diff -Naur busybox-1.22.1.orig/coreutils/cp.c busybox-1.22.1/coreutils/cp.c
  	flags = getopt32(argv, FILEUTILS_CP_OPTSTR "arPv");
  	/* Options of cp from GNU coreutils 6.10:
  	 * -a, --archive
+diff -Naur busybox-1.22.1.orig/coreutils/install.c busybox-1.22.1/coreutils/install.c
+--- busybox-1.22.1.orig/coreutils/install.c	2014-01-09 19:15:44.000000000 +0100
++++ busybox-1.22.1/coreutils/install.c	2014-05-15 14:35:40.144678662 +0200
+@@ -12,6 +12,7 @@
+ //usage:#define install_full_usage "\n\n"
+ //usage:       "Copy files and set attributes\n"
+ //usage:     "\n	-c	Just copy (default)"
++//usage:     "\n	-v	Verbose"
+ //usage:     "\n	-d	Create directories"
+ //usage:     "\n	-D	Create leading target directories"
+ //usage:     "\n	-s	Strip symbol table"
+@@ -28,6 +29,7 @@
+ 
+ #if ENABLE_FEATURE_INSTALL_LONG_OPTIONS
+ static const char install_longopts[] ALIGN1 =
++	"verbose\0"             No_argument       "v"
+ 	"directory\0"           No_argument       "d"
+ 	"preserve-timestamps\0" No_argument       "p"
+ 	"strip\0"               No_argument       "s"
+@@ -89,6 +91,7 @@
+ 	const char *gid_str;
+ 	const char *uid_str;
+ 	const char *mode_str;
++	int mkdir_flags = FILEUTILS_RECUR;
+ 	int copy_flags = FILEUTILS_DEREFERENCE | FILEUTILS_FORCE;
+ 	int opts;
+ 	int min_args = 1;
+@@ -120,7 +123,6 @@
+ #endif
+ 	opt_complementary = "s--d:d--s" IF_FEATURE_INSTALL_LONG_OPTIONS(IF_SELINUX(":Z--\xff:\xff--Z"));
+ 	/* -c exists for backwards compatibility, it's needed */
+-	/* -v is ignored ("print name of each created directory") */
+ 	/* -b is ignored ("make a backup of each existing destination file") */
+ 	opts = getopt32(argv, "cvb" "Ddpsg:m:o:" IF_SELINUX("Z:"),
+ 			&gid_str, &mode_str, &uid_str IF_SELINUX(, &scontext));
+@@ -141,6 +143,11 @@
+ 	}
+ #endif
+ 
++	if (opts & OPT_v) {
++		mkdir_flags |= FILEUTILS_VERBOSE;
++		copy_flags |= FILEUTILS_VERBOSE;
++	}
++
+ 	/* preserve access and modification time, this is GNU behaviour,
+ 	 * BSD only preserves modification time */
+ 	if (opts & OPT_PRESERVE_TIME) {
+@@ -171,14 +178,14 @@
+ 			/* GNU coreutils 6.9 does not set uid:gid
+ 			 * on intermediate created directories
+ 			 * (only on last one) */
+-			if (bb_make_directory(dest, 0755, FILEUTILS_RECUR)) {
++			if (bb_make_directory(dest, 0755, mkdir_flags)) {
+ 				ret = EXIT_FAILURE;
+ 				goto next;
+ 			}
+ 		} else {
+ 			if (opts & OPT_MKDIR_LEADING) {
+ 				char *ddir = xstrdup(dest);
+-				bb_make_directory(dirname(ddir), 0755, FILEUTILS_RECUR);
++				bb_make_directory(dirname(ddir), 0755, mkdir_flags);
+ 				/* errors are not checked. copy_file
+ 				 * will fail if dir is not created. */
+ 				free(ddir);
 diff -Naur busybox-1.22.1.orig/coreutils/mkdir.c busybox-1.22.1/coreutils/mkdir.c
 --- busybox-1.22.1.orig/coreutils/mkdir.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/coreutils/mkdir.c	2014-05-15 13:29:49.514675504 +0200
++++ busybox-1.22.1/coreutils/mkdir.c	2014-05-15 14:35:35.834861926 +0200
 @@ -25,6 +25,7 @@
  //usage:       "Create DIRECTORY\n"
  //usage:     "\n	-m MODE	Mode"
@@ -70,7 +135,7 @@ diff -Naur busybox-1.22.1.orig/coreutils/mkdir.c busybox-1.22.1/coreutils/mkdir.
  	}
 diff -Naur busybox-1.22.1.orig/coreutils/mv.c busybox-1.22.1/coreutils/mv.c
 --- busybox-1.22.1.orig/coreutils/mv.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/coreutils/mv.c	2014-05-15 13:29:49.517675380 +0200
++++ busybox-1.22.1/coreutils/mv.c	2014-05-15 14:35:35.837861798 +0200
 @@ -17,13 +17,14 @@
  #include "libcoreutils/coreutils.h"
  
@@ -116,7 +181,7 @@ diff -Naur busybox-1.22.1.orig/coreutils/mv.c busybox-1.22.1/coreutils/mv.c
  		}
 diff -Naur busybox-1.22.1.orig/coreutils/rm.c busybox-1.22.1/coreutils/rm.c
 --- busybox-1.22.1.orig/coreutils/rm.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/coreutils/rm.c	2014-05-15 13:29:49.519675298 +0200
++++ busybox-1.22.1/coreutils/rm.c	2014-05-15 14:35:35.838861756 +0200
 @@ -22,6 +22,7 @@
  //usage:     "\n	-i	Always prompt before removing"
  //usage:     "\n	-f	Never prompt"
@@ -144,7 +209,7 @@ diff -Naur busybox-1.22.1.orig/coreutils/rm.c busybox-1.22.1/coreutils/rm.c
  		do {
 diff -Naur busybox-1.22.1.orig/coreutils/rmdir.c busybox-1.22.1/coreutils/rmdir.c
 --- busybox-1.22.1.orig/coreutils/rmdir.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/coreutils/rmdir.c	2014-05-15 13:29:49.520675257 +0200
++++ busybox-1.22.1/coreutils/rmdir.c	2014-05-15 14:35:35.840861671 +0200
 @@ -16,10 +16,12 @@
  //usage:       "Remove DIRECTORY if it is empty\n"
  //usage:	IF_FEATURE_RMDIR_LONG_OPTIONS(
@@ -180,7 +245,7 @@ diff -Naur busybox-1.22.1.orig/coreutils/rmdir.c busybox-1.22.1/coreutils/rmdir.
  				if ((flags & IGNORE_NON_EMPTY) && errno == ENOTEMPTY)
 diff -Naur busybox-1.22.1.orig/include/libbb.h busybox-1.22.1/include/libbb.h
 --- busybox-1.22.1.orig/include/libbb.h	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/include/libbb.h	2014-05-15 13:29:49.527674969 +0200
++++ busybox-1.22.1/include/libbb.h	2014-05-15 14:35:35.847861373 +0200
 @@ -334,6 +334,7 @@
  	FILEUTILS_SET_SECURITY_CONTEXT = 1 << 10,
  #endif
@@ -191,7 +256,7 @@ diff -Naur busybox-1.22.1.orig/include/libbb.h busybox-1.22.1/include/libbb.h
  extern int remove_file(const char *path, int flags) FAST_FUNC;
 diff -Naur busybox-1.22.1.orig/libbb/copy_file.c busybox-1.22.1/libbb/copy_file.c
 --- busybox-1.22.1.orig/libbb/copy_file.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/libbb/copy_file.c	2014-05-15 13:29:49.536674600 +0200
++++ busybox-1.22.1/libbb/copy_file.c	2014-05-15 14:35:35.855861033 +0200
 @@ -389,5 +389,9 @@
  			bb_perror_msg("can't preserve %s of '%s'", "permissions", dest);
  	}
@@ -204,21 +269,21 @@ diff -Naur busybox-1.22.1.orig/libbb/copy_file.c busybox-1.22.1/libbb/copy_file.
  }
 diff -Naur busybox-1.22.1.orig/libbb/make_directory.c busybox-1.22.1/libbb/make_directory.c
 --- busybox-1.22.1.orig/libbb/make_directory.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/libbb/make_directory.c	2014-05-15 13:31:56.576455006 +0200
++++ busybox-1.22.1/libbb/make_directory.c	2014-05-15 14:35:53.735100876 +0200
 @@ -99,6 +99,10 @@
  			if (!c) {
  				goto ret0;
  			}
 +		} else {
 +			if (flags & FILEUTILS_VERBOSE) {
-+			    printf("mkdir: created directory `%s'\n", path);
++			    printf("created directory: `%s'\n", path);
 +			}
  		}
  
  		if (!c) {
 diff -Naur busybox-1.22.1.orig/libbb/remove_file.c busybox-1.22.1/libbb/remove_file.c
 --- busybox-1.22.1.orig/libbb/remove_file.c	2014-01-09 19:15:44.000000000 +0100
-+++ busybox-1.22.1/libbb/remove_file.c	2014-05-15 13:29:49.540674435 +0200
++++ busybox-1.22.1/libbb/remove_file.c	2014-05-15 14:35:35.860860821 +0200
 @@ -78,6 +78,10 @@
  			return -1;
  		}
