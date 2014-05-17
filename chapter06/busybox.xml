@@ -88,7 +88,12 @@
 
     <para>Disable support for program which will be installed from the less package:</para>
 
-<screen><userinput remap="configure">sed 's/\(CONFIG_CHVT\)=y/# \1 is not set/' -i .config</userinput></screen>
+<screen><userinput remap="configure">sed 's/\(CONFIG_LESS\)=y/# \1 is not set/' -i .config</userinput></screen>
+
+    <para>Disable support for programs which will be installed from the xz package:</para>
+
+<screen><userinput remap="configure">sed -e 's/\(CONFIG_UNLZMA\)=y/# \1 is not set/' \
+    -e 's/\(CONFIG_UNXZ\)=y/# \1 is not set/' -i .config</userinput></screen>
 
     <para>Instead of using the default DES method, use the more secure SHA-512
     method of password encryption:</para>
