@@ -10,7 +10,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced bzip2, coreutils, diffutils, findutils, grep, gzip, inetutils,
-  iproute2, kmod, less, man-db, patch, procps-ng, psmisc, sed, shadow, tar,
+  iproute2, kmod, man-db, patch, procps-ng, psmisc, sed, shadow, tar,
   util-linux, and vim with busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, gettext, libpipeline, libtool,
   tcl, and texinfo
@@ -149,7 +149,6 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/ipcs
     /usr/bin/killall
     /usr/bin/last
-    /usr/bin/less
     /usr/bin/logger
     /usr/bin/logname
     /usr/bin/lspci
