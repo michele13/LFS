@@ -134,6 +134,8 @@ ln -sfv busybox /bin/false
 ln -sfv busybox /bin/fgrep
 ln -sfv busybox /bin/getopt
 ln -sfv busybox /bin/grep
+ln -sfv busybox /bin/gunzip
+ln -sfv busybox /bin/gzip
 ln -sfv busybox /bin/hostname
 ln -sfv busybox /bin/ionice
 ln -sfv busybox /bin/kill
@@ -175,6 +177,7 @@ ln -sfv busybox /bin/umount
 ln -sfv busybox /bin/uname
 ln -sfv busybox /bin/vi
 ln -sfv busybox /bin/watch
+ln -sfv busybox /bin/zcat
 ln -sfv ../bin/busybox /sbin/acpid
 ln -sfv ../bin/busybox /sbin/blkid
 ln -sfv ../bin/busybox /sbin/blockdev
@@ -343,9 +346,9 @@ EOF</userinput></screen>
         depmod, df, diff, dirname, dmesg, dnsdomainname, dos2unix, du, echo,
         egrep, eject, env, expand, expr, false, fdformat, fdisk, fgrep, find,
         findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser, getopt,
-        getty, grep, groups, head, hexdump, hostid, hostname, hwclock, id,
-        ifconfig, inetd, insmod, install, ionice, ip, ipcrm, ipcs, kill,
-        killall, last, less, linux32, linux64, ln, logger, login, logname,
+        getty, grep, groups, gunzip, gzip, head, hexdump, hostid, hostname,
+        hwclock, id, ifconfig, inetd, insmod, install, ionice, ip, ipcrm, ipcs,
+        kill, killall, last, less, linux32, linux64, ln, logger, login, logname,
         losetup, ls, lsmod, lspci, lsusb, man, md5sum, mdev, mkdir, mkfifo,
         mkfs.minix, mknod, mkswap, mktemp, modinfo, modprobe, more, mount,
         mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch, pgrep,
@@ -357,7 +360,7 @@ EOF</userinput></screen>
         tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top, touch, tr,
         traceroute, traceroute6, true, tty, umount, uname, unexpand, uniq,
         unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock, wall,
-        watch, wc, wget, which, who, whoami, whois, xargs, and yes</seg>
+        watch, wc, wget, which, who, whoami, whois, xargs, yes, and zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -968,6 +971,26 @@ EOF</userinput></screen>
           <para>Reports the group memberships of user.</para>
           <indexterm zone="ch-system-busybox groups">
             <primary sortas="b-groups">groups</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="gunzip">
+        <term><command>gunzip</command></term>
+        <listitem>
+          <para>Decompresses gzipped files.</para>
+          <indexterm zone="ch-system-busybox gunzip">
+            <primary sortas="b-gunzip">gunzip</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="gzip">
+        <term><command>gzip</command></term>
+        <listitem>
+          <para>Compresses files with gzip algorithm.</para>
+          <indexterm zone="ch-system-busybox gzip">
+            <primary sortas="b-gzip">gzip</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -2339,6 +2362,16 @@ EOF</userinput></screen>
           <para>Repeatedly outputs 'y' or a given string until killed.</para>
           <indexterm zone="ch-system-busybox yes">
             <primary sortas="b-yes">yes</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="zcat">
+        <term><command>zcat</command></term>
+        <listitem>
+          <para>Decompresses gzipped files to standard output.</para>
+          <indexterm zone="ch-system-busybox zcat">
+            <primary sortas="b-zcat">zcat</primary>
           </indexterm>
         </listitem>
       </varlistentry>
