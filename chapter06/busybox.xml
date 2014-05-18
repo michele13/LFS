@@ -200,6 +200,7 @@ ln -sfv ../bin/busybox /sbin/hwclock
 ln -sfv ../bin/busybox /sbin/ifconfig
 ln -sfv ../bin/busybox /sbin/insmod
 ln -sfv ../bin/busybox /sbin/ip
+ln -sfv ../bin/busybox /sbin/klogd
 ln -sfv ../bin/busybox /sbin/losetup
 ln -sfv ../bin/busybox /sbin/lsmod
 ln -sfv ../bin/busybox /sbin/mdev
@@ -214,6 +215,7 @@ ln -sfv ../bin/busybox /sbin/swapoff
 ln -sfv ../bin/busybox /sbin/swapon
 ln -sfv ../bin/busybox /sbin/switch_root
 ln -sfv ../bin/busybox /sbin/sysctl
+ln -sfv ../bin/busybox /sbin/syslogd
 ln -sfv ../../bin/busybox /usr/bin/basename
 ln -sfv ../../bin/busybox /usr/bin/bunzip2
 ln -sfv ../../bin/busybox /usr/bin/bzcat
@@ -339,6 +341,23 @@ ln -sfv ../../bin/busybox /usr/sbin/tftpd</userinput></screen>
 MANDATORY_MANPATH /usr/share/man</literal>
 EOF</userinput></screen>
 
+    <para>Create a new <filename>/etc/syslog.conf</filename> file by running the
+    following:</para>
+
+<screen><userinput>cat &gt; /etc/syslog.conf &lt;&lt; "EOF"
+<literal># Begin /etc/syslog.conf
+
+auth,authpriv.* -/var/log/auth.log
+*.*;auth,authpriv.none -/var/log/sys.log
+daemon.* -/var/log/daemon.log
+kern.* -/var/log/kern.log
+mail.* -/var/log/mail.log
+user.* -/var/log/user.log
+*.emerg *
+
+# End /etc/syslog.conf</literal>
+EOF</userinput></screen>
+
   </sect2>
 
   <sect2 id="contents-busybox" role="content">
@@ -356,19 +375,20 @@ EOF</userinput></screen>
         findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser, getopt,
         getty, grep, groups, gunzip, gzip, head, hexdump, hostid, hostname,
         hwclock, id, ifconfig, inetd, insmod, install, ionice, ip, ipcrm, ipcs,
-        kill, killall, last, linux32, linux64, ln, logger, login, logname,
-        losetup, ls, lsmod, lspci, lsusb, man, md5sum, mdev, mkdir, mkfifo,
-        mkfs.minix, mknod, mkswap, mktemp, modinfo, modprobe, more, mount,
-        mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch, pgrep,
-        pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf, ps,
-        pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
+        kill, killall, klogd, last, linux32, linux64, ln, logger, login,
+        logname, losetup, ls, lsmod, lspci, lsusb, man, md5sum, mdev, mkdir,
+        mkfifo, mkfs.minix, mknod, mkswap, mktemp, modinfo, modprobe, more,
+        mount, mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch,
+        pgrep, pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf,
+        ps, pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
         rmdir, rmmod, rtcwake, script, scriptreplay, sed, seq, setarch, setsid,
         sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
-        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, tac, tail,
-        tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top, touch, tr,
-        traceroute, traceroute6, true, tty, umount, uname, unexpand, uniq,
-        unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock, wall,
-        watch, wc, wget, which, who, whoami, whois, xargs, yes, and zcat</seg>
+        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, syslogd,
+        tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top,
+        touch, tr, traceroute, traceroute6, true, tty, umount, uname, unexpand,
+        uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock,
+        wall, watch, wc, wget, which, who, whoami, whois, xargs, yes, and
+        zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -1163,6 +1183,16 @@ EOF</userinput></screen>
           <para>Sends a signal to given processes.</para>
           <indexterm zone="ch-system-busybox killall">
             <primary sortas="b-killall">killall</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="klogd">
+        <term><command>klogd</command></term>
+        <listitem>
+          <para>Intercepts and logs kernel messages.</para>
+          <indexterm zone="ch-system-busybox klogd">
+            <primary sortas="b-klogd">klogd</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1964,6 +1994,16 @@ EOF</userinput></screen>
           <para>Modifies kernel parameters at run time.</para>
           <indexterm zone="ch-system-busybox sysctl">
             <primary sortas="b-sysctl">sysctl</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="syslogd">
+        <term><command>syslogd</command></term>
+        <listitem>
+          <para>Logs the messages that system programs offer for logging.</para>
+          <indexterm zone="ch-system-busybox syslogd">
+            <primary sortas="b-syslogd">syslogd</primary>
           </indexterm>
         </listitem>
       </varlistentry>
