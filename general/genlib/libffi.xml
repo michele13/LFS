@@ -8,9 +8,9 @@
   <!ENTITY libffi-wikipedia     "http://en.wikipedia.org/wiki/Libffi">
   <!ENTITY libffi-download-http " ">
   <!ENTITY libffi-download-ftp  "ftp://sourceware.org/pub/libffi/libffi-&libffi-version;.tar.gz">
-  <!ENTITY libffi-md5sum        "45f3b6dbc9ee7c7dfbbbc5feba571529">
-  <!ENTITY libffi-size          "828 KB">
-  <!ENTITY libffi-buildsize     "6.2 MB">
+  <!ENTITY libffi-md5sum        "6640332e06de40beb968aa12ff640c4a">
+  <!ENTITY libffi-size          "916 KB">
+  <!ENTITY libffi-buildsize     "6.5 MB">
   <!ENTITY libffi-time          "0.1 SBU">
 ]>
 
@@ -72,16 +72,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch: <ulink
-          url="&patch-root;libffi/libffi-&libffi-version;-includedir-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
   </sect2>
 
   <sect2>
@@ -91,7 +81,10 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>patch -p1 -i ../libffi-&libffi-version;-includedir-1.patch &amp;&amp;
+<screen><userinput>sed '/^includesdir/ s:$(libdir)/@PACKAGE_NAME@-@PACKAGE_VERSION@/include:$(includedir):' \
+    -i include/Makefile.in &amp;&amp;
+sed -e '/^includedir/ s:${libdir}/@PACKAGE_NAME@-@PACKAGE_VERSION@/include:@includedir@:' \
+    -e 's/^Cflags: -I${includedir}/Cflags:/' -i libffi.pc.in &amp;&amp;
 ./configure --prefix=/usr \
             --disable-static &amp;&amp;
 make</userinput></screen>
@@ -101,6 +94,16 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed ... </command>: Make package install headers into
+        /usr/include instead of /usr/lib/libffi-&libffi-version;/include.
+      </para>
+
+    </sect3>
 
   </sect2>
 
