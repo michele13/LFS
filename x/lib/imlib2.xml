@@ -74,13 +74,13 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="freetype2"/> and
       <xref linkend="libxext"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libpng"/>,
       <xref linkend="libjpeg"/>,
       <xref linkend="libtiff"/>,
@@ -94,10 +94,11 @@
     <title>Installation</title>
 
     <para>
-      Install Imlib2 by running the following commands:
+      Install the package by running the following commands:
     </para>
 
 <screen><userinput>sed -i '/DGifOpen/s:fd:&amp;, NULL:' src/modules/loaders/loader_gif.c &amp;&amp;
+sed -i '/DGifCloseFile/s:gif:&amp;, NULL:' src/modules/loaders/loader_gif.c &amp;&amp;
 sed -i 's/@my_libs@//' imlib2-config.in &amp;&amp;
 ./configure --prefix=/usr \
             --disable-static &amp;&amp;
@@ -113,9 +114,9 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <command>sed -i ...</command>: First command fixes building with recent
-        versions of <application>Giflib</application> and the second one
-        corrects linker flags for libImlib2 usage.
+        <command>sed -i ...</command>: First two commands fix building with
+        recent versions of Giflib and the third one corrects linker flags for
+        libImlib2 usage.
       </para>
 
     </sect3>
