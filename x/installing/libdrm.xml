@@ -73,12 +73,17 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;libdrm/libdrm-&libdrm-version;-pthread_stubs-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
 
-    <bridgehead renderas="sect4">Required</bridgehead>
-    <para>
-      <xref linkend="automake"/>
-    </para>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
@@ -99,8 +104,7 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>sed -e "/pthread-stubs/d" -i configure.ac &amp;&amp;
-autoreconf -fiv &amp;&amp;
+<screen><userinput>patch -p1 -i ../libdrm-&libdrm-version;-pthread_stubs-1.patch &amp;&amp;
 ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
