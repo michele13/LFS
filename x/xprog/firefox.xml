@@ -6,10 +6,10 @@
 
   <!ENTITY firefox-download-http "http://ftp.mozilla.org/pub/mozilla.org/firefox/releases/&firefox-version;/source/firefox-&firefox-version;.source.tar.bz2">
   <!ENTITY firefox-download-ftp  "ftp://ftp.mozilla.org/pub/mozilla.org/firefox/releases/&firefox-version;/source/firefox-&firefox-version;.source.tar.bz2">
-  <!ENTITY firefox-md5sum        "07c515fc487824f107a947d23f420e9d">
+  <!ENTITY firefox-md5sum        "ca37addc3a69ef30247e00375dd93cd0">
   <!ENTITY firefox-size          "137 MB">
-  <!ENTITY firefox-buildsize     "4.7 GB">
-  <!ENTITY firefox-time          "60 SBU">
+  <!ENTITY firefox-buildsize     "4.6 GB">
+  <!ENTITY firefox-time          "43 SBU">
 ]>
 
 <sect1 id="firefox" xreflabel="Firefox-&firefox-version;">
@@ -129,7 +129,9 @@
 # by uncommenting the next line and setting a valid number of CPU cores.
 #mk_add_options MOZ_MAKE_FLAGS="-j1"
 
-# If you have installed wireless-tools comment out this line:
+# If you have installed dbus-glib, and you have installed (or will install)
+# wireless-tools, and you wish to use geolocation web services, comment out
+# this line
 ac_add_options --disable-necko-wifi
 
 # GStreamer is necessary for H.264 video playback in HTML5 Video Player;
@@ -162,9 +164,7 @@ ac_add_options --prefix=/usr
 ac_add_options --enable-application=browser
 
 ac_add_options --disable-crashreporter
-ac_add_options --disable-installer
 ac_add_options --disable-updater
-ac_add_options --disable-debug
 ac_add_options --disable-tests
 
 ac_add_options --enable-optimize
@@ -231,6 +231,12 @@ ln -sfv ../mozilla/plugins /usr/lib/firefox-&firefox-version;</userinput></scree
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para>
+      <command>ac_add_options --disable-necko-wifi</command>: If you remove
+      this command, you will enable opt-in support for geolocation web services
+      when you are using a wifi connection.
+    </para>
 
     <para>
       <command>make -f client.mk ...</command>: Mozilla products are packaged to
