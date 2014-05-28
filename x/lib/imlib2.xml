@@ -97,8 +97,9 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>sed -i '/DGifOpen/s:fd:&amp;, NULL:' src/modules/loaders/loader_gif.c &amp;&amp;
-sed -i '/DGifCloseFile/s:gif:&amp;, NULL:' src/modules/loaders/loader_gif.c &amp;&amp;
+<screen><userinput>sed -e '/DGifOpen/s:fd:&amp;, NULL:' \
+    -e '/DGifCloseFile/s:gif:&amp;, NULL:' \
+    -i src/modules/loaders/loader_gif.c &amp;&amp;
 sed -i 's/@my_libs@//' imlib2-config.in &amp;&amp;
 ./configure --prefix=/usr \
             --disable-static &amp;&amp;
@@ -114,8 +115,8 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <command>sed -i ...</command>: First two commands fix building with
-        recent versions of Giflib and the third one corrects linker flags for
+        <command>sed ...</command>: The first command fixes building with recent
+        versions of Giflib and the second one corrects linker flags for
         libImlib2 usage.
       </para>
 
