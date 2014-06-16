@@ -205,11 +205,10 @@ EOF</userinput></screen>
 
     <note><para>
       If you are compiling <application>Firefox</application> in chroot, prepend
-      <envar>SHELL=/bin/bash</envar> to the first make command below.
+      <envar>SHELL=/bin/bash</envar> to command below.
     </para></note>
 
-<screen><userinput>make -f client.mk &amp;&amp;
-make -C firefox-build-dir/browser/installer</userinput></screen>
+<screen><userinput>make -f client.mk</userinput></screen>
 
     <para>
       This package does not come with a test suite.
@@ -220,16 +219,7 @@ make -C firefox-build-dir/browser/installer</userinput></screen>
       package:
     </para>
 
-<!--<screen role="root"><userinput>rm -rf /usr/lib/firefox-&firefox-version; &amp;&amp;
-mkdir  /usr/lib/firefox-&firefox-version; &amp;&amp;
-
-tar -xvf firefox-build-dir/dist/firefox-&firefox-version;.en-US.linux-$(uname -m).tar.bz2 \
-    -C /usr/lib/firefox-&firefox-version; -\-strip-components=1 &amp;&amp;
-chown -R -v root:root /usr/lib/firefox-&firefox-version; &amp;&amp;
-
-ln -sfv ../lib/firefox-&firefox-version;/firefox /usr/bin &amp;&amp;-->
 <screen role="root"><userinput>make -f client.mk install INSTALL_SDK= &amp;&amp;
-
 mkdir -pv /usr/lib/mozilla/plugins &amp;&amp;
 ln -sfv ../mozilla/plugins /usr/lib/firefox-&firefox-version;</userinput></screen>
 
@@ -252,19 +242,8 @@ ln -sfv ../mozilla/plugins /usr/lib/firefox-&firefox-version;</userinput></scree
       get initial configuration and setup parameters.
     </para>
 
-     <para>
-      <command>make -C firefox-build-dir install</command>: This runs
-      <command>make install</command> in firefox-build-dir.
-    </para>
-
     <para>
-      <command>ln -sfv ... /usr/bin/firefox</command>: This puts a symbolic link
-      to the <command>firefox</command> executable in your <envar>PATH</envar>
-      variable.
-    </para>
-
-    <para>
-      <command>mkdir -p /usr/lib/mozilla/plugins</command>: This checks
+      <command>mkdir -pv /usr/lib/mozilla/plugins</command>: This checks
       that <filename class="directory">/usr/lib/mozilla/plugins</filename>
       exists.
     </para>
