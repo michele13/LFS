@@ -148,9 +148,9 @@ ac_add_options --disable-necko-wifi
 #ac_add_options --enable-system-hunspell
 #ac_add_options --enable-startup-notification
 
-# Uncomment this line if you compiled Cairo with --enable-tee switch and want
-# to use it instead of the bundled one:
-#ac_add_options --enable-system-cairo
+# Comment this line if you do not have Cairo installed (compiled with
+# --enable-tee switch) and want to use the bundled one:
+ac_add_options --enable-system-cairo
 
 # If you have not installed Yasm then uncomment this line:
 #ac_add_options --disable-webm
@@ -220,14 +220,15 @@ make -C firefox-build-dir/browser/installer</userinput></screen>
       package:
     </para>
 
-<screen role="root"><userinput>rm -rf /usr/lib/firefox-&firefox-version; &amp;&amp;
+<!--<screen role="root"><userinput>rm -rf /usr/lib/firefox-&firefox-version; &amp;&amp;
 mkdir  /usr/lib/firefox-&firefox-version; &amp;&amp;
 
 tar -xvf firefox-build-dir/dist/firefox-&firefox-version;.en-US.linux-$(uname -m).tar.bz2 \
-    -C /usr/lib/firefox-&firefox-version; --strip-components=1 &amp;&amp;
+    -C /usr/lib/firefox-&firefox-version; -\-strip-components=1 &amp;&amp;
 chown -R -v root:root /usr/lib/firefox-&firefox-version; &amp;&amp;
 
-ln -sfv ../lib/firefox-&firefox-version;/firefox /usr/bin &amp;&amp;
+ln -sfv ../lib/firefox-&firefox-version;/firefox /usr/bin &amp;&amp;-->
+<screen role="root"><userinput>make -f client.mk install INSTALL_SDK= &amp;&amp;
 
 mkdir -pv /usr/lib/mozilla/plugins &amp;&amp;
 ln -sfv ../mozilla/plugins /usr/lib/firefox-&firefox-version;</userinput></screen>
@@ -249,20 +250,6 @@ ln -sfv ../mozilla/plugins /usr/lib/firefox-&firefox-version;</userinput></scree
       configuration settings to the <command>configure</command> command.
       <command>make</command> uses the <filename>client.mk</filename> file to
       get initial configuration and setup parameters.
-    </para>
-
-    <para>
-      <command>make -C firefox-build-dir/browser/installer</command>: this
-      creates a <application>Firefox</application> tarball similar to the ones
-      you can download from Mozilla.
-    </para>
-
-    <para>
-      <command>tar -xfv firefox-build-dir/dist ...</command>: This untars
-      <application>Firefox</application> in /usr/lib. The
-      <option>--strip-components=1</option> option removes the leading
-      'firefox' directory from the filenames, allowing us to untar it
-      into a versioned directory.
     </para>
 
      <para>
