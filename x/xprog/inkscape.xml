@@ -6,10 +6,10 @@
 
   <!ENTITY inkscape-download-http "&sourceforge-repo;/inkscape/inkscape-&inkscape-version;.tar.bz2">
   <!ENTITY inkscape-download-ftp  " ">
-  <!ENTITY inkscape-md5sum        "47bd8546e42ba396624eef9eb66b9b6c">
+  <!ENTITY inkscape-md5sum        "431cda5cd40cd4fdf2b89db1bdcce61f">
   <!ENTITY inkscape-size          "19 MB">
-  <!ENTITY inkscape-buildsize     "2.0 GB">
-  <!ENTITY inkscape-time          "18 SBU">
+  <!ENTITY inkscape-buildsize     "1.4 GB">
+  <!ENTITY inkscape-time          "12 SBU">
 ]>
 
 <sect1 id="inkscape" xreflabel="Inkscape-&inkscape-version;">
@@ -117,12 +117,7 @@
       commands:
     </para>
 
-<screen><userinput>sed -i src/extension/internal/pdfinput/pdf-parser.cpp \
-    -e "/GfxColorSpace::parse/s|NULL|&amp;, NULL|g"       \
-    -e "/lookupPattern/s:NULL:&amp;, NULL:g"              \
-    -e "/lookupShading/s:NULL:&amp;, NULL:g"              &amp;&amp;
-patch -Np1 -i ../inkscape-&inkscape-version;-gc-1.patch &amp;&amp;
-sed -e "s@commands_toolbox,@commands_toolbox@" -i src/widgets/desktop-widget.h &amp;&amp;
+<screen><userinput>patch -Np1 -i ../inkscape-&inkscape-version;-gc-1.patch &amp;&amp;
 ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
@@ -138,21 +133,6 @@ make</userinput></screen>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/update-icons-and-desktop.xml"/>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <command>sed -i src/extension ...</command>:
-      This <command>sed</command> fixes building with poppler-0.26.0.
-    </para>
-
-    <para>
-      <command>sed -e "s@commands_toolbox,@commands_toolbox@" ...</command>:
-      This <command>sed</command> fixes building with GCC 4.8.
-    </para>
 
   </sect2>
 
