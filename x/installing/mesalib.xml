@@ -8,10 +8,10 @@
   <!ENTITY mesalib-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
   <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
-  <!ENTITY mesalib-md5sum        "093f9b5d077e5f6061dcd7b01b7aa51a">
+  <!ENTITY mesalib-md5sum        "892122b226f218c140ef2db90fe1acb4">
   <!ENTITY mesalib-size          "6.8 MB">
-  <!ENTITY mesalib-buildsize     "300 MB">
-  <!ENTITY mesalib-time          "4.3 SBU">
+  <!ENTITY mesalib-buildsize     "140 MB">
+  <!ENTITY mesalib-time          "3.0 SBU">
 ]>
 
 <sect1 id="mesalib" xreflabel="MesaLib-&mesalib-version;">
@@ -145,10 +145,6 @@
       Install the package by running the following commands:
     </para>
 
-<!--
-      - -disable-dri3 (needs udev? requires dri3proto and libxshmfence)
--->
-
 <screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
             --prefix=/usr \
             --sysconfdir=/etc \
@@ -157,11 +153,11 @@
             --enable-gles2 \
             --enable-openvg \
             --enable-osmesa \
-            --enable-xa \
             --enable-gallium-egl \
             --enable-glx-tls \
             --with-egl-platforms="x11" \
             --with-gallium-drivers="svga,swrast,r600" \
+            --disable-dri \
             --disable-dri3 &amp;&amp;
 make</userinput></screen>
 
@@ -221,11 +217,6 @@ make</userinput></screen>
       <para>
         <parameter>--enable-osmesa</parameter>: This switch enables building of
         the <filename class="libraryfile">libOSMesa</filename> library.
-      </para>
-
-      <para>
-        <parameter>--enable-xa</parameter>: This switch enables building of the
-        XA X Acceleration API (required for VMware 3D Driver).
       </para>
 
       <para>
