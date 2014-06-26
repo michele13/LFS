@@ -10,8 +10,8 @@
   <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
   <!ENTITY mesalib-md5sum        "892122b226f218c140ef2db90fe1acb4">
   <!ENTITY mesalib-size          "6.8 MB">
-  <!ENTITY mesalib-buildsize     "140 MB">
-  <!ENTITY mesalib-time          "3.0 SBU">
+  <!ENTITY mesalib-buildsize     "223 MB">
+  <!ENTITY mesalib-time          "4.1 SBU">
 ]>
 
 <sect1 id="mesalib" xreflabel="MesaLib-&mesalib-version;">
@@ -72,6 +72,12 @@
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-no_libudev-1.patch"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Recommended patch:
@@ -145,20 +151,20 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
-            --prefix=/usr \
-            --sysconfdir=/etc \
-            --enable-texture-float \
-            --enable-gles1 \
-            --enable-gles2 \
-            --enable-openvg \
-            --enable-osmesa \
-            --enable-gallium-egl \
-            --enable-glx-tls \
-            --with-egl-platforms="x11" \
-            --with-gallium-drivers="svga,swrast,r600" \
-            --disable-dri \
-            --disable-dri3 &amp;&amp;
+<screen><userinput>patch -p1 ../MesaLib-&mesalib-version;-no_libudev-1.patch &amp;&amp;
+./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
+             --prefix=/usr \
+             --sysconfdir=/etc \
+             --enable-texture-float \
+             --enable-gles1 \
+             --enable-gles2 \
+             --enable-openvg \
+             --enable-osmesa \
+             --enable-gallium-egl \
+             --enable-glx-tls \
+             --with-egl-platforms="x11" \
+             --with-gallium-drivers="svga,swrast,r600" \
+             --disable-dri3 &amp;&amp;
 make</userinput></screen>
 
     <para>
