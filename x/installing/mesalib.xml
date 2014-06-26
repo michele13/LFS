@@ -155,16 +155,19 @@
 ./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
              --prefix=/usr \
              --sysconfdir=/etc \
+             --disable-dri3 \
              --enable-texture-float \
              --enable-gles1 \
              --enable-gles2 \
              --enable-openvg \
              --enable-osmesa \
+             --enable-xa \
+             --enable-gbm \
              --enable-gallium-egl \
+             --enable-gallium-gbm \
              --enable-glx-tls \
-             --with-egl-platforms="x11" \
-             --with-gallium-drivers="svga,swrast,r600" \
-             --disable-dri3 &amp;&amp;
+             --with-egl-platforms="drm,x11" \
+             --with-gallium-drivers="svga,swrast,r600,nouveau,r300,radeonsi" &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -199,6 +202,11 @@ make</userinput></screen>
       </para>
 
       <para>
+        <parameter>--disable-dri3</parameter>: This switch disables support for
+        DRI3 as it requires libudev.
+      </para>
+
+      <para>
         <parameter>--enable-texture-float</parameter>: This switch enables
         floating-point textures and render buffers. Please consult
         <filename>docs/patents.txt</filename> to see if there are any legal
@@ -226,8 +234,23 @@ make</userinput></screen>
       </para>
 
       <para>
+        <option>--enable-xa</option>: This switch enables building of the XA X
+        Acceleration API (Required for VMware 3D Driver).
+      </para>
+
+      <para>
+        <parameter>--enable-gbm</parameter>: This switch enables building of the
+        Mesa Graphics Buffer Manager library.
+      </para>
+
+      <para>
         <parameter>--enable-gallium-egl</parameter>: This switch enables
         parameteral EGL state tracker for Gallium.
+      </para>
+
+      <para>
+        <parameter>--enable-gallium-gbm</parameter>: This switch enables
+        optional GBM state tracker for Gallium.
       </para>
 
       <para>
@@ -236,7 +259,7 @@ make</userinput></screen>
       </para>
 
       <para>
-        <parameter>--with-egl-platforms="x11"</parameter>: This parameter
+        <parameter>--with-egl-platforms="..."</parameter>: This parameter
         controls for which platforms EGL should be built. Available platforms
         are drm, x11 and wayland.
       </para>
