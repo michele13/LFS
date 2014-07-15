@@ -86,10 +86,6 @@
     -e 's/\(CONFIG_SETKEYCODES\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_SHOWKEY\)=y/# \1 is not set/' -i .config</userinput></screen>
 
-    <para>Disable support for program which will be installed from the less package:</para>
-
-<screen><userinput remap="configure">sed 's/\(CONFIG_LESS\)=y/# \1 is not set/' -i .config</userinput></screen>
-
     <para>Disable support for programs which will be installed from the xz package:</para>
 
 <screen><userinput remap="configure">sed -e 's/\(CONFIG_UNLZMA\)=y/# \1 is not set/' \
@@ -249,6 +245,7 @@ ln -sfv ../../bin/busybox /usr/bin/ipcrm
 ln -sfv ../../bin/busybox /usr/bin/ipcs
 ln -sfv ../../bin/busybox /usr/bin/killall
 ln -sfv ../../bin/busybox /usr/bin/last
+ln -sfv ../../bin/busybox /usr/bin/less
 ln -sfv ../../bin/busybox /usr/bin/logger
 ln -sfv ../../bin/busybox /usr/bin/logname
 ln -sfv ../../bin/busybox /usr/bin/lspci
@@ -375,7 +372,7 @@ EOF</userinput></screen>
         findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser, getopt,
         getty, grep, groups, gunzip, gzip, head, hexdump, hostid, hostname,
         hwclock, id, ifconfig, inetd, insmod, install, ionice, ip, ipcrm, ipcs,
-        kill, killall, klogd, last, linux32, linux64, ln, logger, login,
+        kill, killall, klogd, last, less, linux32, linux64, ln, logger, login,
         logname, losetup, ls, lsmod, lspci, lsusb, man, md5sum, mdev, mkdir,
         mkfifo, mkfs.minix, mknod, mkswap, mktemp, modinfo, modprobe, more,
         mount, mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch,
@@ -1204,6 +1201,16 @@ EOF</userinput></screen>
           system.</para>
           <indexterm zone="ch-system-busybox last">
             <primary sortas="b-last">last</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="less">
+        <term><command>less</command></term>
+        <listitem>
+          <para>Views files or stdin one screenful at a time.</para>
+          <indexterm zone="ch-system-busybox less">
+            <primary sortas="b-less">less</primary>
           </indexterm>
         </listitem>
       </varlistentry>
