@@ -21,7 +21,7 @@
 ## Environmental setup
 # Setup default values for environment
 umask 022
-export PATH="/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"
+PATH="/usr/local/sbin:/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"; export PATH
 
 ## Screen Dimensions
 # Find current screen size
@@ -319,7 +319,7 @@ killproc()
             # Kill the list of pids
             for pid in ${pidlist}; do
 
-                kill -0 "${pid}" 2> /dev/null
+                /bin/kill -0 "${pid}" 2> /dev/null
 
                 if [ "${?}" -ne "0" ]; then
                     # Process is dead, continue to next and assume all is well
@@ -327,13 +327,12 @@ killproc()
                 else
                     kill "${signal}" "${pid}" 2> /dev/null
 
-                    # Wait up to ${delay}/10 seconds to for "${pid}" to 
-                    # terminate in 10ths of a second
+                    # Wait up to 1 second for "${pid}" to terminate
 
                     while [ "${delay}" -ne "0" ]; do
-                        kill -0 "${pid}" 2> /dev/null || piddead="1"
+                        /bin/kill -0 "${pid}" 2> /dev/null || piddead="1"
                         if [ "${piddead}" = "1" ]; then break; fi
-                        sleep 0.1
+                        sleep 1
                         delay="$(( ${delay} - 1 ))"
                     done
 
@@ -343,7 +342,7 @@ killproc()
                         kill "${fallback}" "${pid}" 2> /dev/null
                         sleep 1
                         # Check again, and fail if still running
-                        kill -0 "${pid}" 2> /dev/null && return 1
+                        /bin/kill -0 "${pid}" 2> /dev/null && return 1
                     fi
                 fi
             done
@@ -449,7 +448,7 @@ pidofproc()
 
     # Figure out if all listed PIDs are running.
     for pid in ${pidlist}; do
-        kill -0 ${pid} 2> /dev/null
+        /bin/kill -0 ${pid} 2> /dev/null
 
         if [ "${?}" -eq "0" ]; then
             lpids="${lpids}${pid} "
