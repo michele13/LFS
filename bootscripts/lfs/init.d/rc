@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 ########################################################################
 # Begin rc
 #
@@ -55,7 +55,8 @@ run()
    fi
 
    while true; do
-      read -p "Run ${1} ${2} (Yes/no/continue)? " -n 1 runit
+      echo -n "Run ${1} ${2} (Yes/no/continue)? "
+      read runit
       echo
 
       case ${runit} in
@@ -82,7 +83,7 @@ run()
 }
 
 # Read any local settings/overrides
-[ -r /etc/sysconfig/rc.site ] && source /etc/sysconfig/rc.site
+[ -r /etc/sysconfig/rc.site ] && . /etc/sysconfig/rc.site
 
 DISTRO=${DISTRO:-"Linux From Scratch"}
 DISTRO_CONTACT=${DISTRO_CONTACT:-"lfs-dev@linuxfromscratch.org (Registration required)"}
@@ -94,28 +95,28 @@ trap "" INT QUIT TSTP
 
 [ "${1}" != "" ] && runlevel=${1}
 
-if [ "${runlevel}" == "" ]; then
+if [ "${runlevel}" = "" ]; then
    echo "Usage: ${0} <runlevel>" >&2
    exit 1
 fi
 
 previous=${PREVLEVEL}
-[ "${previous}" == "" ] && previous=N
+[ "${previous}" = "" ] && previous=N
 
 if [ ! -d /etc/rc.d/rc${runlevel}.d ]; then
    log_info_msg "/etc/rc.d/rc${runlevel}.d does not exist.\n" 
    exit 1
 fi
 
-if [ "$runlevel" == "6" -o "$runlevel" == "0" ]; then IPROMPT="no"; fi
+if [ "$runlevel" = "6" -o "$runlevel" = "0" ]; then IPROMPT="no"; fi
 
 # Note: In ${LOGLEVEL:-7}, it is ':' 'dash' '7', not minus 7
-if [ "$runlevel" == "S" ]; then 
-   [ -r /etc/sysconfig/console ] && source /etc/sysconfig/console 
+if [ "$runlevel" = "S" ]; then
+   [ -r /etc/sysconfig/console ] && . /etc/sysconfig/console
    dmesg -n "${LOGLEVEL:-7}" 
 fi
 
-if [ "${IPROMPT}" == "yes" -a "${runlevel}" == "S" ]; then
+if [ "${IPROMPT}" = "yes" -a "${runlevel}" = "S" ]; then
    # The total length of the distro welcome string, without escape codes
    wlen=${wlen:-$(echo "Welcome to ${DISTRO}" | wc -c )}
    welcome_message=${welcome_message:-"Welcome to ${INFO}${DISTRO}${NORMAL}"}
@@ -139,11 +140,11 @@ if [ "${IPROMPT}" == "yes" -a "${runlevel}" == "S" ]; then
 fi
 
 # Make lower case
-[ "${interactive}" == "I" ] && interactive="i"
+[ "${interactive}" = "I" ] && interactive="i"
 [ "${interactive}" != "i" ] && interactive=""
 
 # Read the state file if it exists from runlevel S
-[ -r /var/run/interactive ] && source /var/run/interactive
+[ -r /var/run/interactive ] && . /var/run/interactive
 
 # Attempt to stop all services started by the previous runlevel,
 # and killed in this runlevel
@@ -174,9 +175,9 @@ if [ "${previous}" != "N" ]; then
    done
 fi
 
-if [ "${previous}" == "N" ]; then export IN_BOOT=1; fi
+if [ "${previous}" = "N" ]; then export IN_BOOT=1; fi
 
-if [ "$runlevel" == "6" -a -n "${FASTBOOT}" ]; then
+if [ "$runlevel" = "6" -a -n "${FASTBOOT}" ]; then
    touch /fastboot
 fi
 
@@ -209,14 +210,14 @@ do
 done
 
 # Store interactive variable on switch from runlevel S and remove if not
-if [ "${runlevel}" == "S" -a "${interactive}" == "i" ]; then
+if [ "${runlevel}" = "S" -a "${interactive}" = "i" ]; then
     echo "interactive=\"i\"" > /var/run/interactive
 else
     rm -f /var/run/interactive 2> /dev/null
 fi
 
 # Copy the boot log on initial boot only
-if [ "${previous}" == "N" -a  "${runlevel}" != "S" ]; then
+if [ "${previous}" = "N" -a  "${runlevel}" != "S" ]; then
    cat /run/var/bootlog >> /var/log/boot.log
       
    # Mark the end of boot

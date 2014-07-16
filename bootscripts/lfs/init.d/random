@@ -33,13 +33,13 @@ case "$1" in
          /bin/cat /var/tmp/random-seed >/dev/urandom
       fi
       
-      /bin/dd if=/dev/urandom of=/var/tmp/random-seed count=1 &>/dev/null
+      /bin/dd if=/dev/urandom of=/var/tmp/random-seed count=1 >/dev/null 2>&1
       evaluate_retval
       ;;
 
    stop)
       log_info_msg "Saving random seed..."
-      /bin/dd if=/dev/urandom of=/var/tmp/random-seed count=1 &>/dev/null
+      /bin/dd if=/dev/urandom of=/var/tmp/random-seed count=1 >/dev/null 2>&1
       evaluate_retval
       ;;
 
