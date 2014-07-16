@@ -28,6 +28,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * various other minor changes
 
 * used busybox commands:
+    /bin/ash
     /bin/base64
     /bin/cat
     /bin/chgrp
@@ -112,6 +113,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/modprobe
     /sbin/pivot_root
     /sbin/rmmod
+    /sbin/route
     /sbin/sulogin
     /sbin/swapoff
     /sbin/swapon

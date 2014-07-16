@@ -122,6 +122,7 @@
      chmod -v +s /bin/busybox
 -->
 <screen><userinput remap="install">install -v -m755 busybox /bin
+ln -sfv busybox /bin/ash
 ln -sfv busybox /bin/base64
 ln -sfv busybox /bin/cat
 ln -sfv busybox /bin/chgrp
@@ -206,6 +207,7 @@ ln -sfv ../bin/busybox /sbin/modinfo
 ln -sfv ../bin/busybox /sbin/modprobe
 ln -sfv ../bin/busybox /sbin/pivot_root
 ln -sfv ../bin/busybox /sbin/rmmod
+ln -sfv ../bin/busybox /sbin/route
 ln -sfv ../bin/busybox /sbin/sulogin
 ln -sfv ../bin/busybox /sbin/swapoff
 ln -sfv ../bin/busybox /sbin/swapon
@@ -364,7 +366,7 @@ EOF</userinput></screen>
       <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>acpid, addgroup, adduser, base64, basename, blkid, blockdev,
+        <seg>acpid, addgroup, adduser, ash, base64, basename, blkid, blockdev,
         bunzip2, busybox, bzcat, bzip2, cal, cat, chgrp, chmod, chown, chpasswd,
         chroot, chrt, cksum, cmp, comm, cp, cut, date, dd, delgroup, deluser,
         depmod, df, diff, dirname, dmesg, dnsdomainname, dos2unix, du, echo,
@@ -378,14 +380,14 @@ EOF</userinput></screen>
         mount, mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch,
         pgrep, pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf,
         ps, pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
-        rmdir, rmmod, rtcwake, script, scriptreplay, sed, seq, setarch, setsid,
-        sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
-        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, syslogd,
-        tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top,
-        touch, tr, traceroute, traceroute6, true, tty, umount, uname, unexpand,
-        uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock,
-        wall, watch, wc, wget, which, who, whoami, whois, xargs, yes, and
-        zcat</seg>
+        rmdir, rmmod, route, rtcwake, script, scriptreplay, sed, seq, setarch,
+        setsid, sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split,
+        stat, stty, su, sulogin, sum, swapoff, swapon, switch_root, sync,
+        sysctl, syslogd, tac, tail, tar, tee, telnet, telnetd, test, tftp,
+        tftpd, timeout, top, touch, tr, traceroute, traceroute6, true, tty,
+        umount, uname, unexpand, uniq, unix2dos, unzip, uptime, users, uudecode,
+        uuencode, vi, vlock, wall, watch, wc, wget, which, who, whoami, whois,
+        xargs, yes, and zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -423,6 +425,16 @@ EOF</userinput></screen>
           name.</para>
           <indexterm zone="ch-system-busybox adduser">
             <primary sortas="b-adduser">adduser</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="ash">
+        <term><command>ash</command></term>
+        <listitem>
+          <para>Is a Unix shell interpreter.</para>
+          <indexterm zone="ch-system-busybox ash">
+            <primary sortas="b-ash">ash</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1758,6 +1770,16 @@ EOF</userinput></screen>
           <para>Unloads kernel modules from the running kernel.</para>
           <indexterm zone="ch-system-busybox rmmod">
             <primary sortas="b-rmmod">rmmod</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="route">
+        <term><command>route</command></term>
+        <listitem>
+          <para>Edits kernel routing tables.</para>
+          <indexterm zone="ch-system-busybox route">
+            <primary sortas="b-route">route</primary>
           </indexterm>
         </listitem>
       </varlistentry>
