@@ -113,7 +113,7 @@ for I in $IFACE $INTERFACE_COMPONENTS; do up $I; done
 
 # Set MTU if requested. Check if MTU has a "good" value.
 if test -n "${MTU}"; then
-   if [[ ${MTU} =~ ^[0-9]+$ ]] && [[ $MTU -ge 68 ]] ; then
+   if [ ${MTU} =~ ^[0-9]+$ ] && [ $MTU -ge 68 ] ; then
       for I in $IFACE $INTERFACE_COMPONENTS; do 
          ip link set dev $I mtu $MTU; 
       done
