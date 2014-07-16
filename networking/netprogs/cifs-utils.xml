@@ -8,9 +8,9 @@
   <!ENTITY cifs-utils-wikipedia     "http://en.wikipedia.org/wiki/Server_Message_Block">
   <!ENTITY cifs-utils-download-http "http://ftp.samba.org/pub/linux-cifs/cifs-utils/cifs-utils-&cifs-utils-version;.tar.bz2">
   <!ENTITY cifs-utils-download-ftp  "ftp://ftp.samba.org/pub/linux-cifs/cifs-utils/cifs-utils-&cifs-utils-version;.tar.bz2">
-  <!ENTITY cifs-utils-md5sum        "93697dbc043cb4d5c66e15e281f872e5">
+  <!ENTITY cifs-utils-md5sum        "b7d75b67fd3987952896d27256c7293d">
   <!ENTITY cifs-utils-size          "384 KB">
-  <!ENTITY cifs-utils-buildsize     "2.9 MB">
+  <!ENTITY cifs-utils-buildsize     "3.1 MB">
   <!ENTITY cifs-utils-time          "0.1 SBU">
 ]>
 
@@ -110,7 +110,9 @@
       Install cifs-utils by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-pam \
+            --disable-systemd &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -118,6 +120,20 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--disable-pam</parameter>: Do not build PAM support.
+      </para>
+
+      <para>
+        <parameter>--disable-systemd</parameter>: Disable systemd specific
+        behavior for <command>mount.cifs</command>.
+      </para>
+
+    </sect3>
 
   </sect2>
 
