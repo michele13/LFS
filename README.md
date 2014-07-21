@@ -11,7 +11,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
   patch, sed, tar, and xz with busybox in chapter 5
 * replaced bzip2, coreutils, diffutils, findutils, grep, gzip, inetutils,
   iproute2, kmod, less, man-db, patch, procps-ng, psmisc, sed, shadow, sysklogd,
-  tar, util-linux, and vim with busybox in chapter 6
+  sysvinit, tar, util-linux, and vim with busybox in chapter 6
 * removed autoconf, automake, dejagnu, expect, gettext, libpipeline, libtool,
   tcl, and texinfo
 * disabled native language support
@@ -99,8 +99,10 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/fsck.minix
     /sbin/fstrim
     /sbin/getty
+    /sbin/halt
     /sbin/hwclock
     /sbin/ifconfig
+    /sbin/init
     /sbin/insmod
     /sbin/ip
     /sbin/klogd
@@ -112,8 +114,11 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /sbin/modinfo
     /sbin/modprobe
     /sbin/pivot_root
+    /sbin/poweroff
+    /sbin/reboot
     /sbin/rmmod
     /sbin/route
+    /sbin/runlevel
     /sbin/sulogin
     /sbin/swapoff
     /sbin/swapon
@@ -223,6 +228,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/sbin/fdformat
     /usr/sbin/ftpd
     /usr/sbin/inetd
+    /usr/sbin/killall5
     /usr/sbin/ntpd
     /usr/sbin/readprofile
     /usr/sbin/rtcwake

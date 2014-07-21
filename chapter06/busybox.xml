@@ -193,8 +193,10 @@ ln -sfv ../bin/busybox /sbin/findfs
 ln -sfv ../bin/busybox /sbin/fsck.minix
 ln -sfv ../bin/busybox /sbin/fstrim
 ln -sfv ../bin/busybox /sbin/getty
+ln -sfv ../bin/busybox /sbin/halt
 ln -sfv ../bin/busybox /sbin/hwclock
 ln -sfv ../bin/busybox /sbin/ifconfig
+ln -sfv ../bin/busybox /sbin/init
 ln -sfv ../bin/busybox /sbin/insmod
 ln -sfv ../bin/busybox /sbin/ip
 ln -sfv ../bin/busybox /sbin/klogd
@@ -206,8 +208,11 @@ ln -sfv ../bin/busybox /sbin/mkswap
 ln -sfv ../bin/busybox /sbin/modinfo
 ln -sfv ../bin/busybox /sbin/modprobe
 ln -sfv ../bin/busybox /sbin/pivot_root
+ln -sfv ../bin/busybox /sbin/poweroff
+ln -sfv ../bin/busybox /sbin/reboot
 ln -sfv ../bin/busybox /sbin/rmmod
 ln -sfv ../bin/busybox /sbin/route
+ln -sfv ../bin/busybox /sbin/runlevel
 ln -sfv ../bin/busybox /sbin/sulogin
 ln -sfv ../bin/busybox /sbin/swapoff
 ln -sfv ../bin/busybox /sbin/swapon
@@ -317,6 +322,7 @@ ln -sfv ../../bin/busybox /usr/sbin/deluser
 ln -sfv ../../bin/busybox /usr/sbin/fdformat
 ln -sfv ../../bin/busybox /usr/sbin/ftpd
 ln -sfv ../../bin/busybox /usr/sbin/inetd
+ln -sfv ../../bin/busybox /usr/sbin/killall5
 ln -sfv ../../bin/busybox /usr/sbin/ntpd
 ln -sfv ../../bin/busybox /usr/sbin/readprofile
 ln -sfv ../../bin/busybox /usr/sbin/rtcwake
@@ -372,22 +378,23 @@ EOF</userinput></screen>
         depmod, df, diff, dirname, dmesg, dnsdomainname, dos2unix, du, echo,
         egrep, eject, env, expand, expr, false, fdformat, fdisk, fgrep, find,
         findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser, getopt,
-        getty, grep, groups, gunzip, gzip, head, hexdump, hostid, hostname,
-        hwclock, id, ifconfig, inetd, insmod, install, ionice, ip, ipcrm, ipcs,
-        kill, killall, klogd, last, less, linux32, linux64, ln, logger, login,
-        logname, losetup, ls, lsmod, lspci, lsusb, man, md5sum, mdev, mkdir,
-        mkfifo, mkfs.minix, mknod, mkswap, mktemp, modinfo, modprobe, more,
-        mount, mountpoint, mv, netstat, nice, nohup, ntpd, od, passwd, patch,
-        pgrep, pidof, ping, ping6, pivot_root, pkill, pmap, printenv, printf,
-        ps, pstree, pwd, pwdx, readlink, readprofile, realpath, renice, rev, rm,
-        rmdir, rmmod, route, rtcwake, script, scriptreplay, sed, seq, setarch,
-        setsid, sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split,
-        stat, stty, su, sulogin, sum, swapoff, swapon, switch_root, sync,
-        sysctl, syslogd, tac, tail, tar, tee, telnet, telnetd, test, tftp,
-        tftpd, timeout, top, touch, tr, traceroute, traceroute6, true, tty,
-        umount, uname, unexpand, uniq, unix2dos, unzip, uptime, users, uudecode,
-        uuencode, vi, vlock, wall, watch, wc, wget, which, who, whoami, whois,
-        xargs, yes, and zcat</seg>
+        getty, grep, groups, gunzip, gzip, halt, head, hexdump, hostid,
+        hostname, hwclock, id, ifconfig, inetd, init, insmod, install, ionice,
+        ip, ipcrm, ipcs, kill, killall, killall5, klogd, last, less, linux32,
+        linux64, ln, logger, login, logname, losetup, ls, lsmod, lspci, lsusb,
+        man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap, mktemp,
+        modinfo, modprobe, more, mount, mountpoint, mv, netstat, nice, nohup,
+        ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pivot_root, pkill,
+        pmap, poweroff, printenv, printf, ps, pstree, pwd, pwdx, readlink,
+        readprofile, realpath, reboot, renice, rev, rm, rmdir, rmmod, route,
+        rtcwake, runlevel, script, scriptreplay, sed, seq, setarch, setsid,
+        sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
+        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, syslogd,
+        tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top,
+        touch, tr, traceroute, traceroute6, true, tty, umount, uname, unexpand,
+        uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock,
+        wall, watch, wc, wget, which, who, whoami, whois, xargs, yes, and
+        zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -1032,6 +1039,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="halt">
+        <term><command>halt</command></term>
+        <listitem>
+          <para>Halts the system.</para>
+          <indexterm zone="ch-system-busybox halt">
+            <primary sortas="b-halt">halt</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="head">
         <term><command>head</command></term>
         <listitem>
@@ -1114,6 +1131,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="init">
+        <term><command>init</command></term>
+        <listitem>
+          <para>Is the first process started during boot.</para>
+          <indexterm zone="ch-system-busybox init">
+            <primary sortas="b-init">init</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="insmod">
         <term><command>insmod</command></term>
         <listitem>
@@ -1192,6 +1219,16 @@ EOF</userinput></screen>
           <para>Sends a signal to given processes.</para>
           <indexterm zone="ch-system-busybox killall">
             <primary sortas="b-killall">killall</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="killall5">
+        <term><command>killall5</command></term>
+        <listitem>
+          <para>Send a signal to all processes outside current session.</para>
+          <indexterm zone="ch-system-busybox killall5">
+            <primary sortas="b-killall5">killall5</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1634,6 +1671,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="poweroff">
+        <term><command>poweroff</command></term>
+        <listitem>
+          <para>Halts the system and shuts off power.</para>
+          <indexterm zone="ch-system-busybox poweroff">
+            <primary sortas="b-poweroff">poweroff</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="printenv">
         <term><command>printenv</command></term>
         <listitem>
@@ -1724,6 +1771,16 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="reboot">
+        <term><command>reboot</command></term>
+        <listitem>
+          <para>Reboots the system.</para>
+          <indexterm zone="ch-system-busybox reboot">
+            <primary sortas="b-reboot">reboot</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="renice">
         <term><command>renice</command></term>
         <listitem>
@@ -1790,6 +1847,16 @@ EOF</userinput></screen>
           <para>Enters a system sleep state until specified wakeup time.</para>
           <indexterm zone="ch-system-busybox rtcwake">
             <primary sortas="b-rtcwake">rtcwake</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="runlevel">
+        <term><command>runlevel</command></term>
+        <listitem>
+          <para>Finds the current and previous system runlevel.</para>
+          <indexterm zone="ch-system-busybox runlevel">
+            <primary sortas="b-runlevel">runlevel</primary>
           </indexterm>
         </listitem>
       </varlistentry>

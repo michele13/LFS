@@ -81,7 +81,6 @@ rc0: files
 	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rc0.d/S65swap
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S70mountfs
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S90localnet
-	ln -sf ../init.d/halt        ${EXTDIR}/rc.d/rc0.d/S99halt
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/K45random
 
 rc1: files
