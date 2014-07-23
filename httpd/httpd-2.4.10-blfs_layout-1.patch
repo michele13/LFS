@@ -1,15 +1,17 @@
 Submitted By:            Armin K. <krejzi at email dot com>
 Date:                    2013-04-17
 Initial Package Version: 2.4.4
+Comment:                 rediffed for version 2.4.10 (Fernando de Oliveira
+                         <famobr at yahoo dot com dot br>)
 Upstream Status:         Not applicable
 Origin:                  Self
 Description:             Patches the build system to install stuff into BLFS
                          specific paths, and adjusts proper permissions
                          on installed files and directories.
 
-diff -Naur a/config.layout b/config.layout
---- a/config.layout	2012-04-17 16:01:41.000000000 +0200
-+++ b/config.layout	2013-04-17 18:05:34.731598732 +0200
+diff -Naur httpd-2.4.10.orig/config.layout httpd-2.4.10/config.layout
+--- httpd-2.4.10.orig/config.layout	2012-04-17 11:01:41.000000000 -0300
++++ httpd-2.4.10/config.layout	2014-07-23 09:06:17.325921549 -0300
 @@ -9,6 +9,30 @@
  ##    (This may become a configurable parameter at some point.)
  ##
@@ -41,10 +43,10 @@ diff -Naur a/config.layout b/config.layout
  #   Classical Apache path layout.
  <Layout Apache>
      prefix:        /usr/local/apache2
-diff -Naur a/configure b/configure
---- a/configure	2013-02-18 21:28:23.000000000 +0100
-+++ b/configure	2013-04-17 18:04:12.603612701 +0200
-@@ -32270,17 +32270,17 @@
+diff -Naur httpd-2.4.10.orig/configure httpd-2.4.10/configure
+--- httpd-2.4.10.orig/configure	2014-07-15 14:15:03.000000000 -0300
++++ httpd-2.4.10/configure	2014-07-23 09:06:17.337921270 -0300
+@@ -33031,17 +33031,17 @@
  
  
  cat >>confdefs.h <<_ACEOF
@@ -65,10 +67,10 @@ diff -Naur a/configure b/configure
  _ACEOF
  
  
-diff -Naur a/configure.in b/configure.in
---- a/configure.in	2013-01-09 17:39:05.000000000 +0100
-+++ b/configure.in	2013-04-17 18:04:12.603612701 +0200
-@@ -818,11 +818,11 @@
+diff -Naur httpd-2.4.10.orig/configure.in httpd-2.4.10/configure.in
+--- httpd-2.4.10.orig/configure.in	2014-02-20 16:36:12.000000000 -0300
++++ httpd-2.4.10/configure.in	2014-07-23 09:06:17.338921244 -0300
+@@ -826,11 +826,11 @@
  echo $MODLIST | $AWK -f $srcdir/build/build-modules-c.awk > modules.c
  
  APR_EXPAND_VAR(ap_prefix, $prefix)
@@ -83,9 +85,9 @@ diff -Naur a/configure.in b/configure.in
  	[Location of the MIME types config file, relative to the Apache root directory])
  
  perlbin=`$ac_aux_dir/PrintPath perl`
-diff -Naur a/docs/conf/httpd.conf.in b/docs/conf/httpd.conf.in
---- a/docs/conf/httpd.conf.in	2012-11-08 04:05:38.000000000 +0100
-+++ b/docs/conf/httpd.conf.in	2013-04-17 18:04:12.606946089 +0200
+diff -Naur httpd-2.4.10.orig/docs/conf/httpd.conf.in httpd-2.4.10/docs/conf/httpd.conf.in
+--- httpd-2.4.10.orig/docs/conf/httpd.conf.in	2012-11-08 00:05:38.000000000 -0300
++++ httpd-2.4.10/docs/conf/httpd.conf.in	2014-07-23 09:06:17.339921217 -0300
 @@ -28,7 +28,7 @@
  # same ServerRoot for multiple httpd daemons, you will need to change at
  # least PidFile.
@@ -149,9 +151,9 @@ diff -Naur a/docs/conf/httpd.conf.in b/docs/conf/httpd.conf.in
  </IfModule>
  
  <IfModule alias_module>
-diff -Naur a/include/ap_config_layout.h.in b/include/ap_config_layout.h.in
---- a/include/ap_config_layout.h.in	2006-07-11 22:55:32.000000000 +0200
-+++ b/include/ap_config_layout.h.in	2013-04-17 18:04:12.606946089 +0200
+diff -Naur httpd-2.4.10.orig/include/ap_config_layout.h.in httpd-2.4.10/include/ap_config_layout.h.in
+--- httpd-2.4.10.orig/include/ap_config_layout.h.in	2006-07-11 17:55:32.000000000 -0300
++++ httpd-2.4.10/include/ap_config_layout.h.in	2014-07-23 09:06:17.340921189 -0300
 @@ -60,5 +60,6 @@
  #define DEFAULT_REL_LOGFILEDIR "@rel_logfiledir@"
  #define DEFAULT_EXP_PROXYCACHEDIR "@exp_proxycachedir@"
@@ -159,9 +161,9 @@ diff -Naur a/include/ap_config_layout.h.in b/include/ap_config_layout.h.in
 +#define DEFAULT_PIDLOG "/var/run/httpd/httpd.pid"
  
  #endif /* AP_CONFIG_LAYOUT_H */
-diff -Naur a/include/httpd.h b/include/httpd.h
---- a/include/httpd.h	2013-01-28 14:09:39.000000000 +0100
-+++ b/include/httpd.h	2013-04-17 18:04:12.606946089 +0200
+diff -Naur httpd-2.4.10.orig/include/httpd.h httpd-2.4.10/include/httpd.h
+--- httpd-2.4.10.orig/include/httpd.h	2014-07-12 15:19:16.000000000 -0300
++++ httpd-2.4.10/include/httpd.h	2014-07-23 09:06:17.341921161 -0300
 @@ -109,7 +109,7 @@
  #define DOCUMENT_LOCATION  HTTPD_ROOT "/docs"
  #else
@@ -171,9 +173,9 @@ diff -Naur a/include/httpd.h b/include/httpd.h
  #endif
  #endif /* DOCUMENT_LOCATION */
  
-diff -Naur a/Makefile.in b/Makefile.in
---- a/Makefile.in	2012-12-17 12:50:41.000000000 +0100
-+++ b/Makefile.in	2013-04-17 18:04:12.606946089 +0200
+diff -Naur httpd-2.4.10.orig/Makefile.in httpd-2.4.10/Makefile.in
+--- httpd-2.4.10.orig/Makefile.in	2012-12-17 08:50:41.000000000 -0300
++++ httpd-2.4.10/Makefile.in	2014-07-23 09:06:17.341921161 -0300
 @@ -91,9 +91,9 @@
  	    done ; \
  	done ; \
@@ -239,9 +241,9 @@ diff -Naur a/Makefile.in b/Makefile.in
  	  cd $(DESTDIR)$(manualdir) && find . -name ".svn" -type d -print | xargs rm -rf 2>/dev/null || true; \
  	fi
  
-diff -Naur a/support/apachectl.in b/support/apachectl.in
---- a/support/apachectl.in	2012-02-01 04:47:28.000000000 +0100
-+++ b/support/apachectl.in	2013-04-17 18:04:12.606946089 +0200
+diff -Naur httpd-2.4.10.orig/support/apachectl.in httpd-2.4.10/support/apachectl.in
+--- httpd-2.4.10.orig/support/apachectl.in	2012-02-01 00:47:28.000000000 -0300
++++ httpd-2.4.10/support/apachectl.in	2014-07-23 09:06:17.342921133 -0300
 @@ -45,8 +45,8 @@
  HTTPD='@exp_sbindir@/@progname@'
  #
@@ -253,9 +255,9 @@ diff -Naur a/support/apachectl.in b/support/apachectl.in
  fi
  #
  # a command that outputs a formatted text version of the HTML at the
-diff -Naur a/support/Makefile.in b/support/Makefile.in
---- a/support/Makefile.in	2012-12-11 11:37:25.000000000 +0100
-+++ b/support/Makefile.in	2013-04-17 18:04:12.610279475 +0200
+diff -Naur httpd-2.4.10.orig/support/Makefile.in httpd-2.4.10/support/Makefile.in
+--- httpd-2.4.10.orig/support/Makefile.in	2012-12-11 07:37:25.000000000 -0300
++++ httpd-2.4.10/support/Makefile.in	2014-07-23 09:06:17.342921133 -0300
 @@ -16,23 +16,23 @@
  	@test -d $(DESTDIR)$(bindir) || $(MKINSTALLDIRS) $(DESTDIR)$(bindir)
  	@test -d $(DESTDIR)$(sbindir) || $(MKINSTALLDIRS) $(DESTDIR)$(sbindir)
