@@ -11,35 +11,34 @@
   <title>Setting Up the Environment</title>
 
   <para>Set up a good working environment by creating two new startup files
-  for the <command>bash</command> shell. While logged in as user
+  for the <command>ash</command> shell. While logged in as user
   <systemitem class="username">lfs</systemitem>, issue the following command
-  to create a new <filename>.bash_profile</filename>:</para>
+  to create a new <filename>.profile</filename>:</para>
 
-<screen><userinput>cat &gt; ~/.bash_profile &lt;&lt; "EOF"
-<literal>exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/bash</literal>
+<screen><userinput>cat &gt; ~/.profile &lt;&lt; "EOF"
+<literal>exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' ENV=~/.ashrc /bin/ash</literal>
 EOF</userinput></screen>
 
   <para>When logged on as user <systemitem class="username">lfs</systemitem>,
   the initial shell is usually a <emphasis>login</emphasis> shell which reads
   the <filename>/etc/profile</filename> of the host (probably containing some
-  settings and environment variables) and then <filename>.bash_profile</filename>.
-  The <command>exec env -i.../bin/bash</command> command in the
-  <filename>.bash_profile</filename> file replaces the running shell with a new
+  settings and environment variables) and then <filename>.profile</filename>.
+  The <command>exec env -i.../bin/ash</command> command in the
+  <filename>.profile</filename> file replaces the running shell with a new
   one with a completely empty environment, except for the <envar>HOME</envar>,
-  <envar>TERM</envar>, and <envar>PS1</envar> variables. This ensures that no
+  <envar>TERM</envar>, <envar>PS1</envar>, and <envar>ENV</envar> variables. This ensures that no
   unwanted and potentially hazardous environment variables from the host system
   leak into the build environment. The technique used here achieves the goal of
   ensuring a clean environment.</para>
 
   <para>The new instance of the shell is a <emphasis>non-login</emphasis>
   shell, which does not read the <filename>/etc/profile</filename> or
-  <filename>.bash_profile</filename> files, but rather reads the
-  <filename>.bashrc</filename> file instead. Create the
-  <filename>.bashrc</filename> file now:</para>
+  <filename>.profile</filename> files, but rather reads the
+  <filename>.ashrc</filename> file instead. Create the
+  <filename>.ashrc</filename> file now:</para>
 
-<screen><userinput>cat &gt; ~/.bashrc &lt;&lt; "EOF"
-<literal>set +h
-umask 022
+<screen><userinput>cat &gt; ~/.ashrc &lt;&lt; "EOF"
+<literal>umask 022
 LFS=/mnt/lfs
 LC_ALL=POSIX
 LFS_TGT=$(uname -m)-lfs-linux-gnu
@@ -47,6 +46,8 @@ PATH=/tools/bin:/tools/usr/bin:/bin:/usr/bin
 MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo`
 export LFS LC_ALL LFS_TGT PATH MAKEFLAGS</literal>
 EOF</userinput></screen>
+
+<!-- *unsupported, use hash -r to clear the hash table*
 
   <para>The <command>set +h</command> command turns off
   <command>bash</command>'s hash function. Hashing is ordinarily a useful
@@ -59,6 +60,8 @@ EOF</userinput></screen>
   <filename class="directory">$LFS/tools</filename> as soon as they are
   available without remembering a previous version of the same program in a
   different location.</para>
+
+-->
 
   <para>Setting the user file-creation mask (umask) to 022 ensures that newly
   created files and directories are only writable by their owner, but are
@@ -83,13 +86,13 @@ EOF</userinput></screen>
   <para>By putting <filename class="directory">/tools/bin</filename> ahead of the
   standard <envar>PATH</envar>, all the programs installed in <xref
   linkend="chapter-temporary-tools"/> are picked up by the shell immediately after
-  their installation. This, combined with turning off hashing, limits the risk
+  their installation. This, combined with <command>hash -r</command>, limits the risk
   that old programs are used from the host when the same programs are available in
   the chapter 5 environment.</para>
 
   <para>Finally, to have the environment fully prepared for building the
   temporary tools, source the just-created user profile:</para>
 
-<screen><userinput>source ~/.bash_profile</userinput></screen>
+<screen><userinput>source ~/.profile</userinput></screen>
 
 </sect1>
