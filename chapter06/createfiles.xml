@@ -39,23 +39,14 @@
   replaced by real files throughout the course of this chapter after the software
   has been installed:</para>
 
-<screen><userinput>ln -sv /tools/bin/{bash,cat,echo,pwd,stty} /bin
+<screen><userinput>ln -sv /tools/bin/cat /tools/bin/echo /tools/bin/pwd /tools/bin/sh /tools/bin/stty /bin
 ln -sv /tools/bin/perl /usr/bin
-ln -sv /tools/lib/libgcc_s.so{,.1} /usr/lib
-ln -sv /tools/lib/libstdc++.so{,.6} /usr/lib
-sed 's/tools/usr/' /tools/lib/libstdc++.la > /usr/lib/libstdc++.la
-ln -sv bash /bin/sh</userinput></screen>
+ln -sv /tools/lib/libgcc_s.so /tools/lib/libgcc_s.so.1 /usr/lib
+ln -sv /tools/lib/libstdc++.so /tools/lib/libstdc++.so.6 /usr/lib
+sed 's/tools/usr/' /tools/lib/libstdc++.la > /usr/lib/libstdc++.la</userinput></screen>
 
   <variablelist>
     <title>The purpose of each link:</title>
-
-    <varlistentry>
-      <term><parameter><filename>/bin/bash</filename></parameter></term>
-      <listitem>
-        <para>Many <command>bash</command> scripts specify
-        <filename>/bin/bash</filename>.</para>
-      </listitem>
-    </varlistentry>
 
     <varlistentry>
       <term><parameter><filename>/bin/cat</filename></parameter></term>
@@ -77,6 +68,13 @@ ln -sv bash /bin/sh</userinput></screen>
       <listitem>
         <para>Some <command>configure</command> scripts, particularly Glibc's,
         have this pathname hard-coded.</para>
+      </listitem>
+    </varlistentry>
+
+    <varlistentry>
+      <term><parameter><filename>/bin/sh</filename></parameter></term>
+      <listitem>
+        <para>Many shell scripts hard-code <filename>/bin/sh</filename>.</para>
       </listitem>
     </varlistentry>
 
@@ -120,13 +118,6 @@ ln -sv bash /bin/sh</userinput></screen>
       </listitem>
     </varlistentry>
 
-    <varlistentry>
-      <term><parameter><filename>/bin/sh</filename></parameter></term>
-      <listitem>
-        <para>Many shell scripts hard-code <filename>/bin/sh</filename>.</para>
-      </listitem>
-    </varlistentry>
-
   </variablelist>
 
   <para>Historically, Linux maintains a list of the mounted file systems in the
@@ -147,9 +138,9 @@ ln -sv bash /bin/sh</userinput></screen>
   <para>Create the <filename>/etc/passwd</filename>, <filename>/etc/group</filename>,
   and <filename>/etc/shadow</filename> files by running the following commands:</para>
 
-<screen><userinput>touch /etc/{passwd,group,shadow}
+<screen><userinput>touch /etc/passwd /etc/group /etc/shadow
 chmod -v 0400 /etc/shadow
-adduser -u 0 -g root -h /root -s /bin/bash -H -D root
+adduser -u 0 -g root -h /root -s /bin/ash -H -D root
 adduser -u 1 -g bin -h /dev/null -s /bin/false -H -D bin
 addgroup -g 2 sys
 addgroup -g 3 kmem
@@ -183,22 +174,6 @@ adduser -u 99 -G nogroup -g 'Unprivileged User' -h /dev/null -s /bin/false -H -D
   administrator since well-written programs do not depend on GID numbers, but
   rather use the group's name.</para>
 
-  <para>To remove the <quote>I have no name!</quote> prompt, start a new
-  shell. Since a full Glibc was installed in <xref
-  linkend="chapter-temporary-tools"/> and the
-  <filename>/etc/passwd</filename> and <filename>/etc/group</filename>
-  files have been created, user name and group name resolution will now
-  work:</para>
-
-<screen role="nodump"><userinput>exec /tools/bin/bash --login +h</userinput></screen>
-
-  <para>Note the use of the <parameter>+h</parameter> directive. This tells
-  <command>bash</command> not to use its internal path hashing. Without this
-  directive, <command>bash</command> would remember the paths to binaries it has
-  executed. To ensure the use of the newly compiled binaries as soon as they are
-  installed, the <parameter>+h</parameter> directive will be used for the duration
-  of this chapter.</para>
-
   <para>The <command>login</command>, <command>agetty</command>, and
   <command>init</command> programs (and others) use a number of log
   files to record information such as who was logged into the system and
@@ -206,7 +181,7 @@ adduser -u 99 -G nogroup -g 'Unprivileged User' -h /dev/null -s /bin/false -H -D
   do not already exist. Initialize the log files and give them
   proper permissions:</para>
 
-<screen><userinput>touch /var/log/{btmp,lastlog,wtmp}
+<screen><userinput>touch /var/log/btmp /var/log/lastlog /var/log/wtmp
 chgrp -v utmp /var/log/lastlog
 chmod -v 664  /var/log/lastlog
 chmod -v 600  /var/log/btmp</userinput></screen>

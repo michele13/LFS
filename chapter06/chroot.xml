@@ -21,7 +21,7 @@
     PS1='\u:\w\$ ' \
     PATH=/bin:/usr/bin:/sbin:/usr/sbin:/tools/bin:/tools/usr/bin:/tools/sbin:/tools/usr/sbin \
     MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo` \
-    /tools/bin/bash --login +h</userinput></screen>
+    /tools/bin/ash -l</userinput></screen>
 
   <para>The <parameter>-i</parameter> option given to the <command>env</command>
   command will clear all variables of the chroot environment. After that, only
@@ -42,8 +42,8 @@
   in the <envar>PATH</envar>. This means that a temporary tool will no longer be
   used once its final version is installed. This occurs when the shell does not
   <quote>remember</quote> the locations of executed binaries&mdash;for this
-  reason, hashing is switched off by passing the <parameter>+h</parameter> option
-  to <command>bash</command>.</para>
+  reason, the hash table is cleared by using the <command>hash -r</command>
+  command.</para>
 
   <para>Note that the <command>bash</command> prompt will say
   <computeroutput>I have no name!</computeroutput> This is normal because the
