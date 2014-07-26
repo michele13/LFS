@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY bash-homepage      "http://www.gnu.org/software/bash/">
+  <!ENTITY bash-wikipedia     "http://en.wikipedia.org/wiki/Bash_&#40;Unix_shell&#41;">
+  <!ENTITY bash-download-http "http://ftp.gnu.org/gnu/bash/bash-&bash-version;.tar.gz">
+  <!ENTITY bash-download-ftp  "ftp://ftp.gnu.org/gnu/bash/bash-&bash-version;.tar.gz">
+  <!ENTITY bash-md5sum        "81348932d5da294953e15d4814c74dd1">
+  <!ENTITY bash-size          "7.6 MB">
+  <!ENTITY bash-buildsize     "45 MB">
+  <!ENTITY bash-time          "1.6 SBU">
+]>
+
+<sect1 id="bash" xreflabel="bash-&bash-version;">
+  <?dbhtml filename="bash.html" ?>
+
+  <title>bash-&bash-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The bash package contains the Bourne-Again SHell.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&bash-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&bash-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&bash-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&bash-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &bash-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &bash-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &bash-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &bash-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="readline"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --bindir=/bin \
+            --disable-nls \
+            --without-bash-malloc \
+            --with-installed-readline &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--without-bash-malloc</parameter>: This option turns off the
+        use of bash's memory allocation function which is known to cause
+        segmentation faults. By turning this option off, bash will use the
+        memory allocation functions from Glibc which are more stable.
+      </para>
+
+      <para>
+        <parameter>--with-installed-readline</parameter>: This option tells bash
+        to use the readline library that is already installed on the system
+        rather than using its own readline version.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="bash">
+      <primary sortas="b-bash">bash</primary>
+    </indexterm>
+    <indexterm zone="bash">
+      <primary sortas="b-bashbug">bashbug</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/bin/bash
+/bin/bashbug
+/usr/share/doc/bash/
+/usr/share/man/man1/bash.1
+/usr/share/man/man1/bashbug.1</literal></screen>
+
+  </sect2>
+
+</sect1>
