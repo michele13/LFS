@@ -1,0 +1,79 @@
+Submitted By:            Igor Živković
+Date:                    2014-07-25
+Initial Package Version: 2.24
+Upstream Status:         Unknown
+Origin:                  sabotage
+Description:             Fixes opcodes/configure (BFD_VERSION) on BusyBox ash
+
+diff -Naur binutils-2.24.orig/binutils/configure binutils-2.24/binutils/configure
+--- binutils-2.24.orig/binutils/configure	2013-11-04 16:33:37.000000000 +0100
++++ binutils-2.24/binutils/configure	2014-07-25 16:14:30.557965845 +0200
+@@ -3238,7 +3238,7 @@
+ fi
+ 
+ 
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ am__api_version='1.11'
+ 
+ # Find a good install program.  We prefer a C program (faster),
+diff -Naur binutils-2.24.orig/gas/configure binutils-2.24/gas/configure
+--- binutils-2.24.orig/gas/configure	2013-11-04 16:33:37.000000000 +0100
++++ binutils-2.24/gas/configure	2014-07-25 16:14:30.545966345 +0200
+@@ -3221,7 +3221,7 @@
+ fi
+ 
+ 
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ am__api_version='1.11'
+ 
+ # Find a good install program.  We prefer a C program (faster),
+diff -Naur binutils-2.24.orig/gprof/configure binutils-2.24/gprof/configure
+--- binutils-2.24.orig/gprof/configure	2013-11-04 16:33:39.000000000 +0100
++++ binutils-2.24/gprof/configure	2014-07-25 16:14:30.548966220 +0200
+@@ -3147,7 +3147,7 @@
+ fi
+ 
+ 
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ am__api_version='1.11'
+ 
+ # Find a good install program.  We prefer a C program (faster),
+diff -Naur binutils-2.24.orig/ld/configure binutils-2.24/ld/configure
+--- binutils-2.24.orig/ld/configure	2013-11-04 16:33:39.000000000 +0100
++++ binutils-2.24/ld/configure	2014-07-25 16:14:30.567965427 +0200
+@@ -3556,7 +3556,7 @@
+ fi
+ 
+ 
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ am__api_version='1.11'
+ 
+ # Find a good install program.  We prefer a C program (faster),
+diff -Naur binutils-2.24.orig/opcodes/configure binutils-2.24/opcodes/configure
+--- binutils-2.24.orig/opcodes/configure	2013-11-04 16:33:40.000000000 +0100
++++ binutils-2.24/opcodes/configure	2014-07-25 16:14:30.535966763 +0200
+@@ -3216,7 +3216,7 @@
+ # We currently only use the version number for the name of any shared
+ # library.  For user convenience, we always use the same version
+ # number that BFD is using.
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ 
+ am__api_version='1.11'
+ 
+diff -Naur binutils-2.24.orig/opcodes/configure.in binutils-2.24/opcodes/configure.in
+--- binutils-2.24.orig/opcodes/configure.in	2013-11-04 16:33:40.000000000 +0100
++++ binutils-2.24/opcodes/configure.in	2014-07-25 16:14:30.536966721 +0200
+@@ -28,7 +28,7 @@
+ # library.  For user convenience, we always use the same version
+ # number that BFD is using.
+ changequote(,)dnl
+-BFD_VERSION=`${srcdir}/../bfd/configure --version | sed -n -e '1s,.* ,,p'`
++BFD_VERSION=`sed -n 's/AC_INIT(\[bfd\], *\[\([0-9.]*\)\])/\1/p' <${srcdir}/../bfd/configure.in`
+ changequote([,])dnl
+ 
+ AM_INIT_AUTOMAKE(opcodes, ${BFD_VERSION})
