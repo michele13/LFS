@@ -70,12 +70,58 @@
     different permissions may be needed for them.</para>
 
     <sect3>
-      <title>~/.bashrc</title>
+      <title>~/.profile</title>
 
-    <para>Here is a base <filename>~/.bashrc</filename>:</para>
+      <para>Here is a base <filename>~/.profile</filename>:</para>
 
-<screen><userinput>cat &gt; ~/.bashrc &lt;&lt; "EOF"
-<literal># Begin ~/.bashrc
+<screen><userinput>cat &gt; ~/.profile &lt;&lt; "EOF"
+<literal># Begin ~/.profile
+# Written for Beyond Linux From Scratch
+# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
+# updated by Bruce Dubbs &lt;bdubbs@linuxfromscratch.org&gt;
+
+# Personal environment variables and startup programs.
+
+# Personal aliases and functions should go in ~/.ashrc.  System wide
+# environment variables and startup programs are in /etc/profile.
+
+append () {
+  # First remove the directory
+  local IFS=':'
+  local NEWPATH
+  for DIR in $PATH; do
+     if [ "$DIR" != "$1" ]; then
+       NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
+     fi
+  done
+
+  # Then append the directory
+  PATH=$NEWPATH:$1 ; export PATH
+}
+
+if [ -f "$HOME/.ashrc" ] ; then
+  . $HOME/.ashrc
+fi
+
+if [ -d "$HOME/bin" ] ; then
+  append $HOME/bin
+fi
+
+unset append
+
+# End ~/.profile</literal>
+EOF
+install -v -m600 ~/.profile /etc/skel</userinput></screen>
+
+    </sect3>
+
+    <sect3>
+      <title>~/.ashrc</title>
+
+    <para>Here is a base <filename>~/.ashrc</filename>:</para>
+
+<screen><userinput>cat &gt; ~/.ashrc &lt;&lt; "EOF"
+<literal># Begin ~/.ashrc
 # Written for Beyond Linux From Scratch
 # by James Robertson &lt;jameswrobertson@earthlink.net&gt;
 
@@ -86,6 +132,8 @@
 # programs are in /etc/profile.  System wide aliases and functions are
 # in /etc/bashrc.
 
+# NOTE: aliases are an extension to the POSIX:2001 specification and
+# are therefore bashisms
 # Provides colored /bin/ls command.  Used in conjunction
 # with code in /etc/profile.
 
@@ -99,86 +147,18 @@ alias ls='ls --color=auto'
 NORMAL="\[\e[0m\]"
 RED="\[\e[1;31m\]"
 GREEN="\[\e[1;32m\]"
-if [[ $EUID == 0 ]] ; then
+if [ $(id -u) -eq 0 ] ; then
   PS1="$RED\u [ $NORMAL\w$RED ]# $NORMAL"
 else
   PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
 fi
 
-export EDITOR=vi
-export MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo`
+EDITOR=vi ; export EDITOR
+MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo` ; export MAKEFLAGS
 
-# End ~/.bashrc</literal>
+# End ~/.ashrc</literal>
 EOF
-install -v -m600 ~/.bashrc /etc/skel</userinput></screen>
-
-    </sect3>
-
-    <sect3>
-      <title>~/.bash_profile</title>
-
-      <para>Here is a base <filename>~/.bash_profile</filename>:</para>
-
-<screen><userinput>cat &gt; ~/.bash_profile &lt;&lt; "EOF"
-<literal># Begin ~/.bash_profile
-# Written for Beyond Linux From Scratch
-# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
-# updated by Bruce Dubbs &lt;bdubbs@linuxfromscratch.org&gt;
-
-# Personal environment variables and startup programs.
-
-# Personal aliases and functions should go in ~/.bashrc.  System wide
-# environment variables and startup programs are in /etc/profile.
-# System wide aliases and functions are in /etc/bashrc.
-
-append () {
-  # First remove the directory
-  local IFS=':'
-  local NEWPATH
-  for DIR in $PATH; do
-     if [ "$DIR" != "$1" ]; then
-       NEWPATH=${NEWPATH:+$NEWPATH:}$DIR
-     fi
-  done
-
-  # Then append the directory
-  export PATH=$NEWPATH:$1
-}
-
-if [ -f "$HOME/.bashrc" ] ; then
-  source $HOME/.bashrc
-fi
-
-if [ -d "$HOME/bin" ] ; then
-  append $HOME/bin
-fi
-
-unset append
-
-# End ~/.bash_profile</literal>
-EOF
-install -v -m600 ~/.bash_profile /etc/skel</userinput></screen>
-
-    </sect3>
-
-    <sect3>
-      <title>~/.bash_logout</title>
-
-      <para>This is an empty <filename>~/.bash_logout</filename> that can be used as
-      a template.  You will notice that the base <filename>~/.bash_logout</filename>
-      does not include a <userinput>clear</userinput> command.  This is because the
-      clear is handled in the <filename>/etc/issue</filename> file.</para>
-
-<screen><userinput>cat &gt; ~/.bash_logout &lt;&lt; "EOF"
-<literal># Begin ~/.bash_logout
-# Written for Beyond Linux From Scratch
-# by James Robertson &lt;jameswrobertson@earthlink.net&gt;
-
-# Personal items to perform on logout.
-
-# End ~/.bash_logout</literal>
-EOF
-install -v -m600 ~/.bash_logout /etc/skel</userinput></screen>
+install -v -m600 ~/.ashrc /etc/skel</userinput></screen>
 
     </sect3>
 
