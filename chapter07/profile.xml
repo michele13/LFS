@@ -75,19 +75,21 @@
 # ~/.bashrc.
 
 # Set the initial path
-export PATH=/bin:/usr/bin
+PATH=/bin:/usr/bin
 
 if [ $(id -u) -eq 0 ] ; then
-        pathappend /sbin:/usr/sbin
+        PATH=$PATH:/sbin:/usr/sbin
         unset HISTFILE
 fi
 
+export PATH
+
 # Setup some environment variables.
-export HISTSIZE=1000
-export HISTIGNORE="&amp;:[bf]g:exit"
+HISTSIZE=1000 ; export HISTSIZE
+HISTIGNORE="&amp;:[bf]g:exit" ; export HISTIGNORE
 
 # Set some defaults for graphical systems
-export XDG_DATA_DIRS=/usr/share
+XDG_DATA_DIRS=/usr/share ; export XDG_DATA_DIRS
 
 # Setup a red prompt for root and a green one for users.
 NORMAL="\[\e[0m\]"
