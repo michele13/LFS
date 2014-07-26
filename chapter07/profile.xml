@@ -132,20 +132,20 @@ EOF</userinput></screen>
 
 <screen><userinput>cat &gt; /etc/profile.d/extrapaths.sh &lt;&lt; "EOF"
 <literal>if [ -d /usr/local/lib/pkgconfig ] ; then
-        pathappend /usr/local/lib/pkgconfig PKG_CONFIG_PATH
+        PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig ; export PKG_CONFIG_PATH
 fi
 if [ -d /usr/local/bin ]; then
-        pathprepend /usr/local/bin
+        PATH=/usr/local/bin:$PATH ; export PATH
 fi
-if [ -d /usr/local/sbin -a $EUID -eq 0 ]; then
-        pathprepend /usr/local/sbin
+if [ -d /usr/local/sbin -a $(id -u) -eq 0 ]; then
+        PATH=/usr/local/sbin:$PATH ; export PATH
 fi
 
 if [ -d ~/bin ]; then
-        pathprepend ~/bin
+        PATH=~/bin:$PATH ; export PATH
 fi
-#if [ $EUID -gt 99 ]; then
-#        pathappend .
+#if [ $(id -u) -gt 99 ]; then
+#        PATH=$PATH:. ; export PATH
 #fi</literal>
 EOF</userinput></screen>
 
@@ -177,7 +177,7 @@ EOF</userinput></screen>
 
 <screen><userinput>cat &gt; /etc/profile.d/umask.sh &lt;&lt; "EOF"
 <literal># By default, the umask should be set.
-if [ "$(id -gn)" = "$(id -un)" -a $EUID -gt 99 ] ; then
+if [ "$(id -gn)" = "$(id -un)" -a $(id -u) -gt 99 ] ; then
   umask 002
 else
   umask 022
@@ -194,7 +194,7 @@ EOF</userinput></screen>
 
 <screen><userinput>cat &gt; /etc/profile.d/i18n.sh &lt;&lt; "EOF"
 <literal># Set up i18n variables
-export LANG=en_US.UTF-8</literal>
+LANG=en_US.UTF-8 ; export LANG</literal>
 EOF</userinput></screen>
 
     </sect3>
