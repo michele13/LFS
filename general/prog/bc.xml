@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY bc-homepage      "http://www.gnu.org/software/bc/">
+  <!ENTITY bc-wikipedia     "http://en.wikipedia.org/wiki/Bc_&#40;programming_language&#41;">
+  <!ENTITY bc-download-http "http://alpha.gnu.org/gnu/bc/bc-&bc-version;.tar.bz2">
+  <!ENTITY bc-download-ftp  "ftp://alpha.gnu.org/gnu/bc/bc-&bc-version;.tar.bz2">
+  <!ENTITY bc-md5sum        "5126a721b73f97d715bb72c13c889035">
+  <!ENTITY bc-size          "283 KB">
+  <!ENTITY bc-buildsize     "3.5 MB">
+  <!ENTITY bc-time          "0.1 SBU">
+]>
+
+<sect1 id="bc" xreflabel="bc-&bc-version;">
+  <?dbhtml filename="bc.html"?>
+
+  <title>bc-&bc-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The bc package contains an arbitrary precision numeric processing
+      language.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&bc-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&bc-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&bc-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&bc-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &bc-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &bc-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &bc-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &bc-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;bc/bc-&bc-version;-memory_leak-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libedit"/> or
+      <xref linkend="readline"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Disable rebuilding documentation as it requires Texinfo:
+    </para>
+
+<screen><userinput>sed -i '/SUBDIRS/ s/doc//' Makefile.in</userinput></screen>
+
+    <para>
+      Fix some minor memory leaks in the code:
+    </para>
+
+<screen><userinput>patch -p1 -i ../bc-&bc-version;-memory_leak-1.patch</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+install -v -m644 doc/*.1 /usr/local/share/man/man1</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--with-libedit</option>: This switch enables support for command
+        input editing using libedit.
+      </para>
+
+      <para>
+        <option>--with-readline</option>: This switch enables support for command
+        input editing using readline.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="bc">
+      <primary sortas="b-bc">bc</primary>
+    </indexterm>
+    <indexterm zone="bc">
+      <primary sortas="b-dc">dc</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/local/bin/bc
+/usr/local/bin/dc
+/usr/local/share/man/man1/bc.1
+/usr/local/share/man/man1/dc.1</literal></screen>
+
+  </sect2>
+
+</sect1>
