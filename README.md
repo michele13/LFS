@@ -12,8 +12,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bash, bzip2, coreutils, diffutils, findutils, grep, gzip, inetutils,
   iproute2, kmod, less, man-db, patch, procps-ng, psmisc, sed, shadow, sysklogd,
   sysvinit, tar, util-linux, and vim with busybox in chapter 6
-* removed autoconf, automake, dejagnu, expect, gettext, libpipeline, libtool,
-  readline, tcl, and texinfo
+* removed autoconf, automake, bc, dejagnu, expect, gettext, libpipeline,
+  libtool, readline, tcl, and texinfo
 * disabled native language support
 * shadow: fix newer glibc crypt()'s handling of an invalid seed
 * added fortran to gcc languages in chapter 6
@@ -49,6 +49,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /bin/gunzip
     /bin/gzip
     /bin/hostname
+    /bin/hush
     /bin/ionice
     /bin/kill
     /bin/linux32
@@ -136,6 +137,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/cmp
     /usr/bin/comm
     /usr/bin/cut
+    /usr/bin/dc
     /usr/bin/diff
     /usr/bin/dirname
     /usr/bin/dos2unix

@@ -143,6 +143,7 @@ ln -sfv busybox /bin/grep
 ln -sfv busybox /bin/gunzip
 ln -sfv busybox /bin/gzip
 ln -sfv busybox /bin/hostname
+ln -sfv busybox /bin/hush
 ln -sfv busybox /bin/ionice
 ln -sfv busybox /bin/kill
 ln -sfv busybox /bin/linux32
@@ -230,6 +231,7 @@ ln -sfv ../../bin/busybox /usr/bin/cksum
 ln -sfv ../../bin/busybox /usr/bin/cmp
 ln -sfv ../../bin/busybox /usr/bin/comm
 ln -sfv ../../bin/busybox /usr/bin/cut
+ln -sfv ../../bin/busybox /usr/bin/dc
 ln -sfv ../../bin/busybox /usr/bin/diff
 ln -sfv ../../bin/busybox /usr/bin/dirname
 ln -sfv ../../bin/busybox /usr/bin/dos2unix
@@ -375,27 +377,27 @@ EOF</userinput></screen>
       <seglistitem>
         <seg>acpid, addgroup, adduser, ash, base64, basename, blkid, blockdev,
         bunzip2, busybox, bzcat, bzip2, cal, cat, chgrp, chmod, chown, chpasswd,
-        chroot, chrt, cksum, cmp, comm, cp, cut, date, dd, delgroup, deluser,
-        depmod, df, diff, dirname, dmesg, dnsdomainname, dos2unix, du, echo,
-        egrep, eject, env, expand, expr, false, fdformat, fdisk, fgrep, find,
-        findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser, getopt,
-        getty, grep, groups, gunzip, gzip, halt, head, hexdump, hostid,
-        hostname, hwclock, id, ifconfig, inetd, init, insmod, install, ionice,
-        ip, ipcrm, ipcs, kill, killall, killall5, klogd, last, less, linux32,
-        linux64, ln, logger, login, logname, losetup, ls, lsmod, lspci, lsusb,
-        man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap, mktemp,
-        modinfo, modprobe, more, mount, mountpoint, mv, netstat, nice, nohup,
-        ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pivot_root, pkill,
-        pmap, poweroff, printenv, printf, ps, pstree, pwd, pwdx, readlink,
-        readprofile, realpath, reboot, renice, rev, rm, rmdir, rmmod, route,
-        rtcwake, runlevel, script, scriptreplay, sed, seq, setarch, setsid, sh
-        sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split, stat, stty,
-        su, sulogin, sum, swapoff, swapon, switch_root, sync, sysctl, syslogd,
-        tac, tail, tar, tee, telnet, telnetd, test, tftp, tftpd, timeout, top,
-        touch, tr, traceroute, traceroute6, true, tty, umount, uname, unexpand,
-        uniq, unix2dos, unzip, uptime, users, uudecode, uuencode, vi, vlock,
-        wall, watch, wc, wget, which, who, whoami, whois, xargs, yes, and
-        zcat</seg>
+        chroot, chrt, cksum, cmp, comm, cp, cut, date, dc, dd, delgroup,
+        deluser, depmod, df, diff, dirname, dmesg, dnsdomainname, dos2unix, du,
+        echo, egrep, eject, env, expand, expr, false, fdformat, fdisk, fgrep,
+        find, findfs, flock, fold, free, fsck.minix, fstrim, ftpd, fuser,
+        getopt, getty, grep, groups, gunzip, gzip, halt, head, hexdump, hostid,
+        hostname, hush, hwclock, id, ifconfig, inetd, init, insmod, install,
+        ionice, ip, ipcrm, ipcs, kill, killall, killall5, klogd, last, less,
+        linux32, linux64, ln, logger, login, logname, losetup, ls, lsmod, lspci,
+        lsusb, man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap,
+        mktemp, modinfo, modprobe, more, mount, mountpoint, mv, netstat, nice,
+        nohup, ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pivot_root,
+        pkill, pmap, poweroff, printenv, printf, ps, pstree, pwd, pwdx,
+        readlink, readprofile, realpath, reboot, renice, rev, rm, rmdir, rmmod,
+        route, rtcwake, runlevel, script, scriptreplay, sed, seq, setarch,
+        setsid, sh sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split,
+        stat, stty, su, sulogin, sum, swapoff, swapon, switch_root, sync,
+        sysctl, syslogd, tac, tail, tar, tee, telnet, telnetd, test, tftp,
+        tftpd, timeout, top, touch, tr, traceroute, traceroute6, true, tty,
+        umount, uname, unexpand, uniq, unix2dos, unzip, uptime, users, uudecode,
+        uuencode, vi, vlock, wall, watch, wc, wget, which, who, whoami, whois,
+        xargs, yes, and zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -440,7 +442,8 @@ EOF</userinput></screen>
       <varlistentry id="ash">
         <term><command>ash</command></term>
         <listitem>
-          <para>Is a Unix shell interpreter.</para>
+          <para>Is the most complete and most pedantically correct shell
+          included with BusyBox.</para>
           <indexterm zone="ch-system-busybox ash">
             <primary sortas="b-ash">ash</primary>
           </indexterm>
@@ -669,6 +672,16 @@ EOF</userinput></screen>
           system time.</para>
           <indexterm zone="ch-system-busybox date">
             <primary sortas="b-date">date</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="dc">
+        <term><command>dc</command></term>
+        <listitem>
+          <para>Is a tiny reverse polish notation calculator.</para>
+          <indexterm zone="ch-system-busybox dc">
+            <primary sortas="b-dc">dc</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -1087,6 +1100,16 @@ EOF</userinput></screen>
           <para>Shows or sets system host name.</para>
           <indexterm zone="ch-system-busybox hostname">
             <primary sortas="b-hostname">hostname</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="hush">
+        <term><command>hush</command></term>
+        <listitem>
+          <para>Is a small shell interpreter.</para>
+          <indexterm zone="ch-system-busybox hush">
+            <primary sortas="b-hush">hush</primary>
           </indexterm>
         </listitem>
       </varlistentry>

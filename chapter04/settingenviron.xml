@@ -11,19 +11,19 @@
   <title>Setting Up the Environment</title>
 
   <para>Set up a good working environment by creating two new startup files
-  for the <command>ash</command> shell. While logged in as user
+  for the shell. While logged in as user
   <systemitem class="username">lfs</systemitem>, issue the following command
   to create a new <filename>.profile</filename>:</para>
 
 <screen><userinput>cat &gt; ~/.profile &lt;&lt; "EOF"
-<literal>exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' ENV=~/.ashrc /bin/ash</literal>
+<literal>exec env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' ENV=~/.shrc /bin/sh</literal>
 EOF</userinput></screen>
 
   <para>When logged on as user <systemitem class="username">lfs</systemitem>,
   the initial shell is usually a <emphasis>login</emphasis> shell which reads
   the <filename>/etc/profile</filename> of the host (probably containing some
   settings and environment variables) and then <filename>.profile</filename>.
-  The <command>exec env -i.../bin/ash</command> command in the
+  The <command>exec env -i.../bin/sh</command> command in the
   <filename>.profile</filename> file replaces the running shell with a new
   one with a completely empty environment, except for the <envar>HOME</envar>,
   <envar>TERM</envar>, <envar>PS1</envar>, and <envar>ENV</envar> variables. This ensures that no
@@ -34,10 +34,10 @@ EOF</userinput></screen>
   <para>The new instance of the shell is a <emphasis>non-login</emphasis>
   shell, which does not read the <filename>/etc/profile</filename> or
   <filename>.profile</filename> files, but rather reads the
-  <filename>.ashrc</filename> file instead. Create the
-  <filename>.ashrc</filename> file now:</para>
+  <filename>.shrc</filename> file instead. Create the
+  <filename>.shrc</filename> file now:</para>
 
-<screen><userinput>cat &gt; ~/.ashrc &lt;&lt; "EOF"
+<screen><userinput>cat &gt; ~/.shrc &lt;&lt; "EOF"
 <literal>umask 022
 LFS=/mnt/lfs
 LC_ALL=POSIX
@@ -93,6 +93,6 @@ EOF</userinput></screen>
   <para>Finally, to have the environment fully prepared for building the
   temporary tools, source the just-created user profile:</para>
 
-<screen><userinput>source ~/.profile</userinput></screen>
+<screen><userinput>. ~/.profile</userinput></screen>
 
 </sect1>
