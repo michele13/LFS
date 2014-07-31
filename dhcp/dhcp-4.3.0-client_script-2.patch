@@ -5,12 +5,15 @@ Upstream Status:         Rejected by upstream.
 Origin:                  Based on Debian's dhclient-script, but modified for BLFS
 Description:             This patch replaces original linux script for dhcp client with
                          better one which is based on Debian's dhclient-script, but modified
-                         to be used on LFS/BLFS. It also removes net-tools dependency.
+                         to be used on LFS/BLFS. It also removes net-tools and bash
+                         dependencies.
 
---- dhcp.orig/client/scripts/linux	2012-07-13 08:10:30.000000000 +0200
-+++ dhcp/client/scripts/linux	2012-08-14 21:00:29.786634932 +0200
+diff -Naur dhcp-4.3.0.orig/client/scripts/linux dhcp-4.3.0/client/scripts/linux
+--- dhcp-4.3.0.orig/client/scripts/linux	2013-11-02 01:44:36.000000000 +0100
++++ dhcp-4.3.0/client/scripts/linux	2014-07-31 22:58:53.443382078 +0200
 @@ -1,318 +1,346 @@
- #!/bin/bash
+-#!/bin/bash
++#!/bin/sh
 +
  # dhclient-script for Linux. Dan Halbert, March, 1997.
  # Updated for Linux 2.[12] by Brian J. Murrell, January 1999.
