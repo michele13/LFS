@@ -41,6 +41,10 @@
   <sect2 role="installation">
     <title>Installation of GCC</title>
 
+    <para>As in Chapter 5, fix a problem identified upstream:</para>
+
+<screen><userinput remap="pre">sed -i 's/if \((code.*))\)/if (\1 \&amp;\&amp; \!DEBUG_INSN_P (insn))/' gcc/sched-deps.c</userinput></screen>
+
     <para>The GCC documentation recommends building GCC outside of the source
     directory in a dedicated build directory:</para>
 
@@ -274,7 +278,7 @@ mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</userinput></screen>
 
         <seg>libasan.so, libatomic.so,
         libgcc_s.so, libgfortran.so, libgomp.so, libiberty.a, libitm.so,
-        libmudflap.so, libmudflapth.so,
+        liblto_plugin.so,
         libquadmath.so, libssp.so,
         libssp_nonshared.a, libstdc++.so, libsupc++.a, and libtsan.so</seg>
 
@@ -442,7 +446,7 @@ mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</userinput></screen>
           </indexterm>
         </listitem>
       </varlistentry>
-
+<!--
       <varlistentry id="libmudflap">
         <term><filename class="libraryfile">libmudflap</filename></term>
         <listitem>
@@ -453,7 +457,7 @@ mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</userinput></screen>
           </indexterm>
         </listitem>
       </varlistentry>
-
+-->
       <varlistentry id="libquadmath">
         <term><filename class="libraryfile">libquadmath</filename></term>
         <listitem>
