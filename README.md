@@ -198,6 +198,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/telnet
     /usr/bin/test
     /usr/bin/tftp
+    /usr/bin/time
     /usr/bin/timeout
     /usr/bin/top
     /usr/bin/tr
