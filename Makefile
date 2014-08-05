@@ -9,7 +9,7 @@ RENDERTMP ?= /tmp
 CHUNK_QUIET = 1
 ROOT_ID =
 NOCHUNKS_OUTPUT = BLFS-BOOK.html
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 ALLXML := $(filter-out $(RENDERTMP)/%, \
 	$(wildcard *.xml */*.xml */*/*.xml */*/*/*.xml */*/*/*/*.xml))
@@ -49,7 +49,7 @@ $(BASEDIR)/index.html: $(RENDERTMP)/blfs-html.xml
 	$(Q)for filename in `find $(BASEDIR) -name "*.html"`; do \
 	  tidy -config tidy.conf $$filename; \
 	  true; \
-	  bash obfuscate.sh $$filename; \
+	  sh obfuscate.sh $$filename; \
 	  sed -i -e "s@text/html@application/xhtml+xml@g" $$filename; \
 	done;
 
