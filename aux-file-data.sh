@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ $# -lt 1 ] ; then
   echo "This script needs the location of the xml file to update"
@@ -18,10 +18,10 @@ bootmd5=$(md5sum $bootscripts | cut -f1 -d" ")
 # Figure intalled size of bootscripts
 TOPDIR=$(pwd)
 TMP_DIR=$(mktemp -d /tmp/lfsbootfiles.XXXXXX)
-pushd $TMP_DIR > /dev/null
+cd $TMP_DIR
 tar -xf $TOPDIR/$bootscripts
 bootinstallsize=$(du -sk $TMP_DIR | cut -f1)
-popd > /dev/null
+cd - > /dev/null
 rm -rf $TMP_DIR
 
 sed -i -e s/BOOTSCRIPTS-SIZE/$bootsize/              \

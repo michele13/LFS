@@ -65,6 +65,26 @@
 <screen><userinput remap="configure">sed -e 's/\(CONFIG_FEATURE_HAVE_RPC\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_FEATURE_INETD_RPC\)=y/# \1 is not set/' -i .config</userinput></screen>
 
+    <para>Instead of using the default DES method, use the more secure SHA-512
+    method of password encryption:</para>
+
+<screen><userinput remap="configure">sed '/CONFIG_FEATURE_DEFAULT_PASSWD_ALGO/ s/des/sha512/' -i .config</userinput></screen>
+
+    <para>Disable simplified modutils and enable standard utilities for loading
+    kernel modules:</para>
+
+<screen><userinput remap="configure">sed -e 's/\(CONFIG_MODPROBE_SMALL\)=y/# \1 is not set/' \
+    -e 's/# \(CONFIG_INSMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_RMMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_LSMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_LSMOD_PRETTY_2_6_OUTPUT\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_MODPROBE\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODPROBE_BLACKLIST\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_DEPMOD\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_CHECK_TAINTED_MODULE\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODUTILS_ALIAS\) is not set/\1=y/' \
+    -e 's/# \(CONFIG_FEATURE_MODUTILS_SYMBOLS\) is not set/\1=y/' -i .config</userinput></screen>
+
     <para>Disable support for programs which will be installed from the e2fsprogs package:</para>
 
 <screen><userinput remap="configure">sed -e 's/\(CONFIG_CHATTR\)=y/# \1 is not set/' \
@@ -85,31 +105,6 @@
     -e 's/\(CONFIG_SETFONT\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_SETKEYCODES\)=y/# \1 is not set/' \
     -e 's/\(CONFIG_SHOWKEY\)=y/# \1 is not set/' -i .config</userinput></screen>
-
-    <para>Disable support for programs which will be installed from the xz package:</para>
-
-<screen><userinput remap="configure">sed -e 's/\(CONFIG_UNLZMA\)=y/# \1 is not set/' \
-    -e 's/\(CONFIG_UNXZ\)=y/# \1 is not set/' -i .config</userinput></screen>
-
-    <para>Instead of using the default DES method, use the more secure SHA-512
-    method of password encryption:</para>
-
-<screen><userinput remap="configure">sed '/CONFIG_FEATURE_DEFAULT_PASSWD_ALGO/ s/des/sha512/' -i .config</userinput></screen>
-
-    <para>Disable simplified modutils and enable standard utilities for loading
-    kernel modules:</para>
-
-<screen><userinput remap="configure">sed -e 's/\(CONFIG_MODPROBE_SMALL\)=y/# \1 is not set/' \
-    -e 's/# \(CONFIG_INSMOD\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_RMMOD\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_LSMOD\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_FEATURE_LSMOD_PRETTY_2_6_OUTPUT\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_MODPROBE\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_FEATURE_MODPROBE_BLACKLIST\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_DEPMOD\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_FEATURE_CHECK_TAINTED_MODULE\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_FEATURE_MODUTILS_ALIAS\) is not set/\1=y/' \
-    -e 's/# \(CONFIG_FEATURE_MODUTILS_SYMBOLS\) is not set/\1=y/' -i .config</userinput></screen>
 
     <para>Compile the package:</para>
 
@@ -260,6 +255,8 @@ ln -sfv ../../bin/busybox /usr/bin/logger
 ln -sfv ../../bin/busybox /usr/bin/logname
 ln -sfv ../../bin/busybox /usr/bin/lspci
 ln -sfv ../../bin/busybox /usr/bin/lsusb
+ln -sfv ../../bin/busybox /usr/bin/lzcat
+ln -sfv ../../bin/busybox /usr/bin/lzma
 ln -sfv ../../bin/busybox /usr/bin/man
 ln -sfv ../../bin/busybox /usr/bin/md5sum
 ln -sfv ../../bin/busybox /usr/bin/mkfifo
@@ -302,6 +299,8 @@ ln -sfv ../../bin/busybox /usr/bin/tty
 ln -sfv ../../bin/busybox /usr/bin/unexpand
 ln -sfv ../../bin/busybox /usr/bin/uniq
 ln -sfv ../../bin/busybox /usr/bin/unix2dos
+ln -sfv ../../bin/busybox /usr/bin/unlzma
+ln -sfv ../../bin/busybox /usr/bin/unxz
 ln -sfv ../../bin/busybox /usr/bin/unzip
 ln -sfv ../../bin/busybox /usr/bin/uptime
 ln -sfv ../../bin/busybox /usr/bin/users
@@ -316,6 +315,8 @@ ln -sfv ../../bin/busybox /usr/bin/who
 ln -sfv ../../bin/busybox /usr/bin/whoami
 ln -sfv ../../bin/busybox /usr/bin/whois
 ln -sfv ../../bin/busybox /usr/bin/xargs
+ln -sfv ../../bin/busybox /usr/bin/xz
+ln -sfv ../../bin/busybox /usr/bin/xzcat
 ln -sfv ../../bin/busybox /usr/bin/yes
 ln -sfv ../../bin/busybox /usr/sbin/addgroup
 ln -sfv ../../bin/busybox /usr/sbin/adduser
@@ -386,19 +387,19 @@ EOF</userinput></screen>
         hostname, hush, hwclock, id, ifconfig, inetd, init, insmod, install,
         ionice, ip, ipcrm, ipcs, kill, killall, killall5, klogd, last, less,
         linux32, linux64, ln, logger, login, logname, losetup, ls, lsmod, lspci,
-        lsusb, man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod, mkswap,
-        mktemp, modinfo, modprobe, more, mount, mountpoint, mv, netstat, nice,
-        nohup, ntpd, od, passwd, patch, pgrep, pidof, ping, ping6, pivot_root,
-        pkill, pmap, poweroff, printenv, printf, ps, pstree, pwd, pwdx,
-        readlink, readprofile, realpath, reboot, renice, rev, rm, rmdir, rmmod,
-        route, rtcwake, runlevel, script, scriptreplay, sed, seq, setarch,
-        setsid, sh sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort, split,
-        stat, stty, su, sulogin, sum, swapoff, swapon, switch_root, sync,
+        lsusb, lzcat, lzma, man, md5sum, mdev, mkdir, mkfifo, mkfs.minix, mknod,
+        mkswap, mktemp, modinfo, modprobe, more, mount, mountpoint, mv, netstat,
+        nice, nohup, ntpd, od, passwd, patch, pgrep, pidof, ping, ping6,
+        pivot_root, pkill, pmap, poweroff, printenv, printf, ps, pstree, pwd,
+        pwdx, readlink, readprofile, realpath, reboot, renice, rev, rm, rmdir,
+        rmmod, route, rtcwake, runlevel, script, scriptreplay, sed, seq,
+        setarch, setsid, sh sha1sum, sha256sum, sha3sum, sha512sum, sleep, sort,
+        split, stat, stty, su, sulogin, sum, swapoff, swapon, switch_root, sync,
         sysctl, syslogd, tac, tail, tar, tee, telnet, telnetd, test, tftp,
         tftpd, time, timeout, top, touch, tr, traceroute, traceroute6, true,
-        tty, umount, uname, unexpand, uniq, unix2dos, unzip, uptime, users,
-        uudecode, uuencode, vi, vlock, wall, watch, wc, wget, which, who,
-        whoami, whois, xargs, yes, and zcat</seg>
+        tty, umount, uname, unexpand, uniq, unix2dos, unlzma, unxz, unzip,
+        uptime, users, uudecode, uuencode, vi, vlock, wall, watch, wc, wget,
+        which, who, whoami, whois, xargs, xz, xzcat, yes, and zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -1401,6 +1402,26 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="lzcat">
+        <term><command>lzcat</command></term>
+        <listitem>
+          <para>Decompresses LZMA compressed files to standard output.</para>
+          <indexterm zone="ch-system-busybox lzcat">
+            <primary sortas="b-lzcat">lzcat</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="lzma">
+        <term><command>lzma</command></term>
+        <listitem>
+          <para>Compresses or decompresses files using the LZMA format.</para>
+          <indexterm zone="ch-system-busybox lzma">
+            <primary sortas="b-lzma">lzma</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="man">
         <term><command>man</command></term>
         <listitem>
@@ -2373,6 +2394,26 @@ EOF</userinput></screen>
         </listitem>
       </varlistentry>
 
+      <varlistentry id="unlzma">
+        <term><command>unlzma</command></term>
+        <listitem>
+          <para>Decompresses files using the LZMA format.</para>
+          <indexterm zone="ch-system-busybox unlzma">
+            <primary sortas="b-unlzma">unlzma</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="unxz">
+        <term><command>unxz</command></term>
+        <listitem>
+          <para>Decompresses files using the XZ format.</para>
+          <indexterm zone="ch-system-busybox unxz">
+            <primary sortas="b-unxz">unxz</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
       <varlistentry id="unzip">
         <term><command>unzip</command></term>
         <listitem>
@@ -2531,6 +2572,26 @@ EOF</userinput></screen>
           <para>Runs a given command to a list of files.</para>
           <indexterm zone="ch-system-busybox xargs">
             <primary sortas="b-xargs">xargs</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="xz">
+        <term><command>xz</command></term>
+        <listitem>
+          <para>Compresses or decompresses files using the XZ format.</para>
+          <indexterm zone="ch-system-busybox xz">
+            <primary sortas="b-xz">xz</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="xzcat">
+        <term><command>xzcat</command></term>
+        <listitem>
+          <para>Decompresses XZ compressed files to standard output.</para>
+          <indexterm zone="ch-system-busybox xzcat">
+            <primary sortas="b-xzcat">xzcat</primary>
           </indexterm>
         </listitem>
       </varlistentry>

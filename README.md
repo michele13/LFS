@@ -12,6 +12,7 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced bash, bzip2, coreutils, diffutils, findutils, grep, gzip, inetutils,
   iproute2, kmod, less, man-db, patch, procps-ng, psmisc, sed, shadow, sysklogd,
   sysvinit, tar, util-linux, and vim with busybox in chapter 6
+* replaced binaries from xz with busybox
 * removed autoconf, automake, bc, dejagnu, expect, gettext, libpipeline,
   libtool, readline, tcl, and texinfo
 * disabled native language support
@@ -166,6 +167,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/logname
     /usr/bin/lspci
     /usr/bin/lsusb
+    /usr/bin/lzcat
+    /usr/bin/lzma
     /usr/bin/man
     /usr/bin/md5sum
     /usr/bin/mkfifo
@@ -208,6 +211,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/unexpand
     /usr/bin/uniq
     /usr/bin/unix2dos
+    /usr/bin/unlzma
+    /usr/bin/unxz
     /usr/bin/unzip
     /usr/bin/uptime
     /usr/bin/users
@@ -222,6 +227,8 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
     /usr/bin/whoami
     /usr/bin/whois
     /usr/bin/xargs
+    /usr/bin/xz
+    /usr/bin/xzcat
     /usr/bin/yes
     /usr/sbin/addgroup
     /usr/sbin/adduser

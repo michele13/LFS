@@ -5,7 +5,7 @@ CHUNK_QUIET = 1
 ROOT_ID =
 PDF_OUTPUT = LFS-BOOK.pdf
 NOCHUNKS_OUTPUT = LFS-BOOK.html
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 ifdef V
   Q =
@@ -35,7 +35,7 @@ lfs: validate profile-html
 	$(Q)for filename in `find $(BASEDIR) -name "*.html"`; do \
 	  tidy -config tidy.conf $$filename; \
 	  true; \
-	  /bin/bash obfuscate.sh $$filename; \
+	  /bin/sh obfuscate.sh $$filename; \
 	  sed -i -e "s@text/html@application/xhtml+xml@g" $$filename; \
 	done;
 
@@ -85,7 +85,7 @@ tmpdir:
 
 validate: tmpdir
 	@echo "Processing bootscripts..."
-	$(Q)bash process-scripts.sh
+	$(Q)sh process-scripts.sh
 	@echo "Validating the book..."
 	$(Q)xmllint --nonet --noent --xinclude --postvalid \
 	  -o $(RENDERTMP)/lfs-full.xml index.xml
