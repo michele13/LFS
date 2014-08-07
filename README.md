@@ -9,10 +9,10 @@ This book is periodically generated at: http://igor-zivkovic.from.hr/LFS/
 * replaced pkg-config with pkgconf
 * replaced bzip2, coreutils, diffutils, file, findutils, gettext, grep, zip,
   patch, sed, tar, and xz with busybox in chapter 5
-* replaced bash, bzip2, coreutils, diffutils, findutils, grep, gzip, inetutils,
+* replaced bash, coreutils, diffutils, findutils, grep, gzip, inetutils,
   iproute2, kmod, less, man-db, patch, procps-ng, psmisc, sed, shadow, sysklogd,
   sysvinit, tar, util-linux, and vim with busybox in chapter 6
-* replaced binaries from xz with busybox
+* replaced binaries from bzip2 and xz with busybox
 * removed autoconf, automake, bc, dejagnu, expect, gettext, libpipeline,
   libtool, readline, tcl, and texinfo
 * disabled native language support
