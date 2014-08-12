@@ -81,7 +81,7 @@
       OpenSSL. As the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>cat > /bin/make-cert.pl &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /usr/bin/make-cert.pl &lt;&lt; "EOF"
 <literal>#!/usr/bin/perl -w
 
 # Used to generate PEM encoded files from Mozilla certdata.txt.
@@ -132,7 +132,7 @@ while ( &lt;IN&gt; )
     }
 }</literal>
 EOF
-chmod +x /bin/make-cert.pl</userinput></screen>
+chmod +x /usr/bin/make-cert.pl</userinput></screen>
 
     <para>
       The following script creates the certificates and a bundle of all the
@@ -142,7 +142,7 @@ chmod +x /bin/make-cert.pl</userinput></screen>
       user:
     </para>
 
-<screen role="root"><userinput>cat > /bin/make-ca.sh &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /usr/bin/make-ca.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
 # Begin make-ca.sh
 # Script to populate OpenSSL's CApath from a bundle of PEM formatted CAs
@@ -174,7 +174,7 @@ VERSION=$(echo $REVISION | cut -f2 -d" ")
 TEMPDIR=$(mktemp -d)
 TRUSTATTRIBUTES="CKA_TRUST_SERVER_AUTH"
 BUNDLE="BLFS-ca-bundle-${VERSION}.crt"
-CONVERTSCRIPT="/bin/make-cert.pl"
+CONVERTSCRIPT="/usr/bin/make-cert.pl"
 SSLDIR="/etc/ssl"
 
 mkdir "${TEMPDIR}/certs"
@@ -239,7 +239,7 @@ fi
 cat certs/*.pem >  ${BUNDLE}
 rm -r "${TEMPDIR}"</literal>
 EOF
-chmod +x /bin/make-ca.sh</userinput></screen>
+chmod +x /usr/bin/make-ca.sh</userinput></screen>
 
     <para>
       Add a short script to remove expired certificates from a directory. Again
@@ -247,9 +247,9 @@ chmod +x /bin/make-ca.sh</userinput></screen>
       user:
     </para>
 
-<screen role="root"><userinput>cat > /bin/remove-expired-certs.sh &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /usr/bin/remove-expired-certs.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
-# Begin /bin/remove-expired-certs.sh
+# Begin /usr/bin/remove-expired-certs.sh
 #
 # Version 20120211
 
@@ -302,7 +302,7 @@ for cert in $certs; do
   fi
 done</literal>
 EOF
-chmod +x /bin/remove-expired-certs.sh</userinput></screen>
+chmod +x /usr/bin/remove-expired-certs.sh</userinput></screen>
 
     <para>
       The following commands will convert the certificates to the correct
