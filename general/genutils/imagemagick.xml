@@ -5,20 +5,16 @@
   %general-entities;
 
   <!ENTITY imagemagick-patch-version "1">
-  <!-- Not sure what to do here as ImageMagick is one of the fastest-moving
-       targets in all of open-source. One solution is to always use the last
-       version of a specific major-minor from the 'legacy' subdirectory of
-       the path in these URL's. Otherwise these links are broken within days
-       after updates :-(  Unfortunately, versions always roll on after patch
-       version 10, whether or not significant changes occur, and it takes
-       time before versions migrate to legacy/  -->
 
   <!ENTITY imagemagick-download-http " ">
-  <!ENTITY imagemagick-download-ftp  "ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-&imagemagick-version;-&imagemagick-patch-version;.tar.xz">
+  <!ENTITY imagemagick-download-ftp  
+           "ftp://ftp.imagemagick.org/pub/ImageMagick/ImageMagick-&imagemagick-version;-&imagemagick-patch-version;.tar.xz">
   <!ENTITY imagemagick-md5sum        "bde038ae05fb20d29cebf88ab9cbdce5">
   <!ENTITY imagemagick-size          "7.2 MB">
-  <!ENTITY imagemagick-buildsize     "147 MB (with typical dependencies, additional 25 MB to run the test suite, reputedly 450 MB with all dependencies)">
-  <!ENTITY imagemagick-time          "2.5 SBU (typical build - additional 8.1 SBU to run the test suite and 15 SBU to run the validation suite)">
+  <!ENTITY imagemagick-buildsize
+           "147 MB (with typical dependencies, additional 25 MB to run the test suite, reputedly 450 MB with all dependencies)">
+  <!ENTITY imagemagick-time
+           "2.5 SBU (typical build - additional 8.1 SBU to run the test suite and 15 SBU to run the validation suite)">
 ]>
 
 <!-- Editors: It is highly unlikely that the buildsize (disk space used) will
@@ -35,9 +31,7 @@
      additional dependencies that need to be listed, as ImageMagick is
      constantly adding additional features and dependencies. -->
 
-
-<sect1 id="imagemagick"
-xreflabel="ImageMagick-&imagemagick-version;-&imagemagick-patch-version;">
+<sect1 id="imagemagick" xreflabel="ImageMagick-&imagemagick-version;-&imagemagick-patch-version;">
   <?dbhtml filename="imagemagick.html"?>
 
   <title>ImageMagick-&imagemagick-version;-&imagemagick-patch-version;</title>
@@ -97,7 +91,7 @@ xreflabel="ImageMagick-&imagemagick-version;-&imagemagick-patch-version;">
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="x-window-system"/>
+      <xref linkend="xorg7-lib"/>
     </para>
 
     <para>
@@ -210,6 +204,7 @@ xreflabel="ImageMagick-&imagemagick-version;-&imagemagick-patch-version;">
 
 <screen><userinput>./configure --prefix=/usr     \
             --sysconfdir=/etc \
+            --enable-hdri     \
             --with-modules    \
             --with-perl       \
             --disable-static  &amp;&amp;
@@ -230,48 +225,24 @@ make</userinput></screen>
       "Standard Fonts" which are optionally installed in <xref linkend="gs"/>.
     </para>
 
-    <!-- This is not necessary as the 'make install' process installs PerlMagick
-    <para>
-      And, if you built PerlMagick, still as the
-      <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>make -C PerlMagick install</userinput></screen>
-    -->
-
-    <!-- Commenting this out for now as it is redundant to information
-         that has already been presented, or is in the 'command explanations'
-         section below.
-    <sect3>
-      <title>Additional Configure Options</title>
-
-      <para>There are additional switches that can be passed to
-      <application>ImageMagick</application> to customize the installation to
-      your needs. See <filename>advanced-unix-installation.html</filename> in
-      the <filename class='directory'>www</filename> directory.</para>
-
-    </sect3>
-    -->
-
   </sect2>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
 
     <para>
-      <parameter>--sysconfdir=/etc</parameter>: Install the
-      <filename class="extension">.xml</filename> configuration files into
-      <filename class='directory'>/etc/ImageMagick</filename> instead of the
-      default <filename class='directory'>/usr/etc/ImageMagick</filename>.
+      <parameter>--enable-hdri</parameter>: Enables building of a
+      high dynamic range version of ImageMagick.
     </para>
 
     <para>
-      <parameter>--with-modules</parameter>: Enables support for dynamically
-      loadable modules.
+      <parameter>--with-modules</parameter>: Enables support for
+      dynamically loadable modules.
     </para>
 
     <para>
-      <parameter>--with-perl</parameter>: Enables building and installing
-      PerlMagick.
+      <parameter>--with-perl</parameter>: Enables building and
+      installing of PerlMagick.
     </para>
 
     <para>
@@ -279,17 +250,8 @@ make</userinput></screen>
       libraries being built and installed.
     </para>
 
-    <!-- The tests run fine if you run the validation suite after the package
-         is installed
     <para>
-      <parameter>-without-magick-plus-plus</parameter>: Disables building
-      and installing Magick++.  All the test modules and demos for Magick++
-      currently fail.
-    </para>
-    -->
-
-    <para>
-      <option>--with-gslib=/usr/lib</option>: Enables support to use the
+      <option>--with-gslib</option>: Enables support to use the
       <application>Ghostscript</application> shared library.
     </para>
 
@@ -299,8 +261,8 @@ make</userinput></screen>
     </para>
 
     <para>
-      <option>--with-autotrace</option>: Enables support to use the
-      <application>Autotrace</application> library.
+      <option>--with-autotrace</option>: Enables support to use
+      the <application>Autotrace</application> library.
     </para>
 
     <para>
@@ -345,24 +307,25 @@ make</userinput></screen>
       <segtitle>Installed Directories</segtitle>
 
       <seglistitem>
-        <seg>animate, compare, composite, conjure, convert, display,
-        identify, import, Magick-config, Magick++-config, MagickCore-config,
-        MagickWand-config, mogrify, montage, stream, and Wand-config</seg>
-
-        <seg>libMagickCore-6.Q16.so, libMagickWand-6.Q16.so,
-        libMagick++-6.Q16.so,
-        numerous modules under
-        /usr/lib/ImageMagick-&imagemagick-version;/modules-Q16/{coders,filters}/,
-        /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image/Magick/Magick.so, and
-        /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image/Magick/Q16/Q16.so</seg>
-
-        <seg>/etc/ImageMagick-6,
-        /usr/include/ImageMagick-6,
-        /usr/lib/ImageMagick-&imagemagick-version;,
-        /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image,
-        /usr/lib/perl5/site_perl/&lfs-perl-version;/Image,
-        /usr/share/ImageMagick-6 and
-        /usr/share/doc/ImageMagick-6</seg>
+        <seg>
+          animate, compare, composite, conjure, convert, display,
+          identify, import, Magick-config, Magick++-config, MagickCore-config,
+          MagickWand-config, mogrify, montage, stream, and Wand-config
+        </seg>
+        <seg>
+          libMagickCore-6.Q16HDRI.so, libMagickWand-6.Q16HDRI.so, libMagick++-6.Q16HDRI.so,
+          /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image/Magick/Magick.so, and
+          /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image/Magick/Q16/Q16.so
+        </seg>
+        <seg>
+          /etc/ImageMagick-6,
+          /usr/include/ImageMagick-6,
+          /usr/lib/ImageMagick-&imagemagick-version;,
+          /usr/lib/perl5/site_perl/&lfs-perl-version;/auto/Image/Magick,
+          /usr/lib/perl5/site_perl/&lfs-perl-version;/Image/Magick,
+          /usr/share/ImageMagick-6, and
+          /usr/share/doc/ImageMagick-6
+        </seg>
       </seglistitem>
     </segmentedlist>
 
