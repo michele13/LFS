@@ -70,6 +70,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;xorg-server/xorg-server-&xorg-server-version;-upstream_glamor_fix-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -98,6 +108,12 @@
       <xref linkend="recordproto"/>,
       <xref linkend="scrnsaverproto"/>, and
       <xref linkend="presentproto"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libepoxy"/> (required for glamor, see command
+      explanations below)
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -130,6 +146,13 @@
     <title>Installation</title>
 
     <para>
+      If you are enabling glamor, apply the recommended patch by running
+      the following command:
+    </para>
+
+<screen><userinput>patch -p1 -i ../xorg-server-&xorg-server-version;-upstream_glamor_fix-1.patch</userinput></screen>
+
+    <para>
       Install the package by running the following commands:
     </para>
 
@@ -138,6 +161,7 @@
             --with-default-font-path=/usr/share/fonts \
             --enable-install-setuid \
             --enable-suid-wrapper \
+            --enable-glamor \
             --disable-dri &amp;&amp;
 make</userinput></screen>
 
@@ -165,6 +189,13 @@ EOF</userinput></screen>
       <para>
         <parameter>--enable-suid-wrapper</parameter>: Build suid-root wrapper
         for legacy driver support on rootless xserver systems.
+      </para>
+
+      <para>
+        <parameter>--enable-glamor</parameter>: Build the Glamor DIX (Device
+        Independent X) module which is currently required for Southern Islands
+        and Sea Islands radeon video chipsets, optional for some other radeons,
+        and also optional for the intel driver.
       </para>
 
       <para>
