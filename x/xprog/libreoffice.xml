@@ -7,23 +7,15 @@
   <!ENTITY libreoffice-dl "http://download.documentfoundation.org/libreoffice/src/&libreoffice-version;">
 
   <!ENTITY libreoffice-core-download-http "&libreoffice-dl;/libreoffice-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-core-md5sum        "eb44cc33bb9331db4c1b6ae0b03fff9f">
-  <!ENTITY libreoffice-core-size          "118 MB">
+  <!ENTITY libreoffice-core-md5sum        "de0d9322f3aaeb20abd5e06c5c0972bb">
+  <!ENTITY libreoffice-core-size          "145 MB">
 
   <!ENTITY libreoffice-dict-download-http "&libreoffice-dl;/libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-dict-md5sum        "8ac6a48b78c34f52e8bf43f29cf14bfe">
+  <!ENTITY libreoffice-dict-md5sum        "cd27ec060c68079a13abf0984dbbf5fa">
   <!ENTITY libreoffice-dict-size          "36 MB">
 
-  <!ENTITY libreoffice-help-download-http "&libreoffice-dl;/libreoffice-help-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-help-md5sum        "867c10167b05ba19162b78032405524b">
-  <!ENTITY libreoffice-help-size          "1.8 MB">
-
-  <!ENTITY libreoffice-translations-download-http "&libreoffice-dl;/libreoffice-translations-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-translations-md5sum        "6bcd61a3f977f78c64b1eaa13a40524c">
-  <!ENTITY libreoffice-translations-size          "122 MB">
-
-  <!ENTITY libreoffice-buildsize          "4.0 GB">
-  <!ENTITY libreoffice-time               "139 SBU">
+  <!ENTITY libreoffice-buildsize          "8.2 GB">
+  <!ENTITY libreoffice-time               "144 SBU">
 ]>
 
 <sect1 id="libreoffice" xreflabel="LibreOffice-&libreoffice-version;">
@@ -214,9 +206,9 @@ cd libreoffice-&libreoffice-dlversion;</userinput></screen>
       source directory so it won't get downloaded again:
     </para>
 
-<screen><userinput>install -dm755 src &amp;&amp;
+<screen><userinput>install -dm755 external/tarballs &amp;&amp;
 tar -xf ../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz --no-overwrite-dir --strip-components=1 &amp;&amp;
-ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz src/</userinput></screen>
+ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz external/tarballs/</userinput></screen>
 
     <note>
       <para>
@@ -236,6 +228,11 @@ ln -sv ../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz src/</useri
     -e "s|.1.gz|.1|g" \
     -i bin/distro-install-desktop-integration &amp;&amp;
 sed -e "/distro-install-file-lists/d" -i Makefile.in &amp;&amp;
+
+sed -e "/distro-install-file-lists/d" \
+    -e "s:fetch_Download_item:&amp;_unchecked:" \
+    -e "/fetch_Download_item/s:,no-check::" \
+    -i Makefile.in &amp;&amp;
 
 chmod -v +x bin/unpack-sources &amp;&amp;
 sed -e "s/target\.mk/langlist\.mk/"                \
@@ -296,7 +293,8 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
     <para>
       <command>sed -e ...</command>: First sed prevents compression of the
       manual pages, the second one prevents a script that causes install to
-      fail from running and the third one fixes the unpack script.
+      fail from running, the third one fixes the download location and the
+      fourth one fixes the unpack script.
     </para>
 
     <para>
