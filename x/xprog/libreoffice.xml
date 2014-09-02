@@ -7,15 +7,15 @@
   <!ENTITY libreoffice-dl "http://download.documentfoundation.org/libreoffice/src/&libreoffice-version;">
 
   <!ENTITY libreoffice-core-download-http "&libreoffice-dl;/libreoffice-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-core-md5sum        "de0d9322f3aaeb20abd5e06c5c0972bb">
-  <!ENTITY libreoffice-core-size          "145 MB">
+  <!ENTITY libreoffice-core-md5sum        "cf750c01b6cd0b5c6fdd1760672e67d4">
+  <!ENTITY libreoffice-core-size          "146 MB">
 
   <!ENTITY libreoffice-dict-download-http "&libreoffice-dl;/libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-dict-md5sum        "cd27ec060c68079a13abf0984dbbf5fa">
+  <!ENTITY libreoffice-dict-md5sum        "aae27f6c9db741c42acae48a1dfb0f5e">
   <!ENTITY libreoffice-dict-size          "36 MB">
 
-  <!ENTITY libreoffice-buildsize          "8.2 GB">
-  <!ENTITY libreoffice-time               "144 SBU">
+  <!ENTITY libreoffice-buildsize          "8.1 GB">
+  <!ENTITY libreoffice-time               "200 SBU">
 ]>
 
 <sect1 id="libreoffice" xreflabel="LibreOffice-&libreoffice-version;">
@@ -80,6 +80,12 @@
       <listitem>
         <para>
           Dictionaries size: &libreoffice-dict-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;libreoffice/libreoffice-&libreoffice-dlversion;-boost_1_56_0-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -175,7 +181,7 @@
 
   <sect2 role="installation">
     <title>Installation of LibreOffice</title>
-
+<!--
     <warning>
       <para>
         Untaring the libreoffice-&libreoffice-dlversion; tarball as
@@ -195,11 +201,19 @@
         <emphasis>not</emphasis> untaring it as
         <systemitem class="username">root</systemitem>. If you must untar it as
         <systemitem class="username">root</systemitem> pass the option
-        <option>--no-overwrite-dir</option> to tar. This is the default when you
+        <option>-\-no-overwrite-dir</option> to tar. This is the default when you
         untar as a user but has to be passed as an option when untaring as
         <systemitem class="username">root</systemitem>:
       </para>
-    </warning>
+    </warning>-->
+
+    <note>
+      <para>
+       It is recommended to build this package in a graphical environment,
+       because there have been reports of failures when using
+       <command>chroot</command> or <command>ssh</command>.
+      </para>
+    </note>
 
 <screen role="root"><userinput>tar -xf libreoffice-&libreoffice-dlversion;.tar.xz --no-overwrite-dir &amp;&amp;
 cd libreoffice-&libreoffice-dlversion;</userinput></screen>
@@ -227,15 +241,12 @@ ln -sv ../../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz external
       the following commands:
     </para>
 
-<screen><userinput>sed -e "/gzip -f/d"   \
+<screen><userinput>patch -Np1 -i ../libreoffice-&libreoffice-dlversion;-boost_1_56_0-1.patch &amp;&amp;
+
+sed -e "/gzip -f/d" \
     -e "s|.1.gz|.1|g" \
     -i bin/distro-install-desktop-integration &amp;&amp;
 sed -e "/distro-install-file-lists/d" -i Makefile.in &amp;&amp;
-
-sed -e "/distro-install-file-lists/d" \
-    -e "s:fetch_Download_item:&amp;_unchecked:" \
-    -e "/fetch_Download_item/s:,no-check::" \
-    -i Makefile.in &amp;&amp;
 
 chmod -v +x bin/unpack-sources &amp;&amp;
 sed -e "s/target\.mk/langlist\.mk/"                \
@@ -296,8 +307,7 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
     <para>
       <command>sed -e ...</command>: First sed prevents compression of the
       manual pages, the second one prevents a script that causes install to
-      fail from running, the third one fixes the download location and the
-      fourth one fixes the unpack script.
+      fail from running, the third one fixes the unpack script.
     </para>
 
     <para>
