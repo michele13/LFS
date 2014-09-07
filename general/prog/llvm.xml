@@ -6,21 +6,21 @@
 
   <!ENTITY llvm-homepage      "http://www.llvm.org/">
   <!ENTITY llvm-wikipedia     "https://en.wikipedia.org/wiki/LLVM">
-  <!ENTITY llvm-download-http "http://llvm.org/releases/&llvm-version;/llvm-&llvm-version;.src.tar.gz">
+  <!ENTITY llvm-download-http "http://llvm.org/releases/&llvm-version;/llvm-&llvm-version;.src.tar.xz">
   <!ENTITY llvm-download-ftp  " ">
-  <!ENTITY llvm-md5sum        "a20669f75967440de949ac3b1bad439c">
-  <!ENTITY llvm-size          "16 MB">
-  <!ENTITY llvm-buildsize     "1.2 GB">
-  <!ENTITY llvm-time          "23 SBU">
+  <!ENTITY llvm-md5sum        "d6987305a1a0e58e128c1374cd3b8fef">
+  <!ENTITY llvm-size          "12 MB">
+  <!ENTITY llvm-buildsize     "1.3 GB">
+  <!ENTITY llvm-time          "38 SBU">
 
-  <!ENTITY clang-download-http "http://llvm.org/releases/&llvm-version;/cfe-&llvm-version;.src.tar.gz">
-  <!ENTITY clang-md5sum        "87945973b7c73038871c5f849a818588">
-  <!ENTITY clang-size          "11 MB">
+  <!ENTITY clang-download-http "http://llvm.org/releases/&llvm-version;/cfe-&llvm-version;.src.tar.xz">
+  <!ENTITY clang-md5sum        "27718dd13c7df83e15f997116bbb4aef">
+  <!ENTITY clang-size          "7.9 MB">
 
-  <!ENTITY rt-version                "3.4">
-  <!ENTITY compiler-rt-download-http "http://llvm.org/releases/&rt-version;/compiler-rt-&rt-version;.src.tar.gz">
-  <!ENTITY compiler-rt-md5sum        "7938353e3a3bda85733a165e7ac4bb84">
-  <!ENTITY compiler-rt-size          "1.8 MB">
+  <!ENTITY rt-version                "&llvm-version;">
+  <!ENTITY compiler-rt-download-http "http://llvm.org/releases/&rt-version;/compiler-rt-&rt-version;.src.tar.xz">
+  <!ENTITY compiler-rt-md5sum        "02624d2a9144278c3808c00dbbab56c8">
+  <!ENTITY compiler-rt-size          "1.1 MB">
 ]>
 
 <sect1 id="llvm" xreflabel="LLVM-&llvm-version;">
@@ -140,6 +140,7 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
+      <xref linkend="cmake"/>,
       <xref linkend="doxygen"/>,
       <xref linkend="graphviz"/>,
       <xref linkend="libxml2"/>,
@@ -161,13 +162,15 @@
 <screen><userinput>tar xvf ../cfe-&llvm-version;.src.tar.gz -C tools &amp;&amp;
 tar xvf ../compiler-rt-&rt-version;.src.tar.gz -C projects &amp;&amp;
 mv -v tools/cfe-&llvm-version;.src tools/clang &amp;&amp;
-mv -v projects/compiler-rt-&rt-version; projects/compiler-rt</userinput></screen>
+mv projects/compiler-rt-&rt-version;.src projects/compiler-rt</userinput></screen>
 
     <para>
       Install LLVM by running the following commands:
     </para>
 
-<screen><userinput>sed -e 's:/docs/llvm:/share/doc/llvm:' \
+<screen><userinput>sed -i '/Support/ iLLVMLibsOptions := ../../lib/IR/Release*/Pass.o' \
+       tools/bugpoint/Makefile tools/opt/Makefile &amp;&amp;
+sed -e "s:/docs/llvm:/share/doc/llvm-&llvm-version;:" \
     -i Makefile.config.in &amp;&amp;
 CC=gcc CXX=g++ \
 ./configure --prefix=/usr \
@@ -208,8 +211,13 @@ mv -v /usr/lib/clang-analyzer/scan-build/scan-build.1 /usr/share/man/man1/</user
       <title>Command Explanations</title>
 
       <para>
-        <command>sed -e ...</command>: This sed fixes location of the installed
-        documentation.
+        <command>sed -e ... Makefile.config.in</command>: This sed fixes
+        location of the installed documentation.
+      </para>
+
+      <para>
+        <command>sed -i ... tools/opt/Makefile</command>: Crappy workaround to
+        make sure it links correctly.
       </para>
 
       <para>
