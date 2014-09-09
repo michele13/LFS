@@ -144,6 +144,9 @@
     </para>
 
 <screen><userinput>patch -p1 -i ../MesaLib-&mesalib-version;-no_libudev-1.patch &amp;&amp;
+sed -e '/0x0303/ a#define OwningPtr std::unique_ptr\n#elif HAVE_LLVM >= 0x0303' \
+    -e 's/^#if HAVE_LLVM >= 0x0303/#if HAVE_LLVM >= 0x0305/' \
+    -i src/gallium/auxiliary/gallivm/lp_bld_debug.cpp &amp;&amp;
 ./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
              --prefix=/usr \
              --sysconfdir=/etc \
@@ -184,6 +187,11 @@ make</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <command>sed -e ...lp_bld_debug.cpp</command>: Fix build problem
+        introduced with LLVM-3.5.0.
+      </para>
 
       <para>
         <parameter>CFLAGS="-O2" CXXFLAGS="-O2"</parameter>: By default, Autoconf
