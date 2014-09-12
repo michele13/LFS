@@ -156,7 +156,8 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG \
+<screen><userinput>sed -i "/scrnintstr/i #include &lt;xorg-server.h&gt;" exa/exa.h glamor/glamor.h &amp;&amp;
+./configure $XORG_CONFIG \
             --with-xkb-output=/var/lib/xkb \
             --with-default-font-path=/usr/share/fonts \
             --enable-install-setuid \
@@ -179,6 +180,11 @@ EOF</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i ...</command>: This sed fixes two header files that 
+        are broken with Glibc 2.20 so the drivers using them wouldn't fail to build.
+      </para>
 
       <para>
         <parameter>--enable-install-setuid</parameter>: The Xorg binary must run
