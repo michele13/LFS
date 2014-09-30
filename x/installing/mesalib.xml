@@ -7,11 +7,11 @@
   <!ENTITY mesalib-homepage      "http://www.mesa3d.org/">
   <!ENTITY mesalib-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
   <!ENTITY mesalib-download-http " ">
-  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesalib-version;/MesaLib-&mesalib-version;.tar.bz2">
-  <!ENTITY mesalib-md5sum        "b54b793d5b60b9da31ba1f86a6f82bf8">
-  <!ENTITY mesalib-size          "6.8 MB">
-  <!ENTITY mesalib-buildsize     "297 MB">
-  <!ENTITY mesalib-time          "4.3 SBU">
+  <!ENTITY mesalib-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/10.3/MesaLib-&mesalib-version;.tar.bz2">
+  <!ENTITY mesalib-md5sum        "bc071575596a074df2b15cac57c01ed8">
+  <!ENTITY mesalib-size          "6.9 MB">
+  <!ENTITY mesalib-buildsize     "244 MB">
+  <!ENTITY mesalib-time          "4.5 SBU">
 ]>
 
 <sect1 id="mesalib" xreflabel="MesaLib-&mesalib-version;">
@@ -72,18 +72,6 @@
 
     <bridgehead renderas="sect3">Additional Downloads</bridgehead>
     <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-no_libudev-1.patch"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Recommended patch:
-          <ulink url="&patch-root;MesaLib/MesaLib-&mesalib-version;-upstream_fixes-1.patch"/>
-        </para>
-      </listitem>
       <listitem>
         <para>
           Recommended patch:
@@ -149,12 +137,11 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>patch -p1 -i ../MesaLib-&mesalib-version;-no_libudev-1.patch &amp;&amp;
-patch -p1 -i ../MesaLib-&mesalib-version;-upstream_fixes-1.patch &amp;&amp;
-./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
+<screen><userinput>./autogen.sh CFLAGS="-O2" CXXFLAGS="-O2" \
              --prefix=/usr \
              --sysconfdir=/etc \
              --disable-dri3 \
+             --enable-sysfs \
              --enable-texture-float \
              --enable-gles1 \
              --enable-gles2 \
@@ -203,6 +190,12 @@ make</userinput></screen>
       <para>
         <parameter>--disable-dri3</parameter>: This switch disables support for
         DRI3 as it requires libudev.
+      </para>
+
+      <para>
+        <parameter>--enable-sysfs</parameter>: This switch enables simple PCI
+        identification method, required for building DRI on systems without
+        udev.
       </para>
 
       <para>
