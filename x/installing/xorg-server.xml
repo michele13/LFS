@@ -8,10 +8,10 @@
   <!ENTITY xorg-server-wikipedia     "https://en.wikipedia.org/wiki/X.Org_Server">
   <!ENTITY xorg-server-download-http "&xorg-download-http;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
   <!ENTITY xorg-server-download-ftp  "&xorg-download-ftp;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
-  <!ENTITY xorg-server-md5sum        "8a9ff6ee9907360f09b5bdabb8089502">
-  <!ENTITY xorg-server-size          "5.6 MB">
-  <!ENTITY xorg-server-buildsize     "434 MB">
-  <!ENTITY xorg-server-time          "1.6 SBU">
+  <!ENTITY xorg-server-md5sum        "b1ff364222e921d32de40c4786e8bc47">
+  <!ENTITY xorg-server-size          "5.5 MB">
+  <!ENTITY xorg-server-buildsize     "495 MB">
+  <!ENTITY xorg-server-time          "1.4 SBU">
 ]>
 
 <sect1 id="xorg-server" xreflabel="Xorg-Server-&xorg-server-version;">
@@ -70,20 +70,10 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Recommended patch:
-          <ulink url="&patch-root;xorg-server/xorg-server-&xorg-server-version;-upstream_glamor_fix-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="pixman"/>,
       <xref linkend="libpciaccess"/>,
       <xref linkend="libdrm"/>,
@@ -102,22 +92,17 @@
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="mesalib"/>,
+      <xref linkend="libepoxy"/> (required for glamor)
       <xref linkend="compositeproto"/>,
       <xref linkend="recordproto"/>,
       <xref linkend="scrnsaverproto"/>, and
       <xref linkend="presentproto"/>
     </para>
 
-    <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para>
-      <xref linkend="libepoxy"/> (required for glamor, see command
-      explanations below)
-    </para>
-
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="xf86driproto"/> (required for ATI driver),
       <xref linkend="xf86bigfontproto"/>,
       <xref linkend="xf86dgaproto"/>, and
@@ -128,7 +113,7 @@
     </para>
 
     <bridgehead renderas="sect4">Required (runtime)</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="xorg7-driver"/>,
       <xref linkend="x-fonts"/>,
       <xref linkend="xkbcomp"/> and
@@ -146,18 +131,10 @@
     <title>Installation</title>
 
     <para>
-      If you are enabling glamor, apply the recommended patch by running
-      the following command:
-    </para>
-
-<screen><userinput>patch -p1 -i ../xorg-server-&xorg-server-version;-upstream_glamor_fix-1.patch</userinput></screen>
-
-    <para>
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>sed -i "/scrnintstr/i #include &lt;xorg-server.h&gt;" exa/exa.h glamor/glamor.h &amp;&amp;
-./configure $XORG_CONFIG \
+<screen><userinput>./configure $XORG_CONFIG \
             --with-xkb-output=/var/lib/xkb \
             --with-default-font-path=/usr/share/fonts \
             --enable-install-setuid \
@@ -180,11 +157,6 @@ EOF</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i ...</command>: This sed fixes two header files that 
-        are broken with Glibc 2.20 so the drivers using them wouldn't fail to build.
-      </para>
 
       <para>
         <parameter>--enable-install-setuid</parameter>: The Xorg binary must run
