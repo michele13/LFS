@@ -91,8 +91,7 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="db"/> (only if building server),
-      <xref linkend="cyrus-sasl"/>, and
+      <xref linkend="cyrus-sasl"/> and
       <xref linkend="openssl"/>
     </para>
 
@@ -188,6 +187,8 @@ sed -i '/6.0.20/ a\\t__db_version_compat' configure &amp;&amp;
             --enable-rlookups     \
             --enable-backends=mod \
             --enable-overlays=mod \
+            --disable-bdb         \
+            --disable-hdb         \
             --disable-ndb         \
             --disable-sql &amp;&amp;
 make depend &amp;&amp;

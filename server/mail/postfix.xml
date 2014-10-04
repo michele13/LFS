@@ -69,11 +69,6 @@
 
     <bridgehead renderas="sect3">Postfix Dependencies</bridgehead>
 
-    <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
-      <xref linkend="db"/>
-    </para>
-
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
       <xref linkend="cyrus-sasl"/> and
@@ -257,7 +252,8 @@ AUXLIBS='-lssl -lcrypto'</literal></screen>
         <application>Postfix</application> by running the following commands:
       </para>
 
-<screen><userinput>make CCARGS="-DUSE_TLS -I/usr/include/openssl/                     \
+<screen><userinput>make CCARGS="-DNO_DB                                               \
+             -DUSE_TLS -I/usr/include/openssl/                     \
              -DUSE_SASL_AUTH -DUSE_CYRUS_SASL -I/usr/include/sasl" \
      AUXLIBS="-lssl -lcrypto -lsasl2"                              \
      makefiles &amp;&amp;
