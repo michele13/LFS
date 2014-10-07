@@ -7,15 +7,15 @@
   <!ENTITY libreoffice-dl "http://download.documentfoundation.org/libreoffice/src/&libreoffice-version;">
 
   <!ENTITY libreoffice-core-download-http "&libreoffice-dl;/libreoffice-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-core-md5sum        "cf750c01b6cd0b5c6fdd1760672e67d4">
+  <!ENTITY libreoffice-core-md5sum        "86aa9cad125fec16c5cd1d9d964e1d20">
   <!ENTITY libreoffice-core-size          "146 MB">
 
   <!ENTITY libreoffice-dict-download-http "&libreoffice-dl;/libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-dict-md5sum        "aae27f6c9db741c42acae48a1dfb0f5e">
+  <!ENTITY libreoffice-dict-md5sum        "996ec400156194fe26d24ffbccbc5b7a">
   <!ENTITY libreoffice-dict-size          "36 MB">
 
-  <!ENTITY libreoffice-buildsize          "8.1 GB">
-  <!ENTITY libreoffice-time               "200 SBU">
+  <!ENTITY libreoffice-buildsize          "6.6 GB">
+  <!ENTITY libreoffice-time               "61 SBU">
 ]>
 
 <sect1 id="libreoffice" xreflabel="LibreOffice-&libreoffice-version;">
@@ -149,7 +149,7 @@
       <xref linkend="vigra"/>,
       <xref linkend="liborcus"/>,
       <xref linkend="clucene"/>,
-      <xref linkend="openldap"/> (client only),
+      <xref linkend="openldap"/>,
       <xref linkend="openssl"/>,
       <xref linkend="lp_solve"/>,
       <xref linkend="poppler"/>,
@@ -208,20 +208,20 @@
 
     <note>
       <para>
-       It is recommended to build this package in a graphical environment,
-       because there have been reports of build failures, when using
+       Building this package in a graphical environment is recommended.
+       There have been reports of build failures, when using
        <command>chroot</command> or <command>ssh</command>.
       </para>
     </note>
 
-    <note>
+    <important>
       <para>
       Unlike the other packages, we suppose that you have not yet unpacked the
       package. This is so because the <option>--no-overwrite-dir</option> switch
       is needed in case you unpack as the
       <systemitem class="username">root</systemitem> user.
       </para>
-    </note>
+    </important>
 
 <screen><userinput>tar -xf libreoffice-&libreoffice-dlversion;.tar.xz --no-overwrite-dir &amp;&amp;
 cd libreoffice-&libreoffice-dlversion;</userinput></screen>
@@ -239,8 +239,8 @@ ln -sv ../../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz external
       <para>
         During the build process, some packages will be downloaded (including
         the ones listed as recommended and optional dependencies) if they are
-        not present on the system. Doing so, build time may be different
-        for everyone.
+        not present on the system. Because of this, build time may vary from the
+        published time more than usual.
       </para>
     </note>
 
@@ -313,9 +313,9 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
     <title>Command Explanations</title>
 
     <para>
-      <command>sed -e ...</command>: First sed prevents compression of the
-      manual pages, the second one prevents a script that causes install to
-      fail from running, the third one fixes the unpack script.
+      <command>sed -e ...</command>: The first sed prevents compression of the
+      manual pages, the second one prevents install from failing, and
+      the third one fixes the unpack script.
     </para>
 
     <para>
