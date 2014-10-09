@@ -81,7 +81,6 @@
     <para role="optional">
       <xref linkend="acl"/>,
       <xref linkend="gnutls"/>,
-      <xref linkend="libgcrypt"/>,
       <xref linkend="libpaper"/>,
       <xref linkend="mitkrb"/>,
       <xref linkend="php"/>,
@@ -188,24 +187,19 @@
       following commands:
     </para>
 
-    <!-- docdir is also document root for cups administration interface, so
-    let's just put it in /usr/share/cups/doc and create symlink in
-    /usr/share/doc
-    When not using libdir switch, CUPS will install libraries into /usr/lib64
-    on a 64 bit system, and since /usr/lib64 is symlink to /usr/lib it might
-    introduce some difficulties with packaging -->
-<screen><userinput>sed -i '/MAN.*.EXT/s:.gz::g' \
-       configure config-scripts/cups-manpages.m4 &amp;&amp;
-sed -i 's:555:755:g;s:444:644:g' Makedefs.in     &amp;&amp;
+<screen><userinput>sed -i 's:555:755:g;s:444:644:g' Makedefs.in           &amp;&amp;
+sed -i '/MAN.*.EXT/s:.gz::g' \
+       configure config-scripts/cups-manpages.m4       &amp;&amp;
+sed -i '/LIBGCRYPTCONFIG/d' config-scripts/cups-ssl.m4 &amp;&amp;
+
 aclocal  -I config-scripts &amp;&amp;
 autoconf -I config-scripts &amp;&amp;
 
-CC=gcc \
 ./configure --libdir=/usr/lib                 \
             --disable-systemd                 \
             --with-rcdir=/tmp/cupsinit        \
-            --with-docdir=/usr/share/cups/doc \
-            --with-system-groups=lpadmin      &amp;&amp;
+            --with-system-groups=lpadmin      \
+            --with-docdir=/usr/share/cups/doc-&cups-version; &amp;&amp;
 make</userinput></screen>
 
    <para>
@@ -223,7 +217,7 @@ make</userinput></screen>
 
 <screen role="root"><userinput>make install &amp;&amp;
 rm -rf /tmp/cupsinit &amp;&amp;
-ln -svnf ../doc/cups-&cups-version; /usr/share/cups/doc</userinput></screen>
+ln -svnf ../cups/doc-&cups-version; /usr/share/doc/cups-&cups-version;</userinput></screen>
 
     <para>
       Create a basic <application>Cups</application> client configuration file
@@ -258,18 +252,21 @@ rm -rf /usr/share/cups/data/testprint</userinput></screen>
     <title>Command Explanations</title>
 
     <para>
-      <command>sed ... cups-manpages.m4</command>: In BLFS, uncompressed man
-      pages are preferred.
-    </para>
-
-    <para>
       <command>sed ... Makedefs.in</command>: Fix files and directories
       permissions.
     </para>
 
     <para>
-      <envar>CC=gcc</envar>: This environment variable ensures that gcc
-      is used if clang is installed.  The build fails with the clang compiler.
+      <command>sed ... cups-manpages.m4</command>: This sed prevents
+      compression of the man pages by default.
+    </para>
+
+    <para>
+      <command>sed ... cups-ssl.m4</command>: Prevent
+      <command>configure</command> script from searching
+      <command>libgcrypt-config</command>, because
+      <application>libgcrypt</application> is not used anywere else in the
+      package.
     </para>
 
     <para>
