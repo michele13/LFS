@@ -6,37 +6,33 @@ Origin:                  sabotage
 Description:             Replaces timeconst.bc with the C version thus removing
                          dependency on bc.
 
-diff -Naur linux-3.15.6.orig/kernel/Makefile linux-3.15.6/kernel/Makefile
---- linux-3.15.6.orig/kernel/Makefile	2014-07-18 01:23:31.000000000 +0200
-+++ linux-3.15.6/kernel/Makefile	2014-07-26 18:27:22.773033796 +0200
-@@ -112,19 +112,13 @@
+--- linux-3.17.orig/kernel/time/Makefile
++++ linux-3.17/kernel/time/Makefile
+@@ -17,17 +17,11 @@
  
  $(obj)/time.o: $(obj)/timeconst.h
  
 -quiet_cmd_hzfile = HZFILE  $@
 -      cmd_hzfile = echo "hz=$(CONFIG_HZ)" > $@
--
++hostprogs-y    += mktimeconst
++quiet_cmd_mktimeconst = TIMEC   $@
++	cmd_mktimeconst = $(obj)/mktimeconst $(CONFIG_HZ) $@ || ( rm -f $@ && exit 1 )
+ 
 -targets += hz.bc
 -$(obj)/hz.bc: $(objtree)/include/config/hz.h FORCE
 -	$(call if_changed,hzfile)
 -
 -quiet_cmd_bc  = BC      $@
 -      cmd_bc  = bc -q $(filter-out FORCE,$^) > $@
-+hostprogs-y    += mktimeconst
-+quiet_cmd_mktimeconst = TIMEC   $@
-+	cmd_mktimeconst = $(obj)/mktimeconst $(CONFIG_HZ) $@ || ( rm -f $@ && exit 1 )
- 
+-
  targets += timeconst.h
 -$(obj)/timeconst.h: $(obj)/hz.bc $(src)/timeconst.bc FORCE
 -	$(call if_changed,bc)
 +$(obj)/timeconst.h: $(obj)/mktimeconst FORCE
 +	$(call if_changed,mktimeconst)
  
- ###############################################################################
- #
-diff -Naur linux-3.15.6.orig/kernel/mktimeconst.c linux-3.15.6/kernel/mktimeconst.c
---- linux-3.15.6.orig/kernel/mktimeconst.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-3.15.6/kernel/mktimeconst.c	2014-07-26 18:26:45.490575624 +0200
+--- /dev/null
++++ linux-3.17/kernel/time/mktimeconst.c
 @@ -0,0 +1,110 @@
 +/* Copyright 2010 Parallels Inc, licensed under GPLv2 */
 +/* Copyright 2010-2013 Rob Landley <rob@landley.net> */
