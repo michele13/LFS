@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY sqlite-dl-version    "3080600">
+
+  <!ENTITY sqlite-homepage      "http://www.sqlite.org/">
+  <!ENTITY sqlite-wikipedia     "http://en.wikipedia.org/wiki/SQLite">
+  <!ENTITY sqlite-download-http "http://sqlite.org/2014/sqlite-autoconf-&sqlite-dl-version;.tar.gz">
+  <!ENTITY sqlite-download-ftp  " ">
+  <!ENTITY sqlite-md5sum        "f7e4a156b583abeba349629e2364224b">
+  <!ENTITY sqlite-size          "1.9 MB">
+  <!ENTITY sqlite-buildsize     "16 MB">
+  <!ENTITY sqlite-time          "0.2 SBU">
+
+]>
+
+<sect1 id="sqlite" xreflabel="SQLite-&sqlite-version;">
+  <?dbhtml filename="sqlite.html"?>
+
+  <title>SQLite-&sqlite-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The SQLite package is a software library that implements a self-contained,
+      serverless, zero-configuration, transactional SQL database engine.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&sqlite-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&sqlite-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&sqlite-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&sqlite-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &sqlite-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &sqlite-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &sqlite-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &sqlite-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="readline"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install SQLite by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            CFLAGS="-g -O2 \
+                    -DSQLITE_ENABLE_FTS3=1 \
+                    -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+                    -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+                    -DSQLITE_SECURE_DELETE=1" &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1
+        -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_SECURE_DELETE
+        -DSQLITE_ENABLE_UNLOCK_NOTIFY=1"</parameter>: Applications such as
+        Firefox require secure delete and enable unlock notify to be turned on.
+        The only way to do this is to include them in the CFLAGS. By default,
+        these are set to <literal>"-g -O2"</literal> so we specify that to
+        preserve those settings. You may, of course, wish to omit the
+        <literal>'-g'</literal> if you do not wish to create debugging
+        information. For further information on what can be specified see <ulink
+        url="http://www.sqlite.org/compile.html"/>.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="sqlite">
+      <primary sortas="b-sqlite3">sqlite3</primary>
+    </indexterm>
+    <indexterm zone="sqlite">
+      <primary sortas="c-libsqlite3">libsqlite3.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/sqlite3
+/usr/include/sqlite3ext.h
+/usr/include/sqlite3.h
+/usr/lib/libsqlite3.so
+/usr/lib/pkgconfig/sqlite3.pc
+/usr/share/man/man1/sqlite3.1</literal></screen>
+
+  </sect2>
+
+</sect1>

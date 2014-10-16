@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY xorg-server-homepage      "http://www.x.org/">
+  <!ENTITY xorg-server-wikipedia     "https://en.wikipedia.org/wiki/X.Org_Server">
+  <!ENTITY xorg-server-download-http "&xorg-download-http;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
+  <!ENTITY xorg-server-download-ftp  "&xorg-download-ftp;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
+  <!ENTITY xorg-server-md5sum        "b1ff364222e921d32de40c4786e8bc47">
+  <!ENTITY xorg-server-size          "5.5 MB">
+  <!ENTITY xorg-server-buildsize     "495 MB">
+  <!ENTITY xorg-server-time          "1.4 SBU">
+]>
+
+<sect1 id="xorg-server" xreflabel="Xorg-Server-&xorg-server-version;">
+  <?dbhtml filename="xorg-server.html"?>
+
+  <title>Xorg-Server-&xorg-server-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Xorg Server is the core of the X Window system.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&xorg-server-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&xorg-server-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&xorg-server-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&xorg-server-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &xorg-server-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &xorg-server-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &xorg-server-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &xorg-server-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="pixman"/>,
+      <xref linkend="libpciaccess"/>,
+      <xref linkend="libdrm"/>,
+      <xref linkend="openssl"/>,
+      <xref linkend="fixesproto"/>,
+      <xref linkend="libxkbfile"/>,
+      <xref linkend="damageproto"/>,
+      <xref linkend="xcmiscproto"/>,
+      <xref linkend="bigreqsproto"/>,
+      <xref linkend="randrproto"/>,
+      <xref linkend="renderproto"/>,
+      <xref linkend="libxfont"/>,
+      <xref linkend="videoproto"/>,
+      <xref linkend="resourceproto"/>, and
+      <xref linkend="xineramaproto"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="mesalib"/>,
+      <xref linkend="libepoxy"/> (required for glamor)
+      <xref linkend="compositeproto"/>,
+      <xref linkend="recordproto"/>,
+      <xref linkend="scrnsaverproto"/>, and
+      <xref linkend="presentproto"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="xf86driproto"/> (required for ATI driver),
+      <xref linkend="xf86bigfontproto"/>,
+      <xref linkend="xf86dgaproto"/>, and
+      <xref linkend="libdmx"/>,
+      <xref linkend="libxtst"/>,
+      <xref linkend="libxaw"/> and
+      <xref linkend="libxres"/> (for DMX)
+    </para>
+
+    <bridgehead renderas="sect4">Required (runtime)</bridgehead>
+    <para>
+      <xref linkend="xorg7-driver"/>,
+      <xref linkend="x-fonts"/>,
+      <xref linkend="xkbcomp"/> and
+      <xref linkend="xkeyboard-config"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional (runtime)</bridgehead>
+    <para>
+      <xref linkend="acpid"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure $XORG_CONFIG \
+            --with-xkb-output=/var/lib/xkb \
+            --with-default-font-path=/usr/share/fonts \
+            --enable-install-setuid \
+            --enable-suid-wrapper \
+            --enable-glamor \
+            --disable-dri &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now as the <systemitem class="username">root</systemitem>
+      user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+mkdir -pv /etc/X11/xorg.conf.d &amp;&amp;
+cat &gt;&gt; /etc/sysconfig/createfiles &lt;&lt; "EOF"
+<literal>/tmp/.ICE-unix dir 1777 root root
+/tmp/.X11-unix dir 1777 root root</literal>
+EOF</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-install-setuid</parameter>: The Xorg binary must run
+        as the root user. This switch ensures that the binary is installed
+        setuid when <command>make</command> is run by an unprivileged user.
+      </para>
+
+      <para>
+        <parameter>--enable-suid-wrapper</parameter>: Build suid-root wrapper
+        for legacy driver support on rootless xserver systems.
+      </para>
+
+      <para>
+        <parameter>--enable-glamor</parameter>: Build the Glamor DIX (Device
+        Independent X) module which is currently required for Southern Islands
+        and Sea Islands radeon video chipsets, optional for some other radeons,
+        and also optional for the intel driver.
+      </para>
+
+      <para>
+        <parameter>--disable-dri</parameter>: This switch disables bulding DRI
+        extension. Omit this switch if you want to build ATI video driver.
+      </para>
+
+      <para>
+        <option>--enable-dmx</option>: Build DMX (Distributed Multihead X)
+        server.
+      </para>
+
+      <para>
+        <command>cat &gt;&gt; /etc/sysconfig/createfiles...</command>: This
+        command creates the <filename class="directory">/tmp/.ICE-unix</filename>
+        and <filename class="directory">/tmp/.X11-unix</filename> directories at
+        startup, and ensures that the permissions and ownership are correct as
+        required by the server.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="xorg-server">
+      <primary sortas="b-cvt">cvt</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxaddinput">dmxaddinput</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxaddscreen">dmxaddscreen</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxinfo">dmxinfo</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxreconfig">dmxreconfig</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxresize">dmxresize</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxrminput">dmxrminput</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxrmscreen">dmxrmscreen</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxtodmx">dmxtodmx</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-dmxwininfo">dmxwininfo</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-gtf">gtf</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-vdltodmx">vdltodmx</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-X">X</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-Xdmx">Xdmx</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-xdmxconfig">xdmxconfig</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-Xnest">Xnest</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-Xorg">Xorg</primary>
+    </indexterm>
+    <indexterm zone="xorg-server">
+      <primary sortas="b-Xvfb">Xvfb</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/X11/xorg.conf.d/
+/usr/bin/cvt
+/usr/bin/dmxaddinput
+/usr/bin/dmxaddscreen
+/usr/bin/dmxinfo
+/usr/bin/dmxreconfig
+/usr/bin/dmxresize
+/usr/bin/dmxrminput
+/usr/bin/dmxrmscreen
+/usr/bin/dmxtodmx
+/usr/bin/dmxwininfo
+/usr/bin/gtf
+/usr/bin/vdltodmx
+/usr/bin/X
+/usr/bin/Xdmx
+/usr/bin/xdmxconfig
+/usr/bin/Xnest
+/usr/bin/Xorg
+/usr/bin/Xvfb
+/usr/include/xorg/
+/usr/lib/pkgconfig/xorg-server.pc
+/usr/lib/xorg/
+/usr/share/aclocal/xorg-server.m4
+/usr/share/man/man1/cvt.1
+/usr/share/man/man1/dmxtodmx.1
+/usr/share/man/man1/gtf.1
+/usr/share/man/man1/vdltodmx.1
+/usr/share/man/man1/Xdmx.1
+/usr/share/man/man1/xdmxconfig.1
+/usr/share/man/man1/Xnest.1
+/usr/share/man/man1/Xorg.1
+/usr/share/man/man1/Xserver.1
+/usr/share/man/man1/Xvfb.1
+/usr/share/man/man4/exa.4
+/usr/share/man/man4/fbdevhw.4
+/usr/share/man/man5/xorg.conf.5
+/usr/share/man/man5/xorg.conf.d.5
+/usr/share/X11/xorg.conf.d/
+/var/lib/xkb/</literal></screen>
+
+  </sect2>
+
+</sect1>

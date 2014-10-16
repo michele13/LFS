@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY curl-homepage      "http://curl.haxx.se/">
+  <!ENTITY curl-wikipedia     "http://en.wikipedia.org/wiki/CURL">
+  <!ENTITY curl-download-http "http://curl.haxx.se/download/curl-&curl-version;.tar.bz2">
+  <!ENTITY curl-download-ftp  " ">
+  <!ENTITY curl-md5sum        "fdafc30cbf0acd2fe6bc31b956b856a5">
+  <!ENTITY curl-size          "2.5 MB">
+  <!ENTITY curl-buildsize     "40 MB">
+  <!ENTITY curl-time          "0.4 SBU">
+]>
+
+<sect1 id="curl" xreflabel="cURL-&curl-version;">
+  <?dbhtml filename="curl.html"?>
+
+  <title>cURL-&curl-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The cURL package contains a utility and a library used for transferring
+      files with URL syntax to any of the following protocols: FTP, FTPS, HTTP,
+      HTTPS, SCP, SFTP, TFTP, TELNET, DICT, LDAP, LDAPS and FILE. Its ability to
+      both download and upload files can be incorporated into other programs to
+      support functions like streaming media.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&curl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&curl-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&curl-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&curl-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &curl-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &curl-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &curl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &curl-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="openssl"/> and
+      <xref linkend="cacerts"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libidn"/>,
+      <xref linkend="mitkrb"/>,
+      <xref linkend="openldap"/>,
+      <ulink url="http://daniel.haxx.se/projects/c-ares/">c-ares</ulink>,
+      <ulink url="https://launchpad.net/libmetalink/">libmetalink</ulink>,
+      <ulink url="http://www.libssh2.org">libssh2</ulink>, and
+      <ulink url="http://www.vintela.com/resources/topics/spnego/">SPNEGO</ulink>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --enable-threaded-resolver &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-threaded-resolver</parameter>: This switch enables
+        cURL's builtin threaded DNS resolver.
+      </para>
+
+      <para>
+        <option>--with-gssapi</option>: This parameter adds Kerberos 5 support
+        to <filename class="libraryfile">libcurl</filename>.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="curl">
+      <primary sortas="b-curl">curl</primary>
+    </indexterm>
+    <indexterm zone="curl">
+      <primary sortas="b-curl-config">curl-config</primary>
+    </indexterm>
+    <indexterm zone="curl">
+      <primary sortas="c-libcurl.so">libcurl.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/curl
+/usr/bin/curl-config
+/usr/include/curl/
+/usr/lib/libcurl.so
+/usr/lib/pkgconfig/libcurl.pc
+/usr/share/man/man1/curl.1
+/usr/share/man/man1/curl-config.1
+/usr/share/man/man3/libcurl.3</literal></screen>
+
+  </sect2>
+
+</sect1>

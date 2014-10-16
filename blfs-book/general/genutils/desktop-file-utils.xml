@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY desktop-file-utils-homepage      "http://freedesktop.org/wiki/Software/desktop-file-utils/">
+  <!ENTITY desktop-file-utils-wikipedia     " ">
+  <!ENTITY desktop-file-utils-download-http
+           "http://freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-&desktop-file-utils-version;.tar.xz">
+  <!ENTITY desktop-file-utils-download-ftp  " ">
+  <!ENTITY desktop-file-utils-md5sum        "c6b9f9aac1ea143091178c23437e6cd0">
+  <!ENTITY desktop-file-utils-size          "128 KB">
+  <!ENTITY desktop-file-utils-buildsize     "2.3 MB">
+  <!ENTITY desktop-file-utils-time          "less than 0.1 SBU">
+]>
+
+<sect1 id="desktop-file-utils" xreflabel="desktop-file-utils-&desktop-file-utils-version;">
+  <?dbhtml filename="desktop-file-utils.html"?>
+
+  <title>desktop-file-utils-&desktop-file-utils-version;</title>
+
+  <indexterm zone="desktop-file-utils">
+    <primary sortas="a-desktop-file-utils">desktop-file-utils</primary>
+  </indexterm>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Desktop File Utils package contains command line utilities for working
+      with <ulink
+      url="http://standards.freedesktop.org/desktop-entry-spec/latest/"> desktop
+      entries</ulink>. These utilities are used by Desktop Environments and
+      other applications to manipulate the MIME-types application databases and
+      help adhere to the Desktop Entry Specification.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&desktop-file-utils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&desktop-file-utils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&desktop-file-utils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&desktop-file-utils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &desktop-file-utils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &desktop-file-utils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &desktop-file-utils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &desktop-file-utils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="glib2"/>
+    </para>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation</title>
+
+    <para>
+      Install Desktop File Utils by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2 role="configuration">
+    <title>Configuration</title>
+
+    <para>
+      The <ulink
+      url="http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html">
+      XDG Base Directory</ulink> specification defines the standard locations
+      for applications to place data and configuration files. These files can be
+      used, for instance, to define the menu structure and menu items in a
+      desktop environment.
+    </para>
+
+    <para>
+      The default location for configuration files to be installed is <filename
+      class="directory">/etc/xdg</filename>, and the default locations for data
+      files are <filename class="directory">/usr/local/share</filename> and
+      <filename class="directory">/usr/share</filename>. These locations can be
+      extended with the environment variables <envar>XDG_CONFIG_DIRS</envar> and
+      <envar>XDG_DATA_DIRS</envar>, respectively.
+    </para>
+
+    <para>
+      When a package installs a <filename>.desktop</filename> file to a location
+      in one of the base data directories, the database that maps MIME-types to
+      available applications can be updated. For instance, the cache file at
+      <filename>/usr/share/applications/mimeinfo.cache</filename> can be rebuilt
+      by executing the following command as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>update-desktop-database /usr/share/applications</userinput></screen>
+
+  </sect2>
+
+  <sect2 role="content">
+    <title>Contents</title>
+
+    <indexterm zone="desktop-file-utils">
+      <primary sortas="b-desktop-file-edit">desktop-file-edit</primary>
+    </indexterm>
+    <indexterm zone="desktop-file-utils">
+      <primary sortas="b-desktop-file-install">desktop-file-install</primary>
+    </indexterm>
+    <indexterm zone="desktop-file-utils">
+      <primary sortas="b-desktop-file-validate">desktop-file-validate</primary>
+    </indexterm>
+    <indexterm zone="desktop-file-utils">
+      <primary sortas="b-update-desktop-database">update-desktop-database</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/desktop-file-edit
+/usr/bin/desktop-file-install
+/usr/bin/desktop-file-validate
+/usr/bin/update-desktop-database
+/usr/share/man/man1/desktop-file-edit.1
+/usr/share/man/man1/desktop-file-install.1
+/usr/share/man/man1/desktop-file-validate.1
+/usr/share/man/man1/update-desktop-database.1</literal></screen>
+
+  </sect2>
+
+</sect1>

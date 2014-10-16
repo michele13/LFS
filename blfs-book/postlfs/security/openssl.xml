@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY openssl-homepage      "http://www.openssl.org/">
+  <!ENTITY openssl-wikipedia     "http://en.wikipedia.org/wiki/OpenSSL">
+  <!ENTITY openssl-download-http "http://www.openssl.org/source/openssl-&openssl-version;.tar.gz">
+  <!ENTITY openssl-download-ftp  "ftp://ftp.openssl.org/source/openssl-&openssl-version;.tar.gz">
+  <!ENTITY openssl-md5sum        "f7175c9cd3c39bb1907ac8bba9df8ed3">
+  <!ENTITY openssl-size          "4.3 MB">
+  <!ENTITY openssl-buildsize     "51 MB">
+  <!ENTITY openssl-time          "1.0 SBU">
+]>
+
+<sect1 id="openssl" xreflabel="OpenSSL-&openssl-version;">
+  <?dbhtml filename="openssl.html"?>
+
+  <title>OpenSSL-&openssl-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The OpenSSL package contains management tools and libraries relating to
+      cryptography. These are useful for providing cryptography functions to
+      other packages, such as OpenSSH, email applications and web browsers (for
+      accessing HTTPS sites).
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&openssl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&openssl-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&openssl-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&openssl-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &openssl-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &openssl-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &openssl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &openssl-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;openssl/openssl-&openssl-version;-fix_parallel_build-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="mitkrb"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install OpenSSL with the following commands:
+    </para>
+
+<!-- libdir=lib so it doesn't write over /usr/lib64 symlink on 64 bit system.
+     Might break packaging. -->
+
+<screen><userinput>patch -p1 -i ../openssl-&openssl-version;-fix_parallel_build-1.patch &amp;&amp;
+./config --prefix=/usr \
+         --openssldir=/etc/ssl \
+         --libdir=lib \
+         shared \
+         zlib-dynamic &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Disable installing the static libraries:
+    </para>
+
+<screen><userinput>sed -i 's# libcrypto.a##;s# libssl.a##' Makefile</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<!-- dev note: make INSTALL_PREFIX=<DESTDIR> MANDIR=/usr/share/man MANSUFFIX=ssl install -->
+
+<screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>shared</parameter>: This parameter forces the creation of
+        shared libraries along with the static libraries.
+      </para>
+
+      <para>
+        <parameter>zlib-dynamic</parameter>: This parameter adds compression and
+        decompression functionality using the <filename
+        class="libraryfile">libz</filename> library.
+      </para>
+
+      <para>
+        <command>make MANDIR=/usr/share/man MANSUFFIX=ssl install</command>:
+        This command installs OpenSSL with the man pages in <filename
+        class="directory">/usr/share/man</filename> instead of <filename
+        class="directory">/etc/ssl/man</filename> and appends "ssl" suffix to
+        the manual page names to avoid conflicts with manual pages installed by
+        other packages.
+      </para>
+
+      <para>
+        <option>no-rc5 no-idea</option>: When added to the
+        <command>./config</command> command, this will eliminate the building of
+        those encryption methods. Patent licenses may be needed for you to
+        utilize either of those methods in your projects.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      Most users will want to install <xref linkend='cacerts'/> for validation
+      of downloaded certificates. For example, these certificates can be used by
+      Git, cURL or Wget when accessing secure (HTTPS protocol) sites. Users who
+      just want to use OpenSSL for providing functions to other programs such as
+      OpenSSH and web browsers do not need to worry about additional
+      configuration.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="openssl">
+      <primary sortas="b-c_rehash">c_rehash</primary>
+    </indexterm>
+    <indexterm zone="openssl">
+      <primary sortas="b-openssl">openssl</primary>
+    </indexterm>
+    <indexterm zone="openssl">
+      <primary sortas="c-libcrypto">libcrypto.so</primary>
+    </indexterm>
+    <indexterm zone="openssl">
+      <primary sortas="c-libssl">libssl.so</primary>
+    </indexterm>
+    <indexterm zone="openssl">
+      <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/ssl/
+/etc/ssl/openssl.cnf
+/usr/bin/c_rehash
+/usr/bin/openssl
+/usr/include/openssl/
+/usr/lib/engines/
+/usr/lib/libcrypto.so
+/usr/lib/libssl.so
+/usr/lib/pkgconfig/libcrypto.pc
+/usr/lib/pkgconfig/libssl.pc
+/usr/lib/pkgconfig/openssl.pc
+/usr/share/man/man1/openssl.1ssl
+/usr/share/man/man3/crypto.3ssl
+/usr/share/man/man3/ssl.3ssl
+/usr/share/man/man5/config.5ssl</literal></screen>
+
+  </sect2>
+
+</sect1>

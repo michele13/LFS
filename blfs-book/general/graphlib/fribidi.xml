@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY fribidi-homepage      "http://www.fribidi.org/">
+  <!ENTITY fribidi-wikipedia     "http://en.wikipedia.org/wiki/Bi-directional_text">
+  <!ENTITY fribidi-download-http "http://fribidi.org/download/fribidi-&fribidi-version;.tar.bz2">
+  <!ENTITY fribidi-download-ftp  " ">
+  <!ENTITY fribidi-md5sum        "ce93d862344991173dabb609bf93ca1d">
+  <!ENTITY fribidi-size          "625 KB">
+  <!ENTITY fribidi-buildsize     "6.5 MB">
+  <!ENTITY fribidi-time          "0.1 SBU">
+]>
+
+<sect1 id="fribidi" xreflabel="FriBidi-&fribidi-version;">
+  <?dbhtml filename="fribidi.html"?>
+
+  <title>FriBidi-&fribidi-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The FriBidi package is an implementation of the <ulink
+      url="http://www.unicode.org/reports/tr9/">Unicode Bidirectional Algorithm
+      (BIDI)</ulink>. This is useful for supporting Arabic and Hebrew alphabets
+      in other packages.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&fribidi-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&fribidi-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&fribidi-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&fribidi-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &fribidi-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &fribidi-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &fribidi-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &fribidi-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="glib2"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>sed -i "s|glib/gstrfuncs\.h|glib.h|" charset/fribidi-char-sets.c &amp;&amp;
+sed -i "s|glib/gmem\.h|glib.h|" lib/mem.h &amp;&amp;
+./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i ...</command>: These commands fix two header files if
+        GLib is linked into the build.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="fribidi">
+      <primary sortas="b-fribidi">fribidi</primary>
+    </indexterm>
+    <indexterm zone="fribidi">
+      <primary sortas="c-libfribidi.so">libfribidi.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/fribidi
+/usr/include/fribidi/
+/usr/lib/libfribidi.so
+/usr/lib/pkgconfig/fribidi.pc
+/usr/share/man/man3/fribidi_*.3</literal></screen>
+
+  </sect2>
+
+</sect1>

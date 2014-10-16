@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY shadow-homepage      " ">
+  <!ENTITY shadow-wikipedia     "http://en.wikipedia.org/wiki/Shadow_password#Shadow_file">
+  <!ENTITY shadow-download-http "http://pkg-shadow.alioth.debian.org/releases/shadow-&shadow-version;.tar.xz">
+  <!ENTITY shadow-download-ftp  " ">
+  <!ENTITY shadow-md5sum        "2bfafe7d4962682d31b5eba65dba4fc8">
+  <!ENTITY shadow-size          "1.5 MB">
+  <!ENTITY shadow-buildsize     "36 MB">
+  <!ENTITY shadow-time          "0.2 SBU">
+]>
+
+<sect1 id="shadow" xreflabel="shadow-&shadow-version;">
+  <?dbhtml filename="shadow.html"?>
+
+  <title>shadow-&shadow-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The shadow package contains programs for handling passwords in a secure
+      way.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&shadow-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&shadow-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&shadow-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&shadow-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &shadow-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &shadow-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &shadow-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &shadow-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="cracklib"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Disable the installation of the <command>groups</command> program and its
+      man pages, as Coreutils provides a better version:
+    </para>
+
+<screen><userinput>sed -i 's/groups$(EXEEXT) //' src/Makefile.in &amp;&amp;
+find man -name Makefile.in -exec sed -i 's/groups\.1 / /' {} \;</userinput></screen>
+
+    <para>
+      Instead of using the default <emphasis>crypt</emphasis> method, use the
+      more secure <emphasis>SHA-512</emphasis> method of password encryption,
+      which also allows passwords longer than 8 characters. It is also necessary
+      to change the obsolete <filename class="directory">/var/spool/mail</filename>
+      location for user mailboxes that Shadow uses by default to the <filename
+      class="directory">/var/mail</filename> location used currently:
+    </para>
+
+<screen><userinput>sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
+       -e 's@/var/spool/mail@/var/mail@' etc/login.defs</userinput></screen>
+
+    <para>
+      This sed expands PATH to <filename class="directory">/usr/local/bin</filename>
+      for normal and <systemitem class="username">root</systemitem> user and to
+      <filename class="directory">/usr/local/sbin</filename> for <systemitem
+      class="username">root</systemitem> user only:
+    </para>
+
+<screen><userinput>sed -i -e 's@PATH=/sbin@PATH=/usr/local/sbin:/usr/local/bin:/sbin@' \
+       -e 's@PATH=/bin@PATH=/usr/local/bin:/bin@' etc/login.defs</userinput></screen>
+
+    <note>
+      <para>
+        If you would like to build Shadow with Cracklib support, add
+        <parameter>--with-libcrack</parameter> to the <command>configure</command>
+        command below and run the following:
+      </para>
+
+<screen><userinput>sed -i 's@DICTPATH.*@DICTPATH\t/lib/cracklib/pw_dict@' etc/login.defs</userinput></screen>
+
+    </note>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr/local \
+            --sysconfdir=/etc \
+            --disable-nls &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--with-libcrack</option>: This switch enables the use of CrackLib.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      Shadow's stock configuration for the
+      <command>useradd</command> utility may not be desirable for your
+      installation. One default parameter causes <command>useradd</command> to
+      create a mailbox file for any newly created user.
+      <command>useradd</command> will make the group ownership of this file to
+      the <systemitem class="groupname">mail</systemitem> group with 0660
+      permissions. If you would prefer that these mailbox files are not created
+      by <command>useradd</command>, issue the following command as the
+      <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>sed -i 's/yes/no/' /etc/default/useradd</userinput></screen>
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="shadow">
+      <primary sortas="b-chage">chage</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-chfn">chfn</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-chsh">chsh</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-expiry">expiry</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-faillog">faillog</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-gpasswd">gpasswd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-lastlog">lastlog</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-login">login</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-newgrp">newgrp</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-passwd">passwd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-sg">sg</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-su">su</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-chgpasswd">chgpasswd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-chpasswd">chpasswd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-groupadd">groupadd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-groupdel">groupdel</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-groupmems">groupmems</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-groupmod">groupmod</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-grpck">grpck</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-grpconv">grpconv</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-grpunconv">grpunconv</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-logoutd">logoutd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-newusers">newusers</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-nologin">nologin</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-pwck">pwck</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-pwconv">pwconv</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-pwunconv">pwunconv</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-useradd">useradd</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-userdel">userdel</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-usermod">usermod</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-vipgr">vipgr</primary>
+    </indexterm>
+    <indexterm zone="shadow">
+      <primary sortas="b-vipw">vipw</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/default/
+/etc/default/useradd
+/etc/limits
+/etc/login.access
+/etc/login.defs
+/usr/local/bin/chage
+/usr/local/bin/chfn
+/usr/local/bin/chsh
+/usr/local/bin/expiry
+/usr/local/bin/faillog
+/usr/local/bin/gpasswd
+/usr/local/bin/lastlog
+/usr/local/bin/login
+/usr/local/bin/newgrp
+/usr/local/bin/passwd
+/usr/local/bin/sg
+/usr/local/bin/su
+/usr/local/sbin/chgpasswd
+/usr/local/sbin/chpasswd
+/usr/local/sbin/groupadd
+/usr/local/sbin/groupdel
+/usr/local/sbin/groupmems
+/usr/local/sbin/groupmod
+/usr/local/sbin/grpck
+/usr/local/sbin/grpconv
+/usr/local/sbin/grpunconv
+/usr/local/sbin/logoutd
+/usr/local/sbin/newusers
+/usr/local/sbin/nologin
+/usr/local/sbin/pwck
+/usr/local/sbin/pwconv
+/usr/local/sbin/pwunconv
+/usr/local/sbin/useradd
+/usr/local/sbin/userdel
+/usr/local/sbin/usermod
+/usr/local/sbin/vigr
+/usr/local/sbin/vipw
+/usr/local/share/man/man1/chage.1
+/usr/local/share/man/man1/chfn.1
+/usr/local/share/man/man1/chsh.1
+/usr/local/share/man/man1/expiry.1
+/usr/local/share/man/man1/gpasswd.1
+/usr/local/share/man/man1/login.1
+/usr/local/share/man/man1/newgrp.1
+/usr/local/share/man/man1/passwd.1
+/usr/local/share/man/man1/sg.1
+/usr/local/share/man/man1/su.1
+/usr/local/share/man/man5/limits.5
+/usr/local/share/man/man5/login.access.5
+/usr/local/share/man/man5/login.defs.5
+/usr/local/share/man/man5/passwd.5
+/usr/local/share/man/man5/shadow.5
+/usr/local/share/man/man8/chgpasswd.8
+/usr/local/share/man/man8/chpasswd.8
+/usr/local/share/man/man8/faillog.8
+/usr/local/share/man/man8/groupadd.8
+/usr/local/share/man/man8/groupdel.8
+/usr/local/share/man/man8/groupmems.8
+/usr/local/share/man/man8/groupmod.8
+/usr/local/share/man/man8/grpck.8
+/usr/local/share/man/man8/grpconv.8
+/usr/local/share/man/man8/grpunconv.8
+/usr/local/share/man/man8/lastlog.8
+/usr/local/share/man/man8/logoutd.8
+/usr/local/share/man/man8/newusers.8
+/usr/local/share/man/man8/nologin.8
+/usr/local/share/man/man8/pwck.8
+/usr/local/share/man/man8/pwconv.8
+/usr/local/share/man/man8/pwunconv.8
+/usr/local/share/man/man8/useradd.8
+/usr/local/share/man/man8/userdel.8
+/usr/local/share/man/man8/usermod.8
+/usr/local/share/man/man8/vigr.8
+/usr/local/share/man/man8/vipw.8</literal></screen>
+
+  </sect2>
+
+</sect1>

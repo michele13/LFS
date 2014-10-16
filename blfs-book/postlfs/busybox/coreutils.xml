@@ -1,0 +1,658 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY coreutils-homepage      "http://www.gnu.org/software/coreutils/">
+  <!ENTITY coreutils-wikipedia     "http://en.wikipedia.org/wiki/GNU_Core_Utilities">
+  <!ENTITY coreutils-download-http "http://ftp.gnu.org/gnu/coreutils/coreutils-&coreutils-version;.tar.xz">
+  <!ENTITY coreutils-download-ftp  "ftp://ftp.gnu.org/gnu/coreutils/coreutils-&coreutils-version;.tar.xz">
+  <!ENTITY coreutils-md5sum        "8fb0ae2267aa6e728958adc38f8163a2">
+  <!ENTITY coreutils-size          "5.1 MB">
+  <!ENTITY coreutils-buildsize     "121 MB">
+  <!ENTITY coreutils-time          "3.4 SBU">
+]>
+
+<sect1 id="coreutils" xreflabel="coreutils-&coreutils-version;">
+  <?dbhtml filename="coreutils.html"?>
+
+  <title>coreutils-&coreutils-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The coreutils package contains utilities for showing and setting the basic
+      system characteristics.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&coreutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&coreutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&coreutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&coreutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &coreutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &coreutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &coreutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &coreutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;coreutils/coreutils-&coreutils-version;-i18n-4.patch"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;coreutils/coreutils-&coreutils-version;-shuf_segfault-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      First, fix a segfault in <command>shuf</command> program:
+    </para>
+
+<screen><userinput>patch -p1 -i ../coreutils-&coreutils-version;-shuf_segfault-1.patch</userinput></screen>
+
+    <para>
+      POSIX requires that programs from coreutils recognize character boundaries
+      correctly even in multibyte locales. The following patch fixes this
+      non-compliance and other internationalization-related bugs: 
+    </para>
+
+<screen><userinput>patch -p1 -i ../coreutils-&coreutils-version;-i18n-4.patch</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>FORCE_UNSAFE_CONFIGURE=1 \
+./configure --disable-nls \
+            --enable-no-install-program=kill,uptime &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>FORCE_UNSAFE_CONFIGURE=1</parameter>: This allows compilation
+        to be run as root.
+      </para>
+
+      <para>
+        <parameter>--enable-no-install-program=kill,uptime</parameter>: The
+        purpose of this switch is to prevent coreutils from installing binaries
+        that are installed by other packages.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="coreutils">
+      <primary sortas="b-[">[</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-base64">base64</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-basename">basename</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-cat">cat</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-chcon">chcon</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-chgrp">chgrp</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-chmod">chmod</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-chown">chown</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-chroot">chroot</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-cksum">cksum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-comm">comm</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-cp">cp</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-csplit">csplit</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-cut">cut</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-date">date</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-dd">dd</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-df">df</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-dir">dir</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-dircolors">dircolors</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-dirname">dirname</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-du">du</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-echo">echo</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-env">env</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-expand">expand</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-expr">expr</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-factor">factor</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-false">false</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-fmt">fmt</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-fold">fold</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-groups">groups</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-head">head</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-hostid">hostid</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-id">id</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-install">install</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-join">join</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-link">link</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-ln">ln</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-logname">logname</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-ls">ls</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-md5sum">md5sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-mkdir">mkdir</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-mkfifo">mkfifo</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-mknod">mknod</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-mktemp">mktemp</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-mv">mv</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-nice">nice</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-nl">nl</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-nohup">nohup</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-nproc">nproc</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-numfmt">numfmt</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-od">od</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-paste">paste</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-pathchk">pathchk</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-pinky">pinky</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-pr">pr</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-printenv">printenv</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-printf">printf</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-ptx">ptx</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-pwd">pwd</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-readlink">readlink</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-realpath">realpath</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-rm">rm</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-rmdir">rmdir</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-runcon">runcon</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-seq">seq</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sha1sum">sha1sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sha224sum">sha224sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sha256sum">sha256sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sha384sum">sha384sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sha512sum">sha512sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-shred">shred</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-shuf">shuf</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sleep">sleep</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sort">sort</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-split">split</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-stat">stat</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-stdbuf">stdbuf</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-stty">stty</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sum">sum</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-sync">sync</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tac">tac</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tail">tail</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tee">tee</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-test">test</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-timeout">timeout</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-touch">touch</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tr">tr</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-true">true</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-truncate">truncate</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tsort">tsort</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-tty">tty</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-uname">uname</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-unexpand">unexpand</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-uniq">uniq</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-unlink">unlink</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-users">users</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-vdir">vdir</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-wc">wc</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-who">who</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-whoami">whoami</primary>
+    </indexterm>
+    <indexterm zone="coreutils">
+      <primary sortas="b-yes">yes</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/local/bin/[
+/usr/local/bin/base64
+/usr/local/bin/basename
+/usr/local/bin/cat
+/usr/local/bin/chcon
+/usr/local/bin/chgrp
+/usr/local/bin/chmod
+/usr/local/bin/chown
+/usr/local/bin/chroot
+/usr/local/bin/cksum
+/usr/local/bin/comm
+/usr/local/bin/cp
+/usr/local/bin/csplit
+/usr/local/bin/cut
+/usr/local/bin/date
+/usr/local/bin/dd
+/usr/local/bin/df
+/usr/local/bin/dir
+/usr/local/bin/dircolors
+/usr/local/bin/dirname
+/usr/local/bin/du
+/usr/local/bin/echo
+/usr/local/bin/env
+/usr/local/bin/expand
+/usr/local/bin/expr
+/usr/local/bin/factor
+/usr/local/bin/false
+/usr/local/bin/fmt
+/usr/local/bin/fold
+/usr/local/bin/groups
+/usr/local/bin/head
+/usr/local/bin/hostid
+/usr/local/bin/id
+/usr/local/bin/install
+/usr/local/bin/join
+/usr/local/bin/link
+/usr/local/bin/ln
+/usr/local/bin/logname
+/usr/local/bin/ls
+/usr/local/bin/md5sum
+/usr/local/bin/mkdir
+/usr/local/bin/mkfifo
+/usr/local/bin/mknod
+/usr/local/bin/mktemp
+/usr/local/bin/mv
+/usr/local/bin/nice
+/usr/local/bin/nl
+/usr/local/bin/nohup
+/usr/local/bin/nproc
+/usr/local/bin/numfmt
+/usr/local/bin/od
+/usr/local/bin/paste
+/usr/local/bin/pathchk
+/usr/local/bin/pinky
+/usr/local/bin/pr
+/usr/local/bin/printenv
+/usr/local/bin/printf
+/usr/local/bin/ptx
+/usr/local/bin/pwd
+/usr/local/bin/readlink
+/usr/local/bin/realpath
+/usr/local/bin/rm
+/usr/local/bin/rmdir
+/usr/local/bin/runcon
+/usr/local/bin/seq
+/usr/local/bin/sha1sum
+/usr/local/bin/sha224sum
+/usr/local/bin/sha256sum
+/usr/local/bin/sha384sum
+/usr/local/bin/sha512sum
+/usr/local/bin/shred
+/usr/local/bin/shuf
+/usr/local/bin/sleep
+/usr/local/bin/sort
+/usr/local/bin/split
+/usr/local/bin/stat
+/usr/local/bin/stdbuf
+/usr/local/bin/stty
+/usr/local/bin/sum
+/usr/local/bin/sync
+/usr/local/bin/tac
+/usr/local/bin/tail
+/usr/local/bin/tee
+/usr/local/bin/test
+/usr/local/bin/timeout
+/usr/local/bin/touch
+/usr/local/bin/tr
+/usr/local/bin/true
+/usr/local/bin/truncate
+/usr/local/bin/tsort
+/usr/local/bin/tty
+/usr/local/bin/uname
+/usr/local/bin/unexpand
+/usr/local/bin/uniq
+/usr/local/bin/unlink
+/usr/local/bin/users
+/usr/local/bin/vdir
+/usr/local/bin/wc
+/usr/local/bin/who
+/usr/local/bin/whoami
+/usr/local/bin/yes
+/usr/local/libexec/coreutils/
+/usr/local/share/man/man1/base64.1
+/usr/local/share/man/man1/basename.1
+/usr/local/share/man/man1/cat.1
+/usr/local/share/man/man1/chcon.1
+/usr/local/share/man/man1/chgrp.1
+/usr/local/share/man/man1/chmod.1
+/usr/local/share/man/man1/chown.1
+/usr/local/share/man/man1/chroot.1
+/usr/local/share/man/man1/cksum.1
+/usr/local/share/man/man1/comm.1
+/usr/local/share/man/man1/cp.1
+/usr/local/share/man/man1/csplit.1
+/usr/local/share/man/man1/cut.1
+/usr/local/share/man/man1/date.1
+/usr/local/share/man/man1/dd.1
+/usr/local/share/man/man1/df.1
+/usr/local/share/man/man1/dir.1
+/usr/local/share/man/man1/dircolors.1
+/usr/local/share/man/man1/dirname.1
+/usr/local/share/man/man1/du.1
+/usr/local/share/man/man1/echo.1
+/usr/local/share/man/man1/env.1
+/usr/local/share/man/man1/expand.1
+/usr/local/share/man/man1/expr.1
+/usr/local/share/man/man1/factor.1
+/usr/local/share/man/man1/false.1
+/usr/local/share/man/man1/fmt.1
+/usr/local/share/man/man1/fold.1
+/usr/local/share/man/man1/groups.1
+/usr/local/share/man/man1/head.1
+/usr/local/share/man/man1/hostid.1
+/usr/local/share/man/man1/id.1
+/usr/local/share/man/man1/install.1
+/usr/local/share/man/man1/join.1
+/usr/local/share/man/man1/link.1
+/usr/local/share/man/man1/ln.1
+/usr/local/share/man/man1/logname.1
+/usr/local/share/man/man1/ls.1
+/usr/local/share/man/man1/md5sum.1
+/usr/local/share/man/man1/mkdir.1
+/usr/local/share/man/man1/mkfifo.1
+/usr/local/share/man/man1/mknod.1
+/usr/local/share/man/man1/mktemp.1
+/usr/local/share/man/man1/mv.1
+/usr/local/share/man/man1/nice.1
+/usr/local/share/man/man1/nl.1
+/usr/local/share/man/man1/nohup.1
+/usr/local/share/man/man1/nproc.1
+/usr/local/share/man/man1/numfmt.1
+/usr/local/share/man/man1/od.1
+/usr/local/share/man/man1/paste.1
+/usr/local/share/man/man1/pathchk.1
+/usr/local/share/man/man1/pinky.1
+/usr/local/share/man/man1/pr.1
+/usr/local/share/man/man1/printenv.1
+/usr/local/share/man/man1/printf.1
+/usr/local/share/man/man1/ptx.1
+/usr/local/share/man/man1/pwd.1
+/usr/local/share/man/man1/readlink.1
+/usr/local/share/man/man1/realpath.1
+/usr/local/share/man/man1/rm.1
+/usr/local/share/man/man1/rmdir.1
+/usr/local/share/man/man1/runcon.1
+/usr/local/share/man/man1/seq.1
+/usr/local/share/man/man1/sha1sum.1
+/usr/local/share/man/man1/sha224sum.1
+/usr/local/share/man/man1/sha256sum.1
+/usr/local/share/man/man1/sha384sum.1
+/usr/local/share/man/man1/sha512sum.1
+/usr/local/share/man/man1/shred.1
+/usr/local/share/man/man1/shuf.1
+/usr/local/share/man/man1/sleep.1
+/usr/local/share/man/man1/sort.1
+/usr/local/share/man/man1/split.1
+/usr/local/share/man/man1/stat.1
+/usr/local/share/man/man1/stdbuf.1
+/usr/local/share/man/man1/stty.1
+/usr/local/share/man/man1/sum.1
+/usr/local/share/man/man1/sync.1
+/usr/local/share/man/man1/tac.1
+/usr/local/share/man/man1/tail.1
+/usr/local/share/man/man1/tee.1
+/usr/local/share/man/man1/test.1
+/usr/local/share/man/man1/timeout.1
+/usr/local/share/man/man1/touch.1
+/usr/local/share/man/man1/tr.1
+/usr/local/share/man/man1/true.1
+/usr/local/share/man/man1/truncate.1
+/usr/local/share/man/man1/tsort.1
+/usr/local/share/man/man1/tty.1
+/usr/local/share/man/man1/uname.1
+/usr/local/share/man/man1/unexpand.1
+/usr/local/share/man/man1/uniq.1
+/usr/local/share/man/man1/unlink.1
+/usr/local/share/man/man1/users.1
+/usr/local/share/man/man1/vdir.1
+/usr/local/share/man/man1/wc.1
+/usr/local/share/man/man1/who.1
+/usr/local/share/man/man1/whoami.1
+/usr/local/share/man/man1/yes.1</literal></screen>
+
+  </sect2>
+
+</sect1>

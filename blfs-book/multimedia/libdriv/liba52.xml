@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY liba52-homepage      "http://liba52.sourceforge.net/">
+  <!ENTITY liba52-wikipedia     " ">
+  <!ENTITY liba52-download-http "http://liba52.sourceforge.net/files/a52dec-&liba52-version;.tar.gz">
+  <!ENTITY liba52-download-ftp  " ">
+  <!ENTITY liba52-md5sum        "caa9f5bc44232dc8aeea773fea56be80">
+  <!ENTITY liba52-size          "236 KB">
+  <!ENTITY liba52-buildsize     "2.5 MB">
+  <!ENTITY liba52-time          "less than 0.1 SBU">
+]>
+
+<sect1 id="liba52" xreflabel="liba52-&liba52-version;">
+  <?dbhtml filename="liba52.html"?>
+
+  <title>liba52-&liba52-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      liba52 is a free library for decoding ATSC A/52 (also known as AC-3)
+      streams. The A/52 standard is used in a variety of applications, including
+      digital television and DVD.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&liba52-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&liba52-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&liba52-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&liba52-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &liba52-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &liba52-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &liba52-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &liba52-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <ulink url="http://cr.yp.to/djbfft.html">djbfft</ulink>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install liba52 by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --mandir=/usr/share/man \
+            --enable-shared \
+            --disable-static \
+            CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] &amp;&amp; echo -fPIC)" &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+cp -v liba52/a52_internal.h /usr/include/a52dec</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>CFLAGS="-g -O2 ...</parameter>: This sets CFLAGS to -g -O2
+        (which is the default) but then on x86_64 adds -fPIC. This is needed to
+        compile liba52 on x86_64.
+      </para>
+
+      <para>
+        <command>cp -v liba52/a52_internal.h ...</command>: Copying this header
+        file into /usr/include/a52dec allows some other programs (such as
+        xine-lib) to compile and link against a system installed liba52.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="liba52">
+      <primary sortas="b-a52dec">a52dec</primary>
+    </indexterm>
+    <indexterm zone="liba52">
+      <primary sortas="b-extract_a52">extract_a52</primary>
+    </indexterm>
+    <indexterm zone="liba52">
+      <primary sortas="c-liba52.so">liba52.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/a52dec
+/usr/bin/extract_a52
+/usr/include/a52dec/
+/usr/lib/liba52.so
+/usr/share/man/man1/a52dec.1
+/usr/share/man/man1/extract_a52.1</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY icu-homepage      "http://site.icu-project.org/">
+  <!ENTITY icu-wikipedia     "http://en.wikipedia.org/wiki/International_Components_for_Unicode">
+  <!ENTITY icu-download-http "http://download.icu-project.org/files/icu4c/&icu-version;/icu4c-&icu-dl-version;-src.tgz">
+  <!ENTITY icu-download-ftp  " ">
+  <!ENTITY icu-md5sum        "e844caed8f2ca24c088505b0d6271bc0">
+  <!ENTITY icu-size          "24 MB">
+  <!ENTITY icu-buildsize     "354 MB">
+  <!ENTITY icu-time          "1.4 SBU">
+]>
+
+<sect1 id="icu" xreflabel="ICU-&icu-version;">
+  <?dbhtml filename="icu.html"?>
+
+  <title>ICU-&icu-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The International Components for Unicode (ICU) package is a mature, widely
+      used set of C/C++ libraries providing Unicode and Globalization support
+      for software applications.  ICU is widely portable and gives applications
+      the same results on all platforms.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&icu-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&icu-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&icu-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&icu-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &icu-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &icu-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &icu-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &icu-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="llvm"/> (with Clang)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>cd source &amp;&amp;
+./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="icu">
+      <primary sortas="b-derb">derb</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-genbrk">genbrk</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gencfu">gencfu</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gencnval">gencnval</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gendict">gendict</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-genrb">genrb</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-icu-config">icu-config</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-icuinfo">icuinfo</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-makeconv">makeconv</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-pkgdata">pkgdata</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-uconv">uconv</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-genccode">genccode</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gencmn">gencmn</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gennorm2">gennorm2</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-gensprep">gensprep</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="b-icupkg">icupkg</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicudata.so">libicudata.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicui18n.so">libicui18n.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicuio.so">libicuio.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicule.so">libicule.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libiculx.so">libiculx.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicutest.so">libicutest.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicutu.so">libicutu.so</primary>
+    </indexterm>
+    <indexterm zone="icu">
+      <primary sortas="c-libicuuc.so">libicuuc.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/derb
+/usr/bin/genbrk
+/usr/bin/gencfu
+/usr/bin/gencnval
+/usr/bin/gendict
+/usr/bin/genrb
+/usr/bin/icu-config
+/usr/bin/icuinfo
+/usr/bin/makeconv
+/usr/bin/pkgdata
+/usr/bin/uconv
+/usr/include/layout/
+/usr/include/unicode/
+/usr/lib/icu/
+/usr/lib/libicudata.so
+/usr/lib/libicui18n.so
+/usr/lib/libicuio.so
+/usr/lib/libicule.so
+/usr/lib/libiculx.so
+/usr/lib/libicutest.so
+/usr/lib/libicutu.so
+/usr/lib/libicuuc.so
+/usr/lib/pkgconfig/icu-i18n.pc
+/usr/lib/pkgconfig/icu-io.pc
+/usr/lib/pkgconfig/icu-le.pc
+/usr/lib/pkgconfig/icu-lx.pc
+/usr/lib/pkgconfig/icu-uc.pc
+/usr/sbin/genccode
+/usr/sbin/gencmn
+/usr/sbin/gennorm2
+/usr/sbin/gensprep
+/usr/sbin/icupkg
+/usr/share/icu/
+/usr/share/man/man1/derb.1
+/usr/share/man/man1/genbrk.1
+/usr/share/man/man1/gencfu.1
+/usr/share/man/man1/gencnval.1
+/usr/share/man/man1/gendict.1
+/usr/share/man/man1/genrb.1
+/usr/share/man/man1/icu-config.1
+/usr/share/man/man1/makeconv.1
+/usr/share/man/man1/pkgdata.1
+/usr/share/man/man1/uconv.1
+/usr/share/man/man8/genccode.8
+/usr/share/man/man8/gencmn.8
+/usr/share/man/man8/gensprep.8
+/usr/share/man/man8/icupkg.8</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY flac-homepage      "http://www.xiph.org/flac/">
+  <!ENTITY flac-wikipedia     "http://en.wikipedia.org/wiki/FLAC">
+  <!ENTITY flac-download-http "http://downloads.xiph.org/releases/flac/flac-&flac-version;.tar.xz">
+  <!ENTITY flac-download-ftp  "ftp://downloads.xiph.org/pub/xiph/releases/flac/flac-&flac-version;.tar.xz">
+  <!ENTITY flac-md5sum        "13b5c214cee8373464d3d65dee362cdd">
+  <!ENTITY flac-size          "1.1 MB">
+  <!ENTITY flac-buildsize     "22 MB">
+  <!ENTITY flac-time          "0.3 SBU">
+]>
+
+<sect1 id="flac" xreflabel="FLAC-&flac-version;">
+  <?dbhtml filename="flac.html"?>
+
+  <title>FLAC-&flac-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      FLAC is an audio CODEC similar to MP3, but lossless, meaning that audio
+      is compressed without losing any information.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&flac-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&flac-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&flac-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&flac-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &flac-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &flac-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &flac-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &flac-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="libogg"/> and
+      <xref linkend="nasm"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install FLAC by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--enable-sse</option>: This option is off by default and should
+        be set on if your machine has SSE capability. One way to find out if you
+        have SSE is to issue <command>cat /proc/cpuinfo</command> and see if
+        <computeroutput>sse</computeroutput> is listed in the flags.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="flac">
+      <primary sortas="b-flac">flac</primary>
+    </indexterm>
+    <indexterm zone="flac">
+      <primary sortas="b-metaflac">metaflac</primary>
+    </indexterm>
+    <indexterm zone="flac">
+      <primary sortas="c-libFLAC.so">libFLAC.so</primary>
+    </indexterm>
+    <indexterm zone="flac">
+      <primary sortas="c-libFLAC++.so">libFLAC++.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/flac
+/usr/bin/metaflac
+/usr/include/FLAC/
+/usr/include/FLAC++/
+/usr/lib/libFLAC.so
+/usr/lib/libFLAC++.so
+/usr/lib/pkgconfig/flac.pc
+/usr/lib/pkgconfig/flac++.pc
+/usr/share/aclocal/libFLAC.m4
+/usr/share/aclocal/libFLAC++.m4
+/usr/share/doc/flac-&flac-version;/
+/usr/share/man/man1/flac.1
+/usr/share/man/man1/metaflac.1</literal></screen>
+
+  </sect2>
+
+</sect1>

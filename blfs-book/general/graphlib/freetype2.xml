@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY freetype2-homepage      "http://www.freetype.org/">
+  <!ENTITY freetype2-wikipedia     "http://en.wikipedia.org/wiki/FreeType">
+  <!ENTITY freetype2-download-http "&sourceforge-repo;/freetype/freetype-&freetype2-version;.tar.bz2">
+  <!ENTITY freetype2-download-ftp  " ">
+  <!ENTITY freetype2-md5sum        "3463102764315eb86c0d3c2e1f3ffb7d">
+  <!ENTITY freetype2-size          "1.6 MB">
+  <!ENTITY freetype2-buildsize     "35 MB">
+  <!ENTITY freetype2-time          "0.2 SBU">
+
+  <!ENTITY freetype2-infinality-download-http "http://www.infinality.net/fedora/linux/zips/freetype-infinality-&freetype2-version;-20130514_01-x86_64.tar.bz2">
+  <!ENTITY freetype2-infinality-download-ftp  " ">
+  <!ENTITY freetype2-infinality-md5sum        "4f5ff3fd3e3e56310953e25eade4a2d3">
+  <!ENTITY freetype2-infinality-size          "38 KB">
+]>
+
+<sect1 id="freetype2" xreflabel="FreeType-&freetype2-version;">
+  <?dbhtml filename="freetype2.html"?>
+
+  <title>FreeType-&freetype2-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The FreeType2 package contains a library which allows applications to
+      properly render TrueType fonts.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&freetype2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&freetype2-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&freetype2-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&freetype2-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &freetype2-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &freetype2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &freetype2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &freetype2-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+
+    <itemizedlist spacing="compact">
+      <title>Infinality</title>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&freetype2-infinality-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&freetype2-infinality-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &freetype2-infinality-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &freetype2-infinality-size;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      If you wish to use Infinality, use the following commands:
+    </para>
+
+<screen><userinput>tar xvf ../freetype-infinality-&freetype2-version;-20130514_01-x86_64.tar.bz2 &amp;&amp;
+patch -p1 -i freetype-entire-infinality-patchset-20130514-01.patch</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <para>
+      If you used the Infinality patchset, as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
+sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' /etc/profile.d/infinality-settings.sh</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="freetype2">
+      <primary sortas="b-freetype-config">freetype-config</primary>
+    </indexterm>
+    <indexterm zone="freetype2">
+      <primary sortas="c-libfreetype.so">libfreetype.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/profile.d/infinality-settings.sh
+/usr/bin/freetype-config
+/usr/include/freetype2/
+/usr/include/ft2build.h
+/usr/lib/libfreetype.so
+/usr/lib/pkgconfig/freetype2.pc</literal></screen>
+
+  </sect2>
+
+</sect1>

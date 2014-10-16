@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY jbigkit-homepage      "http://www.cl.cam.ac.uk/~mgk25/jbigkit/">
+  <!ENTITY jbigkit-wikipedia     "http://en.wikipedia.org/wiki/JBIG">
+  <!ENTITY jbigkit-download-http "http://www.cl.cam.ac.uk/~mgk25/download/jbigkit-&jbigkit-version;.tar.gz">
+  <!ENTITY jbigkit-download-ftp  "ftp://ftp.openbsd.com/ports/distfiles/jbigkit-&jbigkit-version;.tar.gz">
+  <!ENTITY jbigkit-md5sum        "3dd87f605abb1a97a22dc79d8b3e8f6c">
+  <!ENTITY jbigkit-size          "425 KB">
+  <!ENTITY jbigkit-buildsize     "1.6 MB">
+  <!ENTITY jbigkit-time          "0.1 SBU">
+]>
+
+<sect1 id="jbigkit" xreflabel="JBIG-KIT-&jbigkit-version;">
+  <?dbhtml filename="jbigkit.html"?>
+
+  <title>JBIG-KIT-&jbigkit-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      JBIG-KIT is a software implementation of the JBIG1 data compression
+      standard (ITU-T T.82), which was designed for bi-level high-resolution
+      image data such as scanned documents.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&jbigkit-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&jbigkit-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&jbigkit-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&jbigkit-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &jbigkit-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &jbigkit-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &jbigkit-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &jbigkit-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink 
+          url="&patch-root;jbigkit/jbigkit-&jbigkit-version;-fixes-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>patch -p1 -i ../jbigkit-2.0-fixes-1.patch &amp;&amp;
+sed -e 's/all: lib pbm/all: lib/' \
+    -e '/install.*bin/ s/^/#/' \
+    -e '/install.*man/ s/^/#/' -i Makefile &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Disable installing the static library:
+    </para>
+
+<screen><userinput>sed -i 's|libjbig/.libs/\*.a||' Makefile</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+chmod -v 755 /usr/lib/libjbig.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed ...</command>: This command disables building and
+        installing file converter programs since it is currently broken.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+<!--
+    <indexterm zone="jbigkit">
+      <primary sortas="b-jbgtopbm">jbgtopbm</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-jbgtopbm85">jbgtopbm85</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-pbmtojbg">pbmtojbg</primary>
+    </indexterm>
+    <indexterm zone="jbigkit">
+      <primary sortas="b-pbmtojbg85">pbmtojbg85</primary>
+    </indexterm>
+-->
+    <indexterm zone="jbigkit">
+      <primary sortas="c-libjbig.so">libjbig.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<!--
+<screen><literal>/usr/bin/jbgtopbm
+/usr/bin/jbgtopbm85
+/usr/bin/pbmtojbg
+/usr/bin/pbmtojbg85
+/usr/include/jbig85.h
+/usr/include/jbig_ar.h
+/usr/include/jbig.h
+/usr/lib/libjbig.so
+/usr/share/man/man1/jbgtopbm.1
+/usr/share/man/man1/pbmtojbg.1</literal></screen>
+-->
+<screen><literal>/usr/include/jbig85.h
+/usr/include/jbig_ar.h
+/usr/include/jbig.h
+/usr/lib/libjbig.so</literal></screen>
+
+  </sect2>
+
+</sect1>

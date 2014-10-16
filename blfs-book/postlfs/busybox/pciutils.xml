@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY pciutils-homepage      "http://mj.ucw.cz/sw/pciutils/">
+  <!ENTITY pciutils-wikipedia     "http://en.wikipedia.org/wiki/Lspci">
+  <!ENTITY pciutils-download-http "http://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
+  <!ENTITY pciutils-download-ftp  "ftp://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
+  <!ENTITY pciutils-md5sum        "fe7806d075994db0e28894e42668a02a">
+  <!ENTITY pciutils-size          "276 KB">
+  <!ENTITY pciutils-buildsize     "3.0 MB">
+  <!ENTITY pciutils-time          "0.1 SBU">
+]>
+
+<sect1 id="pciutils" xreflabel="pciutils-&pciutils-version;">
+  <?dbhtml filename="pciutils.html"?>
+
+  <title>pciutils-&pciutils-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The PCI Utilities package contains a set of programs for listing PCI
+      devices, inspecting their status and setting their configuration
+      registers.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pciutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pciutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&pciutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&pciutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &pciutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &pciutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &pciutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &pciutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>make SHAREDIR=/usr/local/share/misc \
+     SHARED=yes</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make SHAREDIR=/usr/local/share/misc \
+     SHARED=yes install install-lib &amp;&amp;
+chmod -v 755 /usr/local/lib/libpci.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>SHARED=yes</parameter>: This parameter enables building of
+        shared library instead of static one.
+      </para>
+
+      <para>
+        <option>ZLIB=no</option>: This option prevents compression of the
+        <filename>pci.ids</filename> file.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The <filename>pci.ids</filename> data file is constantly being updated. To
+      get a current version of this file, run <command>update-pciids</command>
+      as the <systemitem class="username">root</systemitem> user. This program
+      downloads the most current file, and then replaces the existing
+      file in <filename class="directory">/usr/share/misc</filename>.
+    </para>
+
+    <para>
+      You may wish to add an entry to <systemitem
+      class="username">root</systemitem>'s (or any other user who has write
+      privilege to <filename class="directory">/usr/local/share/misc</filename>)
+      crontab to automatically update the <filename>pci.ids</filename> file
+      periodically.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="pciutils">
+      <primary sortas="b-lspci">lspci</primary>
+    </indexterm>
+    <indexterm zone="pciutils">
+      <primary sortas="b-setpci">setpci</primary>
+    </indexterm>
+    <indexterm zone="pciutils">
+      <primary sortas="b-update-pciids">update-pciids</primary>
+    </indexterm>
+    <indexterm zone="pciutils">
+      <primary sortas="c-libpci.so">libpci.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/local/include/pci/
+/usr/local/lib/libpci.so
+/usr/local/lib/pkgconfig/libpci.pc
+/usr/local/sbin/lspci
+/usr/local/sbin/setpci
+/usr/local/sbin/update-pciids
+/usr/local/share/man/man7/pcilib.7
+/usr/local/share/man/man8/lspci.8
+/usr/local/share/man/man8/setpci.8
+/usr/local/share/man/man8/update-pciids.8
+/usr/local/share/pci.ids.gz</literal></screen>
+
+  </sect2>
+
+</sect1>

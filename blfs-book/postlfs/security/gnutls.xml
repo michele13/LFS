@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gnutls-homepage      "http://www.gnutls.org/">
+  <!ENTITY gnutls-wikipedia     "http://en.wikipedia.org/wiki/GnuTLS">
+  <!ENTITY gnutls-download-http " ">
+  <!ENTITY gnutls-download-ftp  "ftp://ftp.gnutls.org/gcrypt/gnutls/v3.3/gnutls-&gnutls-version;.tar.xz">
+  <!ENTITY gnutls-md5sum        "ff61b77e39d09f1140ab5a9cf52c58b6">
+  <!ENTITY gnutls-size          "5.9 MB">
+  <!ENTITY gnutls-buildsize     "106 MB">
+  <!ENTITY gnutls-time          "1.0 SBU">
+]>
+
+<sect1 id="gnutls" xreflabel="GnuTLS-&gnutls-version;">
+  <?dbhtml filename="gnutls.html"?>
+
+  <title>GnuTLS-&gnutls-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      GnuTLS is a secure communications library implementing the SSL, TLS and
+      DTLS protocols and technologies around them. It provides a simple C
+      language application programming interface (API) to access the secure
+      communications protocols as well as APIs to parse and write X.509, PKCS
+      #12, OpenPGP and other required structures. It is aimed to be portable and
+      efficient with focus on security and interoperability.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gnutls-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gnutls-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gnutls-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gnutls-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gnutls-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gnutls-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gnutls-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gnutls-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="nettle"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="cacerts"/> and
+      <xref linkend="libtasn1"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libidn"/>,
+      <xref linkend="unbound"/> (to build the DANE library), and 
+      <ulink url="http://sourceforge.net/projects/trousers/files/trousers/">Trousers</ulink> (Trusted Platform Module support)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --with-default-trust-store-file=/etc/ssl/ca-bundle.crt &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-default-trust-store-file=/etc/ssl/ca-bundle.crt</parameter>:
+        This switch tells <command>configure</command> where to find the
+        CA Certificates.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="gnutls">
+      <primary sortas="b-certtool">certtool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-crywrap">crywrap</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-danetool">danetool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-gnutls-cli">gnutls-cli</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-gnutls-cli-debug">gnutls-cli-debug</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-gnutls-serv">gnutls-serv</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-ocsptool">ocsptool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-p11tool">p11tool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-psktool">psktool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-srptool">srptool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="b-tpmtool">tpmtool</primary>
+    </indexterm>
+    <indexterm zone="gnutls">
+      <primary sortas="c-libgnutls*.so">libgnutls*.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/certtool
+/usr/bin/crywrap
+/usr/bin/danetool
+/usr/bin/gnutls-cli
+/usr/bin/gnutls-cli-debug
+/usr/bin/gnutls-serv
+/usr/bin/ocsptool
+/usr/bin/p11tool
+/usr/bin/psktool
+/usr/bin/srptool
+/usr/bin/tpmtool
+/usr/include/gnutls/
+/usr/lib/libgnutls-dane.so
+/usr/lib/libgnutls-openssl.so
+/usr/lib/libgnutls-xssl.so
+/usr/lib/libgnutls.so
+/usr/lib/libgnutlsxx.so
+/usr/lib/pkgconfig/gnutls-dane.pc
+/usr/lib/pkgconfig/gnutls.pc
+/usr/share/man/man1/certtool.1
+/usr/share/man/man1/danetool.1
+/usr/share/man/man1/gnutls-cli-debug.1
+/usr/share/man/man1/gnutls-cli.1
+/usr/share/man/man1/gnutls-serv.1
+/usr/share/man/man1/ocsptool.1
+/usr/share/man/man1/p11tool.1
+/usr/share/man/man1/psktool.1
+/usr/share/man/man1/srptool.1
+/usr/share/man/man1/tpmtool.1
+/usr/share/man/man3/gnutls_*.3
+/usr/share/man/man3/xssl_*.3</literal></screen>
+
+  </sect2>
+
+</sect1>

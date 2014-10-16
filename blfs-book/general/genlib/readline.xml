@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY readline-homepage      "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html">
+  <!ENTITY readline-wikipedia     "http://en.wikipedia.org/wiki/GNU_Readline">
+  <!ENTITY readline-download-http "http://ftp.gnu.org/gnu/readline/readline-&readline-version;.tar.gz">
+  <!ENTITY readline-download-ftp  "ftp://ftp.gnu.org/gnu/readline/readline-&readline-version;.tar.gz">
+  <!ENTITY readline-md5sum        "33c8fb279e981274f485fd91da77e94a">
+  <!ENTITY readline-size          "2.4 MB">
+  <!ENTITY readline-buildsize     "11 MB">
+  <!ENTITY readline-time          "0.1 SBU">
+]>
+
+<sect1 id="readline" xreflabel="readline-&readline-version;">
+  <?dbhtml filename="readline.html"?>
+
+  <title>readline-&readline-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+  <para>
+    The readline package is a set of libraries that offers command-line editing
+    and history capabilities.
+  </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&readline-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&readline-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&readline-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&readline-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &readline-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &readline-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &readline-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &readline-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Reinstalling Readline will cause the old libraries to be moved to
+      &lt;libraryname&gt;.old. While this is normally not a problem, in some
+      cases it can trigger a linking bug in <command>ldconfig</command>. This
+      can be avoided by issuing the following two seds:
+    </para>
+
+<screen><userinput>sed -i '/MV.*old/d' Makefile.in &amp;&amp;
+sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make SHLIB_LIBS=-lncursesw</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make SHLIB_LIBS=-lncursesw install</userinput></screen>
+
+    <para>
+      Now move the dynamic libraries to a more appropriate location and fix up
+      some symbolic links:
+    </para>
+
+<screen role="root"><userinput>mv -v /usr/lib/libreadline.so.* /usr/lib/libhistory.so.* /lib &amp;&amp;
+ln -sfv ../../lib/$(readlink /usr/lib/libreadline.so) /usr/lib/libreadline.so &amp;&amp;
+ln -sfv ../../lib/$(readlink /usr/lib/libhistory.so ) /usr/lib/libhistory.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <envar>SHLIB_LIBS=-lncursesw</envar>: This option forces Readline to
+        link against the <filename class="libraryfile">libncursesw</filename>
+        library. 
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="readline">
+      <primary sortas="c-libhistory.so">libhistory.so</primary>
+    </indexterm>
+    <indexterm zone="readline">
+      <primary sortas="c-libreadline.so">libreadline.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/lib/libhistory.so.6
+/lib/libhistory.so.6.3
+/lib/libreadline.so.6
+/lib/libreadline.so.6.3
+/usr/include/readline/
+/usr/lib/libhistory.so
+/usr/lib/libreadline.so
+/usr/share/doc/readline/
+/usr/share/man/man3/history.3
+/usr/share/man/man3/readline.3</literal></screen>
+
+  </sect2>
+
+</sect1>

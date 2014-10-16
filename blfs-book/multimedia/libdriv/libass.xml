@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libass-homepage      "https://code.google.com/p/libass/">
+  <!ENTITY libass-wikipedia     "http://en.wikipedia.org/wiki/SubStation_Alpha">
+  <!ENTITY libass-download-http "https://github.com/libass/libass/releases/download/&libass-version;/libass-&libass-version;.tar.xz">
+  <!ENTITY libass-download-ftp  "ftp://ftp.osuosl.org/pub/blfs/svn/l/libass-&libass-version;.tar.xz">
+  <!ENTITY libass-md5sum        "701b761934de0eff7d45f58d7d13eaf6">
+  <!ENTITY libass-size          "292 KB">
+  <!ENTITY libass-buildsize     "4.1 MB">
+  <!ENTITY libass-time          "0.1 SBU">
+]>
+
+<sect1 id="libass" xreflabel="libass-&libass-version;">
+  <?dbhtml filename="libass.html"?>
+
+  <title>libass-&libass-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      libass is a portable subtitle renderer for the ASS/SSA (Advanced
+      Substation Alpha/Substation Alpha) subtitle format that allows for more
+      advanced subtitles than the conventional SRT and similar formats.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libass-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libass-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libass-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libass-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libass-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libass-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libass-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libass-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="freetype2"/> and
+      <xref linkend="fribidi"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="fontconfig"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="harfbuzz"/> and
+      <ulink url="http://cihar.com/software/enca/">Enca</ulink>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--disable-fontconfig</option>: Use this switch if you didn't
+        install Fontconfig.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="libass">
+      <primary sortas="c-libass.so">libass.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/include/ass/
+/usr/lib/libass.so
+/usr/lib/pkgconfig/libass.pc</literal></screen>
+
+  </sect2>
+
+</sect1>

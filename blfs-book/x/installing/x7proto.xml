@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY x7proto-homepage      " ">
+  <!ENTITY x7proto-wikipedia     " ">
+  <!ENTITY x7proto-download-http "http://xorg.freedesktop.org/releases/individual/proto/">
+  <!ENTITY x7proto-download-ftp  "ftp://ftp.x.org/pub/individual/proto/">
+  <!ENTITY x7proto-size          "3.3 MB">
+  <!ENTITY x7proto-buildsize     "26 MB">
+  <!ENTITY x7proto-time          "0.8 SBU">
+
+  <!ENTITY dri3proto-version               "1.0">
+  <!ENTITY dri3proto-md5sum                "a3d2cbe60a9ca1bf3aea6c93c817fee3">
+
+]>
+
+<sect1 id="xorg7-proto" xreflabel="Xorg Protocol Headers">
+  <?dbhtml filename="x7proto.html"?>
+
+  <title>Xorg Protocol Headers</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Xorg protocol headers provide the header files required to build the
+      system, and to allow other applications to build against the installed X
+      Window system.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&x7proto-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&x7proto-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&x7proto-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&x7proto-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &x7proto-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &x7proto-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &x7proto-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="util-macros"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="recommended">
+      <xref linkend="sudo"/> and
+      <xref linkend="wget"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Downloading Xorg Protocol Headers</title>
+
+    <para>
+      First, create a list of files to be downloaded. This file will also be
+      used to verify the integrity of the downloads when complete:
+    </para>
+
+<screen><userinput>cat &gt; proto-&xorg-version;.md5 &lt;&lt; "EOF"
+<literal>&dri3proto-md5sum;  dri3proto-&dri3proto-version;.tar.bz2</literal>
+EOF</userinput></screen>
+
+    <para>
+      To download the needed files using Wget, use the following commands:
+    </para>
+
+<screen><userinput>mkdir proto &amp;&amp;
+cd proto &amp;&amp;
+grep -v '^#' ../proto-&xorg-version;.md5 | awk '{print $2}' | wget -i- -c \
+    -B http://xorg.freedesktop.org/releases/individual/proto/ &amp;&amp;
+md5sum -c ../proto-&xorg-version;.md5</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    &as_root;
+
+    <para>
+      First, start a subshell that will exit on error:
+    </para>
+
+<screen><userinput>bash -e</userinput></screen>
+
+    <para>
+      Install all of the packages by running the following commands:
+    </para>
+
+<screen><userinput>for package in $(grep -v '^#' ../proto-&xorg-version;.md5 | awk '{print $2}')
+do
+  packagedir=${package%.tar.bz2}
+  tar -xf $package
+  pushd $packagedir
+  ./configure $XORG_CONFIG
+  as_root make install
+  popd
+  rm -rf $packagedir
+done</userinput></screen>
+
+    <para>
+      Finally, exit the shell that was started earlier:
+    </para>
+
+<screen><userinput>exit</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>bash -e</command>: This command starts a subshell that will
+        exit if any command returns a value other than 0, causing the for loop
+        to exit immediately if an error occurs. This also eliminates the need
+        for the <command>&amp;&amp;</command> construct used elsewhere in the
+        book.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/include/GL/
+/usr/include/X11/
+/usr/lib/pkgconfig/dri3proto.pc
+/usr/share/doc/dri3proto/</literal></screen>
+
+  </sect2>
+
+</sect1>

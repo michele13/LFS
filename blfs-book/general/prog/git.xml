@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY git-homepage      "http://git-scm.com/">
+  <!ENTITY git-wikipedia     "http://en.wikipedia.org/wiki/Git_&#40;software&#41;">
+  <!ENTITY git-download-http "https://www.kernel.org/pub/software/scm/git/git-&git-version;.tar.xz">
+  <!ENTITY git-download-ftp  "ftp://ftp.kernel.org/pub/software/scm/git/git-&git-version;.tar.xz">
+  <!ENTITY git-md5sum        "35dc1585dc522fd715f117744b1f5992">
+  <!ENTITY git-size          "3.4 MB">
+  <!ENTITY git-buildsize     "337 MB">
+  <!ENTITY git-time          "0.8 SBU">
+]>
+
+<sect1 id="git" xreflabel="git-&git-version;">
+  <?dbhtml filename="git.html"?>
+
+  <title>Git-&git-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Git is a free and open source, distributed version control system designed
+      to handle everything from small to very large projects with speed and
+      efficiency. Every Git clone is a full-fledged repository with complete
+      history and full revision tracking capabilities, not dependent on network
+      access or a central server. Branching and merging are fast and easy to do.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&git-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&git-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&git-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&git-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &git-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &git-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &git-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &git-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          <ulink url="ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz">
+          ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz</ulink>
+          (if you prefer the original, not needed if you've installed asciidoc
+          and xmlto and prefer to build them).
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="curl"/> (needed to use Git over http, https, ftp or ftps),
+      <xref linkend="expat"/>,
+      <xref linkend="openssl"/>, and
+      <xref linkend="python2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="asciidoc"/> and
+      <xref linkend="xmlto"/> (to create the man pages),
+      <xref linkend="pcre"/>,
+      <xref linkend="subversion"/> with Perl bindings (for <command>git svn</command>), and
+      <xref linkend="tk"/> (gitk, a simple Git repository viewer, uses Tk at runtime)
+    </para>
+
+    <bridgehead renderas="sect4">Recommended (runtime)</bridgehead>
+    <para>
+      <xref linkend="less"/> (for colored output)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --with-gitconfig=/etc/gitconfig \
+            --without-tcltk &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      If you have installed <xref linkend="asciidoc"/> and <xref
+      linkend="xmlto"/> you can create the man pages:
+    </para>
+
+<screen><userinput>make man</userinput></screen>
+
+    <para>
+      Alternatively, if you downloaded the man pages:
+    </para>
+
+<screen><userinput>tar xvf ../git-manpages-&git-version;.tar.xz</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <para>
+      If you created the man pages, install them as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install-man</userinput></screen>
+
+    <para>
+      Alternatively, if you downloaded the man pages:
+    </para>
+
+<screen role="root"><userinput>for dir in man? ; do cp -v $dir/* /usr/share/man/$dir ; done</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-gitconfig=/etc/gitconfig</parameter>: This sets
+        <filename>/etc/gitconfig</filename> as the file that stores the default,
+        system wide, Git settings.
+      </para>
+
+      <para>
+        <parameter>--without-tcltk</parameter>: This switch disables Tcl/Tk GUI
+        as it breaks the build if gettext-tiny is installed.
+      </para>
+
+      <para>
+        <option>--without-python</option>: Use this switch if Python is not
+        installed.
+      </para>
+
+      <para>
+        <option>--with-libpcre</option>: Use this switch if PCRE is installed.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <sect3 id="git-config">
+      <title>Config Files</title>
+      <para>
+        <filename>~/.gitconfig</filename> and
+        <filename>/etc/gitconfig</filename>
+      </para>
+
+      <indexterm zone="git git-config">
+        <primary sortas="e-AA.gitconfig">~/.gitconfig</primary>
+      </indexterm>
+
+      <indexterm zone="git git-config">
+        <primary sortas="e-etc-gitconfig">/etc/gitconfig</primary>
+      </indexterm>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="git">
+      <primary sortas="b-git">git</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-git-cvsserver">git-cvsserver</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-gitk">gitk</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-git-receive-pack">git-receive-pack</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-git-shell">git-shell</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-git-upload-archive">git-upload-archive</primary>
+    </indexterm>
+    <indexterm zone="git">
+      <primary sortas="b-git-upload-pack">git-upload-pack</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/git
+/usr/bin/git-cvsserver
+/usr/bin/gitk
+/usr/bin/git-receive-pack
+/usr/bin/git-shell
+/usr/bin/git-upload-archive
+/usr/bin/git-upload-pack
+/usr/libexec/git-core/
+/usr/lib/perl5/site_perl/5.18.2/Error.pm
+/usr/lib/perl5/site_perl/5.18.2/Git/
+/usr/lib/perl5/site_perl/5.18.2/Git.pm
+/usr/share/git-core/
+/usr/share/git-gui/
+/usr/share/gitk/
+/usr/share/gitweb/
+/usr/share/man/man1/git*.1
+/usr/share/man/man3/Git*.3
+/usr/share/man/man5/git*.5
+/usr/share/man/man7/git*.7</literal></screen>
+
+  </sect2>
+
+</sect1>

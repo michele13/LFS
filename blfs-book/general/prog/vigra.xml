@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY vigra-homepage      "https://hci.iwr.uni-heidelberg.de/vigra/">
+  <!ENTITY vigra-wikipedia     "http://en.wikipedia.org/wiki/VIGRA">
+  <!ENTITY vigra-download-http "https://hci.iwr.uni-heidelberg.de/vigra/vigra-&vigra-version;-src.tar.gz">
+  <!ENTITY vigra-download-ftp  " ">
+  <!ENTITY vigra-md5sum        "85e2968e4ee5f9541b5dd8b3fb9cc433">
+  <!ENTITY vigra-size          "35 MB">
+  <!ENTITY vigra-buildsize     "169 MB">
+  <!ENTITY vigra-time          "0.2 SBU">
+]>
+
+<sect1 id="vigra" xreflabel="VIGRA-&vigra-version;">
+  <?dbhtml filename="vigra.html"?>
+
+  <title>VIGRA-&vigra-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Vision with Generic Algorithms (VIGRA) is a computer vision library that
+      puts its main emphasis on customizable algorithms and data structures.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&vigra-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&vigra-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&vigra-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&vigra-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &vigra-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &vigra-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &vigra-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &vigra-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="cmake"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="libjpeg"/>,
+      <xref linkend="libtiff"/>,
+      <xref linkend="libpng"/>,
+      <xref linkend="openexr"/>,
+      <xref linkend="hdf5"/>,
+      <ulink url="http://www.fftw.org/">FFTW</ulink>, and
+      <xref linkend="python2"/>,
+      <xref linkend="boost"/> and
+      <ulink url="http://www.numpy.org/">NumPy</ulink> (for Python bindings)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install VIGRA by running the following commands:
+    </para>
+
+<screen><userinput>mkdir build &amp;&amp;
+cd build &amp;&amp;
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DDOCINSTALL=share/doc .. &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>-DWITH_OPENEXR=ON</option>: This variable enables OpenEXR image
+        format import and export.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="vigra">
+      <primary sortas="b-vigra-config">vigra-config</primary>
+    </indexterm>
+    <indexterm zone="vigra">
+      <primary sortas="c-libvigraimpex.so">libvigraimpex.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/vigra-config
+/usr/include/vigra/
+/usr/lib/libvigraimpex.so
+/usr/lib/vigra/
+/usr/share/doc/vigra/
+/usr/share/doc/vigranumpy/</literal></screen>
+
+  </sect2>
+
+</sect1>

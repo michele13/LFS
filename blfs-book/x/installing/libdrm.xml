@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libdrm-homepage      " ">
+  <!ENTITY libdrm-wikipedia     " ">
+  <!ENTITY libdrm-download-http "http://dri.freedesktop.org/libdrm/libdrm-&libdrm-version;.tar.bz2">
+  <!ENTITY libdrm-download-ftp  " ">
+  <!ENTITY libdrm-md5sum        "24213913333d72b36c16463ed92e522a">
+  <!ENTITY libdrm-size          "560 KB">
+  <!ENTITY libdrm-buildsize     "10 MB">
+  <!ENTITY libdrm-time          "0.1 SBU">
+]>
+
+<sect1 id="libdrm" xreflabel="libdrm-&libdrm-version;">
+  <?dbhtml filename="libdrm.html"?>
+
+  <title>libdrm-&libdrm-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      libdrm provides a user space library for accessing the DRM, direct
+      rendering manager, on operating systems that support the ioctl interface.
+      libdrm is a low-level library, typically used by graphics drivers such as
+      the Mesa DRI drivers, the X drivers, libva and similar projects.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libdrm-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libdrm-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libdrm-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libdrm-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libdrm-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libdrm-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libdrm-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libdrm-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;libdrm/libdrm-&libdrm-version;-pthread_stubs-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libpciaccess"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="eudev"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>patch -p1 -i ../libdrm-&libdrm-version;-pthread_stubs-1.patch &amp;&amp;
+./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--enable-udev</option>: This switch enables support for
+        using Udev instead of <command>mknod</command>.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_intel.so">libdrm_intel.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_nouveau.so">libdrm_nouveau.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm_radeon.so">libdrm_radeon.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libdrm.so">libdrm.so</primary>
+    </indexterm>
+    <indexterm zone="libdrm">
+      <primary sortas="c-libkms.so">libkms.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/include/libdrm/
+/usr/include/libkms/
+/usr/include/xf86drm.h
+/usr/include/xf86drmMode.h
+/usr/lib/libdrm_intel.so
+/usr/lib/libdrm_nouveau.so
+/usr/lib/libdrm_radeon.so
+/usr/lib/libdrm.so
+/usr/lib/libkms.so
+/usr/lib/pkgconfig/libdrm_intel.pc
+/usr/lib/pkgconfig/libdrm_nouveau.pc
+/usr/lib/pkgconfig/libdrm.pc
+/usr/lib/pkgconfig/libdrm_radeon.pc
+/usr/lib/pkgconfig/libkms.pc
+/usr/share/man/man7/drm.7</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY python2-homepage      "http://www.python.org/">
+  <!ENTITY python2-wikipedia     "http://en.wikipedia.org/wiki/Python_&#40;programming_language&#41;">
+  <!ENTITY python2-download-http "http://legacy.python.org/ftp/python/&python2-version;/Python-&python2-version;.tar.xz">
+  <!ENTITY python2-download-ftp  "ftp://ftp.slackware.com/pub/blfs/svn/p/Python-&python2-version;.tar.xz">
+  <!ENTITY python2-md5sum        "d235bdfa75b8396942e360a70487ee00">
+  <!ENTITY python2-size          "11 MB">
+  <!ENTITY python2-buildsize     "222 MB">
+  <!ENTITY python2-time          "1.0 SBU">
+]>
+
+<sect1 id="python2" xreflabel="Python-&python2-version;">
+  <?dbhtml filename="python2.html" ?>
+
+  <title>Python-&python2-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Python 2 package contains the Python development environment. It is
+      useful for object-oriented programming, writing scripts, prototyping large
+      programs or developing entire applications. This version is for backward
+      compatibility with other dependent packages.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&python2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&python2-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&python2-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&python2-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &python2-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &python2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &python2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &python2-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libffi"/> and
+      <xref linkend="expat"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <!-- <xref linkend="bzip2"/>, -->
+      <xref linkend="openssl"/>,
+      <xref linkend="readline"/>, and
+      <xref linkend="sqlite"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --enable-shared \
+            --enable-unicode=ucs4 \
+            --with-system-ffi \
+            --with-system-expat &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+chmod -v 755 /usr/lib/libpython&python2-majorver;.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-unicode=ucs4</parameter>: This switch enables 32bit
+        Unicode support in Python.
+      </para>
+
+      <para>
+        <parameter>--with-system-expat</parameter>: This switch enables linking
+        against system version of Expat.
+      </para>
+
+      <para>
+        <parameter>--with-system-ffi</parameter>: This switch enables linking
+        against system version of libffi.
+      </para>
+
+      <para>
+        <command>chmod -v 755 /usr/lib/libpython&python2-majorver;.so</command>:
+        Fix permissions for libraries to be consistent with other libraries.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="python2">
+      <primary sortas="b-2to3">2to3</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-idle">idle</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-pydoc">pydoc</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python">python</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python2">python2</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python&python2-majorver;">python&python2-majorver;</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python&python2-majorver;-config">python&python2-majorver;-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python2-config">python2-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-python-config">python-config</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="b-smtpd.py">smtpd.py</primary>
+    </indexterm>
+    <indexterm zone="python2">
+      <primary sortas="c-libpython&python2-majorver;.so">libpython&python2-majorver;.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/2to3
+/usr/bin/idle
+/usr/bin/pydoc
+/usr/bin/python
+/usr/bin/python2
+/usr/bin/python2.7
+/usr/bin/python2.7-config
+/usr/bin/python2-config
+/usr/bin/python-config
+/usr/bin/smtpd.py
+/usr/include/python2.7/
+/usr/lib/libpython2.7.so
+/usr/lib/pkgconfig/python-2.7.pc
+/usr/lib/pkgconfig/python2.pc
+/usr/lib/pkgconfig/python.pc
+/usr/lib/python2.7/
+/usr/share/man/man1/python.1
+/usr/share/man/man1/python2.1
+/usr/share/man/man1/python2.7.1</literal></screen>
+
+  </sect2>
+
+</sect1>

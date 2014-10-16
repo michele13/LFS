@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY keyutils-homepage      " ">
+  <!ENTITY keyutils-wikipedia     " ">
+  <!ENTITY keyutils-download-http "http://people.redhat.com/~dhowells/keyutils/keyutils-&keyutils-version;.tar.bz2">
+  <!ENTITY keyutils-download-ftp  " ">
+  <!ENTITY keyutils-md5sum        "7f8ac985c45086b5fbcd12cecd23cf07">
+  <!ENTITY keyutils-size          "76 KB">
+  <!ENTITY keyutils-buildsize     "1.7 MB">
+  <!ENTITY keyutils-time          "less than 0.1 SBU">
+]>
+
+<sect1 id="keyutils" xreflabel="keyutils-&keyutils-version;">
+  <?dbhtml filename="keyutils.html"?>
+
+  <title>keyutils-&keyutils-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Keyutils is a set of utilities for managing the key retention facility in
+      the kernel, which can be used by filesystems, block devices and more to
+      gain and retain the authorization and encryption keys required to perform
+      secure operations.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&keyutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&keyutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&keyutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&keyutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &keyutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &keyutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &keyutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &keyutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+
+<screen role="root"><userinput>make NO_ARLIB=1 install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>NO_ARLIB=1</parameter>: This make flag disables installing
+        the static library.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="keyutils">
+      <primary sortas="b-keyctl">keyctl</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="b-key.dns_resolver">key.dns_resolver</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="b-request-key">request-key</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="c-libkeyutils.so">libkeyutils.so</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="e-etc-request-key.conf">/etc/request-key.conf</primary>
+    </indexterm>
+    <indexterm zone="keyutils">
+      <primary sortas="e-etc-request-key.d">/etc/request-key.d/*</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/bin/keyctl
+/etc/request-key.conf
+/etc/request-key.d/
+/sbin/key.dns_resolver
+/sbin/request-key
+/usr/include/keyutils.h
+/usr/lib/libkeyutils.so
+/usr/share/keyutils/
+/usr/share/man/man1/keyctl.1
+/usr/share/man/man3/keyctl.3
+/usr/share/man/man5/request-key.conf.5
+/usr/share/man/man8/key.dns_resolver.8
+/usr/share/man/man8/request-key.8</literal></screen>
+
+  </sect2>
+
+</sect1>

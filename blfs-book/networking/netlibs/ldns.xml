@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY ldns-homepage      "http://www.nlnetlabs.nl/projects/ldns/">
+  <!ENTITY ldns-wikipedia     " ">
+  <!ENTITY ldns-download-http "http://www.nlnetlabs.nl/downloads/ldns/ldns-&ldns-version;.tar.gz">
+  <!ENTITY ldns-download-ftp  " ">
+  <!ENTITY ldns-md5sum        "a79423bcc4129e6d59b616b1cae11e5e">
+  <!ENTITY ldns-size          "1.3 MB">
+  <!ENTITY ldns-buildsize     "18 MB">
+  <!ENTITY ldns-time          "0.2 SBU">
+]>
+
+<sect1 id="ldns" xreflabel="ldns-&ldns-version;">
+  <?dbhtml filename="ldns.html"?>
+
+  <title>ldns-&ldns-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      ldns is a fast DNS library with the goal to simplify DNS programming and
+      to allow developers to easily create software conforming to current RFCs
+      and Internet drafts. This packages also includes the
+      <command>drill</command> tool.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&ldns-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&ldns-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&ldns-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&ldns-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &ldns-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &ldns-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &ldns-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &ldns-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="openssl"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="python2"/> and
+      <xref linkend="swig"/> (for Python bindings)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --disable-static \
+            --with-drill &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-drill</parameter>: This switch enables building of the
+        <command>drill</command> tool.
+      </para>
+
+      <para>
+        <option>--with-pyldns</option>: This switch enables building of the
+        Python bindings.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="ldns">
+      <primary sortas="b-drill">drill</primary>
+    </indexterm>
+    <indexterm zone="ldns">
+      <primary sortas="b-ldns-config">ldns-config</primary>
+    </indexterm>
+    <indexterm zone="ldns">
+      <primary sortas="c-libldns.so">libldns.so</primary>
+    </indexterm>
+    <indexterm zone="ldns">
+      <primary sortas="g-ldns.py">ldns.py</primary>
+    </indexterm>
+    <indexterm zone="ldns">
+      <primary sortas="g-ldnsx.py">ldnsx.py</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/drill
+/usr/bin/ldns-config
+/usr/include/ldns/
+/usr/lib/libldns.so
+/usr/lib/python2.7/site-packages/ldns.py
+/usr/lib/python2.7/site-packages/ldnsx.py
+/usr/share/man/man1/drill.1
+/usr/share/man/man1/ldns-config.1
+/usr/share/man/man3/ldns_*.3</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libgcrypt-homepage      "http://www.gnu.org/software/libgcrypt/">
+  <!ENTITY libgcrypt-wikipedia     "http://en.wikipedia.org/wiki/Libgcrypt">
+  <!ENTITY libgcrypt-download-http " ">
+  <!ENTITY libgcrypt-download-ftp  "ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-&libgcrypt-version;.tar.bz2">
+  <!ENTITY libgcrypt-md5sum        "b54395a93cb1e57619943c082da09d5f">
+  <!ENTITY libgcrypt-size          "2.4 MB">
+  <!ENTITY libgcrypt-buildsize     "38 MB">
+  <!ENTITY libgcrypt-time          "0.3 SBU">
+]>
+
+<sect1 id="libgcrypt" xreflabel="libgcrypt-&libgcrypt-version;">
+  <?dbhtml filename="libgcrypt.html"?>
+
+  <title>libgcrypt-&libgcrypt-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The libgcrypt package contains a general purpose crypto library based on
+      the code used in GnuPG. The library provides a high level interface to
+      cryptographic building blocks using an extendable and flexible API.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libgcrypt-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libgcrypt-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libgcrypt-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libgcrypt-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libgcrypt-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libgcrypt-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libgcrypt-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libgcrypt-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="libgpg-error"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libcap"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--with-capabilities</option>: This option enables libcap2 support.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="libgcrypt">
+      <primary sortas="b-dumpsexp">dumpsexp</primary>
+    </indexterm>
+    <indexterm zone="libgcrypt">
+      <primary sortas="b-hmac256">hmac256</primary>
+    </indexterm>
+    <indexterm zone="libgcrypt">
+      <primary sortas="b-libgcrypt-config">libgcrypt-config</primary>
+    </indexterm>
+    <indexterm zone="libgcrypt">
+      <primary sortas="b-mpicalc">mpicalc</primary>
+    </indexterm>
+    <indexterm zone="libgcrypt">
+      <primary sortas="c-libgcrypt.so">libgcrypt.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/dumpsexp
+/usr/bin/hmac256
+/usr/bin/libgcrypt-config
+/usr/bin/mpicalc
+/usr/include/gcrypt.h
+/usr/lib/libgcrypt.so
+/usr/share/aclocal/libgcrypt.m4
+/usr/share/man/man1/hmac256.1</literal></screen>
+
+  </sect2>
+
+</sect1>

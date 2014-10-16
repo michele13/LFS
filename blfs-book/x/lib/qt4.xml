@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY qt4-homepage      "https://qt-project.org/">
+  <!ENTITY qt4-wikipedia     "http://en.wikipedia.org/wiki/Qt_&#40;software&#41;">
+  <!ENTITY qt4-download-http "http://download.qt-project.org/official_releases/qt/4.8/&qt4-version;/qt-everywhere-opensource-src-&qt4-version;.tar.gz">
+  <!ENTITY qt4-download-ftp  " ">
+  <!ENTITY qt4-md5sum        "2edbe4d6c2eff33ef91732602f3518eb">
+  <!ENTITY qt4-size          "231 MB">
+  <!ENTITY qt4-buildsize     "2.0 GB">
+  <!ENTITY qt4-time          "37 SBU">
+]>
+
+<sect1 id="qt4" xreflabel="Qt-&qt4-version;">
+  <?dbhtml filename="qt4.html" ?>
+
+  <title>Qt-&qt4-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Qt is a cross-platform application framework that is widely used for
+      developing application software with a graphical user interface (in which
+      cases Qt is classified as a widget toolkit), and also used for developing
+      non-GUI programs such as command-line tools and consoles for servers.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&qt4-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&qt4-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&qt4-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&qt4-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &qt4-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &qt4-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &qt4-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &qt4-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="libxext"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="alsa-lib"/>,
+      <xref linkend="mesalib"/>,
+      <xref linkend="cacerts"/>,
+      <xref linkend="glib2"/>,
+      <xref linkend="icu"/> (unicode support),
+      <xref linkend="libjpeg"/>,
+      <xref linkend="libmng"/>,
+      <xref linkend="libpng"/>,
+      <xref linkend="libtiff"/>,
+      <xref linkend="openssl"/>, and
+      <xref linkend="sqlite"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="cups"/>,
+      <xref linkend="gtk2"/> (GTK+ 2 theme support),
+      <xref linkend="mariadb"/>,
+      <xref linkend="postgresql"/>, and
+      <xref linkend="unixodbc"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Fix DoS vulnerability in the GIF image handler:
+    </para>
+
+<screen><userinput>sed -i -e '631a if (image->isNull()) { state = Error; return -1; }' \
+    src/gui/image/qgifhandler.cpp</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>sed -i -e "/#if/d" -e "/#error/d" -e "/#endif/d" \
+     config.tests/unix/libmng/libmng.cpp &amp;&amp;
+sed -i '/CONFIG -/ a\isEmpty(OUTPUT_DIR): OUTPUT_DIR = ../..' \
+     src/3rdparty/webkit/Source/WebKit2/DerivedSources.pro &amp;&amp;
+
+./configure -prefix /usr \
+            -docdir /usr/share/doc/qt \
+            -headerdir /usr/include/qt \
+            -plugindir /usr/lib/qt/plugins \
+            -importdir /usr/lib/qt/imports \
+            -datadir /usr/share/qt \
+            -translationdir /usr/share/qt/translations \
+            -sysconfdir /etc/xdg \
+            -examplesdir /usr/share/doc/qt/examples \
+            -demosdir /usr/share/doc/qt/demos \
+            -confirm-license \
+            -opensource \
+            -release \
+            -optimized-qmake \
+            -nomake demos \
+            -nomake examples \
+            -no-nis \
+            -no-openvg \
+            -no-phonon \
+            -no-phonon-backend \
+            -no-dbus \
+            -openssl-linked \
+            -system-sqlite &amp;&amp;
+
+make</userinput></screen>
+
+    <para>
+      Remove references to the build directory from the <filename
+      class="extension">.pc</filename> files by running the following command:
+    </para>
+
+<screen><userinput>find . -name "*.pc" -exec perl -pi -e "s, -L$PWD/?\S+,,g" {} \;</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+rm -rf /usr/tests &amp;&amp;
+<!-- is this needed? (see upstream blfs) -->
+install -v -dm755 /usr/share/pixmaps &amp;&amp;
+install -v -Dm644 src/gui/dialogs/images/qtlogo-64.png \
+                  /usr/share/pixmaps/qtlogo.png &amp;&amp;
+install -v -Dm644 tools/assistant/tools/assistant/images/assistant-128.png \
+                  /usr/share/pixmaps/assistant.png &amp;&amp;
+install -v -Dm644 tools/designer/src/designer/images/designer.png \
+                  /usr/share/pixmaps/designer.png &amp;&amp;
+install -v -Dm644 tools/linguist/linguist/images/icons/linguist-128-32.png \
+                  /usr/share/pixmaps/linguist.png</userinput></screen>
+
+    <para>
+      Remove references to the build directory from installed files by running
+      the following command as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>for file in 3Support CLucene Core DBus Declarative DesignerComponents \
+            Designer Gui Help Multimedia Network OpenGL Script \
+            ScriptTools Sql Svg Test UiTools WebKit XmlPatterns Xml phonon
+do
+  [ -e /usr/lib/libQt${file}.prl ] &amp;&amp; sed -i -e '/^QMAKE_PRL_BUILD_DIR/d;s/\(QMAKE_PRL_LIBS =\).*/\1/' \
+                                              /usr/lib/libQt${file}.prl
+done
+unset file</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i ...</command>: First command fixes detection of
+        <application>libmng</application> 2.0 and second one prevents configure
+        script to write in root directory if building as privileged user.
+      </para>
+
+      <para>
+        <parameter>-confirm-license</parameter>: Accept license without
+        prompting user during configuration.
+      </para>
+
+      <para>
+        <parameter>-opensource</parameter>: Install the opensource version of
+        Qt.
+      </para>
+
+      <para>
+        <parameter>-release</parameter>: This switch disables building with
+        debugging symbols.
+      </para>
+
+      <para>
+        <parameter>-optimized-qmake</parameter>: This switch enables building of
+        the optimized <command>qmake</command> program.
+      </para>
+
+      <para>
+        <parameter>-nomake examples -nomake demos</parameter>: These switches
+        disable building programs that are only of interest to a Qt developer.
+      </para>
+
+      <para>
+        <parameter>-no-nis</parameter>: This switch disables support for Network
+        Information Service (NIS) which has been deprecated in recent versions
+        of Glibc.
+      </para>
+
+      <para>
+        <parameter>-no-openvg</parameter>: This switch disables OpenVG support
+        in Qt.
+      </para>
+
+      <para>
+        <parameter>-no-phonon -no-phonon-backend</parameter>: These switches
+        disable building of the bundled Phonon library.
+      </para>
+
+      <para>
+        <parameter>-openssl-linked</parameter>: This switch enables explicit
+        linking of the OpenSSL libraries into Qt libraries instead of
+        <command>dlopen()</command>-ing them.
+      </para>
+
+      <para>
+        <parameter>-system-sqlite</parameter>: This switch enables use the
+        system version of SQLite.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      Create an environment variable needed by certain packages. As the
+      <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>cat &gt; /etc/profile.d/qt.sh &lt;&lt; EOF
+<literal># Begin /etc/profile.d/qt.sh
+
+QTDIR=/usr
+
+export QTDIR
+
+# End /etc/profile.d/qt.sh</literal>
+EOF</userinput></screen>
+
+    <para>
+      Create the menu entries for installed applications. As the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>install -dm755 /usr/share/applications
+
+cat &gt; /usr/share/applications/qtconfig.desktop &lt;&lt; "EOF"
+<literal>[Desktop Entry]
+Name=Qt Config
+Comment=Configure Qt behavior, styles, fonts
+Exec=qtconfig
+Icon=qtlogo
+Terminal=false
+Encoding=UTF-8
+Type=Application
+Categories=Qt;Settings;</literal>
+EOF
+
+cat &gt; /usr/share/applications/assistant.desktop &lt;&lt; "EOF"
+<literal>[Desktop Entry]
+Name=Qt Assistant
+Comment=Shows Qt documentation and examples
+Exec=assistant
+Icon=assistant
+Terminal=false
+Encoding=UTF-8
+Type=Application
+Categories=Qt;Development;Documentation;</literal>
+EOF
+
+cat &gt; /usr/share/applications/designer.desktop &lt;&lt; "EOF"
+<literal>[Desktop Entry]
+Name=Qt Designer
+Comment=Design GUIs for Qt applications
+Exec=designer
+Icon=designer
+MimeType=application/x-designer;
+Terminal=false
+Encoding=UTF-8
+Type=Application
+Categories=Qt;Development;</literal>
+EOF
+
+cat &gt; /usr/share/applications/linguist.desktop &lt;&lt; "EOF"
+<literal>[Desktop Entry]
+Name=Qt Linguist
+Comment=Add translations to Qt applications
+Exec=linguist
+Icon=linguist
+MimeType=text/vnd.trolltech.linguist;application/x-linguist;
+Terminal=false
+Encoding=UTF-8
+Type=Application
+Categories=Qt;Development;</literal>
+EOF</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="qt4">
+      <primary sortas="b-assistant">assistant</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-designer">designer</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-linguist">linguist</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-lrelease">lrelease</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-lupdate">lupdate</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-moc">moc</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-pixeltool">pixeltool</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qcollectiongenerator">qcollectiongenerator</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qdoc3">qdoc3</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qhelpconverter">qhelpconverter</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qhelpgenerator">qhelpgenerator</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qmake">qmake</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qmlplugindump">qmlplugindump</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qmlviewer">qmlviewer</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qt3to4">qt3to4</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qtconfig">qtconfig</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-qttracereplay">qttracereplay</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-rcc">rcc</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-uic">uic</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-uic3">uic3</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-xmlpatterns">xmlpatterns</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="b-xmlpatternsvalidator">xmlpatternsvalidator</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQt3Support.so">libQt3Support.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtCLucene.so">libQtCLucene.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtCore.so">libQtCore.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtDeclarative.so">libQtDeclarative.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtDesignerComponents.so">libQtDesignerComponents.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtDesigner.so">libQtDesigner.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtGui.so">libQtGui.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtHelp.so">libQtHelp.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtMultimedia.so">libQtMultimedia.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtNetwork.so">libQtNetwork.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtOpenGL.so">libQtOpenGL.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtScript.so">libQtScript.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtScriptTools.so">libQtScriptTools.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtSql.so">libQtSql.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtSvg.so">libQtSvg.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtTest.so">libQtTest.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtUiTools.a">libQtUiTools.a</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtWebKit.so">libQtWebKit.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtXmlPatterns.so">libQtXmlPatterns.so</primary>
+    </indexterm>
+    <indexterm zone="qt4">
+      <primary sortas="c-libQtXml.so">libQtXml.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/assistant
+/usr/bin/designer
+/usr/bin/lconvert
+/usr/bin/linguist
+/usr/bin/lrelease
+/usr/bin/lupdate
+/usr/bin/moc
+/usr/bin/pixeltool
+/usr/bin/qcollectiongenerator
+/usr/bin/qdoc3
+/usr/bin/qhelpconverter
+/usr/bin/qhelpgenerator
+/usr/bin/qmake
+/usr/bin/qmlplugindump
+/usr/bin/qmlviewer
+/usr/bin/qt3to4
+/usr/bin/qtconfig
+/usr/bin/qttracereplay
+/usr/bin/rcc
+/usr/bin/uic
+/usr/bin/uic3
+/usr/bin/xmlpatterns
+/usr/bin/xmlpatternsvalidator
+/usr/include/qt/
+/usr/lib/libQt3Support.prl
+/usr/lib/libQt3Support.so
+/usr/lib/libQtCLucene.prl
+/usr/lib/libQtCLucene.so
+/usr/lib/libQtCore.prl
+/usr/lib/libQtCore.so
+/usr/lib/libQtDeclarative.prl
+/usr/lib/libQtDeclarative.so
+/usr/lib/libQtDesignerComponents.prl
+/usr/lib/libQtDesignerComponents.so
+/usr/lib/libQtDesigner.prl
+/usr/lib/libQtDesigner.so
+/usr/lib/libQtGui.prl
+/usr/lib/libQtGui.so
+/usr/lib/libQtHelp.prl
+/usr/lib/libQtHelp.so
+/usr/lib/libQtMultimedia.prl
+/usr/lib/libQtMultimedia.so
+/usr/lib/libQtNetwork.prl
+/usr/lib/libQtNetwork.so
+/usr/lib/libQtOpenGL.prl
+/usr/lib/libQtOpenGL.so
+/usr/lib/libQtScript.prl
+/usr/lib/libQtScript.so
+/usr/lib/libQtScriptTools.prl
+/usr/lib/libQtScriptTools.so
+/usr/lib/libQtSql.prl
+/usr/lib/libQtSql.so
+/usr/lib/libQtSvg.prl
+/usr/lib/libQtSvg.so
+/usr/lib/libQtTest.prl
+/usr/lib/libQtTest.so
+/usr/lib/libQtUiTools.a
+/usr/lib/libQtUiTools.prl
+/usr/lib/libQtWebKit.prl
+/usr/lib/libQtWebKit.so
+/usr/lib/libQtXmlPatterns.prl
+/usr/lib/libQtXmlPatterns.so
+/usr/lib/libQtXml.prl
+/usr/lib/libQtXml.so
+/usr/lib/pkgconfig/Qt3Support.pc
+/usr/lib/pkgconfig/QtCLucene.pc
+/usr/lib/pkgconfig/QtCore.pc
+/usr/lib/pkgconfig/QtDeclarative.pc
+/usr/lib/pkgconfig/QtDesignerComponents.pc
+/usr/lib/pkgconfig/QtDesigner.pc
+/usr/lib/pkgconfig/QtGui.pc
+/usr/lib/pkgconfig/QtHelp.pc
+/usr/lib/pkgconfig/QtMultimedia.pc
+/usr/lib/pkgconfig/QtNetwork.pc
+/usr/lib/pkgconfig/QtOpenGL.pc
+/usr/lib/pkgconfig/QtScript.pc
+/usr/lib/pkgconfig/QtScriptTools.pc
+/usr/lib/pkgconfig/QtSql.pc
+/usr/lib/pkgconfig/QtSvg.pc
+/usr/lib/pkgconfig/QtTest.pc
+/usr/lib/pkgconfig/QtUiTools.pc
+/usr/lib/pkgconfig/QtWebKit.pc
+/usr/lib/pkgconfig/QtXmlPatterns.pc
+/usr/lib/pkgconfig/QtXml.pc
+/usr/lib/qt/
+/usr/share/doc/qt/
+/usr/share/pixmaps/assistant.png
+/usr/share/pixmaps/designer.png
+/usr/share/pixmaps/linguist.png
+/usr/share/pixmaps/qtlogo.png
+/usr/share/qt/</literal></screen>
+
+  </sect2>
+
+</sect1>

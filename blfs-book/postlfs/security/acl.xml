@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY acl-homepage      " ">
+  <!ENTITY acl-wikipedia     "http://en.wikipedia.org/wiki/Access_control_list">
+  <!ENTITY acl-download-http "http://download.savannah.gnu.org/releases/acl/acl-&acl-version;.src.tar.gz">
+  <!ENTITY acl-download-ftp  " ">
+  <!ENTITY acl-md5sum        "a61415312426e9c2212bd7dc7929abda">
+  <!ENTITY acl-size          "384 KB">
+  <!ENTITY acl-buildsize     "9.1 MB">
+  <!ENTITY acl-time          "0.1 SBU">
+]>
+
+<sect1 id="acl" xreflabel="acl-&acl-version;">
+  <?dbhtml filename="acl.html"?>
+
+  <title>acl-&acl-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The acl package contains utilities to administer Access Control Lists,
+      which are used to define more fine-grained discretionary access rights for
+      files and directories.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&acl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&acl-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&acl-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&acl-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &acl-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &acl-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &acl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &acl-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="attr"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Fix a bug that causes <command>getfacl -e</command> to segfault on overly
+      long group name:
+    </para>
+
+<screen><userinput>sed "s|: TABS-1;|&amp;\n\n\t\t\tif (x > (TABS-1))\n\t\t\t\tx = (TABS-1);\n|" \
+    -i libacl/__acl_to_any_text.c</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>INSTALL_USER=root \
+INSTALL_GROUP=root \
+./configure --prefix=/usr \
+            --libexecdir=/usr/lib \
+            --disable-static \
+            --disable-gettext &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<!-- Package uses DIST_ROOT instead of DESTDIR -->
+<screen role="root"><userinput>make install install-dev install-lib &amp;&amp;
+chmod -v 755 /usr/lib/libacl.so</userinput></screen>
+
+    <para>
+      The shared library needs to be moved to <filename
+      class="directory">/lib</filename>, and as a result the <filename
+      class="extension">.so</filename> file in <filename
+      class="directory">/usr/lib</filename> will need to be recreated:
+    </para>
+
+<screen role="root"><userinput>mv -v /usr/lib/libacl.so.* /lib &amp;&amp;
+ln -sfv ../../lib/libacl.so.1 /usr/lib/libacl.so</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--libexecdir=/usr/lib</parameter>: This switch ensures that
+        <filename class="libraryfile">libacl.la</filename> is installed in the
+        correct directory, and that a spurious <filename
+        class="libraryfile">libacl.so</filename> symlink is not created in
+        <filename class="directory">/usr/libexec/</filename>.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      There is no configuration to acl itself, but to get any use out of acl, a
+      filesystem needs to support access control lists.
+    </para>
+
+    <para>
+      One way to achieve this is to add the acl option to an ext3 filesystem in
+      the <filename>/etc/fstab</filename> file as shown below:
+    </para>
+
+<screen># file system  mount-point  type   options                 dump  fsck
+#                                                                order
+
+/dev/sda1      /            ext3   defaults,acl,user_xattr 0     2</screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="acl">
+      <primary sortas="b-chacl">chacl</primary>
+    </indexterm>
+    <indexterm zone="acl">
+      <primary sortas="b-getfacl">getfacl</primary>
+    </indexterm>
+    <indexterm zone="acl">
+      <primary sortas="b-setfacl">setfacl</primary>
+    </indexterm>
+    <indexterm zone="acl">
+      <primary sortas="c-libacl.so">libacl.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/lib/libacl.so.1
+/lib/libacl.so.1.1.0
+/usr/bin/chacl
+/usr/bin/getfacl
+/usr/bin/setfacl
+/usr/include/acl/
+/usr/include/sys/acl.h
+/usr/lib/libacl.so
+/usr/share/doc/acl/
+/usr/share/man/man1/chacl.1
+/usr/share/man/man1/getfacl.1
+/usr/share/man/man1/setfacl.1
+/usr/share/man/man3/acl_*.3
+/usr/share/man/man5/acl.5</literal></screen>
+
+  </sect2>
+
+</sect1>

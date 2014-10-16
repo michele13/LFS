@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY glib2-homepage      "http://library.gnome.org/devel/glib/">
+  <!ENTITY glib2-wikipedia     "http://en.wikipedia.org/wiki/GLib">
+  <!ENTITY glib2-download-http "&gnome-download-http;/glib/2.34/glib-&glib2-version;.tar.xz">
+  <!ENTITY glib2-download-ftp  "&gnome-download-ftp;/glib/2.34/glib-&glib2-version;.tar.xz">
+  <!ENTITY glib2-md5sum        "a4ca31e258273c3761e3de2edd607661">
+  <!ENTITY glib2-size          "6.1 MB">
+  <!ENTITY glib2-buildsize     "185 MB">
+  <!ENTITY glib2-time          "1.7 SBU">
+]>
+
+<sect1 id="glib2" xreflabel="GLib-&glib2-version;">
+  <?dbhtml filename="glib2.html"?>
+
+  <title>GLib-&glib2-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The GLib package contains a low-level libraries useful for providing data
+      structure handling for C, portability wrappers and interfaces for such
+      runtime functionality as an event loop, threads, dynamic loading and an
+      object system.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&glib2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&glib2-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&glib2-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&glib2-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &glib2-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &glib2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &glib2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &glib2-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="gettext"/>,
+      <xref linkend="libffi"/>, and
+      <xref linkend="python2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="pcre"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="attr"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended (runtime)</bridgehead>
+    <para>
+      <xref linkend="shared-mime-info"/> and
+      <xref linkend="desktop-file-utils"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --with-pcre=system &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-pcre=system</parameter>: This switch causes the build
+        to use a system-provided version of the PCRE library instead of an
+        internal version.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="glib2">
+      <primary sortas="b-gdbus">gdbus</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gdbus-codegen">gdbus-codegen</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gio-querymodules">gio-querymodules</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-glib-compile-resources">glib-compile-resources</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-glib-compile-resources">glib-compile-schemas</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-glib-genmarshal">glib-genmarshal</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-glib-gettextize">glib-gettextize</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-glib-mkenums">glib-mkenums</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gobject-query">gobject-query</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gresource">gresource</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gsettings">gsettings</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gtester">gtester</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="b-gtester-report">gtester-report</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="c-libgio-2.0.so">libgio-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="c-libglib-2.0.so">libglib-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="c-libgmodule-2.0.so">libgmodule-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="c-libgobject-2.0.so">libgobject-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="glib2">
+      <primary sortas="c-libgthread-2.0.so">libgthread-2.0.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/gdbus
+/usr/bin/gdbus-codegen
+/usr/bin/gio-querymodules
+/usr/bin/glib-compile-resources
+/usr/bin/glib-compile-schemas
+/usr/bin/glib-genmarshal
+/usr/bin/glib-gettextize
+/usr/bin/glib-mkenums
+/usr/bin/gobject-query
+/usr/bin/gresource
+/usr/bin/gsettings
+/usr/bin/gtester
+/usr/bin/gtester-report
+/usr/include/gio-unix-2.0/
+/usr/include/glib-2.0/
+/usr/lib/gdbus-2.0/
+/usr/lib/gio/
+/usr/lib/glib-2.0/
+/usr/lib/libgio-2.0.so
+/usr/lib/libglib-2.0.so
+/usr/lib/libgmodule-2.0.so
+/usr/lib/libgobject-2.0.so
+/usr/lib/libgthread-2.0.so
+/usr/share/glib-2.0/
+/usr/share/man/man1/gdbus.1
+/usr/share/man/man1/gdbus-codegen.1
+/usr/share/man/man1/gio-querymodules.1
+/usr/share/man/man1/glib-compile-resources.1
+/usr/share/man/man1/glib-compile-schemas.1
+/usr/share/man/man1/glib-genmarshal.1
+/usr/share/man/man1/glib-gettextize.1
+/usr/share/man/man1/glib-mkenums.1
+/usr/share/man/man1/gobject-query.1
+/usr/share/man/man1/gresource.1
+/usr/share/man/man1/gsettings.1
+/usr/share/man/man1/gtester.1
+/usr/share/man/man1/gtester-report.1</literal></screen>
+
+  </sect2>
+
+</sect1>

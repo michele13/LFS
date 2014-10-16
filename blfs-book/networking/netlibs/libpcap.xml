@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libpcap-homepage      "http://www.tcpdump.org/">
+  <!ENTITY libpcap-wikipedia     "http://en.wikipedia.org/wiki/Pcap">
+  <!ENTITY libpcap-download-http "http://www.tcpdump.org/release/libpcap-&libpcap-version;.tar.gz">
+  <!ENTITY libpcap-download-ftp  " ">
+  <!ENTITY libpcap-md5sum        "5f14191c1a684a75532c739c2c4059fa">
+  <!ENTITY libpcap-size          "636 KB">
+  <!ENTITY libpcap-buildsize     "7.1 MB">
+  <!ENTITY libpcap-time          " less than 0.1 SBU">
+]>
+
+<sect1 id="libpcap" xreflabel="libpcap-&libpcap-version;">
+  <?dbhtml filename="libpcap.html"?>
+
+  <title>libpcap-&libpcap-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      libpcap provides functions for user-level packet capture, used in
+      low-level network monitoring.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libpcap-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libpcap-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libpcap-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libpcap-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libpcap-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libpcap-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libpcap-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libpcap-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="libnl"/> and
+      <xref linkend="libusb"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install libpcap by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Disable installing the static library:
+    </para>
+
+<screen><userinput>sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+  <indexterm zone="libpcap">
+    <primary sortas="b-libpcap-config">libpcap-config</primary>
+  </indexterm>
+  <indexterm zone="libpcap">
+    <primary sortas="c-libpcap.so">libpcap.so</primary>
+  </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/pcap-config
+/usr/include/pcap/
+/usr/include/pcap-bpf.h
+/usr/include/pcap.h
+/usr/include/pcap-namedb.h
+/usr/lib/libpcap.so
+/usr/share/man/man1/pcap-config.1
+/usr/share/man/man3/pcap.3pcap
+/usr/share/man/man5/pcap-savefile.5
+/usr/share/man/man7/pcap-filter.7
+/usr/share/man/man7/pcap-linktype.7
+/usr/share/man/man7/pcap-tstamp.7</literal></screen>
+
+  </sect2>
+
+</sect1>

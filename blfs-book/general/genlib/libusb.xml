@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libusb-homepage      "http://www.libusb.org/">
+  <!ENTITY libusb-wikipedia     "http://en.wikipedia.org/wiki/Libusb">
+  <!ENTITY libusb-download-http "&sourceforge-repo;/libusb/libusb-&libusb-version;.tar.bz2">
+  <!ENTITY libusb-download-ftp  " ">
+  <!ENTITY libusb-md5sum        "f9e2bb5879968467e5ca756cb4e1fa7e">
+  <!ENTITY libusb-size          "512 KB">
+  <!ENTITY libusb-buildsize     "7.3 MB">
+  <!ENTITY libusb-time          "0.1 SBU">
+]>
+
+<sect1 id="libusb" xreflabel="libusb-&libusb-version;">
+  <?dbhtml filename="libusb.html"?>
+
+  <title>libusb-&libusb-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The libusb package contains a library used by some applications for USB
+      device access.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libusb-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libusb-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libusb-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libusb-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libusb-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libusb-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libusb-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libusb-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --disable-udev &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para id="libusb-kernel">
+      To access raw USB devices (those not treated as a disk by the mass-storage
+      driver), appropriate support must be available in the kernel.  Check your
+      kernel configuration for Device Drivers &rArr; USB support &rArr; Support
+      for Host-side USB.  Select any USB hardware device drivers you may need
+      on the same page.
+    </para>
+
+    <indexterm zone="libusb libusb-kernel">
+      <primary sortas="d-USB-device-filesystem">Support for Host-side USB</primary>
+    </indexterm>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="libusb">
+      <primary sortas="c-libusb-1.0.so">libusb-1.0.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/include/libusb-1.0/
+/usr/lib/libusb-1.0.so
+/usr/lib/pkgconfig/libusb-1.0.pc</literal></screen>
+
+  </sect2>
+
+</sect1>

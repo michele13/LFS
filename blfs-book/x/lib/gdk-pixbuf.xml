@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gdk-pixbuf-homepage      " ">
+  <!ENTITY gdk-pixbuf-wikipedia     " ">
+  <!ENTITY gdk-pixbuf-download-http "&gnome-download-http;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
+  <!ENTITY gdk-pixbuf-download-ftp  "&gnome-download-ftp;/gdk-pixbuf/2.28/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
+  <!ENTITY gdk-pixbuf-md5sum        "04c04e5042acd85cff6c439aba1995f1">
+  <!ENTITY gdk-pixbuf-size          "1.1 MB">
+  <!ENTITY gdk-pixbuf-buildsize     "31 MB">
+  <!ENTITY gdk-pixbuf-time          "0.2 SBU">
+]>
+
+<sect1 id="gdk-pixbuf" xreflabel="GDK-Pixbuf-&gdk-pixbuf-version;">
+  <?dbhtml filename="gdk-pixbuf.html"?>
+
+  <title>GDK-Pixbuf-&gdk-pixbuf-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The GDK-Pixbuf is a toolkit for image loading and pixel buffer
+      manipulation.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gdk-pixbuf-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gdk-pixbuf-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gdk-pixbuf-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gdk-pixbuf-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gdk-pixbuf-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gdk-pixbuf-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gdk-pixbuf-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gdk-pixbuf-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="glib2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libjpeg"/>,
+      <xref linkend="libtiff"/>,
+      <xref linkend="libpng"/>, and
+      <xref linkend="libx11"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="jasper"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-nls \
+            --with-x11 &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <note>
+      <para>
+        If you installed the package on to your system using a
+        <quote>DESTDIR</quote> method, an important file was not installed and
+        should be copied and/or generated. Generate it using the following
+        command as the <systemitem class="username">root</systemitem> user:
+      </para>
+
+<screen role="root"><userinput>gdk-pixbuf-query-loaders --update-cache</userinput></screen>
+
+    </note>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-x11</parameter>: This switch enables building of the
+        GDK-Pixbuf X11 library which is needed for <emphasis>many</emphasis>
+        packages.
+      </para>
+
+      <para>
+        <option>--with-libjasper</option>: If you've installed <xref
+        linkend="jasper"/> and you want GDK-Pixbuf to use it to compile a
+        JPEG2000 image loader, pass this switch to configure.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-csource">gdk-pixbuf-csource</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-pixdata">gdk-pixbuf-pixdata</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="b-gdk-pixbuf-query-loaders">gdk-pixbuf-query-loaders</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="c-libgdk_pixbuf-2.0.so">libgdk_pixbuf-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="gdk-pixbuf">
+      <primary sortas="c-libgdk_pixbuf_xlib-2.0.so">libgdk_pixbuf_xlib-2.0.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/gdk-pixbuf-csource
+/usr/bin/gdk-pixbuf-pixdata
+/usr/bin/gdk-pixbuf-query-loaders
+/usr/include/gdk-pixbuf-2.0/
+/usr/lib/gdk-pixbuf-2.0/
+/usr/lib/libgdk_pixbuf-2.0.so
+/usr/lib/libgdk_pixbuf_xlib-2.0.so
+/usr/lib/pkgconfig/gdk-pixbuf-2.0.pc
+/usr/lib/pkgconfig/gdk-pixbuf-xlib-2.0.pc
+/usr/share/man/man1/gdk-pixbuf-csource.1
+/usr/share/man/man1/gdk-pixbuf-query-loaders.1</literal></screen>
+
+  </sect2>
+
+</sect1>

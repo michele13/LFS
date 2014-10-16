@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY tar-homepage      "http://www.gnu.org/software/tar/">
+  <!ENTITY tar-wikipedia     "http://en.wikipedia.org/wiki/Tar_&#40;computing&#41;">
+  <!ENTITY tar-download-http "http://ftp.gnu.org/gnu/tar/tar-&tar-version;.tar.xz">
+  <!ENTITY tar-download-ftp  "ftp://ftp.gnu.org/gnu/tar/tar-&tar-version;.tar.xz">
+  <!ENTITY tar-md5sum        "e0382a4064e09a4943f3adeff1435978">
+  <!ENTITY tar-size          "1.8 MB">
+  <!ENTITY tar-buildsize     "20 MB">
+  <!ENTITY tar-time          "0.4 SBU">
+]>
+
+<sect1 id="tar" xreflabel="tar-&tar-version;">
+  <?dbhtml filename="tar.html"?>
+
+  <title>tar-&tar-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The tar package provides a program for packaging a set of files as a
+      single archive in tar format, as well as various other kinds of
+      manipulation.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&tar-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&tar-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&tar-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&tar-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &tar-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &tar-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &tar-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &tar-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch: <ulink
+          url="&patch-root;tar/tar-&tar-version;-manpage-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>patch -p1 -i ../tar-&tar-version;-manpage-1.patch &amp;&amp;
+FORCE_UNSAFE_CONFIGURE=1 \
+./configure --disable-nls &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <para>
+      Finally, generate the man page and place it in the proper location:
+    </para>
+
+<screen role="root"><userinput>perl tarman &gt; /usr/local/share/man/man1/tar.1</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="tar">
+      <primary sortas="b-tar">tar</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/local/bin/tar
+/usr/local/libexec/rmt
+/usr/local/share/man/man1/tar.1</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY alsa-lib-homepage      "http://www.alsa-project.org/">
+  <!ENTITY alsa-lib-wikipedia     "http://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture">
+  <!ENTITY alsa-lib-download-http "&alsa-download-http;/lib/alsa-lib-&alsa-lib-version;.tar.bz2">
+  <!ENTITY alsa-lib-download-ftp  "&alsa-download-ftp;/lib/alsa-lib-&alsa-lib-version;.tar.bz2">
+  <!ENTITY alsa-lib-md5sum        "c9e21b88a2b3e6e12ea7ba0f3b271fc3">
+  <!ENTITY alsa-lib-size          "884 KB">
+  <!ENTITY alsa-lib-buildsize     " 16 MB (additional 1 MB for the tests and 26 MB for the docs)">
+  <!ENTITY alsa-lib-time          "0.2 SBU">
+]>
+
+<sect1 id="alsa-lib" xreflabel="alsa-lib-&alsa-lib-version;">
+  <?dbhtml filename="alsa-lib.html"?>
+
+  <title>alsa-lib-&alsa-lib-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The ALSA Library package contains the ALSA library used by programs
+      (including ALSA Utilities) requiring access to the ALSA sound interface.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&alsa-lib-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&alsa-lib-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&alsa-lib-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&alsa-lib-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &alsa-lib-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &alsa-lib-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &alsa-lib-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &alsa-lib-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="python2"/>
+    </para>
+
+  </sect2>
+
+  <sect2 role="kernel" id="alsa-lib-kernel">
+    <title>Kernel Configuration</title>
+
+    <para>
+       If needed, enable the following options in the kernel 
+       configuration and recompile the kernel: 
+    </para>
+
+    <screen><literal>Device Drivers ---&gt;
+  &lt;y/m&gt; Sound card support ---&gt;
+    &lt;y/m&gt; Advanced Linux Sound Architecture ---&gt;
+            Select settings and drivers appropriate for your hardware.
+    &lt; &gt;   Open Sound System (unselected) </literal></screen>
+
+    <para>
+      In the Device Drivers &rArr; Sound card support &rArr; Advanced Linux
+      Sound Architecture section of the kernel configuration, select the
+      settings and drivers appropriate for your hardware. Ensure that the
+      deprecated Device Drivers &rArr; Sound card support &rArr; Open Sound
+      System is <emphasis>not</emphasis> selected. If necessary, recompile and
+      install your new kernel.
+    </para>
+
+    <indexterm zone="alsa-lib alsa-lib-kernel">
+      <primary sortas="d-ALSA">ALSA</primary>
+    </indexterm>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install ALSA Library by running the following commands:
+    </para>
+
+<screen><userinput>./configure &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The default configuration is adequate for most installations. For extra
+      functionality and/or advanced control of your sound device, you may need
+      to create additional configuration files. For information on the available
+      configuration parameters, visit <ulink
+      url="http://www.alsa-project.org/main/index.php/Asoundrc"/>.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="alsa-lib">
+      <primary sortas="b-aserver">aserver</primary>
+    </indexterm>
+    <indexterm zone="alsa-lib">
+      <primary sortas="c-libasound">libasound.so</primary>
+    </indexterm>
+    <indexterm zone="alsa-lib">
+      <primary sortas="e-AA.asoundrc">~/.asoundrc</primary>
+    </indexterm>
+    <indexterm zone="alsa-lib">
+      <primary sortas="e-etc-asound.conf">/etc/asound.conf</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/aserver
+/usr/include/alsa/
+/usr/include/sys/asoundlib.h
+/usr/lib/alsa-lib/
+/usr/lib/libasound.so
+/usr/lib/pkgconfig/alsa.pc
+/usr/share/aclocal/alsa.m4
+/usr/share/alsa/</literal></screen>
+
+  </sect2>
+
+</sect1>

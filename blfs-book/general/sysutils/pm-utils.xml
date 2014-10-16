@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY pm-utils-homepage      "http://pm-utils.freedesktop.org/">
+  <!ENTITY pm-utils-wikipedia     " ">
+  <!ENTITY pm-utils-download-http "http://pm-utils.freedesktop.org/releases/pm-utils-&pm-utils-version;.tar.gz">
+  <!ENTITY pm-utils-download-ftp  " ">
+  <!ENTITY pm-utils-md5sum        "1742a556089c36c3a89eb1b957da5a60">
+  <!ENTITY pm-utils-size          "204 KB">
+  <!ENTITY pm-utils-buildsize     "1.6 MB">
+  <!ENTITY pm-utils-time          "0.1 SBU">
+]>
+
+<sect1 id="pm-utils" xreflabel="pm-utils-&pm-utils-version;">
+  <?dbhtml filename="pm-utils.html"?>
+
+  <title>pm-utils-&pm-utils-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Power Management Utilities is a small collection of scripts to suspend
+      and hibernate computer that can be used to run user supplied scripts on
+      suspend and resume.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&pm-utils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&pm-utils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&pm-utils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&pm-utils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &pm-utils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &pm-utils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &pm-utils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &pm-utils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional (runtime)</bridgehead>
+    <para>
+      <xref linkend="ethtool"/>,
+      <xref linkend="hdparm"/>,
+      <xref linkend="wireless_tools"/>, and
+      <!-- both http://www.codon.org.uk/~mjg59/vbetool/ and
+           http://www.srcf.ucam.org/~mjg59/vbetool/ are down -->
+      <ulink url="http://ftp.de.debian.org/debian/pool/main/v/vbetool/">vbetool</ulink>
+      <!-- radeontool, deprecated? -->
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --sysconfdir=/etc &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install &amp;&amp;
+install -v -m644 man/*.1 /usr/share/man/man1 &amp;&amp;
+install -v -m644 man/*.8 /usr/share/man/man8 &amp;&amp;
+ln -sv pm-action.8 /usr/share/man/man8/pm-suspend.8 &amp;&amp;
+ln -sv pm-action.8 /usr/share/man/man8/pm-hibernate.8 &amp;&amp;
+ln -sv pm-action.8 /usr/share/man/man8/pm-suspend-hybrid.8</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      Suspend or resume functionality can be easily modified by installing files
+      into the <filename class="directory">/etc/pm/sleep.d</filename> directory.
+      These files, known as hooks, are run when the system is put into a sleep
+      state or resumed. Default hooks are located in <filename
+      class="directory">/usr/lib/pm-utils/sleep.d</filename>, and user hooks
+      should be put in <filename class="directory">/etc/pm/sleep.d</filename>.
+      See the pm-action(8) man page for more information.
+    </para>
+
+    <para>
+      In order to use hibernation with GRUB and a swap partition, you need to
+      add kernel parameter
+      <literal>resume=<replaceable>swap_partition</replaceable></literal> (i.e.
+      <literal>resume=/dev/sda1</literal>) to the kernel line in the
+      <filename>/boot/grub/grub.cfg</filename> configuration file.
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="pm-utils">
+      <primary sortas="b-on_ac_power">on_ac_power</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-is-supported">pm-is-supported</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-hibernate">pm-hibernate</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-powersave">pm-powersave</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-suspend">pm-suspend</primary>
+    </indexterm>
+    <indexterm zone="pm-utils">
+      <primary sortas="b-pm-suspend-hybrid">pm-suspend-hybrid</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/pm/
+/usr/bin/on_ac_power
+/usr/bin/pm-is-supported
+/usr/lib/pm-utils/
+/usr/sbin/pm-hibernate
+/usr/sbin/pm-powersave
+/usr/sbin/pm-suspend
+/usr/sbin/pm-suspend-hybrid
+/usr/share/doc/pm-utils/
+/usr/share/man/man1/on_ac_power.1
+/usr/share/man/man1/pm-is-supported.1
+/usr/share/man/man8/pm-action.8
+/usr/share/man/man8/pm-hibernate.8
+/usr/share/man/man8/pm-pmu.8
+/usr/share/man/man8/pm-powersave.8
+/usr/share/man/man8/pm-suspend.8
+/usr/share/man/man8/pm-suspend-hybrid.8</literal></screen>
+
+  </sect2>
+
+</sect1>

@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gtk2-homepage      "http://www.gtk.org/">
+  <!ENTITY gtk2-wikipedia     "http://en.wikipedia.org/wiki/GTK+">
+  <!ENTITY gtk2-download-http "&gnome-download-http;/gtk+/2.24/gtk+-&gtk2-version;.tar.xz">
+  <!ENTITY gtk2-download-ftp  "&gnome-download-ftp;/gtk+/2.24/gtk+-&gtk2-version;.tar.xz">
+  <!ENTITY gtk2-md5sum        "612350704dd3aacb95355a4981930c6f">
+  <!ENTITY gtk2-size          "13 MB">
+  <!ENTITY gtk2-buildsize     "351 MB">
+  <!ENTITY gtk2-time          "2.5 SBU">
+]>
+
+<sect1 id="gtk2" xreflabel="GTK+-&gtk2-version;">
+  <?dbhtml filename="gtk2.html" ?>
+
+  <title>GTK+-&gtk2-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      GTK+ is a multi-platform toolkit for creating graphical user interfaces.
+      Offering a complete set of widgets, GTK+ is suitable for projects ranging
+      from small one-off tools to complete application suites.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gtk2-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gtk2-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gtk2-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gtk2-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gtk2-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gtk2-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gtk2-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gtk2-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="atk"/>,
+      <xref linkend="cairo"/>,
+      <xref linkend="pango"/>, and
+      <xref linkend="gdk-pixbuf"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libxinerama"/>,
+      <xref linkend="libxrandr"/>,
+      <xref linkend="libxfixes"/>,
+      <xref linkend="libxcursor"/>,
+      <xref linkend="libxcomposite"/>,
+      <xref linkend="libxdamage"/>, and
+      <xref linkend="hicolor-icon-theme"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="cups"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>sed -i 's#l \(gtk-.*\).sgml#&amp; -o \1#' docs/faq/Makefile.in docs/tutorial/Makefile.in &amp;&amp;
+sed -i 's#.*@man_#man_#' docs/reference/gtk/Makefile.in &amp;&amp;
+./configure --prefix=/usr \
+            --sysconfdir=/etc &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <note>
+      <para>
+        If you installed the package on to your system using a
+        <quote>DESTDIR</quote> method, an important file was not installed and
+        must be copied and/or generated. Generate it using the following
+        command as the <systemitem class="username">root</systemitem> user:
+      </para>
+
+<screen role="root"><userinput>gtk-query-immodules-2.0 --update-cache</userinput></screen>
+    </note>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <command>sed -i 's#l \(gtk-.*\).sgml#&amp; -o \1#'
+        docs/{faq,tutorial}/Makefile.in</command>: If you have docbook-utils
+        installed (specifically, if configure finds
+        <command>db2html</command>) then it will try to use it to rebuild some
+        of its HTML documentation and fail due to bugs in some of the
+        <filename>Makefile</filename>s. This <command>sed</command> fixes the
+        <filename>Makefile</filename>s.
+      </para>
+
+      <para>
+        <command>sed -i 's#.*@man_#man_#' docs/reference/gtk/Makefile.in</command>:
+        This <command>sed</command> fixes one of the <filename>Makefile</filename>s
+        so it installs the man pages for <command>gtk-builder-convert</command>,
+        <command>gtk-query-immodules-2.0</command>, and
+        <command>gtk-update-icon-cache</command>.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      GTK+ themes change the way a GTK+ application looks. A GTK+ icon theme can
+      be used to change the icons that appear on the application's toolbar. If
+      you have installed a GTK+ theme (such as <ulink
+      url="http://ftp.gnome.org/pub/gnome/sources/gnome-themes/2.32/">gnome-themes</ulink>)
+      or a GTK+ icon theme (such as <xref linkend="gnome-icon-theme"/>) you can
+      set your preferences in <filename>~/.gtkrc-2.0</filename>:
+    </para>
+
+<screen><userinput>cat &gt; ~/.gtkrc-2.0 &lt;&lt; "EOF"
+<literal>include "/usr/share/themes/<replaceable>Glider</replaceable>/gtk-2.0/gtkrc"
+gtk-icon-theme-name = "<replaceable>hicolor</replaceable>"</literal>
+EOF</userinput></screen>
+
+    <para>
+      There are many more themes available at <ulink
+      url="http://gnome-look.org/">Gnome-Look.org</ulink> and other places.
+    </para>
+
+    <para>
+      Once you've settled on themes you like, you can (as the <systemitem
+      class="username">root</systemitem> user) make them the default system wide:
+    </para>
+
+<screen role="root"><userinput>cat &gt; /etc/gtk-2.0/gtkrc &lt;&lt; "EOF"
+<literal>include "/usr/share/themes/<replaceable>Clearlooks</replaceable>/gtk-2.0/gtkrc"
+gtk-icon-theme-name = "<replaceable>elementary</replaceable>"</literal>
+EOF</userinput></screen>
+
+    <para>
+      <xref linkend="lxappearance"/> is a GTK+ application that can help you
+      choose the themes you like.
+    </para>
+
+    <sect3>
+      <title>Config Files</title>
+
+      <para>
+        <filename>~/.gtkrc-2.0</filename>,
+        <filename>/etc/gtk-2.0/gtkrc</filename>, and
+        <filename>/usr/share/gtk-2.0/gtkrc</filename>
+      </para>
+
+      <indexterm zone="gtk2">
+        <primary sortas="e-AA.gtkrc-2.0">~/.gtkrc-2.0</primary>
+      </indexterm>
+
+      <indexterm zone="gtk2">
+        <primary sortas="e-etc-gtk-2.0-gtkrc">/etc/gtk-2.0/gtkrc</primary>
+      </indexterm>
+
+      <indexterm zone="gtk2">
+        <primary sortas="e-usr-share-gtk-2.0-gtkrc">/usr/share/gtk-2.0/gtkrc</primary>
+      </indexterm>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="gtk2">
+      <primary sortas="b-gtk-builder-convert">gtk-builder-convert</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="b-gtk-demo">gtk-demo</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="b-gtk-query-immodules-2.0">gtk-query-immodules-2.0</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="b-gtk-update-icon-cache">gtk-update-icon-cache</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="c-libgailutil.so">libgailutil.so</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="c-libgdk-x11-2.0.so">libgdk-x11-2.0.so</primary>
+    </indexterm>
+    <indexterm zone="gtk2">
+      <primary sortas="c-libgtk-x11-2.0.so">libgtk-x11-2.0.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/gtk-2.0/
+/usr/bin/gtk-builder-convert
+/usr/bin/gtk-demo
+/usr/bin/gtk-query-immodules-2.0
+/usr/bin/gtk-update-icon-cache
+/usr/include/gail-1.0/
+/usr/include/gtk-2.0/
+/usr/include/gtk-unix-print-2.0/
+/usr/lib/gtk-2.0/
+/usr/lib/libgailutil.so
+/usr/lib/libgdk-x11-2.0.so
+/usr/lib/libgtk-x11-2.0.so
+/usr/lib/pkgconfig/gail.pc
+/usr/lib/pkgconfig/gdk-2.0.pc
+/usr/lib/pkgconfig/gdk-x11-2.0.pc
+/usr/lib/pkgconfig/gtk+-2.0.pc
+/usr/lib/pkgconfig/gtk+-unix-print-2.0.pc
+/usr/lib/pkgconfig/gtk+-x11-2.0.pc
+/usr/share/aclocal/gtk-2.0.m4
+/usr/share/gtk-2.0/
+/usr/share/man/man1/gtk-builder-convert.1
+/usr/share/man/man1/gtk-query-immodules-2.0.1
+/usr/share/man/man1/gtk-update-icon-cache.1
+/usr/share/themes/
+/usr/share/themes/Default/
+/usr/share/themes/Emacs/ 
+/usr/share/themes/Raleigh/</literal></screen>
+
+  </sect2>
+
+</sect1>

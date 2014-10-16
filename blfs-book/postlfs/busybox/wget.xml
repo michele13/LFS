@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY wget-homepage      "http://www.gnu.org/software/wget/">
+  <!ENTITY wget-wikipedia     "http://en.wikipedia.org/wiki/Wget">
+  <!ENTITY wget-download-http "http://ftp.gnu.org/gnu/wget/wget-&wget-version;.tar.xz">
+  <!ENTITY wget-download-ftp  "ftp://ftp.gnu.org/gnu/wget/wget-&wget-version;.tar.xz">
+  <!ENTITY wget-md5sum        "7a279d5ac5594919124d5526e7143e28">
+  <!ENTITY wget-size          "1.7 MB">
+  <!ENTITY wget-buildsize     "22 MB">
+  <!ENTITY wget-time          "0.4 SBU">
+]>
+
+<sect1 id="wget" xreflabel="Wget-&wget-version;">
+  <?dbhtml filename="wget.html"?>
+
+  <title>Wget-&wget-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Wget package contains a utility useful for non-interactive downloading
+      of files from the Web.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&wget-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&wget-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&wget-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&wget-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &wget-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &wget-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &wget-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &wget-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="openssl"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libidn"/> and
+      <xref linkend="pcre"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --sysconfdir=/etc \
+            --disable-nls \
+            --with-ssl=openssl &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--with-ssl=openssl</parameter>: This configures the program
+        to use OpenSSL instead of GnuTLS which is preferred by the configure
+        script.
+      </para>
+
+      <para>
+        <option>--without-ssl</option>: This configure option is required if
+        support for the HTTPS protocol is not needed and OpenSSL is not
+        installed.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="wget">
+      <primary sortas="b-wget">wget</primary>
+    </indexterm>
+    <indexterm zone="wget">
+      <primary sortas="e-etc-wgetrc">/etc/wgetrc</primary>
+    </indexterm>
+    <indexterm zone="wget">
+      <primary sortas="e-AA.wgetrc">~/.wgetrc</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/etc/wgetrc
+/usr/local/bin/wget
+/usr/local/share/man/man1/wget.1</literal></screen>
+
+  </sect2>
+
+</sect1>

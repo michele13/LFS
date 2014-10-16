@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY libxslt-homepage      "http://xmlsoft.org/XSLT/">
+  <!ENTITY libxslt-wikipedia     "http://en.wikipedia.org/wiki/Libxslt">
+  <!ENTITY libxslt-download-http "http://xmlsoft.org/sources/libxslt-&libxslt-version;.tar.gz">
+  <!ENTITY libxslt-download-ftp  "ftp://xmlsoft.org/libxslt/libxslt-&libxslt-version;.tar.gz">
+  <!ENTITY libxslt-md5sum        "9667bf6f9310b957254fdcf6596600b7">
+  <!ENTITY libxslt-size          "3.3 MB">
+  <!ENTITY libxslt-buildsize     "40 MB">
+  <!ENTITY libxslt-time          "0.3 SBU">
+]>
+
+<sect1 id="libxslt" xreflabel="libxslt-&libxslt-version;">
+  <?dbhtml filename="libxslt.html"?>
+
+  <title>libxslt-&libxslt-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The libxslt package contains XSLT libraries used for extending <filename
+      class="libraryfile">libxml2</filename> libraries to support XSLT files.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&libxslt-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&libxslt-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&libxslt-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&libxslt-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &libxslt-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &libxslt-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &libxslt-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &libxslt-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para role="required">
+      <xref linkend="libxml2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para role="recommended">
+      <xref linkend="DocBook"/> and
+      <xref linkend="docbook-xsl"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para role="optional">
+      <xref linkend="libgcrypt"/> and
+      <xref linkend="python2"/>
+    </para>
+
+    <note>
+      <para>
+        Although it is not a direct dependency, many applications using libxslt
+        will expect <xref linkend="DocBook"/> and <xref linkend="docbook-xsl"/>
+        to be present.
+      </para>
+    </note>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Install libxslt by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
+make</userinput></screen>
+
+    <para>
+      Now, as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>make install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="libxslt">
+      <primary sortas="b-xslt-config">xslt-config</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="b-xsltproc">xsltproc</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="c-libexslt.so">libexslt.so</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="c-libxslt.so">libxslt.so</primary>
+    </indexterm>
+    <indexterm zone="libxslt">
+      <primary sortas="g-libxslt.py">libxslt.py</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/xslt-config
+/usr/bin/xsltproc
+/usr/include/libexslt/
+/usr/include/libxslt/
+/usr/lib/libexslt.so
+/usr/lib/libxslt-plugins/
+/usr/lib/libxslt.so
+/usr/lib/pkgconfig/libexslt.pc
+/usr/lib/pkgconfig/libxslt.pc
+/usr/lib/python2.7/site-packages/libxslt.py
+/usr/lib/xsltConf.sh
+/usr/share/doc/libxslt-&libxslt-version;/
+/usr/share/doc/libxslt-python-&libxslt-version;/
+/usr/share/man/man1/xsltproc.1
+/usr/share/man/man3/libexslt.3
+/usr/share/man/man3/libxslt.3</literal></screen>
+
+  </sect2>
+
+</sect1>
