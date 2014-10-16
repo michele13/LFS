@@ -1,0 +1,130 @@
+Submitted By:            Igor Živković
+Date:                    2014-07-31
+Initial Package Version: snapshot-20140709-2245-stable
+Upstream Status:         Unknown
+Origin:                  Self
+Description:             Improves configure shell script portability and removes
+                         dependency on bash.
+
+--- x264-snapshot-20141008-2245-stable.orig/configure
++++ x264-snapshot-20141008-2245-stable/configure
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ if test x"$1" = x"-h" -o x"$1" = x"--help" ; then
+ cat <<EOF
+@@ -78,13 +78,13 @@
+     # suppress them by disabling all warnings rather than having to use #pragmas to disable most of them
+     for arg in $*; do
+         [ $arg = -ffast-math ] && arg=
+-        [[ "$arg" = -falign-loops* ]] && arg=
++        [ ! "${arg##-falign-loops*}" ] && arg=
+         [ "$arg" = -fno-tree-vectorize ] && arg=
+         [ "$arg" = -Wshadow ] && arg=
+         [ "$arg" = -Wno-maybe-uninitialized ] && arg=
+-        [[ "$arg" = -mpreferred-stack-boundary* ]] && arg=
+-        [[ "$arg" = -l* ]] && arg=
+-        [[ "$arg" = -L* ]] && arg=
++        [ ! "${arg##-mpreferred-stack-boundary*}" ] && arg=
++        [ ! "${arg##-l*}" ] && arg=
++        [ ! "${arg##-L*}" ] && arg=
+         if [ $compiler_style = MS ]; then
+             [ "$arg" = -Wall ] && arg=-W0
+             [ "$arg" = -Werror ] && arg="-W3 -WX"
+@@ -104,8 +104,8 @@
+ 
+ cl_ldflags() {
+     for arg in $*; do
+-        arg=${arg/LIBPATH/libpath}
+-        [ ${arg#-libpath:} == $arg -a ${arg#-l} != $arg ] && arg=${arg#-l}.lib
++        arg=$(echo $arg | sed -e "s/LIBPATH/libpath/")
++        [ ${arg#-libpath:} = $arg -a ${arg#-l} != $arg ] && arg=${arg#-l}.lib
+         [ ${arg#-L} != $arg ] && arg=-libpath:${arg#-L}
+         [ $arg = -Wl,--large-address-aware ] && arg=-largeaddressaware
+         [ $arg = -s ] && arg=
+@@ -115,7 +115,7 @@
+         [ "$arg" = -Wshadow ] && arg=
+         [ "$arg" = -Wmaybe-uninitialized ] && arg=
+ 
+-        arg=${arg/pthreadGC/pthreadVC}
++        arg=$(echo $arg | sed -e "s/pthreadGC/pthreadVC/")
+         [ "$arg" = avifil32.lib ] && arg=vfw32.lib
+         [ "$arg" = gpac_static.lib ] && arg=libgpac_static.lib
+ 
+@@ -172,7 +172,7 @@
+     log_check "whether $3 is true"
+     rm -f conftest.c
+     [ -n "$1" ] && echo "#include <$1>" > conftest.c
+-    echo -e "#if !($3) \n#error $4 \n#endif " >> conftest.c
++    printf "#if !($3) \n#error $4 \n#endif \n" >> conftest.c
+     if [ $compiler_style = MS ]; then
+         cpp_cmd="$CC conftest.c $(cc_cflags $CFLAGS $2) -P"
+     else
+@@ -455,10 +455,10 @@
+ # test for use of compilers that require specific handling
+ cc_base=`basename "$CC"`
+ QPRE="-"
+-if [[ $host_os = mingw* || $host_os = cygwin* ]]; then
+-    if [[ "$cc_base" = icl || "$cc_base" = icl.* ]]; then
++if [ ! "${host_os##mingw*}" ] || [ ! "${host_os##cygwin*}" ]; then
++    if [ "$cc_base" = icl ] || [ ! "${cc_base##icl.*}" ]; then
+         # Windows Intel Compiler creates dependency generation with absolute Windows paths, Cygwin's make does not support Windows paths.
+-        [[ $host_os = cygwin* ]] && die "Windows Intel Compiler support requires MSYS"
++        [ ! "${host_os##cygwin*}" ] && die "Windows Intel Compiler support requires MSYS"
+         compiler=ICL
+         compiler_style=MS
+         CFLAGS="$CFLAGS -Qstd=c99 -nologo -Qms0 -DHAVE_STRING_H -I\$(SRCPATH)/extras"
+@@ -466,10 +466,10 @@
+         `$CC 2>&1 | grep -q IA-32` && host_cpu=i486
+         `$CC 2>&1 | grep -q "Intel(R) 64"` && host_cpu=x86_64
+         cpp_check "" "" "_MSC_VER >= 1400" || die "Windows Intel Compiler support requires Visual Studio 2005 or newer"
+-    elif [[ "$cc_base" = cl || "$cc_base" = cl.* ]]; then
++    elif [ "$cc_base" = cl ] || [ ! "${cc_base##cl.*}" ]; then
+         # Standard Microsoft Visual Studio
+         # Dependency creation includes absolute windows paths, Cygwin's make does not support Windows paths.
+-        [[ $host_os = cygwin* ]] && die "Microsoft Visual Studio support requires MSYS"
++        [ ! "${host_os##cygwin*}" ] && die "Microsoft Visual Studio support requires MSYS"
+         compiler=CL
+         compiler_style=MS
+         CFLAGS="$CFLAGS -nologo -DHAVE_STRING_H -I\$(SRCPATH)/extras"
+@@ -478,7 +478,7 @@
+         cpp_check '' '' '_MSC_VER > 1800 || (_MSC_VER == 1800 && _MSC_FULL_VER >= 180030324)' || die "Microsoft Visual Studio support requires Visual Studio 2013 Update 2 or newer"
+     fi
+ else
+-    if [[ "$cc_base" = icc || "$cc_base" = icc.* ]]; then
++    if [ "$cc_base" = icc ] || [ ! "${cc_base##icc.*}" ]; then
+         AR="xiar"
+         compiler=ICC
+     fi
+@@ -588,10 +588,10 @@
+         AS="yasm"
+         ASFLAGS="$ASFLAGS -O2 -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
+         if [ $compiler = GNU ]; then
+-            if [[ "$asm" == auto && "$CFLAGS" != *-march* ]]; then
++            if [ "$asm" = auto ] && [ "${CFLAGS##*-march*}" ]; then
+                 CFLAGS="$CFLAGS -march=i686"
+             fi
+-            if [[ "$asm" == auto && "$CFLAGS" != *-mfpmath* ]]; then
++            if [ "$asm" = auto ] && [ "${CFLAGS##*-mfpmath*}" ]; then
+                 CFLAGS="$CFLAGS -mfpmath=sse -msse"
+             fi
+             CFLAGS="-m32 $CFLAGS"
+@@ -1143,7 +1143,7 @@
+ # generate exported config file
+ 
+ config_chroma_format="X264_CSP_I$chroma_format"
+-[ "$config_chroma_format" == "X264_CSP_Iall" ] && config_chroma_format="0"
++[ "$config_chroma_format" = "X264_CSP_Iall" ] && config_chroma_format="0"
+ cat > x264_config.h << EOF
+ #define X264_BIT_DEPTH     $bit_depth
+ #define X264_GPL           $x264_gpl
+@@ -1306,7 +1306,7 @@
+ rm conftest.log
+ 
+ [ "$SRCPATH" != "." ] && ln -sf ${SRCPATH}/Makefile ./Makefile
+-mkdir -p common/{arm,ppc,x86} encoder extras filters/video input output tools
++mkdir -p common/arm common/ppc common/x86 encoder extras filters/video input output tools
+ 
+ echo
+ echo "You can run 'make' or 'make fprofiled' now."
