@@ -8,9 +8,9 @@
   <!ENTITY usbutils-wikipedia     " ">
   <!ENTITY usbutils-download-http "http://ftp.kernel.org/pub/linux/utils/usb/usbutils/usbutils-&usbutils-version;.tar.xz">
   <!ENTITY usbutils-download-ftp  "ftp://ftp.kernel.org/pub/linux/utils/usb/usbutils/usbutils-&usbutils-version;.tar.xz">
-  <!ENTITY usbutils-md5sum        "c9df5107ae9d26b10a1736a261250139">
-  <!ENTITY usbutils-size          "416 KB">
-  <!ENTITY usbutils-buildsize     "4.8 MB">
+  <!ENTITY usbutils-md5sum        "2780b6ae21264c888f8f30fb2aab1259">
+  <!ENTITY usbutils-size          "284 KB">
+  <!ENTITY usbutils-buildsize     "3.8 MB">
   <!ENTITY usbutils-time          "0.1 SBU">
 ]>
 
@@ -23,7 +23,7 @@
     <title>Introduction</title>
 
     <para>
-      The USB Utils package contains an utility used to display information
+      The USB Utils package contains utilities used to display information
       about USB buses in the system and the devices connected to them.
     </para>
 
@@ -75,6 +75,7 @@
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
+      <xref linkend="hdwids"/> and
       <xref linkend="libusb"/>
     </para>
 
@@ -87,38 +88,26 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr/local \
-            --datadir=/usr/local/share/misc &amp;&amp;
+<screen><userinput>sed -i '/^usbids/ s:usb.ids:hwdata/&amp;:' lsusb.py &amp;&amp;
+./configure --prefix=/usr \
+            --datadir=/usr/share/hwdata &amp;&amp;
 make</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-mv -v /usr/local/sbin/update-usbids.sh /usr/local/sbin/update-usbids</userinput></screen>
+<screen role="root"><userinput>make install</userinput></screen>
 
-  </sect2>
+    <sect3>
+      <title>Command Explanations</title>
 
-  <sect2>
-    <title>Configuration</title>
-
-    <para>
-      The <filename>usb.ids</filename> data file is constantly being updated. To
-      get a current version of this file, run <command>update-usbids</command>
-      as the <systemitem class="username">root</systemitem> user. This program
-      requires <xref linkend="lynx"/> or <xref linkend="wget"/> which are used
-      to download the most current file, and replace the existing file in
-      <filename class="directory">/usr/local/share/misc</filename>.
-    </para>
-
-    <para>
-      You may wish to add an entry to <systemitem
-      class="username">root</systemitem>'s (or any other user who has write
-      privilege to <filename class="directory">/usr/local/share/misc</filename>)
-      crontab to automatically update the <filename>usb.ids</filename> file
-      periodically.
-    </para>
+      <para>
+        <command>sed ... lsusb.py</command>: Instructs lsusb.py where to search
+        <filename>usb.ids</filename>.
+      </para>
+ 
+    </sect3>
 
   </sect2>
 
