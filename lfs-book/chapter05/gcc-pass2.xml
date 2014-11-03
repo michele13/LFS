@@ -57,15 +57,7 @@
 
 <screen><userinput remap="pre">cat gcc/limitx.h gcc/glimits.h gcc/limity.h &gt; \
   `dirname $($LFS_TGT-gcc -print-libgcc-file-name)`/include-fixed/limits.h</userinput></screen>
-<!--
-    <para>For x86 machines, the limited number of registers is a bottleneck
-    for the system.  Free one up by not using a frame pointer that is not
-    needed:</para>
 
-<screen><userinput remap="pre">case `uname -m` in
-  i?86) sed -i 's/^T_CFLAGS =$/&amp; -fomit-frame-pointer/' gcc/Makefile.in ;;
-esac</userinput></screen>
--->
     <para>Once again, change the location of GCC's default dynamic linker to
     use the one installed in <filename
     class="directory">/tools</filename>.</para>
@@ -94,10 +86,6 @@ tar -xf ../gmp-&gmp-version;.tar.xz
 mv -v gmp-&gmp-extracted-version; gmp
 tar -xf ../mpc-&mpc-version;.tar.gz
 mv -v mpc-&mpc-version; mpc</userinput></screen>
-
-    <para>As in the first build of GCC, fix a problem identified upstream:</para>
-
-<screen><userinput remap="pre">sed -i 's/if \((code.*))\)/if (\1 \&amp;\&amp; \!DEBUG_INSN_P (insn))/' gcc/sched-deps.c</userinput></screen>
 
     <para>Create a separate build directory again:</para>
 
