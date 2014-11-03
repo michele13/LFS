@@ -7,15 +7,15 @@
   <!ENTITY libreoffice-dl "http://download.documentfoundation.org/libreoffice/src/&libreoffice-version;">
 
   <!ENTITY libreoffice-core-download-http "&libreoffice-dl;/libreoffice-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-core-md5sum        "86aa9cad125fec16c5cd1d9d964e1d20">
+  <!ENTITY libreoffice-core-md5sum        "a0c7f05fd2edb91e195adb2f4170d794">
   <!ENTITY libreoffice-core-size          "146 MB">
 
   <!ENTITY libreoffice-dict-download-http "&libreoffice-dl;/libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz">
-  <!ENTITY libreoffice-dict-md5sum        "996ec400156194fe26d24ffbccbc5b7a">
+  <!ENTITY libreoffice-dict-md5sum        "be29bf16f618b49571a283ca89023d0a">
   <!ENTITY libreoffice-dict-size          "36 MB">
 
-  <!ENTITY libreoffice-buildsize          "6.6 GB">
-  <!ENTITY libreoffice-time               "61 SBU">
+  <!ENTITY libreoffice-buildsize          "8.4 GB">
+  <!ENTITY libreoffice-time               "47 SBU (using parallelism=8)">
 ]>
 
 <sect1 id="libreoffice" xreflabel="LibreOffice-&libreoffice-version;">
@@ -208,9 +208,7 @@
 
     <note>
       <para>
-       Building this package in a graphical environment is recommended.
-       There have been reports of build failures, when using
-       <command>chroot</command> or <command>ssh</command>.
+       Build this package in a graphical environment.
       </para>
     </note>
 
@@ -227,12 +225,11 @@
 cd libreoffice-&libreoffice-dlversion;</userinput></screen>
 
     <para>
-      Unpack the dictionaries file and create symlink to tarball from the
-      source directory so it won't get downloaded again:
+      Create symlinks to tarballs from the source directory so they won't
+      get downloaded again:
     </para>
 
 <screen><userinput>install -dm755 external/tarballs &amp;&amp;
-tar -xf ../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz --no-overwrite-dir --strip-components=1 &amp;&amp;
 ln -sv ../../../libreoffice-dictionaries-&libreoffice-dlversion;.tar.xz external/tarballs/</userinput></screen>
 
     <note>
@@ -257,16 +254,14 @@ sed -e "/gzip -f/d" \
 sed -e "/distro-install-file-lists/d" -i Makefile.in &amp;&amp;
 
 chmod -v +x bin/unpack-sources &amp;&amp;
-sed -e "s/target\.mk/langlist\.mk/"                \
-    -e "s/tar -xf/tar -x --strip-components=1 -f/" \
-    -e "/tar -x/s/lo_src_dir/start_dir/"           \
-    -i bin/unpack-sources &amp;&amp;
 
 ./autogen.sh --prefix=/usr \
              --with-vendor="BLFS" \
+             --with-myspell-dicts \
              --with-alloc=system \
              --with-parallelism=$(getconf _NPROCESSORS_ONLN) \
              --without-java \
+             --without-system-dicts \
              --disable-gconf \
              --disable-odk \
              --disable-postgresql-sdbc \
@@ -285,7 +280,8 @@ sed -e "s/target\.mk/langlist\.mk/"                \
     </para>
 
     <para>
-      Build the package:
+      Build the package (remember that it must be done in a graphical
+      environment):
     </para>
 
 <screen><userinput>make build</userinput></screen>
@@ -298,15 +294,6 @@ sed -e "s/target\.mk/langlist\.mk/"                \
 install -v -m755 -d /usr/share/appdata &amp;&amp;
 install -v -m644 sysui/desktop/appstream-appdata/*.xml /usr/share/appdata</userinput></screen>
 
-    <para>
-       If the dictionaries have been built, again as
-       <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>chown -cR 0:0 dictionaries/ &amp;&amp;
-mkdir -pv /usr/lib/libreoffice/share/extensions/dict-en &amp;&amp;
-cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinput></screen>
-
   </sect2>
 
   <sect2 role="commands">
@@ -314,8 +301,7 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
 
     <para>
       <command>sed -e ...</command>: The first sed prevents compression of the
-      manual pages, the second one prevents install from failing, and
-      the third one fixes the unpack script.
+      manual pages and the second one prevents install from failing.
     </para>
 
     <para>
@@ -328,6 +314,12 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
     </para>
 
     <para>
+      <parameter>--with-myspell-dicts</parameter>: This switch adds myspell
+      dictionaries to the <application>LibreOffice</application> installation
+      set.
+    </para>
+
+    <para>
       <parameter>--with-alloc=system</parameter>: This switch tells
       <application>LibreOffice</application> to use system allocator
       instead of the internal one.
@@ -337,6 +329,12 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
       <parameter>--with-parallelism=$(getconf _NPROCESSORS_ONLN)</parameter>:
       This switch tells <application>LibreOffice</application> to use all your
       CPUs to compile in parallel and speed up the build.
+    </para>
+
+    <para>
+      <parameter>--without-system-dicts</parameter>: This switch disables use
+      of  dictionaries from system paths, so the ones installed by this package
+      are used.
     </para>
 
     <para>
@@ -358,29 +356,29 @@ cp -vR dictionaries/en/* /usr/lib/libreoffice/share/extensions/dict-en</userinpu
     </para>
 
     <para>
-      <parameter>--disable-postgresql-sdbc</parameter>: This switch disables compiling
-      <application>LibreOffice</application> with the ability to connect to a
-      <application>PostgreSQL</application> database. Remove it if you would
-      like <application>LibreOffice</application> to be able to connect to a
-      <application>PostgreSQL</application> database. If you have installed
-      <application>PostgreSQL</application> on your system and would like
-      <application>LibreOffice</application> to use that rather than compile its
-      own copy, use the <option>--with-system-postgresql</option> switch.
+      <parameter>--disable-postgresql-sdbc</parameter>: This switch disables
+      compiling <application>LibreOffice</application> with the ability to
+      connect to a <application>PostgreSQL</application> database. Remove it if
+      you would like <application>LibreOffice</application> to be able to
+      connect to a <application>PostgreSQL</application> database. If you have
+      installed <application>PostgreSQL</application> on your system and would
+      like <application>LibreOffice</application> to use that rather than
+      compile its own copy, use the <option>--with-system-postgresql</option>
+      switch.
     </para>
  
     <para>
       <parameter>--enable-release-build=yes</parameter>: This switch enables a
-      Release Build.
-      <application>LibreOffice</application> can be built as a Release Build or
-      as a Developer Build, because their default installation paths and user
-      profile paths are different. Developer Build displays the words "Dev" and
-      "Beta" in several places (e.g, menu and splash screen).
+      Release Build.  <application>LibreOffice</application> can be built as a
+      Release Build or as a Developer Build, because their default installation
+      paths and user profile paths are different. Developer Build displays the
+      words "Dev" and "Beta" in several places (e.g, menu and splash screen).
     </para>
 
     <para>
-      <parameter>--disable-dbus</parameter>: This switch disables
-      <application>D-Bus</application>. It also disables Bluetooth support and
-      font install via PackageKit.
+      <option>--disable-dbus</option>: Use this switch if you've not installed
+      D-Bus-1.8.0 or later. It also disables Bluetooth support and font install
+      via PackageKit.
     </para>
 
     <para>
