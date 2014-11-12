@@ -6,7 +6,7 @@
 
   <!ENTITY openjpeg-homepage      "http://www.openjpeg.org/">
   <!ENTITY openjpeg-wikipedia     "http://en.wikipedia.org/wiki/OpenJPEG">
-  <!ENTITY openjpeg-download-http "https://openjpeg.googlecode.com/files/openjpeg-&openjpeg-version;.tar.gz">
+  <!ENTITY openjpeg-download-http "&sourceforge-repo;/openjpeg.mirror/openjpeg-&openjpeg-version;.tar.gz">
   <!ENTITY openjpeg-download-ftp  " ">
   <!ENTITY openjpeg-md5sum        "c41772c30fb1c272358b3707233134a1">
   <!ENTITY openjpeg-size          "1.4 MB">
@@ -74,8 +74,14 @@
 
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="automake"/> and
+      <xref linkend="libtool"/>
+    </para>
+
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libtiff"/>,
       <xref linkend="lcms2"/>, and
       <xref linkend="libpng"/>
@@ -90,7 +96,7 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>autoreconf -fiv &amp;&amp;
+<screen><userinput>./bootstrap.sh &amp;&amp;
 ./configure --prefix=/usr \
             --disable-static &amp;&amp;
 make</userinput></screen>
