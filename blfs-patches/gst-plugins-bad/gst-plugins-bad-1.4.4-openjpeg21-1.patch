@@ -1,0 +1,55 @@
+Submitted By:            Igor Živković
+Date:                    2014-11-18
+Initial Package Version: 1.4.4
+Upstream Status:         Unknown
+Origin:                  Self
+Description:             Fixes build with OpenJPEG version >= 2.1.
+
+diff -Naur gst-plugins-bad-1.4.4.orig/configure gst-plugins-bad-1.4.4/configure
+--- gst-plugins-bad-1.4.4.orig/configure	2014-11-06 11:35:45.000000000 +0100
++++ gst-plugins-bad-1.4.4/configure	2014-11-18 07:16:44.535048392 +0100
+@@ -45687,7 +45687,7 @@
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 
+-    #include <openjpeg-2.0/openjpeg.h>
++    #include <openjpeg-2.1/openjpeg.h>
+ int
+ main ()
+ {
+diff -Naur gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpegdec.c gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpegdec.c
+--- gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpegdec.c	2014-10-19 13:41:13.000000000 +0200
++++ gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpegdec.c	2014-11-18 07:18:42.087868785 +0100
+@@ -1036,7 +1036,7 @@
+   opj_stream_set_write_function (stream, write_fn);
+   opj_stream_set_skip_function (stream, skip_fn);
+   opj_stream_set_seek_function (stream, seek_fn);
+-  opj_stream_set_user_data (stream, &mstream);
++  opj_stream_set_user_data (stream, &mstream, NULL);
+   opj_stream_set_user_data_length (stream, mstream.size);
+ 
+   image = NULL;
+diff -Naur gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpegenc.c gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpegenc.c
+--- gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpegenc.c	2014-10-19 13:41:13.000000000 +0200
++++ gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpegenc.c	2014-11-18 07:18:59.227104349 +0100
+@@ -899,7 +899,7 @@
+   opj_stream_set_write_function (stream, write_fn);
+   opj_stream_set_skip_function (stream, skip_fn);
+   opj_stream_set_seek_function (stream, seek_fn);
+-  opj_stream_set_user_data (stream, &mstream);
++  opj_stream_set_user_data (stream, &mstream, NULL);
+   opj_stream_set_user_data_length (stream, mstream.size);
+ 
+   if (!opj_start_compress (enc, image, stream))
+diff -Naur gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpeg.h gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpeg.h
+--- gst-plugins-bad-1.4.4.orig/ext/openjpeg/gstopenjpeg.h	2014-10-19 13:41:13.000000000 +0200
++++ gst-plugins-bad-1.4.4/ext/openjpeg/gstopenjpeg.h	2014-11-18 07:17:36.282896003 +0100
+@@ -38,7 +38,7 @@
+ #define OPJ_CPRL CPRL
+ #else
+ #include <stdio.h>
+-#include <openjpeg-2.0/openjpeg.h>
++#include <openjpeg-2.1/openjpeg.h>
+ #endif
+ 
+ #endif /* __GST_OPENJPEG_H__ */
