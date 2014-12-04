@@ -66,15 +66,15 @@
     <para>Install <application>libart_lgpl</application> by running the following
     commands:</para>
 
-<screen><userinput>patch -Np1 -i ../libart_lgpl-&libart_lgpl-version;-upstream_fixes-1.patch &amp;&amp;
-./configure --prefix=/usr &amp;&amp;
+<screen><userinput>patch -p1 -i ../libart_lgpl-&libart_lgpl-version;-upstream_fixes-1.patch &amp;&amp;
+./configure --prefix=/usr --disable-static &amp;&amp;
 make</userinput></screen>
 
     <para>This package does not come with a test suite.</para>
 
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
   </sect2>
 
@@ -88,8 +88,8 @@ make</userinput></screen>
 
       <seglistitem>
         <seg>libart2-config</seg>
-        <seg>libart_lgpl_2.{so,a}</seg>
-        <seg>/usr/include/libart-2.0/libart_lgpl</seg>
+        <seg>libart_lgpl_2.so</seg>
+        <seg>/usr/include/libart-2.0</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -99,13 +99,13 @@ make</userinput></screen>
       <?dbhtml list-presentation="table"?>
 
       <varlistentry id="libart_lgpl_2">
-        <term><filename class='libraryfile'>libart_lgpl_2.{so,a}</filename></term>
+        <term><filename class='libraryfile'>libart_lgpl_2.so</filename></term>
         <listitem>
           <para>is used as the anti-aliased render engine for
           <application>libgnomecanvas</application> and as a graphics support
           library for many other packages.</para>
           <indexterm zone="libart_lgpl libart_lgpl_2">
-            <primary sortas="c-libart_lgpl_2">libart_lgpl_2.{so,a}</primary>
+            <primary sortas="c-libart_lgpl_2">libart_lgpl_2.so</primary>
           </indexterm>
         </listitem>
       </varlistentry>
