@@ -7,7 +7,7 @@
 <!--  <!ENTITY xfsprogs-download-http "&sources-anduin-http;/x/xfsprogs-&xfsprogs-version;.tar.gz">-->
   <!ENTITY xfsprogs-download-http " ">
   <!ENTITY xfsprogs-download-ftp  "ftp://oss.sgi.com/projects/xfs/cmd_tars/xfsprogs-&xfsprogs-version;.tar.gz">
-  <!ENTITY xfsprogs-md5sum        "5c6905932029c8f9207fe5a0a8aac24b">
+  <!ENTITY xfsprogs-md5sum        "b6b0db5e3ee71ceba26d0a5accbd0666">
   <!ENTITY xfsprogs-size          "1.5 MB">
   <!ENTITY xfsprogs-buildsize     "45 MB">
   <!ENTITY xfsprogs-time          "0.6 SBU">
@@ -81,8 +81,9 @@
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
 <screen role="root"><userinput>make install install-dev &amp;&amp;
-rm -rfv /lib/libhandle.{a,la,so} &amp;&amp;
-ln -sfv ../../lib/libhandle.so.1 /usr/lib/libhandle.so &amp;&amp;
+rm -rfv /usr/lib/libhandle.a                               &amp;&amp;
+rm -rfv /lib/libhandle.{a,la,so}                           &amp;&amp;
+ln -sfv ../../lib/libhandle.so.1 /usr/lib/libhandle.so     &amp;&amp;
 sed -i "s@libdir='/lib@libdir='/usr/lib@g" /usr/lib/libhandle.la</userinput></screen>
 
   </sect2>
