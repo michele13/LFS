@@ -1,0 +1,140 @@
+Submitted By:            Igor Živković
+Date:                    2014-10-17
+Initial Package Version: 0.5.0
+Upstream Status:         Unknown
+Origin:                  Self
+Description:             Improves configure shell script portability and allows
+                         building with the busybox ash shell.
+
+diff -Naur toybox-0.5.0.orig/scripts/genconfig.sh toybox-0.5.0/scripts/genconfig.sh
+--- toybox-0.5.0.orig/scripts/genconfig.sh	2014-10-02 14:47:08.000000000 +0200
++++ toybox-0.5.0/scripts/genconfig.sh	2014-10-17 15:54:36.125496319 +0200
+@@ -1,11 +1,11 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ # This has to be a separate file from scripts/make.sh so it can be called
+ # before menuconfig.  (It's called again from scripts/make.sh just to be sure.)
+ 
+ mkdir -p generated
+ 
+-source configure
++. ./configure
+ 
+ # Probe for a single config symbol with a "compiles or not" test.
+ # Symbol name is first argument, flags second, feed C file to stdin
+@@ -14,8 +14,8 @@
+   ${CROSS_COMPILE}${CC} $CFLAGS -xc -o /dev/null $2 - 2>/dev/null
+   [ $? -eq 0 ] && DEFAULT=y || DEFAULT=n
+   rm a.out 2>/dev/null
+-  echo -e "config $1\n\tbool" || exit 1
+-  echo -e "\tdefault $DEFAULT\n" || exit 1
++  printf "config $1\n\tbool\n" || exit 1
++  printf "\tdefault $DEFAULT\n\n" || exit 1
+ }
+ 
+ probeconfig()
+diff -Naur toybox-0.5.0.orig/scripts/install.sh toybox-0.5.0/scripts/install.sh
+--- toybox-0.5.0.orig/scripts/install.sh	2014-10-02 14:47:08.000000000 +0200
++++ toybox-0.5.0/scripts/install.sh	2014-10-17 15:54:28.021934968 +0200
+@@ -1,8 +1,8 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ # Grab default values for $CFLAGS and such.
+ 
+-source ./configure
++. ./configure
+ 
+ # Parse command line arguments.
+ 
+@@ -13,19 +13,19 @@
+ do
+   # Create symlinks instead of hardlinks?
+ 
+-  [ "$1" == "--symlink" ] && LINK_TYPE="-s"
++  [ "$1" = "--symlink" ] && LINK_TYPE="-s"
+ 
+   # Uninstall?
+ 
+-  [ "$1" == "--uninstall" ] && UNINSTALL=1
++  [ "$1" = "--uninstall" ] && UNINSTALL=1
+ 
+   # Delete destination command if it exists?
+ 
+-  [ "$1" == "--force" ] && DO_FORCE="-f"
++  [ "$1" = "--force" ] && DO_FORCE="-f"
+ 
+   # Use {,usr}/{bin,sbin} paths instead of all files in one directory?
+ 
+-  if [ "$1" == "--long" ]
++  if [ "$1" = "--long" ]
+   then
+     LONG_PATH="bin/"
+   fi
+diff -Naur toybox-0.5.0.orig/scripts/make.sh toybox-0.5.0/scripts/make.sh
+--- toybox-0.5.0.orig/scripts/make.sh	2014-10-02 14:47:08.000000000 +0200
++++ toybox-0.5.0/scripts/make.sh	2014-10-17 15:54:28.021934968 +0200
+@@ -1,11 +1,11 @@
+-#!/bin/bash
++#!/bin/sh
+ 
+ # Grab default values for $CFLAGS and such.
+ 
+-export LANG=c
+-export LC_ALL=C
++LANG=c; export LANG
++LC_ALL=C; export LC_ALL
+ set -o pipefail
+-source ./configure
++. ./configure
+ 
+ [ -z "$KCONFIG_CONFIG" ] && KCONFIG_CONFIG=".config"
+ 
+@@ -86,7 +86,7 @@
+ 
+   echo "#define NEWTOY(aa,bb,cc) aa $I bb"
+   echo '#define OLDTOY(...)'
+-  if [ "$I" == A ]
++  if [ "$I" = A ]
+   then
+     cat generated/config.h
+   else
+@@ -113,7 +113,7 @@
+ 
+ # Extract global structure definitions and flag definitions from toys/*/*.c
+ 
+-function getglobals()
++getglobals()
+ {
+   for i in toys/*/*.c
+   do
+@@ -122,7 +122,7 @@
+             -e 's/^GLOBALS(/struct '"$NAME"'_data {/' \
+             -e 's/^)/};/' -e 'p' $i)"
+ 
+-    [ ! -z "$DATA" ] && echo -e "// $i\n\n$DATA\n"
++    [ ! -z "$DATA" ] && printf "// $i\n\n$DATA\n\n"
+   done
+ }
+ 
+@@ -197,7 +197,7 @@
+ do
+   # build each generated/obj/*.o file in parallel
+ 
+-  X=${i/lib\//lib_}
++  X=$(echo $i | sed "s/lib\//lib_/")
+   X=${X##*/}
+   do_loudly $BUILD -c $i -o generated/obj/${X%%.c}.o &
+ 
+@@ -205,7 +205,9 @@
+ 
+   while true
+   do
+-    PENDING="$(echo $PENDING $(jobs -rp) | tr ' ' '\n' | sort -u)"
++    JOBLIST=$(jobs -l)
++    RUNNING=$(echo $JOBLIST | grep -Eo '[0-9]+ Running' | awk '{print $1}')
++    PENDING="$(echo $PENDING $RUNNING | tr ' ' '\n' | sort -u)"
+     [ $(echo -n "$PENDING" | wc -l) -lt "$CPUS" ] && break;
+ 
+     wait $(echo "$PENDING" | head -n 1) || exit 1
