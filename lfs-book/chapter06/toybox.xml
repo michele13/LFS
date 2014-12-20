@@ -70,6 +70,7 @@
     <para>Install the package:</para>
 
 <screen><userinput remap="install">install -v -m 755 toybox /bin
+ln -sfv toybox /bin/bzcat
 ln -sfv toybox /bin/cat
 ln -sfv toybox /bin/chgrp
 ln -sfv toybox /bin/chmod
@@ -95,31 +96,25 @@ ln -sfv toybox /bin/mktemp
 ln -sfv toybox /bin/mount
 ln -sfv toybox /bin/mountpoint
 ln -sfv toybox /bin/mv
-ln -sfv toybox /bin/nice
-ln -sfv toybox /bin/nl
-ln -sfv toybox /bin/paste
 ln -sfv toybox /bin/pidof
-ln -sfv toybox /bin/printenv
 ln -sfv toybox /bin/pwd
-ln -sfv toybox /bin/rev
+ln -sfv toybox /bin/readlink
 ln -sfv toybox /bin/rm
 ln -sfv toybox /bin/rmdir
 ln -sfv toybox /bin/sleep
-ln -sfv toybox /bin/stat
 ln -sfv toybox /bin/su
 ln -sfv toybox /bin/sync
-ln -sfv toybox /bin/taskset
 ln -sfv toybox /bin/touch
 ln -sfv toybox /bin/true
-ln -sfv toybox /bin/truncate
 ln -sfv toybox /bin/umount
 ln -sfv toybox /bin/uname
-ln -sfv toybox /bin/vmstat
 ln -sfv ../bin/toybox /sbin/blkid
 ln -sfv ../bin/toybox /sbin/blockdev
+ln -sfv ../bin/toybox /sbin/fsfreeze
 ln -sfv ../bin/toybox /sbin/halt
 ln -sfv ../bin/toybox /sbin/ifconfig
 ln -sfv ../bin/toybox /sbin/insmod
+ln -sfv ../bin/toybox /sbin/killall5
 ln -sfv ../bin/toybox /sbin/losetup
 ln -sfv ../bin/toybox /sbin/lsmod
 ln -sfv ../bin/toybox /sbin/mkswap
@@ -128,7 +123,6 @@ ln -sfv ../bin/toybox /sbin/partprobe
 ln -sfv ../bin/toybox /sbin/pivot_root
 ln -sfv ../bin/toybox /sbin/poweroff
 ln -sfv ../bin/toybox /sbin/reboot
-ln -sfv ../bin/toybox /sbin/rfkill
 ln -sfv ../bin/toybox /sbin/rmmod
 ln -sfv ../bin/toybox /sbin/swapoff
 ln -sfv ../bin/toybox /sbin/swapon
@@ -136,7 +130,6 @@ ln -sfv ../bin/toybox /sbin/switch_root
 ln -sfv ../bin/toybox /sbin/sysctl
 ln -sfv ../../bin/toybox /usr/bin/acpi
 ln -sfv ../../bin/toybox /usr/bin/basename
-ln -sfv ../../bin/toybox /usr/bin/bzcat
 ln -sfv ../../bin/toybox /usr/bin/cal
 ln -sfv ../../bin/toybox /usr/bin/cksum
 ln -sfv ../../bin/toybox /usr/bin/cmp
@@ -163,25 +156,32 @@ ln -sfv ../../bin/toybox /usr/bin/lspci
 ln -sfv ../../bin/toybox /usr/bin/lsusb
 ln -sfv ../../bin/toybox /usr/bin/md5sum
 ln -sfv ../../bin/toybox /usr/bin/mkfifo
+ln -sfv ../../bin/toybox /usr/bin/nice
+ln -sfv ../../bin/toybox /usr/bin/nl
 ln -sfv ../../bin/toybox /usr/bin/nohup
 ln -sfv ../../bin/toybox /usr/bin/od
 ln -sfv ../../bin/toybox /usr/bin/passwd
+ln -sfv ../../bin/toybox /usr/bin/paste
 ln -sfv ../../bin/toybox /usr/bin/patch
 ln -sfv ../../bin/toybox /usr/bin/pmap
+ln -sfv ../../bin/toybox /usr/bin/printenv
 ln -sfv ../../bin/toybox /usr/bin/pwdx
-ln -sfv ../../bin/toybox /usr/bin/readlink
 ln -sfv ../../bin/toybox /usr/bin/realpath
 ln -sfv ../../bin/toybox /usr/bin/renice
+ln -sfv ../../bin/toybox /usr/bin/rev
 ln -sfv ../../bin/toybox /usr/bin/seq
 ln -sfv ../../bin/toybox /usr/bin/setsid
 ln -sfv ../../bin/toybox /usr/bin/sha1sum
 ln -sfv ../../bin/toybox /usr/bin/sort
 ln -sfv ../../bin/toybox /usr/bin/split
+ln -sfv ../../bin/toybox /usr/bin/stat
 ln -sfv ../../bin/toybox /usr/bin/tac
 ln -sfv ../../bin/toybox /usr/bin/tail
+ln -sfv ../../bin/toybox /usr/bin/taskset
 ln -sfv ../../bin/toybox /usr/bin/tee
 ln -sfv ../../bin/toybox /usr/bin/time
 ln -sfv ../../bin/toybox /usr/bin/timeout
+ln -sfv ../../bin/toybox /usr/bin/truncate
 ln -sfv ../../bin/toybox /usr/bin/tty
 ln -sfv ../../bin/toybox /usr/bin/uniq
 ln -sfv ../../bin/toybox /usr/bin/unix2dos
@@ -189,6 +189,7 @@ ln -sfv ../../bin/toybox /usr/bin/unlink
 ln -sfv ../../bin/toybox /usr/bin/uptime
 ln -sfv ../../bin/toybox /usr/bin/uudecode
 ln -sfv ../../bin/toybox /usr/bin/uuencode
+ln -sfv ../../bin/toybox /usr/bin/vmstat
 ln -sfv ../../bin/toybox /usr/bin/wc
 ln -sfv ../../bin/toybox /usr/bin/which
 ln -sfv ../../bin/toybox /usr/bin/who
@@ -196,8 +197,7 @@ ln -sfv ../../bin/toybox /usr/bin/whoami
 ln -sfv ../../bin/toybox /usr/bin/xargs
 ln -sfv ../../bin/toybox /usr/bin/yes
 ln -sfv ../../bin/toybox /usr/sbin/chroot
-ln -sfv ../../bin/toybox /usr/sbin/fsfreeze
-ln -sfv ../../bin/toybox /usr/sbin/killall5</userinput></screen>
+ln -sfv ../../bin/toybox /usr/sbin/rfkill</userinput></screen>
 
   </sect2>
 
@@ -218,9 +218,9 @@ ln -sfv ../../bin/toybox /usr/sbin/killall5</userinput></screen>
       <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>acpi, basename, blkid, blockdev, toybox, bzcat, cal, cat, chgrp,
-        chmod, chown, chroot, cksum, cmp, comm, cp, cpio, cut, date, df,
-        dirname, dmesg, dos2unix, du, echo, egrep, eject, env, expand, factor,
+        <seg>acpi, basename, blkid, blockdev, bzcat, cal, cat, chgrp, chmod,
+        chown, chroot, cksum, cmp, comm, cp, cpio, cut, date, df, dirname,
+        dmesg, dos2unix, du, echo, egrep, eject, env, expand, factor,
         fallocate, false, fgrep, find, free, fsfreeze, grep, groups, halt,
         head, hostname, id, ifconfig, insmod, install, kill, killall, killall5,
         link, ln, login, logname, losetup, ls, lsmod, lspci, lsusb, md5sum,
@@ -229,9 +229,9 @@ ln -sfv ../../bin/toybox /usr/sbin/killall5</userinput></screen>
         pivot_root, pmap, poweroff, printenv, pwd, pwdx, readlink, realpath,
         reboot, renice, rev, rfkill, rm, rmdir, rmmod, seq, setsid, sha1sum,
         sleep, sort, split, stat, su, swapoff, swapon, switch_root, sync,
-        sysctl, tac, tail, taskset, tee, time, timeout, touch, true, truncate,
-        tty, umount, uname, uniq, unix2dos, unlink, uptime, uudecode, uuencode,
-        vmstat, wc, which, who, whoami, xargs, and yes</seg>
+        sysctl, tac, tail, taskset, tee, time, timeout, touch, toybox, true,
+        truncate, tty, umount, uname, uniq, unix2dos, unlink, uptime, uudecode,
+        uuencode, vmstat, wc, which, who, whoami, xargs, and yes</seg>
       </seglistitem>
     </segmentedlist>
 
