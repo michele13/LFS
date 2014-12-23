@@ -32,21 +32,13 @@
 case "$1" in
    start)
       log_info_msg "Starting ntpd..."
-      if [ -f /usr/local/sbin/ntpd ]; then
-          start_daemon /usr/local/sbin/ntpd -g -u ntp:ntp
-      else
-          start_daemon /usr/sbin/ntpd -p pool.ntp.org
-      fi
+      start_daemon /usr/sbin/ntpd -p pool.ntp.org
       evaluate_retval
       ;;
 
    stop)
       log_info_msg "Stopping ntpd..."
-      if [ -f /usr/local/sbin/ntpd ]; then
-          killproc /usr/local/sbin/ntpd
-      else
-          killproc /usr/sbin/ntpd
-      fi
+      killproc /usr/sbin/ntpd
       evaluate_retval
       ;;
 
@@ -57,11 +49,7 @@ case "$1" in
       ;;
 
    status)
-      if [ -f /usr/local/sbin/ntpd ]; then
-          statusproc /usr/local/sbin/ntpd
-      else
-          statusproc /usr/sbin/ntpd
-      fi
+      statusproc /usr/sbin/ntpd
       ;;
 
    *)

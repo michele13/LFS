@@ -348,16 +348,6 @@ install-nfs-server: create-dirs
 	ln -sf  ../init.d/nfs-server ${EXTDIR}/rc.d/rc5.d/S24nfs-server
 	ln -sf  ../init.d/nfs-server ${EXTDIR}/rc.d/rc6.d/K48nfs-server
 
-install-ntpd: create-dirs
-	install -m ${MODE} blfs/init.d/ntpd       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc0.d/K46ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc1.d/K46ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc2.d/K46ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc3.d/S26ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc4.d/S26ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc5.d/S26ntpd
-	ln -sf  ../init.d/ntpd ${EXTDIR}/rc.d/rc6.d/K46ntpd
-
 install-slapd: create-dirs
 	install -m ${MODE} blfs/init.d/slapd ${EXTDIR}/rc.d/init.d/slapd
 	install -m ${CONFMODE} blfs/sysconfig/slapd ${EXTDIR}/sysconfig/slapd
@@ -823,16 +813,6 @@ uninstall-nfs-server:
 	rm -f ${EXTDIR}/rc.d/rc5.d/S24nfs-server
 	rm -f ${EXTDIR}/rc.d/rc6.d/K48nfs-server
 
-uninstall-ntpd:
-	rm -f ${EXTDIR}/rc.d/init.d/ntpd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K46ntpd
-	rm -f ${EXTDIR}/rc.d/rc1.d/K46ntpd
-	rm -f ${EXTDIR}/rc.d/rc2.d/K46ntpd
-	rm -f ${EXTDIR}/rc.d/rc3.d/S26ntpd
-	rm -f ${EXTDIR}/rc.d/rc4.d/S26ntpd
-	rm -f ${EXTDIR}/rc.d/rc5.d/S26ntpd
-	rm -f ${EXTDIR}/rc.d/rc6.d/K46ntpd
-
 uninstall-slapd:
 	rm -f ${EXTDIR}/rc.d/init.d/slapd
 	rm -f ${EXTDIR}/sysconfig/slapd
@@ -1020,7 +1000,6 @@ uninstall-xinetd:
 	install-networkmanager \
 	install-nfs-client \
 	install-nfs-server \
-	install-ntpd \
 	install-slapd \
 	install-postfix \
 	install-postgresql \
@@ -1063,7 +1042,6 @@ uninstall-xinetd:
 	uninstall-networkmanager \
 	uninstall-nfs-client \
 	uninstall-nfs-server \
-	uninstall-ntpd \
 	uninstall-slapd \
 	uninstall-postfix \
 	uninstall-postgresql \
