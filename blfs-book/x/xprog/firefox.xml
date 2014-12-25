@@ -143,7 +143,7 @@
 <screen><userinput>cat &gt; mozconfig &lt;&lt; "EOF"
 <literal># GStreamer is necessary for H.264 video playback in HTML5 Video Player;
 # to be enabled, also remember to set "media.gstreamer.enabled" to "true"
-# in about:config. If you have GStreamer, uncomment this line:
+# in about:config. If you have installed GStreamer, uncomment this line:
 #ac_add_options --enable-gstreamer=1.0
 
 # Uncomment these lines if you have installed optional dependencies:
@@ -203,12 +203,7 @@ EOF</userinput></screen>
       commands:
     </para>
 
-    <note><para>
-      If you are compiling <application>Firefox</application> in chroot, prepend
-      <envar>SHELL=/bin/sh</envar> to the command below.
-    </para></note>
-
-<screen><userinput>make -f client.mk</userinput></screen>
+<screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>
 
     <para>
       This package does not come with a test suite.
@@ -219,7 +214,7 @@ EOF</userinput></screen>
       package:
     </para>
 
-<screen role="root"><userinput>make -f client.mk install INSTALL_SDK= &amp;&amp;
+<screen role="root"><userinput>SHELL=/bin/sh make -f client.mk install INSTALL_SDK= &amp;&amp;
 mkdir -pv /usr/lib/mozilla/plugins &amp;&amp;
 ln -sfv ../../mozilla/plugins /usr/lib/firefox-&firefox-version;/browser</userinput></screen>
 
