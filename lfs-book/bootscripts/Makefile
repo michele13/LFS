@@ -28,6 +28,7 @@ create-dirs:
 	ln -sfn       rc.d/init.d ${EXTDIR}/init.d
 
 files: create-dirs 
+	install -m ${MODE} lfs/init.d/acpid         ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/cleanfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/halt          ${EXTDIR}/rc.d/init.d/
@@ -76,6 +77,7 @@ rcS: files
 	ln -sf ../init.d/sysctl      ${EXTDIR}/rc.d/rcS.d/S90sysctl
 
 rc0: files
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc0.d/K32acpid
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/K45random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc0.d/K46ntpd
 	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc0.d/K46setclock
@@ -87,6 +89,7 @@ rc0: files
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S90localnet
 
 rc1: files
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc1.d/K32acpid
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc1.d/K46ntpd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc1.d/K80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc1.d/K90sysklogd
@@ -96,27 +99,32 @@ rc2: files
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc2.d/K46ntpd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc2.d/K80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc2.d/K90sysklogd
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc2.d/S18acpid
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc2.d/S25random
 
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc3.d/S18acpid
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
 
 rc4: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc4.d/S10sysklogd
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc4.d/S18acpid
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc4.d/S20network
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc4.d/S25random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc4.d/S26ntpd
 
 rc5: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc5.d/S10sysklogd
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc5.d/S18acpid
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc5.d/S20network
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc5.d/S25random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc5.d/S26ntpd
 
 rc6: files
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc6.d/K32acpid
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc6.d/K45random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc6.d/K46ntpd
 	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc6.d/K46setclock
