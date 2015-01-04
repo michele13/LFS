@@ -47,6 +47,11 @@
   <sect2 role="installation">
     <title>Installation of BusyBox</title>
 
+    <para>First install some patches to fix various bugs that have been
+    addressed upstream:</para>
+
+<screen><userinput remap="pre">patch -p1 -i ../&busybox-upstream_fixes-patch;</userinput></screen>
+
     <para>Ensure the BusyBox source is completely clean:</para>
 
 <screen><userinput remap="pre">make distclean</userinput></screen>
@@ -194,6 +199,7 @@ ln -sv ../../bin/busybox /usr/bin/setarch &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/sha256sum &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/sha3sum &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/sha512sum &amp;&amp;
+ln -sv ../../bin/busybox /usr/bin/shuf &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/sort &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/sum &amp;&amp;
 ln -sv ../../bin/busybox /usr/bin/tail &amp;&amp;
@@ -279,10 +285,11 @@ EOF</userinput></screen>
         linux64, logger, ls, lzcat, lzma, man, mdev, mkfs.minix, modprobe,
         more, mount, netstat, ntpd, pgrep, ping, ping6, pkill, printf, ps,
         pstree, readprofile, route, rtcwake, runlevel, script, scriptreplay,
-        sed, setarch, sh, sha256sum, sha3sum, sha512sum, sort, stty, sulogin,
-        sum, swapoff, swapon, syslogd, tail, tar, telnet, telnetd, test, tftp,
-        tftpd, top, tr, traceroute, traceroute6, unexpand, unlzma, unxz, unzip,
-        users, vi, vlock, wall, watch, wget, whois, xz, xzcat, and zcat</seg>
+        sed, setarch, sh, sha256sum, sha3sum, sha512sum, shuf, sort, stty,
+        sulogin, sum, swapoff, swapon, syslogd, tail, tar, telnet, telnetd,
+        test, tftp, tftpd, top, tr, traceroute, traceroute6, unexpand, unlzma,
+        unxz, unzip, users, vi, vlock, wall, watch, wget, whois, xz, xzcat, and
+        zcat</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -1168,6 +1175,16 @@ EOF</userinput></screen>
           <para>Prints or checks SHA512 checksums.</para>
           <indexterm zone="ch-system-busybox sha512sum">
             <primary sortas="b-sha512sum">sha512sum</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="shuf">
+        <term><command>shuf</command></term>
+        <listitem>
+          <para>Randomly permutes lines.</para>
+          <indexterm zone="ch-system-busybox shuf">
+            <primary sortas="b-shuf">shuf</primary>
           </indexterm>
         </listitem>
       </varlistentry>

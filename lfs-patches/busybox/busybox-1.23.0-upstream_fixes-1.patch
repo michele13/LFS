@@ -1,0 +1,105 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-05
+Initial Package Version: 1.23.0
+Upstream Status:         Already in upstream repo
+Origin:                  Upstream
+Description:             This patch contains upstream ash and modprobe patches.
+
+diff -Naur busybox-1.23.0.orig/modutils/modprobe.c busybox-1.23.0/modutils/modprobe.c
+--- busybox-1.23.0.orig/modutils/modprobe.c	2014-11-26 23:19:35.000000000 +0100
++++ busybox-1.23.0/modutils/modprobe.c	2015-01-04 22:49:18.497169834 +0100
+@@ -238,17 +238,6 @@
+ {
+ 	struct module_entry *m;
+ 
+-	/*
+-	 * get_or_add_modentry() strips path from name and works
+-	 * on remaining basename.
+-	 * This would make "rmmod dir/name" and "modprobe dir/name"
+-	 * to work like "rmmod name" and "modprobe name",
+-	 * which is wrong, and can be abused via implicit modprobing:
+-	 * "ifconfig /usbserial up" tries to modprobe netdev-/usbserial.
+-	 */
+-	if (strchr(name, '/'))
+-		bb_error_msg_and_die("malformed module name '%s'", name);
+-
+ 	m = get_or_add_modentry(name);
+ 	if (!(option_mask32 & (OPT_REMOVE | OPT_SHOW_DEPS))
+ 	 && (m->flags & MODULE_FLAG_LOADED)
+diff -Naur busybox-1.23.0.orig/modutils/modprobe-small.c busybox-1.23.0/modutils/modprobe-small.c
+--- busybox-1.23.0.orig/modutils/modprobe-small.c	2014-10-04 22:35:59.000000000 +0200
++++ busybox-1.23.0/modutils/modprobe-small.c	2015-01-04 22:49:18.500169701 +0100
+@@ -149,9 +149,13 @@
+ static char *filename2modname(const char *filename, char *modname)
+ {
+ 	int i;
+-	char *from;
++	const char *from;
+ 
+-	from = bb_get_last_path_component_nostrip(filename);
++	// Disabled since otherwise "modprobe dir/name" would work
++	// as if it is "modprobe name". It is unclear why
++	// 'basenamization' was here in the first place.
++	//from = bb_get_last_path_component_nostrip(filename);
++	from = filename;
+ 	for (i = 0; i < (MODULE_NAME_LEN-1) && from[i] != '\0' && from[i] != '.'; i++)
+ 		modname[i] = (from[i] == '-') ? '_' : from[i];
+ 	modname[i] = '\0';
+diff -Naur busybox-1.23.0.orig/modutils/modutils.c busybox-1.23.0/modutils/modutils.c
+--- busybox-1.23.0.orig/modutils/modutils.c	2014-10-04 22:35:59.000000000 +0200
++++ busybox-1.23.0/modutils/modutils.c	2015-01-04 22:49:18.501169657 +0100
+@@ -48,13 +48,17 @@
+ char* FAST_FUNC filename2modname(const char *filename, char *modname)
+ {
+ 	int i;
+-	char *from;
++	const char *from;
+ 
+ 	if (filename == NULL)
+ 		return NULL;
+ 	if (modname == NULL)
+ 		modname = xmalloc(MODULE_NAME_LEN);
+-	from = bb_get_last_path_component_nostrip(filename);
++	// Disabled since otherwise "modprobe dir/name" would work
++	// as if it is "modprobe name". It is unclear why
++	// 'basenamization' was here in the first place.
++	//from = bb_get_last_path_component_nostrip(filename);
++	from = filename;
+ 	for (i = 0; i < (MODULE_NAME_LEN-1) && from[i] != '\0' && from[i] != '.'; i++)
+ 		modname[i] = (from[i] == '-') ? '_' : from[i];
+ 	modname[i] = '\0';
+diff -Naur busybox-1.23.0.orig/shell/ash.c busybox-1.23.0/shell/ash.c
+--- busybox-1.23.0.orig/shell/ash.c	2014-11-20 01:08:23.000000000 +0100
++++ busybox-1.23.0/shell/ash.c	2015-01-04 22:49:13.234402684 +0100
+@@ -6746,6 +6746,14 @@
+ 		len = strlen(p);
+ 		if (!(subtype == VSPLUS || subtype == VSLENGTH))
+ 			memtodest(p, len, syntax, quotes);
++#if ENABLE_UNICODE_SUPPORT
++		if (subtype == VSLENGTH && len > 0) {
++			reinit_unicode_for_ash();
++			if (unicode_status == UNICODE_ON) {
++				len = unicode_strlen(p);
++			}
++		}
++#endif
+ 		return len;
+ 	}
+ 
+@@ -6829,15 +6837,7 @@
+ 		varunset(p, var, 0, 0);
+ 
+ 	if (subtype == VSLENGTH) {
+-		ssize_t n = varlen;
+-		if (n > 0) {
+-			reinit_unicode_for_ash();
+-			if (unicode_status == UNICODE_ON) {
+-				const char *val = lookupvar(var);
+-				n = unicode_strlen(val);
+-			}
+-		}
+-		cvtnum(n > 0 ? n : 0);
++		cvtnum(varlen > 0 ? varlen : 0);
+ 		goto record;
+ 	}
+ 
