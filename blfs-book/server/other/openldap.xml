@@ -83,12 +83,12 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="cyrus-sasl"/> and
       <xref linkend="openssl"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
+      <xref linkend="cyrus-sasl"/>,
       <xref linkend="icu"/>,
       <xref linkend="mariadb"/> or
       <xref linkend="postgresql"/>,
@@ -150,8 +150,6 @@ useradd -c "OpenLDAP Daemon Owner" -d /var/lib/openldap -u 83 \
 patch -Np1 -i ../openldap-&openldap-version;-symbol_versions-1.patch &amp;&amp;
 autoconf &amp;&amp;
 
-sed -i '/6.0.20/ a\\t__db_version_compat' configure &amp;&amp;
-
 ./configure --prefix=/usr         \
             --sysconfdir=/etc     \
             --localstatedir=/var  \
@@ -160,7 +158,6 @@ sed -i '/6.0.20/ a\\t__db_version_compat' configure &amp;&amp;
             --disable-debug       \
             --enable-dynamic      \
             --enable-crypt        \
-            --enable-spasswd      \
             --enable-modules      \
             --enable-rlookups     \
             --enable-backends=mod \
@@ -228,11 +225,6 @@ cp -vfr doc/guide  /usr/share/doc/openldap-&openldap-version;</userinput></scree
     </para>
 
     <para>
-      <parameter>--enable-spasswd</parameter>: This switch enables
-      <application>SASL</application> password verification.
-    </para>
-
-    <para>
       <parameter>--enable-modules</parameter>: This switch enables dynamic
       module support.
     </para>
@@ -271,6 +263,11 @@ cp -vfr doc/guide  /usr/share/doc/openldap-&openldap-version;</userinput></scree
      installed.  Everything in that directory is a library, so it belongs under
      <filename class="directory">/usr/lib</filename> instead of
      <filename class="directory">/usr/libexec</filename>.
+    </para>
+
+    <para>
+      <option>--enable-spasswd</option>: This switch enables
+      <application>SASL</application> password verification.
     </para>
 
     <para>
