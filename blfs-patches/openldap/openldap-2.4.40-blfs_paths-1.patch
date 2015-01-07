@@ -6,9 +6,10 @@ Origin:                  Self
 Description:             Patch changes various installation options, such as ldap database path,
                          configuration file options, slapd install location, etc.
 
---- openldap.orig/doc/man/man5/slapd-bdb.5	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/doc/man/man5/slapd-bdb.5	2012-04-06 00:18:54.171136608 +0200
-@@ -131,7 +131,7 @@
+diff -Naur openldap-2.4.40.orig/doc/man/man5/slapd-bdb.5 openldap-2.4.40/doc/man/man5/slapd-bdb.5
+--- openldap-2.4.40.orig/doc/man/man5/slapd-bdb.5	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/doc/man/man5/slapd-bdb.5	2015-01-06 17:18:59.043559984 +0100
+@@ -135,7 +135,7 @@
  associated indexes live.
  A separate directory must be specified for each database.
  The default is
@@ -17,9 +18,10 @@ Description:             Patch changes various installation options, such as lda
  .TP
  .B dirtyread
  Allow reads of modified but not yet committed data.
---- openldap.orig/doc/man/man5/slapd.conf.5	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/doc/man/man5/slapd.conf.5	2012-04-06 00:18:54.174136671 +0200
-@@ -1987,7 +1987,7 @@
+diff -Naur openldap-2.4.40.orig/doc/man/man5/slapd.conf.5 openldap-2.4.40/doc/man/man5/slapd.conf.5
+--- openldap-2.4.40.orig/doc/man/man5/slapd.conf.5	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/doc/man/man5/slapd.conf.5	2015-01-06 17:18:59.044559938 +0100
+@@ -2021,7 +2021,7 @@
  # The database directory MUST exist prior to
  # running slapd AND should only be accessible
  # by the slapd/tools. Mode 0700 recommended.
@@ -28,9 +30,10 @@ Description:             Patch changes various installation options, such as lda
  # Indices to maintain
  index     objectClass  eq
  index     cn,sn,mail   pres,eq,approx,sub
---- openldap.orig/doc/man/man5/slapd-config.5	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/doc/man/man5/slapd-config.5	2012-04-06 00:18:54.194137078 +0200
-@@ -2029,7 +2029,7 @@
+diff -Naur openldap-2.4.40.orig/doc/man/man5/slapd-config.5 openldap-2.4.40/doc/man/man5/slapd-config.5
+--- openldap-2.4.40.orig/doc/man/man5/slapd-config.5	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/doc/man/man5/slapd-config.5	2015-01-06 17:18:59.045559892 +0100
+@@ -2051,7 +2051,7 @@
  # The database directory MUST exist prior to
  # running slapd AND should only be accessible
  # by the slapd/tools. Mode 0700 recommended.
@@ -39,8 +42,9 @@ Description:             Patch changes various installation options, such as lda
  # Indices to maintain
  olcDbIndex:     objectClass  eq
  olcDbIndex:     cn,sn,mail   pres,eq,approx,sub
---- openldap.orig/include/ldap_defaults.h	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/include/ldap_defaults.h	2012-04-06 00:18:54.200137199 +0200
+diff -Naur openldap-2.4.40.orig/include/ldap_defaults.h openldap-2.4.40/include/ldap_defaults.h
+--- openldap-2.4.40.orig/include/ldap_defaults.h	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/include/ldap_defaults.h	2015-01-06 17:18:59.045559892 +0100
 @@ -39,7 +39,7 @@
  #define LDAP_ENV_PREFIX "LDAP"
  
@@ -59,8 +63,9 @@ Description:             Patch changes various installation options, such as lda
  #define SLAPD_DEFAULT_DB_MODE		0600
  #define SLAPD_DEFAULT_UCDATA		LDAP_DATADIR LDAP_DIRSEP "ucdata"
  	/* default max deref depth for aliases */
---- openldap.orig/libraries/liblber/Makefile.in	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/libraries/liblber/Makefile.in	2012-04-06 00:18:54.204137280 +0200
+diff -Naur openldap-2.4.40.orig/libraries/liblber/Makefile.in openldap-2.4.40/libraries/liblber/Makefile.in
+--- openldap-2.4.40.orig/libraries/liblber/Makefile.in	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/libraries/liblber/Makefile.in	2015-01-06 17:18:59.045559892 +0100
 @@ -48,6 +48,6 @@
  
  install-local: FORCE
@@ -69,8 +74,9 @@ Description:             Patch changes various installation options, such as lda
 +	$(LTINSTALL) $(INSTALLFLAGS) -m 755 $(LIBRARY) $(DESTDIR)$(libdir)
  	$(LTFINISH) $(DESTDIR)$(libdir)
  
---- openldap.orig/libraries/libldap/Makefile.in	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/libraries/libldap/Makefile.in	2012-04-06 00:18:54.204137280 +0200
+diff -Naur openldap-2.4.40.orig/libraries/libldap/Makefile.in openldap-2.4.40/libraries/libldap/Makefile.in
+--- openldap-2.4.40.orig/libraries/libldap/Makefile.in	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/libraries/libldap/Makefile.in	2015-01-06 17:18:59.046559846 +0100
 @@ -68,7 +68,7 @@
  
  install-local: $(CFFILES) FORCE
@@ -80,8 +86,9 @@ Description:             Patch changes various installation options, such as lda
  	$(LTFINISH) $(DESTDIR)$(libdir)
  	-$(MKDIR) $(DESTDIR)$(sysconfdir)
  	@for i in $(CFFILES); do \
---- openldap.orig/libraries/libldap_r/Makefile.in	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/libraries/libldap_r/Makefile.in	2012-04-06 00:18:54.208137362 +0200
+diff -Naur openldap-2.4.40.orig/libraries/libldap_r/Makefile.in openldap-2.4.40/libraries/libldap_r/Makefile.in
+--- openldap-2.4.40.orig/libraries/libldap_r/Makefile.in	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/libraries/libldap_r/Makefile.in	2015-01-06 17:18:59.046559846 +0100
 @@ -83,6 +83,6 @@
  
  install-local: $(CFFILES) FORCE
@@ -90,10 +97,11 @@ Description:             Patch changes various installation options, such as lda
 +	$(LTINSTALL) $(INSTALLFLAGS) -m 755 $(LIBRARY) $(DESTDIR)$(libdir)
  	$(LTFINISH) $(DESTDIR)$(libdir)
  
---- openldap.orig/servers/slapd/Makefile.in	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/servers/slapd/Makefile.in	2012-04-06 00:18:54.208137362 +0200
-@@ -370,10 +370,10 @@
- 	install-conf install-db-config install-schema install-tools
+diff -Naur openldap-2.4.40.orig/servers/slapd/Makefile.in openldap-2.4.40/servers/slapd/Makefile.in
+--- openldap-2.4.40.orig/servers/slapd/Makefile.in	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/servers/slapd/Makefile.in	2015-01-06 17:18:59.047559800 +0100
+@@ -376,10 +376,10 @@
+ 	install-conf install-dbc-maybe install-schema install-tools
  
  install-slapd: FORCE
 -	-$(MKDIR) $(DESTDIR)$(libexecdir)
@@ -105,7 +113,7 @@ Description:             Patch changes various installation options, such as lda
  	@for i in $(SUBDIRS); do \
  	    if test -d $$i && test -f $$i/Makefile ; then \
  		echo; echo "  cd $$i; $(MAKE) $(MFLAGS) install"; \
-@@ -439,9 +439,9 @@
+@@ -445,9 +445,9 @@
  
  install-db-config: FORCE
  	@-$(MKDIR) $(DESTDIR)$(localstatedir) $(DESTDIR)$(sysconfdir)
@@ -117,7 +125,7 @@ Description:             Patch changes various installation options, such as lda
  	$(INSTALL) $(INSTALLFLAGS) -m 600 $(srcdir)/DB_CONFIG \
  		$(DESTDIR)$(sysconfdir)/DB_CONFIG.example
  
-@@ -449,6 +449,6 @@
+@@ -455,6 +455,6 @@
  	-$(MKDIR) $(DESTDIR)$(sbindir)
  	for i in $(SLAPTOOLS); do \
  		$(RM) $(DESTDIR)$(sbindir)/$$i$(EXEEXT); \
@@ -125,8 +133,9 @@ Description:             Patch changes various installation options, such as lda
 +		$(LN_S) -f $(DESTDIR)$(sbindir)/slapd$(EXEEXT) $(DESTDIR)$(sbindir)/$$i$(EXEEXT); \
  	done
  
---- openldap.orig/servers/slapd/slapd.conf	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/servers/slapd/slapd.conf	2012-04-06 00:21:12.891992222 +0200
+diff -Naur openldap-2.4.40.orig/servers/slapd/slapd.conf openldap-2.4.40/servers/slapd/slapd.conf
+--- openldap-2.4.40.orig/servers/slapd/slapd.conf	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/servers/slapd/slapd.conf	2015-01-06 17:18:59.047559800 +0100
 @@ -10,14 +10,12 @@
  # service AND an understanding of referrals.
  #referral	ldap://root.openldap.org
@@ -176,8 +185,9 @@ Description:             Patch changes various installation options, such as lda
 +
  # Indices to maintain
  index	objectClass	eq
---- openldap.orig/servers/slapd/slapi/Makefile.in	2012-02-29 18:37:09.000000000 +0100
-+++ openldap/servers/slapd/slapi/Makefile.in	2012-04-06 00:18:54.210137403 +0200
+diff -Naur openldap-2.4.40.orig/servers/slapd/slapi/Makefile.in openldap-2.4.40/servers/slapd/slapi/Makefile.in
+--- openldap-2.4.40.orig/servers/slapd/slapi/Makefile.in	2014-09-19 03:48:49.000000000 +0200
++++ openldap-2.4.40/servers/slapd/slapi/Makefile.in	2015-01-06 17:18:59.047559800 +0100
 @@ -46,6 +46,6 @@
  install-local: FORCE
  	if test "$(BUILD_MOD)" = "yes"; then \
