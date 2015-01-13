@@ -4,26 +4,26 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY openssl-homepage      "http://www.openssl.org/">
-  <!ENTITY openssl-wikipedia     "http://en.wikipedia.org/wiki/OpenSSL">
-  <!ENTITY openssl-download-http "http://www.openssl.org/source/openssl-&openssl-version;.tar.gz">
-  <!ENTITY openssl-download-ftp  "ftp://ftp.openssl.org/source/openssl-&openssl-version;.tar.gz">
-  <!ENTITY openssl-md5sum        "f7175c9cd3c39bb1907ac8bba9df8ed3">
-  <!ENTITY openssl-size          "4.3 MB">
-  <!ENTITY openssl-buildsize     "51 MB">
-  <!ENTITY openssl-time          "1.0 SBU">
+  <!ENTITY libressl-homepage      "http://www.libressl.org/">
+  <!ENTITY libressl-wikipedia     "http://en.wikipedia.org/wiki/LibreSSL">
+  <!ENTITY libressl-download-http "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-&libressl-version;.tar.gz">
+  <!ENTITY libressl-download-ftp  "ftp://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-&libressl-version;.tar.gz">
+  <!ENTITY libressl-md5sum        "c979a977e3b54fbecfa762c74a631bc3">
+  <!ENTITY libressl-size          "2.7 MB">
+  <!ENTITY libressl-buildsize     "74 MB">
+  <!ENTITY libressl-time          "0.7 SBU">
 ]>
 
-<sect1 id="openssl" xreflabel="OpenSSL-&openssl-version;">
-  <?dbhtml filename="openssl.html"?>
+<sect1 id="libressl" xreflabel="LibreSSL-&libressl-version;">
+  <?dbhtml filename="libressl.html"?>
 
-  <title>OpenSSL-&openssl-version;</title>
+  <title>LibreSSL-&libressl-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
 
     <para>
-      The OpenSSL package contains management tools and libraries relating to
+      The LibreSSL package contains management tools and libraries relating to
       cryptography. These are useful for providing cryptography functions to
       other packages, such as OpenSSH, email applications and web browsers (for
       accessing HTTPS sites).
@@ -33,62 +33,54 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Homepage: <ulink url="&openssl-homepage;"/>
+          Homepage: <ulink url="&libressl-homepage;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Wikipedia: <ulink url="&openssl-wikipedia;"/>
+          Wikipedia: <ulink url="&libressl-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&openssl-download-http;"/>
+          Download (HTTP): <ulink url="&libressl-download-http;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&openssl-download-ftp;"/>
+          Download (FTP): <ulink url="&libressl-download-ftp;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download MD5 sum: &openssl-md5sum;
+          Download MD5 sum: &libressl-md5sum;
         </para>
       </listitem>
       <listitem>
         <para>
-          Download size: &openssl-size;
+          Download size: &libressl-size;
         </para>
       </listitem>
       <listitem>
         <para>
-          Estimated disk space required: &openssl-buildsize;
+          Estimated disk space required: &libressl-buildsize;
         </para>
       </listitem>
       <listitem>
         <para>
-          Estimated build time: &openssl-time;
+          Estimated build time: &libressl-time;
         </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch:
-          <ulink url="&patch-root;openssl/openssl-&openssl-version;-fix_parallel_build-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">
       <xref linkend="mitkrb"/>
     </para>
+-->
 
   </sect2>
 
@@ -96,34 +88,21 @@
     <title>Installation</title>
 
     <para>
-      Install OpenSSL with the following commands:
+      Install the package with the following commands:
     </para>
 
-<!-- libdir=lib so it doesn't write over /usr/lib64 symlink on 64 bit system.
-     Might break packaging. -->
-
-<screen><userinput>patch -p1 -i ../openssl-&openssl-version;-fix_parallel_build-1.patch &amp;&amp;
-./config --prefix=/usr \
-         --openssldir=/etc/ssl \
-         --libdir=lib \
-         shared \
-         zlib-dynamic &amp;&amp;
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static &amp;&amp;
 make</userinput></screen>
-
-    <para>
-      Disable installing the static libraries:
-    </para>
-
-<screen><userinput>sed -i 's# libcrypto.a##;s# libssl.a##' Makefile</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<!-- dev note: make INSTALL_PREFIX=<DESTDIR> MANDIR=/usr/share/man MANSUFFIX=ssl install -->
+<screen role="root"><userinput>make -j1 install &amp;&amp;
+install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen>
 
-<screen role="root"><userinput>make MANDIR=/usr/share/man MANSUFFIX=ssl install</userinput></screen>
-
+<!--
     <sect3>
       <title>Command Explanations</title>
 
@@ -140,7 +119,7 @@ make</userinput></screen>
 
       <para>
         <command>make MANDIR=/usr/share/man MANSUFFIX=ssl install</command>:
-        This command installs OpenSSL with the man pages in <filename
+        This command installs LibreSSL with the man pages in <filename
         class="directory">/usr/share/man</filename> instead of <filename
         class="directory">/etc/ssl/man</filename> and appends "ssl" suffix to
         the manual page names to avoid conflicts with manual pages installed by
@@ -155,6 +134,7 @@ make</userinput></screen>
       </para>
 
     </sect3>
+-->
 
   </sect2>
 
@@ -165,7 +145,7 @@ make</userinput></screen>
       Most users will want to install <xref linkend='cacerts'/> for validation
       of downloaded certificates. For example, these certificates can be used by
       Git or cURL when accessing secure (HTTPS protocol) sites. Users who
-      just want to use OpenSSL for providing functions to other programs such as
+      just want to use LibreSSL for providing functions to other programs such as
       OpenSSH and web browsers do not need to worry about additional
       configuration.
     </para>
@@ -175,19 +155,16 @@ make</userinput></screen>
   <sect2>
     <title>Contents</title>
 
-    <indexterm zone="openssl">
-      <primary sortas="b-c_rehash">c_rehash</primary>
-    </indexterm>
-    <indexterm zone="openssl">
+    <indexterm zone="libressl">
       <primary sortas="b-openssl">openssl</primary>
     </indexterm>
-    <indexterm zone="openssl">
+    <indexterm zone="libressl">
       <primary sortas="c-libcrypto">libcrypto.so</primary>
     </indexterm>
-    <indexterm zone="openssl">
+    <indexterm zone="libressl">
       <primary sortas="c-libssl">libssl.so</primary>
     </indexterm>
-    <indexterm zone="openssl">
+    <indexterm zone="libressl">
       <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
     </indexterm>
 
@@ -196,20 +173,14 @@ make</userinput></screen>
     </para>
 
 <screen><literal>/etc/ssl/
-/etc/ssl/openssl.cnf
-/usr/bin/c_rehash
-/usr/bin/openssl
-/usr/include/openssl/
-/usr/lib/engines/
-/usr/lib/libcrypto.so
-/usr/lib/libssl.so
-/usr/lib/pkgconfig/libcrypto.pc
-/usr/lib/pkgconfig/libssl.pc
-/usr/lib/pkgconfig/openssl.pc
-/usr/share/man/man1/openssl.1ssl
-/usr/share/man/man3/crypto.3ssl
-/usr/share/man/man3/ssl.3ssl
-/usr/share/man/man5/config.5ssl</literal></screen>
+/usr/bin/openssl                                                                                                                                                                                  
+/usr/include/openssl/                                                                                                                                                                             
+/usr/lib/libcrypto.so                                                                                                                                                                             
+/usr/lib/libssl.so                                                                                                                                                                                
+/usr/lib/pkgconfig/libcrypto.pc                                                                                                                                                                   
+/usr/lib/pkgconfig/libssl.pc                                                                                                                                                                      
+/usr/lib/pkgconfig/openssl.pc                                                                                                                                                                     
+/usr/share/man/man1/openssl.1</literal></screen>
 
   </sect2>
 

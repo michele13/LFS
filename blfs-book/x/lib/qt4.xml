@@ -73,6 +73,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;qt-everywhere-opensource-src/qt-everywhere-opensource-src-&qt4-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -91,7 +101,7 @@
       <xref linkend="libmng"/>,
       <xref linkend="libpng"/>,
       <xref linkend="libtiff"/>,
-      <xref linkend="openssl"/>, and
+      <xref linkend="libressl"/>, and
       <xref linkend="sqlite"/>
     </para>
 
@@ -120,7 +130,8 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>sed -i -e "/#if/d" -e "/#error/d" -e "/#endif/d" \
+<screen><userinput>patch -p1 -i ../qt-everywhere-opensource-src-&qt4-version;-libressl-1.patch &amp;&amp;
+sed -i -e "/#if/d" -e "/#error/d" -e "/#endif/d" \
      config.tests/unix/libmng/libmng.cpp &amp;&amp;
 sed -i '/CONFIG -/ a\isEmpty(OUTPUT_DIR): OUTPUT_DIR = ../..' \
      src/3rdparty/webkit/Source/WebKit2/DerivedSources.pro &amp;&amp;

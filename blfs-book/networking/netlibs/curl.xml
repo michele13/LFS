@@ -74,11 +74,21 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;curl/curl-&curl-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
-      <xref linkend="openssl"/> and
+      <xref linkend="libressl"/> and
       <xref linkend="cacerts"/>
     </para>
 
@@ -103,7 +113,8 @@
       Install the package by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>patch -p1 -i ../curl-&curl-version;-libressl-1.patch &amp;&amp;
+./configure --prefix=/usr \
             --disable-static \
             --enable-threaded-resolver &amp;&amp;
 make</userinput></screen>

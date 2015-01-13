@@ -1,0 +1,29 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-06
+Initial Package Version: 0.30.1
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur neon-0.30.1.orig/src/ne_ntlm.c neon-0.30.1/src/ne_ntlm.c
+--- neon-0.30.1.orig/src/ne_ntlm.c	2009-12-02 22:15:12.000000000 +0100
++++ neon-0.30.1/src/ne_ntlm.c	2015-01-06 12:11:00.557453529 +0100
+@@ -170,6 +170,7 @@
+ 
+ #include <openssl/des.h>
+ #include <openssl/md4.h>
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ 
+ #if OPENSSL_VERSION_NUMBER < 0x00907001L
+diff -Naur neon-0.30.1.orig/src/ne_openssl.c neon-0.30.1/src/ne_openssl.c
+--- neon-0.30.1.orig/src/ne_openssl.c	2014-09-20 20:59:52.000000000 +0200
++++ neon-0.30.1/src/ne_openssl.c	2015-01-06 12:11:00.558453487 +0100
+@@ -29,6 +29,7 @@
+ 
+ #include <stdio.h>
+ 
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #include <openssl/pkcs12.h>

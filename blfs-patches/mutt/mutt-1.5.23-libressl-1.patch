@@ -1,0 +1,18 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2014-12-30
+Initial Package Version: 1.5.23
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur mutt-1.5.23.orig/mutt_ssl.c mutt-1.5.23/mutt_ssl.c
+--- mutt-1.5.23.orig/mutt_ssl.c	2014-03-12 17:03:45.000000000 +0100
++++ mutt-1.5.23/mutt_ssl.c	2014-12-30 08:02:33.407995294 +0100
+@@ -20,6 +20,7 @@
+ # include "config.h"
+ #endif
+ 
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/x509.h>
+ #include <openssl/x509v3.h>

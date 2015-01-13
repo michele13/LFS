@@ -64,12 +64,18 @@
         url="&patch-root;heirloom-mailx/heirloom-mailx-&mailx-version;-fixes-1.patch"/>
         </para>
       </listitem>
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;heirloom-mailx/heirloom-mailx-&mailx-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
     </itemizedlist>
 
     <bridgehead renderas="sect3">Heirloom mailx Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional"><xref linkend="openssl"/> or
+    <para role="optional"><xref linkend="libressl"/> or
     <xref linkend="nss"/>,
     <xref linkend="mitkrb"/> (for IMAP GSSAPI
     authentication), and an
@@ -91,7 +97,8 @@
     <para>Install <application>Heirloom mailx</application> by running the
     following commands.</para>
 
-<screen><userinput>patch -Np1 -i ../heirloom-mailx-&mailx-version;-fixes-1.patch &amp;&amp;
+<screen><userinput>patch -p1 -i ../heirloom-mailx-&mailx-version;-fixes-1.patch &amp;&amp;
+patch -p1 -i ../heirloom-mailx-&mailx-version;-libressl-1.patch &amp;&amp;
 make SENDMAIL=/usr/sbin/sendmail -j1</userinput></screen>
 
     <para>This package does not come with a test suite.</para>

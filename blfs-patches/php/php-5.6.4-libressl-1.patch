@@ -1,0 +1,24 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-06
+Initial Package Version: 5.6.4
+Upstream Status:         Unknown
+Origin:                  OpenELEC
+Description:             Fixes build with LibreSSL.
+
+diff -Naur php-5.6.4.orig/ext/openssl/openssl.c php-5.6.4/ext/openssl/openssl.c
+--- php-5.6.4.orig/ext/openssl/openssl.c	2014-12-17 02:25:00.000000000 +0100
++++ php-5.6.4/ext/openssl/openssl.c	2015-01-06 10:47:21.144704289 +0100
+@@ -975,11 +975,13 @@
+ 
+ 	if (file == NULL) {
+ 		file = RAND_file_name(buffer, sizeof(buffer));
++#ifdef HAVE_SSL_RAND_EGD
+ 	} else if (RAND_egd(file) > 0) {
+ 		/* if the given filename is an EGD socket, don't
+ 		 * write anything back to it */
+ 		*egdsocket = 1;
+ 		return SUCCESS;
++#endif
+ 	}
+ 	if (file == NULL || !RAND_load_file(file, -1)) {
+ 		if (RAND_status() == 0) {

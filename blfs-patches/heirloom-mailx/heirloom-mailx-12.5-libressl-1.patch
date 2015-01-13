@@ -1,0 +1,60 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2014-12-30
+Initial Package Version: 12.5
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur heirloom-mailx-12.5.orig/fio.c heirloom-mailx-12.5/fio.c
+--- heirloom-mailx-12.5.orig/fio.c	2011-04-26 23:23:22.000000000 +0200
++++ heirloom-mailx-12.5/fio.c	2014-12-30 07:40:02.672196055 +0100
+@@ -55,6 +55,7 @@
+ #include <nss.h>
+ #include <ssl.h>
+ #elif defined (USE_OPENSSL)
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #include <openssl/x509v3.h>
+diff -Naur heirloom-mailx-12.5.orig/makeconfig heirloom-mailx-12.5/makeconfig
+--- heirloom-mailx-12.5.orig/makeconfig	2011-04-26 23:23:22.000000000 +0200
++++ heirloom-mailx-12.5/makeconfig	2014-12-30 07:40:02.676195879 +0100
+@@ -346,6 +346,7 @@
+ 	return 0;
+ }
+ !
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #include <openssl/x509v3.h>
+@@ -396,6 +397,7 @@
+ if test x$have_openssl = xyes
+ then
+ 	compile_check stack_of 'for STACK_OF()' '#define HAVE_STACK_OF' <<\!
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #include <openssl/x509v3.h>
+diff -Naur heirloom-mailx-12.5.orig/openssl.c heirloom-mailx-12.5/openssl.c
+--- heirloom-mailx-12.5.orig/openssl.c	2011-04-26 23:23:22.000000000 +0200
++++ heirloom-mailx-12.5/openssl.c	2014-12-30 07:40:02.678195790 +0100
+@@ -56,6 +56,7 @@
+ static struct termios	otio;
+ static sigjmp_buf	ssljmp;
+ 
++#include <stdint.h>
+ #include <openssl/crypto.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+@@ -137,11 +138,6 @@
+ 
+ 	if ((cp = value("ssl-rand-egd")) != NULL) {
+ 		cp = expand(cp);
+-		if (RAND_egd(cp) == -1) {
+-			fprintf(stderr, catgets(catd, CATSET, 245,
+-				"entropy daemon at \"%s\" not available\n"),
+-					cp);
+-		} else
+ 			state = 1;
+ 	} else if ((cp = value("ssl-rand-file")) != NULL) {
+ 		cp = expand(cp);

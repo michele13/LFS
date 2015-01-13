@@ -1,0 +1,18 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-03
+Initial Package Version: 6.47
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur nmap-6.47.orig/ncat/test/test-wildcard.c nmap-6.47/ncat/test/test-wildcard.c
+--- nmap-6.47.orig/ncat/test/test-wildcard.c	2014-02-20 22:22:22.000000000 +0100
++++ nmap-6.47/ncat/test/test-wildcard.c	2015-01-03 19:24:03.538083481 +0100
+@@ -11,6 +11,7 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ 
++#include <stdint.h>
+ #include <openssl/bio.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>

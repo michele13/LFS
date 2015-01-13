@@ -58,6 +58,12 @@
         url="&patch-root;mutt/mutt-&mutt-version;-upstream_fixes-1.patch"/>
         </para>
       </listitem>
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;mutt/mutt-&mutt-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
     </itemizedlist>
 
     <bridgehead renderas="sect3">Mutt Dependencies</bridgehead>
@@ -75,7 +81,7 @@
       <ulink url="http://mixmaster.sourceforge.net/">Mixmaster</ulink>,
       an <xref linkend="server-mail"/> (that provides a <command>sendmail</command> command),
       <xref linkend="slang"/>,
-      <xref linkend="openssl"/>, and
+      <xref linkend="libressl"/>, and
       <ulink url="http://fallabs.com/qdbm/">QDBM</ulink> or
       <ulink url="http://fallabs.com/tokyocabinet/">Tokyo Cabinet</ulink>
     </para>
@@ -123,6 +129,7 @@
     commands:</para>
 
 <screen><userinput>patch -Np1 -i ../mutt-&mutt-version;-upstream_fixes-1.patch &amp;&amp;
+patch -p1 -i ../mutt-&mutt-version;-libressl-1.patch &amp;&amp;
 ./configure --prefix=/usr --sysconfdir=/etc \
             --disable-nls \
             --with-docdir=/usr/share/doc/mutt-&mutt-version; \
@@ -188,7 +195,7 @@ make -C doc</userinput></screen> -->
     SMTP relay support.</para>
 
     <para><option>--with-ssl</option>: This parameter adds SSL/TLS
-    support from <xref linkend="openssl"/> in POP3/IMAP/SMTP if they are
+    support from <xref linkend="libressl"/> in POP3/IMAP/SMTP if they are
     enabled.</para>
 
     <para><option>--with-sasl</option>: This parameter adds

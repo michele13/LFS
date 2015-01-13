@@ -69,6 +69,12 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
+          Recommended patch:
+          <ulink url="&patch-root;php/php-&php-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
           Pre-built documentation (optional): <ulink
           url="http://www.php.net/download-docs.php"/>
         </para>
@@ -142,7 +148,7 @@
 
     <bridgehead renderas="sect4">Optional Security/Encryption Utilities and Libraries</bridgehead>
     <para role="optional">
-      <xref linkend="openssl"/>,
+      <xref linkend="libressl"/>,
       <xref linkend="cyrus-sasl"/>,
       <xref linkend="mitkrb"/>,
       <xref linkend="libmcrypt"/>, and
@@ -187,7 +193,8 @@
       Install <application>PHP</application> by running the following commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr                \
+<screen><userinput>patch -p1 -i ../php-&php-version;-libressl-1.patch &amp;&amp;
+./configure --prefix=/usr                \
             --sysconfdir=/etc            \
             --localstatedir=/var         \
             --datadir=/usr/share/php     \

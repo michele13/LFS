@@ -1,0 +1,29 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2014-12-24
+Initial Package Version: 7.39.0
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur curl-7.39.0.orig/lib/curl_ntlm_core.c curl-7.39.0/lib/curl_ntlm_core.c
+--- curl-7.39.0.orig/lib/curl_ntlm_core.c	2014-11-04 13:51:16.000000000 +0100
++++ curl-7.39.0/lib/curl_ntlm_core.c	2014-12-24 12:46:17.737131588 +0100
+@@ -39,6 +39,7 @@
+ #      include <openssl/md4.h>
+ #    endif
+ #    include <openssl/md5.h>
++#    include <stdint.h>
+ #    include <openssl/ssl.h>
+ #    include <openssl/rand.h>
+ #  else
+diff -Naur curl-7.39.0.orig/lib/urldata.h curl-7.39.0/lib/urldata.h
+--- curl-7.39.0.orig/lib/urldata.h	2014-11-05 08:23:42.000000000 +0100
++++ curl-7.39.0/lib/urldata.h	2014-12-24 12:46:17.736131600 +0100
+@@ -85,6 +85,7 @@
+ #include <openssl/crypto.h>
+ #include <openssl/x509.h>
+ #include <openssl/pem.h>
++#include <stdint.h>
+ #include <openssl/ssl.h>
+ #include <openssl/err.h>
+ #ifdef HAVE_OPENSSL_ENGINE_H

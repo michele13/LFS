@@ -55,11 +55,21 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;stunnel/stunnel-&stunnel-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">stunnel Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para role="required">
-      <xref linkend="openssl"/>
+      <xref linkend="libressl"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -107,7 +117,8 @@ useradd -c "stunnel Daemon" -d /var/lib/stunnel \
     <para>Install <application>stunnel</application> by running the following
     commands:</para>
 
-<screen><userinput>./configure --prefix=/usr        \
+<screen><userinput>patch -p1 -i ../stunnel-&stunnel-version;-libressl-1.patch &amp;&amp;
+./configure --prefix=/usr        \
             --sysconfdir=/etc    \
             --localstatedir=/var \
             --disable-systemd    &amp;&amp;
