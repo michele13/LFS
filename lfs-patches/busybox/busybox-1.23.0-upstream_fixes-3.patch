@@ -1,5 +1,5 @@
 Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
-Date:                    2015-01-07
+Date:                    2015-01-15
 Initial Package Version: 1.23.0
 Upstream Status:         Already in upstream repo
 Origin:                  Upstream
@@ -8,7 +8,7 @@ Description:             This patch contains upstream ash, modprobe, and vi
 
 diff -Naur busybox-1.23.0.orig/editors/vi.c busybox-1.23.0/editors/vi.c
 --- busybox-1.23.0.orig/editors/vi.c	2014-10-04 22:35:58.000000000 +0200
-+++ busybox-1.23.0/editors/vi.c	2015-01-07 18:59:40.429659147 +0100
++++ busybox-1.23.0/editors/vi.c	2015-01-15 09:13:03.530608030 +0100
 @@ -542,9 +542,6 @@
  static int mysleep(int);
  static int readit(void);	// read (maybe cursor) key from stdin
@@ -58,7 +58,7 @@ diff -Naur busybox-1.23.0.orig/editors/vi.c busybox-1.23.0/editors/vi.c
  		 * so we check fileperms too */
 diff -Naur busybox-1.23.0.orig/modutils/depmod.c busybox-1.23.0/modutils/depmod.c
 --- busybox-1.23.0.orig/modutils/depmod.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/depmod.c	2015-01-07 18:59:37.452781322 +0100
++++ busybox-1.23.0/modutils/depmod.c	2015-01-15 09:12:59.258793702 +0100
 @@ -51,7 +51,11 @@
  
  	info->dnext = info->dprev = info;
@@ -113,8 +113,24 @@ diff -Naur busybox-1.23.0.orig/modutils/depmod.c busybox-1.23.0/modutils/depmod.
  #endif
 diff -Naur busybox-1.23.0.orig/modutils/modprobe.c busybox-1.23.0/modutils/modprobe.c
 --- busybox-1.23.0.orig/modutils/modprobe.c	2014-11-26 23:19:35.000000000 +0100
-+++ busybox-1.23.0/modutils/modprobe.c	2015-01-07 18:59:37.458781076 +0100
-@@ -238,17 +238,6 @@
++++ busybox-1.23.0/modutils/modprobe.c	2015-01-15 09:12:59.258793702 +0100
+@@ -229,26 +229,20 @@
+ {
+ 	return helper_get_module(module, 1);
+ }
+-static ALWAYS_INLINE struct module_entry *get_modentry(const char *module)
++/* So far this function always gets a module pathname, never an alias name.
++ * The crucial difference is that pathname needs dirname stripping,
++ * while alias name must NOT do it!
++ * Testcase where dirname stripping is likely to go wrong: "modprobe devname:snd/timer"
++ */
++static ALWAYS_INLINE struct module_entry *get_modentry(const char *pathname)
+ {
+-	return helper_get_module(module, 0);
++	return helper_get_module(bb_get_last_path_component_nostrip(pathname), 0);
+ }
+ 
+ static void add_probe(const char *name)
  {
  	struct module_entry *m;
  
@@ -132,9 +148,42 @@ diff -Naur busybox-1.23.0.orig/modutils/modprobe.c busybox-1.23.0/modutils/modpr
  	m = get_or_add_modentry(name);
  	if (!(option_mask32 & (OPT_REMOVE | OPT_SHOW_DEPS))
  	 && (m->flags & MODULE_FLAG_LOADED)
+@@ -510,7 +504,7 @@
+ 		colon = last_char_is(tokens[0], ':');
+ 		if (colon == NULL)
+ 			continue;
+-		*colon = 0;
++		*colon = '\0';
+ 
+ 		m = get_modentry(tokens[0]);
+ 		if (m == NULL)
+@@ -557,7 +551,6 @@
+ 
+ 	if (opt & OPT_LIST_ONLY) {
+ 		int i;
+-		char name[MODULE_NAME_LEN];
+ 		char *colon, *tokens[2];
+ 		parser_t *p = config_open2(CONFIG_DEFAULT_DEPMOD_FILE, xfopen_for_read);
+ 
+@@ -569,10 +562,14 @@
+ 			if (!colon)
+ 				continue;
+ 			*colon = '\0';
+-			filename2modname(tokens[0], name);
+ 			if (!argv[0])
+ 				puts(tokens[0]);
+ 			else {
++				char name[MODULE_NAME_LEN];
++				filename2modname(
++					bb_get_last_path_component_nostrip(tokens[0]),
++					name
++				);
+ 				for (i = 0; argv[i]; i++) {
+ 					if (fnmatch(argv[i], name, 0) == 0) {
+ 						puts(tokens[0]);
 diff -Naur busybox-1.23.0.orig/modutils/modprobe-small.c busybox-1.23.0/modutils/modprobe-small.c
 --- busybox-1.23.0.orig/modutils/modprobe-small.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/modprobe-small.c	2015-01-07 18:59:37.462780912 +0100
++++ busybox-1.23.0/modutils/modprobe-small.c	2015-01-15 09:12:59.259793658 +0100
 @@ -149,9 +149,13 @@
  static char *filename2modname(const char *filename, char *modname)
  {
@@ -151,9 +200,49 @@ diff -Naur busybox-1.23.0.orig/modutils/modprobe-small.c busybox-1.23.0/modutils
  	for (i = 0; i < (MODULE_NAME_LEN-1) && from[i] != '\0' && from[i] != '.'; i++)
  		modname[i] = (from[i] == '-') ? '_' : from[i];
  	modname[i] = '\0';
+@@ -631,6 +635,14 @@
+ 		infovec = find_alias(name);
+ 	}
+ 
++	if (!infovec) {
++		/* both dirscan and find_alias found nothing */
++		if (!is_rmmod && applet_name[0] != 'd') /* it wasn't rmmod or depmod */
++			bb_error_msg("module '%s' not found", name);
++//TODO: _and_die()? or should we continue (un)loading modules listed on cmdline?
++		goto ret;
++	}
++
+ 	/* There can be more than one module for the given alias. For example,
+ 	 * "pci:v00008086d00007010sv00000000sd00000000bc01sc01i80" matches
+ 	 * ata_piix because it has alias "pci:v00008086d00007010sv*sd*bc*sc*i*"
+@@ -646,7 +658,8 @@
+ 			int r;
+ 			char modname[MODULE_NAME_LEN];
+ 
+-			filename2modname(info->pathname, modname);
++			filename2modname(
++				bb_get_last_path_component_nostrip(info->pathname), modname);
+ 			r = delete_module(modname, O_NONBLOCK | O_EXCL);
+ 			dbg1_error_msg("delete_module('%s', O_NONBLOCK | O_EXCL):%d", modname, r);
+ 			if (r != 0) {
+@@ -669,14 +682,6 @@
+ 		 */
+ 	}
+ 
+-	if (!infovec) {
+-		/* both dirscan and find_alias found nothing */
+-		if (!is_rmmod && applet_name[0] != 'd') /* it wasn't rmmod or depmod */
+-			bb_error_msg("module '%s' not found", name);
+-//TODO: _and_die()? or should we continue (un)loading modules listed on cmdline?
+-		goto ret;
+-	}
+-
+ 	infoidx = 0;
+ 	while ((info = infovec[infoidx++]) != NULL) {
+ 		/* Iterate thru dependencies, trying to (un)load them */
 diff -Naur busybox-1.23.0.orig/modutils/modutils.c busybox-1.23.0/modutils/modutils.c
 --- busybox-1.23.0.orig/modutils/modutils.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/modutils.c	2015-01-07 18:59:37.463780870 +0100
++++ busybox-1.23.0/modutils/modutils.c	2015-01-15 09:12:59.259793658 +0100
 @@ -48,13 +48,17 @@
  char* FAST_FUNC filename2modname(const char *filename, char *modname)
  {
@@ -176,7 +265,7 @@ diff -Naur busybox-1.23.0.orig/modutils/modutils.c busybox-1.23.0/modutils/modut
  	modname[i] = '\0';
 diff -Naur busybox-1.23.0.orig/shell/ash.c busybox-1.23.0/shell/ash.c
 --- busybox-1.23.0.orig/shell/ash.c	2014-11-20 01:08:23.000000000 +0100
-+++ busybox-1.23.0/shell/ash.c	2015-01-07 18:59:34.183915659 +0100
++++ busybox-1.23.0/shell/ash.c	2015-01-15 09:12:55.883940651 +0100
 @@ -6746,6 +6746,14 @@
  		len = strlen(p);
  		if (!(subtype == VSPLUS || subtype == VSLENGTH))
