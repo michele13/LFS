@@ -8,9 +8,9 @@
   <!ENTITY swig-wikipedia     "http://en.wikipedia.org/wiki/SWIG">
   <!ENTITY swig-download-http "&sourceforge-repo;/swig/swig-&swig-version;.tar.gz">
   <!ENTITY swig-download-ftp  " ">
-  <!ENTITY swig-md5sum        "62f9b0d010cef36a13a010dc530d0d41">
-  <!ENTITY swig-size          "5.4 MB">
-  <!ENTITY swig-buildsize     "77 MB">
+  <!ENTITY swig-md5sum        "9cb8c0efda39dc6db5f85389e671fb59">
+  <!ENTITY swig-size          "5.5 MB">
+  <!ENTITY swig-buildsize     "78 MB">
   <!ENTITY swig-time          "0.4 SBU">
 ]>
 
@@ -81,10 +81,17 @@
     <title>Installation</title>
 
     <para>
-      Install SWIG by running the following commands:
+      Fix an issue with gccgo-4.9.2:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
+<screen><userinput>sed -i 's/"\.")/"_")/' -i Source/Modules/go.cxx</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr
+            --without-clisp &amp;&amp;
 make</userinput></screen>
 
     <para>
