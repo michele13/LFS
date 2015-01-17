@@ -1,0 +1,48 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-17
+Initial Package Version: 2.5.39
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Suppresses info pages building and installation.
+
+diff -Naur flex-2.5.39.orig/doc/Makefile.in flex-2.5.39/doc/Makefile.in
+--- flex-2.5.39.orig/doc/Makefile.in	2014-03-26 19:58:56.000000000 +0100
++++ flex-2.5.39/doc/Makefile.in	2015-01-17 14:39:44.413002344 +0100
+@@ -89,8 +89,6 @@
+     n|no|NO) false;; \
+     *) (install-info --version) >/dev/null 2>&1;; \
+   esac
+-am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
+-	"$(DESTDIR)$(docdir)"
+ am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+ am__vpath_adj = case $$p in \
+     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+@@ -119,6 +117,7 @@
+          $(am__cd) "$$dir" && rm -f $$files; }; \
+   }
+ man1dir = $(mandir)/man1
++am__installdirs = "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"
+ NROFF = nroff
+ MANS = $(dist_man_MANS)
+ DATA = $(dist_doc_DATA)
+@@ -615,9 +614,9 @@
+ 	  dist-info
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA)
++all-am: Makefile $(MANS) $(DATA)
+ installdirs:
+-	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"; do \
++	for dir in "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: install-am
+@@ -671,7 +670,7 @@
+ 
+ info-am: $(INFO_DEPS)
+ 
+-install-data-am: install-dist_docDATA install-info-am install-man
++install-data-am: install-dist_docDATA install-man
+ 
+ install-dvi: install-dvi-am
+ 

@@ -5,8 +5,9 @@ Upstream Status:         Not submitted
 Origin:                  Self
 Description:             Suppresses info pages building and installation.
 
---- libffi-3.2.1/Makefile.in.orig	2015-01-17 14:02:10.360825664 +0100
-+++ libffi-3.2.1/Makefile.in	2015-01-17 14:02:22.313306187 +0100
+diff -Naur libffi-3.2.1.orig/Makefile.in libffi-3.2.1/Makefile.in
+--- libffi-3.2.1.orig/Makefile.in	2014-11-12 12:59:58.000000000 +0100
++++ libffi-3.2.1/Makefile.in	2015-01-17 14:46:08.776813537 +0100
 @@ -180,7 +180,7 @@
      || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
           $(am__cd) "$$dir" && rm -f $$files; }; \
@@ -16,16 +17,7 @@ Description:             Suppresses info pages building and installation.
  	"$(DESTDIR)$(pkgconfigdir)"
  LTLIBRARIES = $(noinst_LTLIBRARIES) $(toolexeclib_LTLIBRARIES)
  libffi_la_LIBADD =
-@@ -604,7 +604,7 @@
- top_build_prefix = @top_build_prefix@
- top_builddir = @top_builddir@
- top_srcdir = @top_srcdir@
--AUTOMAKE_OPTIONS = foreign subdir-objects
-+AUTOMAKE_OPTIONS = foreign subdir-objects no-installinfo
- ACLOCAL_AMFLAGS = -I m4
- SUBDIRS = include testsuite man
- EXTRA_DIST = LICENSE ChangeLog.v1 ChangeLog.libgcj			\
-@@ -1881,10 +1881,10 @@
+@@ -1878,10 +1878,10 @@
  	       exit 1; } >&2
  check-am: all-am
  check: check-recursive
@@ -38,7 +30,7 @@ Description:             Suppresses info pages building and installation.
  	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
  	done
  install: install-recursive
-@@ -2001,7 +2001,7 @@
+@@ -1998,7 +1998,7 @@
  
  info-am: $(INFO_DEPS)
  
