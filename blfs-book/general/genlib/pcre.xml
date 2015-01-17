@@ -102,9 +102,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make -j1 install &amp;&amp;
-mv -v /usr/lib/libpcre.so.* /lib &amp;&amp;
-ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput></screen>
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -143,12 +141,6 @@ ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput
         line editing and history features to <command>pcretest</command> program.
       </para>
 
-      <para>
-        <command>mv -v /usr/lib/libpcre.so.* /lib</command>: Moves the PCRE
-        library on the root filesystem so that it is available in case
-        <command>grep</command> gets reinstalled with PCRE support.
-      </para>
-
     </sect3>
 
   </sect2>
@@ -185,9 +177,7 @@ ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so</userinput
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/lib/libpcre.so.1
-/lib/libpcre.so.1.2.2
-/usr/bin/pcre-config
+<screen><literal>/usr/bin/pcre-config
 /usr/bin/pcregrep
 /usr/bin/pcretest
 /usr/include/pcrecpparg.h
