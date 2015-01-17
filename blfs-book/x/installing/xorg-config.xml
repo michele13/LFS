@@ -106,27 +106,6 @@ direct rendering: Yes</computeroutput></screen>
     </para>
 
     <para>
-      If your hardware does not have any DRI2 driver available, it will use a
-      Software Rasterizer for Direct Rendering. In such cases, you can use a new,
-      LLVM-accelerated, Software Rasterizer called LLVMPipe. In order to build
-      LLVMPipe just make sure that <xref linkend="llvm"/> is present at MesaLib
-      build time. Note that all decoding is done on the CPU instead of the GPU,
-      so the display will run slower than with hardware acceleration.  
-      To check if you are using LLVMpipe,
-      review the output ot the glxinfo command above.  An example of the
-      output using the Software Rasterizer is shown below:
-    </para>
-
-<screen><computeroutput>OpenGL vendor string: VMware, Inc.
-OpenGL renderer string: Gallium 0.4 on llvmpipe (LLVM 3.2, 256 bits)
-OpenGL version string: 2.1 Mesa 9.1-devel (git-cb3b172)</computeroutput></screen>
-
-    <para>
-      You can also force LLVMPipe by exporting the <envar>LIBGL_ALWAYS_SOFTWARE=1</envar>
-      environment variable when starting Xorg.
-    </para>
-
-    <para>
       Again, if you have built the Mesa OpenGL demos, you can also run the test
       program <command>glxgears</command>. This program brings up a window with
       three gears turning. The X terminal will display how many frames were

@@ -104,22 +104,8 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
-      <xref linkend="elfutils"/> (required for radeon 3d drivers),
-      <xref linkend="libvdpau"/> (to build VDPAU drivers),
-      <xref linkend="llvm"/> (required for radeon 3d drivers and also for
-      llvmpipe which is intended to be the fastest of the three sw rasterizers,
-      see <ulink url="http://www.mesa3d.org/faq.html#part3"></ulink> )
+      <xref linkend="libvdpau"/> (to build VDPAU drivers)
     </para>
-
-    <note>
-      <para>
-        The instructions below assume that elfutils and LLVM are installed. You
-        will need to modify the instructions if you choose not to install them.
-        Please note that elfutils and LLVM are <emphasis>required</emphasis> for
-        Radeon 3D drivers. For an explanation of gallium please see <ulink
-        url="https://en.wikipedia.org/wiki/Gallium3D"></ulink>.
-      </para>
-    </note>
 
   </sect2>
 
@@ -150,7 +136,7 @@
              --enable-gbm \
              --enable-glx-tls \
              --with-egl-platforms="drm,x11" \
-             --with-gallium-drivers="svga,swrast,r600,nouveau,r300" &amp;&amp;
+             --with-gallium-drivers="svga,swrast,r600,nouveau" &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -240,16 +226,7 @@ make</userinput></screen>
 
       <para>
         <parameter>--with-gallium-drivers="..."</parameter>: This parameter
-        controls which Gallium drivers should be built. Available drivers are:
-        i915, ilo, nouveau, r300, r600, radeonsi, svga and swrast. You will need
-        to remove r300, r600 and radeonsi from the list if you did not install
-        elfutils and LLVM.
-      </para>
-
-      <para>
-        <option>--enable-r600-llvm-compiler</option>: Use this switch to enable
-        experimental R600 LLVM backend for graphics shaders which claims to
-        speed up the driver.
+        controls which Gallium3D drivers should be built.
       </para>
 
     </sect3>
