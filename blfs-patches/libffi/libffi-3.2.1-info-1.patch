@@ -1,0 +1,49 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-17
+Initial Package Version: 3.2.1
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Suppresses info pages building and installation.
+
+--- libffi-3.2.1/Makefile.in.orig	2015-01-17 14:02:10.360825664 +0100
++++ libffi-3.2.1/Makefile.in	2015-01-17 14:02:22.313306187 +0100
+@@ -180,7 +180,7 @@
+     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+          $(am__cd) "$$dir" && rm -f $$files; }; \
+   }
+-am__installdirs = "$(DESTDIR)$(toolexeclibdir)" "$(DESTDIR)$(infodir)" \
++am__installdirs = "$(DESTDIR)$(toolexeclibdir)" \
+ 	"$(DESTDIR)$(pkgconfigdir)"
+ LTLIBRARIES = $(noinst_LTLIBRARIES) $(toolexeclib_LTLIBRARIES)
+ libffi_la_LIBADD =
+@@ -604,7 +604,7 @@
+ top_build_prefix = @top_build_prefix@
+ top_builddir = @top_builddir@
+ top_srcdir = @top_srcdir@
+-AUTOMAKE_OPTIONS = foreign subdir-objects
++AUTOMAKE_OPTIONS = foreign subdir-objects no-installinfo
+ ACLOCAL_AMFLAGS = -I m4
+ SUBDIRS = include testsuite man
+ EXTRA_DIST = LICENSE ChangeLog.v1 ChangeLog.libgcj			\
+@@ -1881,10 +1881,10 @@
+ 	       exit 1; } >&2
+ check-am: all-am
+ check: check-recursive
+-all-am: Makefile $(INFO_DEPS) $(LTLIBRARIES) $(DATA) fficonfig.h
++all-am: Makefile $(LTLIBRARIES) $(DATA) fficonfig.h
+ installdirs: installdirs-recursive
+ installdirs-am:
+-	for dir in "$(DESTDIR)$(toolexeclibdir)" "$(DESTDIR)$(infodir)" "$(DESTDIR)$(pkgconfigdir)"; do \
++	for dir in "$(DESTDIR)$(toolexeclibdir)" "$(DESTDIR)$(pkgconfigdir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: install-recursive
+@@ -2001,7 +2001,7 @@
+ 
+ info-am: $(INFO_DEPS)
+ 
+-install-data-am: install-info-am install-pkgconfigDATA
++install-data-am: install-pkgconfigDATA
+ 
+ install-dvi: install-dvi-recursive
+ 
