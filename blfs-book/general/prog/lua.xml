@@ -85,13 +85,20 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="readline"/>
+    </para>
+
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Install Lua by running the following commands:
+      Install the package by running the following commands:
     </para>
 
 <screen><userinput>patch -p1 -i ../lua-&lua-version;-shared_library-1.patch &amp;&amp;
@@ -105,7 +112,7 @@ make linux</userinput></screen>
 <screen role="root"><userinput>make INSTALL_TOP=/usr \
      TO_LIB="liblua.so liblua.so.5.2 liblua.so.&lua-version;" \
      INSTALL_DATA="cp -d" \
-     INSTALL_MAN=/usr/share/man/man1 install</userinput></screen>
+     INSTALL_MAN=/usr/share/man/man1 -j1 install</userinput></screen>
 
     <para>
       Some packages check for the pkg-config file for Lua. As the <systemitem
