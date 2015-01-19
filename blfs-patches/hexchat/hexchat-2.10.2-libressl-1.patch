@@ -1,0 +1,29 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-06
+Initial Package Version: 2.10.2
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes build with LibreSSL.
+
+diff -Naur hexchat-2.10.2.orig/src/common/hexchat.h hexchat-2.10.2/src/common/hexchat.h
+--- hexchat-2.10.2.orig/src/common/hexchat.h	2014-11-25 18:42:31.000000000 +0100
++++ hexchat-2.10.2/src/common/hexchat.h	2015-01-06 22:50:52.261630444 +0100
+@@ -68,6 +68,7 @@
+ #endif
+ 
+ #ifdef USE_OPENSSL
++#include <stdint.h>
+ #include <openssl/ssl.h>		  /* SSL_() */
+ #endif
+ 
+diff -Naur hexchat-2.10.2.orig/src/common/ssl.c hexchat-2.10.2/src/common/ssl.c
+--- hexchat-2.10.2.orig/src/common/ssl.c	2014-11-25 18:42:31.000000000 +0100
++++ hexchat-2.10.2/src/common/ssl.c	2015-01-06 22:50:52.261630444 +0100
+@@ -23,6 +23,7 @@
+ #endif
+ 
+ #include "inet.h"				  /* make it first to avoid macro redefinitions */
++#include <stdint.h>
+ #include <openssl/ssl.h>		  /* SSL_() */
+ #include <openssl/err.h>		  /* ERR_() */
+ #include <openssl/x509v3.h>
