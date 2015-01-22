@@ -1,0 +1,40 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-22
+Initial Package Version: 1.0.2
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Suppresses info pages building and installation.
+
+diff -Naur mpc-1.0.2.orig/doc/Makefile.in mpc-1.0.2/doc/Makefile.in
+--- mpc-1.0.2.orig/doc/Makefile.in	2014-01-15 13:08:59.000000000 +0100
++++ mpc-1.0.2/doc/Makefile.in	2015-01-22 06:50:10.965895222 +0100
+@@ -86,7 +86,6 @@
+     n|no|NO) false;; \
+     *) (install-info --version) >/dev/null 2>&1;; \
+   esac
+-am__installdirs = "$(DESTDIR)$(infodir)"
+ am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+ am__vpath_adj = case $$p in \
+     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+@@ -484,11 +483,8 @@
+ 	  dist-info
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(INFO_DEPS)
++all-am: Makefile
+ installdirs:
+-	for dir in "$(DESTDIR)$(infodir)"; do \
+-	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+-	done
+ install: install-am
+ install-exec: install-exec-am
+ install-data: install-data-am
+@@ -539,7 +535,7 @@
+ 
+ info-am: $(INFO_DEPS)
+ 
+-install-data-am: install-info-am
++install-data-am:
+ 
+ install-dvi: install-dvi-am
+ 
