@@ -98,6 +98,24 @@ make</userinput></screen>
   </sect3>
 
   <sect3>
+    <title>Configuration</title>
+
+<screen role="root"><userinput>cat &gt;&gt; /etc/X11/xorg.conf.d/30-mouse.conf &lt;&lt; "EOF"
+<literal>Section "InputDevice"
+        identifier      "Mouse0"
+        driver          "mouse"
+        option          "AutoServerLayout"      "on"
+        # /dev/input/mice will provide support for hotpluging mouse.
+        # Without needs to restart X server.
+        option  "device"        "/dev/input/mice"
+        # To config fancy stuff like disable acceleration,
+        # put into your .xinitrc something like 'xset m 1 1 &amp;'
+EndSection</literal>
+EOF</userinput></screen>
+
+  </sect3>
+
+  <sect3>
     <title>Contents</title>
 
     <para>
