@@ -41,11 +41,17 @@
   <sect2 role="installation">
     <title>Installation of mdev-like-a-boss</title>
 
+    <para>Change the path for the helper scripts:</para>
+
+<screen><userinput remap="configure">sed 's|opt/mdev/helpers|sbin|' -i mdev.conf</userinput></screen>
+
     <para>Install the package:</para>
 
-<screen><userinput remap="install">mkdir -pv /opt/mdev
-cp -av * /opt/mdev
-ln -sfv /opt/mdev/mdev.conf /etc/mdev.conf</userinput></screen>
+<screen><userinput remap="install">install -v -m 644 mdev.conf /etc/</userinput></screen>
+install -v -m 755 helpers/catch-all /sbin/
+install -v -m 755 helpers/proc-bus-usb /sbin/
+install -v -m 755 helpers/settle-nics /sbin/
+install -v -m 755 helpers/storage-device /sbin/</userinput></screen>
 
   </sect2>
 
@@ -53,10 +59,10 @@ ln -sfv /opt/mdev/mdev.conf /etc/mdev.conf</userinput></screen>
     <title>Contents of mdev-like-a-boss</title>
 
     <segmentedlist>
-      <segtitle>Installed directories</segtitle>
+      <segtitle>Installed programs</segtitle>
 
       <seglistitem>
-        <seg>/opt/mdev</seg>
+        <seg>catch-all, proc-bus-usb, settle-nics, and storage-device</seg>
       </seglistitem>
     </segmentedlist>
 
