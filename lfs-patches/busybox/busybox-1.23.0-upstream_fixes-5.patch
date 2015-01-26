@@ -1,14 +1,14 @@
 Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
-Date:                    2015-01-19
+Date:                    2015-01-26
 Initial Package Version: 1.23.0
 Upstream Status:         Already in upstream repo
 Origin:                  Upstream
-Description:             This patch contains upstream ash, modprobe, and vi
-                         patches.
+Description:             This patch contains upstream ash, ftpd, modprobe, and
+                         vi patches.
 
 diff -Naur busybox-1.23.0.orig/editors/vi.c busybox-1.23.0/editors/vi.c
 --- busybox-1.23.0.orig/editors/vi.c	2014-10-04 22:35:58.000000000 +0200
-+++ busybox-1.23.0/editors/vi.c	2015-01-19 19:23:47.258417224 +0100
++++ busybox-1.23.0/editors/vi.c	2015-01-26 16:10:10.025305718 +0100
 @@ -542,9 +542,6 @@
  static int mysleep(int);
  static int readit(void);	// read (maybe cursor) key from stdin
@@ -58,7 +58,7 @@ diff -Naur busybox-1.23.0.orig/editors/vi.c busybox-1.23.0/editors/vi.c
  		 * so we check fileperms too */
 diff -Naur busybox-1.23.0.orig/modutils/depmod.c busybox-1.23.0/modutils/depmod.c
 --- busybox-1.23.0.orig/modutils/depmod.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/depmod.c	2015-01-19 19:23:43.854576115 +0100
++++ busybox-1.23.0/modutils/depmod.c	2015-01-26 16:10:06.107475867 +0100
 @@ -51,7 +51,11 @@
  
  	info->dnext = info->dprev = info;
@@ -113,7 +113,7 @@ diff -Naur busybox-1.23.0.orig/modutils/depmod.c busybox-1.23.0/modutils/depmod.
  #endif
 diff -Naur busybox-1.23.0.orig/modutils/modprobe.c busybox-1.23.0/modutils/modprobe.c
 --- busybox-1.23.0.orig/modutils/modprobe.c	2014-11-26 23:19:35.000000000 +0100
-+++ busybox-1.23.0/modutils/modprobe.c	2015-01-19 19:23:43.864575648 +0100
++++ busybox-1.23.0/modutils/modprobe.c	2015-01-26 16:10:06.107475867 +0100
 @@ -229,26 +229,20 @@
  {
  	return helper_get_module(module, 1);
@@ -192,7 +192,7 @@ diff -Naur busybox-1.23.0.orig/modutils/modprobe.c busybox-1.23.0/modutils/modpr
  						puts(tokens[0]);
 diff -Naur busybox-1.23.0.orig/modutils/modprobe-small.c busybox-1.23.0/modutils/modprobe-small.c
 --- busybox-1.23.0.orig/modutils/modprobe-small.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/modprobe-small.c	2015-01-19 19:23:43.874575181 +0100
++++ busybox-1.23.0/modutils/modprobe-small.c	2015-01-26 16:10:06.108475824 +0100
 @@ -149,9 +149,13 @@
  static char *filename2modname(const char *filename, char *modname)
  {
@@ -251,7 +251,7 @@ diff -Naur busybox-1.23.0.orig/modutils/modprobe-small.c busybox-1.23.0/modutils
  		/* Iterate thru dependencies, trying to (un)load them */
 diff -Naur busybox-1.23.0.orig/modutils/modutils.c busybox-1.23.0/modutils/modutils.c
 --- busybox-1.23.0.orig/modutils/modutils.c	2014-10-04 22:35:59.000000000 +0200
-+++ busybox-1.23.0/modutils/modutils.c	2015-01-19 19:23:43.875575135 +0100
++++ busybox-1.23.0/modutils/modutils.c	2015-01-26 16:10:06.108475824 +0100
 @@ -48,13 +48,17 @@
  char* FAST_FUNC filename2modname(const char *filename, char *modname)
  {
@@ -272,9 +272,28 @@ diff -Naur busybox-1.23.0.orig/modutils/modutils.c busybox-1.23.0/modutils/modut
  	for (i = 0; i < (MODULE_NAME_LEN-1) && from[i] != '\0' && from[i] != '.'; i++)
  		modname[i] = (from[i] == '-') ? '_' : from[i];
  	modname[i] = '\0';
+diff -Naur busybox-1.23.0.orig/networking/ftpd.c busybox-1.23.0/networking/ftpd.c
+--- busybox-1.23.0.orig/networking/ftpd.c	2014-10-04 22:35:59.000000000 +0200
++++ busybox-1.23.0/networking/ftpd.c	2015-01-26 16:10:02.088650382 +0100
+@@ -1174,8 +1174,13 @@
+ 
+ 	//umask(077); - admin can set umask before starting us
+ 
+-	/* Signals. We'll always take -EPIPE rather than a rude signal, thanks */
+-	signal(SIGPIPE, SIG_IGN);
++	/* Signals */
++	bb_signals(0
++		/* We'll always take EPIPE rather than a rude signal, thanks */
++		+ (1 << SIGPIPE)
++		/* LIST command spawns chilren. Prevent zombies */
++		+ (1 << SIGCHLD)
++		, SIG_IGN);
+ 
+ 	/* Set up options on the command socket (do we need these all? why?) */
+ 	setsockopt(STDIN_FILENO, IPPROTO_TCP, TCP_NODELAY, &const_int_1, sizeof(const_int_1));
 diff -Naur busybox-1.23.0.orig/shell/ash.c busybox-1.23.0/shell/ash.c
 --- busybox-1.23.0.orig/shell/ash.c	2014-11-20 01:08:23.000000000 +0100
-+++ busybox-1.23.0/shell/ash.c	2015-01-19 19:23:40.646725914 +0100
++++ busybox-1.23.0/shell/ash.c	2015-01-26 16:09:57.723839898 +0100
 @@ -6746,6 +6746,14 @@
  		len = strlen(p);
  		if (!(subtype == VSPLUS || subtype == VSLENGTH))
