@@ -23,18 +23,10 @@
     <title>Introduction</title>
 
     <para>
-      libidn is a package designed for internationalized string handling based
-      on the <ulink
-      url="http://www.ietf.org/rfc/rfc3454.txt">Stringprep</ulink>, <ulink
-      url="http://www.ietf.org/rfc/rfc3492.txt">Punycode</ulink> and <ulink
-      url="http://www.ietf.org/rfc/rfc3490.txt">IDNA</ulink> specifications
-      defined by the Internet Engineering Task Force (IETF) Internationalized
-      Domain Names (IDN) working group, used for internationalized domain names.
-      This is useful for converting data from the system's native representation
-      into UTF-8, transforming Unicode strings into ASCII strings, allowing
-      applications to use certain ASCII name labels (beginning with a special
-      prefix) to represent non-ASCII name labels, and converting entire domain
-      names to and from the ASCII Compatible Encoding (ACE) form.
+      Libidn is a fully documented implementation of the Stringprep, Punycode
+      and IDNA specifications. Libidn's purpose is to encode and decode
+      internationalized domain names. The Nameprep, XMPP, SASLprep, and iSCSI
+      profiles are supported.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -81,16 +73,33 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;libidn/libidn-&libidn-version;-unnecessary-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>patch -p1 -i ../libidn-&libidn-version;-unnecessary-1.patch</userinput></screen>
+
+    <para>
       Install the package by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
+            --includedir=/usr/include/libidn \
             --disable-static \
             --disable-nls &amp;&amp;
 make</userinput></screen>
@@ -99,7 +108,7 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
   </sect2>
 
@@ -118,17 +127,12 @@ make</userinput></screen>
     </para>
 
 <screen><literal>/usr/bin/idn
-/usr/include/idn*.h
-/usr/include/pr29.h
-/usr/include/punycode.h
-/usr/include/stringprep.h
-/usr/include/tld.h
+/usr/include/libidn/
 /usr/lib/libidn.so
 /usr/lib/pkgconfig/libidn.pc
 /usr/share/man/man1/idn.1
-/usr/share/man/man3
 /usr/share/man/man3/idn*.3
-/usr/share/man/man3/pr29*.3
+/usr/share/man/man3/pr29_*.3
 /usr/share/man/man3/punycode_*.3
 /usr/share/man/man3/stringprep*.3
 /usr/share/man/man3/tld_*.3</literal></screen>
