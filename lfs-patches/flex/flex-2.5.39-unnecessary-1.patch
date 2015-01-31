@@ -1,0 +1,76 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-01-31
+Initial Package Version: 2.5.39
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Suppresses installation of unnecessary files.
+
+--- flex-2.5.39.orig/Makefile.in
++++ flex-2.5.39/Makefile.in
+@@ -143,7 +143,7 @@
+          $(am__cd) "$$dir" && rm -f $$files; }; \
+   }
+ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+-	"$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"
++	"$(DESTDIR)$(includedir)"
+ LTLIBRARIES = $(lib_LTLIBRARIES)
+ libfl_la_LIBADD =
+ am_libfl_la_OBJECTS = libmain.lo libyywrap.lo
+@@ -1117,13 +1117,13 @@
+ check-am: all-am
+ check: $(BUILT_SOURCES)
+ 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
+-all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS) \
++all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS) \
+ 		config.h
+ install-binPROGRAMS: install-libLTLIBRARIES
+ 
+ installdirs: installdirs-recursive
+ installdirs-am:
+-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)" "$(DESTDIR)$(includedir)"; do \
++	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(includedir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: $(BUILT_SOURCES)
+@@ -1185,7 +1185,7 @@
+ 
+ info-am:
+ 
+-install-data-am: install-dist_docDATA install-includeHEADERS
++install-data-am: install-includeHEADERS
+ 
+ install-dvi: install-dvi-recursive
+ 
+--- flex-2.5.39.orig/doc/Makefile.in
++++ flex-2.5.39/doc/Makefile.in
+@@ -89,8 +89,7 @@
+     n|no|NO) false;; \
+     *) (install-info --version) >/dev/null 2>&1;; \
+   esac
+-am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
+-	"$(DESTDIR)$(docdir)"
++am__installdirs = "$(DESTDIR)$(man1dir)"
+ am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+ am__vpath_adj = case $$p in \
+     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+@@ -615,9 +614,9 @@
+ 	  dist-info
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA)
++all-am: Makefile $(MANS)
+ installdirs:
+-	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"; do \
++	for dir in "$(DESTDIR)$(man1dir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: install-am
+@@ -671,7 +670,7 @@
+ 
+ info-am: $(INFO_DEPS)
+ 
+-install-data-am: install-dist_docDATA install-info-am install-man
++install-data-am: install-man
+ 
+ install-dvi: install-dvi-am
+ 
