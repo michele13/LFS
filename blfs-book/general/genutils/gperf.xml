@@ -5,7 +5,7 @@
   %general-entities;
 
   <!ENTITY gperf-homepage      "http://www.gnu.org/software/gperf/">
-  <!ENTITY gperf-wikipedia     " ">
+  <!ENTITY gperf-wikipedia     "http://en.wikipedia.org/wiki/Perfect_hash_function">
   <!ENTITY gperf-download-http "http://ftp.gnu.org/gnu/gperf/gperf-&gperf-version;.tar.gz">
   <!ENTITY gperf-download-ftp  "ftp://ftp.gnu.org/gnu/gperf/gperf-&gperf-version;.tar.gz">
   <!ENTITY gperf-md5sum        "c1f1db32fb6598d6a93e6e88796a8632">
@@ -14,16 +14,17 @@
   <!ENTITY gperf-time          "0.1 SBU">
 ]>
 
-<sect1 id="gperf" xreflabel="Gperf-&gperf-version;">
+<sect1 id="gperf" xreflabel="gperf-&gperf-version;">
   <?dbhtml filename="gperf.html"?>
 
-  <title>Gperf-&gperf-version;</title>
+  <title>gperf-&gperf-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
 
     <para>
-      Gperf generates a perfect hash function from a key set.
+      gperf is a program that generates perfect hash functions for sets of key
+      words.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -76,18 +77,23 @@
     <title>Installation</title>
 
     <para>
-      Install Gperf by running the following commands:
+      Suppress installation of unnecessary documentation files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --docdir=/usr/share/doc/gperf &amp;&amp;
+<screen><userinput>sed -e '/DESTDIR.*infodir/d' -e '/DESTDIR.*htmldir/d' -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
   </sect2>
 
@@ -103,7 +109,6 @@ make</userinput></screen>
     </para>
 
 <screen><literal>/usr/bin/gperf
-/usr/share/doc/gperf/
 /usr/share/man/man1/gperf.1</literal></screen>
 
   </sect2>
