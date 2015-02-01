@@ -1,29 +1,21 @@
 Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
-Date:                    2015-01-17
+Date:                    2015-02-01
 Initial Package Version: 4.1.1
 Upstream Status:         Not submitted
 Origin:                  Self
-Description:             Suppresses info pages building and installation.
+Description:             Suppresses installation of unnecessary files.
 
-diff -Naur gawk-4.1.1.orig/doc/Makefile.in gawk-4.1.1/doc/Makefile.in
---- gawk-4.1.1.orig/doc/Makefile.in	2014-04-08 18:12:38.000000000 +0200
-+++ gawk-4.1.1/doc/Makefile.in	2015-01-17 15:00:58.939199844 +0100
-@@ -181,7 +181,6 @@
+--- gawk-4.1.1.orig/doc/Makefile.in
++++ gawk-4.1.1/doc/Makefile.in
+@@ -181,7 +181,7 @@
      n|no|NO) false;; \
      *) (install-info --version) >/dev/null 2>&1;; \
    esac
 -am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)"
++am__installdirs = "$(DESTDIR)$(man1dir)"
  am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
  am__vpath_adj = case $$p in \
      $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
-@@ -210,6 +209,7 @@
-          $(am__cd) "$$dir" && rm -f $$files; }; \
-   }
- man1dir = $(mandir)/man1
-+am__installdirs = "$(DESTDIR)$(man1dir)"
- NROFF = nroff
- MANS = $(man_MANS)
- am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 @@ -645,9 +645,9 @@
  	  dist-info
  check-am: all-am
