@@ -1,0 +1,39 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-02-06
+Initial Package Version: 1.11
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Suppresses installation of unnecessary files.
+
+--- gdbm-1.11.orig/doc/Makefile.in
++++ gdbm-1.11/doc/Makefile.in
+@@ -175,7 +175,7 @@
+     n|no|NO) false;; \
+     *) (install-info --version) >/dev/null 2>&1;; \
+   esac
+-am__installdirs = "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" \
++am__installdirs = "$(DESTDIR)$(man1dir)" \
+ 	"$(DESTDIR)$(man3dir)"
+ am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+ am__vpath_adj = case $$p in \
+@@ -690,9 +690,9 @@
+ 	  dist-info
+ check-am: all-am
+ check: check-am
+-all-am: Makefile $(INFO_DEPS) $(MANS)
++all-am: Makefile $(MANS)
+ installdirs:
+-	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man3dir)"; do \
++	for dir in "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(man3dir)"; do \
+ 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
+ 	done
+ install: install-am
+@@ -745,7 +745,7 @@
+ 
+ info-am: $(INFO_DEPS)
+ 
+-install-data-am: install-info-am install-man
++install-data-am: install-man
+ 
+ install-dvi: install-dvi-am
+ 
