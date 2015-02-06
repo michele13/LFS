@@ -76,6 +76,12 @@
       <listitem>
         <para>
           Recommended patch:
+          <ulink url="&patch-root;readline/readline-&readline-version;-unnecessary-1.patch"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Recommended patch:
           <ulink url="&patch-root;readline/readline-&readline-version;-upstream_fixes-3.patch"/>
         </para>
       </listitem>
@@ -87,7 +93,13 @@
     <title>Installation</title>
 
     <para>
-      First install some patches to fix various bugs that have been addressed
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>patch -p1 -i ../readline-&readline-version;-unnecessary-1.patch</userinput></screen>
+
+    <para>
+      Install some patches to fix various bugs that have been addressed
       upstream:
     </para>
 
@@ -160,7 +172,6 @@ ln -sfv ../../lib/$(readlink /usr/lib/libhistory.so ) /usr/lib/libhistory.so</us
 /usr/include/readline/
 /usr/lib/libhistory.so
 /usr/lib/libreadline.so
-/usr/share/doc/readline/
 /usr/share/man/man3/history.3
 /usr/share/man/man3/readline.3</literal></screen>
 
