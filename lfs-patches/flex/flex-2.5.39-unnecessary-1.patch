@@ -1,5 +1,5 @@
 Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
-Date:                    2015-01-31
+Date:                    2015-02-06
 Initial Package Version: 2.5.39
 Upstream Status:         Not submitted
 Origin:                  Self
@@ -16,14 +16,7 @@ Description:             Suppresses installation of unnecessary files.
  LTLIBRARIES = $(lib_LTLIBRARIES)
  libfl_la_LIBADD =
  am_libfl_la_OBJECTS = libmain.lo libyywrap.lo
-@@ -1117,13 +1117,13 @@
- check-am: all-am
- check: $(BUILT_SOURCES)
- 	$(MAKE) $(AM_MAKEFLAGS) check-recursive
--all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) $(HEADERS) \
-+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS) \
- 		config.h
- install-binPROGRAMS: install-libLTLIBRARIES
+@@ -1123,7 +1123,7 @@
  
  installdirs: installdirs-recursive
  installdirs-am:
@@ -58,7 +51,7 @@ Description:             Suppresses installation of unnecessary files.
  check-am: all-am
  check: check-am
 -all-am: Makefile $(INFO_DEPS) $(MANS) $(DATA)
-+all-am: Makefile $(MANS)
++all-am: Makefile $(MANS) $(DATA)
  installdirs:
 -	for dir in "$(DESTDIR)$(infodir)" "$(DESTDIR)$(man1dir)" "$(DESTDIR)$(docdir)"; do \
 +	for dir in "$(DESTDIR)$(man1dir)"; do \
