@@ -75,6 +75,9 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
+      <xref linkend="gst10-plugins-base"/> (with
+      <xref linkend="gst10-plugins-good"/> and
+      <xref linkend="gst10-libav"/> at runtime),
       <xref linkend="icu"/>,
       <xref linkend="libevent"/>,
       <xref linkend="libvpx"/>,
@@ -115,9 +118,6 @@
     <para role="optional">
       <xref linkend="curl"/>,
       <xref linkend="doxygen"/>,
-      <xref linkend="gst10-plugins-base"/> (with
-      <xref linkend="gst10-plugins-good"/> and
-      <xref linkend="gst10-libav"/> at runtime),
       <xref linkend="hunspell"/>,
       <ulink url="http://sourceforge.net/projects/liboauth/files/">liboauth</ulink>, and
       <xref linkend="startup-notification"/>
@@ -140,12 +140,7 @@
     </para>
 
 <screen><userinput>cat &gt; mozconfig &lt;&lt; "EOF"
-<literal># GStreamer is necessary for H.264 video playback in HTML5 Video Player;
-# to be enabled, also remember to set "media.gstreamer.enabled" to "true"
-# in about:config. If you have installed GStreamer, uncomment this line:
-#ac_add_options --enable-gstreamer=1.0
-
-# Uncomment these lines if you have installed optional dependencies:
+<literal># Uncomment these lines if you have installed optional dependencies:
 #ac_add_options --enable-system-hunspell
 #ac_add_options --enable-startup-notification
 
@@ -162,6 +157,8 @@ ac_add_options --with-system-nss
 ac_add_options --with-system-icu
 
 # The BLFS editors recommend not changing anything below this line:
+ac_add_options --enable-gstreamer=1.0
+
 ac_add_options --prefix=/usr
 ac_add_options --enable-application=browser
 
@@ -179,7 +176,6 @@ ac_add_options --enable-safe-browsing
 ac_add_options --enable-url-classifier
 
 ac_add_options --disable-dbus
-ac_add_options --disable-gstreamer
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-libnotify
 ac_add_options --disable-pulseaudio
