@@ -1,0 +1,335 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-02-19
+Initial Package Version: 1.23.1
+Upstream Status:         Already in upstream repo
+Origin:                  Upstream
+Description:             This patch contains upstream dc and modprobe-small
+                         patches.
+
+diff -Naur busybox-1.23.1.orig/miscutils/dc.c busybox-1.23.1/miscutils/dc.c
+--- busybox-1.23.1.orig/miscutils/dc.c	2015-01-27 09:48:58.000000000 +0100
++++ busybox-1.23.1/miscutils/dc.c	2015-02-19 10:31:51.158335422 +0100
+@@ -196,14 +196,6 @@
+ };
+ 
+ static const struct op operators[] = {
+-	{"+",   add},
+-	{"add", add},
+-	{"-",   sub},
+-	{"sub", sub},
+-	{"*",   mul},
+-	{"mul", mul},
+-	{"/",   divide},
+-	{"div", divide},
+ #if ENABLE_FEATURE_DC_LIBM
+ 	{"**",  power},
+ 	{"exp", power},
+@@ -216,28 +208,47 @@
+ 	{"not", not},
+ 	{"eor", eor},
+ 	{"xor", eor},
++	{"+",   add},
++	{"add", add},
++	{"-",   sub},
++	{"sub", sub},
++	{"*",   mul},
++	{"mul", mul},
++	{"/",   divide},
++	{"div", divide},
+ 	{"p", print_no_pop},
+ 	{"f", print_stack_no_pop},
+ 	{"o", set_output_base},
+ };
+ 
++/* Feed the stack machine */
+ static void stack_machine(const char *argument)
+ {
+ 	char *end;
+-	double d;
++	double number;
+ 	const struct op *o;
+ 
+-	d = strtod(argument, &end);
+-	if (end != argument && *end == '\0') {
+-		push(d);
+-		return;
++ next:
++	number = strtod(argument, &end);
++	if (end != argument) {
++		argument = end;
++		push(number);
++		goto next;
+ 	}
+ 
++	/* We might have matched a digit, eventually advance the argument */
++	argument = skip_whitespace(argument);
++
++	if (*argument == '\0')
++		return;
++
+ 	o = operators;
+ 	do {
+-		if (strcmp(o->name, argument) == 0) {
++		const size_t name_len = strlen(o->name);
++		if (strncmp(o->name, argument, name_len) == 0) {
++			argument += name_len;
+ 			o->function();
+-			return;
++			goto next;
+ 		}
+ 		o++;
+ 	} while (o != operators + ARRAY_SIZE(operators));
+@@ -254,25 +265,11 @@
+ 	if (!argv[0]) {
+ 		/* take stuff from stdin if no args are given */
+ 		char *line;
+-		char *cursor;
+-		char *token;
+ 		while ((line = xmalloc_fgetline(stdin)) != NULL) {
+-			cursor = line;
+-			while (1) {
+-				token = skip_whitespace(cursor);
+-				if (*token == '\0')
+-					break;
+-				cursor = skip_non_whitespace(token);
+-				if (*cursor != '\0')
+-					*cursor++ = '\0';
+-				stack_machine(token);
+-			}
++			stack_machine(line);
+ 			free(line);
+ 		}
+ 	} else {
+-		// why? it breaks "dc -2 2 + p"
+-		//if (argv[0][0] == '-')
+-		//	bb_show_usage();
+ 		do {
+ 			stack_machine(*argv);
+ 		} while (*++argv);
+diff -Naur busybox-1.23.1.orig/modutils/modprobe-small.c busybox-1.23.1/modutils/modprobe-small.c
+--- busybox-1.23.1.orig/modutils/modprobe-small.c	2015-01-27 09:51:46.000000000 +0100
++++ busybox-1.23.1/modutils/modprobe-small.c	2015-02-19 10:31:54.678352877 +0100
+@@ -552,9 +552,23 @@
+ 	return ret;
+ }
+ #else
+-#define already_loaded(name) is_rmmod
++#define already_loaded(name) 0
+ #endif
+ 
++static int rmmod(const char *filename)
++{
++	int r;
++	char modname[MODULE_NAME_LEN];
++
++	filename2modname(filename, modname);
++	r = delete_module(modname, O_NONBLOCK | O_EXCL);
++	dbg1_error_msg("delete_module('%s', O_NONBLOCK | O_EXCL):%d", modname, r);
++	if (r != 0 && !(option_mask32 & OPT_q)) {
++		bb_perror_msg("remove '%s'", modname);
++	}
++	return r;
++}
++
+ /*
+  * Given modules definition and module name (or alias, or symbol)
+  * load/remove the module respecting dependencies.
+@@ -571,26 +585,36 @@
+ 	module_info **infovec;
+ 	module_info *info;
+ 	int infoidx;
+-	int is_rmmod = (option_mask32 & OPT_r) != 0;
++	int is_remove = (option_mask32 & OPT_r) != 0;
+ 
+ 	dbg1_error_msg("process_module('%s','%s')", name, cmdline_options);
+ 
+ 	replace(name, '-', '_');
+ 
+-	dbg1_error_msg("already_loaded:%d is_rmmod:%d", already_loaded(name), is_rmmod);
++	dbg1_error_msg("already_loaded:%d is_remove:%d", already_loaded(name), is_remove);
++
++	if (applet_name[0] == 'r') {
++		/* rmmod.
++		 * Does not remove dependencies, no need to scan, just remove.
++		 * (compat note: this allows and strips .ko suffix)
++		 */
++		rmmod(name);
++		return;
++	}
++
+ 	/*
+-	 * We used to have "is_rmmod != already_loaded(name)" check here, but
++	 * We used to have "is_remove != already_loaded(name)" check here, but
+ 	 *  modprobe -r pci:v00008086d00007010sv00000000sd00000000bc01sc01i80
+ 	 * won't unload modules (there are more than one)
+ 	 * which have this alias.
+ 	 */
+-	if (!is_rmmod && already_loaded(name)) {
++	if (!is_remove && already_loaded(name)) {
+ 		dbg1_error_msg("nothing to do for '%s'", name);
+ 		return;
+ 	}
+ 
+ 	options = NULL;
+-	if (!is_rmmod) {
++	if (!is_remove) {
+ 		char *opt_filename = xasprintf("/etc/modules/%s", name);
+ 		options = xmalloc_open_read_close(opt_filename, NULL);
+ 		if (options)
+@@ -624,7 +648,7 @@
+ 			0 /* depth */
+ 		);
+ 		dbg1_error_msg("dirscan complete");
+-		/* Module was not found, or load failed, or is_rmmod */
++		/* Module was not found, or load failed, or is_remove */
+ 		if (module_found_idx >= 0) { /* module was found */
+ 			infovec = xzalloc(2 * sizeof(infovec[0]));
+ 			infovec[0] = &modinfo[module_found_idx];
+@@ -637,7 +661,7 @@
+ 
+ 	if (!infovec) {
+ 		/* both dirscan and find_alias found nothing */
+-		if (!is_rmmod && applet_name[0] != 'd') /* it wasn't rmmod or depmod */
++		if (!is_remove && applet_name[0] != 'd') /* it wasn't rmmod or depmod */
+ 			bb_error_msg("module '%s' not found", name);
+ //TODO: _and_die()? or should we continue (un)loading modules listed on cmdline?
+ 		goto ret;
+@@ -651,29 +675,15 @@
+ 	 * a *list* of modinfo pointers from find_alias().
+ 	 */
+ 
+-	/* rmmod or modprobe -r? unload module(s) */
+-	if (is_rmmod) {
++	/* modprobe -r? unload module(s) */
++	if (is_remove) {
+ 		infoidx = 0;
+ 		while ((info = infovec[infoidx++]) != NULL) {
+-			int r;
+-			char modname[MODULE_NAME_LEN];
+-
+-			filename2modname(
+-				bb_get_last_path_component_nostrip(info->pathname), modname);
+-			r = delete_module(modname, O_NONBLOCK | O_EXCL);
+-			dbg1_error_msg("delete_module('%s', O_NONBLOCK | O_EXCL):%d", modname, r);
++			int r = rmmod(bb_get_last_path_component_nostrip(info->pathname));
+ 			if (r != 0) {
+-				if (!(option_mask32 & OPT_q))
+-					bb_perror_msg("remove '%s'", modname);
+-				goto ret;
++				goto ret; /* error */
+ 			}
+ 		}
+-
+-		if (applet_name[0] == 'r') {
+-			/* rmmod: do not remove dependencies, exit */
+-			goto ret;
+-		}
+-
+ 		/* modprobe -r: we do not stop here -
+ 		 * continue to unload modules on which the module depends:
+ 		 * "-r --remove: option causes modprobe to remove a module.
+@@ -694,7 +704,7 @@
+ 		}
+ 		free(deps);
+ 
+-		if (is_rmmod)
++		if (is_remove)
+ 			continue;
+ 
+ 		/* We are modprobe: load it */
+@@ -897,10 +907,10 @@
+ 	}
+ 
+ #if ENABLE_FEATURE_MODPROBE_SMALL_OPTIONS_ON_CMDLINE
+-	/* If not rmmod, parse possible module options given on command line.
++	/* If not rmmod/-r, parse possible module options given on command line.
+ 	 * insmod/modprobe takes one module name, the rest are parameters. */
+ 	options = NULL;
+-	if ('r' != applet0) {
++	if (!(option_mask32 & OPT_r)) {
+ 		char **arg = argv;
+ 		while (*++arg) {
+ 			/* Enclose options in quotes */
+@@ -911,7 +921,7 @@
+ 		}
+ 	}
+ #else
+-	if ('r' != applet0)
++	if (!(option_mask32 & OPT_r))
+ 		argv[1] = NULL;
+ #endif
+ 
+@@ -935,10 +945,11 @@
+ 	}
+ 
+ 	/* Try to load modprobe.dep.bb */
+-	load_dep_bb();
++	if ('r' != applet0) /* not rmmod */
++		load_dep_bb();
+ 
+ 	/* Load/remove modules.
+-	 * Only rmmod loops here, modprobe has only argv[0] */
++	 * Only rmmod/modprobe -r loops here, insmod/modprobe has only argv[0] */
+ 	do {
+ 		process_module(*argv, options);
+ 	} while (*++argv);
+diff -Naur busybox-1.23.1.orig/testsuite/dc.tests busybox-1.23.1/testsuite/dc.tests
+--- busybox-1.23.1.orig/testsuite/dc.tests	1970-01-01 01:00:00.000000000 +0100
++++ busybox-1.23.1/testsuite/dc.tests	2015-02-19 10:31:51.158335422 +0100
+@@ -0,0 +1,56 @@
++#!/bin/sh
++# Copyright 2015 by Bernhard Reutner-Fischer
++# Licensed under GPLv2 or later, see file LICENSE in this source tree.
++
++. ./testing.sh
++
++# testing "test name" "command" "expected result" "file input" "stdin"
++
++testing "dc basic syntax (stdin, multiple args)" \
++	"dc" \
++	"30\n" \
++	"" "10 20+p"
++
++testing "dc basic syntax (argv, single arg)" \
++	"dc '10 20+p'" \
++	"30\n" \
++	"" ""
++
++testing "dc basic syntax (argv, multiple args)" \
++	"dc 10 20+p" \
++	"30\n" \
++	"" ""
++
++testing "dc complex with spaces (single arg)" \
++	"dc '8 8 * 2 2 + / p'" \
++	"16\n" \
++	"" ""
++
++testing "dc complex without spaces (single arg)" \
++	"dc '8 8*2 2+/p'" \
++	"16\n" \
++	"" ""
++
++testing "dc complex with spaces (multiple args)" \
++	"dc 8 8 \* 2 2 + / p" \
++	"16\n" \
++	"" ""
++
++testing "dc complex without spaces (multiple args)" \
++	"dc 8 8\*2 2+/p" \
++	"16\n" \
++	"" ""
++
++exit $FAILCOUNT
++
++# we do not support arguments
++testing "dc -e <exprs>" \
++	"dc -e '10 2+f'" \
++	"12\n" \
++	"" ""
++
++testing "dc -f <exprs-from-given-file>" \
++	"dc -f input" \
++	"12\n" \
++	"10 2+f" ""
++
