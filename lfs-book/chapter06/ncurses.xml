@@ -41,13 +41,16 @@
   <sect2 role="installation">
     <title>Installation of Ncurses</title>
 
+    <para>Don't install a static library that is not handled by configure:</para>
+
+<screen><userinput remap="pre">sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in</userinput></screen>
+
     <para>Prepare Ncurses for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --mandir=/usr/share/man \
             --without-normal \
             --without-debug \
-            --without-cxx-binding \
             --with-shared \
             --enable-pc-files \
             --enable-widec</userinput></screen>
@@ -73,6 +76,14 @@
         <term><parameter>--enable-pc-files</parameter></term>
         <listitem>
           <para>This switch generates and installs .pc files for pkgconf.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-normal</parameter></term>
+        <listitem>
+          <para>This switch disables building and installing static libraries.
           </para>
         </listitem>
       </varlistentry>
