@@ -43,6 +43,10 @@
   <sect2 role="installation">
     <title>Installation of Binutils</title>
 
+    <para>Fix missing makeinfo requirement:</para>
+
+<screen><userinput remap="pre">sed -i -e 's,MAKEINFO="$MISSING makeinfo",MAKEINFO=true,g' configure</userinput></screen>
+
     <para>Create a separate build directory again:</para>
 
 <screen><userinput remap="pre">mkdir -v ../binutils-build
@@ -97,11 +101,11 @@ RANLIB=$LFS_TGT-ranlib         \
 
     <para>Compile the package:</para>
 
-<screen><userinput remap="make">make MAKEINFO=true</userinput></screen>
+<screen><userinput remap="make">make</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make MAKEINFO=true install</userinput></screen>
+<screen><userinput remap="install">make install</userinput></screen>
 
     <para>Now prepare the linker for the <quote>Re-adjusting</quote> phase in
     the next chapter:</para>

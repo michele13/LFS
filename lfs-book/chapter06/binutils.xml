@@ -41,6 +41,10 @@
   <sect2 role="installation">
     <title>Installation of Binutils</title>
 
+    <para>Fix missing makeinfo requirement:</para>
+
+<screen><userinput remap="pre">sed -i -e 's,MAKEINFO="$MISSING makeinfo",MAKEINFO=true,g' configure</userinput></screen>
+
     <para>The Binutils documentation recommends building Binutils outside of the
     source directory in a dedicated build directory:</para>
 
@@ -57,7 +61,7 @@ cd ../binutils-build</userinput></screen>
 
     <para>Compile the package:</para>
 
-<screen><userinput remap="make">make tooldir=/usr MAKEINFO=true</userinput></screen>
+<screen><userinput remap="make">make tooldir=/usr</userinput></screen>
 
     <variablelist>
       <title>The meaning of the make parameter:</title>
@@ -83,7 +87,7 @@ cd ../binutils-build</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make tooldir=/usr MAKEINFO=true install</userinput></screen>
+<screen><userinput remap="install">make tooldir=/usr install</userinput></screen>
 
   </sect2>
 
