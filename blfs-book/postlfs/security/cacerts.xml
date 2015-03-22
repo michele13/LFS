@@ -247,7 +247,7 @@ chmod +x /usr/bin/make-ca.sh</userinput></screen>
       user:
     </para>
 
-<screen role="root"><userinput>cat > /usr/bin/remove-expired-certs.sh &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /usr/sbin/remove-expired-certs.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
 # Begin /usr/bin/remove-expired-certs.sh
 #
@@ -310,14 +310,14 @@ chmod +x /usr/bin/remove-expired-certs.sh</userinput></screen>
       Certificates.
     </para>
 
-<screen><userinput>make-ca.sh &amp;&amp;
-remove-expired-certs.sh certs</userinput></screen>
+<screen><userinput>make-ca.sh</userinput></screen>
 
     <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>SSLDIR=/etc/ssl &amp;&amp;
+remove-expired-certs.sh certs &amp;&amp;
 install -d ${SSLDIR}/certs &amp;&amp;
 cp -v certs/*.pem ${SSLDIR}/certs &amp;&amp;
 openssl certhash -v /etc/ssl/certs &amp;&amp;
