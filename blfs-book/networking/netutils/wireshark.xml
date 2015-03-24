@@ -6,10 +6,10 @@
 
   <!ENTITY wireshark-download-http "https://www.wireshark.org/download/src/all-versions/wireshark-&wireshark-version;.tar.bz2">
   <!ENTITY wireshark-download-ftp  "ftp://ftp.uni-kl.de/pub/wireshark/src/wireshark-&wireshark-version;.tar.bz2">
-  <!ENTITY wireshark-md5sum        "e6318b8451d4e56d39bd911da296ef19">
+  <!ENTITY wireshark-md5sum        "acfa156fd35cb66c867b1ace992e4b5b">
   <!ENTITY wireshark-size          "28 MB">
-  <!ENTITY wireshark-buildsize     "875 MB (1.1 GB, with the Qt GUI)">
-  <!ENTITY wireshark-time          "5.5 SBU (7.3 SBU, with the Qt GUI)">
+  <!ENTITY wireshark-buildsize     "1.2 GB (1.4 GB, with the Qt GUI)">
+  <!ENTITY wireshark-time          "4.3 SBU (5.3 SBU, with the Qt GUI)">
 ]>
 
 <sect1 id="wireshark" xreflabel="Wireshark-&wireshark-version;">
@@ -96,7 +96,8 @@
       <xref linkend="lua"/>
     </para>
 
-    <bridgehead renderas="sect4">Optional (to build the GUI front-end)</bridgehead>
+    <bridgehead renderas="sect4">Optional (to build more GUI front-ends)
+    </bridgehead>
     <para role="optional">
       <xref linkend="gtk2"/> or
       <xref linkend="qt4"/>
@@ -179,6 +180,7 @@ pushd /usr/share/doc/wireshark-&wireshark-version; &amp;&amp;
       ln -s -v -f $FILENAME .
    done &amp;&amp;
 popd &amp;&amp;
+unset FILENAME
 
 install -v -m644 -D wireshark.desktop \
                     /usr/share/applications/wireshark.desktop &amp;&amp;
