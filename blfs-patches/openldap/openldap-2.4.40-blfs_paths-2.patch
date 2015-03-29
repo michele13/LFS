@@ -1,10 +1,12 @@
-Submitted By:            Armin K. <krejzi at email dot com>
-Date:                    2012-04-06
+Submitted by:            Armin K. <krejzi at email dot com>
+Updated by:              Bruce Dubbs <bdubbs at linuxfromscratch.org>
+Date:                    2012-04-06 (Updated 2015-03-24)
 Initial Package Version: 2.4.30
 Upstream Status:         BLFS Specific
 Origin:                  Self
 Description:             Patch changes various installation options, such as ldap database path,
                          configuration file options, slapd install location, etc.
+Update:                  Remove reference to bdb module
 
 diff -Naur openldap-2.4.40.orig/doc/man/man5/slapd-bdb.5 openldap-2.4.40/doc/man/man5/slapd-bdb.5
 --- openldap-2.4.40.orig/doc/man/man5/slapd-bdb.5	2014-09-19 03:48:49.000000000 +0200
@@ -151,7 +153,7 @@ diff -Naur openldap-2.4.40.orig/servers/slapd/slapd.conf openldap-2.4.40/servers
 -# moduleload	back_hdb.la
 -# moduleload	back_ldap.la
 +modulepath	%MODULEDIR%
-+moduleload	back_bdb
++#moduleload	back_bdb
  
  # Sample security restrictions
  #	Require integrity protection (prevent hijacking)
