@@ -61,8 +61,7 @@ cd build</userinput></screen>
 <screen><userinput remap="configure">../configure --prefix=/usr \
              --bindir=/bin \
              --with-root-prefix="" \
-             --disable-nls \
-             --enable-elf-shlibs</userinput></screen>
+             --disable-nls</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -82,35 +81,15 @@ cd build</userinput></screen>
         </listitem>
       </varlistentry>
 
-      <varlistentry>
-        <term><parameter>--enable-elf-shlibs</parameter></term>
-        <listitem>
-          <para>This creates the shared libraries which some programs
-          in this package use.</para>
-        </listitem>
-      </varlistentry>
-
     </variablelist>
 
     <para>Compile the package:</para>
 
 <screen><userinput remap="make">make</userinput></screen>
 
-    <para>Install the binaries, documentation, and shared libraries:</para>
+    <para>Install the package:</para>
 
 <screen><userinput remap="install">make install</userinput></screen>
-
-    <para>Install the static libraries and headers:</para>
-
-<screen><userinput remap="install">make install-libs</userinput></screen>
-
-    <para>Make the installed static libraries writable so debugging symbols can
-    be removed later:</para>
-
-<screen><userinput remap="install">chmod -v u+w /usr/lib/libcom_err.a
-chmod -v u+w /usr/lib/libe2p.a
-chmod -v u+w /usr/lib/libext2fs.a
-chmod -v u+w /usr/lib/libss.a</userinput></screen>
 
   </sect2>
 
@@ -119,19 +98,13 @@ chmod -v u+w /usr/lib/libss.a</userinput></screen>
 
     <segmentedlist>
       <segtitle>Installed programs</segtitle>
-      <segtitle>Installed libraries</segtitle>
-      <segtitle>Installed directories</segtitle>
 
       <seglistitem>
-        <seg>badblocks, chattr, compile_et, debugfs, dumpe2fs,e2freefrag,
-        e2fsck, e2image, e2label, e2undo, e4defrag, filefrag, fsck, fsck.ext2,
-        fsck.ext3, fsck.ext4, fsck.ext4dev, logsave, lsattr, mk_cmds, mke2fs,
-        mkfs.ext2, mkfs.ext3, mkfs.ext4, mkfs.ext4dev, 
-        resize2fs, tune2fs, and uuidd</seg>
-        <seg>libblkid.{a.so}, libcom_err.{a,so}, libe2p.{a,so}, libext2fs.{a,so},
-        libquota.a, libss.{a,so}, and libuuid.{a,so}</seg>
-        <seg>/usr/include/e2p, /usr/include/et, /usr/include/ext2fs,
-        /usr/include/quota, /usr/include/ss, /usr/share/et, /usr/share/ss</seg>
+        <seg>badblocks, blkid, chattr, debugfs, dumpe2fs, e2freefrag,
+        e2fsck, e2image, e2label, e2undo, e4defrag, filefrag, findfs, fsck, fsck.ext2,
+        fsck.ext3, fsck.ext4, fsck.ext4dev, logsave, lsattr, mke2fs,
+        mkfs.ext2, mkfs.ext3, mkfs.ext4, mkfs.ext4dev, mklost+found,
+        resize2fs, tune2fs, uuidd, and uuidgen</seg>
       </seglistitem>
     </segmentedlist>
 
@@ -161,18 +134,6 @@ chmod -v u+w /usr/lib/libss.a</userinput></screen>
           class="filesystem">ext2</systemitem> file systems</para>
           <indexterm zone="ch-system-e2fsprogs chattr">
             <primary sortas="b-chattr">chattr</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="compile_et">
-        <term><command>compile_et</command></term>
-        <listitem>
-          <para>An error table compiler; it converts a table of error-code
-          names and messages into a C source file suitable for use with the
-          <filename class="libraryfile">com_err</filename> library</para>
-          <indexterm zone="ch-system-e2fsprogs compile_et">
-            <primary sortas="b-compile_et">compile_et</primary>
           </indexterm>
         </listitem>
       </varlistentry>
@@ -353,18 +314,6 @@ chmod -v u+w /usr/lib/libss.a</userinput></screen>
         </listitem>
       </varlistentry>
 
-      <varlistentry id="mk_cmds">
-        <term><command>mk_cmds</command></term>
-        <listitem>
-          <para>Converts a table of command names and help messages into a C
-          source file suitable for use with the <filename
-          class="libraryfile">libss</filename> subsystem library</para>
-          <indexterm zone="ch-system-e2fsprogs mk_cmds">
-            <primary sortas="b-mk_cmds">mk_cmds</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
       <varlistentry id="mke2fs">
         <term><command>mke2fs</command></term>
         <listitem>
@@ -463,81 +412,6 @@ chmod -v u+w /usr/lib/libss.a</userinput></screen>
           UUIDs in a secure and guranteed-unique fashion.</para>
           <indexterm zone="ch-system-e2fsprogs uuidd">
             <primary sortas="b-uuidd">uuidd</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libblkid">
-        <term><filename class="libraryfile">libblkid</filename></term>
-        <listitem>
-          <para>Contains routines for device identification and token
-          extraction</para>
-          <indexterm zone="ch-system-e2fsprogs libblkid">
-            <primary sortas="c-libblkid">libblkid</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libcom_err">
-        <term><filename class="libraryfile">libcom_err</filename></term>
-        <listitem>
-          <para>The common error display routine</para>
-          <indexterm zone="ch-system-e2fsprogs libcom_err">
-            <primary sortas="c-libcom_err">libcom_err</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libe2p">
-        <term><filename class="libraryfile">libe2p</filename></term>
-        <listitem>
-          <para>Used by <command>dumpe2fs</command>, <command>chattr</command>,
-          and <command>lsattr</command></para>
-          <indexterm zone="ch-system-e2fsprogs libe2p">
-            <primary sortas="c-libe2p">libe2p</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libext2fs">
-        <term><filename class="libraryfile">libext2fs</filename></term>
-        <listitem>
-          <para>Contains routines to enable user-level programs to manipulate an
-          <systemitem class="filesystem">ext2</systemitem> file system</para>
-          <indexterm zone="ch-system-e2fsprogs libext2fs">
-            <primary sortas="c-libext2fs">libext2fs</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libquota">
-        <term><filename class="libraryfile">libquota</filename></term>
-        <listitem>
-          <para>Provides an interface for creating and updating quota files
-          and ext4 superblock fields</para>
-          <indexterm zone="ch-system-e2fsprogs libquota">
-            <primary sortas="c-libquota">libquota</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libss">
-        <term><filename class="libraryfile">libss</filename></term>
-        <listitem>
-          <para>Used by <command>debugfs</command></para>
-          <indexterm zone="ch-system-e2fsprogs libss">
-            <primary sortas="c-libss">libss</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libuuid">
-        <term><filename class="libraryfile">libuuid</filename></term>
-        <listitem>
-          <para>Contains routines for generating unique identifiers for objects
-          that may be accessible beyond the local system</para>
-          <indexterm zone="ch-system-e2fsprogs libuuid">
-            <primary sortas="c-libuuid">libuuid</primary>
           </indexterm>
         </listitem>
       </varlistentry>
