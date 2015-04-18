@@ -45,7 +45,7 @@
 
 <screen><userinput remap="pre">sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in</userinput></screen>
 
-    <para>Prepare Ncurses for compilation:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --mandir=/usr/share/man \
@@ -96,36 +96,25 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
-
-    <para>Move the shared libraries to the
-    <filename class="directory">/lib</filename> directory, where they are
-    expected to reside:</para>
-
-<screen><userinput remap="install">mv -v /usr/lib/libncursesw.so.5* /lib</userinput></screen>
-
-    <para>Because the libraries have been moved, one symlink points to
-    a non-existent file. Recreate it:</para>
-
-<screen><userinput remap="install">ln -sfv ../../lib/$(readlink /usr/lib/libncursesw.so) /usr/lib/libncursesw.so</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
     <para>Many applications still expect the linker to be able to find
     non-wide-character Ncurses libraries. Trick such applications into linking with
     wide-character libraries by means of symlinks and linker scripts:</para>
 
 <screen><userinput remap="install">for lib in ncurses form panel menu ; do
-    rm -vf                    /usr/lib/lib${lib}.so
+    rm -vf /usr/lib/lib${lib}.so
     echo "INPUT(-l${lib}w)" &gt; /usr/lib/lib${lib}.so
-    ln -sfv ${lib}w.pc        /usr/lib/pkgconfig/${lib}.pc
+    ln -sfv ${lib}w.pc /usr/lib/pkgconfig/${lib}.pc
 done</userinput></screen>
 
     <para>Make sure that old applications that look for
     <filename class="libraryfile">-lcurses</filename> at build time are still
     buildable:</para>
 
-<screen><userinput remap="install">rm -vf                     /usr/lib/libcursesw.so
+<screen><userinput remap="install">rm -vf /usr/lib/libcursesw.so
 echo "INPUT(-lncursesw)" &gt; /usr/lib/libcursesw.so
-ln -sfv libncurses.so      /usr/lib/libcurses.so</userinput></screen>
+ln -sfv libncurses.so /usr/lib/libcurses.so</userinput></screen>
 
     <para>
       Finally, set the correct file mode bits for the shared libraries:
