@@ -42,9 +42,9 @@
 
     <para>Suppress installation of unnecessary files:</para>
 
-<screen><userinput remap="pre">patch -p1 -i ../&m4-unnecessary-patch;</userinput></screen>
+<screen><userinput remap="pre">sed 's/m: install-info-am/m:/' -i doc/Makefile.in</userinput></screen>
 
-    <para>Prepare M4 for compilation:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr</userinput></screen>
 
@@ -54,10 +54,9 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
-
 
   <sect2 id="contents-m4" role="content">
     <title>Contents of M4</title>
