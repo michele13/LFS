@@ -43,9 +43,10 @@
 
     <para>Suppress installation of unnecessary files:</para>
 
-<screen><userinput remap="pre">patch -p1 -i ../&flex-unnecessary-patch;</userinput></screen>
+<screen><userinput remap="pre">sed 's/m: install-dist_docDATA/m:/' -i Makefile.in
+sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinput></screen>
 
-    <para>Prepare Flex for compilation:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-static \
@@ -57,7 +58,9 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install
+rm -v /usr/lib/libfl.la
+rm -v /usr/lib/libfl_pic.la</userinput></screen>
 
     <para>A few programs do not know about <command>flex</command> yet and
     try to run its predecessor, <command>lex</command>. To support those
