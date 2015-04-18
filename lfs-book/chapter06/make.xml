@@ -42,9 +42,9 @@
 
     <para>Suppress installation of unnecessary files:</para>
 
-<screen><userinput remap="pre">patch -p1 -i ../&make-unnecessary-patch;</userinput></screen>
+<screen><userinput remap="pre">sed "s/m: install-info-am/m:/" -i doc/Makefile.in</userinput></screen>
 
-    <para>Prepare Make for compilation:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-nls</userinput></screen>
@@ -55,10 +55,9 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
-
 
   <sect2 id="contents-make" role="content">
     <title>Contents of Make</title>
