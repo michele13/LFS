@@ -47,10 +47,6 @@
   <sect2 role="installation">
     <title>Installation of BusyBox</title>
 
-    <para>Ensure the BusyBox source is completely clean:</para>
-
-<screen><userinput remap="pre">make distclean</userinput></screen>
-
     <para>Prepare BusyBox for compilation:</para>
 
 <screen><userinput remap="configure">make defconfig</userinput></screen>
@@ -113,228 +109,32 @@
      # ping, su and vlock for regular user require setuid root
      chmod -v +s /bin/busybox
 -->
-<screen><userinput remap="install">install -v -m 755 busybox /bin &amp;&amp;
-ln -sv busybox /bin/ash &amp;&amp;
-ln -sv busybox /bin/bunzip2 &amp;&amp;
-ln -sv busybox /bin/bzcat &amp;&amp;
-ln -sv busybox /bin/bzip2 &amp;&amp;
-ln -sfv busybox /bin/cat &amp;&amp;
-ln -sv busybox /bin/chgrp &amp;&amp;
-ln -sv busybox /bin/chmod &amp;&amp;
-ln -sv busybox /bin/chown &amp;&amp;
-ln -sv busybox /bin/cp &amp;&amp;
-ln -sv busybox /bin/cpio &amp;&amp;
-ln -sv busybox /bin/date &amp;&amp;
-ln -sv busybox /bin/dd &amp;&amp;
-ln -sv busybox /bin/df &amp;&amp;
-ln -sv busybox /bin/dmesg &amp;&amp;
-ln -sv busybox /bin/dnsdomainname &amp;&amp;
-ln -sfv busybox /bin/echo &amp;&amp;
-ln -sv busybox /bin/egrep &amp;&amp;
-ln -sv busybox /bin/false &amp;&amp;
-ln -sv busybox /bin/fgrep &amp;&amp;
-ln -sv busybox /bin/fuser &amp;&amp;
-ln -sv busybox /bin/grep &amp;&amp;
-ln -sv busybox /bin/gunzip &amp;&amp;
-ln -sv busybox /bin/gzip &amp;&amp;
-ln -sv busybox /bin/hostname &amp;&amp;
-ln -sv busybox /bin/kill &amp;&amp;
-ln -sv busybox /bin/ln &amp;&amp;
-ln -sv busybox /bin/login &amp;&amp;
-ln -sv busybox /bin/ls &amp;&amp;
-ln -sv busybox /bin/mkdir &amp;&amp;
-ln -sv busybox /bin/mknod &amp;&amp;
-ln -sv busybox /bin/mktemp &amp;&amp;
-ln -sv busybox /bin/more &amp;&amp;
-ln -sv busybox /bin/mount &amp;&amp;
-ln -sv busybox /bin/mountpoint &amp;&amp;
-ln -sv busybox /bin/mv &amp;&amp;
-ln -sv busybox /bin/netstat &amp;&amp;
-ln -sv busybox /bin/pidof &amp;&amp;
-ln -sv busybox /bin/ping &amp;&amp;
-ln -sv busybox /bin/ping6 &amp;&amp;
-ln -sv busybox /bin/ps &amp;&amp;
-ln -sfv busybox /bin/pwd &amp;&amp;
-ln -sv busybox /bin/readlink &amp;&amp;
-ln -sv busybox /bin/rm &amp;&amp;
-ln -sv busybox /bin/rmdir &amp;&amp;
-ln -sv busybox /bin/sed &amp;&amp;
-ln -sfv busybox /bin/sh &amp;&amp;
-ln -sv busybox /bin/sleep &amp;&amp;
-ln -sfv busybox /bin/stty &amp;&amp;
-ln -sv busybox /bin/su &amp;&amp;
-ln -sv busybox /bin/sync &amp;&amp;
-ln -sv busybox /bin/tar &amp;&amp;
-ln -sv busybox /bin/touch &amp;&amp;
-ln -sv busybox /bin/true &amp;&amp;
-ln -sv busybox /bin/umount &amp;&amp;
-ln -sv busybox /bin/uname &amp;&amp;
-ln -sv busybox /bin/vi &amp;&amp;
-ln -sv busybox /bin/zcat &amp;&amp;
-ln -sv ../bin/busybox /sbin/blkid &amp;&amp;
-ln -sv ../bin/busybox /sbin/blockdev &amp;&amp;
-ln -sv ../bin/busybox /sbin/depmod &amp;&amp;
-ln -sv ../bin/busybox /sbin/fdisk &amp;&amp;
-ln -sv ../bin/busybox /sbin/findfs &amp;&amp;
-ln -sv ../bin/busybox /sbin/fsck.minix &amp;&amp;
-ln -sv ../bin/busybox /sbin/fstrim &amp;&amp;
-ln -sv ../bin/busybox /sbin/getty &amp;&amp;
-ln -sv ../bin/busybox /sbin/halt &amp;&amp;
-ln -sv ../bin/busybox /sbin/hwclock &amp;&amp;
-ln -sv ../bin/busybox /sbin/ifconfig &amp;&amp;
-ln -sv ../bin/busybox /sbin/init &amp;&amp;
-ln -sv ../bin/busybox /sbin/insmod &amp;&amp;
-ln -sv ../bin/busybox /sbin/ip &amp;&amp;
-ln -sv ../bin/busybox /sbin/killall5 &amp;&amp;
-ln -sv ../bin/busybox /sbin/klogd &amp;&amp;
-ln -sv ../bin/busybox /sbin/losetup &amp;&amp;
-ln -sv ../bin/busybox /sbin/lsmod &amp;&amp;
-ln -sv ../bin/busybox /sbin/mdev &amp;&amp;
-ln -sv ../bin/busybox /sbin/mkdosfs &amp;&amp;
-ln -sv ../bin/busybox /sbin/mkfs.minix &amp;&amp;
-ln -sv ../bin/busybox /sbin/mkfs.vfat &amp;&amp;
-ln -sv ../bin/busybox /sbin/mkswap &amp;&amp;
-ln -sv ../bin/busybox /sbin/modinfo &amp;&amp;
-ln -sv ../bin/busybox /sbin/modprobe &amp;&amp;
-ln -sv ../bin/busybox /sbin/pivot_root &amp;&amp;
-ln -sv ../bin/busybox /sbin/poweroff &amp;&amp;
-ln -sv ../bin/busybox /sbin/reboot &amp;&amp;
-ln -sv ../bin/busybox /sbin/rmmod &amp;&amp;
-ln -sv ../bin/busybox /sbin/route &amp;&amp;
-ln -sv ../bin/busybox /sbin/runlevel &amp;&amp;
-ln -sv ../bin/busybox /sbin/sulogin &amp;&amp;
-ln -sv ../bin/busybox /sbin/swapoff &amp;&amp;
-ln -sv ../bin/busybox /sbin/swapon &amp;&amp;
-ln -sv ../bin/busybox /sbin/switch_root &amp;&amp;
-ln -sv ../bin/busybox /sbin/sysctl &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/base64 &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/basename &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/cal &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/chrt &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/cksum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/cmp &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/comm &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/cut &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/dc &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/diff &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/dirname &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/dos2unix &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/du &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/eject &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/env &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/expand &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/expr &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/find &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/flock &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/fold &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/free &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/getopt &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/groups &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/hd &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/head &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/hexdump &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/hostid &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/id &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/install &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/ionice &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/ipcrm &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/ipcs &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/killall &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/last &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/less &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/linux32 &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/linux64 &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/logger &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/logname &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/lspci &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/lsusb &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/lzcat &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/lzma &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/man &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/md5sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/mkfifo &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/nice &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/nohup &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/od &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/passwd &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/patch &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/pgrep &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/pkill &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/pmap &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/printenv &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/printf &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/pstree &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/pwdx &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/realpath &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/renice &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/rev &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/script &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/scriptreplay &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/seq &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/setarch &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/setsid &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sha1sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sha256sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sha3sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sha512sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/shuf &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sort &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/split &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/stat &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/sum &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tac &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tail &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tee &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/telnet &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/test &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tftp &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/time &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/timeout &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/top &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tr &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/traceroute &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/traceroute6 &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/tty &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unexpand &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/uniq &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unix2dos &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unlink &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unlzma &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unxz &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/unzip &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/uptime &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/users &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/uudecode &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/uuencode &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/vlock &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/wall &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/watch &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/wc &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/wget &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/which &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/who &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/whoami &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/whois &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/xargs &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/xz &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/xzcat &amp;&amp;
-ln -sv ../../bin/busybox /usr/bin/yes &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/acpid &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/addgroup &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/adduser &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/chpasswd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/chroot &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/delgroup &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/deluser &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/fdformat &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/ftpd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/inetd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/ntpd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/readprofile &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/rtcwake &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/syslogd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/telnetd &amp;&amp;
-ln -sv ../../bin/busybox /usr/sbin/tftpd</userinput></screen>
+<screen><userinput remap="install">install -v -m 755 busybox /bin
+for program in cat echo pwd sh stty ; do ln -sfv busybox /bin/$program ; done
+for program in ash bunzip2 bzcat bzip2 chgrp chmod chown cp cpio date dd df \
+    dmesg dnsdomainname egrep false fgrep fuser grep gunzip gzip hostname kill \
+    ln login ls mkdir mknod mktemp more mount mountpoint mv netstat pidof ping \
+    ping6 ps readlink rm rmdir sed sleep su sync tar touch true umount uname \
+    vi zcat ; do ln -sv busybox /bin/$program ; done
+for program in blkid blockdev depmod fdisk findfs fsck.minix fstrim getty halt \
+    hwclock ifconfig init insmod ip killall5 klogd losetup lsmod mdev mkdosfs \
+    mkfs.minix mkfs.vfat mkswap modinfo modprobe pivot_root poweroff reboot \
+    rmmod route runlevel sulogin swapoff swapon switch_root sysctl ; do \
+    ln -sv ../bin/busybox /sbin/$program ; done
+for program in base64 basename cal chrt cksum cmp comm cut dc diff dirname \
+    dos2unix du eject env expand expr find flock fold free getopt groups hd \
+    head hexdump hostid id install ionice ipcrm ipcs killall last less linux32 \
+    linux64 logger logname lspci lsusb lzcat lzma man md5sum mkfifo nice nohup \
+    od passwd patch pgrep pkill pmap printenv printf pstree pwdx realpath \
+    renice rev script scriptreplay seq setarch setsid sha1sum sha256sum \
+    sha3sum sha512sum shuf sort split stat sum tac tail tee telnet test tftp \
+    time timeout top tr traceroute traceroute6 tty unexpand uniq unix2dos \
+    unlink unlzma unxz unzip uptime users uudecode uuencode vlock wall watch \
+    wc wget which who whoami whois xargs xz xzcat yes ; do \
+    ln -sv ../../bin/busybox /usr/bin/$program ; done
+for program in acpid addgroup adduser chpasswd chroot delgroup deluser \
+    fdformat ftpd inetd ntpd readprofile rtcwake syslogd telnetd ftpd ; do \
+    ln -sv ../../bin/busybox /usr/sbin/$program ; done</userinput></screen>
 
   </sect2>
 
