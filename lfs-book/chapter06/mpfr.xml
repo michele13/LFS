@@ -41,12 +41,17 @@
   <sect2 role="installation">
     <title>Installation of MPFR</title>
 
-    <para>First, apply the following patch to fix various bugs that have been
+    <para>Suppress installation of unnecessary files:</para>
+
+<screen><userinput remap="pre">sed 's/m: install-nobase_dist_docDATA/m:/' -i Makefile.in
+sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinput></screen>
+
+    <para>Apply the following patch to fix various bugs that have been
     addressed upstream:</para>
 
 <screen><userinput remap="pre">patch -p1 -i ../&mpfr-fixes-patch;</userinput></screen>
 
-    <para>Prepare MPFR for compilation:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-static \
@@ -58,10 +63,10 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install
+rm -v /usr/lib/libmpfr.la</userinput></screen>
 
   </sect2>
-
 
   <sect2 id="contents-mpfr" role="content">
     <title>Contents of MPFR</title>
