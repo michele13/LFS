@@ -72,16 +72,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Recommended patch:
-          <ulink url="&patch-root;libffi/libffi-&libffi-version;-unnecessary-1.patch"/>
-        </para>
-      </listitem>
-    </itemizedlist>
-
   </sect2>
 
   <sect2>
@@ -91,18 +81,24 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>patch -p1 -i ../libffi-&libffi-version;-unnecessary-1.patch</userinput></screen>
+<screen><userinput>sed "s/m: install-info-am/m:/" -i Makefile.in</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Make package install headers into /usr/include instead of
+      /usr/lib/libffi-&libffi-version;/include:
     </para>
 
 <screen><userinput>sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
     -i include/Makefile.in &amp;&amp;
 sed -e '/^includedir/ s/=.*$/=@includedir@/' \
     -e 's/^Cflags: -I${includedir}/Cflags:/' \
-    -i libffi.pc.in &amp;&amp;
-./configure --prefix=/usr \
+    -i libffi.pc.in</userinput></screen>
+
+    <para>
+      Install the package by running the following commands:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
             --disable-static &amp;&amp;
 make</userinput></screen>
 
@@ -110,18 +106,8 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed ... include/Makefile.in</command> and
-        <command>sed ... libffi.pc.in</command>: Make package install headers
-        into /usr/include instead of /usr/lib/libffi-&libffi-version;/include.
-      </para>
-
-    </sect3>
+<screen role="root"><userinput>make -j1 install &amp;&amp;
+rm -v /usr/lib/libffi.la</userinput></screen>
 
   </sect2>
 
