@@ -41,6 +41,14 @@
   <sect2 role="installation">
     <title>Installation of Binutils</title>
 
+    <para>Suppress installation of unnecessary files:</para>
+
+<screen><userinput remap="pre">sed "s/l: install-info/l:/" -i binutils/doc/Makefile.in
+sed "s/l: install-info/l:/" -i bfd/doc/Makefile.in
+sed "s/l: install-info/l:/" -i gas/doc/Makefile.in
+sed "s/: install-info-am/:/" -i gprof/Makefile.in
+sed "s/ install-info-am / /" -i ld/Makefile.in</userinput></screen>
+
     <para>Fix missing makeinfo requirement:</para>
 
 <screen><userinput remap="pre">sed -i -e 's,MAKEINFO="$MISSING makeinfo",MAKEINFO=true,g' configure</userinput></screen>
@@ -87,7 +95,9 @@ cd ../binutils-build</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make tooldir=/usr install</userinput></screen>
+<screen><userinput remap="install">make tooldir=/usr -j1 install
+rm -v /usr/lib/libbfd.la
+rm -v /usr/lib/libopcodes.la</userinput></screen>
 
   </sect2>
 
