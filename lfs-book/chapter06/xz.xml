@@ -44,11 +44,12 @@
   <sect2 role="installation">
     <title>Installation of Xz</title>
 
-    <para>Prepare Xz for compilation with:</para>
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-static \
             --disable-nls \
+            --disable-doc \
             --disable-xz \
             --disable-xzdec \
             --disable-lzmadec \
@@ -61,7 +62,8 @@
 
   <para>Install the package:</para>
 
-<screen><userinput remap="install">make -j1 install</userinput></screen>
+<screen><userinput remap="install">make -j1 install
+rm -v /usr/lib/liblzma.la</userinput></screen>
 
   </sect2>
 
@@ -74,7 +76,7 @@
 
       <seglistitem>
         <seg>liblzma.so</seg>
-        <seg>/usr/include/lzma and /usr/share/doc/xz</seg>
+        <seg>/usr/include/lzma</seg>
       </seglistitem>
     </segmentedlist>
 
