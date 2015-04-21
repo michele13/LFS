@@ -40,7 +40,15 @@
   <sect2 role="installation">
     <title>Installation of Bison</title>
 
-    <para>Prepare Bison for compilation:</para>
+    <para>Suppress installation of unnecessary files:</para>
+
+<screen><userinput remap="pre">sed -e "s/A install-calcxxDATA/A/" \
+sed -e "s/install-dist_docDATA i/i/" \
+sed -e "s/A install-info-am/A/" \
+sed -e "s/ install-mfcalcDATA install-rpcalcDATA//" \
+    -i Makefile.in</userinput></screen>
+
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --disable-nls</userinput></screen>
@@ -51,7 +59,7 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
 
