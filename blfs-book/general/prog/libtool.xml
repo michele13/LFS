@@ -78,6 +78,12 @@
     <title>Installation</title>
 
     <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/install-info-am i/i/" -i Makefile.in</userinput></screen>
+
+    <para>
       Install the package by running the following commands:
     </para>
 
@@ -89,7 +95,8 @@ make</userinput></screen>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libltdl.la</userinput></screen>
 
   </sect2>
 
