@@ -40,7 +40,11 @@
   <sect2 role="installation">
     <title>Installation of GRUB</title>
 
-    <para>Prepare GRUB for compilation:</para>
+    <para>Suppress installation of unnecessary files:</para>
+
+<screen><userinput remap="pre">sed "s/m: install-info-am/m:/" -i docs/Makefile.in</userinput></screen>
+
+    <para>Prepare the package for compilation:</para>
 
 <screen><userinput remap="configure">./configure --prefix=/usr \
             --sbindir=/sbin \
@@ -61,7 +65,7 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   <para>Using GRUB to make your LFS system bootable will be discussed in
   <xref linkend="ch-bootable-grub"/>.</para>
