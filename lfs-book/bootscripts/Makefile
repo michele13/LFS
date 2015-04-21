@@ -32,7 +32,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/cleanfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/halt          ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/console       ${EXTDIR}/rc.d/init.d/
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mdev          ${EXTDIR}/rc.d/init.d/
@@ -73,7 +72,6 @@ rcS: files
 	ln -sf ../init.d/checkfs     ${EXTDIR}/rc.d/rcS.d/S30checkfs
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rcS.d/S40mountfs
 	ln -sf ../init.d/cleanfs     ${EXTDIR}/rc.d/rcS.d/S45cleanfs
-	ln -sf ../init.d/console     ${EXTDIR}/rc.d/rcS.d/S70console
 	ln -sf ../init.d/sysctl      ${EXTDIR}/rc.d/rcS.d/S90sysctl
 
 rc0: files

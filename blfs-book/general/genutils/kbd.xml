@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY kbd-homepage      "http://kbd-project.org/">
+  <!ENTITY kbd-wikipedia     " ">
+  <!ENTITY kbd-download-http "http://www.kbd-project.org/download/kbd-&kbd-version;.tar.xz">
+  <!ENTITY kbd-download-ftp  "ftp://ftp.kernel.org/pub/linux/utils/kbd/kbd-&kbd-version;.tar.xz">
+  <!ENTITY kbd-md5sum        "87475eb78b1d6e6ab06686dd323ad4ba">
+  <!ENTITY kbd-size          "2.1 MB">
+  <!ENTITY kbd-buildsize     "28 MB">
+  <!ENTITY kbd-time          "0.1 SBU">
+]>
+
+<sect1 id="kbd" xreflabel="kbd-&kbd-version;">
+  <?dbhtml filename="kbd.html"?>
+
+  <title>kbd-&kbd-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The kbd package contains key-table files, console fonts, and keyboard utilities.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&kbd-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&kbd-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&kbd-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&kbd-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &kbd-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &kbd-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &kbd-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &kbd-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;kbd/kbd-&kbd-version;-backspace-1.patch"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;kbd/kbd-&kbd-version;-no_tests-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The behaviour of the Backspace and Delete keys is not consistent across
+      the keymaps in the kbd package. The following patch fixes this issue for
+      i386 keymaps:
+    </para>
+
+<screen><userinput>patch -p1 -i ../kbd-&kbd-version;-backspace-1.patch</userinput></screen>
+
+    <para>
+      After patching, the Backspace key generates the character with code 127,
+      and the Delete key generates a well-known escape sequence.
+    </para>
+
+    <para>
+      Apply the following patch to disable tests which require the check
+      package:
+    </para>
+
+<screen><userinput>patch -p1 -i ../kbd-&kbd-version;-no_tests-1.patch</userinput></screen>
+
+    <para>
+      Remove the redundant <command>resizecons</command> program (it requires
+      the defunct svgalib to provide the video mode files - for normal use
+      <command>setfont</command> sizes the console appropriately) together with
+      its manpage.
+    </para>
+
+<screen><userinput>sed -i 's/\(RESIZECONS_PROGS=\)yes/\1no/g' configure &amp;&amp;
+sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in</userinput></screen>
+
+    <para>Prepare the package for compilation:</para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-nls \
+            --disable-vlock</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      Create the <filename>/etc/sysconfig/console</filename> file which
+      <command>console</command> init script reads for configuration
+      information:
+    </para>
+
+<screen role="root"><userinput>cat > /etc/sysconfig/console &lt;&lt; "EOF"
+<literal># Begin /etc/sysconfig/console
+
+# The following is a Unicode-enabled example for Croatian, where a stock UTF-8
+# keymap doesn't exist:
+UNICODE="1"
+KEYMAP="croat"
+FONT="Lat2-Terminus16 -m 8859-2"
+
+# The following is a Unicode-enabled example for Swedish, where a stock UTF-8
+# keymap doesn't exist:
+UNICODE="1"
+KEYMAP="sv-latin1"
+FONT="lat0-16"
+
+# End /etc/sysconfig/console</literal>
+EOF</userinput></screen>
+
+    <para>
+      See <ulink url="http://archive.linuxfromscratch.org/lfs-museum/7.5/LFS-BOOK-7.5-NOCHUNKS.html#ch-scripts-console">Configuring
+      the Linux Console</ulink> for more information on how to configure the
+      <command>console</command> init script.
+    </para>
+
+    <sect3 id="kbd-init">
+      <title>Boot Script</title>
+
+      <para>
+        If you want the keyboard layout and console font to be set up
+        automatically when the system is booted, install the
+        <filename>/etc/rc.d/init.d/console</filename> init script included in
+        the <xref linkend="bootscripts"/> package.
+      </para>
+
+<screen role="root"><userinput>make install-kbd</userinput></screen>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="kbd">
+      <primary sortas="b-chvt">chvt</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-deallocvt">deallocvt</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-dumpkeys">dumpkeys</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-fgconsole">fgconsole</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-getkeycodes">getkeycodes</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-kbd_mode">kbd_mode</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-kbdinfo">kbdinfo</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-kbdrate">kbdrate</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-loadkeys">loadkeys</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-loadunimap">loadunimap</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-mapscrn">mapscrn</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-openvt">openvt</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-psfaddtable">psfaddtable</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-psfgettable">psfgettable</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-psfstriptable">psfstriptable</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-psfxtable">psfxtable</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-setfont">setfont</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-setkeycodes">setkeycodes</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-setleds">setleds</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-setmetamode">setmetamode</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-setvtrgb">setvtrgb</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-showconsolefont">showconsolefont</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-showkey">showkey</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-unicode_start">unicode_start</primary>
+    </indexterm>
+    <indexterm zone="kbd">
+      <primary sortas="b-unicode_stop">unicode_stop</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/chvt
+/usr/bin/deallocvt
+/usr/bin/dumpkeys
+/usr/bin/fgconsole
+/usr/bin/getkeycodes
+/usr/bin/kbd_mode
+/usr/bin/kbdinfo
+/usr/bin/kbdrate
+/usr/bin/loadkeys
+/usr/bin/loadunimap
+/usr/bin/mapscrn
+/usr/bin/openvt
+/usr/bin/psfaddtable
+/usr/bin/psfgettable
+/usr/bin/psfstriptable
+/usr/bin/psfxtable
+/usr/bin/setfont
+/usr/bin/setkeycodes
+/usr/bin/setleds
+/usr/bin/setmetamode
+/usr/bin/setvtrgb
+/usr/bin/showconsolefont
+/usr/bin/showkey
+/usr/bin/unicode_start
+/usr/bin/unicode_stop
+/usr/share/consolefonts/
+/usr/share/consoletrans/
+/usr/share/keymaps/
+/usr/share/man/man1/chvt.1
+/usr/share/man/man1/deallocvt.1
+/usr/share/man/man1/dumpkeys.1
+/usr/share/man/man1/fgconsole.1
+/usr/share/man/man1/kbd_mode.1
+/usr/share/man/man1/loadkeys.1
+/usr/share/man/man1/openvt.1
+/usr/share/man/man1/psfaddtable.1
+/usr/share/man/man1/psfgettable.1
+/usr/share/man/man1/psfstriptable.1
+/usr/share/man/man1/psfxtable.1
+/usr/share/man/man1/setleds.1
+/usr/share/man/man1/setmetamode.1
+/usr/share/man/man1/showkey.1
+/usr/share/man/man1/unicode_start.1
+/usr/share/man/man1/unicode_stop.1
+/usr/share/man/man5/keymaps.5
+/usr/share/man/man8/getkeycodes.8
+/usr/share/man/man8/kbdrate.8
+/usr/share/man/man8/loadunimap.8
+/usr/share/man/man8/mapscrn.8
+/usr/share/man/man8/setfont.8
+/usr/share/man/man8/setkeycodes.8
+/usr/share/man/man8/setvtrgb.8
+/usr/share/man/man8/showconsolefont.8
+/usr/share/unimaps/</literal></screen>
+
+  </sect2>
+
+</sect1>

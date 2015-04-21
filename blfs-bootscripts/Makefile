@@ -60,6 +60,10 @@ install-service-pppoe: create-service-dir
 install-service-wpa: create-service-dir
 	install -m ${MODE} blfs/services/wpa ${LIBDIR}
 
+install-kbd:
+	install -m ${MODE} blfs/init.d/console ${EXTDIR}/rc.d/init.d/
+	ln -sf ../init.d/console ${EXTDIR}/rc.d/rcS.d/S70console
+
 install-alsa: create-dirs
 	install -m ${MODE} blfs/init.d/alsa       ${EXTDIR}/rc.d/init.d/
 	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc0.d/K35alsa
