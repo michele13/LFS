@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY mdocml-homepage      "http://mdocml.bsd.lv/">
+  <!ENTITY mdocml-wikipedia     "http://en.wikipedia.org/wiki/Mandoc">
+  <!ENTITY mdocml-download-http "http://mdocml.bsd.lv/snapshots/mdocml-&mdocml-version;.tar.gz">
+  <!ENTITY mdocml-download-ftp  " ">
+  <!ENTITY mdocml-md5sum        "7be80e1116a11abe2aabd6b2f04434ef">
+  <!ENTITY mdocml-size          "351 KB">
+  <!ENTITY mdocml-buildsize     "4.8 MB">
+  <!ENTITY mdocml-time          "0.1 SBU">
+]>
+
+<sect1 id="mdocml" xreflabel="mdocml-&mdocml-version;">
+  <?dbhtml filename="mdocml.html"?>
+
+  <title>mdocml-&mdocml-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      mandoc is a suite of tools compiling mdoc, the roff macro language of
+      choice for BSD manual pages, and man, the predominant historical language
+      for UNIX manuals. It is small, ISO C, ISC-licensed, and quite fast. The
+      main component of the toolset is the mandoc utility program, based on the
+      libmandoc validating compiler, to format output for UNIX terminals (with
+      support for wide-character locales), XHTML, HTML, PostScript, and PDF.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&mdocml-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&mdocml-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&mdocml-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&mdocml-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &mdocml-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &mdocml-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &mdocml-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &mdocml-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>Prepare the package for compilation:</para>
+
+<screen><userinput>./configure</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>install -v -m 755 mandoc /bin
+cat > /bin/man &lt;&lt; "EOF"
+<literal>#!/bin/sh
+
+# man - a simple man program for ASCII pages
+# Copyright (c) 2008 Matthew Hiles
+#
+# Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
+
+## requires: find, head, sort, tr, cat, and grep/egrep
+## optional: zcat, bzcat, less
+
+if [ -z "$MANPATH" ]; then
+        echo "Warning: MANPATH is not set, assuming /usr/share/man." >&amp;2
+        MANPATH=/usr/share/man
+fi
+
+case $# in
+1)
+        pagearg=$1 ;;
+2)
+        section=man$1
+        pagearg=$2 ;;
+*)
+        echo "Usage: man [section] &lt;manpage>"
+        exit
+esac
+
+paths=`echo "$MANPATH" | tr ":" " "`
+pagefile=`find $paths | grep "/$section" | grep "/$pagearg\." | sort | head -n1`
+
+if [ -z "$pagefile" ]; then
+        echo -n No manual entry for $pagearg
+        [ $section ] &amp;&amp; echo -n " in section $1 of the manual."
+        echo
+        exit
+fi
+
+[ "$PAGER" ] || PAGER=less
+tty -s &lt;&amp;1 || PAGER=cat
+
+case "$pagefile" in
+*.bz2)
+        exec bzcat "$pagefile" | mandoc -Tutf8 | "$PAGER" ;;
+*.gz)
+        exec zcat "$pagefile" | mandoc -Tutf8 | "$PAGER" ;;
+*)
+        exec mandoc -Tutf8 "$pagefile" | "$PAGER" ;;
+esac
+
+paths=
+pagefile=
+pagearg=
+section=</literal>
+EOF
+chmod -v +x /bin/man</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="mdocml">
+      <primary sortas="b-man">man</primary>
+    </indexterm>
+    <indexterm zone="mdocml">
+      <primary sortas="b-mandoc">mandoc</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/bin/man
+/bin/mandoc</literal></screen>
+
+  </sect2>
+
+</sect1>
