@@ -51,17 +51,16 @@ cd ../glibc-build</userinput></screen>
 
     <para>Next, prepare Glibc for compilation:</para>
 
-<screen><userinput remap="configure">../glibc-&glibc-version;/configure                             \
-      --prefix=/tools                               \
-      --host=$LFS_TGT                               \
-      --build=$(../glibc-&glibc-version;/scripts/config.guess) \
-      --disable-profile                             \
-      --enable-kernel=&min-kernel;                        \
-      --enable-obsolete-rpc                         \
-      --with-headers=/tools/include                 \
-      libc_cv_forced_unwind=yes                     \
-      libc_cv_ctors_header=yes                      \
-      libc_cv_c_cleanup=yes</userinput></screen>
+<screen><userinput remap="configure">../glibc-&glibc-version;/configure --prefix=/tools \
+                        --host=$LFS_TGT \
+                        --build=$(../glibc-&glibc-version;/scripts/config.guess) \
+                        --disable-profile \
+                        --enable-kernel=&min-kernel; \
+                        --enable-obsolete-rpc \
+                        --with-headers=/tools/include \
+                        libc_cv_forced_unwind=yes \
+                        libc_cv_ctors_header=yes \
+                        libc_cv_c_cleanup=yes</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -165,7 +164,7 @@ cd ../glibc-build</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   <caution>
     <para>At this point, it is imperative to stop and ensure that the basic
@@ -200,14 +199,6 @@ readelf -l a.out | grep ': /tools'</userinput></screen>
   additional check that the toolchain has been built properly. If Binutils
   fails to build, it is an indication that something has gone wrong with the
   previous Binutils, GCC, or Glibc installations.</para></note>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title/>
-
-    <para>Details on this package are located in
-    <xref linkend="contents-glibc" role="."/></para>
 
   </sect2>
 
