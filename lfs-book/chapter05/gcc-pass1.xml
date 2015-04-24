@@ -55,11 +55,11 @@
     directory and then change to the directory created.  Only then should you
     proceed with the instructions below.</para></note>
 
-<screen><userinput remap="pre">tar -xf ../mpfr-&mpfr-version;.tar.xz
+<screen><userinput remap="pre">tar xf ../mpfr-&mpfr-version;.tar.xz
 mv -v mpfr-&mpfr-version; mpfr
-tar -xf ../gmp-&gmp-version;.tar.xz
+tar xf ../gmp-&gmp-version;.tar.xz
 mv -v gmp-&gmp-extracted-version; gmp
-tar -xf ../mpc-&mpc-version;.tar.gz
+tar xf ../mpc-&mpc-version;.tar.gz
 mv -v mpc-&mpc-version; mpc</userinput></screen>
 
     <para>The following command will change the location of GCC's default
@@ -105,30 +105,28 @@ cd ../gcc-build</userinput></screen>
 
     <para>Prepare GCC for compilation:</para>
 
-<screen><userinput remap="configure">../gcc-&gcc-version;/configure                               \
-    --target=$LFS_TGT                                \
-    --prefix=/tools                                  \
-    --with-glibc-version=2.11                        \
-    --with-sysroot=$LFS                              \
-    --with-newlib                                    \
-    --without-headers                                \
-    --with-local-prefix=/tools                       \
-    --with-native-system-header-dir=/tools/include   \
-    --disable-nls                                    \
-    --disable-shared                                 \
-    --disable-multilib                               \
-    --disable-decimal-float                          \
-    --disable-threads                                \
-    --disable-libatomic                              \
-    --disable-libgomp                                \
-    --disable-libitm                                 \
-    --disable-libquadmath                            \
-    --disable-libsanitizer                           \
-    --disable-libssp                                 \
-    --disable-libvtv                                 \
-    --disable-libcilkrts                             \
-    --disable-libstdc++-v3                           \
-    --enable-languages=c,c++</userinput></screen>
+<screen><userinput remap="configure">../gcc-&gcc-version;/configure --prefix=/tools \
+                       --target=$LFS_TGT \
+                       --with-glibc-version=2.11 \
+                       --with-sysroot=$LFS \
+                       --with-newlib \
+                       --without-headers \
+                       --with-local-prefix=/tools \
+                       --with-native-system-header-dir=/tools/include \
+                       --disable-shared \
+                       --disable-multilib \
+                       --disable-decimal-float \
+                       --disable-threads \
+                       --disable-libatomic \
+                       --disable-libgomp \
+                       --disable-libitm \
+                       --disable-libquadmath \
+                       --disable-libsanitizer \
+                       --disable-libssp \
+                       --disable-libvtv \
+                       --disable-libcilkrts \
+                       --disable-libstdc++-v3 \
+                       --enable-languages=c,c++</userinput></screen>
     <variablelist>
       <title>The meaning of the configure options:</title>
 
@@ -222,25 +220,7 @@ cd ../gcc-build</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
-<!--
-    <para>Using <parameter>- -disable-shared</parameter> means that the
-    <filename>libgcc_eh.a</filename> file isn't created and installed. The
-    Glibc package depends on this library as it uses
-    <parameter>-lgcc_eh</parameter> within its build system. This dependency
-    can be satisfied by creating a symlink to <filename>libgcc.a</filename>,
-    since that file will end up containing the objects normally contained in
-    <filename>libgcc_eh.a</filename>:</para>
-
-<screen><userinput remap="install">ln -sv libgcc.a `$LFS_TGT-gcc -print-libgcc-file-name | sed 's/libgcc/&amp;_eh/'`</userinput></screen>
--->
-  </sect2>
-
-  <sect2 role="content">
-    <title/>
-
-    <para>Details on this package are located in
-    <xref linkend="contents-gcc" role="."/></para>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
 
