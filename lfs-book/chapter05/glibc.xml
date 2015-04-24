@@ -43,15 +43,6 @@
   <sect2 role="installation">
     <title>Installation of Glibc</title>
 
-    <para>In some cases, particularly LFS 7.1, the rpc headers were not
-    installed properly.  Test to see if they are installed in the host system
-    and install if they are not:</para>
-
-<screen><userinput remap="pre">if [ ! -r /usr/include/rpc/types.h ]; then
-  su -c 'mkdir -pv /usr/include/rpc'
-  su -c 'cp -v sunrpc/rpc/*.h /usr/include/rpc'
-fi</userinput></screen>
-
     <para>The Glibc documentation recommends building Glibc outside of the source
     directory in a dedicated build directory:</para>
 
@@ -66,6 +57,7 @@ cd ../glibc-build</userinput></screen>
       --build=$(../glibc-&glibc-version;/scripts/config.guess) \
       --disable-profile                             \
       --enable-kernel=&min-kernel;                        \
+      --enable-obsolete-rpc                         \
       --with-headers=/tools/include                 \
       libc_cv_forced_unwind=yes                     \
       libc_cv_ctors_header=yes                      \
@@ -97,6 +89,15 @@ cd ../glibc-build</userinput></screen>
           <para>This tells Glibc to compile the library with support
           for &min-kernel; and later Linux kernels.  Workarounds for older
           kernels are not enabled.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-obsolete-rpc</parameter></term>
+        <listitem>
+          <para>This installs NIS and RPC related headers that are not
+          installed by default. They are required to build GCC and by
+          several BLFS packages.</para>
         </listitem>
       </varlistentry>
 
