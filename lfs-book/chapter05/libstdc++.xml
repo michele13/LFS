@@ -55,14 +55,12 @@ cd ../gcc-build</userinput></screen>
 
     <para>Prepare Libstdc++ for compilation:</para>
 
-<screen><userinput remap="configure">../gcc-&gcc-version;/libstdc++-v3/configure \
-    --host=$LFS_TGT                 \
-    --prefix=/tools                 \
-    --disable-multilib              \
-    --disable-nls                   \
-    --disable-libstdcxx-threads     \
-    --disable-libstdcxx-pch         \
-    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</userinput></screen>
+<screen><userinput remap="configure">../gcc-&gcc-version;/libstdc++-v3/configure  --prefix=/tools \
+                                    --host=$LFS_TGT \
+                                    --disable-multilib \
+                                    --disable-libstdcxx-threads \
+                                    --disable-libstdcxx-pch \
+                                    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -110,15 +108,7 @@ cd ../gcc-build</userinput></screen>
 
     <para>Install the library:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title/>
-
-    <para>Details on this package are located in
-    <xref linkend="contents-gcc" role="."/></para>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
 
