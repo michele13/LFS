@@ -80,9 +80,7 @@ cd ../binutils-build</userinput></screen>
     --prefix=/tools            \
     --with-sysroot=$LFS        \
     --with-lib-path=/tools/lib \
-    --target=$LFS_TGT          \
-    --disable-nls              \
-    --disable-werror</userinput></screen>
+    --target=$LFS_TGT</userinput></screen>
 
     <variablelist>
       <title>The meaning of the configure options:</title>
@@ -123,46 +121,32 @@ cd ../binutils-build</userinput></screen>
         </listitem>
       </varlistentry>
 
+<!--
       <varlistentry>
-        <term><parameter>--disable-nls</parameter></term>
-        <listitem>
-          <para>This disables internationalization as i18n is not needed for the
-          temporary tools.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term><parameter>--disable-werror</parameter></term>
+        <term><parameter>- -disable-werror</parameter></term>
         <listitem>
           <para>This prevents the build from stopping in the event that there
           are warnings from the host's compiler.</para>
         </listitem>
       </varlistentry>
-
+-->
     </variablelist>
 
     <para>Continue with compiling the package:</para>
 
 <screen><userinput remap="make">make</userinput></screen>
 
+<!--
     <para>If building on x86_64, create a symlink to ensure the sanity of
     the toolchain:</para>
 
 <screen><userinput remap="install">case $(uname -m) in
   x86_64) mkdir -v /tools/lib &amp;&amp; ln -sv lib /tools/lib64 ;;
 esac</userinput></screen>
-
+-->
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title/>
-
-    <para>Details on this package are located in
-    <xref linkend="contents-binutils" role="."/></para>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
 
