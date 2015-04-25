@@ -86,16 +86,22 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure $XORG_CONFIG</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
   </sect2>
 
@@ -107,8 +113,14 @@
     </para>
 
 <screen><literal>/usr/include/X11/Xtrans/
+/usr/include/X11/Xtrans/transport.c
+/usr/include/X11/Xtrans/Xtrans.c
+/usr/include/X11/Xtrans/Xtrans.h
+/usr/include/X11/Xtrans/Xtransint.h
+/usr/include/X11/Xtrans/Xtranslcl.c
+/usr/include/X11/Xtrans/Xtranssock.c
+/usr/include/X11/Xtrans/Xtransutil.c
 /usr/share/aclocal/xtrans.m4
-/usr/share/doc/xtrans/
 /usr/share/pkgconfig/xtrans.pc</literal></screen>
 
   </sect2>
