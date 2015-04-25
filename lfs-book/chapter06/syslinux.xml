@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../general.ent">
+  %general-entities;
+]>
+
+<sect1 id="ch-system-syslinux" role="wrap">
+  <?dbhtml filename="syslinux.html"?>
+
+  <sect1info condition="script">
+    <productname>syslinux</productname>
+    <productnumber>&syslinux-version;</productnumber>
+    <address>&syslinux-url;</address>
+  </sect1info>
+
+  <title>syslinux-&syslinux-version;</title>
+
+  <indexterm zone="ch-system-syslinux">
+    <primary sortas="a-syslinux">syslinux</primary>
+  </indexterm>
+
+  <sect2 role="package">
+    <title/>
+
+    <para>The syslinux package contains a lightweight bootloader.</para>
+
+    <segmentedlist>
+      <segtitle>&buildtime;</segtitle>
+      <segtitle>&diskspace;</segtitle>
+
+      <seglistitem>
+        <seg>&syslinux-ch6-sbu;</seg>
+        <seg>&syslinux-ch6-du;</seg>
+      </seglistitem>
+    </segmentedlist>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation of syslinux</title>
+
+    <para>First, apply a patch which removes dependency on the Perl
+    package:</para>
+
+<screen><userinput remap="pre">patch -p1 -i ../&syslinux-no_perl-patch;</userinput></screen>
+
+    <para>Compile the package:</para>
+
+<screen><userinput remap="make">cc extlinux-bin2c-replacement.c -o libinstaller/bin2c.pl
+PATH="$PATH:$PWD/libinstaller" make -C libinstaller PERL=""
+make -C extlinux
+make -C linux</userinput></screen>
+
+    <para>Install the package:</para>
+
+<screen><userinput remap="install">install -v extlinux/extlinux linux/syslinux /bin
+install -v -D -m 644 mbr/mbr.bin /lib/syslinux/mbr.bin
+install -v -m 644 man/extlinux.1 man/syslinux.1 /usr/share/man/man1</userinput></screen>
+
+  <para>Using syslinux to make your LFS system bootable will be discussed in
+  <xref linkend="ch-bootable-syslinux"/>.</para>
+
+  </sect2>
+
+  <sect2 id="contents-gRUB" role="content">
+    <title>Contents of syslinux</title>
+
+    <segmentedlist>
+      <segtitle>Installed programs</segtitle>
+      <segtitle>Installed directory</segtitle>
+
+      <seglistitem>
+        <seg>extlinux and syslinux</seg>
+        <seg>/lib/syslinux</seg>
+      </seglistitem>
+    </segmentedlist>
+
+    <variablelist>
+      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
+      <?dbfo list-presentation="list"?>
+      <?dbhtml list-presentation="table"?>
+
+      <varlistentry id="extlinux">
+        <term><command>syslinux-bios-setup</command></term>
+        <listitem>
+          <para>TODO</para>
+          <indexterm zone="ch-system-syslinux extlinux">
+            <primary sortas="b-extlinux">extlinux</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="syslinux">
+        <term><command>syslinux</command></term>
+        <listitem>
+          <para>TODO</para>
+          <indexterm zone="ch-system-syslinux syslinux">
+            <primary sortas="b-syslinux">syslinux</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </sect2>
+
+</sect1>
