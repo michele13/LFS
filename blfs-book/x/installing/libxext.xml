@@ -83,14 +83,25 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
     </para>
 
 <screen role="root"><userinput>make -j1 install</userinput></screen>
@@ -125,8 +136,7 @@ make</userinput></screen>
 /usr/include/X11/extensions/sync.h
 /usr/include/X11/extensions/xtestext1.h
 /usr/lib/libXext.so
-/usr/lib/pkgconfig/xext.pc
-/usr/share/doc/libXext/</literal></screen>
+/usr/lib/pkgconfig/xext.pc</literal></screen>
 
   </sect2>
 
