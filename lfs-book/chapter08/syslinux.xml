@@ -59,8 +59,8 @@
     (or separate boot) partition is <filename
     class="partition">sda1</filename>.</para>
 
-    <para>Install the GRUB files into <filename
-    class="directory">/boot</filename> and set up the boot track:</para>
+    <para>Install the Syslinux files into <filename
+    class="directory">/boot/extlinux</filename> and set up the boot track:</para>
 
     <warning>
       <para>The following command will overwrite the current boot loader. Do not
@@ -80,15 +80,13 @@ cat /lib/syslinux/mbr.bin > /dev/sda</userinput></screen>
     <para>Generate <filename>/boot/extlinux.conf</filename>:</para>
 
     <screen><userinput>cat &gt; /boot/extlinux.conf &lt;&lt; "EOF"
-<literal>
-PROMPT 1
+<literal>PROMPT 1
 TIMEOUT 100
 DEFAULT lfs
 
 LABEL lfs
         KERNEL vmlinuz-&linux-version;-&kernel-version;
-        APPEND root=/dev/sda1 ro
-</literal>
+        APPEND root=/dev/sda1 ro</literal>
 EOF</userinput></screen>
 
    </sect2>
