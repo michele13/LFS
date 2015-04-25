@@ -70,27 +70,40 @@
         </para>
       </listitem>
     </itemizedlist>
+<!--
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="ncurses"/>
+    </para>
+-->
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --disable-static \
             --disable-examples \
-            --enable-widec &amp;&amp;
-make</userinput></screen>
+            --enable-widec</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libedit.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
