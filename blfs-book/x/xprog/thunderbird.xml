@@ -193,13 +193,14 @@ ac_add_options --with-system-zlib
 # Presently, this option is broken
 #mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/thunderbuild</literal>
 EOF</userinput></screen>
-<!--
-    <para>
-      First, a bug needs to be fixed. Notice that thunderbuild needs to match
-      the value used in mozconfig (above) for the object directory (MOZ_OBJDIR):
-    </para>
 
-<screen><userinput>mkdir -vp mozilla/thunderbuild</userinput></screen>-->
+    <para>Fix some code when building with libvpx-1.4.0 and later:</para>
+
+<screen><userinput>cd mozilla/media/webrtc/trunk/webrtc/modules/video_coding/codecs/vp8 &amp;&amp;
+  sed -e 's/IMG_FMT_I420/VPX_&amp;/'    \
+      -e 's/\[PLANE_/\[VPX_PLANE_/' \
+      -i  vp8_impl.cc               &amp;&amp;
+cd -</userinput></screen>
 
     <para>
       Compile <application>Thunderbird</application> by issuing the following
