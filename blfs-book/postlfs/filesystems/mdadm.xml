@@ -78,10 +78,12 @@
     <title>Installation of mdadm</title>
 
     <para>
-      First, fix a problem with gcc-4.9.0:
+      First, fix problems introduced by <application>gcc-4.9</application>
+      and <application>gcc-5</application>:
     </para>
 
-<screen><userinput>sed -i 's/Wall -Werror/Wall/' Makefile</userinput></screen>
+<screen><userinput>sed -i 's/Wall -Werror/Wall/' Makefile &amp;&amp;
+sed -i 's/\(^inline\)/static \1/' bitmap.c</userinput></screen>
 
     <para>Install <application>mdadm</application> by running the following
     commands:</para>
