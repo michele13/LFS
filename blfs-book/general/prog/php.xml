@@ -85,7 +85,6 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="apache"/> and
       <xref linkend="libxml2"/>
     </para>
 
@@ -192,6 +191,10 @@
       Install <application>PHP</application> by running the following commands:
     </para>
 
+            <!--
+            - -with-fpm-user=apache       \
+            - -with-fpm-group=apache      \
+            -->
 <screen><userinput>patch -p1 -i ../php-&php-version;-libressl-1.patch &amp;&amp;
 ./configure --prefix=/usr                \
             --sysconfdir=/etc            \
@@ -199,8 +202,6 @@
             --datadir=/usr/share/php     \
             --mandir=/usr/share/man      \
             --enable-fpm                 \
-            --with-fpm-user=apache       \
-            --with-fpm-group=apache      \
             --with-config-file-path=/etc \
             --with-zlib                  \
             --enable-bcmath              \
@@ -316,13 +317,6 @@ gunzip -v /usr/share/doc/php-&php-version;/php_manual_en.html.gz</userinput></sc
       <para><option>--disable-libxml</option>: This option
       allows building PHP without <application>libxml2</application>
       installed.</para>
-
-      <para><option>--with-apxs2</option>: Instead of building the fastCGI process
-      manager, it is possible to build an <application>apache</application> module.
-      This has some performance penalty for heavy loaded servers, but may be easier
-      to set up. This switch is incompatible with the
-      <parameter>--enable-fpm</parameter> and <parameter>--with-fpm-...</parameter>
-      switches.</para>
 
   </sect2>
 
