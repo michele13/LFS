@@ -75,7 +75,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libxext"/> and
       <xref linkend="libxt"/>
     </para>
@@ -86,17 +86,30 @@
     <title>Installation</title>
 
     <para>
-      Install libXmu by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libXmu.la
+rm -v /usr/lib/libXmuu.la</userinput></screen>
 
   </sect2>
 
@@ -118,8 +131,7 @@ make</userinput></screen>
 /usr/lib/libXmu.so
 /usr/lib/libXmuu.so
 /usr/lib/pkgconfig/xmu.pc
-/usr/lib/pkgconfig/xmuu.pc
-/usr/share/doc/libXmu/</literal></screen>
+/usr/lib/pkgconfig/xmuu.pc</literal></screen>
 
   </sect2>
 
