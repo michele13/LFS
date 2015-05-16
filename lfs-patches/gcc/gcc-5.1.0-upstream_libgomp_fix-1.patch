@@ -1,0 +1,245 @@
+Submitted By:            Bruce Dubbs <bdubbs@liinuxfromscratch.org>
+Date:                    2015-05-15
+Initial Package Version: 5.1.0
+Upstream Status:         Committed
+Origin:                  https://patchwork.ozlabs.org/patch/469768/raw/
+Description:             Fix acc_device_type not distinguishing between
+                         "offloaded" and host code with the host_nonshm plugin.
+
+commit adccf2e7d313263d585f63e752a4d36653d47811
+Author: Julian Brown <julian@codesourcery.com>
+Date:   Tue Apr 21 12:40:45 2015 -0700
+
+    Non-SHM acc_on_device fixes
+
+diff --git a/gcc/builtins.c b/gcc/builtins.c
+index 6fe1456..5930fe4 100644
+--- a/gcc/builtins.c
++++ b/gcc/builtins.c
+@@ -5917,6 +5917,7 @@ expand_stack_save (void)
+ static rtx
+ expand_builtin_acc_on_device (tree exp, rtx target)
+ {
++#ifdef ACCEL_COMPILER
+   if (!validate_arglist (exp, INTEGER_TYPE, VOID_TYPE))
+     return NULL_RTX;
+ 
+@@ -5925,13 +5926,8 @@ expand_builtin_acc_on_device (tree exp, rtx target)
+   /* Return (arg == v1 || arg == v2) ? 1 : 0.  */
+   machine_mode v_mode = TYPE_MODE (TREE_TYPE (arg));
+   rtx v = expand_normal (arg), v1, v2;
+-#ifdef ACCEL_COMPILER
+   v1 = GEN_INT (GOMP_DEVICE_NOT_HOST);
+   v2 = GEN_INT (ACCEL_COMPILER_acc_device);
+-#else
+-  v1 = GEN_INT (GOMP_DEVICE_NONE);
+-  v2 = GEN_INT (GOMP_DEVICE_HOST);
+-#endif
+   machine_mode target_mode = TYPE_MODE (integer_type_node);
+   if (!target || !register_operand (target, target_mode))
+     target = gen_reg_rtx (target_mode);
+@@ -5945,6 +5941,9 @@ expand_builtin_acc_on_device (tree exp, rtx target)
+   emit_label (done_label);
+ 
+   return target;
++#else
++  return NULL;
++#endif
+ }
+ 
+ 
+diff --git a/libgomp/oacc-init.c b/libgomp/oacc-init.c
+index 335ffd4..157147a 100644
+--- a/libgomp/oacc-init.c
++++ b/libgomp/oacc-init.c
+@@ -29,6 +29,7 @@
+ #include "libgomp.h"
+ #include "oacc-int.h"
+ #include "openacc.h"
++#include "plugin/plugin-host.h"
+ #include <assert.h>
+ #include <stdlib.h>
+ #include <strings.h>
+@@ -611,11 +612,18 @@ ialias (acc_set_device_num)
+ int
+ acc_on_device (acc_device_t dev)
+ {
+-  if (acc_get_device_type () == acc_device_host_nonshm)
++  struct goacc_thread *thr = goacc_thread ();
++
++  /* We only want to appear to be the "host_nonshm" plugin from "offloaded"
++     code -- i.e. within a parallel region.  Test a flag set by the
++     openacc_parallel hook of the host_nonshm plugin to determine that.  */
++  if (acc_get_device_type () == acc_device_host_nonshm
++      && thr && thr->target_tls
++      && ((struct nonshm_thread *)thr->target_tls)->nonshm_exec)
+     return dev == acc_device_host_nonshm || dev == acc_device_not_host;
+ 
+-  /* Just rely on the compiler builtin.  */
+-  return __builtin_acc_on_device (dev);
++  /* For OpenACC, libgomp is only built for the host, so this is sufficient.  */
++  return dev == acc_device_host || dev == acc_device_none;
+ }
+ 
+ ialias (acc_on_device)
+diff --git a/libgomp/plugin/plugin-host.c b/libgomp/plugin/plugin-host.c
+index 1faf5bc..3cb4dab 100644
+--- a/libgomp/plugin/plugin-host.c
++++ b/libgomp/plugin/plugin-host.c
+@@ -44,6 +44,7 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include <stdio.h>
++#include <stdbool.h>
+ 
+ #ifdef HOST_NONSHM_PLUGIN
+ #define STATIC
+@@ -55,6 +56,10 @@
+ #define SELF "host: "
+ #endif
+ 
++#ifdef HOST_NONSHM_PLUGIN
++#include "plugin-host.h"
++#endif
++
+ STATIC const char *
+ GOMP_OFFLOAD_get_name (void)
+ {
+@@ -174,7 +179,10 @@ GOMP_OFFLOAD_openacc_parallel (void (*fn) (void *),
+ 			       void *targ_mem_desc __attribute__ ((unused)))
+ {
+ #ifdef HOST_NONSHM_PLUGIN
++  struct nonshm_thread *thd = GOMP_PLUGIN_acc_thread ();
++  thd->nonshm_exec = true;
+   fn (devaddrs);
++  thd->nonshm_exec = false;
+ #else
+   fn (hostaddrs);
+ #endif
+@@ -232,11 +240,20 @@ STATIC void *
+ GOMP_OFFLOAD_openacc_create_thread_data (int ord
+ 					 __attribute__ ((unused)))
+ {
++#ifdef HOST_NONSHM_PLUGIN
++  struct nonshm_thread *thd
++    = GOMP_PLUGIN_malloc (sizeof (struct nonshm_thread));
++  thd->nonshm_exec = false;
++  return thd;
++#else
+   return NULL;
++#endif
+ }
+ 
+ STATIC void
+-GOMP_OFFLOAD_openacc_destroy_thread_data (void *tls_data
+-					  __attribute__ ((unused)))
++GOMP_OFFLOAD_openacc_destroy_thread_data (void *tls_data)
+ {
++#ifdef HOST_NONSHM_PLUGIN
++  free (tls_data);
++#endif
+ }
+diff --git a/libgomp/plugin/plugin-host.h b/libgomp/plugin/plugin-host.h
+new file mode 100644
+index 0000000..96955d1
+--- /dev/null
++++ b/libgomp/plugin/plugin-host.h
+@@ -0,0 +1,37 @@
++/* OpenACC Runtime Library: acc_device_host, acc_device_host_nonshm.
++
++   Copyright (C) 2015 Free Software Foundation, Inc.
++
++   Contributed by Mentor Embedded.
++
++   This file is part of the GNU Offloading and Multi Processing Library
++   (libgomp).
++
++   Libgomp is free software; you can redistribute it and/or modify it
++   under the terms of the GNU General Public License as published by
++   the Free Software Foundation; either version 3, or (at your option)
++   any later version.
++
++   Libgomp is distributed in the hope that it will be useful, but WITHOUT ANY
++   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
++   FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++   more details.
++
++   Under Section 7 of GPL version 3, you are granted additional
++   permissions described in the GCC Runtime Library Exception, version
++   3.1, as published by the Free Software Foundation.
++
++   You should have received a copy of the GNU General Public License and
++   a copy of the GCC Runtime Library Exception along with this program;
++   see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++   <http://www.gnu.org/licenses/>.  */
++
++#ifndef PLUGIN_HOST_H
++#define PLUGIN_HOST_H
++
++struct nonshm_thread
++{
++  bool nonshm_exec;
++};
++
++#endif
+diff --git a/libgomp/testsuite/libgomp.oacc-c-c++-common/acc_on_device-1.c b/libgomp/testsuite/libgomp.oacc-c-c++-common/acc_on_device-1.c
+index 81ea476..25cc15a 100644
+--- a/libgomp/testsuite/libgomp.oacc-c-c++-common/acc_on_device-1.c
++++ b/libgomp/testsuite/libgomp.oacc-c-c++-common/acc_on_device-1.c
+@@ -1,7 +1,3 @@
+-/* Disable the acc_on_device builtin; we want to test the libgomp library
+-   function.  */
+-/* { dg-additional-options "-fno-builtin-acc_on_device" } */
+-
+ #include <stdlib.h>
+ #include <openacc.h>
+ 
+diff --git a/libgomp/testsuite/libgomp.oacc-c-c++-common/if-1.c b/libgomp/testsuite/libgomp.oacc-c-c++-common/if-1.c
+index 184b355..6aa3bb7 100644
+--- a/libgomp/testsuite/libgomp.oacc-c-c++-common/if-1.c
++++ b/libgomp/testsuite/libgomp.oacc-c-c++-common/if-1.c
+@@ -1,5 +1,4 @@
+ /* { dg-do run } */
+-/* { dg-additional-options "-fno-builtin-acc_on_device" } */
+ 
+ #include <openacc.h>
+ #include <stdlib.h>
+diff --git a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-1.f90 b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-1.f90
+index 4488818..729b685 100644
+--- a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-1.f90
++++ b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-1.f90
+@@ -1,8 +1,4 @@
+ ! { dg-additional-options "-cpp" }
+-! TODO: Have to disable the acc_on_device builtin for we want to test the
+-! libgomp library function?  The command line option
+-! '-fno-builtin-acc_on_device' is valid for C/C++/ObjC/ObjC++ but not for
+-! Fortran.
+ 
+ use openacc
+ implicit none
+diff --git a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-2.f b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-2.f
+index 0047a19..19ff4a5 100644
+--- a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-2.f
++++ b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-2.f
+@@ -1,8 +1,4 @@
+ ! { dg-additional-options "-cpp" }
+-! TODO: Have to disable the acc_on_device builtin for we want to test
+-! the libgomp library function?  The command line option
+-! '-fno-builtin-acc_on_device' is valid for C/C++/ObjC/ObjC++ but not
+-! for Fortran.
+ 
+       USE OPENACC
+       IMPLICIT NONE
+diff --git a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-3.f b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-3.f
+index 49d7a72..b01c553 100644
+--- a/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-3.f
++++ b/libgomp/testsuite/libgomp.oacc-fortran/acc_on_device-1-3.f
+@@ -1,8 +1,4 @@
+ ! { dg-additional-options "-cpp" }
+-! TODO: Have to disable the acc_on_device builtin for we want to test
+-! the libgomp library function?  The command line option
+-! '-fno-builtin-acc_on_device' is valid for C/C++/ObjC/ObjC++ but not
+-! for Fortran.
+ 
+       IMPLICIT NONE
+       INCLUDE "openacc_lib.h"
