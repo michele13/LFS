@@ -6,9 +6,9 @@
 
   <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
   <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
-  <!ENTITY thunderbird-md5sum        "692e40f0070de37f3e84ccee4359e799">
+  <!ENTITY thunderbird-md5sum        "dcf14a6d4aaba2f695a1ec30c296e356">
   <!ENTITY thunderbird-size          "164 MB">
-  <!ENTITY thunderbird-buildsize     "4.7 GB">
+  <!ENTITY thunderbird-buildsize     "4.9 GB">
   <!ENTITY thunderbird-time          "72 SBU">
 ]>
 
@@ -60,6 +60,16 @@
       <listitem>
         <para>
           Estimated build time: &thunderbird-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch, if building with gcc-5:
+          <ulink url="&patch-root;thunderbird/thunderbird-&thunderbird-version;-gcc5-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -188,10 +198,7 @@ ac_add_options --with-pthreads
 ac_add_options --with-system-bz2
 ac_add_options --with-system-jpeg
 ac_add_options --with-system-png
-ac_add_options --with-system-zlib
-
-# Presently, this option is broken
-#mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/thunderbuild</literal>
+ac_add_options --with-system-zlib</literal>
 EOF</userinput></screen>
 
     <para>Fix some code when building with libvpx-1.4.0 and later:</para>
@@ -201,6 +208,10 @@ EOF</userinput></screen>
       -e 's/\[PLANE_/\[VPX_PLANE_/' \
       -i  vp8_impl.cc               &amp;&amp;
 cd -</userinput></screen>
+
+    <para>Fix some code when building with gcc-5:</para>
+
+<screen><userinput>patch -p1 -i ../thunderbird-&thunderbird-version;-gcc5-1.patch</userinput></screen>
 
     <para>
       Compile <application>Thunderbird</application> by issuing the following
