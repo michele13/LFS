@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY xz-homepage      "http://tukaani.org/xz/">
+  <!ENTITY xz-wikipedia     "http://en.wikipedia.org/wiki/Xz">
+  <!ENTITY xz-download-http "http://tukaani.org/xz/xz-&xz-version;.tar.xz">
+  <!ENTITY xz-download-ftp  " ">
+  <!ENTITY xz-md5sum        "b5e2dd95dc8498cea5354377ed89aa65">
+  <!ENTITY xz-size          "987 KB">
+  <!ENTITY xz-buildsize     "18 MB">
+  <!ENTITY xz-time          "0.3 SBU">
+]>
+
+<sect1 id="xz" xreflabel="xz-&xz-version;">
+  <?dbhtml filename="xz.html"?>
+
+  <title>xz-&xz-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+  <para>
+    The xz package contains programs for compressing and decompressing files. It
+    provides capabilities for the lzma and the newer xz compression formats.
+    Compressing text files with xz yields a better compression percentage than
+    with the traditional gzip or bzip2 commands.
+  </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&xz-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&xz-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&xz-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&xz-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &xz-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &xz-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &xz-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &xz-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --disable-nls \
+            --disable-doc \
+            --disable-xz \
+            --disable-xzdec \
+            --disable-lzmadec \
+            --disable-lzmainfo \
+            --disable-scripts</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/liblzma.la</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="xz">
+      <primary sortas="c-liblzma.so">liblzma.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>
+</literal></screen>
+
+  </sect2>
+
+</sect1>
