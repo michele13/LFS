@@ -78,11 +78,6 @@
       <xref linkend="readline"/>
     </para>
 
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <xref linkend="qt4"/>
-    </para>
-
   </sect2>
 
   <sect2 role="kernel" id="wpa_supplicant-kernel">
@@ -164,41 +159,12 @@ EOF</userinput></screen>
 make BINDIR=/sbin LIBDIR=/lib</userinput></screen>
 
     <para>
-      If you have installed <xref linkend="qt4"/> and wish to build
-      the <application>WPA Supplicant</application> GUI program, run
-      the following commands:
-    </para>
-
-<screen><userinput>pushd wpa_gui-qt4 &amp;&amp;
-qmake wpa_gui.pro &amp;&amp;
-make &amp;&amp;
-popd</userinput></screen>
-
-    <para>
-      This package does not come with a test suite.
-    </para>
-
-    <para>
       Now, as the <systemitem class="username">root</systemitem> user:
     </para>
 
 <screen role="root"><userinput>install -v -m755 wpa_cli wpa_passphrase wpa_supplicant /sbin/ &amp;&amp;
 install -v -m644 doc/docbook/wpa_supplicant.conf.5 /usr/share/man/man5/ &amp;&amp;
 install -v -m644 doc/docbook/wpa_cli.8 doc/docbook/wpa_passphrase.8 doc/docbook/wpa_supplicant.8 /usr/share/man/man8/</userinput></screen>
-
-    <para>
-      If you have built the <application>WPA Supplicant</application> GUI
-      program, install it by running the following commands as the
-      <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>install -v -m755 wpa_gui-qt4/wpa_gui /usr/bin/ &amp;&amp;
-install -v -m644 doc/docbook/wpa_gui.8 /usr/share/man/man8/ &amp;&amp;
-install -v -m644 wpa_gui-qt4/wpa_gui.desktop /usr/share/applications/ &amp;&amp;
-install -v -m644 wpa_gui-qt4/icons/wpa_gui.svg /usr/share/pixmaps/</userinput></screen>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/update-desktop-database.xml"/>
 
   </sect2>
 
