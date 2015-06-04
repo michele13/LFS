@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY bison-homepage      "http://www.gnu.org/software/bison/">
+  <!ENTITY bison-wikipedia     "http://en.wikipedia.org/wiki/GNU_bison">
+  <!ENTITY bison-download-http "http://ftp.gnu.org/gnu/bison/bison-&bison-version;.tar.xz">
+  <!ENTITY bison-download-ftp  "ftp://ftp.gnu.org/gnu/bison/bison-&bison-version;.tar.xz">
+  <!ENTITY bison-md5sum        "c342201de104cc9ce0a21e0ad10d4021">
+  <!ENTITY bison-size          "1.9 MB">
+  <!ENTITY bison-buildsize     "35 MB">
+  <!ENTITY bison-time          "2.6 SBU">
+]>
+
+<sect1 id="bison" xreflabel="bison-&bison-version;">
+  <?dbhtml filename="bison.html"?>
+
+  <title>bison-&bison-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The bison package contains a parser generator.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&bison-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&bison-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&bison-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&bison-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &bison-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &bison-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &bison-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &bison-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed -e "s/A install-calcxxDATA/A/" \
+    -e "s/install-dist_docDATA i/i/" \
+    -e "s/A install-info-am/A/" \
+    -e "s/ install-mfcalcDATA install-rpcalcDATA//" \
+    -i Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-nls</userinput></screen>
+
+    <para>
+      Compile the package: 
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="bison">
+      <primary sortas="b-bison">bison</primary>
+    </indexterm>
+    <indexterm zone="bison">
+      <primary sortas="b-yacc">yacc</primary>
+    </indexterm>
+    <indexterm zone="bison">
+      <primary sortas="c-liby.a">liby.a</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/bison
+/usr/bin/yacc
+/usr/lib/liby.a
+/usr/share/aclocal/bison-i18n.m4
+/usr/share/bison/
+/usr/share/man/man1/bison.1
+/usr/share/man/man1/yacc.1</literal></screen>
+
+  </sect2>
+
+</sect1>
