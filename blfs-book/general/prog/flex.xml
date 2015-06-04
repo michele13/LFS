@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY flex-homepage      "http://flex.sourceforge.net/">
+  <!ENTITY flex-wikipedia     "http://en.wikipedia.org/wiki/Flex_lexical_analyser">
+  <!ENTITY flex-download-http "&sourceforge-repo;/flex/flex-&flex-version;.tar.xz">
+  <!ENTITY flex-download-ftp  " ">
+  <!ENTITY flex-md5sum        "477679c37ff8b28248a9b05f1da29a82">
+  <!ENTITY flex-size          "1.4 MB">
+  <!ENTITY flex-buildsize     "36 MB">
+  <!ENTITY flex-time          "0.4 SBU">
+]>
+
+<sect1 id="flex" xreflabel="flex-&flex-version;">
+  <?dbhtml filename="flex.html"?>
+
+  <title>flex-&flex-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The flex package contains a utility for generating programs that recognize
+      patterns in text.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&flex-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&flex-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&flex-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&flex-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &flex-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &flex-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &flex-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &flex-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed 's/m: install-dist_docDATA/m:/' -i Makefile.in
+sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=/usr \
+            --disable-static \
+            --disable-nls</userinput></screen>
+
+    <para>
+      Compile the package: 
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libfl.la
+rm -v /usr/lib/libfl_pic.la</userinput></screen>
+
+    <para>
+      A few programs do not know about flex yet and try to run its predecessor,
+      lex. To support those programs, create a symbolic link named lex that
+      runs flex in lex emulation mode: 
+    </para>
+
+<screen role="root"><userinput>ln -sv flex /usr/bin/lex</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="flex">
+      <primary sortas="b-flex">flex</primary>
+    </indexterm>
+    <indexterm zone="flex">
+      <primary sortas="b-flex++">flex++</primary>
+    </indexterm>
+    <indexterm zone="flex">
+      <primary sortas="c-libfl_pic.so">libfl_pic.so</primary>
+    </indexterm>
+    <indexterm zone="flex">
+      <primary sortas="c-libfl.so">libfl.so</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/usr/bin/flex
+/usr/bin/flex++
+/usr/include/FlexLexer.h
+/usr/lib/libfl_pic.so
+/usr/lib/libfl.so
+/usr/share/man/man1/flex.1</literal></screen>
+
+  </sect2>
+
+</sect1>
