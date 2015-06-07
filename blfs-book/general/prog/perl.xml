@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY perl-homepage      "http://www.perl.org/">
+  <!ENTITY perl-wikipedia     "http://en.wikipedia.org/wiki/Perl">
+  <!ENTITY perl-download-http "http://www.cpan.org/src/5.0/perl-&perl-version;.tar.bz2">
+  <!ENTITY perl-download-ftp  " ">
+  <!ENTITY perl-md5sum        "21062666f1c627aeb6dbff3c6952738b">
+  <!ENTITY perl-size          "13 MB">
+  <!ENTITY perl-buildsize     "236 MB" >
+  <!ENTITY perl-time          "7.5 SBU">
+]>
+
+<sect1 id="perl" xreflabel="perl-&perl-version;">
+  <?dbhtml filename="perl.html" ?>
+
+  <title>perl-&perl-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The perl package contains the Practical Extraction and Report Language.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&perl-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&perl-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&perl-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&perl-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &perl-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &perl-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &perl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &perl-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;perl/perl-&perl-version;-gcc5_fixes-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <!-- <xref linkend="bzip2"/>, -->
+      <!-- <xref linkend="gdbm"/>, -->
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      This version of Perl now builds the Compress::Raw::Zlib and
+      Compress::Raw::BZip2 modules. By default Perl will use an internal copy
+      of the sources for the build. Issue the following command so that Perl
+      will use the libraries installed on the system:
+    </para>
+
+<screen><userinput>export BUILD_ZLIB=False
+export BUILD_BZIP2=0</userinput></screen>
+
+    <para>
+      Apply a patch to allow the Errno.pm module and the h2ph program to build
+      correctly when building with GCC 5:
+    </para>
+
+<screen><userinput>patch -p1 -i ../perl-&perl-version;-gcc5_fixes-1.patch</userinput></screen>
+
+    <para>
+      To have full control over the way Perl is set up, you can remove the
+      “-des” options from the following command and hand-pick the way this
+      package is built. Alternatively, use the command exactly as below to use
+      the defaults that Perl auto-detects:
+    </para>
+
+<screen><userinput>./Configure -des \
+            -Dprefix=/usr \
+            -Dvendorprefix=/usr \
+            -Dman1dir=/usr/share/man/man1 \
+            -Dman3dir=/usr/share/man/man3 \
+            -Duseshrplib</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+unset BUILD_ZLIB BUILD_BZIP2</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>-Dvendorprefix=/usr</parameter>: This ensures perl knows how
+        to tell packages where they should install their perl modules.
+      </para>
+
+      <para>
+        <parameter>-Dman1dir=/usr/share/man/man1 -Dman3dir=/usr/share/man/man3</parameter>:
+        Since groff is not installed, Configure thinks that we do not want man
+        pages for Perl. Issuing these parameters overrides this decision.
+      </para>
+
+      <para>
+        <parameter>-Duseshrplib</parameter>: Build a shared libperl needed by
+        some perl modules.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <indexterm zone="perl">
+      <primary sortas="b-perl">perl</primary>
+    </indexterm>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>TODO</literal></screen>
+
+  </sect2>
+
+</sect1>
