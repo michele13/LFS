@@ -8,10 +8,10 @@
   <!ENTITY libjpeg-wikipedia     "http://en.wikipedia.org/wiki/Libjpeg">
   <!ENTITY libjpeg-download-http "&sourceforge-repo;/libjpeg-turbo/libjpeg-turbo-&libjpeg-turbo-version;.tar.gz">
   <!ENTITY libjpeg-download-ftp  " ">
-  <!ENTITY libjpeg-md5sum        "039153dabe61e1ac8d9323b5522b56b0">
+  <!ENTITY libjpeg-md5sum        "b1f6b84859a16b8ebdcda951fa07c3f2">
   <!ENTITY libjpeg-size          "1.5 MB">
   <!ENTITY libjpeg-buildsize     "15 MB">
-  <!ENTITY libjpeg-time          "0.4 SBU (additional 0.2 SBU for the tests)">
+  <!ENTITY libjpeg-time          "0.4 SBU">
 ]>
 
 <sect1 id="libjpeg" xreflabel="libjpeg-turbo-&libjpeg-turbo-version;">
@@ -75,7 +75,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="nasm"/> or
       <xref linkend="yasm"/>
     </para>
@@ -86,30 +86,36 @@
     <title>Installation</title>
 
     <para>
-      Install libjpeg-turbo by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>sed -i -e '/^docdir/ s:$:/libjpeg-turbo:' \
-       -e '/^exampledir/ s:$:/libjpeg-turbo:' Makefile.in &amp;&amp;
-./configure --prefix=/usr \
-            --mandir=/usr/share/man \
-            --disable-static \
-            --with-jpeg8 &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/install-dist_docDATA install-dist_exampleDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>./configure --prefix=/usr \
+            --mandir=/usr/share/man \
+            --disable-static \
+            --with-jpeg8</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libjpeg.la
+rm -v /usr/lib/libturbojpeg.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i -e ...</command> This command fixes Makefile to install
-        documentation and examples in a separate directory.
-      </para>
 
       <para>
         <parameter>--with-jpeg8</parameter>: This switch enables compatibility
@@ -165,7 +171,6 @@ make</userinput></screen>
 /usr/include/turbojpeg.h
 /usr/lib/libjpeg.so
 /usr/lib/libturbojpeg.so
-/usr/share/doc/libjpeg-turbo/
 /usr/share/man/man1/cjpeg.1
 /usr/share/man/man1/djpeg.1
 /usr/share/man/man1/jpegtran.1
