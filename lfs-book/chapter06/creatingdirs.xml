@@ -10,32 +10,35 @@
 
   <title>Creating Directories</title>
 
-  <para>It is time to create some structure in the LFS file system. Create a
-  standard directory tree by issuing the following commands:</para>
+  <para>
+    It is time to create some structure in the LFS file system. Create a
+    directory tree by issuing the following commands:
+  </para>
 
 <screen><userinput>mkdir -pv /bin /boot /etc/opt /etc/sysconfig /home /lib/firmware /mnt /opt
-mkdir -pv /media/floppy /media/cdrom /sbin /srv /var
+mkdir -pv /media/floppy /media/cdrom /srv /var
+ln -sv bin /sbin
 install -dv -m 0750 /root
 install -dv -m 1777 /tmp /var/tmp
-mkdir -pv /usr/bin /usr/include /usr/lib /usr/sbin /usr/src
-mkdir -pv /usr/local/bin /usr/local/include /usr/local/lib /usr/local/sbin /usr/local/src
-mkdir -pv /usr/share/color /usr/share/dict /usr/share/doc
-mkdir -pv /usr/share/info /usr/share/locale /usr/share/man
-mkdir -pv /usr/local/share/color /usr/local/share/dict /usr/local/share/doc
-mkdir -pv /usr/local/share/info /usr/local/share/locale /usr/local/share/man
-mkdir -v  /usr/share/misc /usr/share/terminfo /usr/share/zoneinfo
-mkdir -v  /usr/local/share/misc /usr/local/share/terminfo /usr/local/share/zoneinfo
-mkdir -v  /usr/libexec
-mkdir -pv /usr/share/man/man1 /usr/share/man/man2 /usr/share/man/man3 /usr/share/man/man4
-mkdir -pv /usr/share/man/man5 /usr/share/man/man6 /usr/share/man/man7 /usr/share/man/man8
-mkdir -pv /usr/local/share/man/man1 /usr/local/share/man/man2 /usr/local/share/man/man3
-mkdir -pv /usr/local/share/man/man4 /usr/local/share/man/man5 /usr/local/share/man/man6
-mkdir -pv /usr/local/share/man/man7 /usr/local/share/man/man8
+ln -sv . /usr
+mkdir -pv /include /src
+mkdir -pv /local/bin /local/include /local/lib /local/sbin /local/src
+mkdir -pv /share/color /share/dict /share/doc
+mkdir -pv /share/info /share/locale /share/man
+mkdir -pv /local/share/color /local/share/dict /local/share/doc
+mkdir -pv /local/share/info /local/share/locale /local/share/man
+mkdir -v  /share/misc /share/terminfo /share/zoneinfo
+mkdir -v  /local/share/misc /local/share/terminfo /local/share/zoneinfo
+mkdir -v  /libexec
+mkdir -pv /share/man/man1 /share/man/man2 /share/man/man3 /share/man/man4
+mkdir -pv /share/man/man5 /share/man/man6 /share/man/man7 /share/man/man8
+mkdir -pv /local/share/man/man1 /local/share/man/man2 /local/share/man/man3
+mkdir -pv /local/share/man/man4 /local/share/man/man5 /local/share/man/man6
+mkdir -pv /local/share/man/man7 /local/share/man/man8
 
 case $(uname -m) in
  x86_64) ln -sv lib /lib64
-         ln -sv lib /usr/lib64
-         ln -sv lib /usr/local/lib64 ;;
+         ln -sv lib /local/lib64 ;;
 esac
 
 mkdir -v /var/log /var/mail /var/spool
@@ -61,15 +64,12 @@ mkdir -pv /var/opt /var/cache /var/lib/color /var/lib/misc /var/lib/locate /var/
   <sect2>
     <title>FHS Compliance Note</title>
 
-    <para>The directory tree is based on the Filesystem Hierarchy Standard (FHS)
-    (available at <ulink url="https://wiki.linuxfoundation.org/en/FHS"/>).
-    The FHS also stipulates the existence of <filename
-    class="directory">/usr/local/games</filename> and <filename
-    class="directory">/usr/share/games</filename>. The FHS is not precise as to
-    the structure of the <filename class="directory">/usr/local/share</filename>
-    subdirectory, so we create only the directories that are needed. However,
-    feel free to create these directories if you prefer to conform more strictly
-    to the FHS.</para>
+    <para>
+      LFS does not follow the Filesystem Hierarchy Standard. For legacy support,
+      /usr is a symlink to / and /sbin is a symlink to /bin. Install software
+      with --prefix=/ when possible. The times of a separate root partition are
+      long over. /local is provided to users.
+    </para>
 
   </sect2>
 
