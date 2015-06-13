@@ -36,7 +36,7 @@
     <para>Syslinux works by writing data to the first physical track of the
     hard disk.  This area is not part of any file system.  The programs
     there access Syslinux modules in the boot partition.  The default location
-    is /boot/extlinux. Make sure the boot partition is set as "active".</para>
+    is /boot. Make sure the boot partition is set as "active".</para>
 
     <para>The location of the boot partition is a choice of the user that
     affects the configuration.  One recommendation is to have a separate small
@@ -60,7 +60,7 @@
     class="partition">sda1</filename>.</para>
 
     <para>Install the Syslinux files into <filename
-    class="directory">/boot/extlinux</filename> and set up the boot track:</para>
+    class="directory">/boot</filename> and set up the boot track:</para>
 
     <warning>
       <para>The following command will overwrite the current boot loader. Do not
@@ -68,8 +68,7 @@
       boot manager to manage the Master Boot Record (MBR).</para>
     </warning>
 
-<screen role="nodump"><userinput>mkdir -v /boot/extlinux
-extlinux --install /boot/extlinux
+<screen role="nodump"><userinput>extlinux --install /boot
 cat /lib/syslinux/mbr.bin > /dev/sda</userinput></screen>
 
   </sect2>
