@@ -79,7 +79,8 @@
       <xref linkend="x-window-system"/>,
       <xref linkend="gtk2"/> or
       <ulink url="http://sourceforge.net/projects/lesstif/">LessTif</ulink>,
-      <xref linkend="python2"/>,
+      <xref linkend="perl"/>,
+      <xref linkend="python3"/>,
       <xref linkend="ruby"/>,
       <xref linkend="tcl"/>, and
       <xref linkend="gpm"/>
@@ -95,8 +96,10 @@
     </para>
 
 <screen><userinput>echo '#define SYS_VIMRC_FILE  "/etc/vim/vimrc"' &gt;&gt; src/feature.h &amp;&amp;
-echo '#define SYS_GVIMRC_FILE "/etc/vim/gvimrc"' &gt;&gt; src/feature.h &amp;&amp;
-./configure --prefix=/usr &amp;&amp;
+./configure --prefix=/usr \
+            --with-features=huge \
+            --enable-gui=no \
+            --without-x &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -109,24 +112,24 @@ make</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <option>--with-features=huge</option>: This switch enables all the
+        <parameter>--with-features=huge</parameter>: This switch enables all the
         additional features available in Vim, including support for multibyte
         characters.
       </para>
 
       <para>
-        <option>--enable-gui=no</option>: This will prevent compilation of the
+        <parameter>--enable-gui=no</parameter>: This will prevent compilation of the
         GUI. Vim will still link against X, so that some features such as the
         client-server model or the x11-selection (clipboard) are still available.
       </para>
 
       <para>
-        <option>--without-x</option>: If you prefer not to link Vim against X,
+        <parameter>--without-x</parameter>: If you prefer not to link Vim against X,
         use this switch.
       </para>
 
       <para>
-        <option>--enable-perlinterp</option>, <option>--enable-pythoninterp</option>,
+        <option>--enable-perlinterp</option>, <option>--enable-python3interp</option>,
         <option>--enable-rubyinterp</option>, <option>--enable-tclinterp</option>:
         These options include the Perl, Python, Ruby, or Tcl interpreters that
         allow using other application code in vim scripts.
