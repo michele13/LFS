@@ -4,8 +4,7 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY parted-download-http
-    "http://ftp.gnu.org/gnu/parted/parted-&parted-version;.tar.xz">
+  <!ENTITY parted-download-http "http://ftp.gnu.org/gnu/parted/parted-&parted-version;.tar.xz">
   <!ENTITY parted-download-ftp  " ">
   <!ENTITY parted-md5sum        "0247b6a7b314f8edeb618159fa95f9cb">
   <!ENTITY parted-size          "1.6 MB">
@@ -56,19 +55,11 @@
       <itemizedlist spacing="compact">
         <listitem>
           <para>
-             Optional, to fix build without device mapper support:
+             Required, to fix build without device mapper support:
             <ulink url="&patch-root;parted/parted-&parted-version;-devmapper-1.patch"/>
           </para>
         </listitem>
       </itemizedlist>
-
-    <bridgehead renderas="sect3">Parted Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
-      <xref linkend="lvm2"/> (device-mapper, required if building
-      <application>udisks</application>)
-    </para>
 
   </sect2>
 
@@ -76,7 +67,7 @@
     <title>Installation of parted</title>
             
     <para>
-      If you want to build without device mapper support, a fix is necessary:
+      A fix is necessary to build without device mapper support:
     </para>
 
 <screen><userinput>patch -p1 -i ../parted-&parted-version;-devmapper-1.patch</userinput></screen>
@@ -86,7 +77,7 @@
       commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr --disable-static &amp;&amp;
+<screen><userinput>./configure --prefix=/usr --disable-static --disable-device-mapper &amp;&amp;
 make &amp;&amp;
 
 make -C doc html                                       &amp;&amp;
@@ -137,7 +128,7 @@ install -v -m644    doc/{FAT,API,parted.{txt,html}} \
       href="../../xincludes/static-libraries.xml"/>
 
     <para>
-      <option>--disable-device-mapper</option>: This option disables device
+      <parameter>--disable-device-mapper</parameter>: This switch disables device
       mapper support. Add this parameter if you have not installed
       <application>LVM2</application>.
     </para>
