@@ -12,7 +12,14 @@ all:
 	@echo "Select an appropriate install target from the above list" 
 
 create-dirs:
-	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc{0,1,2,3,4,5,6,S}.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc0.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc1.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc2.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc3.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc4.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc5.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rc6.d
+	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/rcS.d
 	install -d -m ${DIRMODE} ${EXTDIR}/rc.d/init.d
 	install -d -m ${DIRMODE} ${EXTDIR}/sysconfig
 
