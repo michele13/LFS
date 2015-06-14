@@ -152,7 +152,14 @@ else
   PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
 fi
 
-EDITOR=vi ; export EDITOR
+if command -v vim >/dev/null
+then
+    EDITOR=vim
+else
+    EDITOR=vi
+fi
+export EDITOR
+
 MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo` ; export MAKEFLAGS
 
 # End ~/.ashrc</literal>
