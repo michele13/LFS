@@ -11,14 +11,9 @@ all: links
 install: all
 
 create-dirs:
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc0.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc1.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc2.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc3.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc4.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc5.d
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc6.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rcS.d
+	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc3.d
+	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc0.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/init.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/sysconfig
 	install -d -m ${DIRMODE}  ${LIBDIR}
@@ -62,7 +57,7 @@ files: create-dirs
           install -m ${CONFMODE} lfs/sysconfig/rc.site     ${EXTDIR}/sysconfig/ ;\
         fi
 
-links: rcS rc0 rc1 rc2 rc3 rc4 rc5 rc6
+links: rcS rc3 rc0
 
 rcS: files
 	ln -sf ../init.d/mountvirtfs ${EXTDIR}/rc.d/rcS.d/S00mountvirtfs
@@ -73,6 +68,13 @@ rcS: files
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rcS.d/S40mountfs
 	ln -sf ../init.d/cleanfs     ${EXTDIR}/rc.d/rcS.d/S45cleanfs
 	ln -sf ../init.d/sysctl      ${EXTDIR}/rc.d/rcS.d/S90sysctl
+
+rc3: files
+	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc3.d/S18acpid
+	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
+	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
 
 rc0: files
 	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc0.d/K32acpid
@@ -86,58 +88,10 @@ rc0: files
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S70mountfs
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S90localnet
 
-rc1: files
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc1.d/K32acpid
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc1.d/K46ntpd
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc1.d/K80network
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc1.d/K90sysklogd
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc1.d/S25random
-
-rc2: files
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc2.d/K46ntpd
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc2.d/K80network
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc2.d/K90sysklogd
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc2.d/S18acpid
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc2.d/S25random
-
-rc3: files
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc3.d/S18acpid
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
-
-rc4: files
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc4.d/S10sysklogd
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc4.d/S18acpid
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc4.d/S20network
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc4.d/S25random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc4.d/S26ntpd
-
-rc5: files
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc5.d/S10sysklogd
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc5.d/S18acpid
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc5.d/S20network
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc5.d/S25random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc5.d/S26ntpd
-
-rc6: files
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc6.d/K32acpid
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc6.d/K45random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc6.d/K46ntpd
-	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc6.d/K46setclock
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc6.d/K80network
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc6.d/K90sysklogd
-	ln -sf ../init.d/sendsignals ${EXTDIR}/rc.d/rc6.d/S60sendsignals
-	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rc6.d/S65swap
-	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc6.d/S70mountfs
-	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc6.d/S90localnet
-	ln -sf ../init.d/reboot      ${EXTDIR}/rc.d/rc6.d/S99reboot
-
 uninstall:
 	rm -rf ${DESTDIR}/lib/services ${DESTDIR}/lib/lsb ${EXTDIR}/rc.d ${EXTDIR}/init.d \
                ${SBIN}/ifup ${SBIN}/ifdown ${MAN8}/ifup.8 ${MAN8}/ifdown.8 \
                ${EXTDIR}/sysconfig/rc 
 
-.PHONY: all create-dirs install files links rcS rc0 rc1 rc2 rc3 rc4 rc5 rc6 uninstall
+.PHONY: all create-dirs install files links rcS rc3 rc6 uninstall
 
