@@ -71,16 +71,16 @@ rc3: files
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
 
 rc0: files
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc0.d/K32acpid
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/K45random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc0.d/K46ntpd
-	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc0.d/K46setclock
-	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc0.d/K80network
-	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/K90sysklogd
-	ln -sf ../init.d/sendsignals ${EXTDIR}/rc.d/rc0.d/S60sendsignals
-	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rc0.d/S65swap
-	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S70mountfs
-	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S90localnet
+	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc0.d/S32acpid
+	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/S45random
+	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc0.d/S46ntpd
+	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc0.d/S46setclock
+	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc0.d/S80network
+	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/S90sysklogd
+	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S96localnet
+	ln -sf ../init.d/sendsignals ${EXTDIR}/rc.d/rc0.d/S97sendsignals
+	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rc0.d/S98swap
+	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S99mountfs
 
 uninstall:
 	rm -rf ${DESTDIR}/lib/services ${DESTDIR}/lib/lsb ${EXTDIR}/rc.d ${EXTDIR}/init.d \
