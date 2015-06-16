@@ -34,6 +34,7 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/ntpd          ${EXTDIR}/rc.d/init.d/
+	install -m ${MODE} lfs/init.d/oneandonly    ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/reboot        ${EXTDIR}/rc.d/init.d/
@@ -60,14 +61,7 @@ files: create-dirs
 links: rcS rc3 rc0
 
 rcS: files
-	ln -sf ../init.d/mountvirtfs ${EXTDIR}/rc.d/rcS.d/S00mountvirtfs
-	ln -sf ../init.d/mdev        ${EXTDIR}/rc.d/rcS.d/S04mdev
-	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rcS.d/S08localnet
-	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rcS.d/S20swap
-	ln -sf ../init.d/checkfs     ${EXTDIR}/rc.d/rcS.d/S30checkfs
-	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rcS.d/S40mountfs
-	ln -sf ../init.d/cleanfs     ${EXTDIR}/rc.d/rcS.d/S45cleanfs
-	ln -sf ../init.d/sysctl      ${EXTDIR}/rc.d/rcS.d/S90sysctl
+	ln -sf ../init.d/oneandonly  ${EXTDIR}/rc.d/rcS.d/oneandonly
 
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
