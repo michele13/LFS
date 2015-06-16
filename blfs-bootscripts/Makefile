@@ -47,12 +47,12 @@ install-kbd:
 
 install-alsa: create-dirs
 	install -m ${MODE} blfs/init.d/alsa       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc0.d/K35alsa
+	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc0.d/S35alsa
 	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc3.d/S05alsa
 
 install-php: create-dirs
 	install -m ${MODE} blfs/init.d/php-fpm     ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/php-fpm ${EXTDIR}/rc.d/rc0.d/K28php-fpm
+	ln -sf  ../init.d/php-fpm ${EXTDIR}/rc.d/rc0.d/S28php-fpm
 	ln -sf  ../init.d/php-fpm ${EXTDIR}/rc.d/rc3.d/S32php-fpm
 
 install-autofs: create-dirs
@@ -62,49 +62,44 @@ install-autofs: create-dirs
 
 install-atd: create-dirs
 	install -m ${MODE} blfs/init.d/atd       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/atd ${EXTDIR}/rc.d/rc0.d/K29atd
+	ln -sf  ../init.d/atd ${EXTDIR}/rc.d/rc0.d/S29atd
 	ln -sf  ../init.d/atd ${EXTDIR}/rc.d/rc3.d/S68atd
 
 install-saslauthd: create-dirs
 	install -m ${MODE} blfs/init.d/saslauthd ${EXTDIR}/rc.d/init.d/saslauthd
 	install -m ${CONFMODE} blfs/sysconfig/saslauthd ${EXTDIR}/sysconfig/saslauthd
-	ln -sf  ../init.d/saslauthd ${EXTDIR}/rc.d/rc0.d/K49saslauthd
+	ln -sf  ../init.d/saslauthd ${EXTDIR}/rc.d/rc0.d/S49saslauthd
 	ln -sf  ../init.d/saslauthd ${EXTDIR}/rc.d/rc3.d/S24saslauthd
 
 install-dovecot: create-dirs
 	install -m ${MODE} blfs/init.d/dovecot       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/dovecot ${EXTDIR}/rc.d/rc0.d/K78dovecot
+	ln -sf  ../init.d/dovecot ${EXTDIR}/rc.d/rc0.d/S78dovecot
 	ln -sf  ../init.d/dovecot ${EXTDIR}/rc.d/rc3.d/S27dovecot
 
 install-dhcpd: create-dirs
 	install -m ${MODE} blfs/init.d/dhcpd       ${EXTDIR}/rc.d/init.d/dhcpd
 	install -m ${CONFMODE} blfs/sysconfig/dhcpd ${EXTDIR}/sysconfig/dhcpd
-	ln -sf  ../init.d/dhcpd ${EXTDIR}/rc.d/rc0.d/K30dhcpd
+	ln -sf  ../init.d/dhcpd ${EXTDIR}/rc.d/rc0.d/S30dhcpd
 	ln -sf  ../init.d/dhcpd ${EXTDIR}/rc.d/rc3.d/S30dhcpd
 
 install-exim: create-dirs
 	install -m ${MODE} blfs/init.d/exim       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/exim ${EXTDIR}/rc.d/rc0.d/K25exim
+	ln -sf  ../init.d/exim ${EXTDIR}/rc.d/rc0.d/S25exim
 	ln -sf  ../init.d/exim ${EXTDIR}/rc.d/rc3.d/S35exim
 
 install-fcron: create-dirs
 	install -m ${MODE} blfs/init.d/fcron      ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/fcron ${EXTDIR}/rc.d/rc0.d/K08fcron
+	ln -sf  ../init.d/fcron ${EXTDIR}/rc.d/rc0.d/S08fcron
 	ln -sf  ../init.d/fcron ${EXTDIR}/rc.d/rc3.d/S40fcron
-
-install-gdm: create-dirs
-	install -m ${MODE} blfs/init.d/gdm        ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/gdm ${EXTDIR}/rc.d/rc0.d/K05gdm
-	ln -sf  ../init.d/gdm ${EXTDIR}/rc.d/rc3.d/K05gdm
 
 install-gpm: create-dirs
 	install -m ${MODE} blfs/init.d/gpm        ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/gpm ${EXTDIR}/rc.d/rc0.d/K10gpm
+	ln -sf  ../init.d/gpm ${EXTDIR}/rc.d/rc0.d/S10gpm
 	ln -sf  ../init.d/gpm ${EXTDIR}/rc.d/rc3.d/S70gpm
 
 install-haveged: create-dirs
 	install -m ${MODE} blfs/init.d/haveged        ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/haveged ${EXTDIR}/rc.d/rc0.d/K90haveged
+	ln -sf  ../init.d/haveged ${EXTDIR}/rc.d/rc0.d/S90haveged
 	ln -sf  ../init.d/haveged ${EXTDIR}/rc.d/rc3.d/S21haveged
 
 install-iptables: create-dirs
@@ -113,67 +108,67 @@ install-iptables: create-dirs
 
 install-netfs: create-dirs
 	install -m ${MODE} blfs/init.d/netfs      ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/netfs ${EXTDIR}/rc.d/rc0.d/K47netfs
+	ln -sf  ../init.d/netfs ${EXTDIR}/rc.d/rc0.d/S47netfs
 	ln -sf  ../init.d/netfs ${EXTDIR}/rc.d/rc3.d/S28netfs
 
 install-nfs-client: create-dirs
 	install -m ${MODE} blfs/init.d/nfs-client ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/nfs-client ${EXTDIR}/rc.d/rc0.d/K48nfs-client
+	ln -sf  ../init.d/nfs-client ${EXTDIR}/rc.d/rc0.d/S48nfs-client
 	ln -sf  ../init.d/nfs-client ${EXTDIR}/rc.d/rc3.d/S24nfs-client
 
 install-nfs-server: create-dirs
 	install -m ${MODE} blfs/init.d/nfs-server ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/nfs-server ${EXTDIR}/rc.d/rc0.d/K48nfs-server
+	ln -sf  ../init.d/nfs-server ${EXTDIR}/rc.d/rc0.d/S48nfs-server
 	ln -sf  ../init.d/nfs-server ${EXTDIR}/rc.d/rc3.d/S24nfs-server
 
 install-proftpd: create-dirs
 	install -m ${MODE} blfs/init.d/proftpd    ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/proftpd ${EXTDIR}/rc.d/rc0.d/K28proftpd
+	ln -sf  ../init.d/proftpd ${EXTDIR}/rc.d/rc0.d/S28proftpd
 	ln -sf  ../init.d/proftpd ${EXTDIR}/rc.d/rc3.d/S32proftpd
 
 install-rpcbind: create-dirs
 	install -m ${MODE} blfs/init.d/rpcbind    ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/rpcbind ${EXTDIR}/rc.d/rc0.d/K49rpcbind
+	ln -sf  ../init.d/rpcbind ${EXTDIR}/rc.d/rc0.d/S49rpcbind
 	ln -sf  ../init.d/rpcbind ${EXTDIR}/rc.d/rc3.d/S22rpcbind
 
 install-rsyncd: create-dirs
 	install -m ${MODE} blfs/init.d/rsyncd     ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/rsyncd ${EXTDIR}/rc.d/rc0.d/K30rsyncd
+	ln -sf  ../init.d/rsyncd ${EXTDIR}/rc.d/rc0.d/S30rsyncd
 	ln -sf  ../init.d/rsyncd ${EXTDIR}/rc.d/rc3.d/S30rsyncd
 
 install-sshd: create-dirs
 	install -m ${MODE} blfs/init.d/sshd       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/sshd ${EXTDIR}/rc.d/rc0.d/K30sshd
+	ln -sf  ../init.d/sshd ${EXTDIR}/rc.d/rc0.d/S30sshd
 	ln -sf  ../init.d/sshd ${EXTDIR}/rc.d/rc3.d/S30sshd
 
 install-stunnel: create-dirs
 	install -m ${MODE} blfs/init.d/stunnel    ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/stunnel ${EXTDIR}/rc.d/rc0.d/K47stunnel
+	ln -sf  ../init.d/stunnel ${EXTDIR}/rc.d/rc0.d/S47stunnel
 	ln -sf  ../init.d/stunnel ${EXTDIR}/rc.d/rc3.d/S55stunnel
 
 install-unbound: create-dirs
 	install -m ${MODE} blfs/init.d/unbound       ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/unbound ${EXTDIR}/rc.d/rc0.d/K79unbound
+	ln -sf  ../init.d/unbound ${EXTDIR}/rc.d/rc0.d/S79unbound
 	ln -sf  ../init.d/unbound ${EXTDIR}/rc.d/rc3.d/S21unbound
 
 install-xinetd: create-dirs
 	install -m ${MODE} blfs/init.d/xinetd     ${EXTDIR}/rc.d/init.d/
-	ln -sf ../init.d/xinetd ${EXTDIR}/rc.d/rc0.d/K49xinetd
+	ln -sf ../init.d/xinetd ${EXTDIR}/rc.d/rc0.d/S49xinetd
 	ln -sf ../init.d/xinetd ${EXTDIR}/rc.d/rc3.d/S23xinetd
 
 uninstall-atd: 
 	rm -f ${EXTDIR}/rc.d/init.d/atd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K29atd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S29atd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S68atd
 
 uninstall-alsa:
 	rm -f ${EXTDIR}/rc.d/init.d/alsa
-	rm -f ${EXTDIR}/rc.d/rc0.d/K35alsa
+	rm -f ${EXTDIR}/rc.d/rc0.d/S35alsa
 	rm -f ${EXTDIR}/rc.d/rc3.d/S05alsa
 
 uninstall-php:
 	rm -f ${EXTDIR}/rc.d/init.d/php-fpm
-	rm -f ${EXTDIR}/rc.d/rc0.d/K28php-fpm
+	rm -f ${EXTDIR}/rc.d/rc0.d/S28php-fpm
 	rm -f ${EXTDIR}/rc.d/rc3.d/S32php-fpm
 
 uninstall-autofs:
@@ -183,38 +178,38 @@ uninstall-autofs:
 uninstall-saslauthd:
 	rm -f ${EXTDIR}/rc.d/init.d/saslauthd
 	rm -f ${EXTDIR}/sysconfig/saslauthd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K49saslauthd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S49saslauthd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S24saslauthd
 
 uninstall-dhcpd:
 	rm -f ${EXTDIR}/rc.d/init.d/dhcpd
 	rm -f ${EXTDIR}/sysconfig/dhcpd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K30dhcpd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S30dhcpd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S30dhcpd
 
 uninstall-dovecot:
 	rm -f ${EXTDIR}/rc.d/init.d/dovecot
-	rm -f ${EXTDIR}/rc.d/rc0.d/K78dovecot
+	rm -f ${EXTDIR}/rc.d/rc0.d/S78dovecot
 	rm -f ${EXTDIR}/rc.d/rc3.d/S27dovecot
 
 uninstall-exim:
 	rm -f ${EXTDIR}/rc.d/init.d/exim
-	rm -f ${EXTDIR}/rc.d/rc0.d/K25exim
+	rm -f ${EXTDIR}/rc.d/rc0.d/S25exim
 	rm -f ${EXTDIR}/rc.d/rc3.d/S35exim
 
 uninstall-fcron:
 	rm -f ${EXTDIR}/rc.d/init.d/fcron
-	rm -f ${EXTDIR}/rc.d/rc0.d/K08fcron
+	rm -f ${EXTDIR}/rc.d/rc0.d/S08fcron
 	rm -f ${EXTDIR}/rc.d/rc3.d/S40fcron
 
 uninstall-gpm:
 	rm -f ${EXTDIR}/rc.d/init.d/gpm
-	rm -f ${EXTDIR}/rc.d/rc0.d/K10gpm
+	rm -f ${EXTDIR}/rc.d/rc0.d/S10gpm
 	rm -f ${EXTDIR}/rc.d/rc3.d/S70gpm
 
 uninstall-haveged:
 	rm -f ${EXTDIR}/rc.d/init.d/haveged
-	rm -f ${EXTDIR}/rc.d/rc0.d/K90haveged
+	rm -f ${EXTDIR}/rc.d/rc0.d/S90haveged
 	rm -f ${EXTDIR}/rc.d/rc3.d/S21haveged
 
 uninstall-iptables:
@@ -223,52 +218,52 @@ uninstall-iptables:
 
 uninstall-netfs:
 	rm -f ${EXTDIR}/rc.d/init.d/netfs
-	rm -f ${EXTDIR}/rc.d/rc0.d/K47netfs
+	rm -f ${EXTDIR}/rc.d/rc0.d/S47netfs
 	rm -f ${EXTDIR}/rc.d/rc3.d/S28netfs
 
 uninstall-nfs-client:
 	rm -f ${EXTDIR}/rc.d/init.d/nfs-client
-	rm -f ${EXTDIR}/rc.d/rc0.d/K48nfs-client
+	rm -f ${EXTDIR}/rc.d/rc0.d/S48nfs-client
 	rm -f ${EXTDIR}/rc.d/rc3.d/S24nfs-client
 
 uninstall-nfs-server:
 	rm -f ${EXTDIR}/rc.d/init.d/nfs-server
-	rm -f ${EXTDIR}/rc.d/rc0.d/K48nfs-server
+	rm -f ${EXTDIR}/rc.d/rc0.d/S48nfs-server
 	rm -f ${EXTDIR}/rc.d/rc3.d/S24nfs-server
 
 uninstall-proftpd:
 	rm -f ${EXTDIR}/rc.d/init.d/proftpd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K28proftpd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S28proftpd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S32proftpd
 
 uninstall-rpcbind: 
 	rm -f ${EXTDIR}/rc.d/init.d/rpcbind
-	rm -f ${EXTDIR}/rc.d/rc0.d/K49rpcbind
+	rm -f ${EXTDIR}/rc.d/rc0.d/S49rpcbind
 	rm -f ${EXTDIR}/rc.d/rc3.d/S22rpcbind
 
 uninstall-rsyncd:
 	rm -f ${EXTDIR}/rc.d/init.d/rsyncd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K30rsyncd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S30rsyncd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S30rsyncd
 
 uninstall-sshd:
 	rm -f ${EXTDIR}/rc.d/init.d/sshd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K30sshd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S30sshd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S30sshd
 
 uninstall-stunnel:
 	rm -f ${EXTDIR}/rc.d/init.d/stunnel
-	rm -f ${EXTDIR}/rc.d/rc0.d/K47stunnel
+	rm -f ${EXTDIR}/rc.d/rc0.d/S47stunnel
 	rm -f ${EXTDIR}/rc.d/rc3.d/S55stunnel
 
 uninstall-unbound:
 	rm -f ${EXTDIR}/rc.d/init.d/unbound
-	rm -f ${EXTDIR}/rc.d/rc0.d/K79unbound
+	rm -f ${EXTDIR}/rc.d/rc0.d/S79unbound
 	rm -f ${EXTDIR}/rc.d/rc3.d/S21unbound
 
 uninstall-xinetd:
 	rm -f ${EXTDIR}/rc.d/init.d/xinetd
-	rm -f ${EXTDIR}/rc.d/rc0.d/K49xinetd
+	rm -f ${EXTDIR}/rc.d/rc0.d/S49xinetd
 	rm -f ${EXTDIR}/rc.d/rc3.d/S23xinetd
 
 .PHONY: all create-dirs create-service-dir \
