@@ -77,18 +77,31 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_htmlDATA//" -i doc/Makefile.in
+sed "s/ install-dist_apidocDATA//" -i doc/libogg/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libogg.la</userinput></screen>
 
   </sect2>
 
@@ -106,8 +119,7 @@ make</userinput></screen>
 <screen><literal>/usr/include/ogg/
 /usr/lib/libogg.so
 /usr/lib/pkgconfig/ogg.pc
-/usr/share/aclocal/ogg.m4
-/usr/share/doc/libogg/</literal></screen>
+/usr/share/aclocal/ogg.m4</literal></screen>
 
   </sect2>
 
