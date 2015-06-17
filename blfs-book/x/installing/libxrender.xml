@@ -78,7 +78,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="renderproto"/> and
       <xref linkend="libx11"/>
     </para>
@@ -89,17 +89,29 @@
     <title>Installation</title>
 
     <para>
-      Install libXrender by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libXrender.la</userinput></screen>
 
   </sect2>
 
@@ -116,8 +128,7 @@ make</userinput></screen>
 
 <screen><literal>/usr/include/X11/extensions/Xrender.h
 /usr/lib/libXrender.so
-/usr/lib/pkgconfig/xrender.pc
-/usr/share/doc/libXrender/</literal></screen>
+/usr/lib/pkgconfig/xrender.pc</literal></screen>
 
   </sect2>
 
