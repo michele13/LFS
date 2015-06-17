@@ -6,8 +6,7 @@
 
   <!ENTITY libsndfile-homepage      "http://www.mega-nerd.com/libsndfile/">
   <!ENTITY libsndfile-wikipedia     "http://en.wikipedia.org/wiki/Libsndfile">
-  <!ENTITY libsndfile-download-http
-  "http://www.mega-nerd.com/libsndfile/files/libsndfile-&libsndfile-version;.tar.gz">
+  <!ENTITY libsndfile-download-http "http://www.mega-nerd.com/libsndfile/files/libsndfile-&libsndfile-version;.tar.gz">
   <!ENTITY libsndfile-download-ftp  " ">
   <!ENTITY libsndfile-md5sum        "e2b7bb637e01022c7d20f95f9c3990a2">
   <!ENTITY libsndfile-size          "1.1 MB">
@@ -75,11 +74,11 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="alsa-lib"/>,
       <xref linkend="libogg"/>,
       <xref linkend="flac"/>,
-      <xref linkend="libvorbis"/> and
+      <xref linkend="libvorbis"/>, and
       <xref linkend="sqlite"/>
     </para>
 
@@ -89,18 +88,30 @@
     <title>Installation</title>
 
     <para>
-      Install libsndfile by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-htmlDATA//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libsndfile.la</userinput></screen>
 
   </sect2>
 
@@ -163,7 +174,6 @@ make</userinput></screen>
 /usr/include/sndfile.hh
 /usr/lib/libsndfile.so
 /usr/lib/pkgconfig/sndfile.pc
-/usr/share/doc/libsndfile1-dev/
 /usr/share/man/man1/sndfile-cmp.1
 /usr/share/man/man1/sndfile-concat.1
 /usr/share/man/man1/sndfile-convert.1
