@@ -74,7 +74,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libogg"/>
     </para>
 
@@ -84,19 +84,34 @@
     <title>Installation</title>
 
     <para>
-      Install libtheora by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local install-docDATA//" -i doc/Makefile.in
+sed "s/ install-docDATA//" -i doc/spec/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --disable-static \
-            --disable-examples &amp;&amp;
-make</userinput></screen>
+            --disable-examples</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libtheora.la
+rm -v /usr/lib/libtheoradec.la
+rm -v /usr/lib/libtheoraenc.la</userinput></screen>
 
   </sect2>
 
@@ -123,8 +138,7 @@ make</userinput></screen>
 /usr/lib/libtheoraenc.so
 /usr/lib/pkgconfig/theora.pc
 /usr/lib/pkgconfig/theoradec.pc
-/usr/lib/pkgconfig/theoraenc.pc
-/usr/share/doc/libtheora-&libtheora-version;/</literal></screen>
+/usr/lib/pkgconfig/theoraenc.pc</literal></screen>
 
   </sect2>
 
