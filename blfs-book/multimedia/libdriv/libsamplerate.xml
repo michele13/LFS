@@ -6,8 +6,7 @@
 
   <!ENTITY libsamplerate-homepage      "http://www.mega-nerd.com/SRC/">
   <!ENTITY libsamplerate-wikipedia     " ">
-  <!ENTITY libsamplerate-download-http
-  "http://www.mega-nerd.com/SRC/libsamplerate-&libsamplerate-version;.tar.gz">
+  <!ENTITY libsamplerate-download-http "http://www.mega-nerd.com/SRC/libsamplerate-&libsamplerate-version;.tar.gz">
   <!ENTITY libsamplerate-download-ftp  " ">
   <!ENTITY libsamplerate-md5sum        "1c7fb25191b4e6e3628d198a66a84f47">
   <!ENTITY libsamplerate-size          "4.1 MB">
@@ -74,7 +73,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
        <xref linkend='libsndfile'/>
     </para>
 
@@ -84,18 +83,30 @@
     <title>Installation</title>
 
     <para>
-      Install libsamplerate by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-htmlDATA//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libsamplerate.la</userinput></screen>
 
   </sect2>
 
@@ -116,8 +127,7 @@ make</userinput></screen>
 <screen><literal>/usr/bin/sndfile-resample
 /usr/include/samplerate.h
 /usr/lib/libsamplerate.so
-/usr/lib/pkgconfig/samplerate.pc
-/usr/share/doc/libsamplerate0-dev/</literal></screen>
+/usr/lib/pkgconfig/samplerate.pc</literal></screen>
 
   </sect2>
 
