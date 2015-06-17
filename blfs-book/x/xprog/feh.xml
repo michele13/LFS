@@ -106,13 +106,21 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-doc//" -i Makefile
+sed "s/ install-examples//" -i Makefile
+sed "s/ install-applications//" -i Makefile</userinput></screen>
+
+    <para>
+      Compile the package:
     </para>
 
 <screen><userinput>make PREFIX=/usr</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
 <screen role="root"><userinput>make -j1 PREFIX=/usr install</userinput></screen>
@@ -146,8 +154,6 @@
     </para>
 
 <screen><literal>/usr/bin/feh
-/usr/share/applications/feh.desktop
-/usr/share/doc/feh/
 /usr/share/feh/
 /usr/share/man/man1/feh.1</literal></screen>
 
