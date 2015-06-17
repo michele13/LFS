@@ -6,29 +6,23 @@
 
   <!ENTITY fontconfig-homepage      "http://www.fontconfig.org/">
   <!ENTITY fontconfig-wikipedia     "http://en.wikipedia.org/wiki/Fontconfig">
-  <!ENTITY fontconfig-download-http 
-  "http://www.freedesktop.org/software/fontconfig/release/fontconfig-&fontconfig-version;.tar.bz2">
+  <!ENTITY fontconfig-download-http "http://www.freedesktop.org/software/fontconfig/release/fontconfig-&fontconfig-version;.tar.bz2">
   <!ENTITY fontconfig-download-ftp  " ">
   <!ENTITY fontconfig-md5sum        "2f239690057d1438aa282e051f721d08">
   <!ENTITY fontconfig-size          "1.4 MB">
   <!ENTITY fontconfig-buildsize     "16 MB">
   <!ENTITY fontconfig-time          "0.4 SBU">
 
-  <!ENTITY fontconfig-infinality-download-http
-  "http://www.infinality.net/fedora/linux/zips/fontconfig-infinality-1-20130104_1.tar.bz2">
-  <!ENTITY fontconfig-infinality-download-ftp    " ">
-  <!ENTITY fontconfig-infinality-md5sum "1e132295aadaa499a6b8f8a754825aa3">
-  <!ENTITY fontconfig-infinality-size   "23 KB">
+  <!ENTITY fontconfig-infinality-download-http "http://www.infinality.net/fedora/linux/zips/fontconfig-infinality-1-20130104_1.tar.bz2">
+  <!ENTITY fontconfig-infinality-download-ftp  " ">
+  <!ENTITY fontconfig-infinality-md5sum        "1e132295aadaa499a6b8f8a754825aa3">
+  <!ENTITY fontconfig-infinality-size          "23 KB">
 ]>
 
 <sect1 id="fontconfig" xreflabel="Fontconfig-&fontconfig-version;">
   <?dbhtml filename="fontconfig.html"?>
 
   <title>Fontconfig-&fontconfig-version;</title>
-
-  <indexterm zone="fontconfig">
-    <primary sortas="a-Fontconfig">Fontconfig</primary>
-  </indexterm>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -110,7 +104,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="freetype2"/> and
       <xref linkend="expat"/>
     </para>
@@ -121,20 +115,32 @@
     <title>Installation</title>
 
     <para>
-      Install Fontconfig by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-docDATA install-htmldocDATA//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libfontconfig.la</userinput></screen>
 
     <para>
       If you wish to use Infinality, as the <systemitem class="username">root</systemitem> user:
@@ -232,10 +238,7 @@ ln -sfnv styles.conf.avail/linux /etc/fonts/infinality/conf.d</userinput></scree
 /usr/bin/fc-scan
 /usr/include/fontconfig/
 /usr/lib/libfontconfig.so
-/usr/lib/libfontconfig.so.1
-/usr/lib/libfontconfig.so.1.6.2
 /usr/lib/pkgconfig/fontconfig.pc
-/usr/share/doc/fontconfig/
 /usr/share/fontconfig/
 /usr/share/man/man1/fc-cache.1
 /usr/share/man/man1/fc-cat.1
