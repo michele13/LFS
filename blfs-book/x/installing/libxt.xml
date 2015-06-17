@@ -75,7 +75,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libx11"/> and
       <xref linkend="libsm"/>
     </para>
@@ -86,18 +86,30 @@
     <title>Installation</title>
 
     <para>
-      Install libXt by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure $XORG_CONFIG \
-            --with-appdefaultdir=/etc/X11/app-defaults &amp;&amp;
-make</userinput></screen>
+            --with-appdefaultdir=/etc/X11/app-defaults</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libXt.la</userinput></screen>
 
   </sect2>
 
@@ -146,8 +158,7 @@ make</userinput></screen>
 /usr/include/X11/VendorP.h
 /usr/include/X11/Xtos.h
 /usr/lib/libXt.so
-/usr/lib/pkgconfig/xt.pc
-/usr/share/doc/libXt/</literal></screen>
+/usr/lib/pkgconfig/xt.pc</literal></screen>
 
   </sect2>
 
