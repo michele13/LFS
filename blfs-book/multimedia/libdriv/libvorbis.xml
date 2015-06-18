@@ -6,8 +6,7 @@
 
   <!ENTITY libvorbis-homepage      "http://xiph.org/vorbis/">
   <!ENTITY libvorbis-wikipedia     "http://en.wikipedia.org/wiki/Vorbis">
-  <!ENTITY libvorbis-download-http
-  "http://downloads.xiph.org/releases/vorbis/libvorbis-&libvorbis-version;.tar.xz">
+  <!ENTITY libvorbis-download-http "http://downloads.xiph.org/releases/vorbis/libvorbis-&libvorbis-version;.tar.xz">
   <!ENTITY libvorbis-download-ftp  " ">
   <!ENTITY libvorbis-md5sum        "28cb28097c07a735d6af56e598e1c90f">
   <!ENTITY libvorbis-size          "1.1 MB">
@@ -76,7 +75,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libogg"/>
     </para>
 
@@ -86,18 +85,35 @@
     <title>Installation</title>
 
     <para>
-      Install libvorbis by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local install-docDATA//" -i doc/Makefile.in
+sed "s/ install-docDATA//" -i doc/libvorbis/Makefile.in
+sed "s/ install-docDATA//" -i doc/vorbisenc/Makefile.in
+sed "s/ install-docDATA//" -i doc/vorbisfile/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libvorbis.la
+rm -v /usr/lib/libvorbisenc.la
+rm -v /usr/lib/libvorbisfile.la</userinput></screen>
 
   </sect2>
 
@@ -125,8 +141,7 @@ make</userinput></screen>
 /usr/lib/pkgconfig/vorbisenc.pc
 /usr/lib/pkgconfig/vorbisfile.pc
 /usr/lib/pkgconfig/vorbis.pc
-/usr/share/aclocal/vorbis.m4
-/usr/share/doc/libvorbis-&libvorbis-version;/</literal></screen>
+/usr/share/aclocal/vorbis.m4</literal></screen>
 
   </sect2>
 
