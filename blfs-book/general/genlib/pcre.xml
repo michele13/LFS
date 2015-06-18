@@ -76,6 +76,7 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
+      <xref linkend="bzip2"/> and
       <xref linkend="readline"/>
     </para>
 
@@ -85,7 +86,14 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_docDATA install-dist_htmlDATA//" -i Makefile.in
+sed "s/install-htmlDATA i/i/" -i Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
@@ -95,14 +103,24 @@
             --enable-pcre32 \
             --enable-pcregrep-libz \
             --enable-pcregrep-libbz2 \
-            --enable-pcretest-libreadline &amp;&amp;
-make</userinput></screen>
+            --enable-pcretest-libreadline</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libpcre.la
+rm -v /usr/lib/libpcre16.la
+rm -v /usr/lib/libpcre32.la
+rm -v /usr/lib/libpcrecpp.la
+rm -v /usr/lib/libpcreposix.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -196,7 +214,6 @@ make</userinput></screen>
 /usr/lib/pkgconfig/libpcrecpp.pc
 /usr/lib/pkgconfig/libpcre.pc
 /usr/lib/pkgconfig/libpcreposix.pc
-/usr/share/doc/pcre/
 /usr/share/man/man1/pcre-config.1
 /usr/share/man/man1/pcregrep.1
 /usr/share/man/man1/pcretest.1
