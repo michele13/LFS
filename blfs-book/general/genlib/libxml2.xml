@@ -75,7 +75,8 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
-      <xref linkend="readline"/> and
+      <xref linkend="xz"/>,
+      <xref linkend="readline"/>, and
       <xref linkend="python3"/>
     </para>
 
@@ -93,6 +94,17 @@
     <title>Installation</title>
 
     <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local//" -i Makefile.in
+sed "s/ install-data-local//" -i doc/Makefile.in
+sed "s/ install-data-local//" -i doc/examples/Makefile.in
+sed "s/ install-dist_docsDATA//" -i python/Makefile.in
+sed "s/ install-dist_exampleDATA//" -i python/tests/Makefile.in
+sed "s/ install-dist_devhelpDATA//" -i doc/devhelp/Makefile.in</userinput></screen>
+
+    <para>
        Apply two upstream fixes, which correct bugs in
        <command>xmlcatalog</command> and in the entity substitution
        mechanism:
@@ -105,20 +117,25 @@
   -i parser.c</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --disable-static \
             --with-python=/usr/bin/python3 \
-            --with-history &amp;&amp;
-make</userinput></screen>
-
+            --with-history</userinput></screen>
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libxml2.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -169,8 +186,6 @@ make</userinput></screen>
 /usr/lib/pkgconfig/libxml-2.0.pc
 /usr/lib/python2.7/site-packages/libxml2.py
 /usr/lib/xml2Conf.sh
-/usr/share/doc/libxml2-&libxml2-version;/
-/usr/share/doc/libxml2-python-&libxml2-version;/
 /usr/share/man/man1/xml2-config.1
 /usr/share/man/man1/xmlcatalog.1
 /usr/share/man/man1/xmllint.1
