@@ -90,23 +90,36 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/mkinstalldirs.*/mkinstalldirs \\\/" -i doc/Makefile.in
+sed "/DESTDIR.*docdir/d" -i doc/Makefile.in
+sed "s/ install-doc//" -i examples/Makefile.in
+sed "s/\$(DESTDIR)\$(docdir) //" -i plugins/sudoers/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --libexecdir=/usr/lib \
             --disable-nls \
-            --with-secure-path \
             --with-all-insults \
             --with-env-editor \
-            --with-passprompt="[sudo] password for %p: " &amp;&amp;
-make</userinput></screen>
+            --with-passprompt="[sudo] password for %p: "</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -116,13 +129,6 @@ make</userinput></screen>
         where private programs are installed. Everything in that directory is a
         library, so they belong under <filename class="directory">/usr/lib</filename>
         instead of <filename class="directory">/usr/libexec</filename>.
-      </para>
-
-      <para>
-        <parameter>--with-secure-path</parameter>: This switch transparently adds
-        <filename class="directory">/sbin</filename> and <filename
-        class="directory">/usr/sbin</filename> directories to the
-        <envar>PATH</envar> environment variable.
       </para>
 
       <para>
@@ -217,7 +223,6 @@ ADMIN       ALL = NOPASSWD: ALL</literal></screen>
 /usr/include/sudo_plugin.h
 /usr/lib/sudo/
 /usr/sbin/visudo
-/usr/share/doc/sudo/
 /usr/share/man/man5/sudo.conf.5
 /usr/share/man/man5/sudoers.5
 /usr/share/man/man8/sudo.8
