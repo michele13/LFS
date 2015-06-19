@@ -83,7 +83,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libjpeg"/>,
       <xref linkend="jbigkit"/>, and
       <xref linkend="freeglut"/> (required for <command>tiffgt</command>)
@@ -95,20 +95,35 @@
     <title>Installation</title>
 
     <para>
-      Install LibTIFF by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in
+sed "s/ install-dist_docDATA//" -i html/Makefile.in
+sed "s/ install-dist_docDATA//" -i html/images/Makefile.in
+sed "s/ install-dist_docDATA//" -i html/man/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../tiff-4.0.3-fixes-1.patch &amp;&amp;
 ./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem>
-      user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libtiff.la
+rm -v /usr/lib/libtiffxx.la</userinput></screen>
 
   </sect2>
 
@@ -228,12 +243,7 @@ make</userinput></screen>
 /usr/include/tiffio.hxx
 /usr/include/tiffvers.h
 /usr/lib/libtiff.so
-/usr/lib/libtiff.so.5
-/usr/lib/libtiff.so.5.2.0
 /usr/lib/libtiffxx.so
-/usr/lib/libtiffxx.so.5
-/usr/lib/libtiffxx.so.5.2.0
-/usr/share/doc/tiff-4.0.3/
 /usr/share/man/man1/bmp2tiff.1
 /usr/share/man/man1/fax2ps.1
 /usr/share/man/man1/fax2tiff.1
