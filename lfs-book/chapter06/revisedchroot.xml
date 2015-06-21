@@ -10,17 +10,10 @@
 
   <title>Cleaning Up</title>
 
-  <para>Finally, clean up some extra files left around from running tests:</para>
-
-<screen><userinput>rm -rf /tmp/*</userinput></screen>
-
   <para>From now on, when reentering the chroot environment after
   exiting, use the following modified chroot command:</para>
 
-<screen role="nodump"><userinput>chroot "$LFS" /usr/bin/env -i              \
-    HOME=/root TERM="$TERM" PS1='\u:\w\$ ' \
-    PATH=/bin:/usr/bin:/sbin:/usr/sbin     \
-    /bin/ash -l</userinput></screen>
+<screen role="nodump"><userinput>chroot "$LFS" /bin/env -i HOME=/root TERM="$TERM" PS1='\u:\w\$ ' PATH=/bin /bin/ash -l</userinput></screen>
 
   <para>The reason for this is that the programs in <filename
   class="directory">/tools</filename> are no longer needed.  Since they are no
