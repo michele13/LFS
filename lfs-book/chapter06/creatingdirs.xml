@@ -22,25 +22,13 @@ install -dv -m 0750 /root
 install -dv -m 1777 /tmp /var/tmp
 ln -sv . /usr
 mkdir -pv /include
-mkdir -pv /local/bin /local/include /local/lib /local/sbin /local/src
 mkdir -pv /share/color /share/dict /share/doc
 mkdir -pv /share/info /share/locale /share/man
-mkdir -pv /local/share/color /local/share/dict /local/share/doc
-mkdir -pv /local/share/info /local/share/locale /local/share/man
 mkdir -v  /share/misc /share/terminfo /share/zoneinfo
-mkdir -v  /local/share/misc /local/share/terminfo /local/share/zoneinfo
 mkdir -v  /libexec
 mkdir -pv /share/man/man1 /share/man/man2 /share/man/man3 /share/man/man4
 mkdir -pv /share/man/man5 /share/man/man6 /share/man/man7 /share/man/man8
-mkdir -pv /local/share/man/man1 /local/share/man/man2 /local/share/man/man3
-mkdir -pv /local/share/man/man4 /local/share/man/man5 /local/share/man/man6
-mkdir -pv /local/share/man/man7 /local/share/man/man8
-
-case $(uname -m) in
- x86_64) ln -sv lib /lib64
-         ln -sv lib /local/lib64 ;;
-esac
-
+ln -sv lib /lib64
 mkdir -v /var/log /var/mail /var/spool
 ln -sv /run /var/run
 ln -sv /run/lock /var/lock
@@ -67,8 +55,8 @@ mkdir -pv /var/opt /var/cache /var/lib/color /var/lib/misc /var/lib/locate /var/
     <para>
       LFS does not follow the Filesystem Hierarchy Standard. For legacy support,
       /usr is a symlink to / and /sbin is a symlink to /bin. Install software
-      with --prefix=/ when possible. The times of a separate root partition are
-      long over. /local is provided to users.
+      with --prefix= when possible. The times of a separate root partition are
+      long over.
     </para>
 
   </sect2>
