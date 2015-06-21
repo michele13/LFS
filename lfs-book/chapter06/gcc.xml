@@ -134,6 +134,12 @@ rm -v /usr/lib/libvtv.la</userinput></screen>
 <screen><userinput remap="install">install -v -dm755 /usr/lib/bfd-plugins
 ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /usr/lib/bfd-plugins/</userinput></screen>
 
+    <para>
+      TODO
+    </para>
+
+<screen><userinput>hash -r</userinput></screen>
+
     <para>Now that our final toolchain is in place, it is important to again ensure
     that compiling and linking will work as expected. We do this by performing
     the same sanity checks as we did earlier in the chapter:</para>
@@ -154,17 +160,15 @@ ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /us
     href="adjusting.xml"
     xpointer="xpointer(//*[@os='d'])"/>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-    href="adjusting.xml"
-    xpointer="xpointer(//*[@os='e'])"/>
+<screen os="e"><userinput>grep -o '/lib.*/crt[1in].*succeeded' dummy.log</userinput></screen>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
     href="adjusting.xml"
     xpointer="xpointer(//*[@os='f'])"/>
 
-<screen><computeroutput>/usr/lib/gcc/i686-pc-linux-gnu/&gcc-version;/../../../crt1.o succeeded
-/usr/lib/gcc/i686-pc-linux-gnu/&gcc-version;/../../../crti.o succeeded
-/usr/lib/gcc/i686-pc-linux-gnu/&gcc-version;/../../../crtn.o succeeded</computeroutput></screen>
+<screen><computeroutput>/lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/../../../../lib64/crt1.o succeeded
+/lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/../../../../lib64/crti.o succeeded
+/lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/../../../../lib64/crtn.o succeeded</computeroutput></screen>
 
   <para>Depending on your machine architecture, the above may differ slightly,
   the difference usually being the name of the directory
