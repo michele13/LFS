@@ -123,18 +123,23 @@
 sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make SHLIB_LIBS=-lncursesw</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make SHLIB_LIBS=-lncursesw install</userinput></screen>
+<screen><userinput>make SHLIB_LIBS=-lncursesw</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make SHLIB_LIBS=-lncursesw -j1 install</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -146,6 +151,74 @@ make SHLIB_LIBS=-lncursesw</userinput></screen>
       </para>
 
     </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <indexterm zone="readline">
+      <primary sortas="e-etc-inputrc">/etc/inputrc</primary>
+    </indexterm>
+
+    <para>
+      The <filename>inputrc</filename> file handles keyboard mapping for
+      specific situations. This file is the startup file used by readline.
+    </para>
+
+    <para>
+      Most people do not need user-specific keyboard mappings so the command
+      below creates a global <filename>/etc/inputrc</filename> used by everyone
+      who logs in. If you later decide you need to override the defaults on a
+      per-user basis, you can create a <filename>.inputrc</filename> file in
+      the user's home directory with the modified mappings.
+    </para>
+
+    <para>
+      Below is a generic global <filename>inputrc</filename> along with
+      comments to explain what the various options do. Note that comments
+      cannot be on the same line as commands. Create the file using the
+      following command:
+    </para>
+
+<screen><userinput>cat &gt; /etc/inputrc &lt;&lt; "EOF"
+<literal># Allow the command prompt to wrap to the next line
+set horizontal-scroll-mode Off
+
+# Enable 8bit input
+set meta-flag On
+set input-meta On
+
+# Turns off 8th bit stripping
+set convert-meta Off
+
+# Keep the 8th bit for display
+set output-meta On
+
+# none, visible or audible
+set bell-style none
+
+# All of the following map the escape sequence of the value contained in the
+# 1st argument to the readline specific functions
+"\eOd": backward-word
+"\eOc": forward-word
+
+# for linux console
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5~": beginning-of-history
+"\e[6~": end-of-history
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+
+# for xterm
+"\eOH": beginning-of-line
+"\eOF": end-of-line
+
+# for Konsole
+"\e[H": beginning-of-line
+"\e[F": end-of-line</literal>
+EOF</userinput></screen>
 
   </sect2>
 
@@ -163,11 +236,7 @@ make SHLIB_LIBS=-lncursesw</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/lib/libhistory.so.6
-/lib/libhistory.so.6.3
-/lib/libreadline.so.6
-/lib/libreadline.so.6.3
-/usr/include/readline/
+<screen><literal>/usr/include/readline/
 /usr/lib/libhistory.so
 /usr/lib/libreadline.so
 /usr/share/man/man3/history.3
