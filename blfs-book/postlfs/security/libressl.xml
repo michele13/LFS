@@ -79,54 +79,28 @@
     <title>Installation</title>
 
     <para>
-      Install the package with the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
     </para>
 
 <screen role="root"><userinput>make -j1 install &amp;&amp;
+rm -v /usr/lib/libcrypto.la &amp;&amp;
+rm -v /usr/lib/libssl.la &amp;&amp;
+rm -v /usr/lib/libtls.la &amp;&amp;
 install -v -d -o root -g root -m 755 /etc/ssl &amp;&amp;
 install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen>
-
-<!--
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>shared</parameter>: This parameter forces the creation of
-        shared libraries along with the static libraries.
-      </para>
-
-      <para>
-        <parameter>zlib-dynamic</parameter>: This parameter adds compression and
-        decompression functionality using the <filename
-        class="libraryfile">libz</filename> library.
-      </para>
-
-      <para>
-        <command>make MANDIR=/usr/share/man MANSUFFIX=ssl install</command>:
-        This command installs LibreSSL with the man pages in <filename
-        class="directory">/usr/share/man</filename> instead of <filename
-        class="directory">/etc/ssl/man</filename> and appends "ssl" suffix to
-        the manual page names to avoid conflicts with manual pages installed by
-        other packages.
-      </para>
-
-      <para>
-        <option>no-rc5 no-idea</option>: When added to the
-        <command>./config</command> command, this will eliminate the building of
-        those encryption methods. Patent licenses may be needed for you to
-        utilize either of those methods in your projects.
-      </para>
-
-    </sect3>
--->
 
   </sect2>
 
@@ -157,6 +131,9 @@ install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen
       <primary sortas="c-libssl">libssl.so</primary>
     </indexterm>
     <indexterm zone="libressl">
+      <primary sortas="c-libtls">libtls.so</primary>
+    </indexterm>
+    <indexterm zone="libressl">
       <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
     </indexterm>
 
@@ -169,8 +146,10 @@ install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen
 /usr/include/openssl/
 /usr/lib/libcrypto.so
 /usr/lib/libssl.so
+/usr/lib/libtls.so
 /usr/lib/pkgconfig/libcrypto.pc
 /usr/lib/pkgconfig/libssl.pc
+/usr/lib/pkgconfig/libtls.pc
 /usr/lib/pkgconfig/openssl.pc
 /usr/share/man/man1/openssl.1</literal></screen>
 
