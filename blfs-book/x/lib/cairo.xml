@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY cairo-homepage      "http://www.cairographics.org/">
+  <!ENTITY cairo-wikipedia     "https://en.wikipedia.org/wiki/Cairo_&#40;graphics&#41;">
   <!ENTITY cairo-download-http "http://cairographics.org/releases/cairo-&cairo-version;.tar.xz">
   <!ENTITY cairo-download-ftp  " ">
   <!ENTITY cairo-md5sum        "e1cdfaf1c6c995c4d4c54e07215b0118">
@@ -17,33 +19,37 @@
 
   <title>Cairo-&cairo-version;</title>
 
-  <indexterm zone="cairo">
-    <primary sortas="a-Cairo">Cairo</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to Cairo</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Cairo</application> is a 2D graphics library with support for
-      multiple output devices. Currently supported output targets include the
-      <application>X</application> Window System, win32, image buffers,
-      PostScript, PDF and SVG. Experimental backends include OpenGL, Quartz and
-      XCB file output. <application>Cairo</application> is designed to produce
+      Cairo is a 2D graphics library with support for multiple output devices.
+      Currently supported output targets include the X Window System, win32,
+      image buffers, PostScript, PDF and SVG. Experimental backends include
+      OpenGL, Quartz and XCB file output. Cairo is designed to produce
       consistent output on all output media while taking advantage of display
       hardware acceleration when available (e.g., through the X Render
-      Extension). The <application>Cairo</application> API provides operations
-      similar to the drawing operators of PostScript and PDF. Operations in
-      <application>Cairo</application> include stroking and filling cubic
-      B&eacute;zier splines, transforming and compositing translucent images,
-      and antialiased text rendering. All drawing operations can be transformed
-      by any
-      <ulink url="http://en.wikipedia.org/wiki/Affine_transformation">affine
+      Extension). The Cairo API provides operations similar to the drawing
+      operators of PostScript and PDF. Operations in Cairo include stroking and
+      filling cubic B&eacute;zier splines, transforming and compositing
+      translucent images, and antialiased text rendering. All drawing
+      operations can be transformed by any <ulink
+      url="http://en.wikipedia.org/wiki/Affine_transformation">affine
       transformation</ulink> (scale, rotation, shear, etc.).
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&cairo-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&cairo-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&cairo-download-http;"/>
@@ -86,16 +92,16 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Cairo Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="glib2"/> and
       <xref linkend="pixman"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="libpng"/>,
       <xref linkend="freetype2"/>,
       <xref linkend="fontconfig"/>,
@@ -104,152 +110,114 @@
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
-      <ulink url="http://www.directfb.org/">DirectFB</ulink>,
-      <xref linkend="libdrm"/>,
+    <para>
       <xref linkend="lzo"/>,
-      <xref linkend="mesalib"/>, and
+      <xref linkend="libdrm"/>,
+      <xref linkend="mesalib"/>,
+      <ulink url="http://www.directfb.org/">DirectFB</ulink>, and
       <ulink url="http://code.google.com/p/skia/">Skia</ulink>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Cairo</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Cairo</application> by running the following
-      commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local//" -i doc/public/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../cairo-&cairo-version;-respect_fontconfig-1.patch &amp;&amp;
 ./configure --prefix=/usr \
             --disable-static \
-            --enable-tee &amp;&amp;
-make</userinput></screen>
+            --enable-tee</userinput></screen>
 
     <para>
-      This package does not have a working testsuite.
+      Compile the package:
     </para>
+
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libcairo-gobject.la
+rm -v /usr/lib/libcairo-script-interpreter.la
+rm -v /usr/lib/libcairo.la</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--enable-tee</parameter>: This switch enables experimental
+        tee surface backend which is required if using system-installed Cairo
+        with Mozilla applications.
+      </para>
+
+      <para>
+        <option>--enable-xlib-xcb</option>: This switch enables experimental
+        Xlib/XCB functions used by some window managers.
+      </para>
+
+      <para>
+        <option>--enable-gl</option>: This switch enables Cairo's experimental
+        OpenGL surface which is required for Wayland compositor and some other
+        packages that are not part of BLFS.
+      </para>
+
+    </sect3>
+
   </sect2>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <parameter>--enable-tee</parameter>: This switch enables experimental tee
-      surface backend which is required if using system-installed
-      <application>Cairo</application> with Mozilla applications.
-    </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-    <para>
-      <option>--enable-xlib-xcb</option>: This switch enables experimental
-      Xlib/XCB functions used by some window managers.
-    </para>
-
-    <para>
-      <option>--enable-gl</option>: This switch enables
-      <application>Cairo</application>'s experimental
-      <application>OpenGL</application> surface which
-      is required for <application>Wayland</application>
-      compositor and some other packages that are not
-      part of BLFS.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <indexterm zone="cairo">
+      <primary sortas="b-cairo-trace">cairo-trace</primary>
+    </indexterm>
+    <indexterm zone="cairo">
+      <primary sortas="c-libcairo.so">libcairo.so</primary>
+    </indexterm>
+    <indexterm zone="cairo">
+      <primary sortas="c-libcairo-gobject.so">libcairo-gobject.so</primary>
+    </indexterm>
+    <indexterm zone="cairo">
+      <primary sortas="c-libcairo-script-interpreter.so">libcairo-script-interpreter.so</primary>
+    </indexterm>
 
-      <seglistitem>
-        <seg>
-          cairo-sphinx and cairo-trace
-        </seg>
-        <seg>
-          libcairo.so, libcairo-gobject.so and
-          libcairo-script-interpreter.so
-        </seg>
-        <seg>
-          /usr/include/cairo,
-          /usr/lib/cairo and
-          /usr/share/gtk-doc/html/cairo
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="cairo-trace">
-        <term><command>cairo-trace</command></term>
-        <listitem>
-          <para>
-            generates a log of all calls made by an application to
-            <application>Cairo</application>.
-          </para>
-          <indexterm zone="cairo cairo-trace">
-            <primary sortas="b-cairo-trace">cairo-trace</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libcairo">
-        <term><filename class="libraryfile">libcairo.so</filename></term>
-        <listitem>
-          <para>
-            contains the 2D graphics functions required for rendering to the
-            various output targets.
-          </para>
-          <indexterm zone="cairo libcairo">
-            <primary sortas="c-libcairo">libcairo.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libcairo-gobject">
-        <term><filename class="libraryfile">libcairo-gobject.so</filename></term>
-        <listitem>
-          <para>
-            contains functions that integrate
-            <application>Cairo</application> with <xref linkend="glib2"/>'s
-            GObject type system.
-          </para>
-          <indexterm zone="cairo libcairo-gobject">
-            <primary sortas="c-libcairo-gobject">libcairo-gobject.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libcairo-script-interpreter">
-        <term><filename class="libraryfile">libcairo-script-interpreter.so</filename></term>
-        <listitem>
-          <para>
-            contains the script interpreter functions for executing and
-            manipulating <application>Cairo</application> execution traces.
-          </para>
-          <indexterm zone="cairo libcairo-script-interpreter">
-            <primary sortas="c-libcairo-script-interpreter">libcairo-script-interpreter.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen><literal>/usr/bin/cairo-sphinx
+/usr/bin/cairo-trace
+/usr/include/cairo/
+/usr/lib/cairo/
+/usr/lib/libcairo-gobject.so
+/usr/lib/libcairo-script-interpreter.so
+/usr/lib/libcairo.so
+/usr/lib/pkgconfig/cairo-fc.pc
+/usr/lib/pkgconfig/cairo-ft.pc
+/usr/lib/pkgconfig/cairo-gobject.pc
+/usr/lib/pkgconfig/cairo-pdf.pc
+/usr/lib/pkgconfig/cairo-png.pc
+/usr/lib/pkgconfig/cairo-ps.pc
+/usr/lib/pkgconfig/cairo-script.pc
+/usr/lib/pkgconfig/cairo-svg.pc
+/usr/lib/pkgconfig/cairo-tee.pc
+/usr/lib/pkgconfig/cairo-xcb-shm.pc
+/usr/lib/pkgconfig/cairo-xcb.pc
+/usr/lib/pkgconfig/cairo-xlib-xrender.pc
+/usr/lib/pkgconfig/cairo-xlib.pc
+/usr/lib/pkgconfig/cairo.pc</literal></screen>
 
   </sect2>
 
