@@ -96,18 +96,28 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../libdrm-&libdrm-version;-pthread_stubs-1.patch &amp;&amp;
-./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+./configure --prefix=/usr \
+            --disable-radeon \
+            --disable nouveau</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libdrm.la
+rm -v /usr/lib/libdrm_intel.la
+rm -v /usr/lib/libkms.la</userinput></screen>
 
   </sect2>
 
@@ -116,12 +126,6 @@ make</userinput></screen>
 
     <indexterm zone="libdrm">
       <primary sortas="c-libdrm_intel.so">libdrm_intel.so</primary>
-    </indexterm>
-    <indexterm zone="libdrm">
-      <primary sortas="c-libdrm_nouveau.so">libdrm_nouveau.so</primary>
-    </indexterm>
-    <indexterm zone="libdrm">
-      <primary sortas="c-libdrm_radeon.so">libdrm_radeon.so</primary>
     </indexterm>
     <indexterm zone="libdrm">
       <primary sortas="c-libdrm.so">libdrm.so</primary>
@@ -140,13 +144,9 @@ make</userinput></screen>
 /usr/include/xf86drmMode.h
 /usr/lib/libdrm.so
 /usr/lib/libdrm_intel.so
-/usr/lib/libdrm_nouveau.so
-/usr/lib/libdrm_radeon.so
 /usr/lib/libkms.so
 /usr/lib/pkgconfig/libdrm.pc
 /usr/lib/pkgconfig/libdrm_intel.pc
-/usr/lib/pkgconfig/libdrm_nouveau.pc
-/usr/lib/pkgconfig/libdrm_radeon.pc
 /usr/lib/pkgconfig/libkms.pc
 /usr/share/man/man3/drm*.3
 /usr/share/man/man7/drm*.7</literal></screen>
