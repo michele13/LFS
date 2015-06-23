@@ -116,7 +116,7 @@
 <screen><userinput>patch -p1 -i ../mesa-&mesalib-version;-add_xdemos-1.patch</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure CFLAGS="-O2" CXXFLAGS="-O2" \
@@ -132,8 +132,14 @@
             --enable-gbm \
             --enable-glx-tls \
             --with-egl-platforms="drm,x11" \
-            --with-gallium-drivers="svga,swrast" &amp;&amp;
-make</userinput></screen>
+            --with-gallium-drivers="svga,swrast" \
+            --with-dri-drivers=i915,i965,swrast</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
 
     <para>
       If you have applied the xdemos patch, build the demo programs by
@@ -143,17 +149,25 @@ make</userinput></screen>
 <screen><userinput>make -C xdemos DEMOS_PREFIX=/usr</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libEGL.la
+rm -v /usr/lib/libGL.la
+rm -v /usr/lib/libGLESv1_CM.la
+rm -v /usr/lib/libGLESv2.la
+rm -v /usr/lib/libOSMesa.la
+rm -v /usr/lib/libgbm.la
+rm -v /usr/lib/libglapi.la
+rm -v /usr/lib/libxatracker.la</userinput></screen>
 
     <para>
       If you have built the demo programs, install them by running the following
-      command as the <systemitem class="username">root</systemitem> user:
+      command:
     </para>
 
-<screen role="root"><userinput>make -C xdemos DEMOS_PREFIX=/usr install</userinput></screen>
+<screen role="root"><userinput>make -C xdemos DEMOS_PREFIX=/usr -j1 install</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
