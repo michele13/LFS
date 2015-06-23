@@ -77,14 +77,14 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="fontconfig"/>,
       <xref linkend="glib2"/>, and
       <xref linkend="harfbuzz"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="cairo"/> and
       <xref linkend="libxft"/>
     </para>
@@ -95,18 +95,33 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local//" -i docs/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc &amp;&amp;
-make</userinput></screen>
+            --sysconfdir=/etc</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libpango-1.0.la
+rm -v /usr/lib/libpangocairo-1.0.la
+rm -v /usr/lib/libpangoft2-1.0.la
+rm -v /usr/lib/libpangoxft-1.0.la</userinput></screen>
 
     <note>
       <para>
