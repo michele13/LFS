@@ -96,19 +96,25 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --disable-static \
-            --enable-threaded-resolver &amp;&amp;
-make</userinput></screen>
+            --enable-threaded-resolver</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libcurl.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -116,11 +122,6 @@ make</userinput></screen>
       <para>
         <parameter>--enable-threaded-resolver</parameter>: This switch enables
         cURL's builtin threaded DNS resolver.
-      </para>
-
-      <para>
-        <option>--with-gssapi</option>: This parameter adds Kerberos 5 support
-        to <filename class="libraryfile">libcurl</filename>.
       </para>
 
     </sect3>
