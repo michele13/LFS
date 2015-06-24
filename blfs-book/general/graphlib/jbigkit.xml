@@ -8,8 +8,8 @@
   <!ENTITY jbigkit-wikipedia     "http://en.wikipedia.org/wiki/JBIG">
   <!ENTITY jbigkit-download-http "http://www.cl.cam.ac.uk/~mgk25/download/jbigkit-&jbigkit-version;.tar.gz">
   <!ENTITY jbigkit-download-ftp  "ftp://ftp.openbsd.com/ports/distfiles/jbigkit-&jbigkit-version;.tar.gz">
-  <!ENTITY jbigkit-md5sum        "3dd87f605abb1a97a22dc79d8b3e8f6c">
-  <!ENTITY jbigkit-size          "425 KB">
+  <!ENTITY jbigkit-md5sum        "ebcf09bed9f14d7fa188d3bd57349522">
+  <!ENTITY jbigkit-size          "428 KB">
   <!ENTITY jbigkit-buildsize     "1.6 MB">
   <!ENTITY jbigkit-time          "0.1 SBU">
 ]>
@@ -95,44 +95,29 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>patch -p1 -i ../jbigkit-2.0-fixes-1.patch &amp;&amp;
-sed -e 's/all: lib pbm/all: lib/' \
-    -e '/install.*bin/ s/^/#/' \
-    -e '/install.*man/ s/^/#/' -i Makefile &amp;&amp;
-make</userinput></screen>
+<screen><userinput>patch -p1 -i ../jbigkit-&jbigkit-version;-fixes-1.patch</userinput></screen>
 
     <para>
-      Disable installing the static library:
+      Compile the package:
     </para>
 
-<screen><userinput>sed -i 's|libjbig/.libs/\*.a||' Makefile</userinput></screen>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-chmod -v 755 /usr/lib/libjbig.so</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed ...</command>: This command disables building and
-        installing file converter programs since it is currently broken.
-      </para>
-
-    </sect3>
+<screen role="root"><userinput>make -j1 install &amp;&amp;
+chmod -v 755 /lib/libjbig.so</userinput></screen>
 
   </sect2>
 
   <sect2>
     <title>Contents</title>
 
-<!--
     <indexterm zone="jbigkit">
       <primary sortas="b-jbgtopbm">jbgtopbm</primary>
     </indexterm>
@@ -145,7 +130,6 @@ chmod -v 755 /usr/lib/libjbig.so</userinput></screen>
     <indexterm zone="jbigkit">
       <primary sortas="b-pbmtojbg85">pbmtojbg85</primary>
     </indexterm>
--->
     <indexterm zone="jbigkit">
       <primary sortas="c-libjbig.so">libjbig.so</primary>
     </indexterm>
@@ -154,22 +138,16 @@ chmod -v 755 /usr/lib/libjbig.so</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<!--
-<screen><literal>/usr/bin/jbgtopbm
-/usr/bin/jbgtopbm85
-/usr/bin/pbmtojbg
-/usr/bin/pbmtojbg85
-/usr/include/jbig85.h
-/usr/include/jbig_ar.h
-/usr/include/jbig.h
-/usr/lib/libjbig.so
-/usr/share/man/man1/jbgtopbm.1
-/usr/share/man/man1/pbmtojbg.1</literal></screen>
--->
-<screen><literal>/usr/include/jbig85.h
-/usr/include/jbig_ar.h
-/usr/include/jbig.h
-/usr/lib/libjbig.so</literal></screen>
+<screen><literal>/bin/jbgtopbm
+/bin/jbgtopbm85
+/bin/pbmtojbg
+/bin/pbmtojbg85
+/include/jbig.h
+/include/jbig85.h
+/include/jbig_ar.h
+/lib/libjbig.so
+/share/man/man1/jbgtopbm.1
+/share/man/man1/pbmtojbg.1</literal></screen>
 
   </sect2>
 

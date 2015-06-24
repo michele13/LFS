@@ -1,0 +1,250 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-06-24
+Initial Package Version: 2.0
+Upstream Status:         Unknown
+Origin:                  Debian
+Description:             Corrects Makefiles, builds shared library and links
+                         programs against the shared library.
+
+--- jbigkit-2.1.orig/Makefile
++++ jbigkit-2.1/Makefile
+@@ -4,12 +4,13 @@
+ CC = gcc
+ 
+ # Options for the compiler: A high optimization level is suggested
+-CFLAGS = -O2 -W -Wno-unused-result
++CFLAGS += -O2 -Wall
+ # CFLAGS = -O -g -W -Wall -Wno-unused-result -ansi -pedantic # -DDEBUG
+ 
+ export CC CFLAGS
+ 
+ VERSION=2.1
++.PHONY: all lib pbm test clean install
+ 
+ all: lib pbm
+ 	@echo "Enter 'make test' in order to start some automatic tests."
+@@ -42,3 +43,15 @@
+ release:
+ 	rsync -t jbigkit-$(VERSION).tar.gz $(HOME)/public_html/download/
+ 	rsync -t jbigkit-$(VERSION)/CHANGES $(HOME)/public_html/jbigkit/
++
++install: all
++	install -d $(DESTDIR)$(PREFIX)/lib
++	install -m 644 libjbig/*.so.* $(DESTDIR)$(PREFIX)/lib
++	/sbin/ldconfig -n $(DESTDIR)$(PREFIX)/lib
++	ln -s libjbig.so.0 $(DESTDIR)$(PREFIX)/lib/libjbig.so
++	install -d $(DESTDIR)$(PREFIX)/include
++	install -m 644 libjbig/*.h $(DESTDIR)$(PREFIX)/include
++	install -d $(DESTDIR)$(PREFIX)/bin
++	install -m 755 pbmtools/jbgtopbm pbmtools/jbgtopbm85 pbmtools/pbmtojbg pbmtools/pbmtojbg85 $(DESTDIR)$(PREFIX)/bin
++	install -d $(DESTDIR)$(PREFIX)/share/man/man1
++	install -m 644 pbmtools/*.1 $(DESTDIR)$(PREFIX)/share/man/man1
+--- jbigkit-2.1.orig/libjbig/Makefile
++++ jbigkit-2.1/libjbig/Makefile
+@@ -6,23 +6,36 @@
+ # Options for the compiler: A high optimization level is suggested
+ CFLAGS = -g -O -W -Wall -ansi -pedantic # --coverage
+ 
+-all: libjbig.a libjbig85.a tstcodec tstcodec85
++%.o: %.c
++	$(CC) $(CFLAGS) -c $<
++%.pic_o: %.c
++	$(CC) -fPIC $(CFLAGS) -c -o $@ $<
+ 
++all: libjbig.a libjbig.so libjbig85.a tstcodec tstcodec85
++
+ tstcodec: tstcodec.o jbig.o jbig_ar.o
+ 	$(CC) $(CFLAGS) -o tstcodec tstcodec.o jbig.o jbig_ar.o
+ 
+ tstcodec85: tstcodec85.o jbig85.o jbig_ar.o
+ 	$(CC) $(CFLAGS) -o tstcodec85 tstcodec85.o jbig85.o jbig_ar.o
+ 
+-libjbig.a: jbig.o jbig_ar.o
++libjbig.a: jbig.o jbig_ar.o jbig85.o
+ 	rm -f libjbig.a
+-	ar rc libjbig.a jbig.o jbig_ar.o
+-	-ranlib libjbig.a
++	$(if $(DEB_HOST_GNU_TYPE),$(DEB_HOST_GNU_TYPE)-ar,ar) cru \
++		libjbig.a jbig.o jbig_ar.o
++	$(if $(DEB_HOST_GNU_TYPE),$(DEB_HOST_GNU_TYPE)-ranlib,ranlib) \
++		libjbig.a
+ 
++libjbig.so: jbig.pic_o jbig_ar.pic_o jbig85.pic_o
++	$(CC) -shared $(LDFLAGS) -Wl,-soname,libjbig.so.0 -o libjbig.so.0 $+
++	ln -sf libjbig.so.0 libjbig.so
++
+ libjbig85.a: jbig85.o jbig_ar.o
+ 	rm -f libjbig85.a
+-	ar rc libjbig85.a jbig85.o jbig_ar.o
+-	-ranlib libjbig85.a
++	$(if $(DEB_HOST_GNU_TYPE),$(DEB_HOST_GNU_TYPE)-ar,ar) cru \
++		libjbig85.a jbig85.o jbig_ar.o
++	$(if $(DEB_HOST_GNU_TYPE),$(DEB_HOST_GNU_TYPE)-ranlib,ranlib) \
++		libjbig85.a
+ 
+ jbig.o: jbig.c jbig.h jbig_ar.h
+ jbig85.o: jbig85.c jbig85.h jbig_ar.h
+@@ -51,5 +64,6 @@
+ 
+ clean:
+ 	rm -f *.o *.gcda *.gcno *.gcov *.plist *~ core gmon.out dbg_d\=??.pbm
++	rm -f *.so* *.a *.la *.pic_o
+ 	rm -f t82test.pbm
+ 	rm -f tstcodec tstcodec85
+--- jbigkit-2.1.orig/pbmtools/Makefile
++++ jbigkit-2.1/pbmtools/Makefile
+@@ -5,40 +5,34 @@
+ 
+ # Options for the compiler
+ CFLAGS = -g -O -W -Wall -Wno-unused-result -ansi -pedantic # --coverage
+-CPPFLAGS = -I../libjbig 
++override CPPFLAGS += -I../libjbig
++override CFLAGS += -I../libjbig
++export LD_LIBRARY_PATH := $(if $(LD_LIBRARY_PATH),$(LD_LIBRARY_PATH):)../libjbig
+ 
+ .SUFFIXES: .1 .5 .txt $(SUFFIXES)
+ .PHONY: txt test test82 test85 clean
+ 
+-all: pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85 txt
++all: pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85
+ 
+ txt: pbmtojbg.txt jbgtopbm.txt pbm.txt pgm.txt
+ 
+-pbmtojbg: pbmtojbg.o ../libjbig/libjbig.a
+-	$(CC) $(CFLAGS) -o pbmtojbg pbmtojbg.o -L../libjbig -ljbig
++pbmtojbg: pbmtojbg.o
++	$(CC) $(LDFLAGS) $(CFLAGS) -o pbmtojbg pbmtojbg.o -L../libjbig -ljbig
+ 
+-jbgtopbm: jbgtopbm.o ../libjbig/libjbig.a
+-	$(CC) $(CFLAGS) -o jbgtopbm jbgtopbm.o -L../libjbig -ljbig
++jbgtopbm: jbgtopbm.o
++	$(CC) $(LDFLAGS) $(CFLAGS) -o jbgtopbm jbgtopbm.o -L../libjbig -ljbig
+ 
+-pbmtojbg85: pbmtojbg85.o ../libjbig/libjbig85.a
+-	$(CC) $(CFLAGS) -o pbmtojbg85 pbmtojbg85.o -L../libjbig -ljbig85
++pbmtojbg85: pbmtojbg85.o
++	$(CC) $(LDFLAGS) $(CFLAGS) -o pbmtojbg85 pbmtojbg85.o -L../libjbig -ljbig
+ 
+-jbgtopbm85: jbgtopbm85.o ../libjbig/libjbig85.a
+-	$(CC) $(CFLAGS) -o jbgtopbm85 jbgtopbm85.o -L../libjbig -ljbig85
++jbgtopbm85: jbgtopbm85.o
++	$(CC) $(LDFLAGS) $(CFLAGS) -o jbgtopbm85 jbgtopbm85.o -L../libjbig -ljbig
+ 
+ jbgtopbm.o: jbgtopbm.c ../libjbig/jbig.h
+ pbmtojbg.o: pbmtojbg.c ../libjbig/jbig.h
+ jbgtopbm85.o: jbgtopbm85.c ../libjbig/jbig85.h
+ pbmtojbg85.o: pbmtojbg85.c ../libjbig/jbig85.h
+ 
+-../libjbig/libjbig.a: ../libjbig/jbig.c ../libjbig/jbig.h \
+-	../libjbig/jbig_ar.c ../libjbig/jbig_ar.h
+-	make -C ../libjbig libjbig.a
+-
+-../libjbig/libjbig85.a: ../libjbig/jbig85.c ../libjbig/jbig85.h \
+-	../libjbig/jbig_ar.c ../libjbig/jbig_ar.h
+-	make -C ../libjbig libjbig85.a
+-
+ analyze:
+ 	clang $(CPPFLAGS) --analyze *.c
+ 
+@@ -96,6 +90,8 @@
+ 	cmp test-$(IMG).pgm ../examples/$(IMG).pgm
+ 
+ test85: pbmtojbg jbgtopbm pbmtojbg85 jbgtopbm85 test-t82.pbm
++	export LD_LIBRARY_PATH=`pwd`/../libjbig
++	echo $(LD_LIBRARY_PATH)
+ 	make IMG=t82 "OPTIONSP=-p 0"      dotest85
+ 	make IMG=t82 "OPTIONSP=-p 8"      dotest85
+ 	make IMG=t82 "OPTIONSP=-p 8 -r"   dotest85b
+--- jbigkit-2.1.orig/pbmtools/pbmtojbg.1
++++ jbigkit-2.1/pbmtools/pbmtojbg.1
+@@ -130,7 +130,7 @@
+ .TP
+ .BI \-t " number"
+ Encode only the specified number of most significant bit planes. This
+-option allows to reduce the depth of an input PGM file if not all
++option allows one to reduce the depth of an input PGM file if not all
+ bits per pixel are needed in the output.
+ .TP
+ .BI \-o " number"
+@@ -174,7 +174,7 @@
+ layer and so on. 
+ .TP
+ .BI \-p " number"
+-This option allows to activate or deactivate various optional algorithms
++This option allows one to activate or deactivate various optional algorithms
+ defined in the
+ .I JBIG1
+ standard. Just add the numbers of the following options which you want to
+--- jbigkit-2.1.orig/pbmtools/pbmtojbg.c
++++ jbigkit-2.1/pbmtools/pbmtojbg.c
+@@ -86,7 +86,11 @@
+       while ((c = getc(f)) != EOF && !(c == 13 || c == 10)) ;
+   if (c != EOF) {
+     ungetc(c, f);
+-    fscanf(f, "%lu", &i);
++    if(fscanf(f, "%lu", &i) != 1) {
++      /* should never fail, since c must be a digit */
++      fprintf(stderr, "Unexpected failure reading digit '%c'\n", c);
++      exit(1);
++    }
+   }
+ 
+   return i;
+@@ -300,7 +304,9 @@
+     break;
+   case '4':
+     /* PBM raw binary format */
+-    fread(bitmap[0], bitmap_size, 1, fin);
++    if (fread(bitmap[0], bitmap_size, 1, fin) != 1) {
++      /* silence compiler warnings; ferror/feof checked below */
++    }
+     break;
+   case '2':
+   case '5':
+@@ -312,8 +318,18 @@
+ 	for (j = 0; j < bpp; j++)
+ 	  image[x * bpp + (bpp - 1) - j] = v >> (j * 8);
+       }
+-    } else
+-      fread(image, width * height, bpp, fin);
++    } else {
++      if (fread(image, width * height, bpp, fin) != (size_t) bpp) {
++        if (ferror(fin)) {
++          fprintf(stderr, "Problem while reading input file '%s", fnin);
++          perror("'");
++          exit(1);
++        } else {
++          fprintf(stderr, "Unexpected end of input file '%s'!\n", fnin);
++          exit(1);
++        }
++      }
++    }
+     jbg_split_planes(width, height, planes, encode_planes, image, bitmap,
+ 		     use_graycode);
+     free(image);
+--- jbigkit-2.1.orig/pbmtools/pbmtojbg85.c
++++ jbigkit-2.1/pbmtools/pbmtojbg85.c
+@@ -70,7 +70,11 @@
+       while ((c = getc(f)) != EOF && !(c == 13 || c == 10)) ;
+   if (c != EOF) {
+     ungetc(c, f);
+-    fscanf(f, "%lu", &i);
++    if(fscanf(f, "%lu", &i) != 1) {
++      /* should never fail, since c must be a digit */
++      fprintf(stderr, "Unexpected failure reading digit '%c'\n", c);
++      exit(1);
++    }
+   }
+ 
+   return i;
+@@ -237,7 +241,9 @@
+       break;
+     case '4':
+       /* PBM raw binary format */
+-      fread(next_line, bpl, 1, fin);
++      if (fread(next_line, bpl, 1, fin) != 1) {
++        /* silence compiler warnings; ferror/feof checked below */
++      }
+       break;
+     default:
+       fprintf(stderr, "Unsupported PBM type P%c!\n", type);
