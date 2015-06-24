@@ -108,21 +108,27 @@
     </note>
 
     <para>
-      Install JasPer by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../jasper-&jasper-version;-security_fixes-2.patch &amp;&amp;
 ./configure --prefix=/usr \
             --mandir=/usr/share/man \
             --disable-static \
-            --enable-shared &amp;&amp;
-make</userinput></screen>
+            --enable-shared</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libjasper.la</userinput></screen>
 
   </sect2>
 
