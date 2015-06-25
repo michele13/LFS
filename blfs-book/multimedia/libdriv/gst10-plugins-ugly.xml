@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY gst10-plugins-ugly-download-http
-           "&gstreamer-dl;/gst-plugins-ugly/gst-plugins-ugly-&gst10-plugins-ugly-version;.tar.xz">
+  <!ENTITY gst10-plugins-ugly-homepage      "http://gstreamer.freedesktop.org/">
+  <!ENTITY gst10-plugins-ugly-wikipedia     "https://en.wikipedia.org/wiki/GStreamer">
+  <!ENTITY gst10-plugins-ugly-download-http "&gstreamer-dl;/gst-plugins-ugly/gst-plugins-ugly-&gst10-plugins-ugly-version;.tar.xz">
   <!ENTITY gst10-plugins-ugly-download-ftp  " ">
   <!ENTITY gst10-plugins-ugly-md5sum        "6954beed7bb9a93e426dee543ff46393">
   <!ENTITY gst10-plugins-ugly-size          "827 KB">
@@ -18,26 +19,29 @@
 
   <title>gst-plugins-ugly-&gst10-plugins-ugly-version;</title>
 
-  <indexterm zone="gst10-plugins-ugly">
-    <primary sortas="a-gst-plugins-ugly">gst-plugins-ugly</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to GStreamer Ugly Plug-ins</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GStreamer Ugly Plug-ins</application> is a set of plug-ins
-      considered by the <application>GStreamer</application> developers to have
-      good quality and correct functionality, but distributing them might pose problems.
-      The license on either the plug-ins or the supporting libraries might not be how
-      the <application>GStreamer</application> developers would like. The code might
-      be widely known to present patent problems.
+      The GStreamer Ugly Plug-ins is a set of plug-ins considered by the
+      GStreamer developers to have good quality and correct functionality, but
+      distributing them might pose problems. The license on either the plug-ins
+      or the supporting libraries might not be how the GStreamer developers
+      would like. The code might be widely known to present patent problems.
     </para>
-
-    &gst-compat;
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gst10-plugins-ugly-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gst10-plugins-ugly-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gst10-plugins-ugly-download-http;"/>
@@ -70,15 +74,15 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">GStreamer Ugly Plug-ins Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="gst10-plugins-base"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="lame"/>,
       <xref linkend="libdvdread"/>,
       <xref linkend="liba52"/>,
@@ -94,55 +98,48 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GStreamer Ugly Plug-ins</title>
+  <sect2>
+    <title>Installation</title>
 
     <note><para>If you need a plugin for a given dependency, that dependency
       needs to be installed before this application.
     </para></note>
 
     <para>
-      Install <application>GStreamer Ugly Plug-ins</application> by running the following
-      commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --with-package-name="GStreamer Ugly Plugins &gst10-plugins-ugly-version; BLFS" \
-            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local//" -i docs/plugins/Makefile.in</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
+
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          Several plugins under /usr/lib/gstreamer-1.0
-        </seg>
-        <seg>
-          /usr/share/gstreamer-1.0/presets and
-          /usr/share/gtk-doc/html/gst-plugins-ugly-plugins-1.0
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+<screen><literal>/lib/gstreamer-1.0/</literal></screen>
 
   </sect2>
 
