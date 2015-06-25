@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY gst10-plugins-base-download-http
-           "&gstreamer-dl;/gst-plugins-base/gst-plugins-base-&gst10-plugins-base-version;.tar.xz">
+  <!ENTITY gst10-plugins-base-homepage      "http://gstreamer.freedesktop.org/">
+  <!ENTITY gst10-plugins-base-wikipedia     "https://en.wikipedia.org/wiki/GStreamer">
+  <!ENTITY gst10-plugins-base-download-http "&gstreamer-dl;/gst-plugins-base/gst-plugins-base-&gst10-plugins-base-version;.tar.xz">
   <!ENTITY gst10-plugins-base-download-ftp  " ">
   <!ENTITY gst10-plugins-base-md5sum        "357165af625c0ca353ab47c5d843920e">
   <!ENTITY gst10-plugins-base-size          "2.5 MB">
@@ -18,26 +19,29 @@
 
   <title>gst-plugins-base-&gst10-plugins-base-version;</title>
 
-  <indexterm zone="gst10-plugins-base">
-    <primary sortas="a-gst-plugins-base">gst-plugins-base</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to GStreamer Base Plug-ins</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GStreamer Base Plug-ins</application> is a well-groomed and
-      well-maintained collection of <application>GStreamer</application> plug-ins
-      and elements, spanning the range of possible types of elements one would want
-      to write for <application>GStreamer</application>. You will need at least one
-      of Good, Bad, Ugly or Libav plugins for <application>GStreamer</application>
+      The GStreamer Base Plug-ins is a well-groomed and well-maintained
+      collection of GStreamer plug-ins and elements, spanning the range of
+      possible types of elements one would want to write for GStreamer. You
+      will need at least one of Good, Bad, Ugly or Libav plugins for GStreamer
       applications to function properly.
     </para>
 
-    &gst-compat;
-
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gst10-plugins-base-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gst10-plugins-base-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gst10-plugins-base-download-http;"/>
@@ -70,15 +74,15 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">GStreamer Base Plug-ins Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="gstreamer10"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="iso-codes"/>,
       <xref linkend="libxv"/>,
       <xref linkend="alsa-lib"/>,
@@ -95,61 +99,91 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GStreamer Base Plug-ins</title>
+  <sect2>
+    <title>Installation</title>
 
     <note><para>If you need a plugin for a given dependency, that dependency
       needs to be installed before this application.
     </para></note>
 
     <para>
-      Install <application>GStreamer Base Plug-ins</application> by running the
-      following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --with-package-name="GStreamer Base Plugins &gst10-plugins-base-version; BLFS" \
-            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local//" -i docs/libs/Makefile.in
+sed "s/ install-data-local//" -i docs/plugins/Makefile.in</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /lib/libgstallocators-1.0.la
+rm -v /lib/libgstapp-1.0.la
+rm -v /lib/libgstaudio-1.0.la
+rm -v /lib/libgstfft-1.0.la
+rm -v /lib/libgstpbutils-1.0.la
+rm -v /lib/libgstriff-1.0.la
+rm -v /lib/libgstrtp-1.0.la
+rm -v /lib/libgstrtsp-1.0.la
+rm -v /lib/libgstsdp-1.0.la
+rm -v /lib/libgsttag-1.0.la
+rm -v /lib/libgstvideo-1.0.la</userinput></screen>
+
   </sect2>
 
   <sect2 role="content">
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-      <seglistitem>
-        <seg>
-          gst-device-monitor-1.0, gst-discoverer-1.0 and gst-play-1.0
-        </seg>
-        <seg>
-          libgstallocators-1.0.so, libgstapp-1.0.so, libgstaudio-1.0.so,
-          libgstfft-1.0.so, libgstpbutils-1.0.so, libgstriff-1.0.so,
-          libgstrtp-1.0.so, libgstrtsp-1.0.so, libgstsdp-1.0.so,
-          libgsttag-1.0.so, libgstvideo-1.0.so and several plugins under
-          /usr/lib/gstreamer-1.0
-        </seg>
-        <seg>
-          /usr/include/gstreamer-1.0/gst/{allocators,app,audio,fft,pbutils},
-          /usr/include/gstreamer-1.0/gst/{riff,rtp,rtsp,sdp,tag,video},
-          /usr/share/gst-plugins-base/1.0 and
-          /usr/share/gtk-doc/html/gst-plugins-base-{libs,plugins}-1.0
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+<screen><literal>/bin/gst-device-monitor-1.0
+/bin/gst-discoverer-1.0
+/bin/gst-play-1.0
+/include/gstreamer-1.0/
+/lib/gstreamer-1.0/
+/lib/libgstallocators-1.0.so
+/lib/libgstapp-1.0.so
+/lib/libgstaudio-1.0.so
+/lib/libgstfft-1.0.so
+/lib/libgstpbutils-1.0.so
+/lib/libgstriff-1.0.so
+/lib/libgstrtp-1.0.so
+/lib/libgstrtsp-1.0.so
+/lib/libgstsdp-1.0.so
+/lib/libgsttag-1.0.so
+/lib/libgstvideo-1.0.so
+/lib/pkgconfig/gstreamer-allocators-1.0.pc
+/lib/pkgconfig/gstreamer-app-1.0.pc
+/lib/pkgconfig/gstreamer-audio-1.0.pc
+/lib/pkgconfig/gstreamer-fft-1.0.pc
+/lib/pkgconfig/gstreamer-pbutils-1.0.pc
+/lib/pkgconfig/gstreamer-plugins-base-1.0.pc
+/lib/pkgconfig/gstreamer-riff-1.0.pc
+/lib/pkgconfig/gstreamer-rtp-1.0.pc
+/lib/pkgconfig/gstreamer-rtsp-1.0.pc
+/lib/pkgconfig/gstreamer-sdp-1.0.pc
+/lib/pkgconfig/gstreamer-tag-1.0.pc
+/lib/pkgconfig/gstreamer-video-1.0.pc
+/share/gst-plugins-base/
+/share/man/man1/gst-device-monitor-1.0.1
+/share/man/man1/gst-discoverer-1.0.1
+/share/man/man1/gst-play-1.0.1</literal></screen>
 
   </sect2>
 
