@@ -6,8 +6,7 @@
 
   <!ENTITY orc-homepage      "http://code.entropywave.com/orc/">
   <!ENTITY orc-wikipedia     " ">
-  <!ENTITY orc-download-http
-  "http://code.entropywave.com/download/orc/orc-&orc-version;.tar.gz">
+  <!ENTITY orc-download-http "http://code.entropywave.com/download/orc/orc-&orc-version;.tar.gz">
   <!ENTITY orc-download-ftp  " ">
   <!ENTITY orc-md5sum        "1a2552e8d127526c48d644fe6437b377">
   <!ENTITY orc-size          "716 KB">
@@ -80,18 +79,31 @@
     <title>Installation</title>
 
     <para>
-      Install orc by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /lib/liborc-0.4.la
+rm -v /lib/liborc-test-0.4.la</userinput></screen>
 
   </sect2>
 
@@ -115,13 +127,13 @@ make</userinput></screen>
       Incomplete list of installed files and directories:
     </para>
 
-<screen><literal>/usr/bin/orc-bugreport
-/usr/bin/orcc
-/usr/include/orc-0.4/
-/usr/lib/liborc-0.4.so
-/usr/lib/liborc-test-0.4.so
-/usr/lib/pkgconfig/orc-0.4.pc
-/usr/share/aclocal/orc.m4</literal></screen>
+<screen><literal>/bin/orc-bugreport
+/bin/orcc
+/include/orc-0.4/
+/lib/liborc-0.4.so
+/lib/liborc-test-0.4.so
+/lib/pkgconfig/orc-0.4.pc
+/share/aclocal/orc.m4</literal></screen>
 
   </sect2>
 
