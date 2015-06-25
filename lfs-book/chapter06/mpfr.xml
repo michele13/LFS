@@ -43,12 +43,12 @@
 
     <para>Suppress installation of unnecessary files:</para>
 
-<screen><userinput remap="pre">sed 's/m: install-nobase_dist_docDATA/m:/' -i Makefile.in
-sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinput></screen>
+<screen><userinput remap="pre">sed "s/ install-nobase_dist_docDATA//" -i Makefile.in
+sed "s/ install-dist_docDATA install-info-am//" -i doc/Makefile.in</userinput></screen>
 
     <para>Prepare the package for compilation:</para>
 
-<screen><userinput remap="configure">./configure --prefix=/usr \
+<screen><userinput remap="configure">./configure --prefix= \
             --disable-static \
             --enable-thread-safe</userinput></screen>
 
@@ -68,11 +68,9 @@ rm -v /usr/lib/libmpfr.la</userinput></screen>
 
     <segmentedlist>
       <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed directory</segtitle>
 
       <seglistitem>
         <seg>libmpfr.so</seg>
-        <seg>/usr/share/doc/mpfr</seg>
       </seglistitem>
     </segmentedlist>
 
