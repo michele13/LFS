@@ -4,8 +4,9 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY gst10-plugins-bad-download-http
-           "&gstreamer-dl;/gst-plugins-bad/gst-plugins-bad-&gst10-plugins-bad-version;.tar.xz">
+  <!ENTITY gst10-plugins-bad-homepage      "http://gstreamer.freedesktop.org/">
+  <!ENTITY gst10-plugins-bad-wikipedia     "https://en.wikipedia.org/wiki/GStreamer">
+  <!ENTITY gst10-plugins-bad-download-http "&gstreamer-dl;/gst-plugins-bad/gst-plugins-bad-&gst10-plugins-bad-version;.tar.xz">
   <!ENTITY gst10-plugins-bad-download-ftp  " ">
   <!ENTITY gst10-plugins-bad-md5sum        "e0bb39412cf4a48fe0397bcf3a7cd451">
   <!ENTITY gst10-plugins-bad-size          "3.6 MB">
@@ -18,25 +19,29 @@
 
   <title>gst-plugins-bad-&gst10-plugins-bad-version;</title>
 
-  <indexterm zone="gst10-plugins-bad">
-    <primary sortas="a-gst-plugins-bad">gst-plugins-bad</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to GStreamer Bad Plug-ins</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GStreamer Bad Plug-ins</application> package contains a
-      set a set of plug-ins that aren't up to par compared to the rest. They
-      might be close to being good quality, but they're missing something - be
-      it a good code review, some documentation, a set of tests, a real live
-      maintainer, or some actual wide use.
+      The GStreamer Bad Plug-ins package contains a set a set of plug-ins that
+      aren't up to par compared to the rest. They might be close to being good
+      quality, but they're missing something - be it a good code review, some
+      documentation, a set of tests, a real live maintainer, or some actual
+      wide use.
     </para>
-
-    &gst-compat;
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gst10-plugins-bad-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gst10-plugins-bad-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gst10-plugins-bad-download-http;"/>
@@ -79,15 +84,15 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">GStreamer Bad Plug-ins Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="gst10-plugins-base"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libdvdread"/>,
       <xref linkend="libdvdnav"/>,
       <xref linkend="soundtouch"/>,
@@ -146,8 +151,8 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GStreamer Bad Plug-ins</title>
+  <sect2>
+    <title>Installation</title>
 
     <note><para>If you need a plugin for a given dependency, that dependency
       needs to be installed before this application.
@@ -155,62 +160,63 @@
 
     <para>
       If you have installed <xref linkend="openjpeg2"/> and wish to use it with
-      <application>GStreamer Bad Plug-ins</application>, apply the following
-      patch:
+      GStreamer Bad Plug-ins, apply the following patch:
     </para>
 
 <screen><userinput>patch -p1 -i ../gst-plugins-bad-&gst10-plugins-bad-version;-openjpeg21-1.patch</userinput></screen>
 
     <para>
-      Install <application>GStreamer Bad Plug-ins</application> by running the
-      following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --with-package-name="GStreamer Bad Plugins &gst10-plugins-bad-version; BLFS" \
-            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" &amp;&amp;
+<screen><userinput>sed "s/ install-data-local//" -i docs/libs/Makefile.in
+sed "s/ install-data-local//" -i docs/plugins/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls
 make</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>. One test
-      (camerabin) needs hardware with a camera. A couple of tests need a
-      terminal emulator in a graphical session.
+      Install the package:
     </para>
 
-    <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
-    </para>
+<screen role="root"><userinput>make -j1 install
+rm -v /lib/libgstbadbase-1.0.la
+rm -v /lib/libgstbadvideo-1.0.la
+rm -v /lib/libgstbasecamerabinsrc-1.0.la
+rm -v /lib/libgstcodecparsers-1.0.la
+rm -v /lib/libgstinsertbin-1.0.la
+rm -v /lib/libgstmpegts-1.0.la
+rm -v /lib/libgstphotography-1.0.la
+rm -v /lib/libgsturidownloader-1.0.la</userinput></screen>
 
-<screen role="root"><userinput>make install</userinput></screen>
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
 
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libgstbadbase-1.0.so, libgstbadvideo-1.0.so,
-          libgstbasecamerabinsrc-1.0.so, libgstcodecparsers-1.0.so,
-          libgstgl-1.0.so, libgstinsertbin-1.0.so, libgstmpegts-1.0.so,
-          libgstphotography-1.0.so, libgsturidownloader-1.0.so and
-          several plugins under /usr/lib/gstreamer-1.0
-        </seg>
-        <seg>
-          /usr/include/gstreamer-1.0/gst/{basecamerabinsrc,codecparsers,gl},
-          /usr/include/gstreamer-1.0/gst/{insertbin,interfaces,mpegts},
-          /usr/include/gstreamer-1.0/gst/uridownloader, and
-          /usr/share/gtk-doc/html/gst-plugins-bad-{libs,plugins}-1.0
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+<screen><literal>/include/gstreamer-1.0/
+/lib/gstreamer-1.0/
+/lib/libgstbadbase-1.0.so
+/lib/libgstbadvideo-1.0.so
+/lib/libgstbasecamerabinsrc-1.0.so
+/lib/libgstcodecparsers-1.0.so
+/lib/libgstinsertbin-1.0.so
+/lib/libgstmpegts-1.0.so
+/lib/libgstphotography-1.0.so
+/lib/libgsturidownloader-1.0.so
+/lib/pkgconfig/gstreamer-codecparsers-1.0.pc
+/lib/pkgconfig/gstreamer-insertbin-1.0.pc
+/lib/pkgconfig/gstreamer-mpegts-1.0.pc
+/lib/pkgconfig/gstreamer-plugins-bad-1.0.pc</literal></screen>
 
   </sect2>
 
