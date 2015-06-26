@@ -42,11 +42,11 @@
 
     <para>Suppress installation of unnecessary files:</para>
 
-<screen><userinput remap="pre">sed "s/m: install-info-am/m:/" -i doc/Makefile.in</userinput></screen>
+<screen><userinput remap="pre">sed "s/ install-info-am//" -i doc/Makefile.in</userinput></screen>
 
     <para>Prepare Gawk for compilation:</para>
 
-<screen><userinput remap="configure">./configure --prefix=/usr \
+<screen><userinput remap="configure">./configure --prefix= \
             --disable-nls</userinput></screen>
 
     <para>Compile the package:</para>
@@ -55,7 +55,7 @@
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make install</userinput></screen>
+<screen><userinput remap="install">make -j1 install</userinput></screen>
 
   </sect2>
 
@@ -72,8 +72,7 @@
         <seg>filefuncs.so, fnmatch.so, fork.so, inplace.so, ordchr.so,
         readdir.so, readfile.so, revoutput.so, revtwoway.so, rwarray.so,
         testext.so, and time.so</seg>
-        <seg>/usr/lib/gawk, /usr/libexec/awk, /usr/share/awk, 
-        /usr/share/doc/gawk-&gawk-version;</seg>
+        <seg>/lib/gawk, /libexec/awk, and /share/awk</seg>
       </seglistitem>
     </segmentedlist>
 
