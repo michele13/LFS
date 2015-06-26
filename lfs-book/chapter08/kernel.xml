@@ -122,7 +122,7 @@ sed 's/^function //' -i arch/x86/kernel/cpu/mkcapflags.sh</userinput></screen>
     <warning>
       <para>The headers in the system's <filename
       class="directory">include</filename> directory (<filename
-      class="directory">/usr/include</filename>) should
+      class="directory">/include</filename>) should
       <emphasis>always</emphasis> be the ones against which Glibc was compiled,
       that is, the sanitised headers installed in <xref
       linkend="ch-system-linux-headers"/>.  Therefore, they should
@@ -155,8 +155,8 @@ sed 's/^function //' -i arch/x86/kernel/cpu/mkcapflags.sh</userinput></screen>
 cat &gt; /etc/modprobe.d/usb.conf &lt;&lt; "EOF"
 <literal># Begin /etc/modprobe.d/usb.conf
 
-install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; true
-install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
+install ohci_hcd /bin/modprobe ehci_hcd ; /bin/modprobe -i ohci_hcd ; true
+install uhci_hcd /bin/modprobe ehci_hcd ; /bin/modprobe -i uhci_hcd ; true
 
 # End /etc/modprobe.d/usb.conf</literal>
 EOF</userinput></screen>

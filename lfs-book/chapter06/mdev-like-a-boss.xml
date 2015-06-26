@@ -43,15 +43,14 @@
 
     <para>Change the path for the helper scripts:</para>
 
-<screen><userinput remap="configure">sed 's|opt/mdev/helpers|sbin|' -i mdev.conf</userinput></screen>
+<screen><userinput remap="configure">sed 's|opt/mdev/helpers|bin|' -i mdev.conf</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">install -v -m 644 mdev.conf /etc/
-install -v -m 755 helpers/catch-all /sbin/
-install -v -m 755 helpers/proc-bus-usb /sbin/
-install -v -m 755 helpers/settle-nics /sbin/
-install -v -m 755 helpers/storage-device /sbin/</userinput></screen>
+<screen><userinput remap="install">install -v -m 644 mdev.conf /etc
+for prog in catch-all proc-bus-usb settle-nics storage-device
+    do install -v -m 755 helpers/$prog /bin
+done</userinput></screen>
 
   </sect2>
 
