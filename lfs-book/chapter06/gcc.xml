@@ -44,9 +44,9 @@
     <para>Suppress installation of unnecessary files:</para>
 
 <screen><userinput remap="pre">sed "/mkinstalldirs.*infodir/d" -i gcc/Makefile.in
-sed "s/m: install-info-am/m:/" -i libgomp/Makefile.in
-sed "s/m: install-info-am/m:/" -i libitm/Makefile.in
-sed "s/m: install-info-am/m:/" -i libquadmath/Makefile.in</userinput></screen>
+for dir in libgomp libitm libquadmath
+    do sed "s/ install-info-am//" -i $dir/Makefile.in
+done</userinput></screen>
 
     <para>First fix some problems with the libgomp library:</para>
 
@@ -61,7 +61,7 @@ cd ../gcc-build</userinput></screen>
     <para>Prepare GCC for compilation:</para>
 
 <screen><userinput remap="configure">SED=sed \
-../gcc-&gcc-version;/configure --prefix=/usr \
+../gcc-&gcc-version;/configure --prefix= \
                        --disable-static \
                        --disable-nls \
                        --enable-languages=c,c++ \
@@ -100,39 +100,27 @@ cd ../gcc-build</userinput></screen>
     <para>Install the package:</para>
 
 <screen><userinput remap="install">make -j1 install
-rm -v /usr/lib/libasan.la
-rm -v /usr/lib/libatomic.la
-rm -v /usr/lib/libcc1.la
-rm -v /usr/lib/libcilkrts.la
-rm -v /usr/lib/libgomp-plugin-host_nonshm.la
-rm -v /usr/lib/libgomp.la
-rm -v /usr/lib/libitm.la
-rm -v /usr/lib/liblsan.la
-rm -v /usr/lib/libquadmath.la
-rm -v /usr/lib/libssp.la
-rm -v /usr/lib/libssp_nonshared.la
-rm -v /usr/lib/libstdc++.la
-rm -v /usr/lib/libsupc++.la
-rm -v /usr/lib/libtsan.la
-rm -v /usr/lib/libubsan.la
-rm -v /usr/lib/libvtv.la</userinput></screen>
+for name in asan atomic cc1 cilkrts gomp-plugin-host_nonshm gomp itm lsan \
+            quadmath ssp ssp_nonshared stdc++ supc++ tsan ubsan vtv
+    do rm -v /lib/lib$name.la
+done</userinput></screen>
 
     <para>Some packages expect the C preprocessor to be installed in the
     <filename class="directory">/lib</filename> directory.
     To support those packages, create this symlink:</para>
 
-<screen><userinput remap="install">ln -sv ../usr/bin/cpp /lib</userinput></screen>
+<screen><userinput remap="install">ln -sv ../bin/cpp /lib</userinput></screen>
 
     <para>Many packages use the name <command>cc</command> to call the C
     compiler. To satisfy those packages, create a symlink:</para>
 
-<screen><userinput remap="install">ln -sv gcc /usr/bin/cc</userinput></screen>
+<screen><userinput remap="install">ln -sv gcc /bin/cc</userinput></screen>
 
     <para>Add a compatibility symlink to enable building programs with
     Link Time Optimization (LTO):</para> 
 
-<screen><userinput remap="install">install -v -dm755 /usr/lib/bfd-plugins
-ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /usr/lib/bfd-plugins/</userinput></screen>
+<screen><userinput remap="install">install -v -dm755 /lib/bfd-plugins
+ln -sfv ../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /lib/bfd-plugins/</userinput></screen>
 
     <para>
       TODO
@@ -282,8 +270,8 @@ SEARCH_DIR("/usr/lib");</computeroutput></screen>
 
     <para>Finally, move a misplaced file:</para>
 
-<screen><userinput remap="install">mkdir -pv /usr/share/gdb/auto-load/usr/lib
-mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</userinput></screen>
+<screen><userinput remap="install">mkdir -pv /share/gdb/auto-load/lib
+mv -v /lib/*gdb.py /share/gdb/auto-load/lib</userinput></screen>
 
   </sect2>
 
@@ -305,8 +293,8 @@ mv -v /usr/lib/*gdb.py /usr/share/gdb/auto-load/usr/lib</userinput></screen>
         libquadmath.so, libssp.so,
         libssp_nonshared.a, libstdc++.so, libsupc++.a, and libtsan.so</seg>
 
-        <seg>/usr/include/c++, /usr/lib/gcc, /usr/libexec/gcc, 
-        /usr/share/gcc-&gcc-version;</seg>
+        <seg>/include/c++, /lib/gcc, /libexec/gcc,
+        /share/gcc-&gcc-version;</seg>
       </seglistitem>
     </segmentedlist>
 
