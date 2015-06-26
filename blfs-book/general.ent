@@ -37,8 +37,6 @@
 <!ENTITY sourceforge-repo     "http://downloads.sourceforge.net">
 <!ENTITY sourceforge-repo2    "http://sourceforge.net">
 <!ENTITY gentoo-ftp-repo      "ftp://mirror.ovh.net/gentoo-distfiles/distfiles">
-<!ENTITY fedora-http-repo     "http://pkgs.fedoraproject.org/repo/pkgs">
-<!ENTITY jaist-ftp-repo       "ftp://ftp.jaist.ac.jp/pub//sourceforge">
 <!ENTITY publisher            "Unknown">
 <!ENTITY xorg-download-http   "http://xorg.freedesktop.org/archive/individual">
 <!ENTITY xorg-download-ftp    "ftp://ftp.x.org/pub/individual">
@@ -51,14 +49,6 @@
 
 <!-- These entities are used to identify versions of LFS
      packages referenced throughout the BLFS book. -->
-<!ENTITY lfs-e2fsprogs-version        "1.42.9">
-<!ENTITY lfs-flex-version             "2.5.39">
-<!ENTITY lfs-gcc-version              "4.9.0">
-<!ENTITY lfs-gdbm-version             "1.11">
-<!ENTITY lfs-m4-version               "1.4.17">
-<!-- this was originally the perl version used by the corresponding
- version of lfs, in those days always for i686, but now BLFS is a rolling
- release -->
 <!ENTITY lfs-perl-version             "&lt;5.x.y&gt;/&lt;arch-linux&gt;">
 <!-- End LFS versions -->
 
@@ -66,50 +56,6 @@
 <!ENTITY blfs-bootscripts-download    "http://igor-zivkovic.from.hr/blfs-bootscripts-&blfs-bootscripts-version;.tar.gz">
 
 <!ENTITY blfs-wiki                    "http://wiki.&lfs-domainname;/blfs/wiki">
-
-<!ENTITY as_root "<note><para>When installing multiple packages in a script,
-  the installation needs to be done as the root user. There are three general
-  options that can be used to do this:</para>
-
-  <orderedlist>
-
-  <listitem><para>Run the entire script as the root user (not
-  recommended).</para></listitem>
-
-  <listitem><para>Use the <command>sudo</command> command from the <xref
-  linkend='sudo'/> package.</para></listitem>
-
-  <listitem><para>Use <command>su -c &quot;command arguments&quot;</command>
-  (quotes required) which will ask for the root  password for every iteration
-  of the loop.</para></listitem>
-
-  </orderedlist>
-
-  <para>One way to handle this situation is to create a short
-  <command>bash</command> function that automatically selects the appropriate
-  method.  Once the command is set in the environment, it does not need to be
-  set again.</para>
-
-  <screen><userinput>as_root()
-{
-  if   [ $EUID = 0 ];        then $*
-  elif [ -x /usr/bin/sudo ]; then sudo $*
-  else                            su -c \\&quot;$*\\&quot;
-  fi
-}
-
-export -f as_root</userinput></screen>
-</note>">
-
-<!ENTITY not-katamari         "<para>This package is not a part of the Xorg
-                              katamari and is provided only as a dependency to
-                              other packages or for testing the completed Xorg
-                              installation.</para>">
-
-<!ENTITY gst-compat           "<note><para><application>GStreamer</application> 1.0 series
-                               is not API or ABI compatible with
-                               <application>GStreamer</application> 0.10 series and both
-                               can be installed on the same system.</para></note>">
 
 <!ENTITY % package-entities SYSTEM      "packages.ent">
 %package-entities;
