@@ -98,19 +98,20 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/XIM/Makefile.in
-sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/XKB/Makefile.in
-sed "s/ install-shelfDATA//" -i specs/i18n/compose/Makefile.in
-sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/i18n/framework/Makefile.in
-sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/i18n/localedb/Makefile.in
-sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/i18n/trans/Makefile.in
-sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/libX11/Makefile.in</userinput></screen>
+<screen><userinput>for dir in XIM XKB i18n/compose i18n/framework i18n/localedb i18n/trans libX11 ; do
+    sed -e "s/ install-shelfDATA//" -e "s/ install-dist_shelfDATA//" -i specs/$dir/Makefile.in
+done
+sed -e "s/ install-nobase_dist_x11localeDATA//" \
+    -e "s/install-nobase_x11localeDATA install-x11localeDATA//" \
+    -i nls/Makefile.in</userinput></screen>
 
     <para>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure $XORG_CONFIG \
+            --disable-xlocale \
+            --disable-xlocaledir</userinput></screen>
 
     <para>
       Compile the package:
