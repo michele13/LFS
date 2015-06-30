@@ -87,18 +87,28 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libevent.la
+rm -v /usr/lib/libevent_core.la
+rm -v /usr/lib/libevent_extra.la
+rm -v /usr/lib/libevent_openssl.la
+rm -v /usr/lib/libevent_pthreads.la</userinput></screen>
 
   </sect2>
 
@@ -135,19 +145,9 @@ make</userinput></screen>
 /usr/include/evhttp.h
 /usr/include/evrpc.h
 /usr/include/evutil.h
-/usr/lib/libevent-2.0.so.5
-/usr/lib/libevent-2.0.so.5.1.9
-/usr/lib/libevent_core-2.0.so.5
-/usr/lib/libevent_core-2.0.so.5.1.9
 /usr/lib/libevent_core.so
-/usr/lib/libevent_extra-2.0.so.5
-/usr/lib/libevent_extra-2.0.so.5.1.9
 /usr/lib/libevent_extra.so
-/usr/lib/libevent_openssl-2.0.so.5
-/usr/lib/libevent_openssl-2.0.so.5.1.9
 /usr/lib/libevent_openssl.so
-/usr/lib/libevent_pthreads-2.0.so.5
-/usr/lib/libevent_pthreads-2.0.so.5.1.9
 /usr/lib/libevent_pthreads.so
 /usr/lib/libevent.so
 /usr/lib/pkgconfig/libevent_openssl.pc
