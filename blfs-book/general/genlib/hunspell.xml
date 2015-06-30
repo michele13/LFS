@@ -85,20 +85,26 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
             --disable-static \
             --with-ui \
-            --with-readline &amp;&amp;
-make</userinput></screen>
+            --with-readline</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libhunspell-1.3.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
