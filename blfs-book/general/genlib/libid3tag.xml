@@ -5,7 +5,7 @@
   %general-entities;
 
   <!ENTITY libid3tag-homepage      "http://www.sourceforge.net/projects/mad/">
-  <!ENTITY libid3tag-wikipedia     " ">
+  <!ENTITY libid3tag-wikipedia     "https://en.wikipedia.org/wiki/ID3">
   <!ENTITY libid3tag-download-http "&sourceforge-repo;/mad/libid3tag-&libid3tag-version;.tar.gz">
   <!ENTITY libid3tag-download-ftp  " ">
   <!ENTITY libid3tag-md5sum        "e5808ad997ba32c498803822078748c3">
@@ -18,10 +18,6 @@
   <?dbhtml filename="libid3tag.html"?>
 
   <title>libid3tag-&libid3tag-version;</title>
-
-  <indexterm zone="libid3tag">
-    <primary sortas="a-libid3tag">libid3tag</primary>
-  </indexterm>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -78,26 +74,32 @@
 
   </sect2>
 
-  <sect2 role="installation">
+  <sect2>
     <title>Installation</title>
 
     <para>
-      Install libid3tag by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libid3tag.la</userinput></screen>
 
   </sect2>
 
-  <sect2 role="content">
+  <sect2>
     <title>Contents</title>
 
     <indexterm zone="libid3tag">
@@ -109,9 +111,7 @@ make</userinput></screen>
     </para>
 
 <screen><literal>/usr/include/id3tag.h
-/usr/lib/libid3tag.so
-/usr/lib/libid3tag.so.0
-/usr/lib/libid3tag.so.0.3.0</literal></screen>
+/usr/lib/libid3tag.so</literal></screen>
 
   </sect2>
 
