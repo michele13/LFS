@@ -6,10 +6,8 @@
 
   <!ENTITY libcroco-homepage      " ">
   <!ENTITY libcroco-wikipedia     " ">
-  <!ENTITY libcroco-download-http
-  "&gnome-download-http;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
-  <!ENTITY libcroco-download-ftp
-  "&gnome-download-ftp;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
+  <!ENTITY libcroco-download-http "&gnome-download-http;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
+  <!ENTITY libcroco-download-ftp  "&gnome-download-ftp;/libcroco/0.6/libcroco-&libcroco-version;.tar.xz">
   <!ENTITY libcroco-md5sum        "767e73c4174f75b99695d4530fd9bb80">
   <!ENTITY libcroco-size          "456 KB">
   <!ENTITY libcroco-buildsize     "11 MB">
@@ -76,7 +74,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="glib2"/> and
       <xref linkend="libxml2"/>
     </para>
@@ -87,18 +85,24 @@
     <title>Installation</title>
 
     <para>
-      Install libcroco by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libcroco-0.6.la</userinput></screen>
 
   </sect2>
 
