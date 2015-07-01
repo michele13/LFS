@@ -5,7 +5,7 @@
   %general-entities;
 
   <!ENTITY libevdev-homepage      "http://www.freedesktop.org/wiki/Software/libevdev/">
-  <!ENTITY libevdev-wikipedia     " ">
+  <!ENTITY libevdev-wikipedia     "https://en.wikipedia.org/wiki/Evdev">
   <!ENTITY libevdev-download-http "http://www.freedesktop.org/software/libevdev/libevdev-&libevdev-version;.tar.xz">
   <!ENTITY libevdev-download-ftp  " ">
   <!ENTITY libevdev-md5sum        "2fc170e2d6f543ba26e7c79f95dc1935">
@@ -94,18 +94,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install
+rm -v /usr/lib/libevdev.la</userinput></screen>
 
   </sect2>
 
