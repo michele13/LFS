@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY e2fsprogs-homepage      "http://e2fsprogs.sourceforge.net/">
+  <!ENTITY e2fsprogs-wikipedia     "https://en.wikipedia.org/wiki/E2fsprogs">
+  <!ENTITY e2fsprogs-download-http "https://www.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v&e2fsprogs-version;/e2fsprogs-&e2fsprogs-version;.tar.xz">
+  <!ENTITY e2fsprogs-download-ftp  "ftp://ftp.kernel.org/pub/linux/kernel/people/tytso/e2fsprogs/v&e2fsprogs-version;/e2fsprogs-&e2fsprogs-version;.tar.xz">
+  <!ENTITY e2fsprogs-md5sum        "ce8e4821f5f53d4ebff4195038e38673">
+  <!ENTITY e2fsprogs-size          "4.6 MB">
+  <!ENTITY e2fsprogs-buildsize     "47 MB">
+  <!ENTITY e2fsprogs-time          "3.8 SBU">
+]>
+
+<sect1 id="e2fsprogs" xreflabel="e2fsprogs-&e2fsprogs-version;">
+  <?dbhtml filename="e2fsprogs.html"?>
+
+  <title>e2fsprogs-&e2fsprogs-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The e2fsprogs package contains the utilities for handling the ext2 file
+      system. It also supports the ext3 and ext4 journaling file systems.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&e2fsprogs-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&e2fsprogs-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&e2fsprogs-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&e2fsprogs-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &e2fsprogs-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &e2fsprogs-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &e2fsprogs-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &e2fsprogs-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-doc-libs//" -i Makefile.in
+sed "s/\$(DESTDIR)\$(libdir) //" -i misc/Makefile.in</userinput></screen>
+
+    <para>
+      Fix a potential security issue identified upstream:
+    </para>
+
+<screen><userinput>sed -e '/int.*old_desc_blocks/s/int/blk64_t/' \
+    -e '/if (old_desc_blocks/s/super->s_first_meta_bg/desc_blocks/' \
+    -i lib/ext2fs/closefs.c</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin \
+            --disable-nls \
+            --disable-e2initrd-helper</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Contents</title>
+
+    <para>
+      Incomplete list of installed files and directories:
+    </para>
+
+<screen><literal>/bin/badblocks
+/bin/blkid
+/bin/chattr
+/bin/debugfs
+/bin/dumpe2fs
+/bin/e2freefrag
+/bin/e2fsck
+/bin/e2image
+/bin/e2label
+/bin/e2undo
+/bin/e4defrag
+/bin/filefrag
+/bin/findfs
+/bin/fsck
+/bin/fsck.ext2
+/bin/fsck.ext3
+/bin/fsck.ext4
+/bin/fsck.ext4dev
+/bin/logsave
+/bin/lsattr
+/bin/mke2fs
+/bin/mkfs.ext2
+/bin/mkfs.ext3
+/bin/mkfs.ext4
+/bin/mkfs.ext4dev
+/bin/mklost+found
+/bin/resize2fs
+/bin/tune2fs
+/bin/uuidd
+/bin/uuidgen
+/etc/mke2fs.conf
+/share/man/man1/chattr.1
+/share/man/man1/lsattr.1
+/share/man/man1/uuidgen.1
+/share/man/man5/e2fsck.conf.5
+/share/man/man5/ext2.5
+/share/man/man5/ext3.5
+/share/man/man5/ext4.5
+/share/man/man5/mke2fs.conf.5
+/share/man/man8/badblocks.8
+/share/man/man8/blkid.8
+/share/man/man8/debugfs.8
+/share/man/man8/dumpe2fs.8
+/share/man/man8/e2freefrag.8
+/share/man/man8/e2fsck.8
+/share/man/man8/e2image.8
+/share/man/man8/e2label.8
+/share/man/man8/e2undo.8
+/share/man/man8/e4defrag.8
+/share/man/man8/filefrag.8
+/share/man/man8/findfs.8
+/share/man/man8/fsck.8
+/share/man/man8/fsck.ext2.8
+/share/man/man8/fsck.ext3.8
+/share/man/man8/fsck.ext4.8
+/share/man/man8/fsck.ext4dev.8
+/share/man/man8/logsave.8
+/share/man/man8/mke2fs.8
+/share/man/man8/mkfs.ext2.8
+/share/man/man8/mkfs.ext3.8
+/share/man/man8/mkfs.ext4.8
+/share/man/man8/mkfs.ext4dev.8
+/share/man/man8/mklost+found.8
+/share/man/man8/resize2fs.8
+/share/man/man8/tune2fs.8
+/share/man/man8/uuidd.8</literal></screen>
+
+  </sect2>
+
+</sect1>

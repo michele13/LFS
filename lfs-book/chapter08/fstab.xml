@@ -41,7 +41,7 @@ EOF</userinput></screen>
   with the values appropriate for the system, for example, <filename
   class="partition">sda2</filename>, <filename
   class="partition">sda5</filename>, and <systemitem
-  class="filesystem">ext4</systemitem>. For details on the six
+  class="filesystem">ext2</systemitem>. For details on the six
   fields in this file, see <command>man 5 fstab</command>.</para>
 
   <para>Filesystems with MS-DOS or Windows origin (i.e.: vfat, ntfs, smbfs, cifs,
@@ -85,20 +85,5 @@ EOF</userinput></screen>
   ntfs filesystem at kernel compilation time.</para>
   <!-- Personally, I find it more foolproof to always specify the iocharset and
   codepage in /etc/fstab for MS-based filesystems - Alexander E. Patrakov -->
-
-  <para>It is possible to make the ext3 filesystem reliable across power
-  failures for some hard disk types.  To do this, add the
-  <option>barrier=1</option> mount option to the appropriate entry in
-  <filename>/etc/fstab</filename>.  To check if the disk drive supports
-  this option, run
-  <ulink url="http://www.linuxfromscratch.org/blfs/view/cvs/general/hdparm.html">hdparm</ulink>
-  on the applicable disk drive.  For example, if:</para>
-
-<screen role="nodump"><userinput>hdparm -I /dev/sda | grep NCQ</userinput></screen>
-
-  <para>returns non-empty output, the option is supported.</para>
-
-  <para>Note: Logical Volume Management (LVM) based partitions cannot use the
-  <option>barrier</option> option.</para>
 
 </sect1>
