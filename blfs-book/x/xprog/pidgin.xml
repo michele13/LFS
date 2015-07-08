@@ -64,6 +64,16 @@
       </listitem>
     </itemizedlist>
 
+   <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;pidgin/pidgin-&gimp-version;-gstreamer1-1.patch"/>
+        </para>
+      </listitem>
+   </itemizedlist>
+
     <bridgehead renderas="sect3">Pidgin Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -74,7 +84,8 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para role="recommended">
-      <xref linkend="nss"/>
+      <xref linkend="nss"/> and
+      <xref linkend="gstreamer10"/> (required for audio support)
     </para>
 
     <para>
@@ -118,12 +129,21 @@
     <title>Installation of Pidgin</title>
 
     <para>
+      First apply a patch to allow the package to build with the current
+      <application>gstreamer</application> framework:
+    </para>
+
+<screen><userinput>patch -Np1 -i ../pidgin-&pidgin-version;-gstreamer1-1.patch &amp;&amp;
+autoreconf -fi</userinput></screen>
+
+    <para>
       Compile <application>Pidgin</application>
       by running the following commands:
     </para>
 
 <screen><userinput>./configure --prefix=/usr       \
             --sysconfdir=/etc   \
+            --with-gstreamer=1.0 \
             --disable-nls       \
             --disable-avahi     \
             --disable-dbus      \
@@ -156,6 +176,12 @@ cp -v README doc/gtkrc-2.0 /usr/share/doc/pidgin-&pidgin-version;</userinput></s
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para>
+      <option>--with-gstreamer=1.0</option>: Remove this switch 
+      and add <option>--disable-gstreamer</option>
+      if you've not installed <xref linkend="gstreamer10"/>. 
+    </para>
 
     <para>
       <option>--disable-avahi</option>: Remove this switch if you've
