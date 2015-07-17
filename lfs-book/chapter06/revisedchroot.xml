@@ -13,7 +13,7 @@
   <para>From now on, when reentering the chroot environment after
   exiting, use the following modified chroot command:</para>
 
-<screen role="nodump"><userinput>chroot "$LFS" /bin/env -i HOME=/root TERM="$TERM" PS1='\u:\w\$ ' PATH=/bin /bin/ash -l</userinput></screen>
+<screen role="nodump"><userinput>chroot "$LFS" /bin/env -i HOME=/root TERM="$TERM" PS1='\u:\w\$ ' PATH=/bin /bin/ash MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1)) -l</userinput></screen>
 
   <para>The reason for this is that the programs in <filename
   class="directory">/tools</filename> are no longer needed.  Since they are no

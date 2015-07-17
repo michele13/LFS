@@ -149,7 +149,7 @@ else
 fi
 export EDITOR
 
-MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo` ; export MAKEFLAGS</literal>
+MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1)) ; export MAKEFLAGS</literal>
 EOF
 install -v -m600 ~/.ashrc /etc/skel</userinput></screen>
 

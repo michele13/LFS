@@ -20,7 +20,7 @@
     TERM="$TERM" \
     PS1='\u:\w\$ ' \
     PATH=/bin:/tools/bin:/tools/usr/bin:/tools/sbin:/tools/usr/sbin \
-    MAKEFLAGS=-j`grep -c ^processor /proc/cpuinfo` \
+    MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1)) \
     /tools/bin/ash -l</userinput></screen>
 
   <para>The <parameter>-i</parameter> option given to the <command>env</command>
