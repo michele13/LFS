@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+  "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../general.ent">
+  %general-entities;
+]>
+
+<sect1 id="ch-system-porg" role="wrap">
+  <?dbhtml filename="porg.html"?>
+
+  <sect1info condition="script">
+    <productname>porg</productname>
+    <productnumber>&porg-version;</productnumber>
+    <address>&porg-url;</address>
+  </sect1info>
+
+  <title>porg-&porg-version;</title>
+
+  <indexterm zone="ch-system-porg">
+    <primary sortas="a-porg">porg</primary>
+  </indexterm>
+
+  <sect2 role="package">
+    <title/>
+
+    <para>porg is a program to aid management of software packages installed from source code.</para>
+
+    <segmentedlist>
+      <segtitle>&buildtime;</segtitle>
+      <segtitle>&diskspace;</segtitle>
+
+      <seglistitem>
+        <seg>&porg-ch6-sbu;</seg>
+        <seg>&porg-ch6-du;</seg>
+      </seglistitem>
+    </segmentedlist>
+
+  </sect2>
+
+  <sect2 role="installation">
+    <title>Installation of porg</title>
+
+    <para>Suppress installation of unnecessary files:</para>
+
+<screen><userinput remap="pre">sed "s/ install-pkgdataDATA//" -i Makefile.in
+sed "s/ install-pkgdataDATA//" -i doc/Makefile.in
+sed -e "/^\spaco2porg/d" -e "s/ install-exec-local//" -i scripts/Makefile.in</userinput></screen>
+
+    <para>
+      Remove dependency on bash:
+    </para>
+
+<screen><userinput remap="pre">sed -e "s/bash/sh/" \
+    -e "/read -p/ s/$/ ; read REPLY/" \
+    -e "s/read -p/echo -n/" \
+    -i scripts/porgball.in</userinput></screen>
+
+    <para>Prepare porg for compilation:</para>
+
+<screen><userinput remap="configure">./configure --prefix= \
+            --disable-static \
+            --disable-grop</userinput></screen>
+
+    <para>Compile the package:</para>
+
+<screen><userinput remap="make">make</userinput></screen>
+
+    <para>Install the package:</para>
+
+<screen><userinput remap="install">make -j1 install
+rm -v /lib/libporg-log.la</userinput></screen>
+
+  </sect2>
+
+  <sect2 id="contents-porg" role="content">
+    <title>Contents of porg</title>
+
+    <segmentedlist>
+      <segtitle>Installed programs</segtitle>
+      <segtitle>Installed library</segtitle>
+      <segtitle>Installed directory</segtitle>
+
+      <seglistitem>
+        <seg>
+          porg and porgball
+        </seg>
+        <seg>
+          libporg-log.so
+        </seg>
+        <seg>
+          /var/log/porg
+        </seg>
+      </seglistitem>
+    </segmentedlist>
+
+    <variablelist>
+      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
+      <?dbfo list-presentation="list"?>
+      <?dbhtml list-presentation="table"?>
+
+      <varlistentry id="porg">
+        <term><command>porg</command></term>
+        <listitem>
+          <para>
+            Organizes source code packages.
+          </para>
+          <indexterm zone="ch-system-porg porg">
+            <primary sortas="b-porg">porg</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry id="porgball">
+        <term><command>porgball</command></term>
+        <listitem>
+          <para>
+            Adds support for binary packages to porg.
+          </para>
+          <indexterm zone="ch-system-porg porgball">
+            <primary sortas="b-porgball">porgball</primary>
+          </indexterm>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+  </sect2>
+
+</sect1>
