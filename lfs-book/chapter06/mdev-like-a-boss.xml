@@ -23,8 +23,10 @@
   <sect2 role="package">
     <title/>
 
-    <para>The mdev-like-a-boss package contains notes, scripts and configs for
-    the system running with mdev as a udev replacement.</para>
+    <para>
+      The mdev-like-a-boss package contains notes, scripts and configs for the
+      system running with mdev as a udev replacement.
+    </para>
 
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
@@ -39,23 +41,27 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of mdev-like-a-boss</title>
+    <title>Installation</title>
 
-    <para>Change the path for the helper scripts:</para>
+    <para>
+      Change the path for the helper scripts:
+    </para>
 
 <screen><userinput remap="configure">sed 's|opt/mdev/helpers|bin|' -i mdev.conf</userinput></screen>
 
-    <para>Install the package:</para>
+    <para>
+      Install the package:
+    </para>
 
-<screen><userinput remap="install">install -v -m 644 mdev.conf /etc
+<screen><userinput remap="install">porg -lp+ busybox-&busybox-version; "install -v -m 644 mdev.conf /etc"
 for prog in catch-all proc-bus-usb settle-nics storage-device
-    do install -v -m 755 helpers/$prog /bin
+    do porg -lp+ busybox-&busybox-version; "install -v -m 755 helpers/$prog /bin"
 done</userinput></screen>
 
   </sect2>
 
   <sect2 id="contents-mdev-like-a-boss" role="content">
-    <title>Contents of mdev-like-a-boss</title>
+    <title>Contents</title>
 
     <segmentedlist>
       <segtitle>Installed programs</segtitle>
