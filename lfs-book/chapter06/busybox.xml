@@ -109,8 +109,8 @@
      # ping, su and vlock for regular user require setuid root
      chmod -v +s /bin/busybox
 -->
-<screen><userinput remap="install">install -v -m 755 busybox /bin
-for program in cat echo pwd sh stty ; do ln -sfv busybox /bin/$program ; done
+<screen><userinput remap="install">porg -lp busybox-&busybox-version; "install -v -m 755 busybox /bin"
+for program in cat echo pwd sh stty ; do porg -lp+ busybox-&busybox-version; "ln -sfv busybox /bin/$program" ; done
 for program in acpid addgroup adduser ash base64 basename blockdev bunzip2 \
 bzcat bzip2 cal chgrp chmod chown chpasswd chroot chrt cksum cmp comm cp cpio \
 cut date dc dd delgroup deluser depmod df diff dirname dmesg dnsdomainname \
@@ -129,7 +129,7 @@ su sulogin sum swapoff swapon switch_root sync sysctl syslogd tac tail tar \
 tee telnet telnetd test tftp tftpd time timeout top touch tr traceroute \
 traceroute6 true tty umount uname unexpand uniq unix2dos unlink unlzma unxz \
 unzip uptime users uudecode uuencode vi vlock wall watch wc wget which who \
-whoami whois xargs xz xzcat yes zcat ; do ln -sv busybox /bin/$program ; done</userinput></screen>
+whoami whois xargs xz xzcat yes zcat ; do porg -lp+ busybox-&busybox-version; "ln -sv busybox /bin/$program" ; done</userinput></screen>
 
   </sect2>
 
@@ -144,7 +144,7 @@ whoami whois xargs xz xzcat yes zcat ; do ln -sv busybox /bin/$program ; done</u
     <para>Create a new <filename>/etc/syslog.conf</filename> file by running the
     following:</para>
 
-<screen><userinput>cat &gt; /etc/syslog.conf &lt;&lt; "EOF"
+<screen><userinput>porg -lp+ busybox-&busybox-version; 'cat &gt; /etc/syslog.conf &lt;&lt; "EOF"
 <literal># Begin /etc/syslog.conf
 
 auth,authpriv.* /var/log/auth.log
@@ -156,7 +156,7 @@ user.* /var/log/user.log
 *.emerg *
 
 # End /etc/syslog.conf</literal>
-EOF</userinput></screen>
+EOF'</userinput></screen>
 
     <para>Create the <filename class="directory">/etc/acpi</filename> directory
     needed for <command>acpid</command>:</para>
