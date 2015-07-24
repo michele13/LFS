@@ -95,28 +95,42 @@ cd ../gcc-build</userinput></screen>
 
     <para>Install the package:</para>
 
-<screen><userinput remap="install">make -j1 install
-for name in asan atomic cc1 cilkrts gomp-plugin-host_nonshm gomp itm lsan \
-            quadmath ssp ssp_nonshared stdc++ supc++ tsan ubsan vtv
-    do rm -v /lib/lib$name.la
-done</userinput></screen>
+<screen><userinput remap="install">porg -lp gcc-&gcc-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libasan.la &amp;&amp;
+rm -v /lib/libatomic.la &amp;&amp;
+rm -v /lib/libcc1.la &amp;&amp;
+rm -v /lib/libcilkrts.la &amp;&amp;
+rm -v /lib/libgomp-plugin-host_nonshm.la &amp;&amp;
+rm -v /lib/libgomp.la &amp;&amp;
+rm -v /lib/libitm.la &amp;&amp;
+rm -v /lib/liblsan.la &amp;&amp;
+rm -v /lib/libquadmath.la &amp;&amp;
+rm -v /lib/libssp.la &amp;&amp;
+rm -v /lib/libssp_nonshared.la &amp;&amp;
+rm -v /lib/libstdc++.la &amp;&amp;
+rm -v /lib/libsupc++.la &amp;&amp;
+rm -v /lib/libtsan.la &amp;&amp;
+rm -v /lib/libubsan.la &amp;&amp;
+rm -v /lib/libvtv.la &amp;&amp;
+mkdir -pv /share/gdb/auto-load/lib &amp;&amp;
+mv -v /lib/*gdb.py /share/gdb/auto-load/lib"</userinput></screen>
 
     <para>Some packages expect the C preprocessor to be installed in the
     <filename class="directory">/lib</filename> directory.
     To support those packages, create this symlink:</para>
 
-<screen><userinput remap="install">ln -sv ../bin/cpp /lib</userinput></screen>
+<screen><userinput remap="install">porg -lp+ gcc-&gcc-version; "ln -sv ../bin/cpp /lib"</userinput></screen>
 
     <para>Many packages use the name <command>cc</command> to call the C
     compiler. To satisfy those packages, create a symlink:</para>
 
-<screen><userinput remap="install">ln -sv gcc /bin/cc</userinput></screen>
+<screen><userinput remap="install">porg -lp+ gcc-&gcc-version; "ln -sv gcc /bin/cc"</userinput></screen>
 
     <para>Add a compatibility symlink to enable building programs with
     Link Time Optimization (LTO):</para> 
 
 <screen><userinput remap="install">install -v -dm755 /lib/bfd-plugins
-ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /lib/bfd-plugins/</userinput></screen>
+porg -lp+ gcc-&gcc-version; "ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /lib/bfd-plugins/"</userinput></screen>
 
     <para>
       TODO
@@ -154,40 +168,6 @@ ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /li
 /lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/../../../../lib64/crti.o succeeded
 /lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/../../../../lib64/crtn.o succeeded</computeroutput></screen>
 
-  <para>
-    Depending on your machine architecture, the above may differ slightly, the
-    difference usually being the name of the directory after <filename
-    class="directory">/lib/gcc</filename>. If your machine is a 64-bit system,
-    you may also see a directory named <filename
-    class="directory">lib64</filename> towards the end of the string. The
-    important thing to look for here is that <command>gcc</command> has found
-    all three <filename>crt*.o</filename> files under the <filename
-    class="directory">/lib</filename> directory.
-  </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-    href="adjusting.xml"
-    xpointer="xpointer(//*[@os='g'])"/>
-
-<screen><userinput>grep -B4 -A1 '^ /include' dummy.log</userinput></screen>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-    href="adjusting.xml"
-    xpointer="xpointer(//*[@os='h'])"/>
-
-<screen><computeroutput>#include &lt;...&gt; search starts here:
- /lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/include
- /include
- /lib/gcc/x86_64-unknown-linux-gnu/&gcc-version;/include-fixed</computeroutput></screen>
-
-   <para>Again, note that the directory named after your target triplet may be
-   different than the above, depending on your architecture.</para>
-
-    <note><para>As of version 4.3.0, GCC now unconditionally installs the
-    <filename>limits.h</filename> file into the private
-    <filename class="directory">include-fixed</filename> directory, and that
-    directory is required to be in place.</para></note>
-
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
     href="adjusting.xml"
     xpointer="xpointer(//*[@os='i'])"/>
@@ -200,23 +180,11 @@ ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /li
     href="adjusting.xml"
     xpointer="xpointer(//*[@os='k'])"/>
 
-<screen><computeroutput>SEARCH_DIR("/usr/i686-pc-linux-gnu/lib32")
-SEARCH_DIR("/usr/local/lib32")
-SEARCH_DIR("/lib32")
-SEARCH_DIR("/usr/lib32")
-SEARCH_DIR("/usr/i686-pc-linux-gnu/lib")
-SEARCH_DIR("/usr/local/lib")
-SEARCH_DIR("/lib")
-SEARCH_DIR("/usr/lib");</computeroutput></screen>
-
-   <para>A 64-bit system may see a few different directories. For example, here
-   is the output from an x86_64 machine:</para>
-
-<screen><computeroutput>SEARCH_DIR("/usr/x86_64-unknown-linux-gnu/lib64")
+<screen><computeroutput>SEARCH_DIR("/x86_64-unknown-linux-gnu/lib64")
 SEARCH_DIR("/usr/local/lib64")
 SEARCH_DIR("/lib64")
 SEARCH_DIR("/usr/lib64")
-SEARCH_DIR("/usr/x86_64-unknown-linux-gnu/lib")
+SEARCH_DIR("/x86_64-unknown-linux-gnu/lib")
 SEARCH_DIR("/usr/local/lib")
 SEARCH_DIR("/lib")
 SEARCH_DIR("/usr/lib");</computeroutput></screen>
@@ -264,11 +232,6 @@ SEARCH_DIR("/usr/lib");</computeroutput></screen>
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
     href="adjusting.xml"
     xpointer="xpointer(//*[@os='v'])"/>
-
-    <para>Finally, move a misplaced file:</para>
-
-<screen><userinput remap="install">mkdir -pv /share/gdb/auto-load/lib
-mv -v /lib/*gdb.py /share/gdb/auto-load/lib</userinput></screen>
 
   </sect2>
 
