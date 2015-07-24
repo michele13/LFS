@@ -23,7 +23,9 @@
   <sect2 role="package">
     <title/>
 
-    <para>porg is a program to aid management of software packages installed from source code.</para>
+    <para>
+      porg is a program to aid management of software packages installed from source code.
+    </para>
 
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
@@ -38,9 +40,11 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of porg</title>
+    <title>Installation</title>
 
-    <para>Suppress installation of unnecessary files:</para>
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
 
 <screen><userinput remap="pre">sed "s/ install-pkgdataDATA//" -i Makefile.in
 sed "s/ install-pkgdataDATA//" -i doc/Makefile.in
@@ -55,25 +59,31 @@ sed -e "/^\spaco2porg/d" -e "s/ install-exec-local//" -i scripts/Makefile.in</us
     -e "s/read -p/echo -n/" \
     -i scripts/porgball.in</userinput></screen>
 
-    <para>Prepare porg for compilation:</para>
+    <para>
+      Prepare the package for compilation:
+    </para>
 
 <screen><userinput remap="configure">./configure --prefix= \
             --disable-static \
             --disable-grop</userinput></screen>
 
-    <para>Compile the package:</para>
+    <para>
+      Compile the package:
+    </para>
 
 <screen><userinput remap="make">make</userinput></screen>
 
-    <para>Install the package:</para>
+    <para>
+      Install the package:
+    </para>
 
-<screen><userinput remap="install">make -j1 install
-rm -v /lib/libporg-log.la</userinput></screen>
+<screen><userinput remap="install">porg -lp porg-&porg-version; "make -j1 install &amp;&amp;
+rm -v /lib/libporg-log.la"</userinput></screen>
 
   </sect2>
 
   <sect2 id="contents-porg" role="content">
-    <title>Contents of porg</title>
+    <title>Contents</title>
 
     <segmentedlist>
       <segtitle>Installed programs</segtitle>
