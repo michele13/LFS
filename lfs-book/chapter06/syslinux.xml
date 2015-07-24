@@ -23,7 +23,9 @@
   <sect2 role="package">
     <title/>
 
-    <para>The syslinux package contains a lightweight bootloader.</para>
+    <para>
+      The syslinux package contains a lightweight bootloader.
+    </para>
 
     <segmentedlist>
       <segtitle>&buildtime;</segtitle>
@@ -38,28 +40,35 @@
   </sect2>
 
   <sect2 role="installation">
-    <title>Installation of syslinux</title>
+    <title>Installation</title>
 
-    <para>First, apply a patch which removes dependency on the Perl
-    package:</para>
+    <para>
+      First, apply a patch which removes dependency on the Perl package:
+    </para>
 
 <screen><userinput remap="pre">patch -p1 -i ../&syslinux-no_perl-patch;</userinput></screen>
 
-    <para>Compile the package:</para>
+    <para>
+      Compile the package:
+    </para>
 
 <screen><userinput remap="make">cc extlinux-bin2c-replacement.c -o libinstaller/bin2c.pl
 PATH="$PATH:$PWD/libinstaller" make -C libinstaller PERL=""
 make -C extlinux
 make -C linux</userinput></screen>
 
-    <para>Install the package:</para>
+    <para>
+      Install the package:
+    </para>
 
-<screen><userinput remap="install">install -v extlinux/extlinux linux/syslinux /bin
-install -v -D -m 644 mbr/mbr.bin /lib/syslinux/mbr.bin
-install -v -m 644 man/extlinux.1 man/syslinux.1 /share/man/man1</userinput></screen>
+<screen><userinput remap="install">porg -lp syslinux-&syslinux-version; "install -v extlinux/extlinux linux/syslinux /bin"
+porg -lp+ syslinux-&syslinux-version; "install -v -D -m 644 mbr/mbr.bin /lib/syslinux/mbr.bin"
+porg -lp+ syslinux-&syslinux-version; "install -v -m 644 man/extlinux.1 man/syslinux.1 /share/man/man1"</userinput></screen>
 
-  <para>Using syslinux to make your LFS system bootable will be discussed in
-  <xref linkend="ch-bootable-syslinux"/>.</para>
+  <para>
+    Using syslinux to make your LFS system bootable will be discussed in <xref
+    linkend="ch-bootable-syslinux"/>.
+  </para>
 
   </sect2>
 
