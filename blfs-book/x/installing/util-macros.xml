@@ -11,7 +11,7 @@
   <!ENTITY util-macros-md5sum        "1cf984125e75f8204938d998a8b6c1e1">
   <!ENTITY util-macros-size          "80 KB">
   <!ENTITY util-macros-buildsize     "500 KB">
-  <!ENTITY util-macros-time          "less than 0.1 SBU">
+  <!ENTITY util-macros-time          "0.1 SBU">
 ]>
 
 <sect1 id="util-macros" xreflabel="util-macros-&util-macros-version;">
@@ -77,30 +77,16 @@
     <title>Installation</title>
 
     <para>
-      Install util-macros by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/share/aclocal/xorg-macros.m4
-/usr/share/pkgconfig/
-/usr/share/pkgconfig/xorg-macros.pc
-/usr/share/util-macros/</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
