@@ -84,8 +84,8 @@
 <screen><userinput>sed "s/ install-info-am//" -i Makefile.in</userinput></screen>
 
     <para>
-      Make package install headers into /usr/include instead of
-      /usr/lib/libffi-&libffi-version;/include:
+      Make package install headers into /include instead of
+      /lib/libffi-&libffi-version;/include:
     </para>
 
 <screen><userinput>sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
@@ -98,7 +98,7 @@ sed -e '/^includedir/ s/=.*$/=@includedir@/' \
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -111,27 +111,8 @@ sed -e '/^includedir/ s/=.*$/=@includedir@/' \
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install &amp;&amp;
-rm -v /usr/lib/libffi.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libffi">
-      <primary sortas="c-libffi">libffi.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/ffi.h
-/usr/include/ffitarget.h
-/usr/lib/libffi.so
-/usr/lib/pkgconfig/libffi.pc
-/usr/share/man/man3/ffi*.3</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libffi.la"</userinput></screen>
 
   </sect2>
 
