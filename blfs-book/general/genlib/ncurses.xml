@@ -100,19 +100,14 @@
 <screen><userinput>patch -p1 -i ../ncurses-&ncurses-version;-gcc5_buildfixes-1.patch</userinput></screen>
 
     <para>
-      Don't install a static library that is not handled by configure:
-    </para>
-
-<screen><userinput>sed -i '/LIBTOOL_INSTALL/d' c++/Makefile.in</userinput></screen>
-
-    <para>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --mandir=/usr/share/man \
+<screen><userinput>./configure --prefix= \
+            --mandir=/share/man \
             --without-normal \
             --without-debug \
+            --without-cxx \
             --with-shared \
             --enable-pc-files \
             --enable-widec</userinput></screen>
@@ -127,7 +122,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
 
     <para>
       Many applications still expect the linker to be able to find
@@ -136,44 +131,27 @@
     </para>
 
 <screen role="root"><userinput>for lib in ncurses form panel menu ; do
-    rm -vf /usr/lib/lib${lib}.so
-    echo "INPUT(-l${lib}w)" > /usr/lib/lib${lib}.so
-    ln -sfv ${lib}w.pc /usr/lib/pkgconfig/${lib}.pc
+    echo "INPUT(-l${lib}w)" > /lib/lib${lib}.so
+    ls /lib/lib${lib}.so | porg -lD+
+    porg -lD+ "ln -sv ${lib}w.pc /lib/pkgconfig/${lib}.pc"
 done</userinput></screen>
 
     <para>
       Make sure that old applications that look for -lcurses at build time are still buildable:
     </para>
 
-<screen role="root"><userinput>rm -vf /usr/lib/libcursesw.so
-echo "INPUT(-lncursesw)" > /usr/lib/libcursesw.so
-ln -sfv libncurses.so /usr/lib/libcurses.so</userinput></screen>
+<screen role="root"><userinput>echo "INPUT(-lncursesw)" > /lib/libcursesw.so
+ls /lib/libcursesw.so | porg -lD+
+porg -lD+ "ln -sv libncurses.so /lib/libcurses.so"</userinput></screen>
 
     <para>
       Finally, set the correct file mode bits for the shared libraries:
     </para>
 
-<screen role="root"><userinput>chmod -v 755 /usr/lib/lib*curses*.so
-chmod -v 755 /usr/lib/lib*form*.so
-chmod -v 755 /usr/lib/lib*menu*.so
-chmod -v 755 /usr/lib/lib*panel*.so</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="ncurses">
-      <primary sortas="c-libcursesw.so">libcursesw.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>
-TODO
-</literal></screen>
+<screen role="root"><userinput>chmod -v +x /lib/lib*curses*.so
+chmod -v +x /lib/lib*form*.so
+chmod -v +x /lib/lib*menu*.so
+chmod -v +x /lib/lib*panel*.so</userinput></screen>
 
   </sect2>
 
