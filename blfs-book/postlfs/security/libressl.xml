@@ -82,7 +82,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -95,12 +95,12 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install &amp;&amp;
-rm -v /usr/lib/libcrypto.la &amp;&amp;
-rm -v /usr/lib/libssl.la &amp;&amp;
-rm -v /usr/lib/libtls.la &amp;&amp;
-install -v -d -o root -g root -m 755 /etc/ssl &amp;&amp;
-install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+install -v -d /etc/ssl &amp;&amp;
+install -v -m 644 apps/openssl.cnf /etc/ssl &amp;&amp;
+rm -v /lib/libcrypto.la &amp;&amp;
+rm -v /lib/libssl.la &amp;&amp;
+rm -v /lib/libtls.la"</userinput></screen>
 
   </sect2>
 
@@ -115,43 +115,6 @@ install -v -o root -g root -m 644 apps/openssl.cnf /etc/ssl/</userinput></screen
       as OpenSSH and web browsers do not need to worry about additional
       configuration.
     </para>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libressl">
-      <primary sortas="b-openssl">openssl</primary>
-    </indexterm>
-    <indexterm zone="libressl">
-      <primary sortas="c-libcrypto">libcrypto.so</primary>
-    </indexterm>
-    <indexterm zone="libressl">
-      <primary sortas="c-libssl">libssl.so</primary>
-    </indexterm>
-    <indexterm zone="libressl">
-      <primary sortas="c-libtls">libtls.so</primary>
-    </indexterm>
-    <indexterm zone="libressl">
-      <primary sortas="e-etc-ssl-openssl.cnf">/etc/ssl/openssl.cnf</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/ssl/
-/usr/bin/openssl
-/usr/include/openssl/
-/usr/lib/libcrypto.so
-/usr/lib/libssl.so
-/usr/lib/libtls.so
-/usr/lib/pkgconfig/libcrypto.pc
-/usr/lib/pkgconfig/libssl.pc
-/usr/lib/pkgconfig/libtls.pc
-/usr/lib/pkgconfig/openssl.pc
-/usr/share/man/man1/openssl.1</literal></screen>
 
   </sect2>
 
