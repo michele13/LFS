@@ -11,10 +11,10 @@
   <!ENTITY cacerts-time       "0.1 SBU">
 ]>
 
-<sect1 id="cacerts" xreflabel="Certificate Authority Certificates">
+<sect1 id="cacerts" xreflabel="cacerts-&cacerts-version;">
   <?dbhtml filename="cacerts.html"?>
 
-  <title>Certificate Authority Certificates</title>
+  <title>cacerts-&cacerts-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -82,22 +82,15 @@
       OpenSSL. As the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>cat > /usr/bin/make-cert.pl &lt;&lt; "EOF"
-<literal>#!/usr/bin/perl -w
+<screen role="root"><userinput>cat > /bin/make-cert.pl &lt;&lt; "EOF"
+<literal>#!/bin/perl -w
 
 # Used to generate PEM encoded files from Mozilla certdata.txt.
 # Run as ./make-cert.pl > certificate.crt
 #
-# Parts of this script courtesy of RedHat (mkcabundle.pl)
-#
 # This script modified for use with single file data (tempfile.cer) extracted
 # from certdata.txt, taken from the latest version in the Mozilla NSS source.
 # mozilla/security/nss/lib/ckfw/builtins/certdata.txt
-#
-# Authors: DJ Lucas
-#          Bruce Dubbs
-#
-# Version 20120211
 
 my $certdata = './tempfile.cer';
 
@@ -133,7 +126,8 @@ while ( &lt;IN&gt; )
     }
 }</literal>
 EOF
-chmod +x /usr/bin/make-cert.pl</userinput></screen>
+chmod +x /bin/make-cert.pl
+ls /bin/make-cert.pl | porg -lp cacerts-&cacerts-version;</userinput></screen>
 
     <para>
       The following script creates the certificates and a bundle of all the
@@ -143,18 +137,13 @@ chmod +x /usr/bin/make-cert.pl</userinput></screen>
       user:
     </para>
 
-<screen role="root"><userinput>cat > /usr/bin/make-ca.sh &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /bin/make-ca.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
-# Begin make-ca.sh
+
 # Script to populate OpenSSL's CApath from a bundle of PEM formatted CAs
 #
 # The file certdata.txt must exist in the local directory
 # Version number is obtained from the version of the data.
-#
-# Authors: DJ Lucas
-#          Bruce Dubbs
-#
-# Version 20120211
 
 certdata="certdata.txt"
 
@@ -175,7 +164,7 @@ VERSION=$(echo $REVISION | cut -f2 -d" ")
 TEMPDIR=$(mktemp -d)
 TRUSTATTRIBUTES="CKA_TRUST_SERVER_AUTH"
 BUNDLE="BLFS-ca-bundle-${VERSION}.crt"
-CONVERTSCRIPT="/usr/bin/make-cert.pl"
+CONVERTSCRIPT="/bin/make-cert.pl"
 SSLDIR="/etc/ssl"
 
 mkdir "${TEMPDIR}/certs"
@@ -240,7 +229,8 @@ fi
 cat certs/*.pem >  ${BUNDLE}
 rm -r "${TEMPDIR}"</literal>
 EOF
-chmod +x /usr/bin/make-ca.sh</userinput></screen>
+chmod +x /bin/make-ca.sh
+ls /bin/make-ca.sh | porg -lp+ cacerts-&cacerts-version;</userinput></screen>
 
     <para>
       Add a short script to remove expired certificates from a directory. Again
@@ -248,11 +238,8 @@ chmod +x /usr/bin/make-ca.sh</userinput></screen>
       user:
     </para>
 
-<screen role="root"><userinput>cat > /usr/sbin/remove-expired-certs.sh &lt;&lt; "EOF"
+<screen role="root"><userinput>cat > /bin/remove-expired-certs.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
-# Begin /usr/bin/remove-expired-certs.sh
-#
-# Version 20120211
 
 # Make sure the date is parsed correctly on all systems
 mydate()
@@ -282,7 +269,7 @@ mydate()
   certdate="${y}${m}${d}"
 }
 
-OPENSSL=/usr/bin/openssl
+OPENSSL=/bin/openssl
 DIR=/etc/ssl/certs
 
 if [ $# -gt 0 ]; then
@@ -303,7 +290,8 @@ for cert in $certs; do
   fi
 done</literal>
 EOF
-chmod +x /usr/bin/remove-expired-certs.sh</userinput></screen>
+chmod +x /bin/remove-expired-certs.sh
+ls /bin/remove-expired-certs.sh | porg -lp+ cacerts-&cacerts-version;</userinput></screen>
 
     <para>
       The following commands will convert the certificates to the correct
@@ -319,11 +307,11 @@ chmod +x /usr/bin/remove-expired-certs.sh</userinput></screen>
 
 <screen role="root"><userinput>SSLDIR=/etc/ssl &amp;&amp;
 remove-expired-certs.sh certs &amp;&amp;
-install -d ${SSLDIR}/certs &amp;&amp;
-cp -v certs/*.pem ${SSLDIR}/certs &amp;&amp;
+install -d ${SSLDIR}/certs
+porg -lp+ cacerts-&cacerts-version; "cp -v certs/*.pem ${SSLDIR}/certs &amp;&amp;
 openssl certhash -v /etc/ssl/certs &amp;&amp;
-install BLFS-ca-bundle*.crt ${SSLDIR}/ca-bundle.crt &amp;&amp;
-ln -sv ../ca-bundle.crt ${SSLDIR}/certs/ca-certificates.crt &amp;&amp;
+install -v BLFS-ca-bundle*.crt ${SSLDIR}/ca-bundle.crt &amp;&amp;
+ln -sv ../ca-bundle.crt ${SSLDIR}/certs/ca-certificates.crt"
 unset SSLDIR</userinput></screen>
 
     <para>
@@ -331,38 +319,6 @@ unset SSLDIR</userinput></screen>
     </para>
 
 <screen><userinput>rm -r certs BLFS-ca-bundle*</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="cacerts">
-      <primary sortas="b-make-ca.sh">make-ca.sh</primary>
-    </indexterm>
-    <indexterm zone="cacerts">
-      <primary sortas="b-make-cert.pl">make-cert.pl</primary>
-    </indexterm>
-    <indexterm zone="cacerts">
-      <primary sortas="b-remove-expired-certs.sh">remove-expired-certs.sh</primary>
-    </indexterm>
-    <indexterm zone="cacerts">
-      <primary sortas="g-ca-bundle.crt">ca-bundle.crt</primary>
-    </indexterm>
-    <indexterm zone="cacerts">
-      <primary sortas="g-ca-certificates.crt">ca-certificates.crt</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/bin/make-ca.sh
-/bin/make-cert.pl
-/bin/remove-expired-certs.sh
-/etc/ssl/ca-bundle.crt
-/etc/ssl/certs/
-/etc/ssl/certs/ca-certificates.crt</literal></screen>
 
   </sect2>
 
