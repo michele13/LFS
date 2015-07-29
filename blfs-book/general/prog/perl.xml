@@ -101,10 +101,10 @@ export BUILD_BZIP2=0</userinput></screen>
     </para>
 
 <screen><userinput>./Configure -des \
-            -Dprefix=/usr \
-            -Dvendorprefix=/usr \
-            -Dman1dir=/usr/share/man/man1 \
-            -Dman3dir=/usr/share/man/man3 \
+            -Dprefix= \
+            -Dvendorprefix= \
+            -Dman1dir=/share/man/man1 \
+            -Dman3dir=/share/man/man3 \
             -Duseshrplib</userinput></screen>
 
     <para>
@@ -117,19 +117,19 @@ export BUILD_BZIP2=0</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"
 unset BUILD_ZLIB BUILD_BZIP2</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
 
       <para>
-        <parameter>-Dvendorprefix=/usr</parameter>: This ensures perl knows how
+        <parameter>-Dvendorprefix=</parameter>: This ensures perl knows how
         to tell packages where they should install their perl modules.
       </para>
 
       <para>
-        <parameter>-Dman1dir=/usr/share/man/man1 -Dman3dir=/usr/share/man/man3</parameter>:
+        <parameter>-Dman1dir=/share/man/man1 -Dman3dir=/share/man/man3</parameter>:
         Since groff is not installed, Configure thinks that we do not want man
         pages for Perl. Issuing these parameters overrides this decision.
       </para>
@@ -140,21 +140,6 @@ unset BUILD_ZLIB BUILD_BZIP2</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="perl">
-      <primary sortas="b-perl">perl</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>TODO</literal></screen>
 
   </sect2>
 
