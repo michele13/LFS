@@ -126,7 +126,7 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -139,7 +139,7 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make SHLIB_LIBS=-lncursesw -j1 install</userinput></screen>
+<screen role="root"><userinput>porg -lD "make SHLIB_LIBS=-lncursesw -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -156,10 +156,6 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
 
   <sect2>
     <title>Configuration</title>
-
-    <indexterm zone="readline">
-      <primary sortas="e-etc-inputrc">/etc/inputrc</primary>
-    </indexterm>
 
     <para>
       The <filename>inputrc</filename> file handles keyboard mapping for
@@ -218,29 +214,8 @@ set bell-style none
 # for Konsole
 "\e[H": beginning-of-line
 "\e[F": end-of-line</literal>
-EOF</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="readline">
-      <primary sortas="c-libhistory.so">libhistory.so</primary>
-    </indexterm>
-    <indexterm zone="readline">
-      <primary sortas="c-libreadline.so">libreadline.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/readline/
-/usr/lib/libhistory.so
-/usr/lib/libreadline.so
-/usr/share/man/man3/history.3
-/usr/share/man/man3/readline.3</literal></screen>
+EOF
+ls /etc/inputrc | porg -lD+</userinput></screen>
 
   </sect2>
 
