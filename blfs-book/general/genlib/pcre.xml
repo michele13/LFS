@@ -14,10 +14,10 @@
   <!ENTITY pcre-time          "0.3 SBU">
 ]>
 
-<sect1 id="pcre" xreflabel="PCRE-&pcre-version;">
+<sect1 id="pcre" xreflabel="pcre-&pcre-version;">
   <?dbhtml filename="pcre.html"?>
 
-  <title>PCRE-&pcre-version;</title>
+  <title>pcre-&pcre-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -96,7 +96,7 @@ sed "s/install-htmlDATA i/i/" -i Makefile.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static \
             --enable-unicode-properties \
             --enable-pcre16 \
@@ -115,8 +115,8 @@ sed "s/install-htmlDATA i/i/" -i Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libpcre*.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libpcre*.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -156,64 +156,6 @@ rm -v /usr/lib/libpcre*.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="pcre">
-      <primary sortas="b-pcre-config">pcre-config</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="b-pcregrep">pcregrep</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="b-pcretest">pcretest</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="c-libpcre16">libpcre16.so</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="c-libpcre32">libpcre32.so</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="c-libpcrecpp">libpcrecpp.so</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="c-libpcreposix">libpcreposix.so</primary>
-    </indexterm>
-    <indexterm zone="pcre">
-      <primary sortas="c-libpcre">libpcre.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/pcre-config
-/usr/bin/pcregrep
-/usr/bin/pcretest
-/usr/include/pcrecpparg.h
-/usr/include/pcrecpp.h
-/usr/include/pcre.h
-/usr/include/pcreposix.h
-/usr/include/pcre_scanner.h
-/usr/include/pcre_stringpiece.h
-/usr/lib/libpcre16.so
-/usr/lib/libpcre32.so
-/usr/lib/libpcrecpp.so
-/usr/lib/libpcreposix.so
-/usr/lib/libpcre.so
-/usr/lib/pkgconfig/libpcre16.pc
-/usr/lib/pkgconfig/libpcre32.pc
-/usr/lib/pkgconfig/libpcrecpp.pc
-/usr/lib/pkgconfig/libpcre.pc
-/usr/lib/pkgconfig/libpcreposix.pc
-/usr/share/man/man1/pcre-config.1
-/usr/share/man/man1/pcregrep.1
-/usr/share/man/man1/pcretest.1
-/usr/share/man/man3/pcre.3</literal></screen>
 
   </sect2>
 
