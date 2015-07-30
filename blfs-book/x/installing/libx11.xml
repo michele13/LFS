@@ -14,10 +14,10 @@
   <!ENTITY libx11-time          "0.6 SBU">
 ]>
 
-<sect1 id="libx11" xreflabel="libX11-&libx11-version;">
+<sect1 id="libx11" xreflabel="libx11-&libx11-version;">
   <?dbhtml filename="libx11.html"?>
 
-  <title>libX11-&libx11-version;</title>
+  <title>libx11-&libx11-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -110,7 +110,8 @@ sed -e "s/ install-nobase_dist_x11localeDATA//" \
     </para>
 
 <!-- - -disable-xlocale (libxfixes needs this) -->
-<screen><userinput>./configure $XORG_CONFIG \
+<screen><userinput>./configure --prefix= \
+            --disable-static \
             --disable-xlocaledir</userinput></screen>
 
     <para>
@@ -123,43 +124,9 @@ sed -e "s/ install-nobase_dist_x11localeDATA//" \
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libX11.la
-rm -v /usr/lib/libX11-xcb.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libx11">
-      <primary sortas="c-libX11-xcb.so">libX11-xcb.so</primary>
-    </indexterm>
-    <indexterm zone="libx11">
-      <primary sortas="c-libX11.so">libX11.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/ImUtil.h
-/usr/include/X11/XKBlib.h
-/usr/include/X11/Xcms.h
-/usr/include/X11/Xlib-xcb.h
-/usr/include/X11/Xlib.h
-/usr/include/X11/XlibConf.h
-/usr/include/X11/Xlibint.h
-/usr/include/X11/Xlocale.h
-/usr/include/X11/Xregion.h
-/usr/include/X11/Xresource.h
-/usr/include/X11/Xutil.h
-/usr/include/X11/cursorfont.h
-/usr/lib/libX11-xcb.so
-/usr/lib/libX11.so
-/usr/lib/pkgconfig/x11-xcb.pc
-/usr/lib/pkgconfig/x11.pc
-/usr/share/X11/</literal></screen>
+<screen role="root"><userinput>porg -lp libx11-&libx11-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libX11.la &amp;&amp;
+rm -v /lib/libX11-xcb.la"</userinput></screen>
 
   </sect2>
 
