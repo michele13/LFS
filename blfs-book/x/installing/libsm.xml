@@ -94,7 +94,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -106,28 +107,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libSM.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libsm">
-      <primary sortas="c-libSM.so">libSM.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/SM/
-/usr/include/X11/SM/SM.h
-/usr/include/X11/SM/SMlib.h
-/usr/include/X11/SM/SMproto.h
-/usr/lib/libSM.so
-/usr/lib/pkgconfig/sm.pc</literal></screen>
+<screen role="root"><userinput>porg -lp libsm-&libsm-version; "make -j1 install &amp;&amp;
+rm -v /lib/libSM.la"</userinput></screen>
 
   </sect2>
 
