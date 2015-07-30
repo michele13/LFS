@@ -14,10 +14,10 @@
   <!ENTITY libice-time          "0.1 SBU">
 ]>
 
-<sect1 id="libice" xreflabel="libICE-&libice-version;">
+<sect1 id="libice" xreflabel="libice-&libice-version;">
   <?dbhtml filename="libice.html"?>
 
-  <title>libICE-&libice-version;</title>
+  <title>libice-&libice-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -95,7 +95,8 @@ sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userin
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -107,31 +108,8 @@ sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userin
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libICE.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libice">
-      <primary sortas="c-libICE.so">libICE.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/ICE/
-/usr/include/X11/ICE/ICE.h
-/usr/include/X11/ICE/ICEconn.h
-/usr/include/X11/ICE/ICElib.h
-/usr/include/X11/ICE/ICEmsg.h
-/usr/include/X11/ICE/ICEproto.h
-/usr/include/X11/ICE/ICEutil.h
-/usr/lib/libICE.so
-/usr/lib/pkgconfig/ice.pc</literal></screen>
+<screen role="root"><userinput>porg -lp libice-&libice-version; "make -j1 install &amp;&amp;
+rm -v /lib/libICE.la"</userinput></screen>
 
   </sect2>
 
