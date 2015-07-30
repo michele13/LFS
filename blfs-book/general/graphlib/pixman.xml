@@ -10,8 +10,8 @@
   <!ENTITY pixman-download-ftp  " ">
   <!ENTITY pixman-md5sum        "3a30859719a41bd0f5cccffbfefdd4c2">
   <!ENTITY pixman-size          "800 KB">
-  <!ENTITY pixman-buildsize     "32 MB (additional 3 MB for tests)">
-  <!ENTITY pixman-time          "0.4 SBU (additional 0.8 SBU for tests)">
+  <!ENTITY pixman-buildsize     "32 MB">
+  <!ENTITY pixman-time          "0.4 SBU">
 ]>
 
 <sect1 id="pixman" xreflabel="Pixman-&pixman-version;">
@@ -81,7 +81,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -94,25 +94,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libpixman-1.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="pixman">
-      <primary sortas="c-libpixman-1.so">libpixman-1.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/pixman-1/
-/usr/lib/libpixman-1.so
-/usr/lib/pkgconfig/pixman-1.pc</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libpixman-1.la"</userinput></screen>
 
   </sect2>
 
