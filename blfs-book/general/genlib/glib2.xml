@@ -14,10 +14,10 @@
   <!ENTITY glib2-time          "0.8 SBU">
 ]>
 
-<sect1 id="glib2" xreflabel="GLib-&glib2-version;">
+<sect1 id="glib2" xreflabel="glib-&glib2-version;">
   <?dbhtml filename="glib2.html"?>
 
-  <title>GLib-&glib2-version;</title>
+  <title>glib-&glib2-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -113,7 +113,7 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --with-pcre=system</userinput></screen>
 
     <para>
@@ -126,12 +126,12 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libgio-2.0.la
-rm -v /usr/lib/libglib-2.0.la
-rm -v /usr/lib/libgmodule-2.0.la
-rm -v /usr/lib/libgobject-2.0.la
-rm -v /usr/lib/libgthread-2.0.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /usr/lib/libgio-2.0.la &amp;&amp;
+rm -v /usr/lib/libglib-2.0.la &amp;&amp;
+rm -v /usr/lib/libgmodule-2.0.la &amp;&amp;
+rm -v /usr/lib/libgobject-2.0.la &amp;&amp;
+rm -v /usr/lib/libgthread-2.0.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -143,108 +143,6 @@ rm -v /usr/lib/libgthread-2.0.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="glib2">
-      <primary sortas="b-gdbus">gdbus</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gdbus-codegen">gdbus-codegen</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gio-querymodules">gio-querymodules</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-glib-compile-resources">glib-compile-resources</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-glib-compile-resources">glib-compile-schemas</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-glib-genmarshal">glib-genmarshal</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-glib-gettextize">glib-gettextize</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-glib-mkenums">glib-mkenums</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gobject-query">gobject-query</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gresource">gresource</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gsettings">gsettings</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gtester">gtester</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="b-gtester-report">gtester-report</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="c-libgio-2.0.so">libgio-2.0.so</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="c-libglib-2.0.so">libglib-2.0.so</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="c-libgmodule-2.0.so">libgmodule-2.0.so</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="c-libgobject-2.0.so">libgobject-2.0.so</primary>
-    </indexterm>
-    <indexterm zone="glib2">
-      <primary sortas="c-libgthread-2.0.so">libgthread-2.0.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/gdbus
-/usr/bin/gdbus-codegen
-/usr/bin/gio-querymodules
-/usr/bin/glib-compile-resources
-/usr/bin/glib-compile-schemas
-/usr/bin/glib-genmarshal
-/usr/bin/glib-gettextize
-/usr/bin/glib-mkenums
-/usr/bin/gobject-query
-/usr/bin/gresource
-/usr/bin/gsettings
-/usr/bin/gtester
-/usr/bin/gtester-report
-/usr/include/gio-unix-2.0/
-/usr/include/glib-2.0/
-/usr/lib/gdbus-2.0/
-/usr/lib/gio/
-/usr/lib/glib-2.0/
-/usr/lib/libgio-2.0.so
-/usr/lib/libglib-2.0.so
-/usr/lib/libgmodule-2.0.so
-/usr/lib/libgobject-2.0.so
-/usr/lib/libgthread-2.0.so
-/usr/share/glib-2.0/
-/usr/share/man/man1/gdbus.1
-/usr/share/man/man1/gdbus-codegen.1
-/usr/share/man/man1/gio-querymodules.1
-/usr/share/man/man1/glib-compile-resources.1
-/usr/share/man/man1/glib-compile-schemas.1
-/usr/share/man/man1/glib-genmarshal.1
-/usr/share/man/man1/glib-gettextize.1
-/usr/share/man/man1/glib-mkenums.1
-/usr/share/man/man1/gobject-query.1
-/usr/share/man/man1/gresource.1
-/usr/share/man/man1/gsettings.1
-/usr/share/man/man1/gtester.1
-/usr/share/man/man1/gtester-report.1</literal></screen>
 
   </sect2>
 
