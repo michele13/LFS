@@ -118,7 +118,7 @@ patch -p1 -i freetype-entire-infinality-patchset-20130514-01.patch</userinput></
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -131,39 +131,16 @@ patch -p1 -i freetype-entire-infinality-patchset-20130514-01.patch</userinput></
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libfreetype.la</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfreetype.la"</userinput></screen>
 
     <para>
       If you used the Infinality patchset, as the <systemitem
       class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
-sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' /etc/profile.d/infinality-settings.sh</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="freetype2">
-      <primary sortas="b-freetype-config">freetype-config</primary>
-    </indexterm>
-    <indexterm zone="freetype2">
-      <primary sortas="c-libfreetype.so">libfreetype.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/profile.d/infinality-settings.sh
-/usr/bin/freetype-config
-/usr/include/freetype2/
-/usr/include/ft2build.h
-/usr/lib/libfreetype.so
-/usr/lib/pkgconfig/freetype2.pc</literal></screen>
+<screen role="root"><userinput>porg -lD+ "install -v -m644 infinality-settings.sh /etc/profile.d &amp;&amp;
+sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' /etc/profile.d/infinality-settings.sh"</userinput></screen>
 
   </sect2>
 
