@@ -124,9 +124,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -139,16 +137,16 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libfontconfig.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libfontconfig.la"</userinput></screen>
 
     <para>
       If you wish to use Infinality, as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>tar xvf ../fontconfig-infinality-1-20130104_1.tar.bz2 \
+<screen role="root"><userinput>porg -lD+ "tar xvf ../fontconfig-infinality-1-20130104_1.tar.bz2 \
         -C /etc/fonts --no-same-owner &amp;&amp;
-ln -sfnv styles.conf.avail/linux /etc/fonts/infinality/conf.d</userinput></screen>
+ln -sfnv styles.conf.avail/linux /etc/fonts/infinality/conf.d"</userinput></screen>
 
   </sect2>
 
@@ -184,73 +182,6 @@ ln -sfnv styles.conf.avail/linux /etc/fonts/infinality/conf.d</userinput></scree
       configuration files and if you used Infinality,
       <filename>/etc/fonts/infinality/README</filename>.
     </para>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-cache">fc-cache</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-cat">fc-cat</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-list">fc-list</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-match">fc-match</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-pattern">fc-pattern</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-query">fc-query</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="b-fc-scan">fc-scan</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="c-libfontconfig.so">libfontconfig.so</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="e-etc-fonts">/etc/fonts/</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="g-usr-share-fonts">/usr/share/fonts/</primary>
-    </indexterm>
-    <indexterm zone="fontconfig">
-      <primary sortas="g-AA.fonts">~/.fonts/</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/fonts/
-/usr/bin/fc-cache
-/usr/bin/fc-cat
-/usr/bin/fc-list
-/usr/bin/fc-match
-/usr/bin/fc-pattern
-/usr/bin/fc-query
-/usr/bin/fc-scan
-/usr/include/fontconfig/
-/usr/lib/libfontconfig.so
-/usr/lib/pkgconfig/fontconfig.pc
-/usr/share/fontconfig/
-/usr/share/man/man1/fc-cache.1
-/usr/share/man/man1/fc-cat.1
-/usr/share/man/man1/fc-list.1
-/usr/share/man/man1/fc-match.1
-/usr/share/man/man1/fc-pattern.1
-/usr/share/man/man1/fc-query.1
-/usr/share/man/man1/fc-scan.1
-/usr/share/man/man5/fonts-conf.5
-/usr/share/xml/fontconfig/
-/usr/share/xml/fontconfig/fonts.dtd
-/var/cache/fontconfig/</literal></screen>
 
   </sect2>
 
