@@ -86,7 +86,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -98,25 +99,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libpciaccess.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libpciaccess">
-      <primary sortas="c-libpciaccess.so">libpciaccess.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/pciaccess.h
-/usr/lib/libpciaccess.so
-/usr/lib/pkgconfig/pciaccess.pc</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libpciaccess.la"</userinput></screen>
 
   </sect2>
 
