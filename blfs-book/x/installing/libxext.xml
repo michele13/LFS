@@ -14,10 +14,10 @@
   <!ENTITY libxext-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxext" xreflabel="libXext-&libxext-version;">
+<sect1 id="libxext" xreflabel="libxext-&libxext-version;">
   <?dbhtml filename="libxext.html"?>
 
-  <title>libXext-&libxext-version;</title>
+  <title>libxext-&libxext-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -92,7 +92,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -104,40 +105,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libXext.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxext">
-      <primary sortas="c-libXext.so">libXext.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/extensions/MITMisc.h
-/usr/include/X11/extensions/XEVI.h
-/usr/include/X11/extensions/XLbx.h
-/usr/include/X11/extensions/XShm.h
-/usr/include/X11/extensions/Xag.h
-/usr/include/X11/extensions/Xcup.h
-/usr/include/X11/extensions/Xdbe.h
-/usr/include/X11/extensions/Xext.h
-/usr/include/X11/extensions/Xge.h
-/usr/include/X11/extensions/dpms.h
-/usr/include/X11/extensions/extutil.h
-/usr/include/X11/extensions/multibuf.h
-/usr/include/X11/extensions/security.h
-/usr/include/X11/extensions/shape.h
-/usr/include/X11/extensions/sync.h
-/usr/include/X11/extensions/xtestext1.h
-/usr/lib/libXext.so
-/usr/lib/pkgconfig/xext.pc</literal></screen>
+<screen role="root"><userinput>porg -lp libxext-&libxext-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXext.la"</userinput></screen>
 
   </sect2>
 
