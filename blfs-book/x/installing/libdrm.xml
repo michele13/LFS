@@ -100,7 +100,8 @@
     </para>
 
 <screen><userinput>patch -p1 -i ../libdrm-&libdrm-version;-pthread_stubs-1.patch &amp;&amp;
-./configure --prefix=/usr \
+./configure --prefix= \
+            --disable-valgrind \
             --disable-radeon \
             --disable-nouveau</userinput></screen>
 
@@ -114,42 +115,10 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libdrm.la
-rm -v /usr/lib/libdrm_intel.la
-rm -v /usr/lib/libkms.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libdrm">
-      <primary sortas="c-libdrm_intel.so">libdrm_intel.so</primary>
-    </indexterm>
-    <indexterm zone="libdrm">
-      <primary sortas="c-libdrm.so">libdrm.so</primary>
-    </indexterm>
-    <indexterm zone="libdrm">
-      <primary sortas="c-libkms.so">libkms.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/libdrm/
-/usr/include/libkms/
-/usr/include/xf86drm.h
-/usr/include/xf86drmMode.h
-/usr/lib/libdrm.so
-/usr/lib/libdrm_intel.so
-/usr/lib/libkms.so
-/usr/lib/pkgconfig/libdrm.pc
-/usr/lib/pkgconfig/libdrm_intel.pc
-/usr/lib/pkgconfig/libkms.pc
-/usr/share/man/man3/drm*.3
-/usr/share/man/man7/drm*.7</literal></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libdrm.la &amp;&amp;
+rm -v /lib/libdrm_intel.la &amp;&amp;
+rm -v /lib/libkms.la"</userinput></screen>
 
   </sect2>
 
