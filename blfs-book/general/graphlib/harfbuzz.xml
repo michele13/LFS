@@ -14,10 +14,10 @@
   <!ENTITY harfbuzz-time          "0.3 SBU">
 ]>
 
-<sect1 id="harfbuzz" xreflabel="Harfbuzz-&harfbuzz-version;">
+<sect1 id="harfbuzz" xreflabel="harfbuzz-&harfbuzz-version;">
   <?dbhtml filename="harfbuzz.html"?>
 
-  <title>Harfbuzz-&harfbuzz-version;</title>
+  <title>harfbuzz-&harfbuzz-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -100,7 +100,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
       Compile the package:
@@ -112,9 +112,9 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libharfbuzz-icu.la
-rm -v /usr/lib/libharfbuzz.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libharfbuzz-icu.la &amp;&amp;
+rm -v /lib/libharfbuzz.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -125,40 +125,6 @@ rm -v /usr/lib/libharfbuzz.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="harfbuzz">
-      <primary sortas="b-hb-ot-shape-closure">hb-ot-shape-closure</primary>
-    </indexterm>
-    <indexterm zone="harfbuzz">
-      <primary sortas="b-hb-shape">hb-shape</primary>
-    </indexterm>
-    <indexterm zone="harfbuzz">
-      <primary sortas="b-hb-view">hb-view</primary>
-    </indexterm>
-    <indexterm zone="harfbuzz">
-      <primary sortas="c-libharfbuzz-icu.so">libharfbuzz-icu.so</primary>
-    </indexterm>
-    <indexterm zone="harfbuzz">
-      <primary sortas="c-libharfbuzz.so">libharfbuzz.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/hb-ot-shape-closure
-/usr/bin/hb-shape
-/usr/bin/hb-view
-/usr/include/harfbuzz/
-/usr/lib/libharfbuzz-icu.so
-/usr/lib/libharfbuzz.so
-/usr/lib/pkgconfig/harfbuzz-icu.pc
-/usr/lib/pkgconfig/harfbuzz.pc</literal></screen>
 
   </sect2>
 
