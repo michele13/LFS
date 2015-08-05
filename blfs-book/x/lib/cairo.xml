@@ -134,7 +134,7 @@
     </para>
 
 <screen><userinput>patch -p1 -i ../cairo-&cairo-version;-respect_fontconfig-1.patch &amp;&amp;
-./configure --prefix=/usr \
+./configure --prefix= \
             --disable-static \
             --enable-tee</userinput></screen>
 
@@ -148,10 +148,11 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libcairo-gobject.la
-rm -v /usr/lib/libcairo-script-interpreter.la
-rm -v /usr/lib/libcairo.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libcairo-gobject.la &amp;&amp;
+rm -v /lib/libcairo-script-interpreter.la &amp;&amp;
+rm -v /lib/libcairo.la &amp;&amp;
+rm -v /lib/cairo/*.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -174,50 +175,6 @@ rm -v /usr/lib/libcairo.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="cairo">
-      <primary sortas="b-cairo-trace">cairo-trace</primary>
-    </indexterm>
-    <indexterm zone="cairo">
-      <primary sortas="c-libcairo.so">libcairo.so</primary>
-    </indexterm>
-    <indexterm zone="cairo">
-      <primary sortas="c-libcairo-gobject.so">libcairo-gobject.so</primary>
-    </indexterm>
-    <indexterm zone="cairo">
-      <primary sortas="c-libcairo-script-interpreter.so">libcairo-script-interpreter.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/cairo-sphinx
-/usr/bin/cairo-trace
-/usr/include/cairo/
-/usr/lib/cairo/
-/usr/lib/libcairo-gobject.so
-/usr/lib/libcairo-script-interpreter.so
-/usr/lib/libcairo.so
-/usr/lib/pkgconfig/cairo-fc.pc
-/usr/lib/pkgconfig/cairo-ft.pc
-/usr/lib/pkgconfig/cairo-gobject.pc
-/usr/lib/pkgconfig/cairo-pdf.pc
-/usr/lib/pkgconfig/cairo-png.pc
-/usr/lib/pkgconfig/cairo-ps.pc
-/usr/lib/pkgconfig/cairo-script.pc
-/usr/lib/pkgconfig/cairo-svg.pc
-/usr/lib/pkgconfig/cairo-tee.pc
-/usr/lib/pkgconfig/cairo-xcb-shm.pc
-/usr/lib/pkgconfig/cairo-xcb.pc
-/usr/lib/pkgconfig/cairo-xlib-xrender.pc
-/usr/lib/pkgconfig/cairo-xlib.pc
-/usr/lib/pkgconfig/cairo.pc</literal></screen>
 
   </sect2>
 
