@@ -6,7 +6,7 @@
 
   <!ENTITY cmake-homepage      "http://www.cmake.org/">
   <!ENTITY cmake-wikipedia     "http://en.wikipedia.org/wiki/CMake">
-  <!ENTITY cmake-download-http "http://www.cmake.org/files/v3.2/cmake-&cmake-version;.tar.gz">
+  <!ENTITY cmake-download-http "http://www.cmake.org/files/v3.3/cmake-&cmake-version;.tar.gz">
   <!ENTITY cmake-download-ftp  " ">
   <!ENTITY cmake-md5sum        "b1d4823e3f74c961486d9f253da9825d">
   <!ENTITY cmake-size          "6.3 MB">
@@ -14,10 +14,10 @@
   <!ENTITY cmake-time          "3.1 SBU">
 ]>
 
-<sect1 id="cmake" xreflabel="CMake-&cmake-version;">
+<sect1 id="cmake" xreflabel="cmake-&cmake-version;">
   <?dbhtml filename="cmake.html"?>
 
-  <title>CMake-&cmake-version;</title>
+  <title>cmake-&cmake-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -90,21 +90,26 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./bootstrap --prefix=/usr \
+<screen><userinput>./bootstrap --prefix= \
             --docdir=/share/doc/cmake \
             --mandir=/share/man \
             --system-libs \
-            --no-system-jsoncpp &amp;&amp;
-make</userinput></screen>
+            --no-system-jsoncpp</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -122,40 +127,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="cmake">
-      <primary sortas="b-ccmake">ccmake</primary>
-    </indexterm>
-    <indexterm zone="cmake">
-      <primary sortas="b-cmake">cmake</primary>
-    </indexterm>
-    <indexterm zone="cmake">
-      <primary sortas="b-cpack">cpack</primary>
-    </indexterm>
-    <indexterm zone="cmake">
-      <primary sortas="b-ctest">ctest</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/ccmake
-/usr/bin/cmake
-/usr/bin/cpack
-/usr/bin/ctest
-/usr/share/aclocal/cmake.m4
-/usr/share/cmake-2.8/
-/usr/share/doc/cmake-2.8/
-/usr/share/man/man1/ccmake.1
-/usr/share/man/man1/cmake.1
-/usr/share/man/man1/cpack.1
-/usr/share/man/man1/ctest.1</literal></screen>
 
   </sect2>
 
