@@ -14,10 +14,10 @@
   <!ENTITY curl-time          "0.4 SBU">
 ]>
 
-<sect1 id="curl" xreflabel="cURL-&curl-version;">
+<sect1 id="curl" xreflabel="curl-&curl-version;">
   <?dbhtml filename="curl.html"?>
 
-  <title>cURL-&curl-version;</title>
+  <title>curl-&curl-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -99,7 +99,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>PATH_SEPARATOR=: \
+./configure --prefix= \
             --disable-static \
             --enable-threaded-resolver</userinput></screen>
 
@@ -113,8 +114,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libcurl.la</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libcurl.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -125,34 +126,6 @@ rm -v /usr/lib/libcurl.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="curl">
-      <primary sortas="b-curl">curl</primary>
-    </indexterm>
-    <indexterm zone="curl">
-      <primary sortas="b-curl-config">curl-config</primary>
-    </indexterm>
-    <indexterm zone="curl">
-      <primary sortas="c-libcurl.so">libcurl.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/curl
-/usr/bin/curl-config
-/usr/include/curl/
-/usr/lib/libcurl.so
-/usr/lib/pkgconfig/libcurl.pc
-/usr/share/man/man1/curl.1
-/usr/share/man/man1/curl-config.1
-/usr/share/man/man3/libcurl.3</literal></screen>
 
   </sect2>
 
