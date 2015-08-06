@@ -104,8 +104,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
       Compile the package:
@@ -117,12 +116,13 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libpango-1.0.la
-rm -v /usr/lib/libpangocairo-1.0.la
-rm -v /usr/lib/libpangoft2-1.0.la
-rm -v /usr/lib/libpangoxft-1.0.la</userinput></screen>
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libpango-1.0.la &amp;&amp;
+rm -v /lib/libpangocairo-1.0.la &amp;&amp;
+rm -v /lib/libpangoft2-1.0.la &amp;&amp;
+rm -v /lib/libpangoxft-1.0.la"</userinput></screen>
 
+<!--
     <note>
       <para>
         If you installed the package on to your system using a
@@ -131,10 +131,10 @@ rm -v /usr/lib/libpangoxft-1.0.la</userinput></screen>
         command as the <systemitem class="username">root</systemitem> user:
       </para>
 
-<screen role="root"><userinput>pango-querymodules --update-cache</userinput></screen>
+<screen role="root"><userinput>pango-querymodules - -update-cache</userinput></screen>
 
     </note>
-
+-->
   </sect2>
 
   <sect2>
@@ -155,59 +155,7 @@ rm -v /usr/lib/libpangoxft-1.0.la</userinput></screen>
         <envar>PANGO_RC_FILE</envar>
       </para>
 
-      <indexterm zone="pango">
-        <primary sortas="e-etc-pango-pangorc">/etc/pango/pangorc</primary>
-      </indexterm>
-
-      <indexterm zone="pango">
-        <primary sortas="e-AA.pangorc">~/.pangorc</primary>
-      </indexterm>
-
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="pango">
-      <primary sortas="b-pango-querymodules">pango-querymodules</primary>
-    </indexterm>
-    <indexterm zone="pango">
-      <primary sortas="b-pango-view">pango-view</primary>
-    </indexterm>
-    <indexterm zone="pango">
-      <primary sortas="c-libpango-1.0.so">libpango-1.0.so</primary>
-    </indexterm>
-    <indexterm zone="pango">
-      <primary sortas="c-libpangocairo-1.0.so">libpangocairo-1.0.so</primary>
-    </indexterm>
-    <indexterm zone="pango">
-      <primary sortas="c-libpangoft2-1.0.so">libpangoft2-1.0.so</primary>
-    </indexterm>
-    <indexterm zone="pango">
-      <primary sortas="c-libpangoxft-1.0.so">libpangoxft-1.0.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/pango/
-/usr/bin/pango-querymodules
-/usr/bin/pango-view
-/usr/include/pango-1.0/
-/usr/lib/libpango-1.0.so
-/usr/lib/libpangocairo-1.0.so
-/usr/lib/libpangoft2-1.0.so
-/usr/lib/libpangoxft-1.0.so
-/usr/lib/pango/
-/usr/lib/pkgconfig/pango.pc
-/usr/lib/pkgconfig/pangocairo.pc
-/usr/lib/pkgconfig/pangoft2.pc
-/usr/lib/pkgconfig/pangoxft.pc
-/usr/share/man/man1/pango-querymodules.1
-/usr/share/man/man1/pango-view.1</literal></screen>
 
   </sect2>
 
