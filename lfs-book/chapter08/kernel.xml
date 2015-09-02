@@ -45,16 +45,6 @@
     in the kernel source tree for alternative methods to the way this book
     configures the kernel.</para>
 
-    <para>First, apply a patch which removes dependency on the bc
-    package:</para>
-
-<screen><userinput remap="pre">patch -p1 -i ../&linux-nobc_timeconst-patch;</userinput></screen>
-
-    <para>Fix bashisms:</para>
-
-<screen><userinput remap="pre">sed 's/SIGTERM ERR/SIGTERM/' -i scripts/link-vmlinux.sh
-sed 's/^function //' -i arch/x86/kernel/cpu/mkcapflags.sh</userinput></screen>
-
     <!-- Support for compiling a keymap into the kernel is deliberately removed -->
 
     <para>A good starting place for setting up the kernel configuration
@@ -75,10 +65,6 @@ sed 's/^function //' -i arch/x86/kernel/cpu/mkcapflags.sh</userinput></screen>
     we do not recommend this option. It is often better to explore all the
     configuration menus and create the kernel configuration from
     scratch.</para>
-
-    <para>Disable a default option which requires Perl:</para>
-
-<screen><userinput remap="pre">sed 's/\(CONFIG_NFS_V4\)=y/# \1 is not set/' -i .config</userinput></screen>
 
     <para>Enable some common network device drivers:</para>
 
