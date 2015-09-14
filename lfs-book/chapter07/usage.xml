@@ -55,25 +55,22 @@
   <filename>/etc/inittab</filename>.  Create this file with:</para>
 
 <screen><userinput>cat &gt; /etc/inittab &lt;&lt; "EOF"
-<literal># Begin /etc/inittab
-
-::sysinit:/etc/rc.d/rcS.d/oneandonly
+<literal>::sysinit:/etc/rc.d/rcS.d/oneandonly
 
 ::wait:/etc/rc.d/init.d/rc 3
 
-tty1::respawn:/sbin/getty 9600 tty1
-tty2::respawn:/sbin/getty 9600 tty2
-tty3::respawn:/sbin/getty 9600 tty3
-tty4::respawn:/sbin/getty 9600 tty4
-tty5::respawn:/sbin/getty 9600 tty5
-tty6::respawn:/sbin/getty 9600 tty6
+tty1::respawn:/bin/getty 9600 tty1
+tty2::respawn:/bin/getty 9600 tty2
+tty3::respawn:/bin/getty 9600 tty3
+tty4::respawn:/bin/getty 9600 tty4
+tty5::respawn:/bin/getty 9600 tty5
+tty6::respawn:/bin/getty 9600 tty6
 
-::ctrlaltdel:/sbin/reboot
+::ctrlaltdel:/bin/reboot
 
-::shutdown:/etc/rc.d/init.d/rc 0
-
-# End /etc/inittab</literal>
-EOF</userinput></screen>
+::shutdown:/etc/rc.d/init.d/rc 0</literal>
+EOF
+ls /etc/inittab | porg -lp+ busybox-&busybox-version;</userinput></screen>
 
   <para>An explanation of this initialization file is in the man page for
   <emphasis>inittab</emphasis>.  For LFS, the key command that is run is
