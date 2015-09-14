@@ -96,11 +96,17 @@
     <title>Installation</title>
 
     <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "/CMAKE_DOC_DIR/d" -i CMakeLists.txt
+sed "/CMAKE_DOC_DIR/d" -i Utilities/cm*/CMakeLists.txt</userinput></screen>
+
+    <para>
       Prepare the package for compilation:
     </para>
 
 <screen><userinput>./bootstrap --prefix= \
-            --docdir=/share/doc/cmake \
             --mandir=/share/man \
             --system-libs \
             --no-system-jsoncpp</userinput></screen>
