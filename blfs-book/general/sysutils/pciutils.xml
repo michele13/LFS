@@ -8,7 +8,7 @@
   <!ENTITY pciutils-wikipedia     "http://en.wikipedia.org/wiki/Lspci">
   <!ENTITY pciutils-download-http "http://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
   <!ENTITY pciutils-download-ftp  "ftp://ftp.kernel.org/pub/software/utils/pciutils/pciutils-&pciutils-version;.tar.xz">
-  <!ENTITY pciutils-md5sum        "4c340a317987d61a11ee2cf139ef1191">
+  <!ENTITY pciutils-md5sum        "69c9edeb6761f2a822e4eb36187b75d6">
   <!ENTITY pciutils-size          "296 KB">
   <!ENTITY pciutils-buildsize     "3.2 MB">
   <!ENTITY pciutils-time          "0.1 SBU">
@@ -78,20 +78,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>make SHAREDIR=/usr/local/share/misc \
-     SHARED=yes</userinput></screen>
+<screen><userinput>sed "s/man7$//" -i Makefile
+sed "/INSTALL.*pcilib.7/d" -i Makefile</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make SHAREDIR=/usr/local/share/misc \
-     SHARED=yes install install-lib &amp;&amp;
-chmod -v 755 /usr/local/lib/libpci.so</userinput></screen>
+<screen><userinput>make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc</userinput></screen>
 
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc -j1 install"</userinput></screen>
+<!--
     <sect3>
       <title>Command Explanations</title>
 
@@ -106,7 +110,7 @@ chmod -v 755 /usr/local/lib/libpci.so</userinput></screen>
       </para>
 
     </sect3>
-
+-->
   </sect2>
 
   <sect2>
@@ -117,50 +121,16 @@ chmod -v 755 /usr/local/lib/libpci.so</userinput></screen>
       get a current version of this file, run <command>update-pciids</command>
       as the <systemitem class="username">root</systemitem> user. This program
       downloads the most current file, and then replaces the existing
-      file in <filename class="directory">/usr/share/misc</filename>.
+      file in <filename class="directory">/share/misc</filename>.
     </para>
 
     <para>
       You may wish to add an entry to <systemitem
       class="username">root</systemitem>'s (or any other user who has write
-      privilege to <filename class="directory">/usr/local/share/misc</filename>)
+      privilege to <filename class="directory">/share/misc</filename>)
       crontab to automatically update the <filename>pci.ids</filename> file
       periodically.
     </para>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="pciutils">
-      <primary sortas="b-lspci">lspci</primary>
-    </indexterm>
-    <indexterm zone="pciutils">
-      <primary sortas="b-setpci">setpci</primary>
-    </indexterm>
-    <indexterm zone="pciutils">
-      <primary sortas="b-update-pciids">update-pciids</primary>
-    </indexterm>
-    <indexterm zone="pciutils">
-      <primary sortas="c-libpci.so">libpci.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/local/include/pci/
-/usr/local/lib/libpci.so
-/usr/local/lib/pkgconfig/libpci.pc
-/usr/local/sbin/lspci
-/usr/local/sbin/setpci
-/usr/local/sbin/update-pciids
-/usr/local/share/man/man7/pcilib.7
-/usr/local/share/man/man8/lspci.8
-/usr/local/share/man/man8/setpci.8
-/usr/local/share/man/man8/update-pciids.8
-/usr/local/share/pci.ids.gz</literal></screen>
 
   </sect2>
 

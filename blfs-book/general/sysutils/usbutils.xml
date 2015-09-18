@@ -84,19 +84,33 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr/local \
-            --datadir=/usr/local/share/misc &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/usbhid-dump//" -i configure
+sed "s/usbhid-dump//" -i Makefile.in
+sed "s/ install-binSCRIPTS//" -i Makefile.in
+sed "s/ install-man1//" -i Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-mv -v /usr/local/sbin/update-usbids.sh /usr/local/sbin/update-usbids</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin \
+            --datadir=/share/misc</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
@@ -104,58 +118,22 @@ mv -v /usr/local/sbin/update-usbids.sh /usr/local/sbin/update-usbids</userinput>
     <title>Configuration</title>
 
     <para>
-      The <filename>usb.ids</filename> data file is constantly being updated. To
-      get a current version of this file, run <command>update-usbids</command>
-      as the <systemitem class="username">root</systemitem> user. This program
-      requires <command>wget</command> which is used
-      to download the most current file, and replace the existing file in
-      <filename class="directory">/usr/local/share/misc</filename>.
+      The <filename>usb.ids</filename> data file is constantly being updated.
+      To get a current version of this file, run
+      <command>update-usbids.sh</command> as the <systemitem
+      class="username">root</systemitem> user. This program requires
+      <command>wget</command> which is used to download the most current file,
+      and replace the existing file in <filename
+      class="directory">/share/misc</filename>.
     </para>
 
     <para>
       You may wish to add an entry to <systemitem
       class="username">root</systemitem>'s (or any other user who has write
-      privilege to <filename class="directory">/usr/local/share/misc</filename>)
+      privilege to <filename class="directory">/share/misc</filename>)
       crontab to automatically update the <filename>usb.ids</filename> file
       periodically.
     </para>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="usbutils">
-      <primary sortas="b-lsusb">lsusb</primary>
-    </indexterm>
-    <indexterm zone="usbutils">
-      <primary sortas="b-lsusb.py">lsusb.py</primary>
-    </indexterm>
-    <indexterm zone="usbutils">
-      <primary sortas="b-usb-devices">usb-devices</primary>
-    </indexterm>
-    <indexterm zone="usbutils">
-      <primary sortas="b-usbhid-dump">usbhid-dump</primary>
-    </indexterm>
-    <indexterm zone="usbutils">
-      <primary sortas="b-update-usbids">update-usbids</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><userinput>/usr/local/bin/lsusb
-/usr/local/bin/lsusb.py
-/usr/local/bin/usb-devices
-/usr/local/bin/usbhid-dump
-/usr/local/sbin/update-usbids
-/usr/local/share/man/man1/usb-devices.1
-/usr/local/share/man/man8/lsusb.8
-/usr/local/share/man/man8/usbhid-dump.8
-/usr/local/share/misc/usb.ids
-/usr/local/share/misc/usb.ids.gz
-/usr/local/share/pkgconfig/usbutils.pc</userinput></screen>
 
   </sect2>
 
