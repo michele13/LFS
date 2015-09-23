@@ -8,7 +8,7 @@
   <!ENTITY whois-wikipedia     "http://en.wikipedia.org/wiki/Whois">
   <!ENTITY whois-download-http "http://ftp.debian.org/debian/pool/main/w/whois/whois_&whois-version;.tar.xz">
   <!ENTITY whois-download-ftp  "ftp://ftp.debian.org/debian/pool/main/w/whois/whois_&whois-version;.tar.xz">
-  <!ENTITY whois-md5sum        "8144fc16bd11f04087c6f91f26ced381">
+  <!ENTITY whois-md5sum        "5ccd01e611621f7a395537f8b7190d0a">
   <!ENTITY whois-size          "76 KB">
   <!ENTITY whois-buildsize     "1.4 MB">
   <!ENTITY whois-time          "0.1 SBU">
@@ -79,19 +79,19 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Compile the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<!-- dev note: make BASEDIR=<DESTDIR> prefix=/usr install-whois -->
+<!-- dev note: make BASEDIR=<DESTDIR> prefix= install-whois -->
 
-<screen role="root"><userinput>make prefix=/usr/local install-whois</userinput></screen>
-
+<screen role="root"><userinput>porg -lD "make prefix= -j1 install-whois"</userinput></screen>
+<!--
     <sect3>
       <title>Command Explanations</title>
 
@@ -101,27 +101,7 @@
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="whois">
-      <primary sortas="b-whois">whois</primary>
-    </indexterm>
-    <indexterm zone="whois">
-      <primary sortas="e-etc-whois.conf">/etc/whois.conf</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/local/bin/whois
-/usr/local/share/man/man1/whois.1
-/usr/local/share/man/man5/whois.conf.5</literal></screen>
-
+-->
   </sect2>
 
 </sect1>
