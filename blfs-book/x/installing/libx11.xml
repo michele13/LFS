@@ -100,10 +100,13 @@
 
 <screen><userinput>for dir in XIM XKB i18n/compose i18n/framework i18n/localedb i18n/trans libX11 ; do
     sed -e "s/ install-shelfDATA//" -e "s/ install-dist_shelfDATA//" -i specs/$dir/Makefile.in
-done
+done</userinput></screen>
+
+<!-- needed for terminals to support typing utf8 chars?
 sed -e "s/ install-nobase_dist_x11localeDATA//" \
     -e "s/install-nobase_x11localeDATA install-x11localeDATA//" \
-    -i nls/Makefile.in</userinput></screen>
+    -i nls/Makefile.in
+-->
 
     <para>
       Prepare the package for compilation:
@@ -111,8 +114,7 @@ sed -e "s/ install-nobase_dist_x11localeDATA//" \
 
 <!-- - -disable-xlocale (libxfixes needs this) -->
 <screen><userinput>./configure --prefix= \
-            --disable-static \
-            --disable-xlocaledir</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
