@@ -14,10 +14,10 @@
   <!ENTITY libxfixes-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxfixes" xreflabel="libXfixes-&libxfixes-version;">
+<sect1 id="libxfixes" xreflabel="libxfixes-&libxfixes-version;">
   <?dbhtml filename="libxfixes.html"?>
 
-  <title>libXfixes-&libxfixes-version;</title>
+  <title>libxfixes-&libxfixes-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -88,7 +88,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
       Compile the package:
@@ -100,26 +100,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libXfixes.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxfixes">
-      <primary sortas="c-libXfixes.so">libXfixes.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/extensions/Xfixes.h
-/usr/lib/libXfixes.so
-/usr/lib/pkgconfig/xfixes.pc
-/usr/share/man/man3/Xfixes.3</literal></screen>
+<screen role="root"><userinput>porg -lp libxfixes-&libxfixes-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXfixes.la"</userinput></screen>
 
   </sect2>
 
