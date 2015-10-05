@@ -14,10 +14,10 @@
   <!ENTITY nasm-time          "0.1 SBU">
 ]>
 
-<sect1 id="nasm" xreflabel="NASM-&nasm-version;">
+<sect1 id="nasm" xreflabel="nasm-&nasm-version;">
   <?dbhtml filename="nasm.html" ?>
 
-  <title>NASM-&nasm-version;</title>
+  <title>nasm-&nasm-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -77,36 +77,23 @@
     <title>Installation</title>
 
     <para>
-      Install NASM by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
-
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="nasm">
-      <primary sortas="b-nasm">nasm</primary>
-    </indexterm>
-    <indexterm zone="nasm">
-      <primary sortas="b-ndisasm">ndisasm</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/bin/nasm
-/usr/bin/ndisasm
-/usr/share/man/man1/nasm.1
-/usr/share/man/man1/ndisasm.1</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<!-- dev note: make INSTALLROOT=<DESTDIR> install -->
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
