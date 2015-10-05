@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY tiff-homepage      "http://www.remotesensing.org/libtiff/">
+  <!ENTITY tiff-wikipedia     "http://en.wikipedia.org/wiki/Libtiff">
+  <!ENTITY tiff-download-http "http://download.osgeo.org/libtiff/tiff-&tiff-version;.tar.gz">
+  <!ENTITY tiff-download-ftp  "ftp://ftp.remotesensing.org/libtiff/tiff-&tiff-version;.tar.gz">
+  <!ENTITY tiff-md5sum        "523a76b4a3b24a0287dcfae82580ed2c">
+  <!ENTITY tiff-size          "2.1 MB">
+  <!ENTITY tiff-buildsize     "27 MB">
+  <!ENTITY tiff-time          "0.3 SBU">
+]>
+
+<sect1 id="tiff" xreflabel="tiff-&tiff-version;">
+  <?dbhtml filename="tiff.html"?>
+
+  <title>tiff-&tiff-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The LibTIFF package contains the TIFF libraries and associated utilities.
+      The libraries are used by many programs for reading and writing TIFF files
+      and the utilities are used for general work with TIFF files.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&tiff-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&tiff-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&tiff-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&tiff-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &tiff-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &tiff-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &tiff-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &tiff-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libjpeg"/>,
+      <xref linkend="xz"/>,
+      <xref linkend="jbigkit"/>, and
+      <xref linkend="freeglut"/> (required for <command>tiffgt</command>)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in
+sed "s/ install-dist_docDATA//" -i html/Makefile.in
+sed "s/ install-dist_docDATA//" -i html/images/Makefile.in
+sed "s/ install-dist_docDATA//" -i html/man/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libtiff.la &amp;&amp;
+rm -v /lib/libtiffxx.la"</userinput></screen>
+
+  </sect2>
+
+</sect1>
