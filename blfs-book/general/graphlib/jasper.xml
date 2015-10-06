@@ -14,10 +14,10 @@
   <!ENTITY jasper-time          "0.3 SBU">
 ]>
 
-<sect1 id="jasper" xreflabel="JasPer-&jasper-version;">
+<sect1 id="jasper" xreflabel="jasper-&jasper-version;">
   <?dbhtml filename="jasper.html"?>
 
-  <title>JasPer-&jasper-version;</title>
+  <title>jasper-&jasper-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -112,8 +112,8 @@
     </para>
 
 <screen><userinput>patch -p1 -i ../jasper-&jasper-version;-security_fixes-2.patch &amp;&amp;
-./configure --prefix=/usr \
-            --mandir=/usr/share/man \
+./configure --prefix= \
+            --mandir=/share/man \
             --disable-static \
             --enable-shared</userinput></screen>
 
@@ -127,48 +127,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libjasper.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="jasper">
-      <primary sortas="b-imgcmp">imgcmp</primary>
-    </indexterm>
-    <indexterm zone="jasper">
-      <primary sortas="b-imginfo">imginfo</primary>
-    </indexterm>
-    <indexterm zone="jasper">
-      <primary sortas="b-jasper">jasper</primary>
-    </indexterm>
-    <indexterm zone="jasper">
-      <primary sortas="b-jiv">jiv</primary>
-    </indexterm>
-    <indexterm zone="jasper">
-      <primary sortas="b-tmrdemo">tmrdemo</primary>
-    </indexterm>
-    <indexterm zone="jasper">
-      <primary sortas="c-libjasper.so">libjasper.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/imgcmp
-/usr/bin/imginfo
-/usr/bin/jasper
-/usr/bin/jiv
-/usr/bin/tmrdemo
-/usr/include/jasper/
-/usr/lib/libjasper.so
-/usr/share/man/man1/imgcmp.1
-/usr/share/man/man1/imginfo.1
-/usr/share/man/man1/jasper.1
-/usr/share/man/man1/jiv.1</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libjasper.la"</userinput></screen>
 
   </sect2>
 
