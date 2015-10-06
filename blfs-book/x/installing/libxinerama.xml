@@ -14,10 +14,10 @@
   <!ENTITY libxinerama-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxinerama" xreflabel="libXinerama-&libxinerama-version;">
+<sect1 id="libxinerama" xreflabel="libxinerama-&libxinerama-version;">
   <?dbhtml filename="libxinerama.html"?>
 
-  <title>libXinerama-&libxinerama-version;</title>
+  <title>libxinerama-&libxinerama-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -91,7 +91,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -103,27 +104,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libXinerama.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxinerama">
-      <primary sortas="c-libXinerama.so">libXinerama.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/extensions/Xinerama.h
-/usr/include/X11/extensions/panoramiXext.h
-/usr/lib/libXinerama.so
-/usr/lib/pkgconfig/xinerama.pc
-/usr/share/man/man3/Xinerama.3</literal></screen>
+<screen role="root"><userinput>porg -lp libxinerama-&libxinerama-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXinerama.la"</userinput></screen>
 
   </sect2>
 
