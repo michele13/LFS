@@ -110,7 +110,7 @@
       commands:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
+<screen><userinput>CXXFLAGS="-g -O2 -std=c++11" ./configure --prefix=/usr &amp;&amp;
 make</userinput></screen>
 
     <para>
@@ -118,6 +118,20 @@ make</userinput></screen>
     </para>
 
 <screen role="root"><userinput>make install</userinput></screen>
+
+  <sect2>
+    <title>Command Explanations</title>
+
+    <para>
+      <command>CXXFLAGS="-g -O2 -std=c++11" ./configure...</command>: Inkscape
+      has not yet been ported to the 2011 ISO C++ standard, one of its
+      dependencies is compiled with this standard.
+      <command>-std=c++11</command> has
+      to be used as an option to <command>g++</command>. We pass it into
+      <envar>CXXFLAGS</envar> together with the default options.
+    </para>
+
+  </sect2>
 
     <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
       href="../../xincludes/update-icons-and-desktop.xml"/>
