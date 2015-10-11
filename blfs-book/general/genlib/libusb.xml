@@ -4,7 +4,7 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY libusb-homepage      "http://www.libusb.org/">
+  <!ENTITY libusb-homepage      "http://libusb.info/">
   <!ENTITY libusb-wikipedia     "http://en.wikipedia.org/wiki/Libusb">
   <!ENTITY libusb-download-http "&sourceforge-repo;/libusb/libusb-&libusb-version;.tar.bz2">
   <!ENTITY libusb-download-ftp  " ">
@@ -77,26 +77,32 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static \
-            --disable-udev &amp;&amp;
-make</userinput></screen>
+            --disable-udev</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make -j1</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libusb-1.0.la"</userinput></screen>
 
   </sect2>
 
   <sect2>
     <title>Configuration</title>
 
-    <para id="libusb-kernel">
+    <para>
       To access raw USB devices (those not treated as a disk by the mass-storage
       driver), appropriate support must be available in the kernel.  Check your
       kernel configuration:
@@ -106,27 +112,6 @@ make</userinput></screen>
   [*] USB support ---&gt;                   [CONFIG_USB_SUPPORT]
     &lt;*/M&gt; Support for Host-side USB      [CONFIG_USB]
     (Select any USB hardware device drivers you may need on the same page)</literal></screen>
-
-    <indexterm zone="libusb libusb-kernel">
-      <primary sortas="d-USB-device-filesystem">Support for Host-side USB</primary>
-    </indexterm>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libusb">
-      <primary sortas="c-libusb-1.0.so">libusb-1.0.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/libusb-1.0/
-/usr/lib/libusb-1.0.so
-/usr/lib/pkgconfig/libusb-1.0.pc</literal></screen>
 
   </sect2>
 
