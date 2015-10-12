@@ -86,18 +86,23 @@
     <title>Installation</title>
 
     <para>
-      Install yasm by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>sed -i 's#) ytasm.*#)#' Makefile.in &amp;&amp;
-./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -109,29 +114,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="yasm">
-      <primary sortas="b-yasm">yasm</primary>
-    </indexterm>
-    <indexterm zone="yasm">
-      <primary sortas="c-libyasm.a">libyasm.a</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/yasm
-/usr/include/libyasm/
-/usr/include/libyasm.h
-/usr/include/libyasm-stdint.h
-/usr/lib/libyasm.a
-/usr/share/man/man1/yasm.1</literal></screen>
 
   </sect2>
 
