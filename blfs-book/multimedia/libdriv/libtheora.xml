@@ -94,7 +94,7 @@ sed "s/ install-docDATA//" -i doc/spec/Makefile.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static \
             --disable-examples</userinput></screen>
 
@@ -108,37 +108,10 @@ sed "s/ install-docDATA//" -i doc/spec/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libtheora.la
-rm -v /usr/lib/libtheoradec.la
-rm -v /usr/lib/libtheoraenc.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-     <indexterm zone="libtheora">
-       <primary sortas="c-libtheora.so">libtheora.so</primary>
-     </indexterm>
-     <indexterm zone="libtheora">
-       <primary sortas="c-libtheoradec.so">libtheoradec.so</primary>
-     </indexterm>
-     <indexterm zone="libtheora">
-       <primary sortas="c-libtheoraenc.so">libtheoraenc.so</primary>
-     </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/theora/
-/usr/lib/libtheora.so
-/usr/lib/libtheoradec.so
-/usr/lib/libtheoraenc.so
-/usr/lib/pkgconfig/theora.pc
-/usr/lib/pkgconfig/theoradec.pc
-/usr/lib/pkgconfig/theoraenc.pc</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libtheora.la &amp;&amp;
+rm -v /lib/libtheoradec.la &amp;&amp;
+rm -v /lib/libtheoraenc.la"</userinput></screen>
 
   </sect2>
 
