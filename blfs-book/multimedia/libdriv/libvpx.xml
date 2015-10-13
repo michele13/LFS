@@ -86,25 +86,31 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>sed -i 's/cp -p/cp/' build/make/Makefile &amp;&amp;
-sed "s/cat -n \$1/cat \$1 | awk '{ printf(\"%6d\\\011%s\\\n\", NR-0, \$0) }'/" \
+sed -e "s/cat -n \$1/cat \$1 | awk '{ printf(\"%6d\\\011%s\\\n\", NR-0, \$0) }'/" \
+    -e "/must be a subdirectory of/c:" \
     -i build/make/configure.sh &amp;&amp;
 mkdir ../libvpx-build &amp;&amp;
 cd ../libvpx-build &amp;&amp;
-../libvpx-&libvpx-version;/configure --prefix=/usr \
+../libvpx-&libvpx-version;/configure --prefix=/ \
                     --disable-static \
                     --disable-examples \
-                    --enable-shared &amp;&amp;
-make</userinput></screen>
+                    --enable-shared</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp libvpx-&libvpx-version; "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -130,23 +136,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libvpx">
-      <primary sortas="c-libvpx.so">libvpx.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/vpx/
-/usr/lib/libvpx.so
-/usr/lib/pkgconfig/vpx.pc</literal></screen>
 
   </sect2>
 
