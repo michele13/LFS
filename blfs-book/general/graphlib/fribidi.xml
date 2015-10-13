@@ -10,14 +10,14 @@
   <!ENTITY fribidi-download-ftp  " ">
   <!ENTITY fribidi-md5sum        "6c7e7cfdd39c908f7ac619351c1c5c23">
   <!ENTITY fribidi-size          "636 KB">
-  <!ENTITY fribidi-buildsize     "6.7 MB (with tests)">
-  <!ENTITY fribidi-time          "less than 0.1 SBU (with tests)">
+  <!ENTITY fribidi-buildsize     "6.7 MB">
+  <!ENTITY fribidi-time          "0.1 SBU">
 ]>
 
-<sect1 id="fribidi" xreflabel="FriBidi-&fribidi-version;">
+<sect1 id="fribidi" xreflabel="fribidi-&fribidi-version;">
   <?dbhtml filename="fribidi.html"?>
 
-  <title>FriBidi-&fribidi-version;</title>
+  <title>fribidi-&fribidi-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -79,18 +79,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --without-glib &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --without-glib</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfribidi.la</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -101,28 +107,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="fribidi">
-      <primary sortas="b-fribidi">fribidi</primary>
-    </indexterm>
-    <indexterm zone="fribidi">
-      <primary sortas="c-libfribidi.so">libfribidi.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/fribidi
-/usr/include/fribidi/
-/usr/lib/libfribidi.so
-/usr/lib/pkgconfig/fribidi.pc
-/usr/share/man/man3/fribidi_*.3</literal></screen>
 
   </sect2>
 
