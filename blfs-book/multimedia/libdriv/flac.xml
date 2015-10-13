@@ -14,10 +14,10 @@
   <!ENTITY flac-time          "0.3 SBU">
 ]>
 
-<sect1 id="flac" xreflabel="FLAC-&flac-version;">
+<sect1 id="flac" xreflabel="flac-&flac-version;">
   <?dbhtml filename="flac.html"?>
 
-  <title>FLAC-&flac-version;</title>
+  <title>flac-&flac-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -96,7 +96,7 @@ sed "s/ install-docDATA//" -i doc/html/images/Makefile.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
       Compile the package:
@@ -108,44 +108,9 @@ sed "s/ install-docDATA//" -i doc/html/images/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libFLAC++.la
-rm -v /usr/lib/libFLAC.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="flac">
-      <primary sortas="b-flac">flac</primary>
-    </indexterm>
-    <indexterm zone="flac">
-      <primary sortas="b-metaflac">metaflac</primary>
-    </indexterm>
-    <indexterm zone="flac">
-      <primary sortas="c-libFLAC.so">libFLAC.so</primary>
-    </indexterm>
-    <indexterm zone="flac">
-      <primary sortas="c-libFLAC++.so">libFLAC++.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/flac
-/usr/bin/metaflac
-/usr/include/FLAC/
-/usr/include/FLAC++/
-/usr/lib/libFLAC.so
-/usr/lib/libFLAC++.so
-/usr/lib/pkgconfig/flac.pc
-/usr/lib/pkgconfig/flac++.pc
-/usr/share/aclocal/libFLAC.m4
-/usr/share/aclocal/libFLAC++.m4
-/usr/share/man/man1/flac.1
-/usr/share/man/man1/metaflac.1</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libFLAC++.la &amp;&amp;
+rm -v /lib/libFLAC.la"</userinput></screen>
 
   </sect2>
 
