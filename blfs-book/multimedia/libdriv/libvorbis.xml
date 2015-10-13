@@ -97,7 +97,7 @@ sed "s/ install-docDATA//" -i doc/vorbisfile/Makefile.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -110,38 +110,10 @@ sed "s/ install-docDATA//" -i doc/vorbisfile/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libvorbis.la
-rm -v /usr/lib/libvorbisenc.la
-rm -v /usr/lib/libvorbisfile.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libvorbis">
-      <primary sortas="c-libvorbisenc.so">libvorbisenc.so</primary>
-    </indexterm>
-    <indexterm zone="libvorbis">
-      <primary sortas="c-libvorbisfile.so">libvorbisfile.so</primary>
-    </indexterm>
-    <indexterm zone="libvorbis">
-      <primary sortas="c-libvorbis.so">libvorbis.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/vorbis/
-/usr/lib/libvorbisenc.so
-/usr/lib/libvorbisfile.so
-/usr/lib/libvorbis.so
-/usr/lib/pkgconfig/vorbisenc.pc
-/usr/lib/pkgconfig/vorbisfile.pc
-/usr/lib/pkgconfig/vorbis.pc
-/usr/share/aclocal/vorbis.m4</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libvorbis.la &amp;&amp;
+rm -v /lib/libvorbisenc.la &amp;&amp;
+rm -v /lib/libvorbisfile.la"</userinput></screen>
 
   </sect2>
 
