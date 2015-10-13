@@ -99,19 +99,25 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>sh autogen.sh &amp;&amp;
-./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libass.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -122,23 +128,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libass">
-      <primary sortas="c-libass.so">libass.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/ass/
-/usr/lib/libass.so
-/usr/lib/pkgconfig/libass.pc</literal></screen>
 
   </sect2>
 
