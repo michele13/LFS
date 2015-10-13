@@ -84,54 +84,24 @@
 <screen><userinput>sed "s/install-info-am i/i/" -i Makefile.in</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libltdl.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libtool">
-      <primary sortas="b-libtool">libtool</primary>
-    </indexterm>
-    <indexterm zone="libtool">
-      <primary sortas="b-libtoolize">libtoolize</primary>
-    </indexterm>
-    <indexterm zone="libtool">
-      <primary sortas="c-libltdl.so">libltdl.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/bin/libtool
-/usr/bin/libtoolize
-/usr/include/libltdl/
-/usr/include/ltdl.h
-/usr/lib/libltdl.so
-/usr/share/aclocal/argz.m4
-/usr/share/aclocal/libtool.m4
-/usr/share/aclocal/ltdl.m4
-/usr/share/aclocal/ltoptions.m4
-/usr/share/aclocal/ltsugar.m4
-/usr/share/aclocal/ltversion.m4
-/usr/share/aclocal/lt~obsolete.m4
-/usr/share/libtool/
-/usr/share/man/man1/libtool.1
-/usr/share/man/man1/libtoolize.1</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libltdl.la"</userinput></screen>
 
   </sect2>
 
