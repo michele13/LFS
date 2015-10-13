@@ -77,35 +77,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="fdk-aac">
-      <primary sortas="c-libfdk-aac.so">libfdk-aac.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/include/fdk-aac/
-/usr/lib/libfdk-aac.so
-/usr/lib/pkgconfig/fdk-aac.pc</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfdk-aac.la"</userinput></screen>
 
   </sect2>
 
