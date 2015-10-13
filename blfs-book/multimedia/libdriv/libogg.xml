@@ -87,7 +87,7 @@ sed "s/ install-dist_apidocDATA//" -i doc/libogg/Makefile.in</userinput></screen
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -100,26 +100,8 @@ sed "s/ install-dist_apidocDATA//" -i doc/libogg/Makefile.in</userinput></screen
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libogg.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libogg">
-      <primary sortas="c-libogg.so">libogg.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/ogg/
-/usr/lib/libogg.so
-/usr/lib/pkgconfig/ogg.pc
-/usr/share/aclocal/ogg.m4</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libogg.la"</userinput></screen>
 
   </sect2>
 
