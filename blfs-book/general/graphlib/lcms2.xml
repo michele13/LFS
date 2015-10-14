@@ -10,14 +10,14 @@
   <!ENTITY lcms2-download-ftp  " ">
   <!ENTITY lcms2-md5sum        "06c1626f625424a811fb4b5eb070839d">
   <!ENTITY lcms2-size          "6.2 MB">
-  <!ENTITY lcms2-buildsize     "21 MB (with the tests)">
-  <!ENTITY lcms2-time          "0.2 SBU (with the tests)">
+  <!ENTITY lcms2-buildsize     "21 MB">
+  <!ENTITY lcms2-time          "0.2 SBU">
 ]>
 
-<sect1 id="lcms2" xreflabel="Little CMS-&lcms2-version;">
+<sect1 id="lcms2" xreflabel="lcms2-&lcms2-version;">
   <?dbhtml filename="lcms2.html"?>
 
-  <title>Little CMS-&lcms2-version;</title>
+  <title>lcms2-&lcms2-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -76,7 +76,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libjpeg"/> and
       <xref linkend="tiff"/>
     </para>
@@ -87,58 +87,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="lcms2">
-      <primary sortas="b-jpgicc">jpgicc</primary>
-    </indexterm>
-    <indexterm zone="lcms2">
-      <primary sortas="b-linkicc">linkicc</primary>
-    </indexterm>
-    <indexterm zone="lcms2">
-      <primary sortas="b-psicc">psicc</primary>
-    </indexterm>
-    <indexterm zone="lcms2">
-      <primary sortas="b-tificc">tificc</primary>
-    </indexterm>
-    <indexterm zone="lcms2">
-      <primary sortas="b-transicc">transicc</primary>
-    </indexterm>
-    <indexterm zone="lcms2">
-      <primary sortas="c-liblcms2.so">liblcms2.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/bin/jpgicc
-/usr/bin/linkicc
-/usr/bin/psicc
-/usr/bin/tificc
-/usr/bin/transicc
-/usr/include/lcms2.h
-/usr/include/lcms2_plugin.h
-/usr/lib/liblcms2.so
-/usr/lib/pkgconfig/lcms2.pc
-/usr/share/man/man1/jpgicc.1
-/usr/share/man/man1/tificc.1</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/liblcms2.la</userinput></screen>
 
   </sect2>
 
