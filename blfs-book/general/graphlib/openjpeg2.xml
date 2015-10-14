@@ -14,10 +14,10 @@
   <!ENTITY openjpeg2-time          "0.1 SBU">
 ]>
 
-<sect1 id="openjpeg2" xreflabel="OpenJPEG-&openjpeg2-version;">
+<sect1 id="openjpeg2" xreflabel="openjpeg-&openjpeg2-version;">
   <?dbhtml filename="openjpeg2.html"?>
 
-  <title>OpenJPEG-&openjpeg2-version;</title>
+  <title>openjpeg-&openjpeg2-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -76,57 +76,29 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>mkdir build &amp;&amp;
 cd build &amp;&amp;
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. &amp;&amp;
-make</userinput></screen>
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX= ..</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp openjpeg-&openjpeg2-version; "make -j1 install"
 cd ../doc &amp;&amp;
 for man in man/man?/* ; do
-    install -v -D -m 644 $man /usr/share/$man
+    porg -lp+ openjpeg-&openjpeg2-version; "install -v -D -m 644 $man /share/$man"
 done</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="openjpeg2">
-      <primary sortas="b-opj_compress">opj_compress</primary>
-    </indexterm>
-    <indexterm zone="openjpeg2">
-      <primary sortas="b-opj_decompress">opj_decompress</primary>
-    </indexterm>
-    <indexterm zone="openjpeg2">
-      <primary sortas="b-opj_dump">opj_dump</primary>
-    </indexterm>
-    <indexterm zone="openjpeg2">
-      <primary sortas="c-libopenjp2.so">libopenjp2.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/opj_compress
-/usr/bin/opj_decompress
-/usr/bin/opj_dump
-/usr/include/openjpeg-2.1/
-/usr/lib/libopenjp2.so
-/usr/lib/openjpeg-2.1/
-/usr/lib/pkgconfig/libopenjp2.pc
-/usr/share/man/man1/opj_compress.1
-/usr/share/man/man1/opj_decompress.1
-/usr/share/man/man1/opj_dump.1
-/usr/share/man/man3/libopenjp2.3</literal></screen>
 
   </sect2>
 
