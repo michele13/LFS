@@ -84,7 +84,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="yasm"/>
     </para>
 
@@ -94,20 +94,25 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../x264-snapshot-&x264-version;-stable-no_bash-1.patch &amp;&amp;
-./configure --prefix=/usr \
+./configure --prefix= \
             --enable-shared \
-            --disable-cli &amp;&amp;
-make</userinput></screen>
+            --disable-cli</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp x264-&x264-version; "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -124,24 +129,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="x264">
-      <primary sortas="c-libx264.so">libx264.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/x264_config.h
-/usr/include/x264.h
-/usr/lib/libx264.so
-/usr/lib/pkgconfig/x264.pc</literal></screen>
 
   </sect2>
 
