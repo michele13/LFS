@@ -1,0 +1,27 @@
+Submitted By:            Igor Živković
+Date:                    2015-10-14
+Initial Package Version: 2.8
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Fixes configure output on systems lacking coreutils.
+
+--- ffmpeg-2.8.orig/configure
++++ ffmpeg-2.8/configure
+@@ -423,7 +423,7 @@
+ 
+ log_file(){
+     log BEGIN $1
+-    pr -n -t $1 >> $logfile
++    cat $1 | awk '{printf "%5d\t%s\n", NR, $0}' >> $logfile
+     log END $1
+ }
+ 
+@@ -3032,7 +3032,7 @@
+ }
+ 
+ print_3_columns() {
+-    cat | tr ' ' '\n' | sort | pr -r -3 -t
++    cat | tr ' ' '\n' | sort | xargs printf "%-24s%-24s%-24s\n" 
+ }
+ 
+ show_list() {
