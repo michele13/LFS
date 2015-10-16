@@ -4,37 +4,43 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY unrar-homepage      "http://www.rarlab.com/">
+  <!ENTITY unrar-wikipedia     "https://en.wikipedia.org/wiki/Unrar">
   <!ENTITY unrar-download-http "http://www.rarlab.com/rar/unrarsrc-&unrar-version;.tar.gz">
   <!ENTITY unrar-download-ftp  " ">
-  <!ENTITY unrar-md5sum        "e19f3f4fd58e85c1ecdcd0ef006998a9">
-  <!ENTITY unrar-size          "220 KB">
+  <!ENTITY unrar-md5sum        "3c58a7e9e6bdf34dee7db72f299b05e8">
+  <!ENTITY unrar-size          "218 KB">
   <!ENTITY unrar-buildsize     "2.4 MB">
-  <!ENTITY unrar-time          "less than 0.1 SBU">
+  <!ENTITY unrar-time          "0.1 SBU">
 ]>
 
-<sect1 id="unrar" xreflabel="UnRar-&unrar-version;">
+<sect1 id="unrar" xreflabel="unrar-&unrar-version;">
   <?dbhtml filename="unrar.html"?>
 
-  <title>UnRar-&unrar-version;</title>
-
-  <indexterm zone="unrar">
-    <primary sortas="a-UnRar">UnRar</primary>
-  </indexterm>
+  <title>unrar-&unrar-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to UnRar</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>UnRar</application> package contains a
-      <filename>RAR</filename> extraction utility used for
-      extracting files from <filename>RAR</filename> archives.
-      <filename>RAR</filename> archives are usually created
-      with <application>WinRAR</application>, primarily in a
-      Windows environment.
+      The UnRar package contains a <filename>RAR</filename> extraction utility
+      used for extracting files from <filename>RAR</filename> archives.
+      <filename>RAR</filename> archives are usually created with WinRAR,
+      primarily in a Windows environment.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&unrar-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&unrar-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&unrar-download-http;"/>
@@ -69,67 +75,20 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of UnRar</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>UnRar</application> by running the following
-      commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>make -f makefile</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Install the package:
     </para>
 
-    <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
-    </para>
-
-<screen role="root"><userinput>install -v -m755 unrar /usr/bin</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>
-          unrar
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          None
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="unrar-prog">
-        <term><command>unrar</command></term>
-        <listitem>
-          <para>
-            uncompresses a <filename>RAR</filename> archive.
-          </para>
-          <indexterm zone="unrar unrar-prog">
-            <primary sortas="b-unrar">unrar</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen role="root"><userinput>porg -lp unrar-&unrar-version; "install -v -m755 unrar /bin"</userinput></screen>
 
   </sect2>
 
