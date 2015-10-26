@@ -71,6 +71,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;x265/x265_&x265-version;-enable_static-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -92,9 +102,12 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>mkdir bld &amp;&amp;
+<screen><userinput>patch -p1 -i x265_&x265-version;-enable_static-1.patch &amp;&amp;
+mkdir bld &amp;&amp;
 cd bld &amp;&amp;
-cmake -DCMAKE_INSTALL_PREFIX= ../source</userinput></screen>
+cmake -DCMAKE_INSTALL_PREFIX= \
+      -DENABLE_STATIC=OFF \
+      ../source</userinput></screen>
 
     <para>
       Compile the package:
