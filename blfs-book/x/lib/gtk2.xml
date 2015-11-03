@@ -14,10 +14,10 @@
   <!ENTITY gtk2-time          "2.8 SBU">
 ]>
 
-<sect1 id="gtk2" xreflabel="GTK+-&gtk2-version;">
+<sect1 id="gtk2" xreflabel="gtk+-&gtk2-version;">
   <?dbhtml filename="gtk2.html" ?>
 
-  <title>GTK+-&gtk2-version;</title>
+  <title>gtk+-&gtk2-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -112,9 +112,7 @@ sed "s/ install-data$//" -i po-properties/Makefile.in.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>sed -i 's#l \(gtk-.*\).sgml#&amp; -o \1#' docs/faq/Makefile.in docs/tutorial/Makefile.in &amp;&amp;
-./configure --prefix=/usr \
-            --sysconfdir=/etc</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
       Compile the package:
@@ -126,10 +124,10 @@ sed "s/ install-data$//" -i po-properties/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libgailutil.la
-rm -v /usr/lib/libgdk-x11-2.0.la
-rm -v /usr/lib/libgtk-x11-2.0.la</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libgailutil.la &amp;&amp;
+rm -v /lib/libgdk-x11-2.0.la &amp;&amp;
+rm -v /lib/libgtk-x11-2.0.la"</userinput></screen>
 
     <note>
       <para>
@@ -141,21 +139,6 @@ rm -v /usr/lib/libgtk-x11-2.0.la</userinput></screen>
 
 <screen role="root"><userinput>gtk-query-immodules-2.0 --update-cache</userinput></screen>
     </note>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i 's#l \(gtk-.*\).sgml#&amp; -o \1#'
-        docs/{faq,tutorial}/Makefile.in</command>: If you have docbook-utils
-        installed (specifically, if configure finds
-        <command>db2html</command>) then it will try to use it to rebuild some
-        of its HTML documentation and fail due to bugs in some of the
-        <filename>Makefile</filename>s. This <command>sed</command> fixes the
-        <filename>Makefile</filename>s.
-      </para>
-
-    </sect3>
 
   </sect2>
 
@@ -172,7 +155,7 @@ rm -v /usr/lib/libgtk-x11-2.0.la</userinput></screen>
     </para>
 
 <screen><userinput>cat &gt; ~/.gtkrc-2.0 &lt;&lt; "EOF"
-<literal>include "/usr/share/themes/<replaceable>Glider</replaceable>/gtk-2.0/gtkrc"
+<literal>include "/share/themes/<replaceable>Glider</replaceable>/gtk-2.0/gtkrc"
 gtk-icon-theme-name = "<replaceable>hicolor</replaceable>"</literal>
 EOF</userinput></screen>
 
@@ -187,7 +170,7 @@ EOF</userinput></screen>
     </para>
 
 <screen role="root"><userinput>cat &gt; /etc/gtk-2.0/gtkrc &lt;&lt; "EOF"
-<literal>include "/usr/share/themes/<replaceable>Clearlooks</replaceable>/gtk-2.0/gtkrc"
+<literal>include "/share/themes/<replaceable>Clearlooks</replaceable>/gtk-2.0/gtkrc"
 gtk-icon-theme-name = "<replaceable>elementary</replaceable>"</literal>
 EOF</userinput></screen>
 
@@ -195,88 +178,6 @@ EOF</userinput></screen>
       <xref linkend="lxappearance"/> is a GTK+ application that can help you
       choose the themes you like.
     </para>
-
-    <sect3>
-      <title>Config Files</title>
-
-      <para>
-        <filename>~/.gtkrc-2.0</filename>,
-        <filename>/etc/gtk-2.0/gtkrc</filename>, and
-        <filename>/usr/share/gtk-2.0/gtkrc</filename>
-      </para>
-
-      <indexterm zone="gtk2">
-        <primary sortas="e-AA.gtkrc-2.0">~/.gtkrc-2.0</primary>
-      </indexterm>
-
-      <indexterm zone="gtk2">
-        <primary sortas="e-etc-gtk-2.0-gtkrc">/etc/gtk-2.0/gtkrc</primary>
-      </indexterm>
-
-      <indexterm zone="gtk2">
-        <primary sortas="e-usr-share-gtk-2.0-gtkrc">/usr/share/gtk-2.0/gtkrc</primary>
-      </indexterm>
-
-    </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="gtk2">
-      <primary sortas="b-gtk-builder-convert">gtk-builder-convert</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="b-gtk-demo">gtk-demo</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="b-gtk-query-immodules-2.0">gtk-query-immodules-2.0</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="b-gtk-update-icon-cache">gtk-update-icon-cache</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="c-libgailutil.so">libgailutil.so</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="c-libgdk-x11-2.0.so">libgdk-x11-2.0.so</primary>
-    </indexterm>
-    <indexterm zone="gtk2">
-      <primary sortas="c-libgtk-x11-2.0.so">libgtk-x11-2.0.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/gtk-2.0/
-/usr/bin/gtk-builder-convert
-/usr/bin/gtk-demo
-/usr/bin/gtk-query-immodules-2.0
-/usr/bin/gtk-update-icon-cache
-/usr/include/gail-1.0/
-/usr/include/gtk-2.0/
-/usr/include/gtk-unix-print-2.0/
-/usr/lib/gtk-2.0/
-/usr/lib/libgailutil.so
-/usr/lib/libgdk-x11-2.0.so
-/usr/lib/libgtk-x11-2.0.so
-/usr/lib/pkgconfig/gail.pc
-/usr/lib/pkgconfig/gdk-2.0.pc
-/usr/lib/pkgconfig/gdk-x11-2.0.pc
-/usr/lib/pkgconfig/gtk+-2.0.pc
-/usr/lib/pkgconfig/gtk+-unix-print-2.0.pc
-/usr/lib/pkgconfig/gtk+-x11-2.0.pc
-/usr/share/aclocal/gtk-2.0.m4
-/usr/share/gtk-2.0/
-/usr/share/man/man1/gtk-builder-convert.1
-/usr/share/man/man1/gtk-query-immodules-2.0.1
-/usr/share/man/man1/gtk-update-icon-cache.1
-/usr/share/themes/
-/usr/share/themes/Default/
-/usr/share/themes/Emacs/ 
-/usr/share/themes/Raleigh/</literal></screen>
 
   </sect2>
 
