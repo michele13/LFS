@@ -14,10 +14,10 @@
   <!ENTITY zip-time          "0.1 SBU">
 ]>
 
-<sect1 id="zip" xreflabel="Zip-&zip-version;">
+<sect1 id="zip" xreflabel="zip-&zip-version;">
   <?dbhtml filename="zip.html"?>
 
-  <title>Zip-&zip-version;</title>
+  <title>zip-&zip-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -77,62 +77,17 @@
     <title>Installation</title>
 
     <para>
-      Install Zip by running the following commands:
+      Compile the package:
     </para>
 
 <screen><userinput>make -f unix/Makefile generic_gcc</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make prefix=/usr \
-     MANDIR=/usr/share/man/man1 -f unix/Makefile install</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>make prefix=/usr -f unix/Makefile install</command>: This
-        command overrides the <varname>prefix</varname> variable that is set to
-        <filename class='directory'>/usr/local</filename> in the
-        <filename>unix/Makefile</filename>. Alternatives to
-        <option>generic_gcc</option> can be seen with a <command>make -f
-        unix/Makefile list</command> command.
-      </para>
-
-    </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="zip">
-      <primary sortas="b-zip">zip</primary>
-    </indexterm>
-    <indexterm zone="zip">
-      <primary sortas="b-zipcloak">zipcloak</primary>
-    </indexterm>
-    <indexterm zone="zip">
-      <primary sortas="b-zipnote">zipnote</primary>
-    </indexterm>
-    <indexterm zone="zip">
-      <primary sortas="b-zipsplit">zipsplit</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/zip
-/usr/bin/zipcloak
-/usr/bin/zipnote
-/usr/bin/zipsplit
-/usr/share/man/man1/zip.1
-/usr/share/man/man1/zipcloak.1
-/usr/share/man/man1/zipnote.1
-/usr/share/man/man1/zipsplit.1</literal></screen>
+<screen role="root"><userinput>porg -lp zip-&zip-version; "make prefix= \
+     MANDIR=/share/man/man1 -f unix/Makefile install"</userinput></screen>
 
   </sect2>
 
