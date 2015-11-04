@@ -87,7 +87,7 @@ sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinpu
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static \
             --disable-nls</userinput></screen>
 
@@ -101,9 +101,9 @@ sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinpu
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libfl.la
-rm -v /usr/lib/libfl_pic.la</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfl.la &amp;&amp;
+rm -v /lib/libfl_pic.la"</userinput></screen>
 
     <para>
       A few programs do not know about flex yet and try to run its predecessor,
@@ -111,36 +111,7 @@ rm -v /usr/lib/libfl_pic.la</userinput></screen>
       runs flex in lex emulation mode: 
     </para>
 
-<screen role="root"><userinput>ln -sv flex /usr/bin/lex</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="flex">
-      <primary sortas="b-flex">flex</primary>
-    </indexterm>
-    <indexterm zone="flex">
-      <primary sortas="b-flex++">flex++</primary>
-    </indexterm>
-    <indexterm zone="flex">
-      <primary sortas="c-libfl_pic.so">libfl_pic.so</primary>
-    </indexterm>
-    <indexterm zone="flex">
-      <primary sortas="c-libfl.so">libfl.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/flex
-/usr/bin/flex++
-/usr/include/FlexLexer.h
-/usr/lib/libfl_pic.so
-/usr/lib/libfl.so
-/usr/share/man/man1/flex.1</literal></screen>
+<screen role="root"><userinput>porg -lD+ "ln -sv flex /bin/lex"</userinput></screen>
 
   </sect2>
 
