@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gst-plugins-base-homepage      "http://gstreamer.freedesktop.org/">
+  <!ENTITY gst-plugins-base-wikipedia     "https://en.wikipedia.org/wiki/GStreamer">
+  <!ENTITY gst-plugins-base-download-http "&gstreamer-dl;/gst-plugins-base/gst-plugins-base-&gst-plugins-base-version;.tar.xz">
+  <!ENTITY gst-plugins-base-download-ftp  " ">
+  <!ENTITY gst-plugins-base-md5sum        "3c223f1d2716e1861ba84287ea02b164">
+  <!ENTITY gst-plugins-base-size          "2.7 MB">
+  <!ENTITY gst-plugins-base-buildsize     "97 MB">
+  <!ENTITY gst-plugins-base-time          "1.1 SBU">
+]>
+
+<sect1 id="gst-plugins-base" xreflabel="gst-plugins-base-&gst-plugins-base-version;">
+  <?dbhtml filename="gst-plugins-base.html"?>
+
+  <title>gst-plugins-base-&gst-plugins-base-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The GStreamer Base Plug-ins is a well-groomed and well-maintained
+      collection of GStreamer plug-ins and elements, spanning the range of
+      possible types of elements one would want to write for GStreamer. You
+      will need at least one of Good, Bad, Ugly or Libav plugins for GStreamer
+      applications to function properly.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gst-plugins-base-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gst-plugins-base-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gst-plugins-base-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gst-plugins-base-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gst-plugins-base-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gst-plugins-base-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gst-plugins-base-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gst-plugins-base-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="gstreamer"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="iso-codes"/>,
+      <xref linkend="libxv"/>,
+      <xref linkend="alsa-lib"/>,
+      <xref linkend="cdparanoia"/>,
+      <xref linkend="libogg"/>,
+      <xref linkend="pango"/>,
+      <xref linkend="libtheora"/>,
+      <xref linkend="libvorbis"/>,
+      <xref linkend="freetype2"/>,
+      <ulink url="http://wiki.xiph.org/Tremor">Tremor</ulink>,
+      <ulink url="http://sourceforge.net/projects/libvisual/">libvisual</ulink>,
+      <xref linkend="orc"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <note><para>If you need a plugin for a given dependency, that dependency
+      needs to be installed before this application.
+    </para></note>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local//" -i docs/libs/Makefile.in
+sed "s/ install-data-local//" -i docs/plugins/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libgstallocators-1.0.la &amp;&amp;
+rm -v /lib/libgstapp-1.0.la &amp;&amp;
+rm -v /lib/libgstaudio-1.0.la &amp;&amp;
+rm -v /lib/libgstfft-1.0.la &amp;&amp;
+rm -v /lib/libgstpbutils-1.0.la &amp;&amp;
+rm -v /lib/libgstriff-1.0.la &amp;&amp;
+rm -v /lib/libgstrtp-1.0.la &amp;&amp;
+rm -v /lib/libgstrtsp-1.0.la &amp;&amp;
+rm -v /lib/libgstsdp-1.0.la &amp;&amp;
+rm -v /lib/libgsttag-1.0.la &amp;&amp;
+rm -v /lib/libgstvideo-1.0.la"</userinput></screen>
+
+  </sect2>
+
+</sect1>
