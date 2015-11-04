@@ -89,20 +89,33 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --disable-nls \
-            --disable-alsaconf \
-            --disable-xmlto \
-            --with-curses=ncursesw &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/install-udevrulesDATA$//" -i alsactl/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin \
+            --disable-nls \
+            --disable-alsaconf \
+            --disable-xmlto \
+            --with-curses=ncursesw</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -145,7 +158,7 @@ make</userinput></screen>
       class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>alsactl -L store</userinput></screen>
+<screen role="root"><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "alsactl -L store"</userinput></screen>
 
     <para>
       The volume settings should be restored from the saved state during boot.
@@ -169,7 +182,7 @@ make</userinput></screen>
       </para>
     </note>
 
-    <sect3 id="alsa-utils-init">
+    <sect3>
       <title>Boot Script</title>
 
       <para>
@@ -178,103 +191,9 @@ make</userinput></screen>
         script from the <xref linkend="bootscripts"/> package.
       </para>
 
-<screen role="root"><userinput>make install-alsa</userinput></screen>
+<screen role="root"><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "make install-alsa"</userinput></screen>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-aconnect">aconnect</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-alsaloop">alsaloop</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-alsamixer">alsamixer</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-alsaucm">alsaucm</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-amidi">amidi</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-amixer">amixer</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-aplay">aplay</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-aplaymidi">aplaymidi</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-arecord">arecord</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-arecordmidi">arecordmidi</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-aseqdump">aseqdump</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-aseqnet">aseqnet</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-iecset">iecset</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-speaker-test">speaker-test</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="b-alsactl">alsactl</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="f-alsa">alsa</primary>
-    </indexterm>
-    <indexterm zone="alsa-utils">
-      <primary sortas="g-var-lib-alsa-asound.state">/var/lib/alsa/asound.state</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/aconnect
-/usr/bin/alsaloop
-/usr/bin/alsamixer
-/usr/bin/alsaucm
-/usr/bin/amidi
-/usr/bin/amixer
-/usr/bin/aplay
-/usr/bin/aplaymidi
-/usr/bin/arecord
-/usr/bin/arecordmidi
-/usr/bin/aseqdump
-/usr/bin/aseqnet
-/usr/bin/iecset
-/usr/bin/speaker-test
-/usr/sbin/alsactl
-/usr/share/alsa/
-/usr/share/man/man1/aconnect.1
-/usr/share/man/man1/alsactl.1
-/usr/share/man/man1/alsaloop.1
-/usr/share/man/man1/alsamixer.1
-/usr/share/man/man1/amidi.1
-/usr/share/man/man1/amixer.1
-/usr/share/man/man1/aplay.1
-/usr/share/man/man1/aplaymidi.1
-/usr/share/man/man1/arecord.1
-/usr/share/man/man1/arecordmidi.1
-/usr/share/man/man1/aseqdump.1
-/usr/share/man/man1/aseqnet.1
-/usr/share/man/man1/iecset.1
-/usr/share/man/man1/speaker-test.1
-/usr/share/sounds/alsa/
-/var/lib/alsa/</literal></screen>
 
   </sect2>
 
