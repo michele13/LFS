@@ -14,10 +14,10 @@
   <!ENTITY nspr-time          "0.1 SBU">
 ]>
 
-<sect1 id="nspr" xreflabel="NSPR-&nspr-version;">
+<sect1 id="nspr" xreflabel="nspr-&nspr-version;">
   <?dbhtml filename="nspr.html"?>
 
-  <title>NSPR-&nspr-version;</title>
+  <title>nspr-&nspr-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -77,23 +77,28 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>cd nspr &amp;&amp;
 sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in &amp;&amp;
 sed -i 's#$(LIBRARY) ##' config/rules.mk &amp;&amp;
-./configure --prefix=/usr \
+./configure --prefix= \
             --with-mozilla \
             --with-pthreads \
-            $([ $(uname -m) = x86_64 ] &amp;&amp; echo --enable-64bit) &amp;&amp;
-make</userinput></screen>
+            $([ $(uname -m) = x86_64 ] &amp;&amp; echo --enable-64bit)</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -130,36 +135,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="nspr">
-      <primary sortas="b-nspr-config">nspr-config</primary>
-    </indexterm>
-    <indexterm zone="nspr">
-      <primary sortas="c-libnspr4.so">libnspr4.so</primary>
-    </indexterm>
-    <indexterm zone="nspr">
-      <primary sortas="c-libplc4.so">libplc4.so</primary>
-    </indexterm>
-    <indexterm zone="nspr">
-      <primary sortas="c-libplds4.so">libplds4.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/nspr-config
-/usr/include/nspr/
-/usr/lib/libnspr4.so
-/usr/lib/libplc4.so
-/usr/lib/libplds4.so
-/usr/lib/pkgconfig/nspr.pc
-/usr/share/aclocal/nspr.m4</literal></screen>
 
   </sect2>
 
