@@ -8,10 +8,10 @@
   <!ENTITY libvpx-wikipedia     "http://en.wikipedia.org/wiki/VP8">
   <!ENTITY libvpx-download-http "http://storage.googleapis.com/downloads.webmproject.org/releases/webm/libvpx-&libvpx-version;.tar.bz2">
   <!ENTITY libvpx-download-ftp  " ">
-  <!ENTITY libvpx-md5sum        "63b1d7f59636a42eeeee9225cc14e7de">
+  <!ENTITY libvpx-md5sum        "49e59dd184caa255886683facea56fca">
   <!ENTITY libvpx-size          "2.0 MB">
   <!ENTITY libvpx-buildsize     "38 MB">
-  <!ENTITY libvpx-time          "0.9 SBU">
+  <!ENTITY libvpx-time          "1.2 SBU">
 ]>
 
 <sect1 id="libvpx" xreflabel="libvpx-&libvpx-version;">
@@ -93,12 +93,12 @@
 sed -e "s/cat -n \$1/cat \$1 | awk '{ printf(\"%6d\\\011%s\\\n\", NR-0, \$0) }'/" \
     -e "/must be a subdirectory of/c:" \
     -i build/make/configure.sh &amp;&amp;
-mkdir ../libvpx-build &amp;&amp;
-cd ../libvpx-build &amp;&amp;
-../libvpx-&libvpx-version;/configure --prefix=/ \
-                    --disable-static \
-                    --disable-examples \
-                    --enable-shared</userinput></screen>
+mkdir libvpx-build &amp;&amp;
+cd libvpx-build &amp;&amp;
+../configure --prefix=/ \
+             --disable-static \
+             --disable-examples \
+             --enable-shared</userinput></screen>
 
     <para>
       Compile the package:
@@ -121,7 +121,7 @@ cd ../libvpx-build &amp;&amp;
       </para>
 
       <para>
-        <command>mkdir ../libvpx-build &amp;&amp; cd ../libvpx-build</command>:
+        <command>mkdir libvpx-build &amp;&amp; cd libvpx-build</command>:
         The libvpx developers recommend building in a dedicated build directory.
       </para>
 
