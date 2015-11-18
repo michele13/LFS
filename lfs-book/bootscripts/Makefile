@@ -23,7 +23,6 @@ create-dirs:
 	ln -sfn       rc.d/init.d ${EXTDIR}/init.d
 
 files: create-dirs 
-	install -m ${MODE} lfs/init.d/acpid         ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/cleanfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/halt          ${EXTDIR}/rc.d/init.d/
@@ -65,13 +64,11 @@ rcS: files
 
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc3.d/S18acpid
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
 
 rc0: files
-	ln -sf ../init.d/acpid       ${EXTDIR}/rc.d/rc0.d/S32acpid
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/S45random
 	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc0.d/S46ntpd
 	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc0.d/S46setclock

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY acpid-homepage      "http://sourceforge.net/projects/acpid2/">
+  <!ENTITY acpid-wikipedia     "https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">
+  <!ENTITY acpid-download-http "&sourceforge-repo;/acpid2/acpid-&acpid-version;.tar.xz">
+  <!ENTITY acpid-download-ftp  " ">
+  <!ENTITY acpid-md5sum        "69bb0cc4a0a89eb2dfecc4851087f568">
+  <!ENTITY acpid-size          "152 KB">
+  <!ENTITY acpid-buildsize     "2.5 MB">
+  <!ENTITY acpid-time          "0.1 SBU">
+]>
+
+<sect1 id="acpid" xreflabel="acpid-&acpid-version;">
+  <?dbhtml filename="acpid.html"?>
+
+  <title>acpid-&acpid-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The acpid (Advanced Configuration and Power Interface event daemon) is a
+      completely flexible, totally extensible daemon for delivering ACPI
+      events. It listens on netlink interface and when an event occurs,
+      executes programs to handle the event. The programs it executes are
+      configured through a set of configuration files, which can be dropped
+      into place by packages or by the user.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&acpid-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&acpid-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&acpid-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&acpid-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &acpid-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &acpid-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &acpid-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &acpid-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"
+install -v -m755 -d /etc/acpi/events</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      acpid is configured by user defined events. Place event files under
+      <filename class="directory">/etc/acpi/events</filename> directory. If an
+      event occurs, <command>acpid</command> recurses through the event files
+      in order to see if the regex defined after "event" matches. If they do,
+      action is executed.
+    </para>
+
+    <para>
+      The following brief example will suspend the system when the laptop lid
+      is closed (it requires <xref linkend="pm-utils"/>):
+    </para>
+
+<screen role="root"><userinput>cat &gt; /etc/acpi/events/lid &lt;&lt; "EOF"
+<literal>event=button/lid
+action=/etc/acpi/lid.sh</literal>
+EOF
+ls /etc/acpi/events/lid | porg -lp+ acpid-&acpid-version;
+
+cat &gt; /etc/acpi/lid.sh &lt;&lt; "EOF"
+<literal>#!/bin/sh
+/bin/grep -q open /proc/acpi/button/lid/LID/state &amp;&amp; exit 0
+/usr/sbin/pm-suspend</literal>
+EOF
+chmod +x /etc/acpi/lid.sh
+ls /etc/acpi/lid.sh | porg -lp+ acpid-&acpid-version;</userinput></screen>
+
+    <para>
+      Unfortunately, not every computer labels ACPI events in the same way. To
+      determine how your buttons are recognized, use the
+      <command>acpi_listen</command> tool. Also, look in package
+      documentation's samples directory for more examples.
+    </para>
+
+    <sect3>
+      <title>Boot Script</title>
+
+      <para>
+        To automatically start <command>acpid</command> when the system is
+        rebooted, install the <filename>/etc/rc.d/init.d/acpid</filename>
+        boot script from the <xref linkend="bootscripts"/> package.
+      </para>
+
+<screen role="root"><userinput>porg -lp+ acpid-&acpid-version; "make install-acpid"</userinput></screen>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>

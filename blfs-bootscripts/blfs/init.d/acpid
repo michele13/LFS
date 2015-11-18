@@ -22,13 +22,13 @@
 
 . /lib/lsb/init-functions
 
-#$LastChangedBy$
-#$Date$
+#$LastChangedBy: igor $
+#$Date: 2013-07-11 00:04:20 +0200 (Thu, 11 Jul 2013) $
 
 case "$1" in
    start)
       log_info_msg "Starting ACPI event daemon..."
-      start_daemon `which acpid`
+      start_daemon /usr/sbin/acpid
       sleep 1
       pidofproc -p "/run/acpid.pid" > /dev/null
       evaluate_retval
@@ -36,7 +36,7 @@ case "$1" in
 
    stop)
       log_info_msg "Stopping ACPI event daemon..."
-      killproc -p "/run/acpid.pid" `which acpid`
+      killproc -p "/run/acpid.pid" /usr/sbin/acpid
       evaluate_retval
       ;;
 
@@ -47,7 +47,7 @@ case "$1" in
       ;;
 
    status)
-      statusproc acpid
+      statusproc /usr/sbin/acpid
       ;;
 
    *)
