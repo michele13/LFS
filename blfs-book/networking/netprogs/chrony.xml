@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY chrony-homepage      "http://chrony.tuxfamily.org/">
+  <!ENTITY chrony-wikipedia     "https://en.wikipedia.org/wiki/Network_Time_Protocol">
+  <!ENTITY chrony-download-http "http://download.tuxfamily.org/chrony/chrony-&chrony-version;.tar.gz">
+  <!ENTITY chrony-download-ftp  " ">
+  <!ENTITY chrony-md5sum        "17bc77d3d2ce942675f9600b60452717">
+  <!ENTITY chrony-size          "332 KB">
+  <!ENTITY chrony-buildsize     " MB">
+  <!ENTITY chrony-time          " SBU">
+]>
+
+<sect1 id="chrony" xreflabel="chrony-&chrony-version;">
+  <?dbhtml filename="chrony.html"?>
+
+  <title>chrony-&chrony-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The chrony package contains a client and server to keep the time
+      synchronized between various computers over a network. This package is
+      the official reference implementation of the NTP protocol.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&chrony-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&chrony-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&chrony-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&chrony-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &chrony-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &chrony-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &chrony-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &chrony-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="nss"/>, and
+      <xref linkend="readline"/> or
+      <xref linkend="libedit"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+<!--
+    <para>
+      There should be a dedicated user and group to take control
+      of the <command>chronyd</command> daemon after it is
+      started. Issue the following commands as the
+      <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>groupadd -g 87 chrony &amp;&amp;
+useradd -c "Network Time Protocol" -d /var/lib/chrony -u 87 \
+        -g chrony -s /bin/false chrony</userinput></screen>
+-->
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=/ --sbindir=/bin</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<!--
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>i
+        <parameter>- -enable-linuxcaps</parameter>: chronyd is run as user
+        chrony, so use Linux capabilities for non-root clock control.
+      </para>
+
+      <para>
+        <option>- -with-lineeditlibs=readline</option>: This option enables
+        Readline support for <command>chronydc</command> and
+        <command>chronyq</command> programs. If omitted, libedit will be used
+        if installed, otherwise no readline capabilites will be compiled.
+      </para>
+
+    </sect3>
+-->
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+<!--
+    <sect3>
+      <title>Configuration Information</title>
+
+      <para>The following configuration file first defines various chrony
+      servers with open access from different continents. Second, it
+      creates a drift file where <command>chronyd</command> stores the
+      frequency offset and a pid file to store the
+      <command>chronyd</command> process ID. Third, it defines the location
+      for the leap-second definition file
+      <filename>/etc/chrony.leapseconds</filename>, that the
+      <command>update-leap</command> script checks and updates, when
+      necessary. This script can be run as a cron job and the
+      <application>chrony</application> developers recommend a frequency of
+      about three weeks for the updates. Since the documentation included
+      with the package is sparse, visit the chrony website at
+      <ulink url="http://www.chrony.org/"/> and
+      <ulink url="http://www.pool.chrony.org/"/> for more information.</para>
+
+<screen role="root"><userinput>cat &gt; /etc/chrony.conf &lt;&lt; "EOF"
+<literal># Asia
+server 0.asia.pool.chrony.org
+
+# Australia
+server 0.oceania.pool.chrony.org
+
+# Europe
+server 0.europe.pool.chrony.org
+
+# North America
+server 0.north-america.pool.chrony.org
+
+# South America
+server 2.south-america.pool.chrony.org
+
+driftfile /var/lib/chrony/chrony.drift
+pidfile   /var/run/chronyd.pid
+
+leapfile  /etc/chrony.leapseconds</literal>
+EOF</userinput></screen>
+
+      <para>
+        You may wish to add a <quote>Security session</quote>. For
+        explanations, see
+        <ulink url="https://www.eecis.udel.edu/~mills/chrony/html/accopt.html#restrict"/>.
+      </para>
+
+<screen role="root"><userinput>cat &gt;&gt; /etc/chrony.conf &lt;&lt; "EOF"
+<literal># Security session
+restrict    default limited kod nomodify notrap nopeer noquery
+restrict -6 default limited kod nomodify notrap nopeer noquery
+
+restrict 127.0.0.1
+restrict ::1</literal>
+EOF</userinput></screen>
+
+    </sect3>
+-->
+    <sect3>
+      <title>Synchronizing the Time</title>
+<!--
+      <para>There are two options. Option one is to run <command>chronyd</command>
+      continuously and allow it to synchronize the time in a gradual manner. The
+      other option is to run <command>chronyd</command> periodically (using cron)
+      and update the time each time <command>chronyd</command> is scheduled.</para>
+
+      <para>If you choose Option one, then install the
+      <filename>/etc/rc.d/init.d/chrony</filename>
+      init script included in the
+      <xref linkend="bootscripts"/> package.</para>
+
+      <indexterm zone="chrony chrony-init">
+        <primary sortas="f-chrony">chrony</primary>
+      </indexterm>
+
+<screen role="root"><userinput>make install-chronyd</userinput></screen>
+
+      <para>If you prefer to run <command>chronyd</command> periodically, add the
+      following command to <systemitem class="username">root</systemitem>'s
+      <filename>crontab</filename>:</para>
+
+<screen><literal>chronyd -q</literal></screen>
+-->
+      <para>Execute the following command if you would like to set the
+      hardware clock to the current system time at shutdown and reboot:</para>
+
+<screen role="root"><userinput>ln -v -sf ../init.d/setclock /etc/rc.d/rc0.d/S46setclock</userinput></screen>
+
+      <para>The other way around is already set up by LFS.</para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>

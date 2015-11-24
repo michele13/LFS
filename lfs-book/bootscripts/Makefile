@@ -32,7 +32,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/ntpd          ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/oneandonly    ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
@@ -66,12 +65,9 @@ rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc3.d/S26ntpd
 
 rc0: files
 	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/S45random
-	ln -sf ../init.d/ntpd        ${EXTDIR}/rc.d/rc0.d/S46ntpd
-	ln -sf ../init.d/setclock    ${EXTDIR}/rc.d/rc0.d/S46setclock
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc0.d/S80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/S90sysklogd
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S96localnet
