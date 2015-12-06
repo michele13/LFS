@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY thunderbird-homepage      "https://www.mozilla.org/thunderbird/">
+  <!ENTITY thunderbird-wikipedia     "https://en.wikipedia.org/wiki/Mozilla_Thunderbird">
   <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
   <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
   <!ENTITY thunderbird-md5sum        "483373b1485cf2edea77c75a69602870">
@@ -12,26 +14,32 @@
   <!ENTITY thunderbird-time          "72 SBU">
 ]>
 
-<sect1 id="thunderbird" xreflabel="Thunderbird-&thunderbird-version;">
+<sect1 id="thunderbird" xreflabel="thunderbird-&thunderbird-version;">
   <?dbhtml filename="thunderbird.html" ?>
 
-  <title>Thunderbird-&thunderbird-version;</title>
-
-  <indexterm zone="thunderbird">
-    <primary sortas="a-Thunderbird">Thunderbird</primary>
-  </indexterm>
+  <title>thunderbird-&thunderbird-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Thunderbird</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Thunderbird</application> is a stand-alone mail/news client
-      based on the <application>Mozilla</application> codebase. It uses the
-      Gecko rendering engine to enable it to display and compose HTML emails.
+      Thunderbird is a stand-alone mail/news client based on the Mozilla
+      codebase. It uses the Gecko rendering engine to enable it to display and
+      compose HTML emails.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&thunderbird-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&thunderbird-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&thunderbird-download-http;"/>
@@ -64,10 +72,10 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Thunderbird Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="alsa-lib"/>,
       <xref linkend="mesa"/>,
       <xref linkend="gtk2"/>,
@@ -76,7 +84,7 @@
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="libevent"/>,
       <xref linkend="libvpx"/>,
       <xref linkend="nspr"/>,
@@ -86,33 +94,30 @@
 
     <note>
       <para>
-        If you don't install recommended dependencies,
-        then internal copies of those packages will
-        be used. They might be tested to work, but
-        they can be out of date or contain security
-        holes.
+        If you don't install recommended dependencies, then internal copies of
+        those packages will be used. They might be tested to work, but they can
+        be out of date or contain security holes.
       </para>
     </note>
 
     <note>
       <para>
-        With <application>Thunderbird-31.0</application> and later versions, you
-        must have installed <application>Openssl</application> before
-        <application>Python 2</application>, or the build system will quickly
-        fail with output including "ImportError: cannot import name
-        HTTPSHandler". If you are in any doubt about this (e.g. upgrading
-        from an older version of Thunderbird), check if
-        <filename>/usr/lib/python2.7/lib-dynload/_ssl.so</filename> exists.
-        If it does not, reinstall <xref linkend="python2"/> (after
-        installing <xref linkend="libressl"/>  - the latest version of any
-        <emphasis>currently maintained</emphasis> version of Openssl should
-        be satisfactory if already installed - if that package has not already
+        With Thunderbird-31.0 and later versions, you must have installed
+        libressl before python2, or the build system will quickly fail with
+        output including "ImportError: cannot import name HTTPSHandler". If you
+        are in any doubt about this (e.g. upgrading from an older version of
+        Thunderbird), check if
+        <filename>/usr/lib/python2.7/lib-dynload/_ssl.so</filename> exists. If
+        it does not, reinstall <xref linkend="python2"/> (after
+        installing <xref linkend="libressl"/> - the latest version of any
+        <emphasis>currently maintained</emphasis> version of Openssl should be
+        satisfactory if already installed - if that package has not already
         been installed).
       </para>
     </note>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="curl"/>,
       <xref linkend="cyrus-sasl"/>, and
       <xref linkend="hunspell"/>
@@ -120,17 +125,16 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Thunderbird</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      The configuration of <application>Thunderbird</application> is
-      accomplished by creating a <filename>mozconfig</filename> file containing
-      the desired configuration options. A default
-      <filename>mozconfig</filename> is created below. To see the entire list
-      of available configuration options (and a brief description of each),
-      issue <command>mozilla/configure --help</command>. Create the file with
-      the following command:
+      The configuration of Thunderbird is accomplished by creating a
+      <filename>mozconfig</filename> file containing the desired configuration
+      options. A default <filename>mozconfig</filename> is created below. To
+      see the entire list of available configuration options (and a brief
+      description of each), issue <command>mozilla/configure --help</command>.
+      Create the file with the following command:
     </para>
 
 <screen><userinput>cat &gt; mozconfig &lt;&lt; "EOF"
@@ -150,7 +154,7 @@ ac_add_options --with-system-nss
 ac_add_options --with-system-icu
 
 # The BLFS editors recommend not changing anything below this line:
-ac_add_options --prefix=/usr
+ac_add_options --prefix=
 ac_add_options --enable-application=mail
 
 ac_add_options --disable-crashreporter
@@ -190,78 +194,30 @@ ac_add_options --with-system-zlib</literal>
 EOF</userinput></screen>
 
     <para>
-      Compile <application>Thunderbird</application> by issuing the following
-      commands:
+      Compile the package:
     </para>
 
 <screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Install the package:
     </para>
 
-    <para>
-      Install <application>Thunderbird</application> by running the following
-      commands as the <systemitem class="username">root</systemitem> user:
-    </para>
+<screen role="root"><userinput>porg -lp thunderbird-&thunderbird-version; -E $PWD "make -f client.mk install INSTALL_SDK= &amp;&amp;
+chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
 
-<screen role="root"><userinput>make -f client.mk install INSTALL_SDK= &amp;&amp;
-chown -R 0:0 /usr/lib/thunderbird-&thunderbird-version;</userinput></screen>
+    <sect3>
+      <title>Command Explanations</title>
 
-  </sect2>
+      <para>
+        <command>make -f client.mk</command>: Mozilla products are packaged to
+        allow the use of a configuration file which can be used to pass the
+        configuration settings to the <command>configure</command> command.
+        <command>make</command> uses the <filename>client.mk</filename> file to
+        get initial configuration and setup parameters.
+      </para>
 
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para>
-      <command>make -f client.mk</command>: Mozilla products are packaged to
-      allow the use of a configuration file which can be used to pass the
-      configuration settings to the <command>configure</command> command.
-      <command>make</command> uses the <filename>client.mk</filename> file to
-      get initial configuration and setup parameters.
-    </para>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
-
-      <seglistitem>
-        <seg>
-          thunderbird
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/lib/thunderbird-&thunderbird-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="thunderbird-prog">
-        <term><command>thunderbird</command></term>
-        <listitem>
-          <para>
-            is <application>Mozilla</application>'s email and newsgroup client.
-          </para>
-          <indexterm zone="thunderbird thunderbird-prog">
-            <primary sortas="b-thunderbird">thunderbird</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+    </sect3>
 
   </sect2>
 
