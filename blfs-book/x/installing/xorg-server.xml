@@ -10,14 +10,14 @@
   <!ENTITY xorg-server-download-ftp  "&xorg-download-ftp;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
   <!ENTITY xorg-server-md5sum        "3c1c1057d3ad27380d8dd87ffcc182cd">
   <!ENTITY xorg-server-size          "5.6 MB">
-  <!ENTITY xorg-server-buildsize     "516 MB (with tests)">
-  <!ENTITY xorg-server-time          "1.6 SBU (with tests)">
+  <!ENTITY xorg-server-buildsize     "516 MB">
+  <!ENTITY xorg-server-time          "1.6 SBU">
 ]>
 
-<sect1 id="xorg-server" xreflabel="Xorg-Server-&xorg-server-version;">
+<sect1 id="xorg-server" xreflabel="xorg-server-&xorg-server-version;">
   <?dbhtml filename="xorg-server.html"?>
 
-  <title>Xorg-Server-&xorg-server-version;</title>
+  <title>xorg-server-&xorg-server-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -121,25 +121,29 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG \
+<screen><userinput>./configure --prefix= \
             --with-xkb-output=/var/lib/xkb \
-            --with-default-font-path=/usr/share/fonts \
+            --with-default-font-path=/share/fonts \
             --enable-install-setuid \
             --enable-suid-wrapper \
             --with-sha1=libcrypto \
             --disable-xnest \
-            --disable-dri &amp;&amp;
-make</userinput></screen>
+            --disable-dri</userinput></screen>
 
     <para>
-      Now as the <systemitem class="username">root</systemitem>
-      user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install" &amp;&amp;
 mkdir -pv /etc/X11/xorg.conf.d &amp;&amp;
 cat &gt;&gt; /etc/sysconfig/createfiles &lt;&lt; "EOF"
 <literal>/tmp/.ICE-unix dir 1777 root root
@@ -150,8 +154,8 @@ EOF</userinput></screen>
       <title>Command Explanations</title>
 
       <para>
-        <parameter>--enable-install-setuid</parameter>: The Xorg binary must run
-        as the root user. This switch ensures that the binary is installed
+        <parameter>--enable-install-setuid</parameter>: The Xorg binary must
+        run as the root user. This switch ensures that the binary is installed
         setuid when <command>make</command> is run by an unprivileged user.
       </para>
 
@@ -219,58 +223,8 @@ EOF</userinput></screen>
 <literal>Section "ServerFlags"
         option "AutoAddDevices" "False"
 EndSection</literal>
-EOF</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="xorg-server">
-      <primary sortas="b-X">X</primary>
-    </indexterm>
-    <indexterm zone="xorg-server">
-      <primary sortas="b-Xorg">Xorg</primary>
-    </indexterm>
-    <indexterm zone="xorg-server">
-      <primary sortas="b-Xvfb">Xvfb</primary>
-    </indexterm>
-    <indexterm zone="xorg-server">
-      <primary sortas="b-cvt">cvt</primary>
-    </indexterm>
-    <indexterm zone="xorg-server">
-      <primary sortas="b-gtf">gtf</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/X11/xorg.conf.d/
-/usr/bin/X
-/usr/bin/Xorg
-/usr/bin/Xvfb
-/usr/bin/cvt
-/usr/bin/gtf
-/usr/include/xorg/
-/usr/lib/pkgconfig/xorg-server.pc
-/usr/lib/xorg/
-/usr/libexec/Xorg
-/usr/libexec/Xorg.wrap
-/usr/share/aclocal/xorg-server.m4
-/usr/share/man/man1/Xorg.1
-/usr/share/man/man1/Xorg.wrap.1
-/usr/share/man/man1/Xserver.1
-/usr/share/man/man1/Xvfb.1
-/usr/share/man/man1/cvt.1
-/usr/share/man/man1/gtf.1
-/usr/share/man/man4/exa.4
-/usr/share/man/man4/fbdevhw.4
-/usr/share/man/man4/modesetting.4
-/usr/share/man/man5/Xwrapper.config.5
-/usr/share/man/man5/xorg.conf.5
-/usr/share/man/man5/xorg.conf.d.5
-/var/lib/xkb/</literal></screen>
+EOF
+ls /etc/X11/xorg.conf.d/00-disable-hotplug.conf | porg -lD+</userinput></screen>
 
   </sect2>
 
