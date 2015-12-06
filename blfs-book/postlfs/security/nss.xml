@@ -16,10 +16,10 @@
   <!ENTITY nss-time          "0.9 SBU">
 ]>
 
-<sect1 id="nss" xreflabel="NSS-&nss-version;">
+<sect1 id="nss" xreflabel="nss-&nss-version;">
   <?dbhtml filename="nss.html"?>
 
-  <title>NSS-&nss-version;</title>
+  <title>nss-&nss-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -112,30 +112,30 @@
     </note>
 
     <para>
-      Install the package by running the following commands:
+      Compile the package:
     </para>
 
 <screen><userinput>patch -p1 -i ../nss-&nss-version;-standalone-1.patch &amp;&amp;
 cd nss &amp;&amp;
 make BUILD_OPT=1 \
-     NSPR_INCLUDE_DIR=/usr/include/nspr \
+     NSPR_INCLUDE_DIR=/include/nspr \
      USE_SYSTEM_ZLIB=1 \
      ZLIB_LIBS=-lz \
-     $([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1) \
-     $([ -f /usr/include/sqlite3.h ] &amp;&amp; echo NSS_USE_SYSTEM_SQLITE=1) -j1</userinput></screen>
+     USE_64=1 \
+     $([ -f /include/sqlite3.h ] &amp;&amp; echo NSS_USE_SYSTEM_SQLITE=1) -j1</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
 <screen role="root"><userinput>cd ../dist &amp;&amp;
-install -v -m755 Linux*/lib/*.so /usr/lib &amp;&amp;
-install -v -m644 Linux*/lib/*.chk Linux*/lib/libcrmf.a /usr/lib &amp;&amp;
-install -v -m755 -d /usr/include/nss &amp;&amp;
-cp -v -RL public/nss/* private/nss/* /usr/include/nss &amp;&amp;
-chmod -v 644 /usr/include/nss/* &amp;&amp;
-install -v -m755 Linux*/bin/certutil Linux*/bin/nss-config Linux*/bin/pk12util /usr/bin &amp;&amp;
-install -v -m644 Linux*/lib/pkgconfig/nss.pc /usr/lib/pkgconfig</userinput></screen>
+porg -lp nss-&nss-version; "install -v -m755 Linux*/lib/*.so /lib &amp;&amp;
+install -v -m644 Linux*/lib/*.chk Linux*/lib/libcrmf.a /lib &amp;&amp;
+install -v -m755 -d /include/nss &amp;&amp;
+cp -v -RL public/nss/* private/nss/* /include/nss &amp;&amp;
+chmod -v 644 /include/nss/* &amp;&amp;
+install -v -m755 Linux*/bin/certutil Linux*/bin/nss-config Linux*/bin/pk12util /bin &amp;&amp;
+install -v -m644 Linux*/lib/pkgconfig/nss.pc /lib/pkgconfig"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -148,7 +148,7 @@ install -v -m644 Linux*/lib/pkgconfig/nss.pc /usr/lib/pkgconfig</userinput></scr
       </para>
 
       <para>
-        <parameter>NSPR_INCLUDE_DIR=/usr/include/nspr</parameter>: This option
+        <parameter>NSPR_INCLUDE_DIR=/include/nspr</parameter>: This option
         sets the location of the nspr headers.
       </para>
 
@@ -165,15 +165,13 @@ install -v -m644 Linux*/lib/pkgconfig/nss.pc /usr/lib/pkgconfig</userinput></scr
       </para>
 
       <para>
-        <command>$([ $(uname -m) = x86_64 ] &amp;&amp; echo USE_64=1)</command>:
-        The <parameter>USE_64=1</parameter> option is <emphasis>required on
+        <parameter>USE_64=1</parameter>: This option is <emphasis>required on
         x86_64</emphasis>, otherwise <command>make</command> will try (and fail)
-        to create 32-bit objects. The [ $(uname -m) = x86_64 ] test ensures it
-        has no effect on a 32 bit system.
+        to create 32-bit objects.
       </para>
 
       <para>
-        <command>([ -f /usr/include/sqlite3.h ] &amp;&amp; echo
+        <command>([ -f /include/sqlite3.h ] &amp;&amp; echo
         NSS_USE_SYSTEM_SQLITE=1)</command>: This tests if sqlite is installed
         and if so it <command>echo</command>s the option NSS_USE_SYSTEM_SQLITE=1
         to <command>make</command> so that <filename
@@ -182,74 +180,6 @@ install -v -m644 Linux*/lib/pkgconfig/nss.pc /usr/lib/pkgconfig</userinput></scr
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="nss">
-      <primary sortas="b-certutil">certutil</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="b-nss-config">nss-config</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="b-pk12util">pk12util</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libcrmf.a">libcrmf.a</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libfreebl3.so">libfreebl3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libnss3.so">libnss3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libnssckbi.so">libnssckbi.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libnssdbm3.so">libnssdbm3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libnsssysinit.so">libnsssysinit.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libnssutil3.so">libnssutil3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libsmime3.so">libsmime3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libsoftokn3.so">libsoftokn3.so</primary>
-    </indexterm>
-    <indexterm zone="nss">
-      <primary sortas="c-libssl3.so">libssl3.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/certutil
-/usr/bin/nss-config
-/usr/bin/pk12util
-/usr/include/nss/
-/usr/lib/libcrmf.a
-/usr/lib/libfreebl3.chk
-/usr/lib/libfreebl3.so
-/usr/lib/libnss3.so
-/usr/lib/libnssckbi.so
-/usr/lib/libnssdbm3.chk
-/usr/lib/libnssdbm3.so
-/usr/lib/libnsssysinit.so
-/usr/lib/libnssutil3.so
-/usr/lib/libsmime3.so
-/usr/lib/libsoftokn3.chk
-/usr/lib/libsoftokn3.so
-/usr/lib/libssl3.so
-/usr/lib/pkgconfig/nss.pc</literal></screen>
 
   </sect2>
 
