@@ -14,19 +14,19 @@
   <!ENTITY xf86-input-mouse-time          "0.1 SBU">
 ]>
 
-<sect2 id="xf86-input-mouse" xreflabel="xf86-input-mouse-&xf86-input-mouse-version;">
+<sect1 id="xf86-input-mouse" xreflabel="xf86-input-mouse-&xf86-input-mouse-version;">
   <?dbhtml filename="xf86-input-mouse.html"?>
 
   <title>xf86-input-mouse-&xf86-input-mouse-version;</title>
 
-  <sect3 role="package">
+  <sect2 role="package">
     <title>Introduction</title>
 
     <para>
       This package provides mouse input driver for the Xorg X server.
     </para>
 
-    <bridgehead renderas="sect4">Package Information</bridgehead>
+    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -70,37 +70,42 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect4">Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
-    <bridgehead renderas="sect5">Required</bridgehead>
+    <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="xorg-server"/>
     </para>
 
-  </sect3>
+  </sect2>
 
-  <sect3>
+  <sect2>
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen><userinput>make</userinput></screen>
 
-  </sect3>
+    <para>
+      Install the package:
+    </para>
 
-  <sect3>
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+  </sect2>
+
+  <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cat &gt;&gt; /etc/X11/xorg.conf.d/30-mouse.conf &lt;&lt; "EOF"
+<screen role="root"><userinput>cat &gt; /etc/X11/xorg.conf.d/30-mouse.conf &lt;&lt; "EOF"
 <literal>Section "InputDevice"
         identifier      "Mouse0"
         driver          "mouse"
@@ -111,22 +116,9 @@ make</userinput></screen>
         # To config fancy stuff like disable acceleration,
         # put into your .xinitrc something like 'xset m 1 1 &amp;'
 EndSection</literal>
-EOF</userinput></screen>
+EOF
+ls /etc/X11/xorg.conf.d/30-mouse.conf | porg -lD+</userinput></screen>
 
-  </sect3>
+  </sect2>
 
-  <sect3>
-    <title>Contents</title>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/xorg/xf86-mouse-properties.h
-/usr/lib/pkgconfig/xorg-mouse.pc
-/usr/lib/xorg/modules/input/mouse_drv.so
-/usr/share/man/man4/mousedrv.4</literal></screen>
-
-  </sect3>
-
-</sect2>
+</sect1>

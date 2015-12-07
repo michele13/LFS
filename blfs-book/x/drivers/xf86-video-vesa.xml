@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY xf86-video-vesa-homepage      " ">
+  <!ENTITY xf86-video-vesa-wikipedia     " ">
+  <!ENTITY xf86-video-vesa-download-http "&xorg-download-http;/driver/xf86-video-vesa-&xf86-video-vesa-version;.tar.bz2">
+  <!ENTITY xf86-video-vesa-download-ftp  "&xorg-download-ftp;/driver/xf86-video-vesa-&xf86-video-vesa-version;.tar.bz2">
+  <!ENTITY xf86-video-vesa-md5sum        "3690a5356ed121b1a7dfb59a6dcf4bf9">
+  <!ENTITY xf86-video-vesa-size          "300 KB">
+  <!ENTITY xf86-video-vesa-buildsize     "2.6 MB">
+  <!ENTITY xf86-video-vesa-time          "0.1 SBU">
+]>
+
+<sect1 id="xf86-video-vesa" xreflabel="xf86-video-vesa-&xf86-video-vesa-version;">
+  <?dbhtml filename="xf86-video-vesa.html"?>
+
+  <title>xf86-video-vesa-&xf86-video-vesa-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Xorg VESA Driver contains the Generic VESA video driver for the Xorg
+      X server. This driver is often used as fallback driver if the hardware
+      specific driver fails to load or is not present. If this driver is not
+      installed, Xorg Server will print a warning on startup, but it can be
+      safely ignored if hardware specific driver works well.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&xf86-video-vesa-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&xf86-video-vesa-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&xf86-video-vesa-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&xf86-video-vesa-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &xf86-video-vesa-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &xf86-video-vesa-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &xf86-video-vesa-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &xf86-video-vesa-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="xorg-server"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Kernel Configuration</title>
+
+    <para>
+      Enable the following options in the kernel configuration and recompile
+      the kernel if necessary:
+    </para>
+
+<screen><literal>Device Drivers  ---&gt;
+  Graphics support ---&gt;
+    Frame buffer Devices ---&gt;
+      &lt;*&gt; Support for frame buffer devices ---&gt; [CONFIG_FB]
+      [*] VESA VGA graphics support             [CONFIG_FB_VESA]</literal></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>
