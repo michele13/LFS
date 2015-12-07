@@ -77,17 +77,17 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libx11"/>
     </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="libxft"/>
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libxrender"/> (for simulated transparency), and
       <xref linkend="gdk-pixbuf"/> (for background images)
     </para>
@@ -98,18 +98,23 @@
     <title>Installation</title>
 
     <para>
-      Install rxvt-unicode by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --enable-everything &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --enable-everything</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -179,35 +184,6 @@ urxvtd -q -f -o &amp;</literal></userinput></screen>
       <command>urxvtd</command>, <command>urxvtc</command>, and
       <filename>urxvtperl</filename> man pages.
     </para>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="rxvt-unicode">
-      <primary sortas="b-urxvt-bin">urxvt</primary>
-    </indexterm>
-    <indexterm zone="rxvt-unicode">
-      <primary sortas="b-urxvtc">urxvtc</primary>
-    </indexterm>
-    <indexterm zone="rxvt-unicode">
-      <primary sortas="b-urxvtd">urxvtd</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/urxvt
-/usr/bin/urxvtc
-/usr/bin/urxvtd
-/usr/lib/urxvt/
-/usr/share/man/man1/urxvt.1
-/usr/share/man/man1/urxvtc.1
-/usr/share/man/man1/urxvtd.1
-/usr/share/man/man3/urxvtperl.3
-/usr/share/man/man7/urxvt.7</literal></screen>
 
   </sect2>
 
