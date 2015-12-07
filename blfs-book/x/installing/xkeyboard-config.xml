@@ -17,7 +17,7 @@
 <sect1 id="xkeyboard-config" xreflabel="xkeyboard-config-&xkeyboard-config-version;">
   <?dbhtml filename="xkeyboard-config.html"?>
 
-  <title>XKeyboardConfig-&xkeyboard-config-version;</title>
+  <title>xkeyboard-config-&xkeyboard-config-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -85,19 +85,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG \
+<screen><userinput>./configure --prefix= \
             --disable-nls \
-            --with-xkb-rules-symlink=xorg &amp;&amp;
-make</userinput></screen>
+            --with-xkb-rules-symlink=xorg</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -109,19 +114,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/share/X11/xkb/
-/usr/share/man/man7/xkeyboard-config.7
-/usr/share/pkgconfig/xkeyboard-config.pc</literal></screen>
 
   </sect2>
 
