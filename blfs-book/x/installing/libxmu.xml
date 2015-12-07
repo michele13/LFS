@@ -14,10 +14,10 @@
   <!ENTITY libxmu-time          "0.2 SBU">
 ]>
 
-<sect1 id="libxmu" xreflabel="libXmu-&libxmu-version;">
+<sect1 id="libxmu" xreflabel="libxmu-&libxmu-version;">
   <?dbhtml filename="libxmu.html"?>
 
-  <title>libXmu-&libxmu-version;</title>
+  <title>libxmu-&libxmu-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -95,7 +95,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -107,31 +108,9 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libXmu.la
-rm -v /usr/lib/libXmuu.la</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxmu">
-      <primary sortas="c-libXmu.so">libXmu.so</primary>
-    </indexterm>
-    <indexterm zone="libxmu">
-      <primary sortas="c-libXmuu.so">libXmuu.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/X11/Xmu/
-/usr/lib/libXmu.so
-/usr/lib/libXmuu.so
-/usr/lib/pkgconfig/xmu.pc
-/usr/lib/pkgconfig/xmuu.pc</literal></screen>
+<screen role="root"><userinput>porg -lp libxmu-&libxmu-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXmu.la &amp;&amp;
+rm -v /lib/libXmuu.la"</userinput></screen>
 
   </sect2>
 
