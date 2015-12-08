@@ -95,8 +95,10 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix= \
+<screen><userinput>CPPFLAGS=-I/include/ncursesw \
+./configure --prefix= \
             --disable-static \
+            --with-ui \
             --with-readline</userinput></screen>
 
     <para>
@@ -114,12 +116,12 @@ rm -v /lib/libhunspell-1.3.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
-<!-- broken atm
+
       <para>
-        <parameter>- -with-ui</parameter>: This switch enables Curses terminal
+        <parameter>--with-ui</parameter>: This switch enables Curses terminal
         user interface.
       </para>
--->
+
       <para>
         <parameter>--with-readline</parameter>: This switch enables Readline
         support for command input editing.
