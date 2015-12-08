@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY gnome-icon-theme-homepage      " ">
+  <!ENTITY gnome-icon-theme-wikipedia     " ">
   <!ENTITY gnome-icon-theme-download-http "&gnome-download-http;/gnome-icon-theme/3.12/gnome-icon-theme-&gnome-icon-theme-version;.tar.xz">
   <!ENTITY gnome-icon-theme-download-ftp  "&gnome-download-ftp;/gnome-icon-theme/3.12/gnome-icon-theme-&gnome-icon-theme-version;.tar.xz">
   <!ENTITY gnome-icon-theme-md5sum        "f14bed7f804e843189ffa7021141addd">
@@ -17,20 +19,26 @@
 
   <title>gnome-icon-theme-&gnome-icon-theme-version;</title>
 
-  <indexterm zone="gnome-icon-theme">
-    <primary sortas="a-gnome-icon-theme">gnome-icon-theme</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to GNOME Icon Theme</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GNOME Icon Theme</application> package contains
-      an assortment of non-scalable icons of different sizes and themes.
+      The GNOME Icon Theme package contains an assortment of non-scalable icons
+      of different sizes and themes.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gnome-icon-theme-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gnome-icon-theme-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gnome-icon-theme-download-http;"/>
@@ -63,10 +71,10 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">GNOME Icon Theme Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="gtk2"/>,
       <xref linkend="hicolor-icon-theme"/>,
       <xref linkend="icon-naming-utils"/> and
@@ -75,49 +83,26 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GNOME Icon Theme</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>GNOME Icon Theme</application>
-      by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Compile the package:
     </para>
+
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
-
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          None
-        </seg>
-        <seg>
-          /usr/share/icons/gnome
-        </seg>
-      </seglistitem>
-    </segmentedlist>
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
