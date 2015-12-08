@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY tmux-homepage      "https://tmux.github.io/">
+  <!ENTITY tmux-wikipedia     "https://en.wikipedia.org/wiki/Tmux">
+  <!ENTITY tmux-download-http "https://github.com/tmux/tmux/releases/download/&tmux-version;/tmux-&tmux-version;.tar.gz">
+  <!ENTITY tmux-download-ftp  " ">
+  <!ENTITY tmux-md5sum        "74a2855695bccb51b6e301383ad4818c">
+  <!ENTITY tmux-size          "452 KB">
+  <!ENTITY tmux-buildsize     " MB">
+  <!ENTITY tmux-time          " SBU">
+]>
+
+<sect1 id="tmux" xreflabel="tmux-&tmux-version;">
+  <?dbhtml filename="tmux.html"?>
+
+  <title>tmux-&tmux-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      tmux is a terminal multiplexer that lets you switch easily between
+      several programs in one terminal, detach them and reattach them to a
+      different terminal.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&tmux-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&tmux-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&tmux-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&tmux-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &tmux-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &tmux-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &tmux-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &tmux-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+install -v -m 644 examples/screen-keys.conf /etc"</userinput></screen>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      TODO
+    </para>
+
+<screen role="root"><userinput>cat >> /etc/tmux.conf &lt;&lt; "EOF"
+<literal># --- colors (solarized dark)
+# default statusbar colors
+set -g status-bg black
+set -g status-fg yellow
+set -g status-attr default
+# default window title colors
+setw -g window-status-fg brightblue
+setw -g window-status-bg default
+# active window title colors
+setw -g window-status-current-fg yellow
+setw -g window-status-current-bg default
+setw -g window-status-current-attr dim
+# pane border
+set -g pane-border-fg black
+set -g pane-border-bg default
+set -g pane-active-border-fg yellow
+set -g pane-active-border-bg default
+# command line/message text
+set -g message-bg black
+set -g message-fg yellow
+# pane number display
+set -g display-panes-active-colour yellow
+set -g display-panes-colour brightblue
+# clock
+setw -g clock-mode-colour yellow
+# --- end colors</literal>
+EOF
+</userinput></screen>
+
+  </sect2>
+
+</sect1>
