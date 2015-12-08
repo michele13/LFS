@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY obconf-homepage      " ">
+  <!ENTITY obconf-wikipedia     " ">
+  <!ENTITY obconf-download-http "http://openbox.org/dist/obconf/obconf-&obconf-version;.tar.gz">
+  <!ENTITY obconf-download-ftp  " ">
+  <!ENTITY obconf-md5sum        "9271c5d2dc366d61f73665a5e8bceabc">
+  <!ENTITY obconf-size          "446 KB">
+  <!ENTITY obconf-buildsize     " MB">
+  <!ENTITY obconf-time          " SBU">
+]>
+
+<sect1 id="obconf" xreflabel="obconf-&obconf-version;">
+  <?dbhtml filename="obconf.html"?>
+
+  <title>obconf-&obconf-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      This package provides a GTK2 based configuration tool for the Openbox
+      windowmanager.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&obconf-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&obconf-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&obconf-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&obconf-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &obconf-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &obconf-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &obconf-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &obconf-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;obconf/obconf-&obconf-version;-no_sn-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="libglade"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_desktopDATA//" -i Makefile.in
+sed "s/install-dist_kdemimeDATA install-dist_mimepkgDATA//" -i Makefile.in
+sed "s/install-dist_pixmapDATA$//" -i Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>patch -p1 -i ..//obconf-&obconf-version;-no_sn-1.patch &amp;&amp;
+./configure --prefix= \
+            --disable-nls</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>

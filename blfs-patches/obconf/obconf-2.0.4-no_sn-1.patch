@@ -1,0 +1,147 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2015-12-08
+Initial Package Version: 2.0.4
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Removes dependency on startup-notification.
+
+--- obconf-2.0.4.orig/configure
++++ obconf-2.0.4/configure
+@@ -5668,96 +5668,6 @@
+ 
+ 
+ 
+-pkg_failed=no
+-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for LIBSTARTUPNOTIFICATION" >&5
+-$as_echo_n "checking for LIBSTARTUPNOTIFICATION... " >&6; }
+-
+-if test -n "$LIBSTARTUPNOTIFICATION_CFLAGS"; then
+-    pkg_cv_LIBSTARTUPNOTIFICATION_CFLAGS="$LIBSTARTUPNOTIFICATION_CFLAGS"
+- elif test -n "$PKG_CONFIG"; then
+-    if test -n "$PKG_CONFIG" && \
+-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libstartup-notification-1.0\""; } >&5
+-  ($PKG_CONFIG --exists --print-errors "libstartup-notification-1.0") 2>&5
+-  ac_status=$?
+-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+-  test $ac_status = 0; }; then
+-  pkg_cv_LIBSTARTUPNOTIFICATION_CFLAGS=`$PKG_CONFIG --cflags "libstartup-notification-1.0" 2>/dev/null`
+-		      test "x$?" != "x0" && pkg_failed=yes
+-else
+-  pkg_failed=yes
+-fi
+- else
+-    pkg_failed=untried
+-fi
+-if test -n "$LIBSTARTUPNOTIFICATION_LIBS"; then
+-    pkg_cv_LIBSTARTUPNOTIFICATION_LIBS="$LIBSTARTUPNOTIFICATION_LIBS"
+- elif test -n "$PKG_CONFIG"; then
+-    if test -n "$PKG_CONFIG" && \
+-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libstartup-notification-1.0\""; } >&5
+-  ($PKG_CONFIG --exists --print-errors "libstartup-notification-1.0") 2>&5
+-  ac_status=$?
+-  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+-  test $ac_status = 0; }; then
+-  pkg_cv_LIBSTARTUPNOTIFICATION_LIBS=`$PKG_CONFIG --libs "libstartup-notification-1.0" 2>/dev/null`
+-		      test "x$?" != "x0" && pkg_failed=yes
+-else
+-  pkg_failed=yes
+-fi
+- else
+-    pkg_failed=untried
+-fi
+-
+-
+-
+-if test $pkg_failed = yes; then
+-   	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-
+-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+-        _pkg_short_errors_supported=yes
+-else
+-        _pkg_short_errors_supported=no
+-fi
+-        if test $_pkg_short_errors_supported = yes; then
+-	        LIBSTARTUPNOTIFICATION_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libstartup-notification-1.0" 2>&1`
+-        else
+-	        LIBSTARTUPNOTIFICATION_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libstartup-notification-1.0" 2>&1`
+-        fi
+-	# Put the nasty error message in config.log where it belongs
+-	echo "$LIBSTARTUPNOTIFICATION_PKG_ERRORS" >&5
+-
+-	as_fn_error $? "Package requirements (libstartup-notification-1.0) were not met:
+-
+-$LIBSTARTUPNOTIFICATION_PKG_ERRORS
+-
+-Consider adjusting the PKG_CONFIG_PATH environment variable if you
+-installed software in a non-standard prefix.
+-
+-Alternatively, you may set the environment variables LIBSTARTUPNOTIFICATION_CFLAGS
+-and LIBSTARTUPNOTIFICATION_LIBS to avoid the need to call pkg-config.
+-See the pkg-config man page for more details." "$LINENO" 5
+-elif test $pkg_failed = untried; then
+-     	{ $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+-$as_echo "no" >&6; }
+-	{ { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "The pkg-config script could not be found or is too old.  Make sure it
+-is in your PATH or set the PKG_CONFIG environment variable to the full
+-path to pkg-config.
+-
+-Alternatively, you may set the environment variables LIBSTARTUPNOTIFICATION_CFLAGS
+-and LIBSTARTUPNOTIFICATION_LIBS to avoid the need to call pkg-config.
+-See the pkg-config man page for more details.
+-
+-To get pkg-config, see <http://pkg-config.freedesktop.org/>.
+-See \`config.log' for more details" "$LINENO" 5; }
+-else
+-	LIBSTARTUPNOTIFICATION_CFLAGS=$pkg_cv_LIBSTARTUPNOTIFICATION_CFLAGS
+-	LIBSTARTUPNOTIFICATION_LIBS=$pkg_cv_LIBSTARTUPNOTIFICATION_LIBS
+-        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+-$as_echo "yes" >&6; }
+-
+-fi
+ 
+ 
+ 
+--- obconf-2.0.4.orig/src/main.c
++++ obconf-2.0.4/src/main.c
+@@ -31,7 +31,6 @@
+ 
+ #include <gdk/gdkx.h>
+ #define SN_API_NOT_YET_FROZEN
+-#include <libsn/sn.h>
+ #undef SN_API_NOT_YET_FROZEN
+ #include <stdlib.h>
+ 
+@@ -333,8 +332,6 @@
+ 
+ void obconf_show_main()
+ {
+-    SnDisplay *sn_d;
+-    SnLauncheeContext *sn_cx;
+ 
+     if (GTK_WIDGET_VISIBLE(mainwin)) return;
+ 
+@@ -345,21 +342,4 @@
+         gtk_notebook_set_current_page(GTK_NOTEBOOK(tabstrip), obc_tab);
+ 
+ 
+-    sn_d = sn_display_new(GDK_DISPLAY_XDISPLAY(gdk_display_get_default()),
+-                          NULL, NULL);
+-
+-    sn_cx = sn_launchee_context_new_from_environment
+-        (sn_d, gdk_screen_get_number(gdk_display_get_default_screen
+-                                     (gdk_display_get_default())));
+-
+-    if (sn_cx)
+-        sn_launchee_context_setup_window
+-            (sn_cx, GDK_WINDOW_XWINDOW(GDK_WINDOW(mainwin->window)));
+-
+-    if (sn_cx)
+-        sn_launchee_context_complete(sn_cx);
+-
+-    if (sn_cx)
+-        sn_launchee_context_unref(sn_cx);
+-    sn_display_unref(sn_d);
+ }
