@@ -14,10 +14,10 @@
   <!ENTITY lxappearance-time          "0.1 SBU">
 ]>
 
-<sect1 id="lxappearance" xreflabel="LXAppearance-&lxappearance-version;">
+<sect1 id="lxappearance" xreflabel="lxappearance-&lxappearance-version;">
   <?dbhtml filename="lxappearance.html"?>
 
-  <title>LXAppearance-&lxappearance-version;</title>
+  <title>lxappearance-&lxappearance-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -74,7 +74,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="gtk2"/>
     </para>
 
@@ -84,38 +84,29 @@
     <title>Installation</title>
 
     <para>
-      Install LXAppearance by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-desktopDATA//" -i data/Makefile.in
+sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="lxappearance">
-      <primary sortas="b-lxappearance">lxappearance</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/bin/lxappearance
-/usr/include/lxappearance/
-/usr/lib/pkgconfig/lxappearance.pc
-/usr/share/applications/lxappearance.desktop
-/usr/share/lxappearance/
-/usr/share/man/man1/lxappearance.1</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
