@@ -17,7 +17,7 @@
 <sect1 id="git" xreflabel="git-&git-version;">
   <?dbhtml filename="git.html"?>
 
-  <title>Git-&git-version;</title>
+  <title>git-&git-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -80,8 +80,8 @@
         <para>
           <ulink url="ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz">
           ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz</ulink>
-          (if you prefer the original, not needed if you've installed asciidoc
-          and xmlto and prefer to build them).
+          <!--(if you prefer the original, not needed if you've installed asciidoc
+          and xmlto and prefer to build them).-->
         </para>
       </listitem>
     </itemizedlist>
@@ -91,17 +91,17 @@
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
       <xref linkend="expat"/>,
-      <xref linkend="libressl"/>,
-      <xref linkend="python2"/>, and
-      <xref linkend="curl"/> (needed to use Git over http, https, ftp or ftps)
+      <xref linkend="libressl"/>, and
+      <!--<xref linkend="python2"/>, and   needs research-->
+      <xref linkend="curl"/> (needed to use git over http, https, ftp or ftps)
     </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
-      <xref linkend="asciidoc"/> and
-      <xref linkend="xmlto"/> (to create the man pages),
-      <xref linkend="pcre"/>, and
-      <xref linkend="tk"/> (gitk, a simple Git repository viewer, uses Tk at runtime)
+      <!--<xref linkend="asciidoc"/> and
+      <xref linkend="xmlto"/> (to create the man pages),-->
+      <xref linkend="pcre"/>
+      <!--<xref linkend="tk"/> (gitk, a simple Git repository viewer, uses Tk at runtime)-->
     </para>
 
     <bridgehead renderas="sect4">Recommended (runtime)</bridgehead>
@@ -115,14 +115,19 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --with-gitconfig=/etc/gitconfig \
-            --without-tcltk &amp;&amp;
-make NO_GETTEXT=1</userinput></screen>
+<screen><userinput>tar xvf ../git-manpages-&git-version;.tar.xz &amp;&amp;
+./configure --prefix= \
+            --without-tcltk</userinput></screen>
 
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make NO_GETTEXT=1</userinput></screen>
+<!--
     <para>
       If you have installed <xref linkend="asciidoc"/> and <xref
       linkend="xmlto"/> you can create the man pages:
@@ -135,13 +140,14 @@ make NO_GETTEXT=1</userinput></screen>
     </para>
 
 <screen><userinput>tar xvf ../git-manpages-&git-version;.tar.xz</userinput></screen>
-
+-->
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make NO_GETTEXT=1 install</userinput></screen>
-
+<screen role="root"><userinput>porg -lD "make NO_GETTEXT=1 -j1 install" &amp;&amp;
+for dir in man? ; do porg -lD+ "cp -v $dir/* /share/man/$dir" ; done</userinput></screen>
+<!--
     <para>
       If you created the man pages, install them as the <systemitem
       class="username">root</systemitem> user:
@@ -154,104 +160,25 @@ make NO_GETTEXT=1</userinput></screen>
     </para>
 
 <screen role="root"><userinput>for dir in man? ; do cp -v $dir/* /usr/share/man/$dir ; done</userinput></screen>
-
+-->
     <sect3>
       <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-gitconfig=/etc/gitconfig</parameter>: This sets
-        <filename>/etc/gitconfig</filename> as the file that stores the default,
-        system wide, Git settings.
-      </para>
 
       <para>
         <parameter>--without-tcltk</parameter>: This switch disables Tcl/Tk GUI
         as it breaks the build if gettext-tiny is installed.
       </para>
-
+<!--
       <para>
-        <option>--without-python</option>: Use this switch if Python is not
+        <option>- -without-python</option>: Use this switch if Python is not
         installed.
       </para>
-
+-->
       <para>
         <option>--with-libpcre</option>: Use this switch if PCRE is installed.
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Configuration</title>
-
-    <sect3 id="git-config">
-      <title>Config Files</title>
-      <para>
-        <filename>~/.gitconfig</filename> and
-        <filename>/etc/gitconfig</filename>
-      </para>
-
-      <indexterm zone="git git-config">
-        <primary sortas="e-AA.gitconfig">~/.gitconfig</primary>
-      </indexterm>
-
-      <indexterm zone="git git-config">
-        <primary sortas="e-etc-gitconfig">/etc/gitconfig</primary>
-      </indexterm>
-
-    </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="git">
-      <primary sortas="b-git">git</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-git-cvsserver">git-cvsserver</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-gitk">gitk</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-git-receive-pack">git-receive-pack</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-git-shell">git-shell</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-git-upload-archive">git-upload-archive</primary>
-    </indexterm>
-    <indexterm zone="git">
-      <primary sortas="b-git-upload-pack">git-upload-pack</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/git
-/usr/bin/git-cvsserver
-/usr/bin/gitk
-/usr/bin/git-receive-pack
-/usr/bin/git-shell
-/usr/bin/git-upload-archive
-/usr/bin/git-upload-pack
-/usr/libexec/git-core/
-/usr/lib/perl5/site_perl/5.18.2/Error.pm
-/usr/lib/perl5/site_perl/5.18.2/Git/
-/usr/lib/perl5/site_perl/5.18.2/Git.pm
-/usr/share/git-core/
-/usr/share/git-gui/
-/usr/share/gitk/
-/usr/share/gitweb/
-/usr/share/man/man1/git*.1
-/usr/share/man/man3/Git*.3
-/usr/share/man/man5/git*.5
-/usr/share/man/man7/git*.7</literal></screen>
 
   </sect2>
 
