@@ -14,10 +14,10 @@
   <!ENTITY openssh-time          "0.4 SBU">
 ]>
 
-<sect1 id="openssh" xreflabel="OpenSSH-&openssh-version;">
+<sect1 id="openssh" xreflabel="openssh-&openssh-version;">
   <?dbhtml filename="openssh.html"?>
 
-  <title>OpenSSH-&openssh-version;</title>
+  <title>openssh-&openssh-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -109,22 +109,29 @@ adduser -g 'sshd PrivSep' -h /var/lib/sshd \
     -s /bin/false -u 50 -D -H sshd</userinput></screen>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin \
             --sysconfdir=/etc/ssh \
             --with-md5-passwords \
-            --with-privsep-path=/var/lib/sshd &amp;&amp;
-make</userinput></screen>
+            --with-privsep-path=/var/lib/sshd \
+            --with-default-path=/bin</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m755 contrib/ssh-copy-id /usr/bin &amp;&amp;
-install -v -m644 contrib/ssh-copy-id.1 /usr/share/man/man1</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+install -v -m755 contrib/ssh-copy-id /bin &amp;&amp;
+install -v -m644 contrib/ssh-copy-id.1 /share/man/man1"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -141,7 +148,7 @@ install -v -m644 contrib/ssh-copy-id.1 /usr/share/man/man1</userinput></screen>
       </para>
 
       <para>
-        <option>--with-xauth=/usr/bin/xauth</option>: Set the default location
+        <option>--with-xauth=/bin/xauth</option>: Set the default location
         for the <command>xauth</command> binary for X authentication. This can
         also be controlled from <filename>sshd_config</filename> with the
         XAuthLocation keyword. You can omit this switch if Xorg is already
@@ -205,7 +212,7 @@ echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></s
       <command>ssh-agent</command>.
     </para>
 
-    <sect3 id="openssh-init">
+    <sect3>
       <title>Boot Script</title>
 
       <para>
@@ -214,108 +221,9 @@ echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></s
         <xref linkend="bootscripts"/> package.
       </para>
 
-<screen role="root"><userinput>make install-sshd</userinput></screen>
+<screen role="root"><userinput>make -lp+ openssh-&openssh-version; "make -j1 install-sshd"</userinput></screen>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="openssh">
-      <primary sortas="b-scp">scp</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-sftp">sftp</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-slogin">slogin</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh">ssh</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh-add">ssh-add</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh-agent">ssh-agent</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh-copy-id">ssh-copy-id</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh-keygen">ssh-keygen</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-ssh-keyscan">ssh-keyscan</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="b-sshd">sshd</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="e-AA.ssh">~/.ssh/*</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="e-etc-ssh-ssh_config">/etc/ssh/ssh_config</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="e-etc-ssh-sshd_config">/etc/ssh/sshd_config</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="f-sshd">sshd</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="g-etc-ssh-moduli">/etc/ssh/moduli</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="g-usr-lib-openssh-sftp-server">/usr/lib/openssh/sftp-server</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="g-usr-lib-openssh-ssh-keysign">/usr/lib/openssh/ssh-keysign</primary>
-    </indexterm>
-    <indexterm zone="openssh">
-      <primary sortas="g-usr-lib-openssh-ssh-pkcs11-helper">/usr/lib/openssh/ssh-pkcs11-helper</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/ssh/
-/etc/ssh/moduli
-/etc/ssh/ssh_config
-/etc/ssh/sshd_config
-/usr/bin/scp
-/usr/bin/sftp
-/usr/bin/slogin
-/usr/bin/ssh
-/usr/bin/ssh-add
-/usr/bin/ssh-agent
-/usr/bin/ssh-copy-id
-/usr/bin/ssh-keygen
-/usr/bin/ssh-keyscan
-/usr/lib/openssh/
-/usr/lib/openssh/sftp-server
-/usr/lib/openssh/ssh-keysign
-/usr/lib/openssh/ssh-pkcs11-helper
-/usr/sbin/sshd
-/usr/share/man/man1/scp.1
-/usr/share/man/man1/sftp.1
-/usr/share/man/man1/slogin.1
-/usr/share/man/man1/ssh.1
-/usr/share/man/man1/ssh-add.1
-/usr/share/man/man1/ssh-agent.1
-/usr/share/man/man1/ssh-copy-id.1
-/usr/share/man/man1/ssh-keygen.1
-/usr/share/man/man1/ssh-keyscan.1
-/usr/share/man/man5/moduli.5
-/usr/share/man/man5/ssh_config.5
-/usr/share/man/man5/sshd_config.5
-/usr/share/man/man8/sftp-server.8
-/usr/share/man/man8/sshd.8
-/usr/share/man/man8/ssh-keysign.8
-/usr/share/man/man8/ssh-pkcs11-helper.8</literal></screen>
 
   </sect2>
 
