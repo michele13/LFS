@@ -6,10 +6,10 @@
 
   <!ENTITY libnl-homepage      "http://www.carisma.slowglass.com/~tgr/libnl/">
   <!ENTITY libnl-wikipedia     "http://en.wikipedia.org/wiki/Netlink">
-  <!ENTITY libnl-download-http "http://www.carisma.slowglass.com/~tgr/libnl/files/libnl-&libnl-version;.tar.gz">
+  <!ENTITY libnl-download-http "https://github.com/thom311/libnl/releases/download/libnl3_2_27/libnl-&libnl-version;.tar.gz">
   <!ENTITY libnl-download-ftp  " ">
-  <!ENTITY libnl-md5sum        "c8de31b74b1c15267b5ac2927b11125c">
-  <!ENTITY libnl-size          "876 KB">
+  <!ENTITY libnl-md5sum        "cec19f941b79a38d9eb92dbc171d6dbd">
+  <!ENTITY libnl-size          "884 KB">
   <!ENTITY libnl-buildsize     "22 MB">
   <!ENTITY libnl-time          "0.4 SBU">
 
@@ -81,8 +81,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc \
+<screen><userinput>./configure --prefix= \
             --disable-static \
             --disable-cli</userinput></screen>
 
@@ -96,12 +95,13 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install
-rm -v /usr/lib/libnl-3.la
-rm -v /usr/lib/libnl-genl-3.la
-rm -v /usr/lib/libnl-idiag-3.la
-rm -v /usr/lib/libnl-nf-3.la
-rm -v /usr/lib/libnl-route-3.la</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libnl-3.la &amp;&amp;
+rm -v /lib/libnl-genl-3.la &amp;&amp;
+rm -v /lib/libnl-idiag-3.la &amp;&amp;
+rm -v /lib/libnl-nf-3.la &amp;&amp;
+rm -v /lib/libnl-route-3.la &amp;&amp;
+rm -v /lib/libnl-xfrm-3.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -112,104 +112,6 @@ rm -v /usr/lib/libnl-route-3.la</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libnl">
-      <primary sortas="b-genl-ctrl-list">genl-ctrl-list</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-class-add">nl-class-add</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-class-delete">nl-class-delete</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-classid-lookup">nl-classid-lookup</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-class-list">nl-class-list</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-cls-add">nl-cls-add</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-cls-delete">nl-cls-delete</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-cls-list">nl-cls-list</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-link-list">nl-link-list</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-pktloc-lookup">nl-pktloc-lookup</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-qdisc-add">nl-qdisc-add</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-qdisc-delete">nl-qdisc-delete</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="b-nl-qdisc-list">nl-qdisc-list</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="c-libnl-3.so">libnl-3.so</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="c-libnl-cli-3.so">libnl-cli-3.so</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="c-libnl-genl-3.so">libnl-genl-3.so</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="c-libnl-nf-3.so">libnl-nf-3.so</primary>
-    </indexterm>
-    <indexterm zone="libnl">
-      <primary sortas="c-libnl-route-3.so">libnl-route-3.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/libnl/
-/usr/include/libnl3/
-/usr/lib/libnl/
-/usr/lib/libnl-3.so
-/usr/lib/libnl-cli-3.so
-/usr/lib/libnl-genl-3.so
-/usr/lib/libnl-idiag-3.so
-/usr/lib/libnl-nf-3.so
-/usr/lib/libnl-route-3.so
-/usr/lib/pkgconfig/libnl-3.0.pc
-/usr/lib/pkgconfig/libnl-cli-3.0.pc
-/usr/lib/pkgconfig/libnl-genl-3.0.pc
-/usr/lib/pkgconfig/libnl-nf-3.0.pc
-/usr/lib/pkgconfig/libnl-route-3.0.pc
-/usr/sbin/genl-ctrl-list
-/usr/sbin/nl-class-add
-/usr/sbin/nl-class-delete
-/usr/sbin/nl-classid-lookup
-/usr/sbin/nl-class-list
-/usr/sbin/nl-cls-add
-/usr/sbin/nl-cls-delete
-/usr/sbin/nl-cls-list
-/usr/sbin/nl-link-list
-/usr/sbin/nl-pktloc-lookup
-/usr/sbin/nl-qdisc-add
-/usr/sbin/nl-qdisc-delete
-/usr/sbin/nl-qdisc-list
-/usr/share/man/man8/genl-ctrl-list.8
-/usr/share/man/man8/nl-classid-lookup.8
-/usr/share/man/man8/nl-pktloc-lookup.8
-/usr/share/man/man8/nl-qdisc-add.8
-/usr/share/man/man8/nl-qdisc-delete.8
-/usr/share/man/man8/nl-qdisc-list.8</literal></screen>
 
   </sect2>
 
