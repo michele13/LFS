@@ -75,6 +75,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Recommended patch:
+          <ulink url="&patch-root;wpa_supplicant/wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
@@ -156,7 +166,9 @@ EOF</userinput></screen>
       Compile the package:
     </para>
 
-<screen><userinput>cd wpa_supplicant &amp;&amp;
+<screen><userinput>patch -p1 -i ../wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch &amp;&amp;
+sed "s/ncurses/ncursesw/" -i wpa_supplicant/Makefile &amp;&amp;
+cd wpa_supplicant &amp;&amp;
 make BINDIR=/bin LIBDIR=/lib</userinput></screen>
 
     <para>
