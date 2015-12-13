@@ -74,7 +74,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="keyutils"/> and
       <xref linkend="talloc"/>
     </para>
@@ -93,29 +93,32 @@
   [*] Network File Systems  ---&gt;                                      [CONFIG_NETWORK_FILESYSTEMS]
     &lt;*/M&gt; CIFS support (advanced network filesystem, SMBFS successor) [CONFIG_CIFS]</literal></screen>
 
-    <indexterm zone="cifs-utils">
-      <primary sortas="d-cifs-utils">cifs-utils</primary>
-    </indexterm>
-
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Install cifs-utils by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>ROOTSBINDIR=/bin \
+./configure --prefix= \
+            --sbindir=/bin \
             --disable-pam \
-            --disable-systemd &amp;&amp;
-make</userinput></screen>
+            --disable-systemd</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -130,54 +133,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-mount.cifs">mount.cifs</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-cifscreds">cifscreds</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-getcifsacl">getcifsacl</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-setcifsacl">setcifsacl</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-cifs.idmap">cifs.idmap</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="b-cifs.upcall">cifs.upcall</primary>
-    </indexterm>
-    <indexterm zone="cifs-utils">
-      <primary sortas="g-usr-lib-cifs-utils-idmapwb.so">/usr/lib/cifs-utils/idmapwb.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/sbin/mount.cifs
-/usr/bin/cifscreds
-/usr/bin/getcifsacl
-/usr/bin/setcifsacl
-/usr/include/cifsidmap.h
-/usr/lib/cifs-utils/
-/usr/lib/cifs-utils/idmapwb.so
-/usr/sbin/cifs.idmap
-/usr/sbin/cifs.upcall
-/usr/share/man/man1/cifscreds.1
-/usr/share/man/man1/getcifsacl.1
-/usr/share/man/man1/setcifsacl.1
-/usr/share/man/man8/cifs.idmap.8
-/usr/share/man/man8/cifs.upcall.8
-/usr/share/man/man8/idmapwb.8
-/usr/share/man/man8/mount.cifs.8</literal></screen>
 
   </sect2>
 
