@@ -91,26 +91,38 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in
+sed "s/ install-dist_docDATA//" -i pm/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m644 man/*.1 /usr/share/man/man1 &amp;&amp;
-install -v -m644 man/*.8 /usr/share/man/man8 &amp;&amp;
-ln -sv pm-action.8 /usr/share/man/man8/pm-suspend.8 &amp;&amp;
-ln -sv pm-action.8 /usr/share/man/man8/pm-hibernate.8 &amp;&amp;
-ln -sv pm-action.8 /usr/share/man/man8/pm-suspend-hybrid.8</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+install -v -m644 man/*.1 /share/man/man1 &amp;&amp;
+install -v -m644 man/*.8 /share/man/man8 &amp;&amp;
+ln -sv pm-action.8 /share/man/man8/pm-suspend.8 &amp;&amp;
+ln -sv pm-action.8 /share/man/man8/pm-hibernate.8 &amp;&amp;
+ln -sv pm-action.8 /share/man/man8/pm-suspend-hybrid.8"</userinput></screen>
 
   </sect2>
-
+<!--
   <sect2>
     <title>Configuration</title>
 
@@ -119,7 +131,7 @@ ln -sv pm-action.8 /usr/share/man/man8/pm-suspend-hybrid.8</userinput></screen>
       into the <filename class="directory">/etc/pm/sleep.d</filename> directory.
       These files, known as hooks, are run when the system is put into a sleep
       state or resumed. Default hooks are located in <filename
-      class="directory">/usr/lib/pm-utils/sleep.d</filename>, and user hooks
+      class="directory">/lib/pm-utils/sleep.d</filename>, and user hooks
       should be put in <filename class="directory">/etc/pm/sleep.d</filename>.
       See the pm-action(8) man page for more information.
     </para>
@@ -143,12 +155,12 @@ cat &gt; /etc/acpi/LID/00000080 &lt;&lt; "EOF"
 EOF
 chmod -v +x /etc/acpi/LID/00000080</userinput></screen>
 
-<!--<para>
+    <para>
       Unfortunately, not every computer labels ACPI events in the same way. To
       determine how your buttons are recognized, use the
       <command>acpi_listen</command> tool. Also, look in package documentation
       for more examples.
-    </para>-->
+    </para>
 
     <para>
       acpid is configured by user defined events. Place event files under
@@ -159,51 +171,5 @@ chmod -v +x /etc/acpi/LID/00000080</userinput></screen>
     </para>
 
   </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="pm-utils">
-      <primary sortas="b-on_ac_power">on_ac_power</primary>
-    </indexterm>
-    <indexterm zone="pm-utils">
-      <primary sortas="b-pm-is-supported">pm-is-supported</primary>
-    </indexterm>
-    <indexterm zone="pm-utils">
-      <primary sortas="b-pm-hibernate">pm-hibernate</primary>
-    </indexterm>
-    <indexterm zone="pm-utils">
-      <primary sortas="b-pm-powersave">pm-powersave</primary>
-    </indexterm>
-    <indexterm zone="pm-utils">
-      <primary sortas="b-pm-suspend">pm-suspend</primary>
-    </indexterm>
-    <indexterm zone="pm-utils">
-      <primary sortas="b-pm-suspend-hybrid">pm-suspend-hybrid</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/pm/
-/usr/bin/on_ac_power
-/usr/bin/pm-is-supported
-/usr/lib/pm-utils/
-/usr/sbin/pm-hibernate
-/usr/sbin/pm-powersave
-/usr/sbin/pm-suspend
-/usr/sbin/pm-suspend-hybrid
-/usr/share/doc/pm-utils/
-/usr/share/man/man1/on_ac_power.1
-/usr/share/man/man1/pm-is-supported.1
-/usr/share/man/man8/pm-action.8
-/usr/share/man/man8/pm-hibernate.8
-/usr/share/man/man8/pm-pmu.8
-/usr/share/man/man8/pm-powersave.8
-/usr/share/man/man8/pm-suspend.8
-/usr/share/man/man8/pm-suspend-hybrid.8</literal></screen>
-
-  </sect2>
-
+-->
 </sect1>
