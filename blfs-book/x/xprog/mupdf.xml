@@ -17,7 +17,7 @@
 <sect1 id="mupdf" xreflabel="mupdf-&mupdf-version;">
   <?dbhtml filename="mupdf.html"?>
 
-  <title>MuPDF-&mupdf-version;</title>
+  <title>mupdf-&mupdf-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -107,7 +107,7 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>rm -rf thirdparty/curl &amp;&amp;
@@ -115,31 +115,20 @@ rm -rf thirdparty/freetype &amp;&amp;
 rm -rf thirdparty/jpeg &amp;&amp;
 rm -rf thirdparty/openjpeg &amp;&amp;
 rm -rf thirdparty/zlib &amp;&amp;
-patch -p1 -i ../mupdf-&mupdf-version;-openjpeg21-1.patch &amp;&amp;
-make build=release</userinput></screen>
+patch -p1 -i ../mupdf-&mupdf-version;-openjpeg21-1.patch</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>install -v -m 755 build/release/mupdf-x11-curl /usr/bin/mupdf &amp;&amp;
-install -v -m 644 docs/man/mupdf.1 /usr/share/man/man1/</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="mupdf">
-      <primary sortas="b-mupdf">mupdf</primary>
-    </indexterm>
+<screen><userinput>make build=release</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/bin/mupdf
-/usr/share/man/man1/mupdf.1</literal></screen>
+<screen role="root"><userinput>porg -lp mupdf-&mupdf-version; "install -v -m 755 build/release/mupdf-x11-curl /bin/mupdf &amp;&amp;
+install -v -m 644 docs/man/mupdf.1 /share/man/man1"</userinput></screen>
 
   </sect2>
 
