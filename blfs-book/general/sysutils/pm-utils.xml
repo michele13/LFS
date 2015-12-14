@@ -122,7 +122,7 @@ ln -sv pm-action.8 /share/man/man8/pm-hibernate.8 &amp;&amp;
 ln -sv pm-action.8 /share/man/man8/pm-suspend-hybrid.8"</userinput></screen>
 
   </sect2>
-<!--
+
   <sect2>
     <title>Configuration</title>
 
@@ -144,32 +144,6 @@ ln -sv pm-action.8 /share/man/man8/pm-suspend-hybrid.8"</userinput></screen>
       <filename>/boot/grub/grub.cfg</filename> configuration file.
     </para>
 
-    <para>
-      The following brief example will suspend the system when the laptop lid
-      is closed:
-    </para>
-
-<screen role="root"><userinput>mkdir -pv /etc/acpi/LID &amp;&amp;
-cat &gt; /etc/acpi/LID/00000080 &lt;&lt; "EOF"
-<literal>pm-suspend</literal>
-EOF
-chmod -v +x /etc/acpi/LID/00000080</userinput></screen>
-
-    <para>
-      Unfortunately, not every computer labels ACPI events in the same way. To
-      determine how your buttons are recognized, use the
-      <command>acpi_listen</command> tool. Also, look in package documentation
-      for more examples.
-    </para>
-
-    <para>
-      acpid is configured by user defined events. Place event files under
-      <filename class="directory">/etc/acpi/&lt;ACTION&gt;</filename>
-      directory. If an event occurs, <command>acpid</command> recurses through
-      the event files in order to see if the regex defined after "event"
-      matches. If they do, action is executed.
-    </para>
-
   </sect2>
--->
+
 </sect1>
