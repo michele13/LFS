@@ -55,6 +55,11 @@ install-alsa: create-dirs
 	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc0.d/S35alsa
 	ln -sf  ../init.d/alsa ${EXTDIR}/rc.d/rc3.d/S05alsa
 
+install-chronyd: create-dirs
+	install -m ${MODE} blfs/init.d/chronyd       ${EXTDIR}/rc.d/init.d/
+	ln -sf  ../init.d/chronyd ${EXTDIR}/rc.d/rc0.d/S46chronyd
+	ln -sf  ../init.d/chronyd ${EXTDIR}/rc.d/rc3.d/S26chronyd
+
 install-php: create-dirs
 	install -m ${MODE} blfs/init.d/php-fpm     ${EXTDIR}/rc.d/init.d/
 	ln -sf  ../init.d/php-fpm ${EXTDIR}/rc.d/rc0.d/S28php-fpm

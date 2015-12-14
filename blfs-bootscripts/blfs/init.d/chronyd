@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. /lib/lsb/init-functions
+
+case "$1" in
+   start)
+      log_info_msg "Starting chronyd..."
+      start_daemon /bin/chronyd
+      evaluate_retval
+      ;;
+
+   stop)
+      log_info_msg "Stopping ntpd..."
+      killproc /bin/chronyd
+      evaluate_retval
+      ;;
+
+   restart)
+      $0 stop
+      sleep 1
+      $0 start
+      ;;
+
+   status)
+      statusproc /bin/chronyd
+      ;;
+
+   *)
+      echo "Usage: $0 {start|stop|restart|status}"
+      exit 1
+      ;;
+esac
