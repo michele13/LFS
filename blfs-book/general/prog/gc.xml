@@ -4,42 +4,51 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY gc-homepage      "http://www.hboehm.info/gc/">
+  <!ENTITY gc-wikipedia     "https://en.wikipedia.org/wiki/Boehm_garbage_collector">
   <!ENTITY gc-download-http "http://www.hboehm.info/gc/gc_source/gc-&gc-version;.tar.gz">
   <!ENTITY gc-download-ftp  " ">
   <!ENTITY gc-md5sum        "12c05fd2811d989341d8c6d81f66af87">
   <!ENTITY gc-size          "1.1 MB">
-  <!ENTITY gc-buildsize     "9.7 MB (additional 2.3 MB for the tests)">
-  <!ENTITY gc-time          "0.2 SBU (additional 0.2 SBU for the tests)">
+  <!ENTITY gc-buildsize     "9.7 MB">
+  <!ENTITY gc-time          "0.2 SBU">
 ]>
 
-<sect1 id="gc" xreflabel="GC-&gc-version;">
+<sect1 id="gc" xreflabel="gc-&gc-version;">
   <?dbhtml filename="gc.html"?>
 
-  <title>GC-&gc-version;</title>
-
-  <indexterm zone="gc">
-    <primary sortas="a-GC">GC</primary>
-  </indexterm>
+  <title>gc-&gc-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to GC</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GC</application> package contains the Boehm-Demers-Weiser
-      conservative garbage collector, which can be used as a garbage collecting
-      replacement for the C malloc function or C++ new operator. It allows you
-      to allocate memory basically as you normally would, without explicitly
-      deallocating memory that is no longer useful. The collector automatically
-      recycles memory when it determines that it can no longer be otherwise
-      accessed. The collector is also used by a number of programming language
-      implementations that either use C as intermediate code, want to facilitate
-      easier interoperation with C libraries, or just prefer the simple
-      collector interface. Alternatively, the garbage collector may be used as a
-      leak detector for C or C++ programs, though that is not its primary goal.
+      The GC package contains the Boehm-Demers-Weiser conservative garbage
+      collector, which can be used as a garbage collecting replacement for the
+      C malloc function or C++ new operator. It allows you to allocate memory
+      basically as you normally would, without explicitly deallocating memory
+      that is no longer useful. The collector automatically recycles memory
+      when it determines that it can no longer be otherwise accessed. The
+      collector is also used by a number of programming language
+      implementations that either use C as intermediate code, want to
+      facilitate easier interoperation with C libraries, or just prefer the
+      simple collector interface. Alternatively, the garbage collector may be
+      used as a leak detector for C or C++ programs, though that is not its
+      primary goal.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gc-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gc-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&gc-download-http;"/>
@@ -72,137 +81,58 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libatomic_ops"/>
     </para>
-<!--      (Gc contains a copy of
-      Libatomic_ops-&gc-version; which it will compile and statically link if
-      configure doesn't find Libatomic_ops installed on your system)
-    </para>
--->
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GC</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>GC</application> by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<!--
-<screen><userinput>sed -i 's#AM_CONFIG_HEADER#AC_CONFIG_HEADERS#' configure.ac &amp;&amp;
-sed -i 's#AM_CONFIG_HEADER#AC_CONFIG_HEADERS#' libatomic_ops/configure.ac &amp;&amp;
--->
-<screen><userinput>sed -i 's#pkgdata#doc#' doc/doc.am &amp;&amp;
-autoreconf -fi  &amp;&amp;
-./configure --prefix=/usr      \
-            --enable-cplusplus \
-            --disable-static   \
-            --docdir=/usr/share/doc/gc-&gc-version; &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-dist_pkgdataDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-static \
+            --enable-cplusplus</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-install -v -m644 doc/gc.man /usr/share/man/man3/gc_malloc.3 &amp;&amp;
-ln -sfv gc_malloc.3 /usr/share/man/man3/gc.3 </userinput></screen>
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-<!--    <para>
-      <command>sed -i 's#AM_CONFIG_HEADER ...</command>: This
-      <command>sed</command> fixes building with
-      <application>Automake</application> 1.13.
-    </para>
--->
+<screen><userinput>make</userinput></screen>
 
     <para>
-      <command>sed -i 's#pkgdata#doc#' doc/doc.am</command> and
-      <option>--docdir=/usr/share/doc/gc-&gc-version;</option>:
-      These commands are used so the package will install the
-      documentation in a versioned directory.
+      Install the package:
     </para>
 
-    <para>
-      <command>autoreconf -fi</command>: This regenerates the
-      <command>configure</command> script and the
-      <filename>Makefile.in</filename> files.
-    </para>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libcord.la &amp;&amp;
+rm -v /lib/libgc.la &amp;&amp;
+rm -v /lib/libgccpp.la &amp;&amp;
+install -v -m644 doc/gc.man /share/man/man3/gc.3 &amp;&amp;
+ln -sv gc.3 /share/man/man3/gc_malloc.3"</userinput></screen>
 
-    <para>
-      <parameter>--enable-cplusplus</parameter>: This parameter enables the
-      building and installing the C++ library along with the standard C library.
-    </para>
+    <sect3>
+      <title>Command Explanations</title>
 
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
+      <para>
+        <parameter>--enable-cplusplus</parameter>: This parameter enables the
+        building and installing the C++ library along with the standard C library.
+      </para>
 
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libcord.so, libgc.so and
-          libgccpp.so
-        </seg>
-        <seg>
-          /usr/include/gc and
-          /usr/share/doc/gc-&gc-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libgc">
-        <term><filename class="libraryfile">libgc.so</filename></term>
-        <listitem>
-          <para>
-            contains a C interface to the conservative garbage collector,
-            primarily designed to replace the C malloc function.
-          </para>
-          <indexterm zone="gc libgc">
-            <primary sortas="c-libgc">libgc.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libgccpp">
-        <term><filename class="libraryfile">libgccpp.so</filename></term>
-        <listitem>
-          <para>
-            contains a C++ interface to the conservative garbage collector.
-          </para>
-          <indexterm zone="gc libgccpp">
-            <primary sortas="c-libgccpp">libgccpp.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+    </sect3>
 
   </sect2>
 
