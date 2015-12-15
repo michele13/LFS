@@ -10,14 +10,14 @@
   <!ENTITY boost-download-ftp  " ">
   <!ENTITY boost-md5sum        "6aa9a5c6a4ca1016edd0ed1178e3cb87">
   <!ENTITY boost-size          "68 MB">
-  <!ENTITY boost-buildsize     "884 MB (additional 1 MB for Boost.Build's regression test)">
-  <!ENTITY boost-time          "3.9 SBU (additional 1.5 SBU for Boost.Build's regression test)">
+  <!ENTITY boost-buildsize     "884 MB">
+  <!ENTITY boost-time          "3.9 SBU">
 ]>
 
-<sect1 id="boost" xreflabel="Boost-&boost-version;">
+<sect1 id="boost" xreflabel="boost-&boost-version;">
   <?dbhtml filename="boost.html"?>
 
-  <title>Boost-&boost-version;</title>
+  <title>boost-&boost-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -75,9 +75,9 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="icu"/> and
-      <xref linkend="python2"/>
+      <xref linkend="python3"/>
     </para>
 
   </sect2>
@@ -86,19 +86,30 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      First fix a bug with the python header files path:
     </para>
 
-<screen><userinput>./bootstrap.sh --prefix=/usr &amp;&amp;
-./b2 stage threading=multi link=shared</userinput></screen>
+<screen><userinput>sed "/include.*python.*version/s/ ;/m ;/" -i tools/build/src/tools/python.jam</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<!-- dev note: ./b2 - -prefix=<DESTDIR>/usr install threading=multi link=shared -->
+<screen><userinput>./bootstrap.sh --prefix=</userinput></screen>
 
-<screen role="root"><userinput>./b2 install threading=multi link=shared</userinput></screen>
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>./b2 stage threading=multi link=shared</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<!-- dev note: ./b2 - -prefix=<DESTDIR> install threading=multi link=shared -->
+
+<screen role="root"><userinput>porg -lp boost-&boost-version; -E $PWD "./b2 install threading=multi link=shared"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -116,57 +127,12 @@
         the headers, but omit this parameter if you do need them.
       </para>
 
+      <para>
+        <option>--with-python=python3</option>: Add this switch if you want
+        Boost to use python.
+      </para>
+
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="boost">
-      <primary sortas="c-libboost_*.so">libboost_*.so</primary>
-    </indexterm>
-    <indexterm zone="boost">
-      <primary sortas="c-libboost_*.a">libboost_*.a</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/boost/
-/usr/lib/libboost_atomic.so
-/usr/lib/libboost_chrono.so
-/usr/lib/libboost_context.so
-/usr/lib/libboost_coroutine.so
-/usr/lib/libboost_date_time.so
-/usr/lib/libboost_exception.a
-/usr/lib/libboost_filesystem.so
-/usr/lib/libboost_graph.so
-/usr/lib/libboost_iostreams.so
-/usr/lib/libboost_locale.so
-/usr/lib/libboost_log.so
-/usr/lib/libboost_log_setup.so
-/usr/lib/libboost_math_c99.so
-/usr/lib/libboost_math_c99f.so
-/usr/lib/libboost_math_c99l.so
-/usr/lib/libboost_math_tr1.so
-/usr/lib/libboost_math_tr1f.so
-/usr/lib/libboost_math_tr1l.so
-/usr/lib/libboost_prg_exec_monitor.so
-/usr/lib/libboost_program_options.so
-/usr/lib/libboost_python.so
-/usr/lib/libboost_random.so
-/usr/lib/libboost_regex.so
-/usr/lib/libboost_serialization.so
-/usr/lib/libboost_signals.so
-/usr/lib/libboost_system.so
-/usr/lib/libboost_test_exec_monitor.a
-/usr/lib/libboost_thread.so
-/usr/lib/libboost_timer.so
-/usr/lib/libboost_unit_test_framework.so
-/usr/lib/libboost_wave.so
-/usr/lib/libboost_wserialization.so</literal></screen>
 
   </sect2>
 
