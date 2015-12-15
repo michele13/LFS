@@ -14,10 +14,10 @@
   <!ENTITY gsl-time          "1.5 SBU">
 ]>
 
-<sect1 id="gsl" xreflabel="GSL-&gsl-version;">
+<sect1 id="gsl" xreflabel="gsl-&gsl-version;">
   <?dbhtml filename="gsl.html"?>
 
-  <title>GSL-&gsl-version;</title>
+  <title>gsl-&gsl-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -77,55 +77,29 @@
     <title>Installation</title>
 
     <para>
-      Install GSL by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-info-am//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="gsl">
-      <primary sortas="b-gsl-config">gsl-config</primary>
-    </indexterm>
-    <indexterm zone="gsl">
-      <primary sortas="b-gsl-histogram">gsl-histogram</primary>
-    </indexterm>
-    <indexterm zone="gsl">
-      <primary sortas="b-gsl-randist">gsl-randist</primary>
-    </indexterm>
-    <indexterm zone="gsl">
-      <primary sortas="c-libgslcblas.so">libgslcblas.so</primary>
-    </indexterm>
-    <indexterm zone="gsl">
-      <primary sortas="c-libgsl.so">libgsl.so</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/bin/gsl-config
-/usr/bin/gsl-histogram
-/usr/bin/gsl-randist
-/usr/include/gsl/
-/usr/lib/libgslcblas.so
-/usr/lib/libgsl.so
-/usr/lib/pkgconfig/gsl.pc
-/usr/share/aclocal/gsl.m4
-/usr/share/man/man1/gsl-config.1
-/usr/share/man/man1/gsl-histogram.1
-/usr/share/man/man1/gsl-randist.1
-/usr/share/man/man3/gsl.3</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
