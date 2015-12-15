@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY glibmm-homepage      " ">
+  <!ENTITY glibmm-wikipedia     " ">
   <!ENTITY glibmm-download-http "&gnome-download-http;/glibmm/2.46/glibmm-&glibmm-version;.tar.xz">
   <!ENTITY glibmm-download-ftp  "&gnome-download-ftp;/glibmm/2.46/glibmm-&glibmm-version;.tar.xz">
   <!ENTITY glibmm-md5sum        "6879e56997aed47816fafe9a7a822a87">
@@ -12,25 +14,30 @@
   <!ENTITY glibmm-time          "1.1 SBU">
 ]>
 
-<sect1 id="glibmm" xreflabel="GLibmm-&glibmm-version;">
+<sect1 id="glibmm" xreflabel="glibmm-&glibmm-version;">
   <?dbhtml filename="glibmm.html"?>
 
-  <title>GLibmm-&glibmm-version;</title>
-
-  <indexterm zone="glibmm">
-    <primary sortas="a-GLibmm">GLibmm</primary>
-  </indexterm>
+  <title>glibmm-&glibmm-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to GLibmm</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>GLibmm</application> package is a set of C++ bindings
-      for <application>GLib</application>.
+      The GLibmm package is a set of C++ bindings for GLib.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&glibmm-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&glibmm-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&glibmm-download-http;"/>
@@ -63,96 +70,46 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">GLibmm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="glib2"/> and
       <xref linkend="libsigc"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of GLibmm</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>GLibmm</application> by running the following
-      commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local install-dist_docimagesDATA//" -i docs/Makefile.in
+sed "s/install-dist_referenceDATA//" -i docs/Makefile.in</userinput></screen>
 
     <para>
-      To test the results, issue: <command>make check</command>.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
 
-  </sect2>
+    <para>
+      Install the package:
+    </para>
 
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>
-          None
-        </seg>
-        <seg>
-          libgiomm-2.4.so, libglibmm-2.4.so and
-          libglibmm_generate_extra_defs-2.4.so
-        </seg>
-        <seg>
-          /usr/include/giomm-2.4,
-          /usr/include/glibmm-2.4,
-          /usr/lib/giomm-2.4,
-          /usr/lib/glibmm-2.4,
-          /usr/share/devhelp/books/glibmm-2.4 and
-          /usr/share/doc/glibmm-2.4
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libgiomm-2">
-        <term><filename class="libraryfile">libgiomm-2.4.so</filename></term>
-        <listitem>
-          <para>
-            contains the Gio API classes.
-          </para>
-          <indexterm zone="glibmm libgiomm-2">
-            <primary sortas="c-libgiomm-2">libgiomm-2.4.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libglibmm-2">
-        <term><filename class="libraryfile">libglibmm-2.4.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>GLib</application> API classes.
-          </para>
-          <indexterm zone="glibmm libglibmm-2">
-            <primary sortas="c-libglibmm-2">libglibmm-2.4.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libgiomm-2.4.la &amp;&amp;
+rm -v /lib/libglibmm-2.4.la &amp;&amp;
+rm -v /lib/libglibmm_generate_extra_defs-2.4.la"</userinput></screen>
 
   </sect2>
 
