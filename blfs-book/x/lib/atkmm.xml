@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY atkmm-homepage      " ">
+  <!ENTITY atkmm-wikipedia     " ">
   <!ENTITY atkmm-download-http "&gnome-download-http;/atkmm/2.24/atkmm-&atkmm-version;.tar.xz">
   <!ENTITY atkmm-download-ftp  "&gnome-download-ftp;/atkmm/2.24/atkmm-&atkmm-version;.tar.xz">
   <!ENTITY atkmm-md5sum        "d53b60b0f1be597e86070954a49cf0c3">
@@ -12,25 +14,31 @@
   <!ENTITY atkmm-time          "0.3 SBU">
 ]>
 
-<sect1 id="atkmm" xreflabel="Atkmm-&atkmm-version;">
+<sect1 id="atkmm" xreflabel="atkmm-&atkmm-version;">
   <?dbhtml filename="atkmm.html"?>
 
-  <title>Atkmm-&atkmm-version;</title>
-
-  <indexterm zone="atkmm">
-    <primary sortas="a-Atkmm">Atkmm</primary>
-  </indexterm>
+  <title>atkmm-&atkmm-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Atkmm</title>
+    <title>Introduction</title>
 
     <para>
-      <application>Atkmm</application> is the official C++ interface for the
-      ATK accessibility toolkit library.
+      Atkmm is the official C++ interface for the ATK accessibility toolkit
+      library.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&atkmm-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&atkmm-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&atkmm-download-http;"/>
@@ -63,79 +71,43 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Atkmm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="atk"/> and
       <xref linkend="glibmm"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Atkmm</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Atkmm</application> by running the following
-      commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local install-dist_referenceDATA//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      This package does not come with a testsuite.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
 
-  </sect2>
+    <para>
+      Install the package:
+    </para>
 
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-	<seg>
-	  None
-	</seg>
-        <seg>
-          libatkmm-1.6.so
-        </seg>
-        <seg>
-          /usr/{include,lib}/atkmm-1.6 and
-          /usr/share/{devhelp/books,doc}/atkmm-1.6
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libatkmm-1">
-        <term><filename class="libraryfile">libatkmm-1.6.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>ATK</application> API classes.
-          </para>
-          <indexterm zone="atkmm libatkmm-1">
-            <primary sortas="c-libatkmm-1">libatkmm-1.6.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libatkmm-1.6.la"</userinput></screen>
 
   </sect2>
 
