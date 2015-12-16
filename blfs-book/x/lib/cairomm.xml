@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY cairomm-homepage      " ">
+  <!ENTITY cairomm-wikipedia     " ">
   <!ENTITY cairomm-download-http "http://cairographics.org/releases/cairomm-&cairomm-version;.tar.gz">
   <!ENTITY cairomm-download-ftp  " ">
   <!ENTITY cairomm-md5sum        "481501be65bcc34a605d6bc0f57a0023">
@@ -12,25 +14,30 @@
   <!ENTITY cairomm-time          "0.2 SBU">
 ]>
 
-<sect1 id="cairomm" xreflabel="Cairomm-&cairomm-version;">
+<sect1 id="cairomm" xreflabel="cairomm-&cairomm-version;">
   <?dbhtml filename="cairomm.html"?>
 
-  <title>Cairomm-&cairomm-version;</title>
-
-  <indexterm zone="cairomm">
-    <primary sortas="a-Cairomm">Cairomm</primary>
-  </indexterm>
+  <title>cairomm-&cairomm-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Cairomm</title>
+    <title>Introduction</title>
 
     <para>
-      The <application>Cairomm</application> package provides a C++
-      interface to <application>Cairo</application>.
+      The Cairomm package provides a C++ interface to Cairo.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&cairomm-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&cairomm-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&cairomm-download-http;"/>
@@ -63,81 +70,43 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Cairomm Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="cairo"/> and
       <xref linkend="libsigc"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Cairomm</title>
+  <sect2>
+    <title>Installation</title>
 
     <para>
-      Install <application>Cairomm</application> by running the following
-      commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-data-local install-dist_referenceDATA//" -i docs/Makefile.in</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Prepare the package for compilation:
     </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
 
-  </sect2>
+    <para>
+      Install the package:
+    </para>
 
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Library</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>
-	  None
-	</seg>
-	<seg>
-          libcairomm-1.0.so
-        </seg>
-        <seg>
-          /usr/include/cairomm-1.0,
-          /usr/lib/cairomm-1.0,
-          /usr/share/devhelp/books/cairomm-1.0 and
-          /usr/share/doc/cairomm-1.0
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="libcairomm-1">
-        <term><filename class="libraryfile">libcairomm-1.0.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>Cairo</application> API classes.
-          </para>
-          <indexterm zone="cairomm libcairomm-1">
-            <primary sortas="c-libcairomm-1">libcairomm-1.0.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libcairomm-1.0.la"</userinput></screen>
 
   </sect2>
 
