@@ -6,11 +6,10 @@
 
   <!ENTITY docbook-xsl-homepage      "http://docbook.sourceforge.net/">
   <!ENTITY docbook-xsl-wikipedia     "http://en.wikipedia.org/wiki/DocBook_XSL">
-  <!ENTITY docbook-xsl-download-http
-  "&sourceforge-repo;/docbook/docbook-xsl-&docbook-xsl-version;.tar.bz2">
+  <!ENTITY docbook-xsl-download-http "&sourceforge-repo;/docbook/docbook-xsl-&docbook-xsl-version;.tar.bz2">
   <!ENTITY docbook-xsl-download-ftp  " ">
-  <!ENTITY docbook-xsl-md5sum        "6dd0f89131cc35bf4f2ed105a1c17771">
-  <!ENTITY docbook-xsl-size          "4.8 MB">
+  <!ENTITY docbook-xsl-md5sum        "b48cbf929a2ad85e6672f710777ca7bc">
+  <!ENTITY docbook-xsl-size          "21 MB">
   <!ENTITY docbook-xsl-buildsize     "49 MB">
   <!ENTITY docbook-xsl-time          "less than 0.1 SBU">
 ]>
@@ -80,9 +79,17 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
 
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
-    <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
       <xref linkend="libxml2"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libxslt"/> (or any other XSLT processor, to process Docbook documents),
+      <xref linkend="python2"/> or <xref linkend="python3"/> (to use <quote>extensions</quote>),
+      <xref linkend="ruby"/> (to utilize the <quote>epub</quote> stylesheets), and
+      <xref linkend="zip"/> (to produce <quote>epub3</quote> documents)
     </para>
 
   </sect2>
@@ -96,10 +103,10 @@ xreflabel="docbook-xsl-&docbook-xsl-version;">
     </para>
 
 <screen role="root"><userinput>install -v -m755 -d /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
-cp -v -R VERSION common eclipse epub extensions fo highlighting html htmlhelp \
-         images javahelp lib manpages params profiling roundtrip slides \
-         template tests tools webhelp website xhtml xhtml-1_1 \
-         /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version; &amp;&amp;
+cp -v -R VERSION assembly common eclipse epub epub3 extensions fo        \
+         highlighting html htmlhelp images javahelp lib manpages params  \
+         profiling roundtrip slides template tests tools webhelp website \
+         xhtml xhtml-1_1 xhtml5                                          \
 ln -v -s VERSION /usr/share/xml/docbook/xsl-stylesheets-&docbook-xsl-version;/VERSION.xsl</userinput></screen>
 
   </sect2>
