@@ -24,7 +24,6 @@ create-dirs:
 
 files: create-dirs 
 	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/cleanfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/halt          ${EXTDIR}/rc.d/init.d/
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
@@ -49,9 +48,6 @@ files: create-dirs
 	install -m ${MODE} lfs/lib/services/ipv4-static-route  ${LIBDIR}
 	install -m ${MODE} lfs/lib/services/ipv4-static        ${LIBDIR}
 	install -m ${CONFMODE} lfs/lib/services/init-functions ${LIBDIR}
-	if [ ! -f ${EXTDIR}/sysconfig/createfiles ]; then \
-          install -m ${CONFMODE} lfs/sysconfig/createfiles ${EXTDIR}/sysconfig/ ;\
-        fi
 	if [ ! -f ${EXTDIR}/sysconfig/rc.site     ]; then \
           install -m ${CONFMODE} lfs/sysconfig/rc.site     ${EXTDIR}/sysconfig/ ;\
         fi

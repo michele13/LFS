@@ -145,9 +145,9 @@
 
 <screen role="root"><userinput>porg -lD "make -j1 install" &amp;&amp;
 mkdir -pv /etc/X11/xorg.conf.d &amp;&amp;
-cat &gt;&gt; /etc/sysconfig/createfiles &lt;&lt; "EOF"
-<literal>/tmp/.ICE-unix dir 1777 root root
-/tmp/.X11-unix dir 1777 root root</literal>
+cat &gt;&gt; /etc/rc.d/rcS.d/oneandonly &lt;&lt; "EOF"
+<literal>install -d -o root -g root -m 1777 /tmp/.ICE-unix
+install -d -o root -g root -m 1777 /tmp/.X11-unix</literal>
 EOF</userinput></screen>
 
     <sect3>
@@ -205,7 +205,7 @@ EOF</userinput></screen>
       </para>
 
       <para>
-        <command>cat &gt;&gt; /etc/sysconfig/createfiles...</command>: This
+        <command>cat &gt;&gt; /etc/rc.d/rcS.d/oneandonly ...</command>: This
         command creates the <filename class="directory">/tmp/.ICE-unix</filename>
         and <filename class="directory">/tmp/.X11-unix</filename> directories at
         startup, and ensures that the permissions and ownership are correct as
