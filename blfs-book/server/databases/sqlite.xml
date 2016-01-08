@@ -4,14 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY sqlite-dl-version    "3090200">
+  <!ENTITY sqlite-dl-version    "3100000">
 
   <!ENTITY sqlite-homepage      "http://www.sqlite.org/">
   <!ENTITY sqlite-wikipedia     "http://en.wikipedia.org/wiki/SQLite">
-  <!ENTITY sqlite-download-http "http://sqlite.org/2015/sqlite-autoconf-&sqlite-dl-version;.tar.gz">
+  <!ENTITY sqlite-download-http "http://sqlite.org/2016/sqlite-autoconf-&sqlite-dl-version;.tar.gz">
   <!ENTITY sqlite-download-ftp  " ">
-  <!ENTITY sqlite-md5sum        "bc4eb5b3fc5cfcb6e059794306cac1ca">
-  <!ENTITY sqlite-size          "2.2 MB">
+  <!ENTITY sqlite-md5sum        "274364e6ca5c1104d42912f11e61ed26">
+  <!ENTITY sqlite-size          "2.3 MB">
   <!ENTITY sqlite-buildsize     "73 MB">
   <!ENTITY sqlite-time          "0.4 SBU">
 
@@ -78,6 +78,7 @@
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
+      <xref linkend="libedit"/> or
       <xref linkend="readline"/>
     </para>
 
@@ -99,11 +100,17 @@
                     -DSQLITE_SECURE_DELETE=1 \
                     -DSQLITE_ENABLE_DBSTAT_VTAB=1"</userinput></screen>
 
+    <note>
+      <para>
+        This package does not support parallel build.
+      </para>
+    </note>
+
     <para>
       Compile the package:
     </para>
 
-<screen><userinput>make</userinput></screen>
+<screen><userinput>make -j1</userinput></screen>
 
     <para>
       Install the package:
