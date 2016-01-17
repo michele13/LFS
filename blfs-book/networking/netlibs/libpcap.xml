@@ -74,7 +74,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libnl"/> and
       <xref linkend="libusb"/>
     </para>
@@ -85,11 +85,16 @@
     <title>Installation</title>
 
     <para>
-      Install libpcap by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix=</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
 
     <para>
       Disable installing the static library:
@@ -98,39 +103,10 @@ make</userinput></screen>
 <screen><userinput>sed -i '/INSTALL_DATA.*libpcap.a\|RANLIB.*libpcap.a/ s/^/#/' Makefile</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-  <indexterm zone="libpcap">
-    <primary sortas="b-libpcap-config">libpcap-config</primary>
-  </indexterm>
-  <indexterm zone="libpcap">
-    <primary sortas="c-libpcap.so">libpcap.so</primary>
-  </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/pcap-config
-/usr/include/pcap/
-/usr/include/pcap-bpf.h
-/usr/include/pcap.h
-/usr/include/pcap-namedb.h
-/usr/lib/libpcap.so
-/usr/share/man/man1/pcap-config.1
-/usr/share/man/man3/pcap.3pcap
-/usr/share/man/man5/pcap-savefile.5
-/usr/share/man/man7/pcap-filter.7
-/usr/share/man/man7/pcap-linktype.7
-/usr/share/man/man7/pcap-tstamp.7</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
