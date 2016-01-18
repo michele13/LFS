@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY dosfstools-homepage      "https://github.com/dosfstools/dosfstools">
+  <!ENTITY dosfstools-wikipedia     " ">
+  <!ENTITY dosfstools-download-http "https://github.com/dosfstools/dosfstools/releases/download/v&dosfstools-version;/dosfstools-&dosfstools-version;.tar.xz">
+  <!ENTITY dosfstools-download-ftp  " ">
+  <!ENTITY dosfstools-md5sum        "6a047a6c65186b9ebb1853709adb36db">
+  <!ENTITY dosfstools-size          "81 KB">
+  <!ENTITY dosfstools-buildsize     "2.0 MB">
+  <!ENTITY dosfstools-time          "0.1 SBU">
+]>
+
+<sect1 id="dosfstools" xreflabel="dosfstools-&dosfstools-version;">
+  <?dbhtml filename="dosfstools.html"?>
+
+  <title>dosfstools-&dosfstools-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The dosfstools package contains the utilities for making and checking
+      MS-DOS FAT filesystems.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&dosfstools-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&dosfstools-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&dosfstools-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&dosfstools-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &dosfstools-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &dosfstools-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &dosfstools-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &dosfstools-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "/^install:/s/install-doc//" -i Makefile</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make PREFIX= SBINDIR=/bin LANGUAGES= -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>
