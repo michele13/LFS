@@ -157,10 +157,8 @@ porg -lp+ glibc-&glibc-version; "localedef -i en_US -f UTF-8 en_US.UTF-8"</useri
     <para>Create a new file <filename>/etc/nsswitch.conf</filename> by running the
     following:</para>
 
-<screen><userinput>porg -lp+ glibc-&glibc-version; 'cat &gt; /etc/nsswitch.conf &lt;&lt; "EOF"
-<literal># Begin /etc/nsswitch.conf
-
-passwd: files
+<screen><userinput>cat &gt; /etc/nsswitch.conf &lt;&lt; "EOF"
+<literal>passwd: files
 group: files
 shadow: files
 
@@ -170,10 +168,9 @@ networks: files
 protocols: files
 services: files
 ethers: files
-rpc: files
-
-# End /etc/nsswitch.conf</literal>
-EOF'</userinput></screen>
+rpc: files</literal>
+EOF
+ls /etc/nsswitch.conf | porg -lp+ glibc-&glibc-version;</userinput></screen>
 
     </sect3>
 
