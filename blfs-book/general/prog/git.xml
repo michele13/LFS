@@ -74,18 +74,6 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          <ulink url="ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz">
-          ftp://ftp.kernel.org/pub/software/scm/git/git-manpages-&git-version;.tar.xz</ulink>
-          <!--(if you prefer the original, not needed if you've installed asciidoc
-          and xmlto and prefer to build them).-->
-        </para>
-      </listitem>
-    </itemizedlist>
-
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
@@ -96,16 +84,15 @@
       <xref linkend="curl"/> (needed to use git over http, https, ftp or ftps)
     </para>
 
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para>
-      <!--<xref linkend="asciidoc"/> and
-      <xref linkend="xmlto"/> (to create the man pages),-->
-      <xref linkend="pcre"/>
-    </para>
-
     <bridgehead renderas="sect4">Recommended (runtime)</bridgehead>
     <para>
+      <xref linkend="git-manpages"/> and
       <xref linkend="less"/> (for colored output)
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="pcre"/>
     </para>
 
   </sect2>
@@ -117,8 +104,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>tar xvf ../git-manpages-&git-version;.tar.xz &amp;&amp;
-./configure --prefix= \
+<screen><userinput>./configure --prefix= \
             --without-tcltk</userinput></screen>
 
     <para>
@@ -126,40 +112,13 @@
     </para>
 
 <screen><userinput>make NO_GETTEXT=1</userinput></screen>
-<!--
-    <para>
-      If you have installed <xref linkend="asciidoc"/> and <xref
-      linkend="xmlto"/> you can create the man pages:
-    </para>
 
-<screen><userinput>make man</userinput></screen>
-
-    <para>
-      Alternatively, if you downloaded the man pages:
-    </para>
-
-<screen><userinput>tar xvf ../git-manpages-&git-version;.tar.xz</userinput></screen>
--->
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make NO_GETTEXT=1 -j1 install" &amp;&amp;
-for dir in man? ; do porg -lD+ "cp -v $dir/* /share/man/$dir" ; done</userinput></screen>
-<!--
-    <para>
-      If you created the man pages, install them as the <systemitem
-      class="username">root</systemitem> user:
-    </para>
+<screen role="root"><userinput>porg -lD -E $PWD "make NO_GETTEXT=1 -j1 install"</userinput></screen>
 
-<screen role="root"><userinput>make install-man</userinput></screen>
-
-    <para>
-      Alternatively, if you downloaded the man pages:
-    </para>
-
-<screen role="root"><userinput>for dir in man? ; do cp -v $dir/* /usr/share/man/$dir ; done</userinput></screen>
--->
     <sect3>
       <title>Command Explanations</title>
 
