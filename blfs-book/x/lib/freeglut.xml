@@ -14,10 +14,10 @@
   <!ENTITY freeglut-time          "0.2 SBU">
 ]>
 
-<sect1 id="freeglut" xreflabel="Freeglut-&freeglut-version;">
+<sect1 id="freeglut" xreflabel="freeglut-&freeglut-version;">
   <?dbhtml filename="freeglut.html"?>
 
-  <title>Freeglut-&freeglut-version;</title>
+  <title>freeglut-&freeglut-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -76,9 +76,9 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="cmake"/> and
-      <xref linkend="mesa"/>
+      <xref linkend="glu"/>
     </para>
 
   </sect2>
@@ -87,40 +87,28 @@
     <title>Installation</title>
 
     <para>
-      Install Freeglut by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>mkdir build &amp;&amp;
 cd build &amp;&amp;
-cmake -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_BUILD_TYPE=Release \
-      ..
-make</userinput></screen>
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX= \
+      -DFREEGLUT_BUILD_STATIC_LIBS=OFF \
+      -DFREEGLUT_BUILD_DEMOS=OFF \
+      ..</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="freeglut">
-      <primary sortas="c-libglut.so">libglut.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/include/GL/freeglut_ext.h
-/usr/include/GL/freeglut.h
-/usr/include/GL/freeglut_std.h
-/usr/include/GL/glut.h
-/usr/lib/libglut.so</literal></screen>
+<screen role="root"><userinput>porg -lp freeglut-&freeglut-version; "make -j1 install"</userinput></screen>
 
   </sect2>
 
