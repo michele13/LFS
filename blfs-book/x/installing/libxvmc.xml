@@ -14,10 +14,10 @@
   <!ENTITY libxvmc-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxvmc" xreflabel="libXvMC-&libxvmc-version;">
+<sect1 id="libxvmc" xreflabel="libxvmc-&libxvmc-version;">
   <?dbhtml filename="libxvmc.html"?>
 
-  <title>libXvMC-&libxvmc-version;</title>
+  <title>libxvmc-&libxvmc-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -78,7 +78,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="libxv"/>
     </para>
 
@@ -88,40 +88,31 @@
     <title>Installation</title>
 
     <para>
-      Install libXvMC by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput></userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxvmc">
-      <primary sortas="c-libXvMC.so">libXvMC.so</primary>
-    </indexterm>
-
-    <indexterm zone="libxvmc">
-      <primary sortas="c-libXvMCW.so">libXvMCW.so</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/include/X11/extensions/XvMClib.h
-/usr/lib/libXvMC.so
-/usr/lib/libXvMCW.so  
-/usr/lib/pkgconfig/xvmc.pc
-/usr/share/doc/libXvMC/</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp libxvmc-&libxvmc-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXvMC.la &amp;&amp;
+rm -v /lib/libXvMCW.la"</userinput></screen>
 
   </sect2>
 
