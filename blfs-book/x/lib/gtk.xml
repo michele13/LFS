@@ -4,20 +4,20 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY gtk2-homepage      "http://www.gtk.org/">
-  <!ENTITY gtk2-wikipedia     "http://en.wikipedia.org/wiki/GTK+">
-  <!ENTITY gtk2-download-http "&gnome-download-http;/gtk+/2.24/gtk+-&gtk2-version;.tar.xz">
-  <!ENTITY gtk2-download-ftp  "&gnome-download-ftp;/gtk+/2.24/gtk+-&gtk2-version;.tar.xz">
-  <!ENTITY gtk2-md5sum        "1b7a3689f65617387b5b54520f4439e8">
-  <!ENTITY gtk2-size          "13 MB">
-  <!ENTITY gtk2-buildsize     "376 MB">
-  <!ENTITY gtk2-time          "2.8 SBU">
+  <!ENTITY gtk-homepage      "http://www.gtk.org/">
+  <!ENTITY gtk-wikipedia     "http://en.wikipedia.org/wiki/GTK+">
+  <!ENTITY gtk-download-http "&gnome-download-http;/gtk+/2.24/gtk+-&gtk-version;.tar.xz">
+  <!ENTITY gtk-download-ftp  "&gnome-download-ftp;/gtk+/2.24/gtk+-&gtk-version;.tar.xz">
+  <!ENTITY gtk-md5sum        "1b7a3689f65617387b5b54520f4439e8">
+  <!ENTITY gtk-size          "13 MB">
+  <!ENTITY gtk-buildsize     "376 MB">
+  <!ENTITY gtk-time          "2.8 SBU">
 ]>
 
-<sect1 id="gtk2" xreflabel="gtk+-&gtk2-version;">
-  <?dbhtml filename="gtk2.html" ?>
+<sect1 id="gtk" xreflabel="gtk-&gtk-version;">
+  <?dbhtml filename="gtk.html" ?>
 
-  <title>gtk+-&gtk2-version;</title>
+  <title>gtk-&gtk-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -32,42 +32,42 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Homepage: <ulink url="&gtk2-homepage;"/>
+          Homepage: <ulink url="&gtk-homepage;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Wikipedia: <ulink url="&gtk2-wikipedia;"/>
+          Wikipedia: <ulink url="&gtk-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&gtk2-download-http;"/>
+          Download (HTTP): <ulink url="&gtk-download-http;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&gtk2-download-ftp;"/>
+          Download (FTP): <ulink url="&gtk-download-ftp;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download MD5 sum: &gtk2-md5sum;
+          Download MD5 sum: &gtk-md5sum;
         </para>
       </listitem>
       <listitem>
         <para>
-          Download size: &gtk2-size;
+          Download size: &gtk-size;
         </para>
       </listitem>
       <listitem>
         <para>
-          Estimated disk space required: &gtk2-buildsize;
+          Estimated disk space required: &gtk-buildsize;
         </para>
       </listitem>
       <listitem>
         <para>
-          Estimated build time: &gtk2-time;
+          Estimated build time: &gtk-time;
         </para>
       </listitem>
     </itemizedlist>
@@ -102,7 +102,8 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>sed "s/ install-data-local//" -i docs/reference/gdk/Makefile.in
+<screen><userinput>sed "s/ install-democodeDATA$//" -i demos/gtk-demo/Makefile.in
+sed "s/ install-data-local//" -i docs/reference/gdk/Makefile.in
 sed "s/ install-data-local//" -i docs/reference/gtk/Makefile.in
 sed "s/ install-data-local//" -i docs/reference/libgail-util/Makefile.in
 sed "s/ install-data$//" -i po/Makefile.in.in
@@ -124,7 +125,7 @@ sed "s/ install-data$//" -i po-properties/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen role="root"><userinput>porg -lp gtk-&gtk-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libgailutil.la &amp;&amp;
 rm -v /lib/libgdk-x11-2.0.la &amp;&amp;
 rm -v /lib/libgtk-x11-2.0.la"</userinput></screen>
