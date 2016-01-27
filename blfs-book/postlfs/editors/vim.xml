@@ -91,7 +91,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>echo '#define SYS_VIMRC_FILE  "/etc/vim/vimrc"' &gt;&gt; src/feature.h &amp;&amp;
+<screen><userinput>sed "s/luaL_optlong/(long) luaL_optinteger/" -i src/if_lua.c &amp;&amp;
+echo '#define SYS_VIMRC_FILE  "/etc/vim/vimrc"' &gt;&gt; src/feature.h &amp;&amp;
 ./configure --prefix=/ \
             --disable-nls \
             --with-features=huge \
@@ -131,8 +132,8 @@
       </para>
 
       <para>
-        <option>--enable-perlinterp</option> <option>--enable-python3interp</option>
-        <option>--enable-rubyinterp</option> <option>--enable-luainterp</option>:
+        <option>--enable-luainterp</option> <option>--enable-perlinterp</option>
+        <option>--enable-python3interp</option> <option>--enable-rubyinterp</option>:
         These options include the Lua, Perl, Python, or Ruby interpreters that
         allow using other application code in vim scripts.
       </para>
