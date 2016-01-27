@@ -71,6 +71,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;ruby/ruby-&ruby-version;-configure-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -78,9 +88,9 @@
       <xref linkend="gdbm"/>,
       <xref linkend="libffi"/>,
       <xref linkend="libressl"/>,
-      <xref linkend="readline"/>,
-      <xref linkend="graphviz"/>, and
-      <ulink url="http://pyyaml.org/wiki/LibYAML">libyaml</ulink>
+      <xref linkend="readline"/>, and
+      <xref linkend="yaml"/>
+<!--      <xref linkend="graphviz"/> needs research -->
     </para>
 
   </sect2>
@@ -92,7 +102,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix= \
+<screen><userinput>patch -p1 -i ../ruby-&ruby-version;-configure-1.patch &amp;&amp;
+./configure --prefix= \
             --enable-shared \
             --disable-install-doc</userinput></screen>
 
