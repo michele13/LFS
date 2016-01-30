@@ -89,6 +89,7 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
+      <xref linkend="libnl-tiny"/> or
       <xref linkend="libnl"/>,
       <xref linkend="libressl"/>, and
       <xref linkend="readline"/>
@@ -126,39 +127,37 @@ Device Drivers  ---&gt;
     <title>Installation</title>
 
     <para>
-      First you will need to create an initial configuration file for the
-      build process. You can read <filename>wpa_supplicant/README</filename>
-      and <filename>wpa_supplicant/defconfig</filename> for the explanation
-      of the following options as well as other options that can be used.
-      Create a build configuration file that should work for standard WiFi
-      setups by running the following command:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>cat &gt; wpa_supplicant/.config &lt;&lt; "EOF"
-<literal>CONFIG_BACKEND=file
-CONFIG_CTRL_IFACE=y
-CONFIG_DEBUG_FILE=y
+<screen><userinput>patch -p1 -i ../wpa_supplicant-2.5-libressl-1.patch &amp;&amp;
+cd wpa_supplicant &amp;&amp;
+sed "s/ncurses/ncursesw/" -i Makefile &amp;&amp;
+cp defconfig .config &amp;&amp;
+cat >> .config &lt;&lt; "EOF"
+<literal>CONFIG_DEBUG_FILE=y
 CONFIG_DEBUG_SYSLOG=y
 CONFIG_DEBUG_SYSLOG_FACILITY=LOG_DAEMON
-CONFIG_DRIVER_NL80211=y
-CONFIG_DRIVER_WEXT=y
-CONFIG_DRIVER_WIRED=y
-CONFIG_EAP_GTC=y
-CONFIG_EAP_LEAP=y
-CONFIG_EAP_MD5=y
-CONFIG_EAP_MSCHAPV2=y
-CONFIG_EAP_OTP=y
-CONFIG_EAP_PEAP=y
-CONFIG_EAP_TLS=y
-CONFIG_EAP_TTLS=y
-CONFIG_IEEE8021X_EAPOL=y
-CONFIG_IPV6=y
-CONFIG_LIBNL32=y
-CONFIG_PEERKEY=y
-CONFIG_PKCS12=y
-CONFIG_READLINE=y
-CONFIG_SMARTCARD=y
-CONFIG_WPS=y
+CONFIG_READLINE=y</literal>
+EOF</userinput></screen>
+
+    <para>
+      If you want to use <xref linkend="libnl-tiny"/>, execute the following command:
+    </para>
+
+<screen><userinput>cat >> .config &lt;&lt; "EOF"
+<literal>CONFIG_LIBNL_TINY=y
+CFLAGS += -I/include/libnl-tiny
+CFLAGS += -DLIBNL1_COMPAT
+CFLAGS += -D_GNU_SOURCE</literal>
+EOF</userinput></screen>
+
+    <para>
+      Otherwise, if you want to use <xref linkend="libnl"/>, execute the following command:
+    </para>
+
+<screen><userinput>cat >> .config &lt;&lt; "EOF"
+<literal>CONFIG_LIBNL32=y
 CFLAGS += -I/include/libnl3</literal>
 EOF</userinput></screen>
 
@@ -166,10 +165,7 @@ EOF</userinput></screen>
       Compile the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch &amp;&amp;
-sed "s/ncurses/ncursesw/" -i wpa_supplicant/Makefile &amp;&amp;
-cd wpa_supplicant &amp;&amp;
-make BINDIR=/bin LIBDIR=/lib</userinput></screen>
+<screen><userinput>make BINDIR=/bin LIBDIR=/lib</userinput></screen>
 
     <para>
       Instal the package:
