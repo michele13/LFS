@@ -147,37 +147,37 @@ rm -v /lib/libgtk-x11-2.0.la"</userinput></screen>
     <title>Configuration</title>
 
     <para>
-      GTK+ themes change the way a GTK+ application looks. A GTK+ icon theme can
-      be used to change the icons that appear on the application's toolbar. If
-      you have installed a GTK+ theme (such as <ulink
-      url="http://ftp.gnome.org/pub/gnome/sources/gnome-themes/2.32/">gnome-themes</ulink>)
-      or a GTK+ icon theme (such as <xref linkend="gnome-icon-theme"/>) you can
-      set your preferences in <filename>~/.gtkrc-2.0</filename>:
-    </para>
-
-<screen><userinput>cat &gt; ~/.gtkrc-2.0 &lt;&lt; "EOF"
-<literal>include "/share/themes/<replaceable>Glider</replaceable>/gtk-2.0/gtkrc"
-gtk-icon-theme-name = "<replaceable>hicolor</replaceable>"</literal>
-EOF</userinput></screen>
-
-    <para>
-      There are many more themes available at <ulink
-      url="http://gnome-look.org/">Gnome-Look.org</ulink> and other places.
-    </para>
-
-    <para>
-      Once you've settled on themes you like, you can (as the <systemitem
-      class="username">root</systemitem> user) make them the default system wide:
+      GTK+ themes change the way a GTK+ application looks. A GTK+ icon theme,
+      for example, can be used to change the icons that appear on the
+      application's toolbar. The following command makes <xref linkend="waldorf-ui-theme"/>,
+      <xref linkend="crunchbang-icon-theme"/>, <xref linkend="liberation"/>, and
+      <xref linkend="dmz-cursor-theme"/> as well as some other tweaks, the default
+      system wide:
     </para>
 
 <screen role="root"><userinput>cat &gt; /etc/gtk-2.0/gtkrc &lt;&lt; "EOF"
-<literal>include "/share/themes/<replaceable>Clearlooks</replaceable>/gtk-2.0/gtkrc"
-gtk-icon-theme-name = "<replaceable>elementary</replaceable>"</literal>
+<literal>include "/share/themes/waldorf/gtk-2.0/gtkrc"
+gtk-theme-name="waldorf"
+gtk-icon-theme-name="CrunchBang-Dark"
+gtk-font-name="Liberation Sans 10"
+gtk-cursor-theme-name="DMZ-White"
+gtk-cursor-theme-size=0
+gtk-toolbar-style=GTK_TOOLBAR_ICONS
+gtk-toolbar-icon-size=GTK_ICON_SIZE_SMALL_TOOLBAR
+gtk-button-images=0
+gtk-menu-images=1
+gtk-enable-event-sounds=0
+gtk-enable-input-feedback-sounds=0
+gtk-xft-antialias=1
+gtk-xft-hinting=1
+gtk-xft-hintstyle="hintfull"
+gtk-xft-rgba="rgb"</literal>
 EOF</userinput></screen>
 
     <para>
       <xref linkend="lxappearance"/> is a GTK+ application that can help you
-      choose the themes you like.
+      choose the themes you like. There are many more themes available at <ulink
+      url="http://gnome-look.org/">gnome-look.org</ulink> and other places.
     </para>
 
   </sect2>
