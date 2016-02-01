@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY tidy-html5-homepage      "http://www.html-tidy.org/">
+  <!ENTITY tidy-html5-wikipedia     "http://en.wikipedia.org/wiki/HTML_Tidy">
+  <!ENTITY tidy-html5-download-http "https://github.com/htacg/tidy-html5/archive/&tidy-html5-version;.tar.gz">
+  <!ENTITY tidy-html5-download-ftp  " ">
+  <!ENTITY tidy-html5-md5sum        "5fd96deef635ab8cea3dc74079f54d95">
+  <!ENTITY tidy-html5-size          "632 KB">
+  <!ENTITY tidy-html5-buildsize     "16 MB">
+  <!ENTITY tidy-html5-time          "0.1 SBU">
+]>
+
+<sect1 id="tidy-html5" xreflabel="tidy-html5-&tidy-html5-version;">
+  <?dbhtml filename="tidy-html5.html"?>
+
+  <title>tidy-html5-&tidy-html5-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      This package contains a command line tool and libraries used to read
+      HTML, XHTML and XML files and write cleaned up markup. It detects and
+      corrects many common coding errors and strives to produce visually
+      equivalent markup that is both W3C compliant and compatible with most
+      browsers.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&tidy-html5-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&tidy-html5-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&tidy-html5-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&tidy-html5-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &tidy-html5-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &tidy-html5-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &tidy-html5-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &tidy-html5-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="cmake"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libxslt"/> (to build the man page)
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>mkdir bld &amp;&amp;
+cd bld &amp;&amp;
+cmake -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX= \
+      ..</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp tidy-html5-&tidy-html5-version; "make -j1 install"</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>-DBUILD_TAB2SPACE=ON</option>: This switch is used to enable
+        building the <command>tab2space</command> utility.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration</title>
+
+    <para>
+      The default configuration options can be set in the file defined in
+      <envar>$HTML_TIDY</envar>. Additional configuration options can be passed
+      to <command>tidy</command> via command line parameters or the
+      <option>-config &lt;file&gt;</option> parameter.
+    </para>
+
+  </sect2>
+
+</sect1>
