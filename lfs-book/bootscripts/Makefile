@@ -19,7 +19,6 @@ create-dirs:
 	install -d -m ${DIRMODE}  ${LIBDIR}
 	install -d -m ${DIRMODE}  ${MAN8}
 	install -d -m ${DIRMODE}  ${SBIN}
-	ln -sfn       services    ${DESTDIR}/lib/lsb
 	ln -sfn       rc.d/init.d ${EXTDIR}/init.d
 
 files: create-dirs 
@@ -72,7 +71,7 @@ rc0: files
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S99mountfs
 
 uninstall:
-	rm -rf ${DESTDIR}/lib/services ${DESTDIR}/lib/lsb ${EXTDIR}/rc.d ${EXTDIR}/init.d \
+	rm -rf ${DESTDIR}/lib/services ${EXTDIR}/rc.d ${EXTDIR}/init.d \
                ${SBIN}/ifup ${SBIN}/ifdown ${MAN8}/ifup.8 ${MAN8}/ifdown.8 \
                ${EXTDIR}/sysconfig/rc 
 

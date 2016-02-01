@@ -102,11 +102,6 @@ install-fcron: create-dirs
 	ln -sf  ../init.d/fcron ${EXTDIR}/rc.d/rc0.d/S08fcron
 	ln -sf  ../init.d/fcron ${EXTDIR}/rc.d/rc3.d/S40fcron
 
-install-gpm: create-dirs
-	install -m ${MODE} blfs/init.d/gpm        ${EXTDIR}/rc.d/init.d/
-	ln -sf  ../init.d/gpm ${EXTDIR}/rc.d/rc0.d/S10gpm
-	ln -sf  ../init.d/gpm ${EXTDIR}/rc.d/rc3.d/S70gpm
-
 install-haveged: create-dirs
 	install -m ${MODE} blfs/init.d/haveged        ${EXTDIR}/rc.d/init.d/
 	ln -sf  ../init.d/haveged ${EXTDIR}/rc.d/rc0.d/S90haveged
@@ -212,11 +207,6 @@ uninstall-fcron:
 	rm -f ${EXTDIR}/rc.d/rc0.d/S08fcron
 	rm -f ${EXTDIR}/rc.d/rc3.d/S40fcron
 
-uninstall-gpm:
-	rm -f ${EXTDIR}/rc.d/init.d/gpm
-	rm -f ${EXTDIR}/rc.d/rc0.d/S10gpm
-	rm -f ${EXTDIR}/rc.d/rc3.d/S70gpm
-
 uninstall-haveged:
 	rm -f ${EXTDIR}/rc.d/init.d/haveged
 	rm -f ${EXTDIR}/rc.d/rc0.d/S90haveged
@@ -289,7 +279,6 @@ uninstall-xinetd:
 	install-dovecot \
 	install-exim \
 	install-fcron \
-	install-gpm \
 	install-iptables \
 	install-netfs \
 	install-nfs-client \
@@ -308,7 +297,6 @@ uninstall-xinetd:
 	uninstall-dovecot \
 	uninstall-exim \
 	uninstall-fcron \
-	uninstall-gpm \
 	uninstall-iptables \
 	uninstall-netfs \
 	uninstall-nfs-client \
