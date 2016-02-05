@@ -1,0 +1,58 @@
+Submitted By:            Igor Živković <contact@igor-zivkovic.from.hr>
+Date:                    2016-02-05
+Initial Package Version: 4.3.30
+Upstream Status:         Not applicable
+Origin:                  Self
+Description:             Suppresses installation of unnecessary files.
+
+--- bash-4.3.30.orig/Makefile.in
++++ bash-4.3.30/Makefile.in
+@@ -760,14 +760,11 @@
+ installdirs:
+ 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(bindir)
+ 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(man1dir)
+-	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(infodir)
+-	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(docdir)
+ 	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
+ 
+ install:	.made installdirs
+ 	$(INSTALL_PROGRAM) $(INSTALLMODE) $(Program) $(DESTDIR)$(bindir)/$(Program)
+ 	$(INSTALL_SCRIPT) $(INSTALLMODE2) bashbug $(DESTDIR)$(bindir)/bashbug
+-	$(INSTALL_DATA) $(OTHER_DOCS) $(DESTDIR)$(docdir)
+ 	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
+ 		man1dir=$(man1dir) man1ext=$(man1ext) \
+ 		man3dir=$(man3dir) man3ext=$(man3ext) \
+--- bash-4.3.30.orig/doc/Makefile.in
++++ bash-4.3.30/doc/Makefile.in
+@@ -226,31 +226,10 @@
+ 
+ installdirs:
+ 	-$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(man1dir)
+-	-$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(infodir)
+-	-$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(docdir)
+-	-if test -n "$(htmldir)" ; then \
+-		$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(htmldir) ; \
+-	fi
+ 	
+ install: info installdirs bash.info
+ 	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
+ 	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
+-	-$(INSTALL_DATA) $(OTHER_DOCS) $(DESTDIR)$(docdir)
+-# uncomment the next lines to install the builtins man page
+-#	sed 's:bash\.1:man1/&:' $(srcdir)/builtins.1 > $${TMPDIR:-/var/tmp}/builtins.1
+-#	-$(INSTALL_DATA) $${TMPDIR:-/var/tmp}/builtins.1 $(DESTDIR)$(man1dir)/bash_builtins${man1ext}
+-#	-$(RM) $${TMPDIR:-/var/tmp}/builtins.1
+-	-if test -f bash.info; then d=.; else d=$(srcdir); fi; \
+-	  $(INSTALL_DATA) $$d/bash.info $(DESTDIR)$(infodir)/bash.info
+-# run install-info if it is present to update the info directory
+-	if $(SHELL) -c 'install-info --version' >/dev/null 2>&1; then \
+-		install-info --dir-file=$(DESTDIR)$(infodir)/dir $(DESTDIR)$(infodir)/bash.info; \
+-	else true; fi
+-# if htmldir is set, install the html files into that directory
+-	-if test -n "${htmldir}" ; then \
+-		$(INSTALL_DATA) $(srcdir)/bash.html $(DESTDIR)$(htmldir) ; \
+-		$(INSTALL_DATA) $(srcdir)/bashref.html $(DESTDIR)$(htmldir) ; \
+-	fi
+ 
+ install_builtins:	installdirs
+ 	sed 's:bash\.1:man1/&:' $(srcdir)/builtins.1 > $${TMPDIR:-/var/tmp}/builtins.1
