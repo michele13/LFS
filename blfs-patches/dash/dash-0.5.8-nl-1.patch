@@ -1,0 +1,20 @@
+Submitted By:            Igor Živković
+Date:                    2014-12-11
+Initial Package Version: 0.5.8
+Upstream Status:         Not submitted
+Origin:                  Self
+Description:             Removes dependency on coreutils (neither toybox nor
+                         sbase nl support the -v option).
+
+diff -Naur dash-0.5.8.orig/src/mkbuiltins dash-0.5.8/src/mkbuiltins
+--- dash-0.5.8.orig/src/mkbuiltins	2014-09-28 10:19:32.000000000 +0200
++++ dash-0.5.8/src/mkbuiltins	2014-12-11 23:32:52.665280709 +0100
+@@ -97,7 +97,7 @@
+  */
+ 
+ !
+-sed 's/	-[a-z]*//' $temp2 | nl -b a -v 0 | LC_COLLATE=C sort -u -k 3,3 |
++sed 's/	-[a-z]*//' $temp2 | awk '{print NR-1,$0}' | LC_COLLATE=C sort -u -k 3,3 |
+ tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ |
+ 	awk '{	printf "#define %s (builtincmd + %d)\n", $3, $1}'
+ printf '\n#define NUMBUILTINS %d\n' $(wc -l < $temp2)

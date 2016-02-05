@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY dash-homepage      "http://gondor.apana.org.au/~herbert/dash/">
+  <!ENTITY dash-wikipedia     "https://en.wikipedia.org/wiki/Almquist_shell">
+  <!ENTITY dash-download-http "http://gondor.apana.org.au/~herbert/dash/files/dash-&dash-version;.tar.gz">
+  <!ENTITY dash-download-ftp  " ">
+  <!ENTITY dash-md5sum        "5c152209680dab3c319e8923f6c51378">
+  <!ENTITY dash-size          "220 KB">
+  <!ENTITY dash-buildsize     "2.8 MB">
+  <!ENTITY dash-time          "0.1 SBU">
+]>
+
+<sect1 id="dash" xreflabel="dash-&dash-version;">
+  <?dbhtml filename="dash.html"?>
+
+  <title>dash-&dash-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Dash is a POSIX compliant shell. It can be installed as /bin/sh or as the
+      default shell for either <systemitem class="username">root</systemitem>
+      or a second user with a userid of 0. It depends on fewer libraries than
+      the Bash shell and is therefore less likely to be affected by an upgrade
+      problem or disk failure. Dash is also useful for checking that a script
+      is completely compatible with POSIX syntax.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&dash-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&dash-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&dash-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&dash-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &dash-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &dash-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &dash-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &dash-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;dash/dash-&dash-version;-nl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="libedit"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>patch -p1 -i ../dash-&dash-version;-nl-1.patch &amp;&amp;
+./configure --prefix=</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <option>--with-libedit</option>: to compile Dash with libedit support.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+  <sect2>
+    <title>Configuration Information</title>
+
+    <para>
+      If you would like to make <command>dash</command> the default
+      <command>sh</command>, recreate the <filename>/bin/sh</filename> symlink
+      as the <systemitem class="username">root</systemitem> user:
+    </para>
+
+<screen role="nodump"><userinput>ln -svf dash /bin/sh</userinput></screen>
+
+    <para>
+      Update <filename>/etc/shells</filename> to include the Dash shell by
+      issuing the following command as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>cat &gt;&gt; /etc/shells &lt;&lt; "EOF"
+<literal>/bin/dash</literal>
+EOF</userinput></screen>
+
+  </sect2>
+
+</sect1>
