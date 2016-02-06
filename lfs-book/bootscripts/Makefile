@@ -11,7 +11,6 @@ all: links
 install: all
 
 create-dirs:
-	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rcS.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc3.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/rc0.d
 	install -d -m ${DIRMODE}  ${EXTDIR}/rc.d/init.d
@@ -22,22 +21,16 @@ create-dirs:
 	ln -sfn       rc.d/init.d ${EXTDIR}/init.d
 
 files: create-dirs 
-	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/halt          ${EXTDIR}/rc.d/init.d/
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/mdev          ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/mountvirtfs   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/oneandonly    ${EXTDIR}/rc.d/init.d/
+	install -m ${MODE} lfs/init.d/rc.boot       ${EXTDIR}
 	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/reboot        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/setclock      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/swap          ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/sysctl        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sysklogd      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/template      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/sbin/ifup            ${SBIN}
@@ -47,14 +40,8 @@ files: create-dirs
 	install -m ${MODE} lfs/lib/services/ipv4-static-route  ${LIBDIR}
 	install -m ${MODE} lfs/lib/services/ipv4-static        ${LIBDIR}
 	install -m ${CONFMODE} lfs/lib/services/init-functions ${LIBDIR}
-	if [ ! -f ${EXTDIR}/sysconfig/rc.site     ]; then \
-          install -m ${CONFMODE} lfs/sysconfig/rc.site     ${EXTDIR}/sysconfig/ ;\
-        fi
 
-links: rcS rc3 rc0
-
-rcS: files
-	ln -sf ../init.d/oneandonly  ${EXTDIR}/rc.d/rcS.d/oneandonly
+links: rc3 rc0
 
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
@@ -75,5 +62,5 @@ uninstall:
                ${SBIN}/ifup ${SBIN}/ifdown ${MAN8}/ifup.8 ${MAN8}/ifdown.8 \
                ${EXTDIR}/sysconfig/rc 
 
-.PHONY: all create-dirs install files links rcS rc3 rc6 uninstall
+.PHONY: all create-dirs install files links rc3 rc6 uninstall
 
