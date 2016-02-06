@@ -2,7 +2,6 @@
 
 # Boot scripts
 for s in bootscripts/lfs/init.d/*       \
-         bootscripts/lfs/sysconfig/*    \
          bootscripts/lfs/lib/services/* \
          bootscripts/lfs/sbin/*
 do
