@@ -92,21 +92,26 @@
     <title>Installation</title>
 
     <para>
-      Install libmad by running the following commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>patch -p1 -i ../libmad-&libmad-version;-fixes-1.patch &amp;&amp;
 touch NEWS AUTHORS ChangeLog &amp;&amp;
 autoreconf -fi &amp;&amp;
-./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-  <screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+  <screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <para>
       Some packages check for the pkg-config file for libmad. This file is
@@ -114,8 +119,8 @@ make</userinput></screen>
       the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>cat &gt; /usr/lib/pkgconfig/mad.pc &lt;&lt; "EOF"
-<literal>prefix=/usr
+<screen role="root"><userinput>cat &gt; /lib/pkgconfig/mad.pc &lt;&lt; "EOF"
+<literal>prefix=
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include
@@ -126,7 +131,8 @@ Requires:
 Version: &libmad-version;
 Libs: -L${libdir} -lmad
 Cflags: -I${includedir}</literal>
-EOF</userinput></screen>
+EOF
+ls /lib/pkgconfig/mad.pc | porg -lD+</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -137,23 +143,6 @@ EOF</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libmad">
-      <primary sortas="c-libmad.so">libmad.so</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/include/mad.h
-/usr/lib/libmad.so
-/usr/lib/pkgconfig/mad.pc</literal></screen>
 
   </sect2>
 
