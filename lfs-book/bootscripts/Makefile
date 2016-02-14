@@ -27,7 +27,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc.boot       ${EXTDIR}
 	install -m ${MODE} lfs/init.d/rc.shutdown   ${EXTDIR}
-	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/setclock      ${EXTDIR}/rc.d/init.d/
@@ -47,10 +46,8 @@ links: rc3 rc0
 rc3: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc3.d/S25random
 
 rc0: files
-	ln -sf ../init.d/random      ${EXTDIR}/rc.d/rc0.d/S45random
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc0.d/S80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/S90sysklogd
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S96localnet
