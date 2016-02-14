@@ -26,6 +26,7 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc.boot       ${EXTDIR}
+	install -m ${MODE} lfs/init.d/rc.shutdown   ${EXTDIR}
 	install -m ${MODE} lfs/init.d/random        ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
