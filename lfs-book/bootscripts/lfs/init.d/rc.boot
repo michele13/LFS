@@ -84,12 +84,6 @@ find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -
 
 hwclock -u -s
 
-
-########
-# swap #
-########
-
-echo "Activating all swap files/partitions..."
 swapon -a
 
 
