@@ -23,7 +23,6 @@ create-dirs:
 files: create-dirs 
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/mountfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc.boot       ${EXTDIR}
 	install -m ${MODE} lfs/init.d/rc.shutdown   ${EXTDIR}
@@ -48,7 +47,6 @@ rc0: files
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc0.d/S80network
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/S90sysklogd
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S96localnet
-	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S99mountfs
 
 uninstall:
 	rm -rf ${DESTDIR}/lib/services ${EXTDIR}/rc.d ${EXTDIR}/init.d \
