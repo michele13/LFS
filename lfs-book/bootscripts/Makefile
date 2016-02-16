@@ -29,7 +29,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/rc.shutdown   ${EXTDIR}
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/swap          ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sysklogd      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/template      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/sbin/ifup            ${SBIN}
@@ -51,7 +50,6 @@ rc0: files
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc0.d/S90sysklogd
 	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc0.d/S96localnet
 	ln -sf ../init.d/sendsignals ${EXTDIR}/rc.d/rc0.d/S97sendsignals
-	ln -sf ../init.d/swap        ${EXTDIR}/rc.d/rc0.d/S98swap
 	ln -sf ../init.d/mountfs     ${EXTDIR}/rc.d/rc0.d/S99mountfs
 
 uninstall:
