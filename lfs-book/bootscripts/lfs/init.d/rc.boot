@@ -82,6 +82,17 @@ find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -
 find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -b -a 2>/dev/null
 
 
+hwclock -u -s
+
+
+########
+# swap #
+########
+
+echo "Activating all swap files/partitions..."
+swapon -a
+
+
 ############
 # localnet #
 ############
@@ -94,14 +105,6 @@ ip link set lo up
 
 echo "Setting hostname to ${HNAME}..."
 hostname ${HNAME}
-
-
-########
-# swap #
-########
-
-echo "Activating all swap files/partitions..."
-swapon -a
 
 
 ###########

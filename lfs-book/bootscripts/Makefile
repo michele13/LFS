@@ -29,7 +29,6 @@ files: create-dirs
 	install -m ${MODE} lfs/init.d/rc.shutdown   ${EXTDIR}
 	install -m ${MODE} lfs/init.d/rc            ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sendsignals   ${EXTDIR}/rc.d/init.d/
-	install -m ${MODE} lfs/init.d/setclock      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/swap          ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/sysklogd      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/template      ${EXTDIR}/rc.d/init.d/
