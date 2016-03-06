@@ -142,7 +142,7 @@ fi
 ##########
 
 if [ -f "/etc/sysctl.conf" ]; then
-    log_info_msg "Setting kernel runtime parameters..."
+    echo "Setting kernel runtime parameters..."
     sysctl -q -p
 fi
 
@@ -151,7 +151,7 @@ fi
 # random #
 ##########
 
-log_info_msg "Initializing kernel random number generator..."
+echo "Initializing kernel random number generator..."
 if [ -f /var/tmp/random-seed ]; then
     /bin/cat /var/tmp/random-seed >/dev/urandom
 fi
