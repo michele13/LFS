@@ -27,7 +27,6 @@
 ### END INIT INFO
 
 . /lib/services/init-functions
-[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
 
 case "${1}" in
    start)
@@ -36,8 +35,8 @@ case "${1}" in
       ip link set lo up
       evaluate_retval
 
-      log_info_msg "Setting hostname to ${HNAME}..."
-      hostname ${HNAME}
+      log_info_msg "Setting hostname to $(cat /etc/hostname)..."
+      hostname $(cat /etc/hostname)
       evaluate_retval
       ;;
 

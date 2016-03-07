@@ -40,6 +40,7 @@ files: create-dirs
 links: rc3 rc0
 
 rc3: files
+	ln -sf ../init.d/localnet    ${EXTDIR}/rc.d/rc3.d/S03localnet
 	ln -sf ../init.d/sysklogd    ${EXTDIR}/rc.d/rc3.d/S10sysklogd
 	ln -sf ../init.d/network     ${EXTDIR}/rc.d/rc3.d/S20network
 

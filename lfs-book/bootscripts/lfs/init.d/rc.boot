@@ -87,20 +87,6 @@ hwclock -u -s
 swapon -a
 
 
-############
-# localnet #
-############
-
-[ -r /etc/sysconfig/network ] && . /etc/sysconfig/network
-
-echo "Bringing up the loopback interface..."
-ip addr add 127.0.0.1/8 label lo dev lo
-ip link set lo up
-
-echo "Setting hostname to ${HNAME}..."
-hostname ${HNAME}
-
-
 ###########
 # mountfs #
 ###########
