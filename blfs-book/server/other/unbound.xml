@@ -8,16 +8,16 @@
   <!ENTITY unbound-wikipedia     "http://en.wikipedia.org/wiki/Unbound_&#40;DNS_server&#41;">
   <!ENTITY unbound-download-http "http://www.unbound.net/downloads/unbound-&unbound-version;.tar.gz">
   <!ENTITY unbound-download-ftp  " ">
-  <!ENTITY unbound-md5sum        "a1253cbbb339dbca03404dcc58365d71">
+  <!ENTITY unbound-md5sum        "1c34282bae0c625b86374ee9caaef6f7">
   <!ENTITY unbound-size          "4.7 MB">
   <!ENTITY unbound-buildsize     "41 MB">
   <!ENTITY unbound-time          "0.9 SBU">
 ]>
 
-<sect1 id="unbound" xreflabel="Unbound-&unbound-version;">
+<sect1 id="unbound" xreflabel="unbound-&unbound-version;">
   <?dbhtml filename="unbound.html"?>
 
-  <title>Unbound-&unbound-version;</title>
+  <title>unbound-&unbound-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -108,21 +108,26 @@ chown -v 88:88 /var/lib/unbound &amp;&amp;
         -u 88 -s /bin/false -D -H unbound</userinput></screen>
 
     <para>
-      Install Unbound by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc \
+<screen><userinput>./configure --prefix= \
+            --sbindir=/bin \
             --with-pidfile=/run/unbound.pid \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-mv -v /usr/sbin/unbound-host /usr/bin/</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libunbound.la"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -191,69 +196,9 @@ mv -v /usr/sbin/unbound-host /usr/bin/</userinput></screen>
         script included in the <xref linkend="bootscripts"/> package.
       </para>
 
-<screen role="root"><userinput>make install-unbound</userinput></screen>
+<screen role="root"><userinput>porg -lp+ unbound-&unbound-version; "make -j1 install-unbound"</userinput></screen>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound-host">unbound-host</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound">unbound</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound-anchor">unbound-anchor</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound-checkconf">unbound-checkconf</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound-control">unbound-control</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="b-unbound-control-setup">unbound-control-setup</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="c-libunbound.so">libunbound.so</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="e-etc-unbound-unbound.conf">/etc/unbound/unbound.conf</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="f-unbound">unbound</primary>
-    </indexterm>
-    <indexterm zone="unbound">
-      <primary sortas="g-unbound.py">unbound.py</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/unbound/
-/etc/unbound/unbound.conf
-/usr/bin/unbound-host
-/usr/include/unbound.h
-/usr/lib/libunbound.so
-/usr/lib/python2.7/site-packages/unbound.py
-/usr/sbin/unbound
-/usr/sbin/unbound-anchor
-/usr/sbin/unbound-checkconf
-/usr/sbin/unbound-control
-/usr/sbin/unbound-control-setup
-/usr/share/man/man1/unbound-host.1
-/usr/share/man/man3/libunbound.3
-/usr/share/man/man5/unbound.conf.5
-/usr/share/man/man8/unbound.8
-/usr/share/man/man8/unbound-anchor.8
-/usr/share/man/man8/unbound-checkconf.8
-/usr/share/man/man8/unbound-control.8
-/usr/share/man/man8/unbound-control-setup.8</literal></screen>
 
   </sect2>
 
