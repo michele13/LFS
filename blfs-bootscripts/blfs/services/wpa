@@ -37,9 +37,9 @@ case "$2" in
 
       log_info_msg "\n Starting wpa_supplicant on the $1 interface..."
 
-      mkdir -p /run/wpa_supplicant
+      mkdir -p /var/run/wpa_supplicant
 
-      /sbin/wpa_supplicant -q -B -Dnl80211,wext -P${PIDFILE} -C/run/wpa_supplicant -c${CFGFILE} -i$1 ${WPA_ARGS}
+      /sbin/wpa_supplicant -q -B -Dnl80211,wext -P${PIDFILE} -C/var/run/wpa_supplicant -c${CFGFILE} -i$1 ${WPA_ARGS}
 
       if [ "$?" != "0" ]; then
         log_failure_msg2
