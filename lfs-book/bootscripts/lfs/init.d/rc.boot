@@ -1,9 +1,5 @@
 #!/bin/sh
 
-###############
-# mountvirtfs #
-###############
-
 # Make sure /run/var is available before logging any messages
 if ! mountpoint -q /run
 then
@@ -13,7 +9,7 @@ fi
 mkdir -p /run/var /run/lock /run/shm
 chmod 1777 /run/shm /run/lock
 
-echo "Mounting virtual file systems..." 
+# Mounting virtual file systems
 
 if ! mountpoint -q /proc
 then
@@ -33,11 +29,7 @@ fi
 ln -sfn /run/shm /dev/shm
 
 
-########
-# mdev #
-########
-
-echo "Populating /dev with device nodes... "
+# Populating /dev with device nodes
 
 # Avoid race conditions, serialize hotplug events.
 touch /dev/mdev.seq
@@ -86,6 +78,8 @@ hwclock -u -s
 
 swapon -a
 
+/etc/init.d/checkfs start
+
 
 ###########
 # mountfs #
@@ -95,7 +89,7 @@ echo "Remounting root file system in read-write mode..."
 mount -o remount,rw / >/dev/null
 
 # Remove fsck-related file system watermarks.
-#rm -f /fastboot /forcefsck
+rm -f /fastboot /forcefsck
 
 # This will mount all filesystems that do not have _netdev in
 # their option list.  _netdev denotes a network filesystem.

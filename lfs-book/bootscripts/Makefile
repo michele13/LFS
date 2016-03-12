@@ -22,6 +22,7 @@ create-dirs:
 
 files: create-dirs 
 	install -m ${CONFMODE} lfs/init.d/functions ${EXTDIR}/rc.d/init.d/
+	install -m ${MODE} lfs/init.d/checkfs       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/localnet      ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/network       ${EXTDIR}/rc.d/init.d/
 	install -m ${MODE} lfs/init.d/rc.boot       ${EXTDIR}
