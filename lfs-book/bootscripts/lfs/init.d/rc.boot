@@ -1,19 +1,15 @@
 #!/bin/sh
 
-# Mounting virtual file systems
-
-# Make sure /run/var is available before logging any messages
-mount -t tmpfs none /run
+# mounting virtual file systems
+# (make sure /run/var is available before logging any messages)
+mount -t tmpfs tmpfs /run
 mkdir -p /run/var /run/lock /run/shm
 chmod 1777 /run/shm /run/lock
-
-mount -t proc none /proc
-mount -t sysfs none /sys
-
-if ! mountpoint -q /dev
-then
-    mount -o mode=0755,nosuid /dev
-fi
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mkdir -m 0755 /dev/pts
+mount -t devpts -o gid=5,mode=620 devpts /dev/pts
+ln -sfn /run/shm /dev/shm
 
 
 # Populating /dev with device nodes
@@ -36,8 +32,6 @@ ln -snf fd/1 /dev/stdout
 ln -snf fd/2 /dev/stderr
 [ -e /proc/kcore ] && ln -snf /proc/kcore /dev/core
 
-mkdir -m 0755 /dev/pts
-
 # Setting up mdev as hotplug agent
 if [ -e /proc/sys/kernel/hotplug ]
 then
@@ -59,8 +53,6 @@ done; unset i
 # Load kernel modules, run twice.
 find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -b -a 2>/dev/null
 find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -b -a 2>/dev/null
-
-ln -sfn /run/shm /dev/shm
 
 
 hwclock -u -s
