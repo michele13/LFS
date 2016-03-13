@@ -1,33 +1,22 @@
 #!/bin/sh
 
-# Make sure /run/var is available before logging any messages
-if ! mountpoint -q /run
-then
-    mount /run
-fi
+# Mounting virtual file systems
 
+# Make sure /run/var is available before logging any messages
+mount -t tmpfs none /run
 mkdir -p /run/var /run/lock /run/shm
 chmod 1777 /run/shm /run/lock
 
-# Mounting virtual file systems
-
-if ! mountpoint -q /proc
-then
-    mount -o nosuid,noexec,nodev /proc
-fi
-
-if ! mountpoint -q /sys
-then
-    mount -o nosuid,noexec,nodev /sys
-fi
-
-
-# Populating /dev with device nodes
+mount -t proc none /proc
+mount -t sysfs none /sys
 
 if ! mountpoint -q /dev
 then
     mount -o mode=0755,nosuid /dev
 fi
+
+
+# Populating /dev with device nodes
 
 # Avoid race conditions, serialize hotplug events.
 touch /dev/mdev.seq
@@ -77,6 +66,8 @@ ln -sfn /run/shm /dev/shm
 hwclock -u -s
 
 swapon -a
+
+hostname $(cat /etc/hostname)
 
 /etc/init.d/checkfs start
 
