@@ -21,15 +21,13 @@ then
     mount -o nosuid,noexec,nodev /sys
 fi
 
+
+# Populating /dev with device nodes
+
 if ! mountpoint -q /dev
 then
     mount -o mode=0755,nosuid /dev
 fi
-
-ln -sfn /run/shm /dev/shm
-
-
-# Populating /dev with device nodes
 
 # Avoid race conditions, serialize hotplug events.
 touch /dev/mdev.seq
@@ -72,6 +70,8 @@ done; unset i
 # Load kernel modules, run twice.
 find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -b -a 2>/dev/null
 find /sys -name 'modalias' -type f -exec cat '{}' + | sort -u | xargs modprobe -b -a 2>/dev/null
+
+ln -sfn /run/shm /dev/shm
 
 
 hwclock -u -s
