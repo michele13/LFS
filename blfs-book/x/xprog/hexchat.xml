@@ -4,59 +4,88 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
-  <!ENTITY hexchat-download-http "https://dl.hexchat.net/hexchat/hexchat-2.10.2.tar.xz">
+  <!ENTITY hexchat-homepage      "https://hexchat.github.io/">
+  <!ENTITY hexchat-wikipedia     "https://en.wikipedia.org/wiki/XChat">
+  <!ENTITY hexchat-download-http "https://dl.hexchat.net/hexchat/hexchat-&hexchat-version;.tar.xz">
   <!ENTITY hexchat-download-ftp  " ">
-  <!ENTITY hexchat-md5sum        "c8e7477ac941295deaeb1732591ab20b">
+  <!ENTITY hexchat-md5sum        "aeb62488debe69994176f85b835844ae">
   <!ENTITY hexchat-size          "1.5 MB">
   <!ENTITY hexchat-buildsize     "50 MB">
   <!ENTITY hexchat-time          "0.3 SBU">
 ]>
 
-<sect1 id="hexchat" xreflabel="HexChat-&hexchat-version;">
+<sect1 id="hexchat" xreflabel="hexchat-&hexchat-version;">
   <?dbhtml filename="hexchat.html"?>
 
-  <title>HexChat-&hexchat-version;</title>
+  <title>hexchat-&hexchat-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to HexChat</title>
+    <title>Introduction</title>
 
-    <para><application>HexChat</application> is an IRC chat program.  It allows
-    you to join multiple IRC channels (chat rooms) at the same time, talk
-    publicly, have private one-on-one conversations, etc.  File transfers are
-    also possible.</para>
+    <para>
+      HexChat is an IRC chat program. It allows you to join multiple IRC
+      channels (chat rooms) at the same time, talk publicly, have private
+      one-on-one conversations, etc. File transfers are also possible.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&hexchat-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&hexchat-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&hexchat-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&hexchat-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &hexchat-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&hexchat-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &hexchat-size;</para>
+        <para>
+          Download (FTP): <ulink url="&hexchat-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &hexchat-buildsize;</para>
+        <para>
+          Download MD5 sum: &hexchat-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &hexchat-time;</para>
+        <para>
+          Download size: &hexchat-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &hexchat-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &hexchat-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">HexChat Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required"><xref linkend="glib2"/></para>
+    <para>
+      <xref linkend="glib2"/>
+    </para>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended"><xref linkend="gtk"/></para>
+    <para>
+      <xref linkend="gtk"/>
+    </para>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="iso-codes"/>,
       <xref linkend="libressl"/>,
       <xref linkend="pciutils"/>, and
@@ -65,54 +94,34 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of HexChat</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>HexChat</application> by running the following
-    commands:</para>
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/install-appdataDATA install-data_desktopDATA//" -i data/misc/Makefile.in
+sed "s/install-data$//" -i po/Makefile.in.in</userinput></screen>
 
-    <para>This package does not come with a test suite.</para>
+    <para>
+      Prepare the package for compilation:
+    </para>
 
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+<screen><userinput>./configure --prefix= \
+            --enable-python=python3</userinput></screen>
 
-<screen role="root"><userinput>make install</userinput></screen>
+    <para>
+      Compile the package:
+    </para>
 
-  </sect2>
+<screen><userinput>make</userinput></screen>
 
-  <sect2 role="content">
-    <title>Contents</title>
+    <para>
+      Install the package:
+    </para>
 
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
-
-      <seglistitem>
-        <seg>hexchat</seg>
-        <seg>None</seg>
-        <seg>/usr/lib/hexchat</seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="hexchat-prog">
-        <term><command>hexchat</command></term>
-        <listitem>
-          <para> is a graphical Internet Relay Chat (IRC) client.</para>
-          <indexterm zone="hexchat hexchat-prog">
-            <primary sortas="b-hexchat">hexchat</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
   </sect2>
 
