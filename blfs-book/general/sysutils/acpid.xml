@@ -8,8 +8,8 @@
   <!ENTITY acpid-wikipedia     "https://en.wikipedia.org/wiki/Advanced_Configuration_and_Power_Interface">
   <!ENTITY acpid-download-http "&sourceforge-repo;/acpid2/acpid-&acpid-version;.tar.xz">
   <!ENTITY acpid-download-ftp  " ">
-  <!ENTITY acpid-md5sum        "f6d772e35ed907f1cc14ad1a546fd473">
-  <!ENTITY acpid-size          "152 KB">
+  <!ENTITY acpid-md5sum        "e41bdf628e122edb4342fca432ea7db9">
+  <!ENTITY acpid-size          "151 KB">
   <!ENTITY acpid-buildsize     "2.5 MB">
   <!ENTITY acpid-time          "0.1 SBU">
 ]>
@@ -132,8 +132,8 @@ ls /etc/acpi/events/lid | porg -lp+ acpid-&acpid-version;
 
 cat &gt; /etc/acpi/lid.sh &lt;&lt; "EOF"
 <literal>#!/bin/sh
-/bin/grep -q open /proc/acpi/button/lid/LID/state &amp;&amp; exit 0
-/usr/sbin/pm-suspend</literal>
+grep -q open /proc/acpi/button/lid/LID/state &amp;&amp; exit 0
+pm-suspend</literal>
 EOF
 chmod +x /etc/acpi/lid.sh
 ls /etc/acpi/lid.sh | porg -lp+ acpid-&acpid-version;</userinput></screen>
