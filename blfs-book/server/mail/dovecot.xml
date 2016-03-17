@@ -6,18 +6,18 @@
 
   <!ENTITY dovecot-homepage      "http://www.dovecot.org/">
   <!ENTITY dovecot-wikipedia     "http://en.wikipedia.org/wiki/Dovecot_&#40;software&#41;">
-  <!ENTITY dovecot-download-http "http://www.dovecot.org/releases/&dovecot-major;.&dovecot-minor;/dovecot-&dovecot-version;.tar.gz">
+  <!ENTITY dovecot-download-http "http://www.dovecot.org/releases/2.2/dovecot-&dovecot-version;.tar.gz">
   <!ENTITY dovecot-download-ftp  " ">
-  <!ENTITY dovecot-md5sum        "28c39ab78a20f00701c26960d9190cf0">
-  <!ENTITY dovecot-size          "4.8 MB">
-  <!ENTITY dovecot-buildsize     "286 MB (with tests)">
-  <!ENTITY dovecot-time          "2.1 SBU (with tests)">
+  <!ENTITY dovecot-md5sum        "bc8057bd5bdfa0f8e80e2fef1082a241">
+  <!ENTITY dovecot-size          "5.1 MB">
+  <!ENTITY dovecot-buildsize     "286 MB">
+  <!ENTITY dovecot-time          "2.1 SBU">
 ]>
 
-<sect1 id="dovecot" xreflabel="Dovecot-&dovecot-version;">
+<sect1 id="dovecot" xreflabel="dovecot-&dovecot-version;">
   <?dbhtml filename="dovecot.html"?>
 
-  <title>Dovecot-&dovecot-version;</title>
+  <title>dovecot-&dovecot-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -76,7 +76,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="libressl"/>,
       <xref linkend="sqlite"/>,
       <xref linkend="clucene"/>,
@@ -97,28 +97,38 @@
       as the <systemitem class="username">root</systemitem> user:
     </para>
 
-<screen role="root"><userinput>groupadd -g 42 dovecot &amp;&amp;
-useradd -c "Dovecot unprivileged user" -d /dev/null -u 42 \
-        -g dovecot -s /bin/false dovecot &amp;&amp;
-groupadd -g 43 dovenull &amp;&amp;
-useradd -c "Dovecot login user" -d /dev/null -u 43 \
-        -g dovenull -s /bin/false dovenull</userinput></screen>
+<screen role="root"><userinput>adduser -h /dev/null -g "Dovecot unprivileged user" -s /bin/false -D -H -u 42 dovecot
+adduser -h /dev/null -g "Dovecot login user" -s /bin/false -D -H -u 43 dovenull</userinput></screen>
 
     <para>
-      Install dovecot by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-docDATA$//" -i doc/Makefile.in
+sed "s/install-nodist_pkgsysconfDATA$//" -i doc/example-config/Makefile.in
+sed "s/ install-wikiDATA$//" -i doc/wiki/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>sed "s,^exampledir.*,exampledir = /etc/dovecot," -i doc/example-config/Makefile.in &amp;&amp;
+sed "s,^exampledir.*,exampledir = /etc/dovecot/conf.d," -i doc/example-config/conf.d/Makefile.in &amp;&amp;
+./configure --prefix= \
+            --sbindir=/bin \
+            --disable-static</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -139,12 +149,6 @@ make</userinput></screen>
 
   <sect2>
     <title>Configuration</title>
-
-    <para>
-      Copy an example configuration, which you can use as a starting point:
-    </para>
-
-<screen role="root"><userinput>cp -rv /usr/share/doc/dovecot/example-config/* /etc/dovecot</userinput></screen>
 
     <para>
       The following configuration is a simple proof of concept with IMAP service
@@ -185,57 +189,9 @@ EOF</userinput></screen>
         script included in the <xref linkend="bootscripts"/> package.
       </para>
 
-<screen role="root"><userinput>make install-dovecot</userinput></screen>
+<screen role="root"><userinput>porg -lp+ dovecot-&dovecot-version; "make -j1 install-dovecot"</userinput></screen>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="dovecot">
-      <primary sortas="b-doveadm">doveadm</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="b-doveconf">doveconf</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="b-dovecot">dovecot</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="b-dsync">dsync</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="e-etc-dovecot-dovecot.conf">/etc/dovecot/dovecot.conf</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="e-etc-dovecot-conf.d">/etc/dovecot/conf.d/*</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="e-etc-dovecot-local.conf">/etc/dovecot/local.conf</primary>
-    </indexterm>
-    <indexterm zone="dovecot">
-      <primary sortas="f-dovecot">dovecot</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/etc/dovecot/
-/usr/bin/doveadm
-/usr/bin/doveconf
-/usr/bin/dsync
-/usr/include/dovecot/
-/usr/lib/dovecot/
-/usr/sbin/dovecot
-/usr/share/aclocal/dovecot.m4
-/usr/share/doc/dovecot/
-/usr/share/man/man1/doveadm.1
-/usr/share/man/man1/doveconf.1
-/usr/share/man/man1/dovecot.1
-/usr/share/man/man1/dsync.1</literal></screen>
 
   </sect2>
 
