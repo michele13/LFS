@@ -4,12 +4,14 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY rsync-homepage      "https://rsync.samba.org/">
+  <!ENTITY rsync-wikipedia     "https://en.wikipedia.org/wiki/Rsync">
   <!ENTITY rsync-download-http "https://www.samba.org/ftp/rsync/src/rsync-&rsync-version;.tar.gz">
   <!ENTITY rsync-download-ftp  " ">
   <!ENTITY rsync-md5sum        "0f758d7e000c0f7f7d3792610fad70cb">
   <!ENTITY rsync-size          "872 KB">
-  <!ENTITY rsync-buildsize     "11 MB (with tests - additional 45 MB for HTML API documentation)">
-  <!ENTITY rsync-time          "0.5 SBU (with tests)">
+  <!ENTITY rsync-buildsize     "11 MB">
+  <!ENTITY rsync-time          "0.5 SBU">
 ]>
 
 <sect1 id="rsync" xreflabel="rsync-&rsync-version;">
@@ -17,51 +19,70 @@
 
   <title>rsync-&rsync-version;</title>
 
-  <indexterm zone="rsync">
-    <primary sortas="a-rsync">rsync</primary>
-  </indexterm>
-
   <sect2 role="package">
-    <title>Introduction to rsync</title>
+    <title>Introduction</title>
 
-    <para>The <application>rsync</application> package contains the
-    <command>rsync</command> utility. This is useful for synchronizing large
-    file archives over a network.</para>
+    <para>
+      The rsync package contains the <command>rsync</command> utility. This is
+      useful for synchronizing large file archives over a network.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&rsync-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&rsync-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&rsync-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&rsync-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &rsync-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&rsync-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &rsync-size;</para>
+        <para>
+          Download (FTP): <ulink url="&rsync-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &rsync-buildsize;</para>
+        <para>
+          Download MD5 sum: &rsync-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &rsync-time;</para>
+        <para>
+          Download size: &rsync-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &rsync-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &rsync-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">rsync Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para role="recommended">
+    <para>
       <xref linkend="popt"/>
     </para>
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of rsync</title>
-
+  <sect2>
+    <title>Installation</title>
+<!--
     <para>For security reasons, running the <application>rsync</application>
     server as an unprivileged user and group is encouraged. If you intend to
     run <command>rsync</command> as a daemon, create the
@@ -72,31 +93,38 @@
 <screen role="root"><userinput>groupadd -g 48 rsyncd &amp;&amp;
 useradd -c "rsyncd Daemon" -d /home/rsync -g rsyncd \
     -s /bin/false -u 48 rsyncd</userinput></screen>
-
-    <para>Install <application>rsync</application> by running the following
-    commands:</para>
-
-<screen><userinput>./configure --prefix=/usr --without-included-zlib &amp;&amp;
-make</userinput></screen>
-
-    <para>To test the results, issue: <command>make check</command>.</para>
-
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
-
-<screen role='root'><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
+-->
     <para>
-      <parameter>--without-included-zlib</parameter>: This switch enables
-      compilation with system-installed zlib library.
+      Prepare the package for compilation:
     </para>
 
-  </sect2>
+<screen><userinput>./configure --prefix= \
+            --without-included-zlib</userinput></screen>
 
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role='root'><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--without-included-zlib</parameter>: This switch enables
+        compilation with system-installed zlib library.
+      </para>
+
+    </sect3>
+
+  </sect2>
+<!--
   <sect2 role="configuration">
     <title>Configuring rsync</title>
 
@@ -162,44 +190,5 @@ EOF</userinput></screen>
     </sect3>
 
   </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>rsync</seg>
-        <seg>None</seg>
-        <seg>Optionally, /usr/share/doc/rsync-&rsync-version;</seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="rsync-prog">
-        <term><command>rsync</command></term>
-        <listitem>
-          <para>is a replacement for <command>rcp</command> (and
-          <command>scp</command>) that has many more features. It uses the
-          <quote>rsync algorithm</quote> which provides a very fast method of
-          syncing remote files. It does this by sending just the differences
-          in the files across the link, without requiring that both sets of
-          files are present at one end of the link beforehand.</para>
-          <indexterm zone="rsync rsync-prog">
-            <primary sortas="b-rsync">rsync</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
-
-  </sect2>
-
+-->
 </sect1>
