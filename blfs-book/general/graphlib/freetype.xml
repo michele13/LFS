@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY freetype-homepage      "http://www.freetype.org/">
+  <!ENTITY freetype-wikipedia     "http://en.wikipedia.org/wiki/FreeType">
+  <!ENTITY freetype-download-http "&sourceforge-repo;/freetype/freetype-&freetype-version;.tar.bz2">
+  <!ENTITY freetype-download-ftp  " ">
+  <!ENTITY freetype-md5sum        "3463102764315eb86c0d3c2e1f3ffb7d">
+  <!ENTITY freetype-size          "1.6 MB">
+  <!ENTITY freetype-buildsize     "35 MB">
+  <!ENTITY freetype-time          "0.2 SBU">
+]>
+
+<sect1 id="freetype" xreflabel="freetype-&freetype-version;">
+  <?dbhtml filename="freetype.html"?>
+
+  <title>freetype-&freetype-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The FreeType package contains a library which allows applications to
+      properly render TrueType fonts.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&freetype-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&freetype-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&freetype-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&freetype-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &freetype-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &freetype-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &freetype-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &freetype-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Optional patch:
+          <ulink url="&patch-root;freetype/freetype-&freetype-version;-infinality-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      If you wish to use Infinality, use the following command:
+    </para>
+
+<screen><userinput>patch -p1 -i ../freetype-&freetype-version;-infinality-1.patch</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfreetype.la"</userinput></screen>
+
+    <para>
+      If you used the Infinality patch, as the <systemitem
+      class="username">root</systemitem> user:
+    </para>
+
+<screen role="root"><userinput>sed -i 's/USE_STYLE="DEFAULT"/USE_STYLE="LINUX"/' infinality-settings.sh
+porg -lD+ "install -v -m644 infinality-settings.sh /etc/profile.d"</userinput></screen>
+
+  </sect2>
+
+</sect1>
