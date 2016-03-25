@@ -1,24 +1,24 @@
 Submitted By:            Igor Živković
 Date:                    2014-07-31
 Initial Package Version: snapshot-20140709-2245-stable
-Upstream Status:         Unknown
+Upstream Status:         Not submitted
 Origin:                  Self
 Description:             Improves configure shell script portability and removes
                          dependency on bash.
 
-diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150908-2245-stable/configure
---- x264-snapshot-20150908-2245-stable.orig/configure	2015-09-08 22:45:12.000000000 +0200
-+++ x264-snapshot-20150908-2245-stable/configure	2015-10-14 10:16:37.955250282 +0200
+diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160220-2245-stable/configure
+--- x264-snapshot-20160220-2245-stable.orig/configure	2016-02-20 22:45:07.000000000 +0100
++++ x264-snapshot-20160220-2245-stable/configure	2016-03-26 00:03:43.299732942 +0100
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
  
  if test x"$1" = x"-h" -o x"$1" = x"--help" ; then
  cat <<EOF
-@@ -78,13 +78,13 @@
-     # suppress them by disabling all warnings rather than having to use #pragmas to disable most of them
+@@ -77,13 +77,13 @@
+     # several non gcc compilers issue an incredibly large number of warnings on high warning levels,
+     # suppress them by reducing the warning level rather than having to use #pragmas
      for arg in $*; do
-         [ "$arg" = -ffast-math ] && arg=
 -        [[ "$arg" = -falign-loops* ]] && arg=
 +        [ ! "${arg##-falign-loops*}" ] && arg=
          [ "$arg" = -fno-tree-vectorize ] && arg=
@@ -31,9 +31,9 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
 +        [ ! "${arg##-l*}" ] && arg=
 +        [ ! "${arg##-L*}" ] && arg=
          if [ $compiler_style = MS ]; then
-             [ "$arg" = -Wall ] && arg=-W0
-             [ "$arg" = -Werror ] && arg="-W3 -WX"
-@@ -104,8 +104,8 @@
+             [ "$arg" = -ffast-math ] && arg="-fp:fast"
+             [ "$arg" = -Wall ] && arg=
+@@ -105,8 +105,8 @@
  
  cl_ldflags() {
      for arg in $*; do
@@ -44,7 +44,7 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
          [ "${arg#-L}" != "$arg" ] && arg=-libpath:${arg#-L}
          [ "$arg" = -Wl,--large-address-aware ] && arg=-largeaddressaware
          [ "$arg" = -s ] && arg=
-@@ -114,9 +114,9 @@
+@@ -115,9 +115,9 @@
          [ "$arg" = -Werror ] && arg=
          [ "$arg" = -Wshadow ] && arg=
          [ "$arg" = -Wmaybe-uninitialized ] && arg=
@@ -56,7 +56,7 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
          [ "$arg" = avifil32.lib ] && arg=vfw32.lib
          [ "$arg" = gpac_static.lib ] && arg=libgpac_static.lib
          [ "$arg" = x264.lib ] && arg=libx264.lib
-@@ -178,7 +178,7 @@
+@@ -179,7 +179,7 @@
      for arg in $1; do
          echo "#include <$arg>" >> conftest.c
      done
@@ -65,7 +65,16 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
      if [ $compiler_style = MS ]; then
          cpp_cmd="$CC conftest.c $(cc_cflags $CFLAGS $2) -P"
      else
-@@ -510,10 +510,10 @@
+@@ -312,7 +312,7 @@
+     local path="$(cd "$1" >/dev/null; printf '%s/.' "${PWD%/}")"
+     local up=''
+ 
+-    while [[ $path != "$base/"* ]]; do
++    while [ ${path##"$base/"*} ]; do
+         base="${base%/*}"
+         up="../$up"
+     done
+@@ -525,10 +525,10 @@
  # test for use of compilers that require specific handling
  cc_base=`basename "$CC"`
  QPRE="-"
@@ -79,20 +88,16 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
          compiler=ICL
          compiler_style=MS
          CFLAGS="$CFLAGS -Qstd=c99 -nologo -Qms0 -DHAVE_STRING_H -I\$(SRCPATH)/extras"
-@@ -524,10 +524,10 @@
+@@ -539,7 +539,7 @@
          if cc_check '' -Qdiag-error:10006,10157 ; then
              CHECK_CFLAGS="$CHECK_CFLAGS -Qdiag-error:10006,10157"
          fi
 -    elif [[ "$cc_base" = cl || "$cc_base" = cl[\ .]* ]]; then
 +    elif [ "$cc_base" = cl ] || [ ! "${cc_base##cl.*}" ]; then
          # Standard Microsoft Visual Studio
-         # Dependency creation includes absolute windows paths, Cygwin's make does not support Windows paths.
--        [[ $host_os = cygwin* ]] && die "Microsoft Visual Studio support requires MSYS"
-+        [ ! "${host_os##cygwin*}" ] && die "Microsoft Visual Studio support requires MSYS"
          compiler=CL
          compiler_style=MS
-         CFLAGS="$CFLAGS -nologo -DHAVE_STRING_H -I\$(SRCPATH)/extras"
-@@ -536,13 +536,13 @@
+@@ -549,13 +549,13 @@
          cpp_check '' '' '_MSC_VER > 1800 || (_MSC_VER == 1800 && _MSC_FULL_VER >= 180030324)' || die "Microsoft Visual Studio support requires Visual Studio 2013 Update 2 or newer"
      fi
  else
@@ -108,9 +113,9 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
      if cc_check '' -Werror=unknown-warning-option ; then
          CHECK_CFLAGS="$CHECK_CFLAGS -Werror=unknown-warning-option"
      fi
-@@ -653,10 +653,10 @@
+@@ -669,10 +669,10 @@
          AS_EXT=".asm"
-         ASFLAGS="$ASFLAGS -O2 -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
+         ASFLAGS="$ASFLAGS -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
          if [ $compiler = GNU ]; then
 -            if [[ "$asm" == auto && "$CFLAGS" != *-march* ]]; then
 +            if [ "$asm" = auto ] && [ "${CFLAGS##*-march*}" ]; then
@@ -118,10 +123,10 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
              fi
 -            if [[ "$asm" == auto && "$CFLAGS" != *-mfpmath* ]]; then
 +            if [ "$asm" = auto ] && [ "${CFLAGS##*-mfpmath*}" ]; then
-                 CFLAGS="$CFLAGS -mfpmath=sse -msse"
+                 CFLAGS="$CFLAGS -mfpmath=sse -msse -msse2"
              fi
              CFLAGS="-m32 $CFLAGS"
-@@ -1200,7 +1200,7 @@
+@@ -1237,7 +1237,7 @@
  # generate exported config file
  
  config_chroma_format="X264_CSP_I$chroma_format"
@@ -130,7 +135,7 @@ diff -Naur x264-snapshot-20150908-2245-stable.orig/configure x264-snapshot-20150
  cat > x264_config.h << EOF
  #define X264_BIT_DEPTH     $bit_depth
  #define X264_GPL           $x264_gpl
-@@ -1414,7 +1414,7 @@
+@@ -1458,7 +1458,7 @@
  cat conftest.log
  
  [ "$SRCPATH" != "." ] && ln -sf ${SRCPATH}/Makefile ./Makefile
