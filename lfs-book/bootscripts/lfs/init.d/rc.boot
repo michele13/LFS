@@ -46,8 +46,6 @@ grep -q " verbose" /proc/cmdline && dmesg -n 8 || dmesg -n 3
 
 hwclock -u -s
 
-swapon -a
-
 hostname $(cat /etc/hostname)
 
 /etc/init.d/checkfs start
@@ -62,6 +60,8 @@ mount -o remount,rw / >/dev/null
 
 # Remove fsck-related file system watermarks.
 rm -f /fastboot /forcefsck
+
+swapon -a
 
 # This will mount all filesystems that do not have _netdev in
 # their option list.  _netdev denotes a network filesystem.
