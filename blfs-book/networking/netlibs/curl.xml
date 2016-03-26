@@ -8,8 +8,8 @@
   <!ENTITY curl-wikipedia     "http://en.wikipedia.org/wiki/CURL">
   <!ENTITY curl-download-http "http://curl.haxx.se/download/curl-&curl-version;.tar.lzma">
   <!ENTITY curl-download-ftp  " ">
-  <!ENTITY curl-md5sum        "8242c073d8e5fc1c2a1aa946f1e903a4">
-  <!ENTITY curl-size          "2.8 MB">
+  <!ENTITY curl-md5sum        "de75665721e3adb0a1d7e03b90c3d7a2">
+  <!ENTITY curl-size          "5.6 MB">
   <!ENTITY curl-buildsize     "36 MB">
   <!ENTITY curl-time          "0.3 SBU">
 ]>
@@ -74,6 +74,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;curl/curl-&curl-version;-libressl-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
@@ -105,7 +115,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>PATH_SEPARATOR=: \
+<screen><userinput>patch -p1 -i ../curl-&curl-version;-libressl-1.patch &amp;&amp;
+PATH_SEPARATOR=: \
 ./configure --prefix= \
             --disable-static \
             --enable-threaded-resolver</userinput></screen>
