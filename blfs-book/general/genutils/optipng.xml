@@ -5,7 +5,7 @@
   %general-entities;
 
   <!ENTITY optipng-homepage      "http://optipng.sourceforge.net/">
-  <!ENTITY optipng-wikipedia     " ">
+  <!ENTITY optipng-wikipedia     "https://en.wikipedia.org/wiki/Portable_Network_Graphics#Optimizing_tools">
   <!ENTITY optipng-download-http "&sourceforge-repo;/optipng/optipng-&optipng-version;.tar.gz">
   <!ENTITY optipng-download-ftp  " ">
   <!ENTITY optipng-md5sum        "90ac1ec7945d48c0e9859b977b5df411">
@@ -86,19 +86,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure -prefix=/usr \
-            -mandir=/usr/share/man \
-            -with-system-libs &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure -prefix= \
+            -mandir=/share/man \
+            -with-system-libs</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -109,22 +114,6 @@ make</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="optipng">
-      <primary sortas="b-optipng">optipng</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/optipng
-/usr/man/man1/optipng.1</literal></screen>
 
   </sect2>
 
