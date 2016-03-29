@@ -4,36 +4,43 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY fuse-homepage      "https://github.com/libfuse/libfuse">
+  <!ENTITY fuse-wikipedia     "https://en.wikipedia.org/wiki/Filesystem_in_Userspace">
   <!ENTITY fuse-download-http "https://github.com/libfuse/libfuse/releases/download/fuse_&fuse-download-version;/fuse-&fuse-version;.tar.gz">
   <!ENTITY fuse-download-ftp  " ">
   <!ENTITY fuse-md5sum        "c901b77a1c4584c7ac6c2b67c0713f2b">
   <!ENTITY fuse-size          "552 KB">
-  <!ENTITY fuse-buildsize     "8.2 MB (9.8 MB with API documentation)">
+  <!ENTITY fuse-buildsize     "8.2 MB">
   <!ENTITY fuse-time          "0.1 SBU">
 ]>
 
-<sect1 id="fuse" xreflabel="Fuse-&fuse-version;">
+<sect1 id="fuse" xreflabel="fuse-&fuse-version;">
   <?dbhtml filename="fuse.html"?>
 
-  <title>Fuse-&fuse-version;</title>
-
-  <indexterm zone="fuse">
-    <primary sortas="a-Fuse">Fuse</primary>
-  </indexterm>
+  <title>fuse-&fuse-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to Fuse</title>
+    <title>Introduction</title>
 
     <para>
-      <application>FUSE</application> (Filesystem in Userspace) is a simple
-      interface for userspace programs to export a virtual filesystem to the
-      Linux kernel. <application>Fuse</application> also aims to provide a
-      secure method for non privileged users to create and mount their own
-      filesystem implementations.
+      FUSE (Filesystem in Userspace) is a simple interface for userspace
+      programs to export a virtual filesystem to the Linux kernel. Fuse also
+      aims to provide a secure method for non privileged users to create and
+      mount their own filesystem implementations.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&fuse-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&fuse-wikipedia;"/>
+        </para>
+      </listitem>
       <listitem>
         <para>
           Download (HTTP): <ulink url="&fuse-download-http;"/>
@@ -68,7 +75,7 @@
 
   </sect2>
 
-  <sect2 role="kernel" id="fuse-kernel">
+  <sect2>
     <title>Kernel Configuration</title>
 
     <para>
@@ -79,13 +86,10 @@
 <screen><literal>File systems  ---&gt;
   &lt;*/M&gt; FUSE (Filesystem in Userspace) support [CONFIG_FUSE_FS]</literal></screen>
 
-    <indexterm zone="fuse fuse-kernel">
-      <primary sortas="d-fuse">fuse</primary>
-    </indexterm>
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of Fuse</title>
+  <sect2>
+    <title>Installation</title>
 
     <note>
       <para>
@@ -101,192 +105,37 @@
     </note>
 
     <para>
-      Install <application>Fuse</application> by running the following
-      commands:
+      Prepare the package for compilation:
     </para>
 
 <screen><userinput>sed -i 's/2:9:4/2:9:5/' lib/Makefile.in &amp;&amp;
-
-./configure --prefix=/usr    \
+./configure --prefix=/ \
             --disable-static \
-            INIT_D_PATH=/tmp/init.d &amp;&amp;
-
-make</userinput></screen>
+            --disable-util</userinput></screen>
 
     <para>
-      This package does not come with a test suite.
+      Compile the package:
     </para>
+
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libfuse.la &amp;&amp;
+rm -v /lib/libulockmgr.la"</userinput></screen>
 
-mv -v   /usr/lib/libfuse.so.* /lib &amp;&amp;
-ln -sfv ../../lib/libfuse.so.&fuse-version; /usr/lib/libfuse.so &amp;&amp;
-rm -rf  /tmp/init.d &amp;&amp;
-
-install -v -m755 -d /usr/share/doc/fuse-&fuse-version; &amp;&amp;
-install -v -m644    doc/{how-fuse-works,kernel.txt} \
-                    /usr/share/doc/fuse-&fuse-version;</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><command>sed -i ... lib/Makefile.in</command> This command fixes
-    libfuse so version.
-    </para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-    <para>
-      <parameter>INIT_D_PATH=/tmp/init.d</parameter>: This parameter installs
-      the bootscript into <filename class="directory">/tmp/init.d</filename> as
-      a bootscript is not required.
-    </para>
-
-    <para>
-      <command>mv -v /usr/lib/libfuse.so.* /lib</command>: This moves the
-      <application>FUSE</application> library to the root filesystem
-      so that it is available early in the boot process in case
-      <filename class="directory">/usr</filename> is mounted on a separate
-      partition and <xref linkend="ntfs-3g"/> is built with a system-installed
-      version of <application>FUSE</application>.
-    </para>
-
-    <para>
-      <command>rm -rf /tmp/init.d</command>: This removes the unneeded
-      bootscript.
-    </para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring fuse</title>
-
-    <sect3 id="fuse-config">
-      <title>Config Files</title>
+    <sect3>
+      <title>Command Explanations</title>
 
       <para>
-        Some options regarding mount policy can be set in the file
-        <filename>/etc/fuse.conf</filename>. To install the file run the
-        following command as the <systemitem class="username">root</systemitem>
-        user:
-      </para>
-
-<screen role="root"><userinput>cat &gt; /etc/fuse.conf &lt;&lt; "EOF"
-# Set the maximum number of FUSE mounts allowed to non-root users.
-# The default is 1000.
-#
-#mount_max = 1000
-
-# Allow non-root users to specify the 'allow_other' or 'allow_root'
-# mount options.
-#
-#user_allow_other
-EOF</userinput></screen>
-
-      <para>
-        Additional information about the meaning of the configuration
-        options are found in the man page.
+        <command>sed -i ... lib/Makefile.in</command> This command fixes
+        libfuse so version.
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Programs</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directory</segtitle>
-
-      <seglistitem>
-        <seg>
-          fusermount, mount.fuse, and ulockmgr_server
-        </seg>
-        <seg>
-          libfuse.so and libulockmgr.so
-        </seg>
-        <seg>
-          /usr/include/fuse and /usr/share/doc/fuse-&fuse-version;
-        </seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="fusermount">
-        <term><command>fusermount</command></term>
-        <listitem>
-          <para>
-            is a set users ID root program to mount and unmount Fuse
-            filesystems.
-          </para>
-          <indexterm zone="fuse fusermount">
-            <primary sortas="b-fusermount">fusermount</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="mount.fuse">
-        <term><command>mount.fuse</command></term>
-        <listitem>
-          <para>
-            is the command <command>mount</command> would call to mount a Fuse
-            filesystem.
-          </para>
-          <indexterm zone="fuse mount.fuse">
-            <primary sortas="b-mount.fuse">mount.fuse</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="ulockmgr_server">
-        <term><command>ulockmgr_server</command></term>
-        <listitem>
-          <para>
-            is the Userspace Lock Manager Server for Fuse filesystems.
-          </para>
-          <indexterm zone="fuse ulockmgr_server">
-            <primary sortas="b-ulockmgr_server">ulockmgr_server</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libfuse">
-        <term><filename class="libraryfile">libfuse.so</filename></term>
-        <listitem>
-          <para>
-            contains the <application>FUSE</application> API functions.
-          </para>
-          <indexterm zone="fuse libfuse">
-            <primary sortas="c-libfuse">libfuse.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libulockmgr">
-        <term><filename class="libraryfile">libulockmgr.so</filename></term>
-        <listitem>
-          <para>
-            contains the Userspace Lock Manager API functions.
-          </para>
-          <indexterm zone="fuse libulockmgr">
-            <primary sortas="c-libulockmgr">libulockmgr.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-    </variablelist>
 
   </sect2>
 
