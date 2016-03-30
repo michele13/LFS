@@ -14,10 +14,10 @@
   <!ENTITY libxscrnsaver-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxscrnsaver" xreflabel="libXScrnSaver-&libxscrnsaver-version;">
+<sect1 id="libxscrnsaver" xreflabel="libxscrnsaver-&libxscrnsaver-version;">
   <?dbhtml filename="libxscrnsaver.html"?>
 
-  <title>libXScrnSaver-&libxscrnsaver-version;</title>
+  <title>libxscrnsaver-&libxscrnsaver-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -88,36 +88,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxscrnsaver">
-      <primary sortas="c-libXss.so">libXss.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/include/X11/extensions/scrnsaver.h
-/usr/lib/libXss.so
-/usr/lib/pkgconfig/xscrnsaver.pc
-/usr/share/man/man3/XScreenSaver*.3
-/usr/share/man/man3/Xss.3</literal></screen>
+<screen role="root"><userinput>porg -lp libxscrnsaver-&libxscrnsaver-version; "make -j1 install &amp;&amp;
+rm -v /lib/libXss.la"</userinput></screen>
 
   </sect2>
 
