@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY json-glib-homepage      " ">
+  <!ENTITY json-glib-wikipedia     " ">
+  <!ENTITY json-glib-download-http "&gnome-download-http;/json-glib/1.2/json-glib-&json-glib-version;.tar.xz">
+  <!ENTITY json-glib-download-ftp  "&gnome-download-ftp;/json-glib/1.2/json-glib-&json-glib-version;.tar.xz">
+  <!ENTITY json-glib-md5sum        "efe14b6b8e7aa95ee3240cc60627dc9f">
+  <!ENTITY json-glib-size          "572 KB">
+  <!ENTITY json-glib-buildsize     "12 MB">
+  <!ENTITY json-glib-time          "0.2 SBU">
+]>
+
+<sect1 id="json-glib" xreflabel="json-glib-&json-glib-version;">
+  <?dbhtml filename="json-glib.html"?>
+
+  <title>json-glib-&json-glib-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The JSON GLib package is a library providing serialization and
+      deserialization support for the JavaScript Object Notation (JSON) format
+      described by RFC 4627.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&json-glib-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&json-glib-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&json-glib-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&json-glib-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &json-glib-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &json-glib-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &json-glib-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &json-glib-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="glib2"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-data-local//" -i doc/reference/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libjson-glib-1.0.la"</userinput></screen>
+
+  </sect2>
+
+</sect1>
