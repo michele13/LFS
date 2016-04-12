@@ -7,7 +7,7 @@
 <!--  <!ENTITY mutt-download-http "&sourceforge-repo;/mutt/mutt-&mutt-version;.tar.gz">-->
   <!ENTITY mutt-download-http "http://gd.tuwien.ac.at/pub/infosys/mail/mutt/mutt-&mutt-version;.tar.gz">
   <!ENTITY mutt-download-ftp  "ftp://ftp.mutt.org/pub/mutt/mutt-&mutt-version;.tar.gz">
-  <!ENTITY mutt-md5sum        "7f25d27f3c7c82285ac07aac35f5f0f2">
+  <!ENTITY mutt-md5sum        "d05bb821d7040c61ba89b22d7c2bd388">
   <!ENTITY mutt-size          "3.8 MB">
   <!ENTITY mutt-buildsize     "36 MB">
   <!ENTITY mutt-time          "0.7 SBU">
@@ -85,17 +85,6 @@
   <sect2 role="installation">
     <title>Installation of Mutt</title>
 
-    <note>
-      <para>This version of <application>Mutt</application> is a development
-      release.  The BLFS staff has determined that it provides a stable
-      program and fixes two issues in the current stable version of
-      <application>Mutt</application>: a segmentation fault that occurs under
-      certain conditions and a compilation problem when building with recent
-      versions of <application>GCC</application>.  To find the current
-      stable release, please refer to the
-      <ulink url="http://www.mutt.org/">Mutt home page</ulink>.</para>
-    </note>
-
     <para><application>Mutt</application> requires a group named
     <systemitem class="groupname">mail</systemitem>.  You can
     add this group, if it does not exist, with this command:</para>
@@ -111,46 +100,28 @@
     <para>Install <application>Mutt</application> by running the following
     commands:</para>
 
-<screen><userinput>patch -p1 -i ../mutt-&mutt-version;-upstream_fixes-1.patch &amp;&amp;
-./configure --prefix=/usr --sysconfdir=/etc \
+<screen><userinput>./configure --prefix=/usr \
+            --sysconfdir=/etc \
             --disable-nls \
             --with-docdir=/usr/share/doc/mutt-&mutt-version; \
-            --enable-pop --enable-imap \
-            --enable-hcache --without-qdbm \
-            --without-tokyocabinet \
-            --with-gdbm --without-bdb &amp;&amp;
+            --enable-external-dotlock \
+            --enable-pop \
+            --enable-imap \
+            --enable-hcache &amp;&amp;
 make</userinput></screen>
-
-    <!-- for the moment, the html is regenerated automatically if the deps are
-    present, there is no way to stop it except by removing a dependency
-    <para>If you have the necessary dependencies installed and would like
-    to rebuild the HTML documentation, issue the following commands:</para>
-
-<screen><userinput>make -C doc clean &amp;&amp;
-make -C doc</userinput></screen> -->
-
-    <para>To generate the PDF manual with texlive, run
-    the following command:</para>
-
-<screen><userinput>make -C doc manual.pdf</userinput></screen>
-
-    <para>This package does not come with a test suite.</para>
 
     <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
 
 <screen role='root'><userinput>make install</userinput></screen>
 
-    <para>If you generated the PDF manual, install it and the source TeX
-    file by issuing the following command as the
-    <systemitem class="username">root</systemitem> user:</para>
-
-<screen role='root'><userinput>install -v -m644 doc/manual.{pdf,tex} \
-    /usr/share/doc/mutt-&mutt-version;</userinput></screen>
-
   </sect2>
 
   <sect2 role="commands">
     <title>Command Explanations</title>
+
+    <para><parameter>--enable-external-dotlock</parameter>: In some circumstances
+    the mutt-dotlock program is not created. This switch ensures it is always
+    created.</para>
 
     <para><parameter>--enable-pop</parameter>: This switch enables
     POP3 support.</para>
@@ -160,18 +131,6 @@ make -C doc</userinput></screen> -->
 
     <para><parameter>--enable-hcache</parameter>: This switch enables
     header caching.</para>
-
-    <para><parameter>--without-qdbm</parameter>: This switch disables
-    <application>QDBM</application> as the header cache backend.</para>
-
-    <para><parameter>--without-tokyocabinet</parameter>: This switch disables
-    <application>Tokyo Cabinet</application> as the header cache backend.</para>
-
-    <para><parameter>--with-gdbm</parameter>: This switch enables
-    <application>GDBM</application> as the header cache backend.</para>
-
-    <para><parameter>--without-bdb</parameter>: This switch disables
-     <application>Berkeley DB</application> as the header cache backend.</para>
 
     <para><option>--enable-smtp</option>: This switch enables
     SMTP relay support.</para>
