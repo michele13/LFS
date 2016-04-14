@@ -6,10 +6,10 @@
 
   <!ENTITY thunderbird-homepage      "https://www.mozilla.org/thunderbird/">
   <!ENTITY thunderbird-wikipedia     "https://en.wikipedia.org/wiki/Mozilla_Thunderbird">
-  <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
-  <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.bz2">
-  <!ENTITY thunderbird-md5sum        "e16b86d40aa71fc5b331839f59225223">
-  <!ENTITY thunderbird-size          "195 MB">
+  <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
+  <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
+  <!ENTITY thunderbird-md5sum        "7f0071afbcd2be0933f34d12122ca162">
+  <!ENTITY thunderbird-size          "191 MB">
   <!ENTITY thunderbird-buildsize     "3.9 GB">
   <!ENTITY thunderbird-time          "72 SBU">
 ]>
@@ -177,6 +177,7 @@ ac_add_options --disable-gstreamer
 ac_add_options --disable-libnotify
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-pulseaudio
+ac_add_options --disable-gconf
 # build fails with webm disabled for some reason
 #ac_add_options --disable-webm
 
@@ -204,7 +205,7 @@ EOF</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp thunderbird-&thunderbird-version; -E $PWD "make -f client.mk install INSTALL_SDK= &amp;&amp;
+<screen role="root"><userinput>porg -lD -E $PWD "make -f client.mk install INSTALL_SDK= &amp;&amp;
 chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
 
     <sect3>
