@@ -78,43 +78,30 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-nls &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-info-am / /" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libgpg-error">
-      <primary sortas="b-gpg-error">gpg-error</primary>
-    </indexterm>
-    <indexterm zone="libgpg-error">
-      <primary sortas="b-gpg-error-config">gpg-error-config</primary>
-    </indexterm>
-    <indexterm zone="libgpg-error">
-      <primary sortas="c-libgpg-error.so">libgpg-error.so</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix= \
+            --disable-nls</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/bin/gpg-error
-/usr/bin/gpg-error-config
-/usr/include/gpg-error.h
-/usr/lib/libgpg-error.so
-/usr/share/aclocal/gpg-error.m4</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libgpg-error.la"</userinput></screen>
 
   </sect2>
 
