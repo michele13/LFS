@@ -8,8 +8,8 @@
   <!ENTITY libgcrypt-wikipedia     "http://en.wikipedia.org/wiki/Libgcrypt">
   <!ENTITY libgcrypt-download-http " ">
   <!ENTITY libgcrypt-download-ftp  "ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-&libgcrypt-version;.tar.bz2">
-  <!ENTITY libgcrypt-md5sum        "3babc8af8978eeafa1bdbfef066ea943">
-  <!ENTITY libgcrypt-size          "2.5 MB">
+  <!ENTITY libgcrypt-md5sum        "67ec79bdde8fd815c9cdd55aa9555935">
+  <!ENTITY libgcrypt-size          "2.7 MB">
   <!ENTITY libgcrypt-buildsize     "38 MB">
   <!ENTITY libgcrypt-time          "0.3 SBU">
 ]>
@@ -85,51 +85,29 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>./configure --prefix=/usr &amp;&amp;
-make</userinput></screen>
+<screen><userinput>sed "s/ install-info-am / /" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Prepare the package for compilation:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libgcrypt">
-      <primary sortas="b-dumpsexp">dumpsexp</primary>
-    </indexterm>
-    <indexterm zone="libgcrypt">
-      <primary sortas="b-hmac256">hmac256</primary>
-    </indexterm>
-    <indexterm zone="libgcrypt">
-      <primary sortas="b-libgcrypt-config">libgcrypt-config</primary>
-    </indexterm>
-    <indexterm zone="libgcrypt">
-      <primary sortas="b-mpicalc">mpicalc</primary>
-    </indexterm>
-    <indexterm zone="libgcrypt">
-      <primary sortas="c-libgcrypt.so">libgcrypt.so</primary>
-    </indexterm>
+<screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Compile the package:
     </para>
 
-<screen><literal>/usr/bin/dumpsexp
-/usr/bin/hmac256
-/usr/bin/libgcrypt-config
-/usr/bin/mpicalc
-/usr/include/gcrypt.h
-/usr/lib/libgcrypt.so
-/usr/share/aclocal/libgcrypt.m4
-/usr/share/man/man1/hmac256.1</literal></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libgcrypt.la"</userinput></screen>
 
   </sect2>
 
