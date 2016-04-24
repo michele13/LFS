@@ -6,10 +6,10 @@
 
   <!ENTITY fuse-homepage      "https://github.com/libfuse/libfuse">
   <!ENTITY fuse-wikipedia     "https://en.wikipedia.org/wiki/Filesystem_in_Userspace">
-  <!ENTITY fuse-download-http "https://github.com/libfuse/libfuse/releases/download/fuse_&fuse-download-version;/fuse-&fuse-version;.tar.gz">
+  <!ENTITY fuse-download-http "https://github.com/libfuse/libfuse/releases/download/fuse-&fuse-version;/fuse-&fuse-version;.tar.gz">
   <!ENTITY fuse-download-ftp  " ">
-  <!ENTITY fuse-md5sum        "c901b77a1c4584c7ac6c2b67c0713f2b">
-  <!ENTITY fuse-size          "552 KB">
+  <!ENTITY fuse-md5sum        "3d3eebdfe640ccbf0f0a93988a07596a">
+  <!ENTITY fuse-size          "625 KB">
   <!ENTITY fuse-buildsize     "8.2 MB">
   <!ENTITY fuse-time          "0.1 SBU">
 ]>
@@ -108,8 +108,7 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>sed -i 's/2:9:4/2:9:5/' lib/Makefile.in &amp;&amp;
-./configure --prefix=/ \
+<screen><userinput>./configure --prefix=/ \
             --disable-static \
             --disable-util</userinput></screen>
 
@@ -126,16 +125,6 @@
 <screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
 rm -v /lib/libfuse.la &amp;&amp;
 rm -v /lib/libulockmgr.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i ... lib/Makefile.in</command> This command fixes
-        libfuse so version.
-      </para>
-
-    </sect3>
 
   </sect2>
 
