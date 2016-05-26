@@ -88,29 +88,28 @@ sed "/INSTALL.*pcilib.7/d" -i Makefile</userinput></screen>
       Compile the package:
     </para>
 
-<screen><userinput>make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc</userinput></screen>
+<screen><userinput>make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc ZLIB=no</userinput></screen>
 
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc -j1 install"</userinput></screen>
-<!--
+<screen role="root"><userinput>porg -lD "make PREFIX= SBINDIR=/bin SHAREDIR=/share/misc ZLIB=no -j1 install"</userinput></screen>
+
     <sect3>
       <title>Command Explanations</title>
-
+<!--
       <para>
         <parameter>SHARED=yes</parameter>: This parameter enables building of
         shared library instead of static one.
       </para>
-
+-->
       <para>
-        <option>ZLIB=no</option>: This option prevents compression of the
-        <filename>pci.ids</filename> file.
+        <parameter>ZLIB=no</parameter>: This parameter prevents compression of
+        the <filename>pci.ids</filename> file. <!-- also requires zgrep -->
       </para>
 
     </sect3>
--->
   </sect2>
 
   <sect2>
