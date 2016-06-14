@@ -73,6 +73,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;libxcb/libxcb-&libxcb-version;-python3-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -107,7 +117,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix= \
+<screen><userinput>patch -p1 -i ../libxcb-&libxcb-version;-python3-1.patch &amp;&amp;
+./configure --prefix= \
             --disable-static \
             --enable-xinput</userinput></screen>
 
