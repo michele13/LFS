@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY autoconf213-homepage      "http://www.gnu.org/software/autoconf/">
+  <!ENTITY autoconf213-wikipedia     "http://en.wikipedia.org/wiki/Autoconf">
+  <!ENTITY autoconf213-download-http "http://ftp.gnu.org/gnu/autoconf/autoconf-&autoconf213-version;.tar.gz">
+  <!ENTITY autoconf213-download-ftp "ftp://ftp.gnu.org/gnu/autoconf/autoconf-&autoconf213-version;.tar.gz">
+  <!ENTITY autoconf213-md5sum        "9de56d4a161a723228220b0f425dc711">
+  <!ENTITY autoconf213-size          "434 KB">
+  <!ENTITY autoconf213-buildsize     "2.8 MB">
+  <!ENTITY autoconf213-time          "0.1 SBU">
+]>
+
+<sect1 id="autoconf213" xreflabel="autoconf-&autoconf213-version;">
+  <?dbhtml filename="autoconf213.html"?>
+
+  <title>autoconf-&autoconf213-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The autoconf package contains programs for producing shell scripts that
+      can automatically configure source code. This old version accepts
+      switches which are not valid in more recent versions. Now that firefox
+      has started to use python2 for configuring, this old version is required
+      even if configure files have not been changed.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&autoconf213-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&autoconf213-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&autoconf213-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&autoconf213-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &autoconf213-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &autoconf213-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &autoconf213-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &autoconf213-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;autoconf/autoconf-&autoconf213-version;-consolidated_fixes-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Prepare the package for compilation:
+    </para>
+
+<screen><userinput>patch -p1 -i ../autoconf-&autoconf213-version;-consolidated_fixes-1.patch &amp;&amp;
+sed "/^all/s/info//" -i Makefile.in &amp;&amp;
+sed "s/\$(DESTDIR)\/\$(infodir) //" -i Makefile.in &amp;&amp;
+./configure --prefix= \
+            --program-suffix=2.13</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+
+      <para>
+        <parameter>--program-suffix=2.13</parameter>: ensure that the installed
+        programs have the version added to their names, so that only a script
+        which specifically looks for these old versions will find them.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>
