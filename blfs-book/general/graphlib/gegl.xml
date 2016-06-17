@@ -8,8 +8,8 @@
   <!ENTITY gegl-wikipedia     "https://en.wikipedia.org/wiki/GEGL">
   <!ENTITY gegl-download-http "http://download.gimp.org/pub/gegl/0.3/gegl-&gegl-version;.tar.bz2">
   <!ENTITY gegl-download-ftp  " ">
-  <!ENTITY gegl-md5sum        "e6b4eb720ef541aab8c9b12b1a517a78">
-  <!ENTITY gegl-size          "5.5 MB">
+  <!ENTITY gegl-md5sum        "d2df2fe2236e3d5fe5bfc67d1c10cab4">
+  <!ENTITY gegl-size          "5.6 MB">
   <!ENTITY gegl-buildsize     "50 MB">
   <!ENTITY gegl-time          "0.9 SBU">
 ]>
@@ -114,6 +114,10 @@
 
 <screen><userinput>sed "s/ install-dist_gtkdochtmlDATA//" -i docs/Makefile.in
 sed "s/install-data$//" -i po/Makefile.in.in</userinput></screen>
+
+    <para>If desired, prevent the ouput of numerous invalid warnings:</para>
+
+<screen><userinput>sed -i "/seems to be moved/s/^/: #/" ltmain.sh</userinput></screen>
 
     <para>
       Prepare the package for compilation:
