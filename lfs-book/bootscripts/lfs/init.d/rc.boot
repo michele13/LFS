@@ -9,6 +9,8 @@ mount -t tmpfs tmpfs /run
 mkdir -p /run/var /run/lock /run/shm
 chmod 1777 /run/shm /run/lock
 ln -sfn /run/shm /dev/shm
+mkdir -m 0755 /dev/mqueue
+mount -n -t mqueue -o noexec,nosuid,nodev,mode=1777 mqueue /dev/mqueue
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 
