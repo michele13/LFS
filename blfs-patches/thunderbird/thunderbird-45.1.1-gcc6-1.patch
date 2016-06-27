@@ -1,0 +1,181 @@
+Submitted by:            DJ Lucas <dj at linuxfromscratch.org>
+Date:                    2016-06-26
+Initial Package Version: 45.1.1
+Upstream Status:         Submitted
+Origin:                  https://bugzilla.mozilla.org/show_bug.cgi?id=1245783
+                         https://bugzilla.mozilla.org/show_bug.cgi?id=1232696
+                         https://build.opensuse.org/package/view_file/mozilla:Factory/MozillaThunderbird/mozilla-flexible-array-member-in-union.patch
+Comment:                 Fixes build errors and startup crashes when used with
+                         GCC-6.1.
+
+diff -Naurp thunderbird-45.1.1-orig/mozilla/config/config.mk thunderbird-45.1.1/mozilla/config/config.mk
+--- thunderbird-45.1.1-orig/mozilla/config/config.mk	2016-06-26 12:26:07.579845579 -0500
++++ thunderbird-45.1.1/mozilla/config/config.mk	2016-06-26 12:26:55.932026617 -0500
+@@ -655,7 +655,6 @@ endif
+ 
+ define CHECK_BINARY
+ $(call CHECK_GLIBC,$(1))
+-$(call CHECK_STDCXX,$(1))
+ $(call CHECK_TEXTREL,$(1))
+ $(call LOCAL_CHECKS,$(1))
+ $(call CHECK_MOZGLUE_ORDER,$(1))
+diff -Naurp thunderbird-45.1.1-orig/mozilla/dom/base/nsContentSink.cpp thunderbird-45.1.1/mozilla/dom/base/nsContentSink.cpp
+--- thunderbird-45.1.1-orig/mozilla/dom/base/nsContentSink.cpp	2016-06-26 12:26:05.565838091 -0500
++++ thunderbird-45.1.1/mozilla/dom/base/nsContentSink.cpp	2016-06-26 12:27:16.662104956 -0500
+@@ -96,8 +96,27 @@ NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
+ 
+ 
+ nsContentSink::nsContentSink()
++  : mBackoffCount(0)
++  , mLastNotificationTime(0)
++  , mBeganUpdate(0)
++  , mLayoutStarted(0)
++  , mDynamicLowerValue(0)
++  , mParsing(0)
++  , mDroppedTimer(0)
++  , mDeferredLayoutStart(0)
++  , mDeferredFlushTags(0)
++  , mIsDocumentObserver(0)
++  , mRunsToCompletion(0)
++  , mDeflectedCount(0)
++  , mHasPendingEvent(false)
++  , mCurrentParseEndTime(0)
++  , mBeginLoadTime(0)
++  , mLastSampledUserEventTime(0)
++  , mInMonolithicContainer(0)
++  , mInNotification(0)
++  , mUpdatesInNotification(0)
++  , mPendingSheetCount(0)
+ {
+-  // We have a zeroing operator new
+   NS_ASSERTION(!mLayoutStarted, "What?");
+   NS_ASSERTION(!mDynamicLowerValue, "What?");
+   NS_ASSERTION(!mParsing, "What?");
+diff -Naurp thunderbird-45.1.1-orig/mozilla/dom/html/nsHTMLContentSink.cpp thunderbird-45.1.1/mozilla/dom/html/nsHTMLContentSink.cpp
+--- thunderbird-45.1.1-orig/mozilla/dom/html/nsHTMLContentSink.cpp	2016-06-26 12:26:05.796838950 -0500
++++ thunderbird-45.1.1/mozilla/dom/html/nsHTMLContentSink.cpp	2016-06-26 12:27:16.663104960 -0500
+@@ -123,7 +123,7 @@ public:
+ 
+   HTMLContentSink();
+ 
+-  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW
++  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW__REMOVED
+ 
+   nsresult Init(nsIDocument* aDoc, nsIURI* aURI, nsISupports* aContainer,
+                 nsIChannel* aChannel);
+@@ -636,8 +636,13 @@ NS_NewHTMLContentSink(nsIHTMLContentSink
+ }
+ 
+ HTMLContentSink::HTMLContentSink()
++  : mMaxTextRun(0)
++  , mCurrentContext(nullptr)
++  , mHeadContext(nullptr)
++  , mHaveSeenHead(false)
++  , mNotifiedRootInsertion(false)
+ {
+-  // Note: operator new zeros our memory
++  PodArrayZero(mNodeInfoCache);
+ }
+ 
+ HTMLContentSink::~HTMLContentSink()
+diff -Naurp thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLContentSink.cpp thunderbird-45.1.1/mozilla/dom/xml/nsXMLContentSink.cpp
+--- thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLContentSink.cpp	2016-06-26 12:26:05.832839084 -0500
++++ thunderbird-45.1.1/mozilla/dom/xml/nsXMLContentSink.cpp	2016-06-26 12:27:16.663104960 -0500
+@@ -96,8 +96,15 @@ NS_NewXMLContentSink(nsIXMLContentSink**
+ }
+ 
+ nsXMLContentSink::nsXMLContentSink()
+-  : mPrettyPrintXML(true)
++  : mTextLength(0)
++  , mNotifyLevel(0)
++  , mPrettyPrintXML(true)
++  , mPrettyPrintHasSpecialRoot(0)
++  , mPrettyPrintHasFactoredElements(0)
++  , mPrettyPrinting(0)
++  , mPreventScriptExecution(0)
+ {
++  PodArrayZero(mText);
+ }
+ 
+ nsXMLContentSink::~nsXMLContentSink()
+diff -Naurp thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLContentSink.h thunderbird-45.1.1/mozilla/dom/xml/nsXMLContentSink.h
+--- thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLContentSink.h	2016-06-26 12:26:05.834839091 -0500
++++ thunderbird-45.1.1/mozilla/dom/xml/nsXMLContentSink.h	2016-06-26 12:27:16.664104964 -0500
+@@ -49,7 +49,7 @@ class nsXMLContentSink : public nsConten
+ public:
+   nsXMLContentSink();
+ 
+-  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW
++  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW__REMOVED
+ 
+   nsresult Init(nsIDocument* aDoc,
+                 nsIURI* aURL,
+diff -Naurp thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLFragmentContentSink.cpp thunderbird-45.1.1/mozilla/dom/xml/nsXMLFragmentContentSink.cpp
+--- thunderbird-45.1.1-orig/mozilla/dom/xml/nsXMLFragmentContentSink.cpp	2016-06-26 12:26:05.832839084 -0500
++++ thunderbird-45.1.1/mozilla/dom/xml/nsXMLFragmentContentSink.cpp	2016-06-26 12:27:16.664104964 -0500
+@@ -37,7 +37,7 @@ class nsXMLFragmentContentSink : public
+ public:
+   nsXMLFragmentContentSink();
+ 
+-  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW
++  NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW__REMOVED
+ 
+   // nsISupports
+   NS_DECL_ISUPPORTS_INHERITED
+diff -Naurp thunderbird-45.1.1-orig/mozilla/gfx/harfbuzz/src/hb-font-private.hh thunderbird-45.1.1/mozilla/gfx/harfbuzz/src/hb-font-private.hh
+--- thunderbird-45.1.1-orig/mozilla/gfx/harfbuzz/src/hb-font-private.hh	2016-06-26 12:26:06.213840500 -0500
++++ thunderbird-45.1.1/mozilla/gfx/harfbuzz/src/hb-font-private.hh	2016-06-26 12:26:55.933026621 -0500
+@@ -80,7 +80,7 @@ struct hb_font_funcs_t {
+       HB_FONT_FUNCS_IMPLEMENT_CALLBACKS
+ #undef HB_FONT_FUNC_IMPLEMENT
+     } f;
+-    void (*array[]) (void);
++    void (*array[VAR]) (void);
+   } get;
+ };
+ 
+diff -Naurp thunderbird-45.1.1-orig/mozilla/gfx/harfbuzz/src/hb-private.hh thunderbird-45.1.1/mozilla/gfx/harfbuzz/src/hb-private.hh
+--- thunderbird-45.1.1-orig/mozilla/gfx/harfbuzz/src/hb-private.hh	2016-06-26 12:26:06.211840493 -0500
++++ thunderbird-45.1.1/mozilla/gfx/harfbuzz/src/hb-private.hh	2016-06-26 12:26:55.934026625 -0500
+@@ -1010,5 +1010,7 @@ hb_options (void)
+   return _hb_options.opts;
+ }
+ 
++/* Size signifying variable-sized array */
++#define VAR 1
+ 
+ #endif /* HB_PRIVATE_HH */
+diff -Naurp thunderbird-45.1.1-orig/mozilla/nsprpub/config/make-system-wrappers.pl thunderbird-45.1.1/mozilla/nsprpub/config/make-system-wrappers.pl
+--- thunderbird-45.1.1-orig/mozilla/nsprpub/config/make-system-wrappers.pl	2016-06-26 12:26:07.543845445 -0500
++++ thunderbird-45.1.1/mozilla/nsprpub/config/make-system-wrappers.pl	2016-06-26 12:26:55.934026625 -0500
+@@ -19,7 +19,9 @@ while (<STDIN>) {
+     open OUT, ">$output_dir/$_";
+     print OUT "#pragma GCC system_header\n";  # suppress include_next warning
+     print OUT "#pragma GCC visibility push(default)\n";
++    print OUT "#define _GLIBCXX_INCLUDE_NEXT_C_HEADERS\n";
+     print OUT "#include_next \<$_\>\n";
++    print OUT "#undef _GLIBCXX_INCLUDE_NEXT_C_HEADERS\n";
+     print OUT "#pragma GCC visibility pop\n";
+     close OUT;
+ }
+diff -Naurp thunderbird-45.1.1-orig/mozilla/xpcom/ds/nsCRT.h thunderbird-45.1.1/mozilla/xpcom/ds/nsCRT.h
+--- thunderbird-45.1.1-orig/mozilla/xpcom/ds/nsCRT.h	2016-06-26 12:26:07.562845516 -0500
++++ thunderbird-45.1.1/mozilla/xpcom/ds/nsCRT.h	2016-06-26 12:27:16.664104964 -0500
+@@ -38,6 +38,17 @@ extern const char16_t kIsoLatin1ToUCS2[2
+     ::operator delete(ptr);                     \
+   }
+ 
++// This macro can be used in a class declaration for classes that want
++// to ensure, well, nothing in particular.
++#define NS_DECL_AND_IMPL_ZEROING_OPERATOR_NEW__REMOVED   \
++  void* operator new(size_t sz) CPP_THROW_NEW { \
++    void* rv = ::operator new(sz);              \
++    return rv;                                  \
++  }                                             \
++  void operator delete(void* ptr) {             \
++    ::operator delete(ptr);                     \
++  }
++
+ // This macro works with the next macro to declare a non-inlined
+ // version of the above.
+ #define NS_DECL_ZEROING_OPERATOR_NEW           \

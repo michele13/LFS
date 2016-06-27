@@ -72,6 +72,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch: <ulink
+          url="&patch-root;thunderbird/thunderbird-&thunderbird-version;-gcc6-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -196,10 +206,20 @@ ac_add_options --with-system-zlib</literal>
 EOF</userinput></screen>
 
     <para>
+      Fix some issues with GCC-6.1:
+    </para>
+
+<screen><userinput>patch -p1 -i ../thunderbird-&thunderbird-version;-gcc6-1.patch</userinput></screen>
+
+    <para>
       Compile the package:
     </para>
 
-<screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>
+<!--<screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>-->
+<screen><userinput>SHELL=/bin/sh \
+CFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
+CXXFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
+make -f client.mk</userinput></screen>
 
     <para>
       Install the package:
@@ -210,6 +230,12 @@ chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <command>CFLAGS= ... CXXFLAGS= ...</command>: These settings work
+        around code which gcc6 would otherwise regard as out-of-specification
+        and allow it to produce a working program.
+      </para>
 
       <para>
         <command>make -f client.mk</command>: Mozilla products are packaged to
