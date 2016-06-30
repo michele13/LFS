@@ -95,7 +95,6 @@
             --disable-static \
             CFLAGS="-g -O2 \
                     -DSQLITE_ENABLE_FTS3=1 \
-                    -DSQLITE_ENABLE_FTS3_TOKENIZER=1 \
                     -DSQLITE_ENABLE_COLUMN_METADATA=1 \
                     -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
                     -DSQLITE_SECURE_DELETE=1 \
@@ -119,18 +118,17 @@ rm -v /lib/libsqlite3.la"</userinput></screen>
 
       <para>
         <parameter>CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1
-        -DSQLITE_ENABLE_FTS3_TOKENIZER=1 -DSQLITE_ENABLE_COLUMN_METADATA=1
-        -DSQLITE_SECURE_DELETE -DSQLITE_ENABLE_UNLOCK_NOTIFY=1
+        -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_SECURE_DELETE
+        -DSQLITE_ENABLE_UNLOCK_NOTIFY=1
         -DSQLITE_ENABLE_DBSTAT_VTAB=1"</parameter>: Applications such as
         Firefox require secure delete, enable unlock notify and dbstat virtual
-        table to be turned on. Thunderbird requires the fts3_tokenizer option.
-        Since firefox-41 the dbstat virtual table is also required. The only
-        way to do this is to include them in the CFLAGS. By default, these are
-        set to <literal>"-g -O2"</literal> so we specify that to preserve those
-        settings. You may, of course, wish to omit the <literal>'-g'</literal>
-        if you do not wish to create debugging information. For further
-        information on what can be specified see <ulink
-        url="http://www.sqlite.org/compile.html"/>.
+        table to be turned on. Since firefox-41 the dbstat virtual table is
+        also required. The only way to do this is to include them in the
+        CFLAGS. By default, these are set to <literal>"-g -O2"</literal> so we
+        specify that to preserve those settings. You may, of course, wish to
+        omit the <literal>'-g'</literal> if you do not wish to create debugging
+        information. For further information on what can be specified see
+        <ulink url="http://www.sqlite.org/compile.html"/>.
       </para>
 
     </sect3>

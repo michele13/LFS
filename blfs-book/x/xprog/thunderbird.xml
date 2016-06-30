@@ -77,7 +77,7 @@
       <listitem>
         <para>
           Required patch: <ulink
-          url="&patch-root;thunderbird/thunderbird-&thunderbird-version;-gcc6-1.patch"/>
+          url="&patch-root;thunderbird/thunderbird-&thunderbird-version;-gcc6-2.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -97,9 +97,11 @@
     <para>
       <xref linkend="libevent"/>,
       <xref linkend="libvpx"/>,
-      <xref linkend="nspr"/>,
-      <xref linkend="nss"/>, and
+      <xref linkend="nspr"/>, and
+      <xref linkend="nss"/><!-- , and
       <xref linkend="sqlite"/>
+      Do not use system SQLite until TB-48/52 because it uses insecure 
+      routines (FTS3) that are not built in BLFS -->
     </para>
 
     <note>
@@ -156,7 +158,8 @@
 
 # Comment out following options if you have not installed
 # recommended dependencies:
-ac_add_options --enable-system-sqlite
+# Do not use system SQLite for Thunderbird 45.x
+#ac_add_options --enable-system-sqlite
 ac_add_options --with-system-libevent
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-nspr
@@ -209,7 +212,7 @@ EOF</userinput></screen>
       Fix some issues with GCC-6.1:
     </para>
 
-<screen><userinput>patch -p1 -i ../thunderbird-&thunderbird-version;-gcc6-1.patch</userinput></screen>
+<screen><userinput>patch -p1 -i ../thunderbird-&thunderbird-version;-gcc6-2.patch</userinput></screen>
 
     <para>
       Compile the package:
