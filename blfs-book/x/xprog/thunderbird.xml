@@ -8,7 +8,7 @@
   <!ENTITY thunderbird-wikipedia     "https://en.wikipedia.org/wiki/Mozilla_Thunderbird">
   <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
   <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
-  <!ENTITY thunderbird-md5sum        "19e1a8eb1aa99927c35ea2fcfbd7f255">
+  <!ENTITY thunderbird-md5sum        "e46b0d17809d52e6be479a1b77b6445c">
   <!ENTITY thunderbird-size          "192 MB">
   <!ENTITY thunderbird-buildsize     "3.9 GB">
   <!ENTITY thunderbird-time          "72 SBU">
@@ -68,16 +68,6 @@
       <listitem>
         <para>
           Estimated build time: &thunderbird-time;
-        </para>
-      </listitem>
-    </itemizedlist>
-
-    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>
-          Required patch: <ulink
-          url="&patch-root;thunderbird/thunderbird-&thunderbird-version;-gcc6-2.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -209,17 +199,17 @@ ac_add_options --with-system-zlib</literal>
 EOF</userinput></screen>
 
     <para>
-      Fix some issues with GCC-6.1:
-    </para>
-
-<screen><userinput>patch -p1 -i ../thunderbird-&thunderbird-version;-gcc6-2.patch</userinput></screen>
-
-    <para>
       Compile the package:
     </para>
 
 <!--<screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>-->
-<screen><userinput>SHELL=/bin/sh \
+<screen><userinput>sed -e '/#include/i\
+    print OUT "#define _GLIBCXX_INCLUDE_NEXT_C_HEADERS\\n"\;' \
+    -i mozilla/nsprpub/config/make-system-wrappers.pl &amp;&amp;
+sed -e '/#include/a\
+    print OUT "#undef _GLIBCXX_INCLUDE_NEXT_C_HEADERS\\n"\;' \
+    -i mozilla/nsprpub/config/make-system-wrappers.pl &amp;&amp;
+SHELL=/bin/sh \
 CFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
 CXXFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
 make -f client.mk</userinput></screen>
@@ -233,6 +223,11 @@ chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
+
+      <para>
+        <command>sed ...</command>: These commands correct the source to be
+        compatible with gcc6 by preventing C++ scope errors.
+      </para>
 
       <para>
         <command>CFLAGS= ... CXXFLAGS= ...</command>: These settings work
