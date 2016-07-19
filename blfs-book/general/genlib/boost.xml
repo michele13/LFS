@@ -72,6 +72,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;boost/boost-&boost-version;-python-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
@@ -89,7 +99,7 @@
       First fix a bug with the python header files path:
     </para>
 
-<screen><userinput>sed "/include.*python.*version/s/ ;/m ;/" -i tools/build/src/tools/python.jam</userinput></screen>
+<screen><userinput>patch -p1 -i ../boost-&boost-version;-python-1.patch</userinput></screen>
 
     <para>
       Prepare the package for compilation:
