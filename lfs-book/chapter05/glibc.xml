@@ -43,10 +43,6 @@
   <sect2 role="installation">
     <title>Installation of Glibc</title>
 
-    <para>Fix some problems identified upstream:</para>
-
-<screen><userinput remap="pre">patch -p1 -i ../&glibc-upstream-patch;</userinput></screen>
-
     <para>The Glibc documentation recommends building Glibc outside of the source
     directory in a dedicated build directory:</para>
 
@@ -63,7 +59,6 @@ cd ../glibc-build</userinput></screen>
                         --enable-obsolete-rpc \
                         --with-headers=/tools/include \
                         libc_cv_forced_unwind=yes \
-                        libc_cv_ctors_header=yes \
                         libc_cv_c_cleanup=yes</userinput></screen>
 
     <variablelist>
@@ -133,14 +128,14 @@ cd ../glibc-build</userinput></screen>
           cleanup handling support is configured.</para>
         </listitem>
       </varlistentry>
-      <varlistentry>
+<!--  <varlistentry>
         <term><parameter>libc_cv_ctors_header=yes</parameter></term>
         <listitem>
           <para>Simlarly, we pass libc_cv_ctors_header=yes through to the
           <command>configure</command> script so that the test is skipped and
           gcc constructor support is configured.</para>
         </listitem>
-      </varlistentry>
+      </varlistentry>-->
 
     </variablelist>
 
