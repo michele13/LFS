@@ -5,9 +5,9 @@ Upstream Status:         Not submitted
 Origin:                  Self
 Description:             Fixes a syntax error and configure output on BusyBox systems.
 
---- ffmpeg-2.8.5.orig/configure
-+++ ffmpeg-2.8.5/configure
-@@ -423,7 +423,7 @@
+--- ffmpeg-3.1.2.orig/configure
++++ ffmpeg-3.1.2/configure
+@@ -468,7 +468,7 @@
  
  log_file(){
      log BEGIN $1
@@ -16,16 +16,16 @@ Description:             Fixes a syntax error and configure output on BusyBox sy
      log END $1
  }
  
-@@ -3032,7 +3032,7 @@
- }
+@@ -3319,7 +3319,7 @@
  
- print_3_columns() {
--    cat | tr ' ' '\n' | sort | pr -r -3 -t
-+    cat | tr ' ' '\n' | sort | xargs printf "%-24s%-24s%-24s\n" 
+ print_in_columns() {
+     cols=$(expr $ncols / 24)
+-    cat | tr ' ' '\n' | sort | pr -r "-$cols" -w $ncols -t
++    cat | tr ' ' '\n' | sort | xargs printf "%-24s%-24s%-24s\n"
  }
  
  show_list() {
-@@ -4556,7 +4556,7 @@
+@@ -4927,7 +4927,7 @@
          # found in the SDK headers by default. (Alternatively, we could force
          # _WIN32_WINNT to 0x0602 in that case.)
          check_${pfx}cpp_condition stdlib.h "defined(_WIN32_WINNT)" ||
@@ -34,7 +34,7 @@ Description:             Fixes a syntax error and configure output on BusyBox sy
  #ifdef WINAPI_FAMILY
  #include <winapifamily.h>
  #if !WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-@@ -4564,7 +4564,7 @@
+@@ -4935,7 +4935,7 @@
  #endif
  #endif
  EOF
