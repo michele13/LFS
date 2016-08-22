@@ -80,7 +80,8 @@
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix= \
+<screen><userinput>CXXFLAGS=-Wno-narrowing \
+./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
@@ -95,6 +96,16 @@
 
 <screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
 rm -v /lib/libfdk-aac.la"</userinput></screen>
+
+    <sect3>
+      <title>Command Explanations</title>
+      <para>
+        <envar>CXXFLAGS=-Wno-narrowing</envar>: GCC 6 does not support
+        integer narrowing. Setting CXXFLAGS this way allows to suppress the
+        associated error.
+      </para>
+
+    </sect3>
 
   </sect2>
 
