@@ -151,7 +151,7 @@
       following command:
     </para>
 
-<screen><userinput>patch -p1 -i ../firefox-&firefox-version;-system_graphite2_harfbuzz-1.patch &amp;&amp;
+<screen><userinput>patch -p1 -i ../firefox-&firefox-version;-system_graphite2_harfbuzz-2.patch &amp;&amp;
 cat &gt; mozconfig &lt;&lt; "EOF"
 <literal># Uncomment these lines if you have installed optional dependencies:
 #ac_add_options --enable-system-hunspell
@@ -193,9 +193,7 @@ ac_add_options --enable-default-toolkit=cairo-gtk2
 ac_add_options --disable-dbus
 ac_add_options --disable-necko-wifi
 ac_add_options --disable-gconf
-ac_add_options --disable-libnotify
 ac_add_options --disable-pulseaudio
-#ac_add_options --disable-gstreamer
 
 # From firefox-40, using system cairo causes firefox to crash
 # frequently when it is doing background rendering in a tab.
@@ -216,6 +214,12 @@ mk_add_options MOZ_OBJDIR=@TOPSRCDIR@/firefox-build-dir</literal>
 EOF</userinput></screen>
 
     <para>
+      TODO
+    <para>
+
+<screen><userinput>export PATH=/opt/python2/bin:/opt/autoconf213/bin:/bin</userinput></screen>
+
+    <para>
       Compile the package:
     </para>
 
@@ -233,6 +237,12 @@ make -f client.mk</userinput></screen>
 chown -R 0:0 /lib/firefox-&firefox-version; &amp;&amp;
 mkdir -pv /lib/mozilla/plugins &amp;&amp;
 ln -sfv ../../mozilla/plugins /lib/firefox-&firefox-version;/browser"</userinput></screen>
+
+    <para>
+      TODO
+    <para>
+
+<screen><userinput>export PATH=/bin</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
