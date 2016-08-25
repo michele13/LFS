@@ -78,36 +78,24 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
-            --disable-static &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-  </sect2>
+<screen><userinput>make</userinput></screen>
 
-  <sect2>
-    <title>Contents</title>
+    <para>
+      Install the package:
+    </para>
 
-    <indexterm zone="mtdev">
-      <primary sortas="b-mtdev-test">mtdev-test</primary>
-    </indexterm>
-    <indexterm zone="mtdev">
-      <primary sortas="c-libmtdev.so">libmtdev.so</primary>
-    </indexterm>
-
-<screen><literal>/usr/bin/mtdev-test
-/usr/include/mtdev.h
-/usr/include/mtdev-mapping.h
-/usr/include/mtdev-plumbing.h
-/usr/lib/libmtdev.so
-/usr/lib/pkgconfig/mtdev.pc</literal></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libmtdev.la"</userinput></screen>
 
   </sect2>
 
