@@ -14,10 +14,10 @@
   <!ENTITY libxxf86vm-time          "0.1 SBU">
 ]>
 
-<sect1 id="libxxf86vm" xreflabel="libXxf86vm-&libxxf86vm-version;">
+<sect1 id="libxxf86vm" xreflabel="libxxf86vm-&libxxf86vm-version;">
   <?dbhtml filename="libxxf86vm.html"?>
 
-  <title>libXxf86vm-&libxxf86vm-version;</title>
+  <title>libxxf86vm-&libxxf86vm-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -76,7 +76,7 @@
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
-    <para role="required">
+    <para>
       <xref linkend="xf86vidmodeproto"/> and
       <xref linkend="libxext"/>
     </para>
@@ -87,35 +87,23 @@
     <title>Installation</title>
 
     <para>
-      Install libXxf86vm by running the following commands:
+      Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure $XORG_CONFIG &amp;&amp;
-make</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Compile the package:
     </para>
 
-<screen role="root"><userinput>make install</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="libxxf86vm">
-      <primary sortas="c-libXxf86vm.so">libXxf86vm.so</primary>
-    </indexterm>
+<screen><userinput>make</userinput></screen>
 
     <para>
-      Incomplete list of installed files and directories:
+      Install the package:
     </para>
 
-<screen><literal>/usr/include/X11/extensions/xf86vmode.h
-/usr/lib/libXxf86vm.so
-/usr/lib/pkgconfig/xxf86vm.pc
-/usr/share/man/man3/XF86VM.3</literal></screen>
+<screen role="root"><userinput>porg -lp libxxf86vm-&libxxf86vm-version; "make -j1 install"</userinput></screen>
 
   </sect2>
 
