@@ -4,6 +4,8 @@
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
 
+  <!ENTITY sdl-homepage      "https://www.libsdl.org/">
+  <!ENTITY sdl-wikipedia     "https://en.wikipedia.org/wiki/Simple_DirectMedia_Layer">
   <!ENTITY sdl-download-http "http://www.libsdl.org/release/SDL-&sdl-version;.tar.gz">
   <!ENTITY sdl-download-ftp  " ">
   <!ENTITY sdl-md5sum        "9d96df8417572a2afb781a7c4c811a85">
@@ -12,48 +14,68 @@
   <!ENTITY sdl-time          "0.6 SBU">
 ]>
 
-<sect1 id="sdl" xreflabel="SDL-&sdl-version;">
+<sect1 id="sdl" xreflabel="sdl-&sdl-version;">
   <?dbhtml filename="sdl.html"?>
 
-  <title>SDL-&sdl-version;</title>
-
-  <indexterm zone="sdl">
-    <primary sortas="a-SDL">SDL</primary>
-  </indexterm>
+  <title>sdl-&sdl-version;</title>
 
   <sect2 role="package">
-    <title>Introduction to SDL</title>
+    <title>Introduction</title>
 
-    <para>The Simple DirectMedia Layer (<application>SDL</application>
-    for short) is a cross-platform library designed to make it easy to write
-    multimedia software, such as games and emulators.</para>
+    <para>
+      The Simple DirectMedia Layer (SDL for short) is a cross-platform library
+      designed to make it easy to write multimedia software, such as games and
+      emulators.
+    </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
-        <para>Download (HTTP): <ulink url="&sdl-download-http;"/></para>
+        <para>
+          Homepage: <ulink url="&sdl-homepage;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download (FTP): <ulink url="&sdl-download-ftp;"/></para>
+        <para>
+          Wikipedia: <ulink url="&sdl-wikipedia;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download MD5 sum: &sdl-md5sum;</para>
+        <para>
+          Download (HTTP): <ulink url="&sdl-download-http;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Download size: &sdl-size;</para>
+        <para>
+          Download (FTP): <ulink url="&sdl-download-ftp;"/>
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated disk space required: &sdl-buildsize;</para>
+        <para>
+          Download MD5 sum: &sdl-md5sum;
+        </para>
       </listitem>
       <listitem>
-        <para>Estimated build time: &sdl-time;</para>
+        <para>
+          Download size: &sdl-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &sdl-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &sdl-time;
+        </para>
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">SDL Dependencies</bridgehead>
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
-    <para role="optional">
+    <para>
       <xref linkend="alsa-lib"/>,
       <xref linkend="nasm"/>,
       <xref linkend="x-window-system"/>,
@@ -69,119 +91,40 @@
 
   </sect2>
 
-  <sect2 role="installation">
-    <title>Installation of SDL</title>
+  <sect2>
+    <title>Installation</title>
 
-    <para>Install <application>SDL</application> by running the
-    following commands:</para>
+    <para>
+      Prepare the package for compilation:
+    </para>
 
 <screen><userinput>sed -i '/_XData32/s:register long:register _Xconst long:' src/video/x11/SDL_x11sym.h &amp;&amp;
+./configure --prefix= \
+            --disable-static</userinput></screen>
 
-./configure --prefix=/usr --disable-static &amp;&amp;
-make</userinput></screen>
+    <para>
+      Compile the package:
+    </para>
 
-    <para>Now, as the <systemitem class="username">root</systemitem> user:</para>
+<screen><userinput>make</userinput></screen>
 
-<screen role="root"><userinput>make install &amp;&amp;
+    <para>
+      Install the package:
+    </para>
 
-install -v -m755 -d /usr/share/doc/SDL-&sdl-version;/html &amp;&amp;
-install -v -m644    docs/html/*.html \
-                    /usr/share/doc/SDL-&sdl-version;/html</userinput></screen>
-
-  </sect2>
-
-  <sect2 role="testing">
-    <title>Testing SDL</title>
-
-    <para>If you wish to, test the installation of
-    <application>SDL</application> using the included
-    test programs. It is not required to install any of the resulting binaries
-    to validate the installation. Issue the following commands to build the
-    test programs:</para>
-
-<screen><userinput>cd test &amp;&amp;
-./configure &amp;&amp;
-make</userinput></screen>
-
-    <para>You'll need to manually run all the test programs (they are listed in
-    the <filename>README</filename> file in this directory).  Many of them will
-    need to be manually killed, and you'll need to turn your speakers on with the
-    volume at a suitable level.</para>
-
-  </sect2>
-
-  <sect2 role="commands">
-    <title>Command Explanations</title>
-
-    <para><command>sed -i ...</command>: This command fixes compilation with libX11-1.6.0</para>
-
-    <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/static-libraries.xml"/>
-
-    <para><option>--disable-sdl-dlopen</option>: This switch disables
-    using dlopen for shared object loading. Loading image backend libraries
-    like libpng dynamically on the fly does not work.</para>
-
-  </sect2>
-
-  <sect2 role="configuration">
-    <title>Configuring SDL</title>
+<screen role="root"><userinput>porg -lp sdl-&sdl-version; "make -j1 install &amp;&amp;
+rm -v /lib/libSDL.la &amp;&amp;
+rm -v /lib/libSDLmain.la"</userinput></screen>
 
     <sect3>
-      <title>Configuration Information</title>
+      <title>Command Explanations</title>
 
-      <xi:include xmlns:xi="http://www.w3.org/2001/XInclude"
-      href="../../xincludes/lib-config.xml"/>
+      <para>
+        <command>sed -i ...</command>: This command fixes compilation with
+        libX11-1.6.0
+      </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2 role="content">
-    <title>Contents</title>
-
-    <segmentedlist>
-      <segtitle>Installed Program</segtitle>
-      <segtitle>Installed Libraries</segtitle>
-      <segtitle>Installed Directories</segtitle>
-
-      <seglistitem>
-        <seg>sdl-config</seg>
-        <seg>libSDL.so and libSDLmain.a</seg>
-        <seg>/usr/include/SDL and /usr/share/doc/SDL-&sdl-version;</seg>
-      </seglistitem>
-    </segmentedlist>
-
-    <variablelist>
-      <bridgehead renderas="sect3">Short Descriptions</bridgehead>
-      <?dbfo list-presentation="list"?>
-      <?dbhtml list-presentation="table"?>
-
-      <varlistentry id="sdl-config">
-        <term><command>sdl-config</command></term>
-        <listitem>
-          <para>determines the compile and linker flags that should be used to
-          compile and link programs that use
-          <filename class='libraryfile'>libSDL</filename>.</para>
-          <indexterm zone="sdl sdl-config">
-            <primary sortas="b-sdl-config">sdl-config</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry id="libsdl">
-        <term><filename class='libraryfile'>libSDL.so</filename></term>
-        <listitem>
-          <para> library provides low level access to audio, keyboard, mouse,
-          joystick, 3D hardware via OpenGL, and
-          2D frame buffer across multiple platforms.</para>
-          <indexterm zone="sdl libsdl">
-            <primary sortas="c-libsdl">libSDL.so</primary>
-          </indexterm>
-        </listitem>
-      </varlistentry>
-
-    </variablelist>
 
   </sect2>
 
