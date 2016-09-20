@@ -5,26 +5,10 @@ Upstream Status:         Not applicable
 Origin:                  Self
 Description:             Suppresses installation of unnecessary files.
 
---- bash-4.3.30.orig/Makefile.in
-+++ bash-4.3.30/Makefile.in
-@@ -760,14 +760,11 @@
- installdirs:
- 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(bindir)
- 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(man1dir)
--	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(infodir)
--	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(docdir)
- 	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
- 
- install:	.made installdirs
- 	$(INSTALL_PROGRAM) $(INSTALLMODE) $(Program) $(DESTDIR)$(bindir)/$(Program)
- 	$(INSTALL_SCRIPT) $(INSTALLMODE2) bashbug $(DESTDIR)$(bindir)/bashbug
--	$(INSTALL_DATA) $(OTHER_DOCS) $(DESTDIR)$(docdir)
- 	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
- 		man1dir=$(man1dir) man1ext=$(man1ext) \
- 		man3dir=$(man3dir) man3ext=$(man3ext) \
---- bash-4.3.30.orig/doc/Makefile.in
-+++ bash-4.3.30/doc/Makefile.in
-@@ -226,31 +226,10 @@
+diff -Naur bash-4.4.orig/doc/Makefile.in bash-4.4/doc/Makefile.in
+--- bash-4.4.orig/doc/Makefile.in	2015-12-07 01:55:56.000000000 +0100
++++ bash-4.4/doc/Makefile.in	2016-09-20 11:59:29.528743185 +0200
+@@ -241,31 +241,10 @@
  
  installdirs:
  	-$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(man1dir)
@@ -34,7 +18,7 @@ Description:             Suppresses installation of unnecessary files.
 -		$(SHELL) $(SUPPORT_SRCDIR)/mkinstalldirs $(DESTDIR)$(htmldir) ; \
 -	fi
  	
- install: info installdirs bash.info
+ install: info installdirs
  	-$(INSTALL_DATA) $(srcdir)/bash.1 $(DESTDIR)$(man1dir)/bash${man1ext}
  	-$(INSTALL_DATA) $(srcdir)/bashbug.1 $(DESTDIR)$(man1dir)/bashbug${man1ext}
 -	-$(INSTALL_DATA) $(OTHER_DOCS) $(DESTDIR)$(docdir)
@@ -56,3 +40,21 @@ Description:             Suppresses installation of unnecessary files.
  
  install_builtins:	installdirs
  	sed 's:bash\.1:man1/&:' $(srcdir)/builtins.1 > $${TMPDIR:-/var/tmp}/builtins.1
+diff -Naur bash-4.4.orig/Makefile.in bash-4.4/Makefile.in
+--- bash-4.4.orig/Makefile.in	2016-01-15 14:55:37.000000000 +0100
++++ bash-4.4/Makefile.in	2016-09-20 11:58:02.789356440 +0200
+@@ -785,14 +785,11 @@
+ installdirs:
+ 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(bindir)
+ 	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(man1dir)
+-	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(infodir)
+-	@${SHELL} $(SUPPORT_SRC)mkinstalldirs $(DESTDIR)$(docdir)
+ 	-( cd $(PO_DIR) ; $(MAKE) $(MFLAGS) DESTDIR=$(DESTDIR) $@ )
+ 
+ install:	.made installdirs
+ 	$(INSTALL_PROGRAM) $(INSTALLMODE) $(Program) $(DESTDIR)$(bindir)/$(Program)
+ 	$(INSTALL_SCRIPT) $(INSTALLMODE2) bashbug $(DESTDIR)$(bindir)/bashbug
+-	$(INSTALL_DATA) $(OTHER_DOCS) $(DESTDIR)$(docdir)
+ 	-( cd $(DOCDIR) ; $(MAKE) $(MFLAGS) \
+ 		man1dir=$(man1dir) man1ext=$(man1ext) \
+ 		man3dir=$(man3dir) man3ext=$(man3ext) \
