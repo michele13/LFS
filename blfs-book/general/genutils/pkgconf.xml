@@ -6,10 +6,10 @@
 
   <!ENTITY pkgconf-homepage      "https://github.com/pkgconf/pkgconf">
   <!ENTITY pkgconf-wikipedia     "http://en.wikipedia.org/wiki/Pkg-config">
-  <!ENTITY pkgconf-download-http "http://rabbit.dereferenced.org/~nenolod/distfiles/pkgconf-&pkgconf-version;.tar.bz2">
+  <!ENTITY pkgconf-download-http "http://rabbit.dereferenced.org/~nenolod/distfiles/pkgconf-&pkgconf-version;.tar.xz">
   <!ENTITY pkgconf-download-ftp  " ">
-  <!ENTITY pkgconf-md5sum        "a7b523fc9af9357d7199560d2a49ddbf">
-  <!ENTITY pkgconf-size          "85 KB">
+  <!ENTITY pkgconf-md5sum        "336a3253ab31f7c26fc3d9d35c9844eb">
+  <!ENTITY pkgconf-size          "242 KB">
   <!ENTITY pkgconf-buildsize     "1.4 MB">
   <!ENTITY pkgconf-time          "0.1 SBU">
 ]>
@@ -77,10 +77,17 @@
     <title>Installation</title>
 
     <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
+
+    <para>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-static</userinput></screen>
 
     <para>
       Compile the package:
@@ -92,7 +99,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+rm -v /lib/libpkgconf.la"</userinput></screen>
 
     <para>
       Many applications expect pkg-config so you should install a symlink for this:
