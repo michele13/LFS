@@ -87,7 +87,7 @@
 
     <para>Install the modules:</para>
 
-<screen><userinput remap="install">porg -lp linux-modules-&linux-version; "make -j1 modules_install"</userinput></screen>
+<screen><userinput remap="install">porg -lp linux-image-&linux-version; "make -j1 modules_install"</userinput></screen>
 
     <para>After kernel compilation is complete, additional steps are
     required to complete the installation. Some files need to be copied to
@@ -99,7 +99,7 @@
     the automatic setup of the boot process described in the next section.  The
     following command assumes an x86 architecture:</para>
 
-<screen><userinput remap="install">porg -lp linux-image-&linux-version; "cp -v arch/x86/boot/bzImage /boot/vmlinuz-&linux-version;-&kernel-version;"</userinput></screen>
+<screen><userinput remap="install">porg -lp+ linux-image-&linux-version; "cp -v arch/x86/boot/bzImage /boot/vmlinuz-&linux-version;"</userinput></screen>
 
     <para><filename>System.map</filename> is a symbol file for the kernel.
     It maps the function entry points of every function in the kernel API,
@@ -107,14 +107,14 @@
     kernel.  It is used as a resource when investigating kernel problems.
     Issue the following command to install the map file:</para>
 
-<screen><userinput remap="install">porg -lp+ linux-image-&linux-version; "cp -v System.map /boot/System.map-&linux-version;-&kernel-version;"</userinput></screen>
+<screen><userinput remap="install">porg -lp+ linux-image-&linux-version; "cp -v System.map /boot/System.map-&linux-version;"</userinput></screen>
 
     <para>The kernel configuration file <filename>.config</filename>
     contains all the configuration selections for the kernel
     that was just compiled. It is a good idea to keep this file for future
     reference:</para>
 
-<screen><userinput remap="install">porg -lp+ linux-image-&linux-version; "cp -v .config /boot/config-&linux-version;-&kernel-version;"</userinput></screen>
+<screen><userinput remap="install">porg -lp+ linux-image-&linux-version; "cp -v .config /boot/config-&linux-version;"</userinput></screen>
 
     <warning>
       <para>The headers in the system's <filename
