@@ -6,14 +6,14 @@ Origin:                  Self
 Description:             Removes dependency on coreutils (neither toybox nor
                          sbase nl support the -v option).
 
-diff -Naur dash-0.5.9.orig/src/mkbuiltins dash-0.5.9/src/mkbuiltins
---- dash-0.5.9.orig/src/mkbuiltins	2015-06-11 08:31:48.000000000 +0200
-+++ dash-0.5.9/src/mkbuiltins	2016-06-09 13:47:38.674974232 +0200
-@@ -97,7 +97,7 @@
+diff -Naur dash-0.5.9.1.orig/src/mkbuiltins dash-0.5.9.1/src/mkbuiltins
+--- dash-0.5.9.1.orig/src/mkbuiltins	2016-06-06 16:25:00.000000000 +0200
++++ dash-0.5.9.1/src/mkbuiltins	2016-09-26 12:33:51.758965810 +0200
+@@ -101,7 +101,7 @@
   */
  
  !
--sed 's/	-[a-z]*//' $temp2 | nl -b a -v 0 |
+-sed 's/	-[a-z]*//' $temp2 | nl -ba -v0 |
 +sed 's/	-[a-z]*//' $temp2 | awk '{print NR-1,$0}' |
  	LC_ALL= LC_COLLATE=C sort -u -k 3,3 |
  	tr abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ |
