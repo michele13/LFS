@@ -6,9 +6,9 @@ Origin:                  Self
 Description:             Improves configure shell script portability and removes
                          dependency on bash.
 
-diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160220-2245-stable/configure
---- x264-snapshot-20160220-2245-stable.orig/configure	2016-02-20 22:45:07.000000000 +0100
-+++ x264-snapshot-20160220-2245-stable/configure	2016-03-26 00:03:43.299732942 +0100
+diff -Naur x264-snapshot-20160827-2245-stable.orig/configure x264-snapshot-20160827-2245-stable/configure
+--- x264-snapshot-20160827-2245-stable.orig/configure	2016-08-27 22:45:07.000000000 +0200
++++ x264-snapshot-20160827-2245-stable/configure	2016-09-27 10:40:37.526699638 +0200
 @@ -1,4 +1,4 @@
 -#!/bin/bash
 +#!/bin/sh
@@ -97,8 +97,8 @@ diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160
          # Standard Microsoft Visual Studio
          compiler=CL
          compiler_style=MS
-@@ -549,13 +549,13 @@
-         cpp_check '' '' '_MSC_VER > 1800 || (_MSC_VER == 1800 && _MSC_FULL_VER >= 180030324)' || die "Microsoft Visual Studio support requires Visual Studio 2013 Update 2 or newer"
+@@ -552,13 +552,13 @@
+         CFLAGS="$CFLAGS -D_POSIX_C_SOURCE=200112L"
      fi
  else
 -    if [[ "$cc_base" = icc || "$cc_base" = icc[\ .]* ]]; then
@@ -113,7 +113,7 @@ diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160
      if cc_check '' -Werror=unknown-warning-option ; then
          CHECK_CFLAGS="$CHECK_CFLAGS -Werror=unknown-warning-option"
      fi
-@@ -669,10 +669,10 @@
+@@ -661,10 +661,10 @@
          AS_EXT=".asm"
          ASFLAGS="$ASFLAGS -DARCH_X86_64=0 -I\$(SRCPATH)/common/x86/"
          if [ $compiler = GNU ]; then
@@ -126,7 +126,7 @@ diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160
                  CFLAGS="$CFLAGS -mfpmath=sse -msse -msse2"
              fi
              CFLAGS="-m32 $CFLAGS"
-@@ -1237,7 +1237,7 @@
+@@ -1254,7 +1254,7 @@
  # generate exported config file
  
  config_chroma_format="X264_CSP_I$chroma_format"
@@ -135,7 +135,7 @@ diff -Naur x264-snapshot-20160220-2245-stable.orig/configure x264-snapshot-20160
  cat > x264_config.h << EOF
  #define X264_BIT_DEPTH     $bit_depth
  #define X264_GPL           $x264_gpl
-@@ -1458,7 +1458,7 @@
+@@ -1475,7 +1475,7 @@
  cat conftest.log
  
  [ "$SRCPATH" != "." ] && ln -sf ${SRCPATH}/Makefile ./Makefile
