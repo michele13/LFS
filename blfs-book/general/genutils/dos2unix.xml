@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY dos2unix-homepage      "http://waterlan.home.xs4all.nl/dos2unix.html">
+  <!ENTITY dos2unix-wikipedia     "https://en.wikipedia.org/wiki/Unix2dos">
+  <!ENTITY dos2unix-download-http "http://waterlan.home.xs4all.nl/dos2unix/dos2unix-&dos2unix-version;.tar.gz">
+  <!ENTITY dos2unix-download-ftp  " ">
+  <!ENTITY dos2unix-md5sum        "04428e77e2ead8a92c1492ba8977f1d1">
+  <!ENTITY dos2unix-size          "626 KB">
+  <!ENTITY dos2unix-buildsize     " MB">
+  <!ENTITY dos2unix-time          " SBU">
+]>
+
+<sect1 id="dos2unix" xreflabel="dos2unix-&dos2unix-version;">
+  <?dbhtml filename="dos2unix.html"?>
+
+  <title>dos2unix-&dos2unix-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      This package contains utilities to convert the line endings of text files
+      between UNIX (LF), DOS (CRLF) and Mac (CR) formats.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&dos2unix-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&dos2unix-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&dos2unix-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&dos2unix-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &dos2unix-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &dos2unix-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &dos2unix-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &dos2unix-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed '/install-doc$/d' -i Makefile</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make ENABLE_NLS=</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lD "make prefix= ENABLE_NLS= -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>
