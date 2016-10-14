@@ -82,8 +82,11 @@ cd ../glibc-build</userinput></screen>
 -->
     <para>Install the package:</para>
 
-<screen><userinput remap="install">porg -lp glibc-&glibc-version; --exclude=$PWD "make -j1 install"
-find /lib | grep -v -E "gcc|stdc" | porg -lp+ glibc-&glibc-version;</userinput></screen>
+<screen><userinput remap="install">porg -lp glibc-&glibc-version; -E $PWD "make -j1 install"
+ls /etc/ld.so.cache | porg -lp+ glibc-&glibc-version;
+ls /lib/ld-linux-x86-64.so.2 | porg -lp+ glibc-&glibc-version;
+for lib in BrokenLocale anl c cidn crypt dl m mvec nsl nss_* pthread resolv rt thread_db \
+    util ; do ls /lib/lib${lib}.so.? | porg -lp+ glibc-&glibc-version; ; done</userinput></screen>
 
     <para>Install the configuration file and runtime directory for
     <command>nscd</command>:</para>
