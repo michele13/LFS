@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY binutils-homepage      "https://www.gnu.org/software/binutils/">
+  <!ENTITY binutils-wikipedia     "https://en.wikipedia.org/wiki/GNU_Binutils">
+  <!ENTITY binutils-download-http "http://ftp.gnu.org/gnu/binutils/binutils-&binutils-version;.tar.bz2">
+  <!ENTITY binutils-download-ftp  "ftp://ftp.gnu.org/gnu/binutils/binutils-&binutils-version;.tar.bz2">
+  <!ENTITY binutils-md5sum        "2869c9bf3e60ee97c74ac2a6bf4e9d68">
+  <!ENTITY binutils-size          "25 MB">
+  <!ENTITY binutils-buildsize     "445 MB">
+  <!ENTITY binutils-time          "1.0 SBU">
+]>
+
+<sect1 id="temp-binutils-pass1" xreflabel="binutils-&binutils-version; - pass 1">
+  <?dbhtml filename="temp-binutils-pass1.html"?>
+
+  <title>binutils-&binutils-version; - pass 1</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The binutils package contains a linker, an assembler, and other tools for
+      handling object files.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&binutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&binutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&binutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&binutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &binutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &binutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &binutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &binutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      It is important that Binutils be the first package compiled because both
+      Glibc and GCC perform various tests on the available linker and assembler
+      to determine which of their own features to enable.
+    </para>
+
+    <para>
+      The binutils documentation recommends building binutils outside of the
+      source directory in a dedicated build directory:
+    </para>
+
+<screen><userinput>mkdir -v ../binutils-build
+cd ../binutils-build</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>../binutils-&binutils-version;/configure --prefix=/tools \
+                           --with-sysroot=$LFS \
+                           --with-lib-path=/tools/lib \
+                           --target=$LFS_TGT</userinput></screen>
+
+    <para>
+      Compile the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Create a symlink to ensure the sanity of the toolchain:
+    </para>
+
+<screen role="root"><userinput>mkdir -v /tools/lib
+ln -sv lib /tools/lib64</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>make -j1 install</userinput></screen>
+
+    <sect3>
+      <title>Explanations</title>
+
+      <para>
+        <parameter>--prefix=/tools</parameter>: This tells the configure script
+        to prepare to install the binutils programs in the /tools directory.
+      </para>
+
+      <para>
+        <parameter>--with-sysroot=$LFS</parameter>: For cross compilation, this
+        tells the build system to look in $LFS for the target system libraries
+        as needed. 
+      </para>
+
+      <para>
+        <parameter>--with-lib-path=/tools/lib</parameter>: This specifies which
+        library path the linker should be configured to use.
+      </para>
+
+      <para>
+        <parameter>--target=$LFS_TGT</parameter>: Because the machine
+        description in the LFS_TGT variable is slightly different than the
+        value returned by the config.guess script, this switch will tell the
+        configure script to adjust Binutil's build system for building a cross
+        linker. 
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>

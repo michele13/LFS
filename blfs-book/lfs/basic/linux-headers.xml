@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY linux-homepage      "http://www.kernel.org/">
+  <!ENTITY linux-wikipedia     "https://en.wikipedia.org/wiki/Linux_kernel">
+  <!ENTITY linux-download-http "http://linux-libre.fsfla.org/pub/linux-libre/releases/&linux-version;-gnu/linux-libre-&linux-version;-gnu.tar.xz">
+  <!ENTITY linux-download-ftp  " ">
+  <!ENTITY linux-md5sum        "5b5d9f676ee2af9806a5ed3fd5d2e4c1">
+  <!ENTITY linux-size          "85 MB">
+  <!ENTITY linux-buildsize     "647 MB">
+  <!ENTITY linux-time          "0.1 SBU">
+]>
+
+<sect1 id="linux-headers" xreflabel="linux-headers-&linux-version;">
+  <?dbhtml filename="linux-headers.html"?>
+
+  <title>linux-headers-&linux-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Linux API Headers expose the kernel's API for use by the system's C
+      library.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&linux-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&linux-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&linux-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&linux-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &linux-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &linux-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &linux-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &linux-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The Linux kernel needs to expose an Application Programming Interface
+      (API) for the system's C library to use. This is done by way of
+      sanitizing various C header files that are shipped in the Linux kernel
+      source tarball.
+    </para>
+
+    <para>
+      Extract the user-visible kernel headers from the source. They are placed
+      in an intermediate local directory and copied to the needed location
+      because the extraction process removes any existing files in the target
+      directory. There are also some hidden files used by the kernel developers
+      and not needed by LFS that are removed from the intermediate directory. 
+    </para>
+
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>make INSTALL_HDR_PATH=dest headers_install
+find dest/include \( -name .install -o -name ..install.cmd \) -delete</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp linux-headers-&linux-version; -E $PWD "cp -rv dest/include/* /include"</userinput></screen>
+
+  </sect2>
+
+</sect1>
