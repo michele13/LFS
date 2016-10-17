@@ -112,18 +112,14 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>sed "s/ install-dist_gtkdochtmlDATA//" -i docs/Makefile.in
-sed "s/install-data$//" -i po/Makefile.in.in</userinput></screen>
-
-    <para>If desired, prevent the ouput of numerous invalid warnings:</para>
-
-<screen><userinput>sed -i "/seems to be moved/s/^/: #/" ltmain.sh</userinput></screen>
+<screen><userinput>sed "s/install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix=</userinput></screen>
+<screen><userinput>./configure --prefix= \
+            --disable-docs</userinput></screen>
 
     <para>
       Compile the package:
@@ -135,8 +131,8 @@ sed "s/install-data$//" -i po/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
-rm -v /lib/libgegl-0.2.la"</userinput></screen>
+<screen role="root"><userinput>porg -lp gegl-&gegl-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libgegl-*.la"</userinput></screen>
 
   </sect2>
 
