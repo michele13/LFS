@@ -5,7 +5,7 @@
   %general-entities;
 
   <!ENTITY exiv2-homepage      "http://www.exiv2.org/">
-  <!ENTITY exiv2-wikipedia     " ">
+  <!ENTITY exiv2-wikipedia     "https://en.wikipedia.org/wiki/Exif">
   <!ENTITY exiv2-download-http "http://www.exiv2.org/exiv2-&exiv2-version;.tar.gz">
   <!ENTITY exiv2-download-ftp  " ">
   <!ENTITY exiv2-md5sum        "258d4831b30f75a01e0234065c6c2806">
@@ -14,10 +14,10 @@
   <!ENTITY exiv2-time          "1 SBU">
 ]>
 
-<sect1 id="exiv2" xreflabel="Exiv2-&exiv2-version;">
+<sect1 id="exiv2" xreflabel="exiv2-&exiv2-version;">
   <?dbhtml filename="exiv2.html"?>
 
-  <title>Exiv2-&exiv2-version;</title>
+  <title>exiv2-&exiv2-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -94,22 +94,29 @@
     <title>Installation</title>
 
     <para>
-      Install the package by running the following commands:
+      Prepare the package:
     </para>
 
-<screen><userinput>./configure --prefix=/usr \
+<screen><userinput>./configure --prefix= \
             --disable-static \
+            --disable-nls \
             --enable-video \
             --enable-webready \
-            --without-ssh &amp;&amp;
-make</userinput></screen>
+            --without-ssh</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Build the package:
     </para>
 
-<screen role="root"><userinput>make install &amp;&amp;
-chmod -v +x /usr/lib/libexiv2.so</userinput></screen>
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp exiv2-&exiv2-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libexiv2.la &amp;&amp;
+chmod -v +x /lib/libexiv2.so"</userinput></screen>
 
     <sect3>
       <title>Command Explanations</title>
@@ -138,25 +145,6 @@ chmod -v +x /usr/lib/libexiv2.so</userinput></screen>
       </para>
 
     </sect3>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="exiv2">
-      <primary sortas="b-exiv2">exiv2</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/exiv2
-/usr/include/exiv2/
-/usr/lib/libexiv2.so
-/usr/lib/pkgconfig/exiv2.pc
-/usr/share/man/man1/exiv2.1</literal></screen>
 
   </sect2>
 
