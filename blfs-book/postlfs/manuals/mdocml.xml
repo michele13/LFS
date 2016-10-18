@@ -74,20 +74,36 @@
         </para>
       </listitem>
     </itemizedlist>
+<!-- TODO
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="sqlite"/>
+    </para>
+-->
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>./configure</userinput></screen>
+<screen><userinput>cat &lt;&lt; EOF > configure.local
+<literal>PREFIX=""
+MANDIR="/share/man"
+MANPATH_DEFAULT="/share/man"
+BUILD_DB=0
+# conflicts with groff
+BINM_SOELIM="msoelim"
+MANM_ROFF="mandoc_roff"</literal>
+EOF
+./configure</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -96,64 +112,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "install -v -m 755 mandoc /bin &amp;&amp;
-install -v -m 644 mandoc.1 /share/man/man1"
-cat > /bin/man &lt;&lt; "EOF"
-<literal>#!/bin/sh
-
-# man - a simple man program for ASCII pages
-# Copyright (c) 2008 Matthew Hiles
-#
-# Licensed under GPLv2 or later, see file LICENSE in this tarball for details.
-
-## requires: find, head, sort, tr, cat, and grep/egrep
-## optional: zcat, bzcat, less
-
-if [ -z "$MANPATH" ]; then
-        echo "Warning: MANPATH is not set, assuming /usr/share/man." >&amp;2
-        MANPATH=/usr/share/man
-fi
-
-case $# in
-1)
-        pagearg=$1 ;;
-2)
-        section=man$1
-        pagearg=$2 ;;
-*)
-        echo "Usage: man [section] &lt;manpage>"
-        exit
-esac
-
-paths=`echo "$MANPATH" | tr ":" " "`
-pagefile=`find $paths | grep "/$section" | grep "/$pagearg\." | sort | head -n1`
-
-if [ -z "$pagefile" ]; then
-        echo -n No manual entry for $pagearg
-        [ $section ] &amp;&amp; echo -n " in section $1 of the manual."
-        echo
-        exit
-fi
-
-[ "$PAGER" ] || PAGER=less
-tty -s &lt;&amp;1 || PAGER=cat
-
-case "$pagefile" in
-*.bz2)
-        exec bzcat "$pagefile" | mandoc -Tutf8 | "$PAGER" ;;
-*.gz)
-        exec zcat "$pagefile" | mandoc -Tutf8 | "$PAGER" ;;
-*)
-        exec mandoc -Tutf8 "$pagefile" | "$PAGER" ;;
-esac
-
-paths=
-pagefile=
-pagearg=
-section=</literal>
-EOF
-chmod -v +x /bin/man
-ls /bin/man | porg -lD+</userinput></screen>
+<screen role="root"><userinput>porg -lp mdocml-&mdocml-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

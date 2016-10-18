@@ -141,15 +141,16 @@ else
   PS1="$GREEN\u [ $NORMAL\w$GREEN ]\$ $NORMAL"
 fi
 
-if command -v vim >/dev/null
-then
-    EDITOR=vim
-else
-    EDITOR=vi
+if command -v less >/dev/null ; then
+    PAGER=less
 fi
-export EDITOR
+if command -v vim >/dev/null ; then
+    EDITOR=vim
+fi
 
-MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1)) ; export MAKEFLAGS</literal>
+MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1))
+
+export PAGER EDITOR MAKEFLAGS</literal>
 EOF
 install -v -m600 ~/.ashrc /etc/skel</userinput></screen>
 
