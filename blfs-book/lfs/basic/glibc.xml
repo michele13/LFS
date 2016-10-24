@@ -183,6 +183,137 @@ rpc: files</literal>
 EOF
 ls /etc/nsswitch.conf | porg -lp+ glibc-&glibc-version;</userinput></screen>
 
+    <para>
+      Now that the final C libraries have been installed, it is time to adjust
+      the toolchain so that it will link any newly compiled program against
+      these new libraries. First, backup the /tools linker, and replace it with
+      the adjusted linker we made in the temporary system. We'll also create a
+      link to its counterpart in /tools/$(uname -m)-pc-linux-gnu/bin:
+    </para>
+
+<screen role="root"><userinput>mv -v /tools/bin/ld /tools/bin/ld-old
+mv -v /tools/x86_64-pc-linux-gnu/bin/ld /tools/x86_64-pc-linux-gnu/bin/ld-old
+mv -v /tools/bin/ld-new /tools/bin/ld
+ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
+
+    <para>
+      Next, amend the GCC specs file so that it points to the new dynamic
+      linker. Simply deleting all instances of “/tools” should leave us with
+      the correct path to the dynamic linker. Also adjust the specs file so
+      that GCC knows where to find the correct headers and Glibc start files. A
+      sed command accomplishes this:
+    </para>
+
+<screen role="root"><userinput>gcc -dumpspecs | sed -e 's@/tools@@g' \
+                     -e '/\*startfile_prefix_spec:/{n;s@.*@/lib/ @}' \
+                     -e '/\*cpp:/{n;s@$@ -isystem /include@}' > \
+                     `dirname $(gcc --print-libgcc-file-name)`/specs</userinput></screen>
+
+    <para>
+      It is a good idea to visually inspect the specs file to verify the
+      intended change was actually made.
+    </para>
+
+    <para>
+      It is imperative at this point to ensure that the basic functions
+      (compiling and linking) of the adjusted toolchain are working as
+      expected. To do this, perform the following sanity checks:
+    </para>
+
+<screen role="root"><userinput>echo 'int main(){}' > dummy.c
+cc dummy.c -v -Wl,--verbose &amp;> dummy.log
+readelf -l a.out | grep ': /lib'</userinput></screen>
+
+    <para>
+      There should be no errors, and the output of the last command will be
+      (allowing for platform-specific differences in dynamic linker name):
+    </para>
+
+<screen><computeroutput>[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]</computeroutput></screen>
+
+    <para>
+      Note that /lib is now the prefix of our dynamic linker.
+    </para>
+
+    <para>
+      Now make sure that we're setup to use the correct startfiles:
+    </para>
+
+<screen role="root"><userinput>grep -o '/lib.*/crt[1in].*succeeded' dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>/lib/../lib64/crt1.o succeeded
+/lib/../lib64/crti.o succeeded
+/lib/../lib64/crtn.o succeeded</computeroutput></screen>
+
+    <para>
+      Verify that the compiler is searching for the correct header files:
+    </para>
+
+<screen role="root"><userinput>grep -B1 '^ /include' dummy.log</userinput></screen>
+
+    <para>
+      This command should return the following output:
+    </para>
+
+<screen><computeroutput>#include &lt;...> search starts here:
+ /include</computeroutput></screen>
+
+    <para>
+      Next, verify that the new linker is being used with the correct search
+      paths:
+    </para>
+
+<screen role="root"><userinput>grep 'SEARCH.*/lib' dummy.log |sed 's|; |\n|g'</userinput></screen>
+
+    <para>
+      References to paths that have components with '-linux-gnu' should be
+      ignored, but otherwise the output of the last command should be:
+    </para>
+
+<screen><computeroutput>SEARCH_DIR("/lib");</computeroutput></screen>
+
+    <para>
+      Next make sure that we're using the correct libc:
+    </para>
+
+<screen role="root"><userinput>grep "/lib.*/libc.so.6 " dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>attempt to open /lib/libc.so.6 succeeded</computeroutput></screen>
+
+    <para>
+      Lastly, make sure GCC is using the correct dynamic linker:
+    </para>
+
+<screen role="root"><userinput>grep found dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>found ld-linux-x86-64.so.2 at /lib/ld-linux-x86-64.so.2</computeroutput></screen>
+
+    <para>
+      If the output does not appear as shown above or is not received at all,
+      then something is seriously wrong. Investigate and retrace the steps to
+      find out where the problem is and correct it. The most likely reason is
+      that something went wrong with the specs file adjustment. Any issues will
+      need to be resolved before continuing on with the process.
+    </para>
+
+    <para>
+      Once everything is working correctly, clean up the test files:
+    </para>
+
+<screen role="root"><userinput>rm -v dummy.c a.out dummy.log</userinput></screen>
+
   </sect2>
 
 </sect1>
