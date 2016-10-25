@@ -14,17 +14,19 @@
   <!ENTITY binutils-time          "1.0 SBU">
 ]>
 
-<sect1 id="temp-binutils-pass1" xreflabel="binutils-&binutils-version; - pass 1">
-  <?dbhtml filename="temp-binutils-pass1.html"?>
+<sect1 id="binutils" xreflabel="binutils-&binutils-version;">
+  <?dbhtml filename="binutils.html"?>
 
-  <title>binutils-&binutils-version; - pass 1</title>
+  <title>binutils-&binutils-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
 
     <para>
-      The binutils package contains a linker, an assembler, and other tools for
-      handling object files.
+      The Glibc package contains the main C library. This library provides the
+      basic routines for allocating memory, searching directories, opening and
+      closing files, reading and writing files, string handling, pattern
+      matching, arithmetic, and so on.
     </para>
 
     <bridgehead renderas="sect3">Package Information</bridgehead>
@@ -71,19 +73,34 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libz"/>
+    </para>
+
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      It is important that Binutils be the first package compiled because both
-      Glibc and GCC perform various tests on the available linker and assembler
-      to determine which of their own features to enable.
+      Suppress installation of unnecessary files:
     </para>
 
+<screen><userinput>for dir in binutils/doc bfd/doc gas/doc gprof ld ; do
+    sed "s/ install-info-am//" -i $dir/Makefile.in
+done</userinput></screen>
+
     <para>
-      The binutils documentation recommends building binutils outside of the
+      Fix missing makeinfo requirement:
+    </para>
+
+<screen><userinput>sed 's,MAKEINFO="$MISSING makeinfo",MAKEINFO=true,g' -i configure</userinput></screen>
+
+    <para>
+      The Binutils documentation recommends building Binutils outside of the
       source directory in a dedicated build directory:
     </para>
 
@@ -94,58 +111,42 @@ cd ../binutils-build</userinput></screen>
       Prepare the package:
     </para>
 
-<screen><userinput>../binutils-&binutils-version;/configure --prefix=/tools \
-                           --with-sysroot=$LFS \
-                           --with-lib-path=/tools/lib \
-                           --target=$LFS_TGT</userinput></screen>
+<screen><userinput>../binutils-&binutils-version;/configure --prefix= \
+                           --disable-static \
+                           --disable-nls \
+                           --enable-shared \
+                           --with-system-zlib</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
-<screen><userinput>make</userinput></screen>
-
-    <para>
-      Create a symlink to ensure the sanity of the toolchain:
-    </para>
-
-<screen role="root"><userinput>mkdir -v /tools/lib
-ln -sv lib /tools/lib64</userinput></screen>
+<screen><userinput>make tooldir=</userinput></screen>
 
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>make -j1 install</userinput></screen>
+<screen role="root"><userinput>porg -lp binutils-&binutils-version; -E $PWD "make tooldir= -j1 install &amp;&amp;
+rm -v /lib/libbfd.la &amp;&amp;
+rm -v /lib/libopcodes.la"</userinput></screen>
 
     <sect3>
       <title>Explanation</title>
 
       <para>
-        <parameter>--prefix=/tools</parameter>: This tells the configure script
-        to prepare to install the binutils programs in the /tools directory.
-      </para>
-
-      <para>
-        <parameter>--with-sysroot=$LFS</parameter>: For cross compilation, this
-        tells the build system to look in $LFS for the target system libraries
-        as needed. 
-      </para>
-
-      <para>
-        <parameter>--with-lib-path=/tools/lib</parameter>: This specifies which
-        library path the linker should be configured to use.
-      </para>
-
-      <para>
-        <parameter>--target=$LFS_TGT</parameter>: Because the machine
-        description in the LFS_TGT variable is slightly different than the
-        value returned by the config.guess script, this switch will tell the
-        configure script to adjust Binutil's build system for building a cross
-        linker. 
+        <parameter>tooldir=</parameter>: Normally, the tooldir (the directory
+        where the executables will ultimately be located) is set to
+        $(exec_prefix)/$(target_alias). For example, x86_64 machines would
+        expand that to /x86_64-unknown-linux-gnu. Because this is a custom
+        system, this target-specific directory in / is not required.
+        $(exec_prefix)/$(target_alias) would be used if the system was used to
+        cross-compile (for example, compiling a package on an Intel machine
+        that generates code that can be executed on PowerPC machines). 
       </para>
 
     </sect3>
+
 
   </sect2>
 
