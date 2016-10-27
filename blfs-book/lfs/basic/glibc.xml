@@ -133,7 +133,7 @@ cd ../glibc-build</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp glibc-&glibc-version; -E $PWD "make -j1 install" &amp;&amp;
+<screen><userinput>porg -lp glibc-&glibc-version; -E $PWD "make -j1 install" &amp;&amp;
 ls /etc/ld.so.cache /lib/ld-linux-x86-64.so.2 | porg -lp+ glibc-&glibc-version; &amp;&amp;
 for lib in BrokenLocale anl c cidn crypt dl m mvec nsl nss_* pthread resolv \
     rt thread_db util ; do ls /lib/lib${lib}.so.? | porg -lp+ glibc-&glibc-version; ; done</userinput></screen>
@@ -142,7 +142,7 @@ for lib in BrokenLocale anl c cidn crypt dl m mvec nsl nss_* pthread resolv \
       Install the configuration file and runtime directory for nscd:
     </para>
 
-<screen role="root"><userinput>porg -lp+ glibc-&glibc-version; "cp -v ../glibc-&glibc-version;/nscd/nscd.conf /etc/nscd.conf"
+<screen><userinput>porg -lp+ glibc-&glibc-version; "cp -v ../glibc-&glibc-version;/nscd/nscd.conf /etc/nscd.conf"
 mkdir -pv /var/cache/nscd</userinput></screen>
 -->
     <para>
@@ -154,7 +154,7 @@ mkdir -pv /var/cache/nscd</userinput></screen>
       definition and appends the result to the /lib/locale/locale-archive file:
     </para>
 
-<screen role="root"><userinput>mkdir -pv /lib/locale &amp;&amp;
+<screen><userinput>mkdir -pv /lib/locale &amp;&amp;
 porg -lp+ glibc-&glibc-version; "localedef -i en_US -f UTF-8 en_US.UTF-8"</userinput></screen>
 
   </sect2>
@@ -168,7 +168,7 @@ porg -lp+ glibc-&glibc-version; "localedef -i en_US -f UTF-8 en_US.UTF-8"</useri
       /etc/nsswitch.conf by running the following:
     </para>
 
-<screen role="root"><userinput>cat > /etc/nsswitch.conf &lt;&lt; "EOF"
+<screen><userinput>cat > /etc/nsswitch.conf &lt;&lt; "EOF"
 <literal>passwd: files
 group: files
 shadow: files
@@ -191,7 +191,7 @@ ls /etc/nsswitch.conf | porg -lp+ glibc-&glibc-version;</userinput></screen>
       link to its counterpart in /tools/$(uname -m)-pc-linux-gnu/bin:
     </para>
 
-<screen role="root"><userinput>mv -v /tools/bin/ld /tools/bin/ld-old &amp;&amp;
+<screen><userinput>mv -v /tools/bin/ld /tools/bin/ld-old &amp;&amp;
 mv -v /tools/x86_64-pc-linux-gnu/bin/ld /tools/x86_64-pc-linux-gnu/bin/ld-old &amp;&amp;
 mv -v /tools/bin/ld-new /tools/bin/ld &amp;&amp;
 ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
@@ -204,7 +204,7 @@ ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
       sed command accomplishes this:
     </para>
 
-<screen role="root"><userinput>gcc -dumpspecs | sed -e 's@/tools@@g' \
+<screen><userinput>gcc -dumpspecs | sed -e 's@/tools@@g' \
                      -e '/\*startfile_prefix_spec:/{n;s@.*@/lib/ @}' \
                      -e '/\*cpp:/{n;s@$@ -isystem /include@}' > \
                      `dirname $(gcc --print-libgcc-file-name)`/specs</userinput></screen>
@@ -220,7 +220,7 @@ ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
       expected. To do this, perform the following sanity checks:
     </para>
 
-<screen role="root"><userinput>echo 'int main(){}' > dummy.c &amp;&amp;
+<screen><userinput>echo 'int main(){}' > dummy.c &amp;&amp;
 cc dummy.c -v -Wl,--verbose &amp;> dummy.log &amp;&amp;
 readelf -l a.out | grep ': /lib'</userinput></screen>
 
@@ -239,7 +239,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       Now make sure that we're setup to use the correct startfiles:
     </para>
 
-<screen role="root"><userinput>grep -o '/lib.*/crt[1in].*succeeded' dummy.log</userinput></screen>
+<screen><userinput>grep -o '/lib.*/crt[1in].*succeeded' dummy.log</userinput></screen>
 
     <para>
       The output of the last command should be:
@@ -253,7 +253,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       Verify that the compiler is searching for the correct header files:
     </para>
 
-<screen role="root"><userinput>grep -B1 '^ /include' dummy.log</userinput></screen>
+<screen><userinput>grep -B1 '^ /include' dummy.log</userinput></screen>
 
     <para>
       This command should return the following output:
@@ -267,7 +267,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       paths:
     </para>
 
-<screen role="root"><userinput>grep 'SEARCH.*/lib' dummy.log |sed 's|; |\n|g'</userinput></screen>
+<screen><userinput>grep 'SEARCH.*/lib' dummy.log |sed 's|; |\n|g'</userinput></screen>
 
     <para>
       References to paths that have components with '-linux-gnu' should be
@@ -280,7 +280,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       Next make sure that we're using the correct libc:
     </para>
 
-<screen role="root"><userinput>grep "/lib.*/libc.so.6 " dummy.log</userinput></screen>
+<screen><userinput>grep "/lib.*/libc.so.6 " dummy.log</userinput></screen>
 
     <para>
       The output of the last command should be:
@@ -292,7 +292,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       Lastly, make sure GCC is using the correct dynamic linker:
     </para>
 
-<screen role="root"><userinput>grep found dummy.log</userinput></screen>
+<screen><userinput>grep found dummy.log</userinput></screen>
 
     <para>
       The output of the last command should be:
@@ -312,7 +312,7 @@ readelf -l a.out | grep ': /lib'</userinput></screen>
       Once everything is working correctly, clean up the test files:
     </para>
 
-<screen role="root"><userinput>rm -v dummy.c a.out dummy.log</userinput></screen>
+<screen><userinput>rm -v dummy.c a.out dummy.log</userinput></screen>
 
   </sect2>
 

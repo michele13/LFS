@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY glibc-homepage      "http://www.gnu.org/software/libc/">
+  <!ENTITY glibc-wikipedia     "https://en.wikipedia.org/wiki/GNU_C_Library">
+  <!ENTITY glibc-download-http "http://ftp.gnu.org/gnu/glibc/glibc-&glibc-version;.tar.xz">
+  <!ENTITY glibc-download-ftp  "ftp://ftp.gnu.org/gnu/glibc/glibc-&glibc-version;.tar.xz">
+  <!ENTITY glibc-md5sum        "97dc5517f92016f3d70d83e3162ad318">
+  <!ENTITY glibc-size          "13 MB">
+  <!ENTITY glibc-buildsize     "983 MB">
+  <!ENTITY glibc-time          "19 SBU">
+]>
+
+<sect1 id="temp-glibc" xreflabel="glibc-&glibc-version;">
+  <?dbhtml filename="temp-glibc.html"?>
+
+  <title>glibc-&glibc-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The Glibc package contains the main C library. This library provides the
+      basic routines for allocating memory, searching directories, opening and
+      closing files, reading and writing files, string handling, pattern
+      matching, arithmetic, and so on.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&glibc-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&glibc-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&glibc-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&glibc-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &glibc-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &glibc-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &glibc-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &glibc-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The Glibc documentation recommends building Glibc outside of the source
+      directory in a dedicated build directory:
+    </para>
+
+<screen><userinput>mkdir -v ../glibc-build &amp;&amp;
+cd ../glibc-build</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>../glibc-&glibc-version;/configure --prefix=/tools \
+                        --host=$LFS_TGT \
+                        --build=$(../glibc-&glibc-version;/scripts/config.guess) \
+                        --disable-profile \
+                        --enable-kernel=&glibc-min-kernel; \
+                        --enable-obsolete-rpc \
+                        --with-headers=/tools/include \
+                        libc_cv_forced_unwind=yes \
+                        libc_cv_c_cleanup=yes
+</userinput></screen>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>make -j1 install</userinput></screen>
+
+    <para>
+      At this point, it is imperative to stop and ensure that the basic
+      functions (compiling and linking) of the new toolchain are working as
+      expected. To perform a sanity check, run the following commands:
+    </para>
+
+<screen><userinput>echo 'int main(){}' > dummy.c &amp;&amp;
+$LFS_TGT-gcc dummy.c &amp;&amp;
+readelf -l a.out | grep ': /tools'</userinput></screen>
+
+    <para>
+      If everything is working correctly, there should be no errors, and the
+      output of the last command will be of the form:
+    </para>
+
+<screen><computeroutput>[Requesting program interpreter: /tools/lib64/ld-linux-x86-64.so.2]</computeroutput></screen>
+
+    <para>
+      Note that /tools/lib, or /tools/lib64 for 64-bit machines appears as the
+      prefix of the dynamic linker.
+    </para>
+
+    <para>
+      If the output is not shown as above or there was no output at all, then
+      something is wrong. Investigate and retrace the steps to find out where
+      the problem is and correct it. This issue must be resolved before
+      continuing on.
+    </para>
+
+    <para>
+      Once all is well, clean up the test files:
+    </para>
+
+<screen><userinput>rm -v dummy.c a.out</userinput></screen>
+
+    <para>
+      Building Binutils in the section after next will serve as an additional
+      check that the toolchain has been built properly. If Binutils fails to
+      build, it is an indication that something has gone wrong with the
+      previous Binutils, GCC, or Glibc installations.
+    </para>
+
+    <sect3>
+      <title>Explanation</title>
+
+      <para>
+        <parameter>--host=$LFS_TGT</parameter>,
+        <parameter>--build=$(../glibc-2.24/scripts/config.guess)</parameter>: 
+        The combined effect of these switches is that Glibc's build system
+        configures itself to cross-compile, using the cross-linker and
+        cross-compiler in /tools.
+      </para>
+
+      <para>
+        <parameter>--disable-profile</parameter>: This builds the libraries
+        without profiling information. Omit this option if profiling on the
+        temporary tools is necessary.
+      </para>
+
+      <para>
+        <parameter>--enable-kernel=2.6.32</parameter>: This tells Glibc to
+        compile the library with support for 2.6.32 and later Linux kernels.
+        Workarounds for older kernels are not enabled.
+      </para>
+
+      <para>
+        <parameter>--enable-obsolete-rpc</parameter>: This installs NIS and RPC
+        related headers that are not installed by default. They are required to
+        build GCC and by several BLFS packages.
+      </para>
+
+      <para>
+        <parameter>--with-headers=/tools/include</parameter>: This tells Glibc
+        to compile itself against the headers recently installed to the tools
+        directory, so that it knows exactly what features the kernel has and
+        can optimize itself accordingly.
+      </para>
+
+      <para>
+        <parameter>libc_cv_forced_unwind=yes</parameter>: The linker installed
+        during "binutils - pass 1" was cross-compiled and as such cannot be
+        used until Glibc has been installed. This means that the configure test
+        for force-unwind support will fail, as it relies on a working linker.
+        The libc_cv_forced_unwind=yes variable is passed in order to inform
+        configure that force-unwind support is available without it having to
+        run the test.
+      </para>
+
+      <para>
+        <parameter>libc_cv_c_cleanup=yes</parameter>: Simlarly, we pass
+        libc_cv_c_cleanup=yes through to the configure script so that the test
+        is skipped and C cleanup handling support is configured.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>

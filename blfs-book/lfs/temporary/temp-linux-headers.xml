@@ -14,8 +14,8 @@
   <!ENTITY linux-time          "0.1 SBU">
 ]>
 
-<sect1 id="linux-headers" xreflabel="linux-headers-&linux-version;">
-  <?dbhtml filename="linux-headers.html"?>
+<sect1 id="temp-linux-headers" xreflabel="linux-headers-&linux-version;">
+  <?dbhtml filename="temp-linux-headers.html"?>
 
   <title>linux-headers-&linux-version;</title>
 
@@ -87,8 +87,7 @@
       Extract the user-visible kernel headers from the source. They are placed
       in an intermediate local directory and copied to the needed location
       because the extraction process removes any existing files in the target
-      directory. There are also some hidden files used by the kernel developers
-      and not needed by LFS that are removed from the intermediate directory. 
+      directory.
     </para>
 
 
@@ -96,14 +95,13 @@
       Prepare the package:
     </para>
 
-<screen><userinput>make INSTALL_HDR_PATH=dest headers_install &amp;&amp;
-find dest/include \( -name .install -o -name ..install.cmd \) -delete</userinput></screen>
+<screen><userinput>make INSTALL_HDR_PATH=dest headers_install</userinput></screen>
 
     <para>
       Install the package:
     </para>
 
-<screen><userinput>porg -lp linux-headers-&linux-version; "cp -rv dest/include/* /include"</userinput></screen>
+<screen><userinput>cp -rv dest/include/* /tools/include</userinput></screen>
 
   </sect2>
 
