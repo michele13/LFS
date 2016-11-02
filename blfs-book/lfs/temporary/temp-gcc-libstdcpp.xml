@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gcc-homepage      "http://gcc.gnu.org/">
+  <!ENTITY gcc-wikipedia     "https://en.wikipedia.org/wiki/GNU_Compiler_Collection">
+  <!ENTITY gcc-download-http "http://ftp.gnu.org/gnu/gcc/gcc-&gcc-version;/gcc-&gcc-version;.tar.bz2">
+  <!ENTITY gcc-download-ftp  "ftp://ftp.gnu.org/gnu/gcc/gcc-&gcc-version;/gcc-&gcc-version;.tar.bz2">
+  <!ENTITY gcc-md5sum        "9768625159663b300ae4de2f4745fcc4">
+  <!ENTITY gcc-size          "95 MB">
+  <!ENTITY gcc-buildsize     "2.8 GB">
+  <!ENTITY gcc-time          "7.0 SBU">
+]>
+
+<sect1 id="temp-gcc-libstdcpp" xreflabel="gcc-&gcc-version; - libstdc++">
+  <?dbhtml filename="temp-gcc-libstdcpp.html"?>
+
+  <title>gcc-&gcc-version; - libstdc++</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      Libstdc++ is the standard C++ library. It is needed for the correct
+      operation of the g++ compiler.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gcc-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gcc-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gcc-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gcc-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gcc-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gcc-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gcc-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gcc-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The GCC documentation recommends building GCC outside of the source
+      directory in a dedicated build directory:
+    </para>
+
+<screen><userinput>mkdir -v ../gcc-build
+cd ../gcc-build</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>../gcc-&gcc-version;/libstdc++-v3/configure --prefix=/tools \
+                                    --host=$LFS_TGT \
+                                    --disable-multilib \
+                                    --disable-libstdcxx-threads \
+                                    --disable-libstdcxx-pch \
+                                    --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</userinput></screen>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>make -j1 install</userinput></screen>
+
+    <sect3>
+      <title>Explanation</title>
+
+      <para>
+        <parameter>--host=...</parameter>: Indicates to use the cross compiler
+        we have just built instead of the one in /usr/bin.
+      </para>
+
+      <para>
+        <parameter>--disable-libstdcxx-threads</parameter>: Since we have not
+        yet built the C threads library, the C++ one cannot be built either.
+      </para>
+
+      <para>
+        <parameter>--disable-libstdcxx-pch</parameter>: This switch prevents
+        the installation of precompiled include files, which are not needed at this stage.
+      </para>
+
+      <para>
+        <parameter>--with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</parameter>:
+        This is the location where the standard include files are searched by
+        the C++ compiler. In a normal build, this information is automatically
+        passed to the Libstdc++ configure options from the toplevel directory.
+        In our case, this information must be explicitly given.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>
