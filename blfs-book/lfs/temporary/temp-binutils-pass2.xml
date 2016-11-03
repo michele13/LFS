@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY binutils-homepage      "https://www.gnu.org/software/binutils/">
+  <!ENTITY binutils-wikipedia     "https://en.wikipedia.org/wiki/GNU_Binutils">
+  <!ENTITY binutils-download-http "http://ftp.gnu.org/gnu/binutils/binutils-&binutils-version;.tar.bz2">
+  <!ENTITY binutils-download-ftp  "ftp://ftp.gnu.org/gnu/binutils/binutils-&binutils-version;.tar.bz2">
+  <!ENTITY binutils-md5sum        "2869c9bf3e60ee97c74ac2a6bf4e9d68">
+  <!ENTITY binutils-size          "25 MB">
+  <!ENTITY binutils-buildsize     "445 MB">
+  <!ENTITY binutils-time          "1.0 SBU">
+]>
+
+<sect1 id="temp-binutils-pass2" xreflabel="binutils-&binutils-version; - pass 2">
+  <?dbhtml filename="temp-binutils-pass2.html"?>
+
+  <title>binutils-&binutils-version; - pass 2</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The binutils package contains a linker, an assembler, and other tools for
+      handling object files.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&binutils-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&binutils-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&binutils-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&binutils-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &binutils-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &binutils-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &binutils-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &binutils-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      The binutils documentation recommends building binutils outside of the
+      source directory in a dedicated build directory:
+    </para>
+
+<screen><userinput>mkdir -v ../binutils-build
+cd ../binutils-build</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>CC=$LFS_TGT-gcc \
+AR=$LFS_TGT-ar \
+RANLIB=$LFS_TGT-ranlib \
+../binutils-&binutils-version;/configure --prefix=/tools \
+                           --with-lib-path=/tools/lib \
+                           --with-sysroot</userinput></screen>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>make -j1 install</userinput></screen>
+
+    <para>
+      Now prepare the linker for the “Re-adjusting” phase in the next chapter:
+    </para>
+
+<screen><userinput>make -C ld clean
+make -C ld LIB_PATH=/lib
+cp -v ld/ld-new /tools/bin</userinput></screen>
+
+    <sect3>
+      <title>Explanation</title>
+
+      <para>
+        <parameter>-C ld clean</parameter>: This tells the make program to
+        remove all compiled files in the ld subdirectory.
+      </para>
+
+      <para>
+        <parameter>-C ld LIB_PATH=/lib</parameter>: This option rebuilds
+        everything in the ld subdirectory. Specifying the LIB_PATH Makefile
+        variable on the command line allows us to override the default value of
+        the temporary tools and point it to the proper final path. The value of
+        this variable specifies the linker's default library search path. This
+        preparation is used in the next chapter.
+      </para>
+
+    </sect3>
+
+  </sect2>
+
+</sect1>
