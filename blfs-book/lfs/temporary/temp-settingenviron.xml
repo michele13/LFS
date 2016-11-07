@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+]>
+
+<sect1 id="temp-settingenviron" xreflabel="Setting Up the Environment">
+  <?dbhtml filename="temp-settingenviron.html"?>
+
+  <title>Setting Up the Environment</title>
+
+  <para>
+    Like most other operating systems, LFS is usually installed on a dedicated
+    partition. The recommended approach to building an LFS system is to use an
+    available empty partition or, if you have enough unpartitioned space, to
+    create one. 
+  </para>
+
+  <para>
+    After a blank partition has been set up, the file system can be created.
+    LFS assumes that the root file system (/) is of type ext4. To create an
+    ext4 file system on the LFS partition, run the following:
+  </para>
+
+<screen><userinput>mkfs.ext4 -v /dev/<replaceable>&lt;xxx></replaceable></userinput></screen>
+
+  <para>
+    Replace <replaceable>&lt;xxx></replaceable> with the name of the partition.
+  </para>
+
+  <para>
+    Throughout this book, the environment variable LFS will be used several
+    times. You should ensure that this variable is always defined throughout
+    the LFS build process. It should be set to the name of the directory where
+    you will be building your LFS system - we will use /mnt/lfs as an example,
+    but the directory choice is up to you. If you are building LFS on a
+    separate partition, this directory will be the mount point for the
+    partition. Choose a directory location and set the variable with the
+    following command:
+  </para>
+
+<screen><userinput>export LFS=/mnt/lfs</userinput></screen>
+
+  <para>
+    Now that a file system has been created, the partition needs to be made
+    accessible. In order to do this, the partition needs to be mounted at a
+    chosen mount point. For the purposes of this book, it is assumed that the
+    file system is mounted under the directory specified by the LFS envronment
+    variable.
+  </para>
+
+  <para>
+    Create the mount point and mount the LFS file system by running:
+  </para>
+
+<screen><userinput>mkdir -pv $LFS
+mount -v -t ext4 -o noatime /dev/<replaceable>&lt;xxx></replaceable> $LFS</userinput></screen>
+
+  <para>
+    Downloaded packages and patches will need to be stored somewhere that is
+    conveniently available throughout the entire build. A working directory is
+    also required to unpack the sources and build them. $LFS/src can be used
+    both as the place to store the tarballs and patches and as a working
+    directory. By using this directory, the required elements will be located
+    on the LFS partition and will be available during all stages of the
+    building process.
+  </para>
+
+  <para>
+    To create this directory, execute the following command, as user root:
+  </para>
+
+<screen><userinput>mkdir -v $LFS/src</userinput></screen>
+
+  <para>
+    All programs compiled in this chapter will be installed under $LFS/tools to
+    keep them separate from the programs compiled later. The programs compiled
+    here are temporary tools and will not be a part of the final LFS system. By
+    keeping these programs in a separate directory, they can easily be
+    discarded later after their use. This also prevents these programs from
+    ending up in the host production directories (easy to do by accident).
+  </para>
+
+  <para>
+    Create the required directory by running the following as root:
+  </para>
+
+<screen><userinput>mkdir -v $LFS/tools</userinput></screen>
+
+  <para>
+    The next step is to create a /tools symlink on the host system. This will
+    point to the newly-created directory on the LFS partition. Run this command
+    as root as well:
+  </para>
+
+<screen><userinput>ln -svf $LFS/tools /</userinput></screen>
+
+  <para>
+    The created symlink enables the toolchain to be compiled so that it always
+    refers to /tools, meaning that the compiler, assembler, and linker will
+    work both in this chapter (when we are still using some tools from the
+    host) and in the next (when we are “chrooted” to the LFS partition). 
+  </para>
+
+  <para>
+    Set up a clean working environment by issuing the following commands:
+  </para>
+
+<screen><userinput>env -i HOME=$HOME TERM=$TERM PS1='\u:\w\$ ' /bin/sh
+umask 022
+LFS=/mnt/lfs
+LC_ALL=POSIX
+LFS_TGT=$(uname -m)-lfs-linux-gnu
+PATH=/tools/bin:/tools/usr/bin:/bin:/usr/bin
+MAKEFLAGS=-j$(($(grep -c ^processor /proc/cpuinfo) + 1))
+export LFS LC_ALL LFS_TGT PATH MAKEFLAGS</userinput></screen>
+
+  <para>
+    The initial shell is usually a login shell which reads the /etc/profile of
+    the host (probably containing some settings and environment variables) and
+    then .profile. The env -i.../bin/sh command runs a shell with a completely
+    empty environment, except for the HOME, TERM, and PS1 variables. This
+    ensures that no unwanted and potentially hazardous environment variables
+    from the host system leak into the build environment. The technique used
+    here achieves the goal of ensuring a clean environment.
+  </para>
+
+  <para>
+    Setting the user file-creation mask (umask) to 022 ensures that newly
+    created files and directories are only writable by their owner, but are
+    readable and executable by anyone (assuming default modes are used by the
+    open(2) system call, new files will end up with permission mode 644 and
+    directories with mode 755).
+  </para>
+
+  <para>
+    The LFS variable should be set to the chosen mount point.
+  </para>
+
+  <para>
+    The LC_ALL variable controls the localization of certain programs, making
+    their messages follow the conventions of a specified country. Setting
+    LC_ALL to "POSIX" or "C" (the two are equivalent) ensures that everything
+    will work as expected in the chroot environment.
+  </para>
+
+  <para>
+    The LFS_TGT variable sets a non-default, but compatible machine description
+    for use when building our cross compiler and linker and when cross
+    compiling our temporary toolchain.
+  </para>
+
+  <para>
+    By putting /tools/bin ahead of the standard PATH, all the programs
+    installed in this chapter are picked up by the shell immediately after
+    their installation. This, combined with hash -r, limits the risk that old
+    programs are used from the host when the same programs are available in the
+    chapter 5 environment.
+  </para>
+
+</sect1>
