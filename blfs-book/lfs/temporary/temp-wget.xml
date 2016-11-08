@@ -13,8 +13,8 @@
   <!ENTITY wget-time          "0.4 SBU">
 ]>
 
-<sect1 id="wget" xreflabel="wget-&wget-version;">
-  <?dbhtml filename="wget.html"?>
+<sect1 id="temp-wget" xreflabel="wget-&wget-version;">
+  <?dbhtml filename="temp-wget.html"?>
 
   <title>wget-&wget-version;</title>
 
@@ -70,40 +70,43 @@
       </listitem>
     </itemizedlist>
 
-    <bridgehead renderas="sect3">Dependencies</bridgehead>
-
-    <bridgehead renderas="sect4">Recommended</bridgehead>
-    <para>
-      <xref linkend="libressl"/>
-    </para>
-
-    <bridgehead renderas="sect4">Optional</bridgehead>
-    <para>
-      <!--<xref linkend="libidn"/> and-->
-      <xref linkend="pcre"/>
-    </para>
-
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Suppress installation of unnecessary files:
+      Prepare the package:
     </para>
 
-<screen><userinput>sed 's/install-info-am$//' -i doc/Makefile.in</userinput></screen>
+<screen><userinput>./configure --prefix=/tools \
+            --disable-pcre \
+            --without-ssl \
+            --without-zlib \
+            --without-libuuid</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term>
+          <parameter>--disable-pcre</parameter>,
+          <parameter>--without-ssl</parameter>,
+          <parameter>--without-zlib</parameter>,
+          <parameter>--without-libuuid</parameter>
+        </term>
+        <listitem>
+          <para>
+            This ensures that wget won't link against libraries which may be
+            present on the host system.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
-      Prepare the package for compilation:
-    </para>
-
-<screen><userinput>./configure --prefix= \
-            --disable-nls \
-            --with-ssl=openssl</userinput></screen>
-
-    <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -112,24 +115,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp wget-&wget-version; -E $PWD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-ssl=openssl</parameter>: This configures the program
-        to use LibreSSL instead of GnuTLS which is preferred by the configure
-        script.
-      </para>
-
-      <para>
-        <option>--without-ssl</option>: This configure option is required if
-        support for the HTTPS protocol is not needed or LibreSSL is not
-        installed.
-      </para>
-
-    </sect3>
+<screen><userinput>make -j1 install</userinput></screen>
 
   </sect2>
 
