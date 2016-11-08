@@ -107,31 +107,41 @@ RANLIB=$LFS_TGT-ranlib \
 <screen><userinput>make -j1 install</userinput></screen>
 
     <para>
-      Now prepare the linker for the “Re-adjusting” phase in the next chapter:
+      Now prepare the linker for the "Re-adjusting" phase in the next chapter:
     </para>
 
 <screen><userinput>make -C ld clean
 make -C ld LIB_PATH=/lib
 cp -v ld/ld-new /tools/bin</userinput></screen>
 
-    <sect3>
+    <variablelist>
       <title>Explanation</title>
 
-      <para>
-        <parameter>-C ld clean</parameter>: This tells the make program to
-        remove all compiled files in the ld subdirectory.
-      </para>
+      <varlistentry>
+        <term><parameter>-C ld clean</parameter></term>
+        <listitem>
+          <para>
+            This tells the make program to remove all compiled files in the ld
+            subdirectory.
+          </para>
+        </listitem>
+      </varlistentry>
 
-      <para>
-        <parameter>-C ld LIB_PATH=/lib</parameter>: This option rebuilds
-        everything in the ld subdirectory. Specifying the LIB_PATH Makefile
-        variable on the command line allows us to override the default value of
-        the temporary tools and point it to the proper final path. The value of
-        this variable specifies the linker's default library search path. This
-        preparation is used in the next chapter.
-      </para>
+      <varlistentry>
+        <term><parameter>-C ld LIB_PATH=/lib</parameter></term>
+        <listitem>
+          <para>
+            This option rebuilds everything in the ld subdirectory. Specifying
+            the LIB_PATH Makefile variable on the command line allows us to
+            override the default value of the temporary tools and point it to
+            the proper final path. The value of this variable specifies the
+            linker's default library search path. This preparation is used in
+            the next chapter.
+          </para>
+        </listitem>
+      </varlistentry>
 
-    </sect3>
+    </variablelist>
 
   </sect2>
 

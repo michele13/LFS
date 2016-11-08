@@ -197,6 +197,37 @@ RANLIB=$LFS_TGT-ranlib \
                        --disable-bootstrap \
                        --disable-libgomp</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--disable-libstdcxx-pch</parameter></term>
+        <listitem>
+          <para>
+            Do not build the pre-compiled header (PCH) for libstdc++. It takes
+            up a lot of space, and we have no use for it.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-bootstrap</parameter></term>
+        <listitem>
+          <para>
+            For native builds of GCC, the default is to do a "bootstrap" build.
+            This does not just compile GCC, but compiles it several times. It
+            uses the programs compiled in a first round to compile itself a
+            second time, and then again a third time. The second and third
+            iterations are compared to make sure it can reproduce itself
+            flawlessly. This also implies that it was compiled correctly.
+            However, the LFS build method should provide a solid compiler
+            without the need to bootstrap each time.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Build the package:
     </para>
@@ -257,28 +288,6 @@ readelf -l a.out | grep ': /tools'</userinput></screen>
     </para>
 
 <screen><userinput>rm -v dummy.c a.out</userinput></screen>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>--disable-libstdcxx-pch</parameter>: Do not build the
-        pre-compiled header (PCH) for libstdc++. It takes up a lot of space,
-        and we have no use for it.
-      </para>
-
-      <para>
-        <parameter>--disable-bootstrap</parameter>: For native builds of GCC,
-        the default is to do a "bootstrap" build. This does not just compile
-        GCC, but compiles it several times. It uses the programs compiled in a
-        first round to compile itself a second time, and then again a third
-        time. The second and third iterations are compared to make sure it can
-        reproduce itself flawlessly. This also implies that it was compiled
-        correctly. However, the LFS build method should provide a solid
-        compiler without the need to bootstrap each time.
-      </para>
-
-    </sect3>
 
   </sect2>
 
