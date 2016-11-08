@@ -8,7 +8,6 @@
   <!ENTITY gcc-wikipedia     "https://en.wikipedia.org/wiki/GNU_Compiler_Collection">
   <!ENTITY gcc-download-http "http://ftp.gnu.org/gnu/gcc/gcc-&gcc-version;/gcc-&gcc-version;.tar.bz2">
   <!ENTITY gcc-download-ftp  "ftp://ftp.gnu.org/gnu/gcc/gcc-&gcc-version;/gcc-&gcc-version;.tar.bz2">
-  <!ENTITY gcc-md5sum        "9768625159663b300ae4de2f4745fcc4">
   <!ENTITY gcc-size          "95 MB">
   <!ENTITY gcc-buildsize     "2.8 GB">
   <!ENTITY gcc-time          "7.0 SBU">
@@ -95,6 +94,54 @@ cd ../gcc-build</userinput></screen>
                                     --disable-libstdcxx-pch \
                                     --with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--host=$LFS_TGT</parameter></term>
+        <listitem>
+          <para>
+            Indicates to use the cross compiler we have just built instead of
+            the one in /usr/bin.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-libstdcxx-threads</parameter></term>
+        <listitem>
+          <para>
+            Since we have not yet built the C threads library, the C++ one
+            cannot be built either.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-libstdcxx-pch</parameter></term>
+        <listitem>
+          <para>
+            This switch prevents the installation of precompiled include files,
+            which are not needed at this stage.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</parameter></term>
+        <listitem>
+          <para>
+            This is the location where the standard include files are searched
+            by the C++ compiler. In a normal build, this information is
+            automatically passed to the libstdc++ configure options from the
+            toplevel directory.  In our case, this information must be
+            explicitly given.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Build the package:
     </para>
@@ -106,34 +153,6 @@ cd ../gcc-build</userinput></screen>
     </para>
 
 <screen><userinput>make -j1 install</userinput></screen>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>--host=...</parameter>: Indicates to use the cross compiler
-        we have just built instead of the one in /usr/bin.
-      </para>
-
-      <para>
-        <parameter>--disable-libstdcxx-threads</parameter>: Since we have not
-        yet built the C threads library, the C++ one cannot be built either.
-      </para>
-
-      <para>
-        <parameter>--disable-libstdcxx-pch</parameter>: This switch prevents
-        the installation of precompiled include files, which are not needed at this stage.
-      </para>
-
-      <para>
-        <parameter>--with-gxx-include-dir=/tools/$LFS_TGT/include/c++/&gcc-version;</parameter>:
-        This is the location where the standard include files are searched by
-        the C++ compiler. In a normal build, this information is automatically
-        passed to the Libstdc++ configure options from the toplevel directory.
-        In our case, this information must be explicitly given.
-      </para>
-
-    </sect3>
 
   </sect2>
 

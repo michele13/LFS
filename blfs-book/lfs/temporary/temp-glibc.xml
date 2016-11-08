@@ -8,7 +8,6 @@
   <!ENTITY glibc-wikipedia     "https://en.wikipedia.org/wiki/GNU_C_Library">
   <!ENTITY glibc-download-http "http://ftp.gnu.org/gnu/glibc/glibc-&glibc-version;.tar.xz">
   <!ENTITY glibc-download-ftp  "ftp://ftp.gnu.org/gnu/glibc/glibc-&glibc-version;.tar.xz">
-  <!ENTITY glibc-md5sum        "97dc5517f92016f3d70d83e3162ad318">
   <!ENTITY glibc-size          "13 MB">
   <!ENTITY glibc-buildsize     "983 MB">
   <!ENTITY glibc-time          "19 SBU">
@@ -83,7 +82,7 @@
       directory in a dedicated build directory:
     </para>
 
-<screen><userinput>mkdir -v ../glibc-build &amp;&amp;
+<screen><userinput>mkdir -v ../glibc-build
 cd ../glibc-build</userinput></screen>
 
     <para>
@@ -98,8 +97,93 @@ cd ../glibc-build</userinput></screen>
                         --enable-obsolete-rpc \
                         --with-headers=/tools/include \
                         libc_cv_forced_unwind=yes \
-                        libc_cv_c_cleanup=yes
-</userinput></screen>
+                        libc_cv_c_cleanup=yes</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term>
+          <parameter>--host=$LFS_TGT</parameter>,
+          <parameter>--build=$(../glibc-2.24/scripts/config.guess)</parameter>
+        </term>
+        <listitem>
+          <para>
+            The combined effect of these switches is that Glibc's build system
+            configures itself to cross-compile, using the cross-linker and
+            cross-compiler in /tools.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-profile</parameter></term>
+        <listitem>
+          <para>
+            This builds the libraries without profiling information. Omit this
+            option if profiling on the temporary tools is necessary.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-kernel=2.6.32</parameter></term>
+        <listitem>
+          <para>
+            This tells Glibc to compile the library with support for 2.6.32 and
+            later Linux kernels. Workarounds for older kernels are not enabled.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-obsolete-rpc</parameter></term>
+        <listitem>
+          <para>
+            This installs NIS and RPC related headers that are not installed by
+            default. They are required to build GCC and by several BLFS
+            packages.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-headers=/tools/include</parameter></term>
+        <listitem>
+          <para>
+            This tells Glibc to compile itself against the headers recently
+            installed to the tools directory, so that it knows exactly what
+            features the kernel has and can optimize itself accordingly.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>libc_cv_forced_unwind=yes</parameter></term>
+        <listitem>
+          <para>
+            The linker installed during "binutils - pass 1" was cross-compiled
+            and as such cannot be used until Glibc has been installed. This
+            means that the configure test for force-unwind support will fail,
+            as it relies on a working linker. The libc_cv_forced_unwind=yes
+            variable is passed in order to inform configure that force-unwind
+            support is available without it having to run the test.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>libc_cv_c_cleanup=yes</parameter></term>
+        <listitem>
+          <para>
+            Simlarly, we pass libc_cv_c_cleanup=yes through to the configure
+            script so that the test is skipped and C cleanup handling support
+            is configured.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Build the package:
@@ -119,8 +203,8 @@ cd ../glibc-build</userinput></screen>
       expected. To perform a sanity check, run the following commands:
     </para>
 
-<screen><userinput>echo 'int main(){}' > dummy.c &amp;&amp;
-$LFS_TGT-gcc dummy.c &amp;&amp;
+<screen><userinput>echo 'int main(){}' > dummy.c
+$LFS_TGT-gcc dummy.c
 readelf -l a.out | grep ': /tools'</userinput></screen>
 
     <para>
@@ -153,60 +237,6 @@ readelf -l a.out | grep ': /tools'</userinput></screen>
       build, it is an indication that something has gone wrong with the
       previous Binutils, GCC, or Glibc installations.
     </para>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>--host=$LFS_TGT</parameter>,
-        <parameter>--build=$(../glibc-2.24/scripts/config.guess)</parameter>: 
-        The combined effect of these switches is that Glibc's build system
-        configures itself to cross-compile, using the cross-linker and
-        cross-compiler in /tools.
-      </para>
-
-      <para>
-        <parameter>--disable-profile</parameter>: This builds the libraries
-        without profiling information. Omit this option if profiling on the
-        temporary tools is necessary.
-      </para>
-
-      <para>
-        <parameter>--enable-kernel=2.6.32</parameter>: This tells Glibc to
-        compile the library with support for 2.6.32 and later Linux kernels.
-        Workarounds for older kernels are not enabled.
-      </para>
-
-      <para>
-        <parameter>--enable-obsolete-rpc</parameter>: This installs NIS and RPC
-        related headers that are not installed by default. They are required to
-        build GCC and by several BLFS packages.
-      </para>
-
-      <para>
-        <parameter>--with-headers=/tools/include</parameter>: This tells Glibc
-        to compile itself against the headers recently installed to the tools
-        directory, so that it knows exactly what features the kernel has and
-        can optimize itself accordingly.
-      </para>
-
-      <para>
-        <parameter>libc_cv_forced_unwind=yes</parameter>: The linker installed
-        during "binutils - pass 1" was cross-compiled and as such cannot be
-        used until Glibc has been installed. This means that the configure test
-        for force-unwind support will fail, as it relies on a working linker.
-        The libc_cv_forced_unwind=yes variable is passed in order to inform
-        configure that force-unwind support is available without it having to
-        run the test.
-      </para>
-
-      <para>
-        <parameter>libc_cv_c_cleanup=yes</parameter>: Simlarly, we pass
-        libc_cv_c_cleanup=yes through to the configure script so that the test
-        is skipped and C cleanup handling support is configured.
-      </para>
-
-    </sect3>
 
   </sect2>
 
