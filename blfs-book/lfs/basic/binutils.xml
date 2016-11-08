@@ -122,6 +122,28 @@ cd ../binutils-build</userinput></screen>
 
 <screen><userinput>make tooldir=</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>tooldir=</parameter></term>
+        <listitem>
+          <para>
+            Normally, the tooldir (the directory where the executables will
+            ultimately be located) is set to $(exec_prefix)/$(target_alias).
+            For example, x86_64 machines would expand that to
+            /x86_64-unknown-linux-gnu. Because this is a custom system, this
+            target-specific directory in / is not required.
+            $(exec_prefix)/$(target_alias) would be used if the system was used
+            to cross-compile (for example, compiling a package on an Intel
+            machine that generates code that can be executed on PowerPC
+            machines).
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Install the package:
     </para>
@@ -129,23 +151,6 @@ cd ../binutils-build</userinput></screen>
 <screen><userinput>porg -lp binutils-&binutils-version; -E $PWD "make tooldir= -j1 install &amp;&amp;
 rm -v /lib/libbfd.la &amp;&amp;
 rm -v /lib/libopcodes.la"</userinput></screen>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>tooldir=</parameter>: Normally, the tooldir (the directory
-        where the executables will ultimately be located) is set to
-        $(exec_prefix)/$(target_alias). For example, x86_64 machines would
-        expand that to /x86_64-unknown-linux-gnu. Because this is a custom
-        system, this target-specific directory in / is not required.
-        $(exec_prefix)/$(target_alias) would be used if the system was used to
-        cross-compile (for example, compiling a package on an Intel machine
-        that generates code that can be executed on PowerPC machines). 
-      </para>
-
-    </sect3>
-
 
   </sect2>
 

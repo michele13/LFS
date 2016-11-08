@@ -93,7 +93,7 @@
       store their runtime data in the FHS-compliant locations:
     </para>
 
-<screen><userinput>patch -p1 -i ../glibc-&glibc-version;-paths-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../glibc-&glibc-version;-paths-1.patch</userinput></screen>
 
     <para>
       The Glibc build system is self-contained and will install perfectly, even
@@ -108,7 +108,7 @@
       directory in a dedicated build directory:
     </para>
 
-<screen><userinput>mkdir -v ../glibc-build &amp;&amp;
+<screen><userinput>mkdir -v ../glibc-build
 cd ../glibc-build</userinput></screen>
 
     <para>
@@ -132,8 +132,8 @@ cd ../glibc-build</userinput></screen>
       Install the package:
     </para>
 
-<screen><userinput>porg -lp glibc-&glibc-version; -E $PWD "make -j1 install" &amp;&amp;
-ls /etc/ld.so.cache /lib/ld-linux-x86-64.so.2 | porg -lp+ glibc-&glibc-version; &amp;&amp;
+<screen><userinput>porg -lp glibc-&glibc-version; -E $PWD "make -j1 install"
+ls /etc/ld.so.cache /lib/ld-linux-x86-64.so.2 | porg -lp+ glibc-&glibc-version;
 for lib in BrokenLocale anl c cidn crypt dl m mvec nsl nss_* pthread resolv \
     rt thread_db util ; do ls /lib/lib${lib}.so.? | porg -lp+ glibc-&glibc-version; ; done</userinput></screen>
 <!--
@@ -153,7 +153,7 @@ mkdir -pv /var/cache/nscd</userinput></screen>
       definition and appends the result to the /lib/locale/locale-archive file:
     </para>
 
-<screen><userinput>mkdir -pv /lib/locale &amp;&amp;
+<screen><userinput>mkdir -pv /lib/locale
 porg -lp+ glibc-&glibc-version; "localedef -i en_US -f UTF-8 en_US.UTF-8"</userinput></screen>
 
   </sect2>
@@ -190,14 +190,14 @@ ls /etc/nsswitch.conf | porg -lp+ glibc-&glibc-version;</userinput></screen>
       link to its counterpart in /tools/$(uname -m)-pc-linux-gnu/bin:
     </para>
 
-<screen><userinput>mv -v /tools/bin/ld /tools/bin/ld-old &amp;&amp;
-mv -v /tools/x86_64-pc-linux-gnu/bin/ld /tools/x86_64-pc-linux-gnu/bin/ld-old &amp;&amp;
-mv -v /tools/bin/ld-new /tools/bin/ld &amp;&amp;
+<screen><userinput>mv -v /tools/bin/ld /tools/bin/ld-old
+mv -v /tools/x86_64-pc-linux-gnu/bin/ld /tools/x86_64-pc-linux-gnu/bin/ld-old
+mv -v /tools/bin/ld-new /tools/bin/ld
 ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
 
     <para>
       Next, amend the GCC specs file so that it points to the new dynamic
-      linker. Simply deleting all instances of “/tools” should leave us with
+      linker. Simply deleting all instances of "/tools" should leave us with
       the correct path to the dynamic linker. Also adjust the specs file so
       that GCC knows where to find the correct headers and Glibc start files. A
       sed command accomplishes this:
@@ -219,8 +219,8 @@ ln -sv /tools/bin/ld /tools/$(uname -m)-pc-linux-gnu/bin/ld</userinput></screen>
       expected. To do this, perform the following sanity checks:
     </para>
 
-<screen><userinput>echo 'int main(){}' > dummy.c &amp;&amp;
-cc dummy.c -v -Wl,--verbose &amp;> dummy.log &amp;&amp;
+<screen><userinput>echo 'int main(){}' > dummy.c
+cc dummy.c -v -Wl,--verbose &amp;> dummy.log
 readelf -l a.out | grep ': /lib'</userinput></screen>
 
     <para>
