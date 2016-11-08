@@ -99,6 +99,53 @@ cd ../binutils-build</userinput></screen>
                            --with-lib-path=/tools/lib \
                            --target=$LFS_TGT</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--prefix=/tools</parameter></term>
+        <listitem>
+          <para>
+            This tells the configure script to prepare to install the binutils
+            programs in the /tools directory.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-sysroot=$LFS</parameter></term>
+        <listitem>
+          <para>
+            For cross compilation, this tells the build system to look in $LFS
+            for the target system libraries as needed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-lib-path=/tools/lib</parameter></term>
+        <listitem>
+          <para>
+            This specifies which library path the linker should be configured
+            to use.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--target=$LFS_TGT</parameter></term>
+        <listitem>
+          <para>
+            Because the machine description in the LFS_TGT variable is slightly
+            different than the value returned by the config.guess script, this
+            switch will tell the configure script to adjust Binutil's build
+            system for building a cross linker.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Build the package:
     </para>
@@ -117,35 +164,6 @@ ln -sv lib /tools/lib64</userinput></screen>
     </para>
 
 <screen><userinput>make -j1 install</userinput></screen>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>--prefix=/tools</parameter>: This tells the configure script
-        to prepare to install the binutils programs in the /tools directory.
-      </para>
-
-      <para>
-        <parameter>--with-sysroot=$LFS</parameter>: For cross compilation, this
-        tells the build system to look in $LFS for the target system libraries
-        as needed. 
-      </para>
-
-      <para>
-        <parameter>--with-lib-path=/tools/lib</parameter>: This specifies which
-        library path the linker should be configured to use.
-      </para>
-
-      <para>
-        <parameter>--target=$LFS_TGT</parameter>: Because the machine
-        description in the LFS_TGT variable is slightly different than the
-        value returned by the config.guess script, this switch will tell the
-        configure script to adjust Binutil's build system for building a cross
-        linker. 
-      </para>
-
-    </sect3>
 
   </sect2>
 

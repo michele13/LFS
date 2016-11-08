@@ -208,6 +208,115 @@ cd ../gcc-build</userinput></screen>
                        --disable-libstdcxx \
                        --enable-languages=c,c++</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-newlib</parameter></term>
+        <listitem>
+          <para>
+            Since a working C library is not yet available, this ensures that
+            the inhibit_libc constant is defined when building libgcc. This
+            prevents the compiling of any code that requires libc support.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-headers</parameter></term>
+        <listitem>
+          <para>
+            When creating a complete cross-compiler, GCC requires standard
+            headers compatible with the target system. For our purposes these
+            headers will not be needed. This switch prevents GCC from looking
+            for them.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-local-prefix=/tools</parameter></term>
+        <listitem>
+          <para>
+            The local prefix is the location in the system that GCC will search
+            for locally installed include files. The default is /usr/local.
+            Setting this to /tools helps keep the host location of /usr/local
+            out of this GCC's search path.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-native-system-header-dir=/tools/include</parameter></term>
+        <listitem>
+          <para>
+            By default GCC searches /usr/include for system headers. In
+            conjunction with the sysroot switch, this would translate normally
+            to $LFS/usr/include. However the headers that will be installed in
+            the next two sections will go to $LFS/tools/include. This switch
+            ensures that gcc will find them correctly. In the second pass of
+            GCC, this same switch will ensure that no headers from the host
+            system are found.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-shared</parameter></term>
+        <listitem>
+          <para>
+            This switch forces GCC to link its internal libraries statically.
+            We do this to avoid possible issues with the host system.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>
+          <parameter>--disable-decimal-float</parameter>,
+          <parameter>--disable-threads</parameter>,
+          <parameter>--disable-libatomic</parameter>,
+          <parameter>--disable-libgomp</parameter>,
+          <parameter>--disable-libmpx</parameter>,
+          <parameter>--disable-libquadmath</parameter>,
+          <parameter>--disable-libssp</parameter>,
+          <parameter>--disable-libvtv</parameter>,
+          <parameter>--disable-libstdcxx</parameter>
+        </term>
+        <listitem>
+          <para>
+            These switches disable support for the decimal floating point
+            extension, threading, libatomic, libgomp, libmpx, libquadmath,
+            libssp, libvtv, and the C++ standard library respectively. These
+            features will fail to compile when building a cross-compiler and
+            are not necessary for the task of cross-compiling the temporary
+            libc.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-multilib</parameter></term>
+        <listitem>
+          <para>
+            On x86_64, LFS does not yet support a multilib configuration. This
+            switch is harmless for x86.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-languages=c,c++</parameter></term>
+        <listitem>
+          <para>
+            This option ensures that only the C and C++ compilers are built.
+            These are the only languages needed now.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Build the package:
     </para>
@@ -219,76 +328,6 @@ cd ../gcc-build</userinput></screen>
     </para>
 
 <screen><userinput>make -j1 install</userinput></screen>
-
-    <sect3>
-      <title>Explanation</title>
-
-      <para>
-        <parameter>--with-newlib</parameter>: Since a working C library is not
-        yet available, this ensures that the inhibit_libc constant is defined
-        when building libgcc. This prevents the compiling of any code that
-        requires libc support.
-      </para>
-
-      <para>
-        <parameter>--without-headers</parameter>: When creating a complete
-        cross-compiler, GCC requires standard headers compatible with the
-        target system. For our purposes these headers will not be needed. This
-        switch prevents GCC from looking for them.
-      </para>
-
-      <para>
-        <parameter>--with-local-prefix=/tools</parameter>: The local prefix is
-        the location in the system that GCC will search for locally installed
-        include files. The default is /usr/local. Setting this to /tools helps
-        keep the host location of /usr/local out of this GCC's search path.
-      </para>
-
-      <para>
-        <parameter>--with-native-system-header-dir=/tools/include</parameter>:
-        By default GCC searches /usr/include for system headers. In conjunction
-        with the sysroot switch, this would translate normally to
-        $LFS/usr/include. However the headers that will be installed in the
-        next two sections will go to $LFS/tools/include. This switch ensures
-        that gcc will find them correctly. In the second pass of GCC, this same
-        switch will ensure that no headers from the host system are found.
-      </para>
-
-      <para>
-        <parameter>--disable-shared</parameter>: This switch forces GCC to link
-        its internal libraries statically. We do this to avoid possible issues
-        with the host system.
-      </para>
-
-      <para>
-        <parameter>--disable-decimal-float</parameter>,
-        <parameter>--disable-threads</parameter>,
-        <parameter>--disable-libatomic</parameter>,
-        <parameter>--disable-libgomp</parameter>,
-        <parameter>--disable-libmpx</parameter>,
-        <parameter>--disable-libquadmath</parameter>,
-        <parameter>--disable-libssp</parameter>,
-        <parameter>--disable-libvtv</parameter>,
-        <parameter>--disable-libstdcxx</parameter>: These switches disable
-        support for the decimal floating point extension, threading, libatomic,
-        libgomp, libmpx, libquadmath, libssp, libvtv, and the C++ standard
-        library respectively. These features will fail to compile when building
-        a cross-compiler and are not necessary for the task of cross-compiling
-        the temporary libc.
-      </para>
-
-      <para>
-        <parameter>--disable-multilib</parameter>: On x86_64, LFS does not yet
-        support a multilib configuration. This switch is harmless for x86.
-      </para>
-
-      <para>
-        <parameter>--enable-languages=c,c++</parameter>: This option ensures
-        that only the C and C++ compilers are built. These are the only
-        languages needed now.
-      </para>
-
-    </sect3>
 
   </sect2>
 
