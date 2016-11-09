@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gmp-homepage      "http://www.gnu.org/software/gmp/">
+  <!ENTITY gmp-wikipedia     "https://en.wikipedia.org/wiki/GNU_Multiple_Precision_Arithmetic_Library">
+  <!ENTITY gmp-download-http "http://ftp.gnu.org/gnu/gmp/gmp-&gmp-version;.tar.xz">
+  <!ENTITY gmp-download-ftp  "ftp://ftp.gnu.org/gnu/gmp/gmp-&gmp-version;.tar.xz">
+  <!ENTITY gmp-size          "1.9 MB">
+  <!ENTITY gmp-buildsize     "61 MB">
+  <!ENTITY gmp-time          "0.9 SBU">
+]>
+
+<sect1 id="gmp" xreflabel="gmp-&gmp-version;">
+  <?dbhtml filename="gmp.html"?>
+
+  <title>gmp-&gmp-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The gmp package contains math libraries. These have useful functions for
+      arbitrary precision arithmetic.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gmp-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gmp-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&gmp-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&gmp-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gmp-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &gmp-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &gmp-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &gmp-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="m4"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-info-am//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-static \
+            --enable-cxx</userinput></screen>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>porg -lp gmp-&gmp-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libgmp.la &amp;&amp;
+rm -v /lib/libgmpxx.la"</userinput></screen>
+
+  </sect2>
+
+</sect1>
