@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY m4-homepage      "http://www.gnu.org/software/m4/">
+  <!ENTITY m4-wikipedia     "https://en.wikipedia.org/wiki/M4_&#40;computer_language&#41;">
+  <!ENTITY m4-download-http "http://ftp.gnu.org/gnu/m4/m4-&m4-version;.tar.xz">
+  <!ENTITY m4-download-ftp  "ftp://ftp.gnu.org/gnu/m4/m4-&m4-version;.tar.xz">
+  <!ENTITY m4-size          "1.1 MB">
+  <!ENTITY m4-buildsize     "30 MB">
+  <!ENTITY m4-time          "0.5 SBU">
+]>
+
+<sect1 id="m4" xreflabel="m4-&m4-version;">
+  <?dbhtml filename="m4.html"?>
+
+  <title>m4-&m4-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <para>
+      The m4 package contains a macro processor.
+    </para>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&m4-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&m4-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (HTTP): <ulink url="&m4-download-http;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download (FTP): <ulink url="&m4-download-ftp;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &m4-md5sum;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download size: &m4-size;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated disk space required: &m4-buildsize;
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Estimated build time: &m4-time;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "s/ install-info-am//" -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>./configure --prefix=</userinput></screen>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>porg -lp m4-&m4-version; -E $PWD "make -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>
