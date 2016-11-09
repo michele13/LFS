@@ -6,9 +6,9 @@
 
   <!ENTITY flex-homepage      "http://flex.sourceforge.net/">
   <!ENTITY flex-wikipedia     "http://en.wikipedia.org/wiki/Flex_lexical_analyser">
-  <!ENTITY flex-download-http "https://github.com/westes/flex/releases/download/v&flex-version;/flex-&flex-version;.tar.xz">
+  <!ENTITY flex-download-http "https://github.com/westes/flex/releases/download/v&flex-version;/flex-&flex-version;.tar.gz">
   <!ENTITY flex-download-ftp  " ">
-  <!ENTITY flex-md5sum        "cd3c86290fc2676a641aefafeb10848a">
+  <!ENTITY flex-md5sum        "cc6d76c333db7653d5caf423a3335239">
   <!ENTITY flex-size          "1.4 MB">
   <!ENTITY flex-buildsize     "36 MB">
   <!ENTITY flex-time          "0.4 SBU">
@@ -94,9 +94,26 @@ sed 's/m: install-dist_docDATA install-info-am/m:/' -i doc/Makefile.in</userinpu
       Prepare the package for compilation:
     </para>
 
-<screen><userinput>./configure --prefix= \
+<screen><userinput>HELP2MAN=/bin/true \
+./configure --prefix= \
             --disable-static \
             --disable-nls</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>HELP2MAN=/bin/true</parameter></term>
+        <listitem>
+          <para>
+            The build procedure assumes the help2man program is available to
+            create a man page from the executable --help option. This is not
+            present, so we use an environment variable to skip this process.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Compile the package: 
