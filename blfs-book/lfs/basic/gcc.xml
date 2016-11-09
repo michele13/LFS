@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+  <!ENTITY gcc-homepage      "http://gcc.gnu.org/">
+  <!ENTITY gcc-wikipedia     "https://en.wikipedia.org/wiki/GNU_Compiler_Collection">
+  <!ENTITY gcc-download      "http://ftp.gnu.org/gnu/gcc/gcc-&gcc-version;/gcc-&gcc-version;.tar.bz2">
+]>
+
+<sect1 id="gcc" xreflabel="gcc-&gcc-version;">
+  <?dbhtml filename="gcc.html"?>
+
+  <title>gcc-&gcc-version;</title>
+
+  <sect2 role="package">
+    <title>Introduction</title>
+
+    <bridgehead renderas="sect3">Package Information</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&gcc-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&gcc-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download: <ulink url="&gcc-download;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download MD5 sum: &gcc-md5sum;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Required</bridgehead>
+    <para>
+      <xref linkend="mpc"/>
+    </para>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libz"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed "/mkinstalldirs.*infodir/d" -i gcc/Makefile.in
+for dir in libgomp libitm libquadmath
+    do sed "s/ install-info-am//" -i $dir/Makefile.in
+done</userinput></screen>
+
+    <para>
+      The GCC documentation recommends building GCC outside of the source
+      directory in a dedicated build directory:
+    </para>
+
+<screen><userinput>mkdir -v ../gcc-build
+cd ../gcc-build</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>SED=sed \
+../gcc-&gcc-version;/configure --prefix= \
+                       --disable-static \
+                       --disable-nls \
+                       --enable-languages=c,c++,fortran \
+                       --disable-multilib \
+                       --disable-bootstrap \
+                       --with-system-zlib</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>SED=sed</parameter></term>
+        <listitem>
+          <para>
+            Setting this environment variable prevents a hard-coded path to
+            /tools/bin/sed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-system-zlib</parameter></term>
+        <listitem>
+          <para>
+            This switch tells GCC to link to the system installed copy of the
+            Zlib library, rather than its own internal copy.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>porg -lp gcc-&gcc-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libasan.la &amp;&amp;
+rm -v /lib/libatomic.la &amp;&amp;
+rm -v /lib/libcc1.la &amp;&amp;
+rm -v /lib/libcilkrts.la &amp;&amp;
+rm -v /lib/libgfortran.la &amp;&amp;
+rm -v /lib/libgomp.la &amp;&amp;
+rm -v /lib/libitm.la &amp;&amp;
+rm -v /lib/liblsan.la &amp;&amp;
+rm -v /lib/libmpx.la &amp;&amp;
+rm -v /lib/libmpxwrappers.la &amp;&amp;
+rm -v /lib/libquadmath.la &amp;&amp;
+rm -v /lib/libssp.la &amp;&amp;
+rm -v /lib/libssp_nonshared.la &amp;&amp;
+rm -v /lib/libstdc++fs.la &amp;&amp;
+rm -v /lib/libstdc++.la &amp;&amp;
+rm -v /lib/libsupc++.la &amp;&amp;
+rm -v /lib/libtsan.la &amp;&amp;
+rm -v /lib/libubsan.la &amp;&amp;
+mkdir -pv /share/gdb/auto-load/lib &amp;&amp;
+mv -v /lib/*gdb.py /share/gdb/auto-load/lib"</userinput></screen>
+
+    <para>
+      Some packages expect the C preprocessor to be installed in the /lib
+      directory. To support those packages, create this symlink:
+    </para>
+
+<screen><userinput>porg -lp+ gcc-&gcc-version; "ln -sv ../bin/cpp /lib"</userinput></screen>
+
+    <para>
+      Many packages use the name cc to call the C compiler. To satisfy those
+      packages, create a symlink:
+    </para>
+
+<screen><userinput>porg -lp+ gcc-&gcc-version; "ln -sv gcc /bin/cc"</userinput></screen>
+<!--
+    <para>
+      Add a compatibility symlink to enable building programs with Link Time
+      Optimization (LTO):
+    </para>
+
+<screen><userinput>install -v -dm755 /lib/bfd-plugins
+porg -lp+ gcc-&gcc-version; "ln -sfv ../../libexec/gcc/$(gcc -dumpmachine)/&gcc-version;/liblto_plugin.so /lib/bfd-plugins/"</userinput></screen>
+-->
+    <para>
+      TODO
+    </para>
+
+<screen><userinput>hash -r</userinput></screen>
+
+    <para>
+      Now that our final toolchain is in place, it is important to again ensure
+      that compiling and linking will work as expected. We do this by
+      performing the same sanity checks as we did earlier in the chapter:
+    </para>
+
+<screen><userinput>echo 'int main(){}' > dummy.c
+cc dummy.c -v -Wl,--verbose &amp;> dummy.log
+readelf -l a.out | grep ': /lib'</userinput></screen>
+
+    <para>
+      There should be no errors, and the output of the last command will be
+      (allowing for platform-specific differences in dynamic linker name):
+    </para>
+
+<screen><computeroutput>[Requesting program interpreter: /lib64/ld-linux-x86-64.so.2]</computeroutput></screen>
+
+    <para>
+      Now make sure that we're setup to use the correct startfiles:
+    </para>
+
+<screen><userinput>grep -o '/lib.*/crt[1in].*succeeded' dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>/lib/gcc/x86_64-unknown-linux-gnu/6.2.0/../../../../lib64/crt1.o succeeded
+/lib/gcc/x86_64-unknown-linux-gnu/6.2.0/../../../../lib64/crti.o succeeded
+/lib/gcc/x86_64-unknown-linux-gnu/6.2.0/../../../../lib64/crtn.o succeeded</computeroutput></screen>
+
+    <para>
+      Verify that the compiler is searching for the correct header files:
+    </para>
+
+<screen><userinput>grep -A1 -B2 '^ /usr/local/include' dummy.log</userinput></screen>
+
+    <para>
+      This command should return the following output:
+    </para>
+
+<screen><computeroutput>#include &lt;...> search starts here:
+ /lib/gcc/x86_64-pc-linux-gnu/6.2.0/include
+ /usr/local/include
+ /lib/gcc/x86_64-pc-linux-gnu/6.2.0/include-fixed</computeroutput></screen>
+
+    <para>
+      Next, verify that the new linker is being used with the correct search
+      paths:
+    </para>
+
+<screen><userinput>grep 'SEARCH.*/lib' dummy.log |sed 's|; |\n|g'</userinput></screen>
+
+    <para>
+      References to paths that have components with '-linux-gnu' should be
+      ignored, but otherwise the output of the last command should be:
+    </para>
+
+<screen><computeroutput>SEARCH_DIR("/x86_64-unknown-linux-gnu/lib64")
+SEARCH_DIR("/usr/local/lib64")
+SEARCH_DIR("/lib64")
+SEARCH_DIR("/usr/lib64")
+SEARCH_DIR("/x86_64-unknown-linux-gnu/lib")
+SEARCH_DIR("/usr/local/lib")
+SEARCH_DIR("/lib")
+SEARCH_DIR("/usr/lib");</computeroutput></screen>
+
+    <para>
+      Next make sure that we're using the correct libc:
+    </para>
+
+<screen><userinput>grep "/lib.*/libc.so.6 " dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>attempt to open /lib/libc.so.6 succeeded</computeroutput></screen>
+
+    <para>
+      Lastly, make sure GCC is using the correct dynamic linker:
+    </para>
+
+<screen><userinput>grep found dummy.log</userinput></screen>
+
+    <para>
+      The output of the last command should be:
+    </para>
+
+<screen><computeroutput>found ld-linux-x86-64.so.2 at /lib/ld-linux-x86-64.so.2</computeroutput></screen>
+
+    <para>
+      If the output does not appear as shown above or is not received at all,
+      then something is seriously wrong. Investigate and retrace the steps to
+      find out where the problem is and correct it. The most likely reason is
+      that something went wrong with the specs file adjustment. Any issues will
+      need to be resolved before continuing on with the process.
+    </para>
+
+    <para>
+      Once everything is working correctly, clean up the test files:
+    </para>
+
+<screen><userinput>rm -v dummy.c a.out dummy.log</userinput></screen>
+
+  </sect2>
+
+</sect1>
