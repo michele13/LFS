@@ -93,12 +93,6 @@
 done</userinput></screen>
 
     <para>
-      Fix missing makeinfo requirement:
-    </para>
-
-<screen><userinput>sed 's,MAKEINFO="$MISSING makeinfo",MAKEINFO=true,g' -i configure</userinput></screen>
-
-    <para>
       The Binutils documentation recommends building Binutils outside of the
       source directory in a dedicated build directory:
     </para>
@@ -120,7 +114,7 @@ cd ../binutils-build</userinput></screen>
       Build the package:
     </para>
 
-<screen><userinput>make tooldir=</userinput></screen>
+<screen><userinput>make tooldir= MAKEINFO=true</userinput></screen>
 
     <variablelist>
       <title>Explanation</title>
@@ -138,6 +132,15 @@ cd ../binutils-build</userinput></screen>
             to cross-compile (for example, compiling a package on an Intel
             machine that generates code that can be executed on PowerPC
             machines).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>MAKEINFO=true</parameter></term>
+        <listitem>
+          <para>
+            This removes makeinfo requirement.
           </para>
         </listitem>
       </varlistentry>
