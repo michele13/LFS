@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+]>
+
+<sect1 id="mdev-like-a-boss" xreflabel="mdev-like-a-boss-&mdev-like-a-boss-version;">
+  <?dbhtml filename="mdev-like-a-boss.html"?>
+
+  <title>mdev-like-a-boss-&mdev-like-a-boss-version;</title>
+
+  <sect2 role="package">
+    <title>Package Information</title>
+
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&mdev-like-a-boss-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&mdev-like-a-boss-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download: <ulink url="&mdev-like-a-boss-download;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          MD5 sum: &mdev-like-a-boss-md5sum;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Download the package:
+    </para>
+
+<screen><userinput>wget &mdev-like-a-boss-download; -O mdev-like-a-boss-&mdev-like-a-boss-version;.tar.gz</userinput></screen>
+
+    <para>
+      Change the path for the helper scripts:
+    </para>
+
+<screen><userinput>sed 's|opt/mdev/helpers|bin|' -i mdev.conf</userinput></screen>
+
+    <para>
+      Assign input group to the input devices:
+    </para>
+
+<screen><userinput>sed -e '/SUBSYSTEM=input/s/^#//' \
+    -e '/SUBSYSTEM=input/s/:root/:input/' \
+    -e '/SUBSYSTEM=input/s/600/660/' \
+    -i mdev.conf</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen><userinput>porg -lp mdev-like-a-boss-&mdev-like-a-boss-version; "install -v -m 644 mdev.conf /etc"
+for prog in catch-all dev-bus-usb settle-nics storage-device
+    do porg -lp+ mdev-like-a-boss-&mdev-like-a-boss-version; "install -v -m 755 helpers/$prog /bin"
+done</userinput></screen>
+
+  </sect2>
+
+</sect1>
