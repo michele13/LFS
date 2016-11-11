@@ -6,7 +6,8 @@
 
   <!ENTITY pkgconf-homepage      "https://github.com/pkgconf/pkgconf">
   <!ENTITY pkgconf-wikipedia     "http://en.wikipedia.org/wiki/Pkg-config">
-  <!ENTITY pkgconf-download-http "http://rabbit.dereferenced.org/~nenolod/distfiles/pkgconf-&pkgconf-version;.tar.xz">
+<!--  <!ENTITY pkgconf-download-http "https://rabbit.dereferenced.org/~nenolod/distfiles/pkgconf-&pkgconf-version;.tar.xz">-->
+  <!ENTITY pkgconf-download-http "http://files.etoilebsd.net/pkgconf/pkgconf-&pkgconf-version;.tar.xz">
   <!ENTITY pkgconf-download-ftp  " ">
   <!ENTITY pkgconf-md5sum        "336a3253ab31f7c26fc3d9d35c9844eb">
   <!ENTITY pkgconf-size          "242 KB">
@@ -83,14 +84,14 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -99,14 +100,14 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp pkgconf-&pkgconf-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libpkgconf.la"</userinput></screen>
 
     <para>
       Many applications expect pkg-config so you should install a symlink for this:
     </para>
 
-<screen role="root"><userinput>porg -lD+ "ln -sfv pkgconf /bin/pkg-config"</userinput></screen>
+<screen role="root"><userinput>porg -lp+ pkgconf-&pkgconf-version; "ln -sfv pkgconf /bin/pkg-config"</userinput></screen>
 
   </sect2>
 

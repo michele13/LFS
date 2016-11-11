@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+]>
+
+<sect1 id="wget" xreflabel="wget-&wget-version;">
+  <?dbhtml filename="wget.html"?>
+
+  <title>wget-&wget-version;</title>
+
+  <sect2 role="package">
+    <title>Package Information</title>
+
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Homepage: <ulink url="&wget-homepage;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Wikipedia: <ulink url="&wget-wikipedia;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          Download: <ulink url="&wget-download;"/>
+        </para>
+      </listitem>
+      <listitem>
+        <para>
+          MD5 sum: &wget-md5sum;
+        </para>
+      </listitem>
+    </itemizedlist>
+
+    <bridgehead renderas="sect3">Dependencies</bridgehead>
+
+    <bridgehead renderas="sect4">Recommended</bridgehead>
+    <para>
+      <xref linkend="libressl"/> and
+      <xref linkend="pkgconf"/>
+    </para>
+
+    <bridgehead renderas="sect4">Optional</bridgehead>
+    <para>
+      <xref linkend="e2fsprogs"/>, <!-- libuuid -->
+      <!--<xref linkend="libidn"/> -->
+      <xref linkend="libz"/>,
+      <xref linkend="pcre"/>
+    </para>
+
+  </sect2>
+
+  <sect2>
+    <title>Installation</title>
+
+    <para>
+      Suppress installation of unnecessary files:
+    </para>
+
+<screen><userinput>sed 's/install-info-am$//' -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Prepare the package:
+    </para>
+
+<screen><userinput>./configure --prefix= \
+            --disable-nls \
+            --with-ssl=openssl</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-ssl=openssl</parameter></term>
+        <listitem>
+          <para>
+            This configures the program to use LibreSSL instead of GnuTLS which
+            is preferred by the configure script.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--without-ssl</option></term>
+        <listitem>
+          <para>
+            This configure option is required if support for the HTTPS protocol
+            is not needed or LibreSSL is not installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <para>
+      Build the package:
+    </para>
+
+<screen><userinput>make</userinput></screen>
+
+    <para>
+      Install the package:
+    </para>
+
+<screen role="root"><userinput>porg -lp wget-&wget-version; -E $PWD "make -j1 install"</userinput></screen>
+
+  </sect2>
+
+</sect1>
