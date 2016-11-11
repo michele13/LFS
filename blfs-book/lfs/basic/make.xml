@@ -5,10 +5,10 @@
   %general-entities;
 ]>
 
-<sect1 id="mpfr" xreflabel="mpfr-&mpfr-version;">
-  <?dbhtml filename="mpfr.html"?>
+<sect1 id="make" xreflabel="make-&make-version;">
+  <?dbhtml filename="make.html"?>
 
-  <title>mpfr-&mpfr-version;</title>
+  <title>make-&make-version;</title>
 
   <sect2 role="package">
     <title>Package Information</title>
@@ -16,33 +16,26 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Homepage: <ulink url="&mpfr-homepage;"/>
+          Homepage: <ulink url="&make-homepage;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Wikipedia: <ulink url="&mpfr-wikipedia;"/>
+          Wikipedia: <ulink url="&make-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download: <ulink url="&mpfr-download;"/>
+          Download: <ulink url="&make-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          MD5 sum: &mpfr-md5sum;
+          MD5 sum: &make-md5sum;
         </para>
       </listitem>
     </itemizedlist>
-<!--
-    <bridgehead renderas="sect3">Dependencies</bridgehead>
 
-    <bridgehead renderas="sect4">Required</bridgehead>
-    <para>
-      <xref linkend="gmp"/>
-    </para>
--->
   </sect2>
 
   <sect2>
@@ -52,16 +45,14 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>sed "s/ install-nobase_dist_docDATA//" -i Makefile.in
-sed "s/ install-dist_docDATA install-info-am//" -i doc/Makefile.in</userinput></screen>
+<screen><userinput>sed "s/ install-info-am//" -i doc/Makefile.in</userinput></screen>
 
     <para>
       Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
-            --disable-static \
-            --enable-thread-safe</userinput></screen>
+            --disable-nls</userinput></screen>
 
     <para>
       Build the package:
@@ -73,8 +64,7 @@ sed "s/ install-dist_docDATA install-info-am//" -i doc/Makefile.in</userinput></
       Install the package:
     </para>
 
-<screen><userinput>porg -lp mpfr-&mpfr-version; -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libmpfr.la"</userinput></screen>
+<screen><userinput>porg -lp make-&make-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
