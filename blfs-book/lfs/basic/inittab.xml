@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE sect1 PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN"
+   "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
+  <!ENTITY % general-entities SYSTEM "../../general.ent">
+  %general-entities;
+
+]>
+
+<sect1 id="inittab" xreflabel="The /etc/inittab file">
+  <?dbhtml filename="inittab.html"?>
+
+  <title>The /etc/inittab file</title>
+
+  <para>
+    During the kernel initialization, the first program that is run is either
+    specified on the command line or, by default init. This program reads the
+    initialization file /etc/inittab. Create this file with:
+  </para>
+
+<screen><userinput>cat &gt; /etc/inittab &lt;&lt; "EOF"
+<literal>::sysinit:/etc/rc.boot
+
+::wait:/etc/rc.d/init.d/rc 3
+
+tty1::respawn:/bin/getty 9600 tty1
+tty2::respawn:/bin/getty 9600 tty2
+tty3::respawn:/bin/getty 9600 tty3
+tty4::respawn:/bin/getty 9600 tty4
+tty5::respawn:/bin/getty 9600 tty5
+tty6::respawn:/bin/getty 9600 tty6
+
+::ctrlaltdel:/bin/reboot
+
+::shutdown:/etc/rc.shutdown</literal>
+EOF</userinput></screen>
+
+  <para>
+    An explanation of this initialization file is in the man page for inittab.
+  </para>
+
+</sect1>
