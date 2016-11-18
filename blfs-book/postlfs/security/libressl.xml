@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libressl-homepage      "http://www.libressl.org/">
-  <!ENTITY libressl-wikipedia     "http://en.wikipedia.org/wiki/LibreSSL">
-  <!ENTITY libressl-download-http "http://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-&libressl-version;.tar.gz">
-  <!ENTITY libressl-download-ftp  "ftp://ftp.openbsd.org/pub/OpenBSD/LibreSSL/libressl-&libressl-version;.tar.gz">
-  <!ENTITY libressl-md5sum        "9d98be5dffb1e4e3a3e6423267eba5dc">
-  <!ENTITY libressl-size          "2.9 MB">
-  <!ENTITY libressl-buildsize     "74 MB">
-  <!ENTITY libressl-time          "0.7 SBU">
 ]>
 
 <sect1 id="libressl" xreflabel="libressl-&libressl-version;">
@@ -20,16 +11,8 @@
   <title>libressl-&libressl-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The LibreSSL package contains management tools and libraries relating to
-      cryptography. These are useful for providing cryptography functions to
-      other packages, such as OpenSSH, email applications and web browsers (for
-      accessing HTTPS sites).
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libressl-download-http;"/>
+          Download: <ulink url="&libressl-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libressl-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libressl-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libressl-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libressl-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libressl-time;
+          MD5 sum: &libressl-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -95,7 +58,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libressl-&libressl-version; -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libressl-&libressl-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libcrypto.la &amp;&amp;
 rm -v /lib/libssl.la &amp;&amp;
 rm -v /lib/libtls.la"</userinput></screen>

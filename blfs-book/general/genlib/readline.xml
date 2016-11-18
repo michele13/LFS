@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY readline-homepage      "http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html">
-  <!ENTITY readline-wikipedia     "http://en.wikipedia.org/wiki/GNU_Readline">
-  <!ENTITY readline-download-http "http://ftp.gnu.org/gnu/readline/readline-&readline-version;.tar.gz">
-  <!ENTITY readline-download-ftp  "ftp://ftp.gnu.org/gnu/readline/readline-&readline-version;.tar.gz">
-  <!ENTITY readline-md5sum        "205b03a87fc83dab653b628c59b9fc91">
-  <!ENTITY readline-size          "2.4 MB">
-  <!ENTITY readline-buildsize     "11 MB">
-  <!ENTITY readline-time          "0.1 SBU">
 ]>
 
 <sect1 id="readline" xreflabel="readline-&readline-version;">
@@ -20,14 +11,8 @@
   <title>readline-&readline-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-  <para>
-    The readline package is a set of libraries that offers command-line editing
-    and history capabilities.
-  </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&readline-download-http;"/>
+          Download: <ulink url="&readline-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&readline-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &readline-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &readline-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &readline-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &readline-time;
+          MD5 sum: &readline-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -83,7 +48,7 @@
 
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
-    <bridgehead renderas="sect4">Required</bridgehead>
+    <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
       <xref linkend="netbsd-curses"/>
     </para>
@@ -97,47 +62,50 @@
       Suppress installation of unnecessary files:
     </para>
 
-<screen><userinput>patch -p1 -i ../readline-&readline-version;-unnecessary-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../readline-&readline-version;-unnecessary-1.patch</userinput></screen>
 
     <para>
       Reinstalling Readline will cause the old libraries to be moved to
       &lt;libraryname&gt;.old. While this is normally not a problem, in some
-      cases it can trigger a linking bug in <command>ldconfig</command>. This
-      can be avoided by issuing the following two seds:
+      cases it can trigger a linking bug in ldconfig. This can be avoided by
+      issuing the following two seds:
     </para>
 
 <screen><userinput>sed -i '/MV.*old/d' Makefile.in &amp;&amp;
 sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
-<screen><userinput>make SHLIB_LIBS=-lncursesw</userinput></screen>
+<screen><userinput>make SHLIB_LIBS=-lncurses</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>SHLIB_LIBS=-lncurses</parameter></term>
+        <listitem>
+          <para>
+            This option forces readline to link against the ncurses library. 
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make SHLIB_LIBS=-lncursesw -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <envar>SHLIB_LIBS=-lncursesw</envar>: This option forces Readline to
-        link against the <filename class="libraryfile">libncursesw</filename>
-        library. 
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp readline-&readline-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
@@ -145,23 +113,22 @@ sed -i '/{OLDSUFF}/c:' support/shlib-install</userinput></screen>
     <title>Configuration</title>
 
     <para>
-      The <filename>inputrc</filename> file handles keyboard mapping for
-      specific situations. This file is the startup file used by readline.
+      The inputrc file handles keyboard mapping for specific situations. This
+      file is the startup file used by readline.
     </para>
 
     <para>
       Most people do not need user-specific keyboard mappings so the command
-      below creates a global <filename>/etc/inputrc</filename> used by everyone
-      who logs in. If you later decide you need to override the defaults on a
-      per-user basis, you can create a <filename>.inputrc</filename> file in
-      the user's home directory with the modified mappings.
+      below creates a global /etc/inputrc used by everyone who logs in. If you
+      later decide you need to override the defaults on a per-user basis, you
+      can create a .inputrc file in the user's home directory with the modified
+      mappings.
     </para>
 
     <para>
-      Below is a generic global <filename>inputrc</filename> along with
-      comments to explain what the various options do. Note that comments
-      cannot be on the same line as commands. Create the file using the
-      following command:
+      Below is a generic global inputrc along with comments to explain what the
+      various options do. Note that comments cannot be on the same line as
+      commands. Create the file using the following command:
     </para>
 
 <screen><userinput>cat &gt; /etc/inputrc &lt;&lt; "EOF"
@@ -202,7 +169,7 @@ set bell-style none
 "\e[H": beginning-of-line
 "\e[F": end-of-line</literal>
 EOF
-ls /etc/inputrc | porg -lD+</userinput></screen>
+ls /etc/inputrc | porg -lp+ readline-&readline-version;</userinput></screen>
 
   </sect2>
 
