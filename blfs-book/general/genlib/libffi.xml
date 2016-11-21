@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libffi-homepage      "http://sourceware.org/libffi/">
-  <!ENTITY libffi-wikipedia     "http://en.wikipedia.org/wiki/Libffi">
-  <!ENTITY libffi-download-http " ">
-  <!ENTITY libffi-download-ftp  "ftp://sourceware.org/pub/libffi/libffi-&libffi-version;.tar.gz">
-  <!ENTITY libffi-md5sum        "83b89587607e3eb65c70d361f13bab43">
-  <!ENTITY libffi-size          "920 KB">
-  <!ENTITY libffi-buildsize     "6.1 MB">
-  <!ENTITY libffi-time          "0.1 SBU">
 ]>
 
 <sect1 id="libffi" xreflabel="libffi-&libffi-version;">
@@ -20,15 +11,8 @@
   <title>libffi-&libffi-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libffi library provides a portable, high level programming interface
-      to various calling conventions. This allows a programmer to call any
-      function specified by a call interface description at run time.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libffi-download-http;"/>
+          Download: <ulink url="&libffi-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libffi-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libffi-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libffi-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libffi-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libffi-time;
+          MD5 sum: &libffi-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -89,20 +53,20 @@
     </para>
 
 <screen><userinput>sed -e '/^includesdir/ s/$(libdir).*$/$(includedir)/' \
-    -i include/Makefile.in &amp;&amp;
+    -i include/Makefile.in
 sed -e '/^includedir/ s/=.*$/=@includedir@/' \
     -e 's/^Cflags: -I${includedir}/Cflags:/' \
     -i libffi.pc.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -111,7 +75,7 @@ sed -e '/^includedir/ s/=.*$/=@includedir@/' \
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libffi-&libffi-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libffi.la"</userinput></screen>
 
   </sect2>

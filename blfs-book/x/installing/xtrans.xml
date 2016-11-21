@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xtrans-homepage      " ">
-  <!ENTITY xtrans-wikipedia     " ">
-  <!ENTITY xtrans-download-http "&xorg-download-http;/lib/xtrans-&xtrans-version;.tar.bz2">
-  <!ENTITY xtrans-download-ftp  "&xorg-download-ftp;/lib/xtrans-&xtrans-version;.tar.bz2">
-  <!ENTITY xtrans-md5sum        "c5ba432dd1514d858053ffe9f4737dd8">
-  <!ENTITY xtrans-size          "174 KB">
-  <!ENTITY xtrans-buildsize     "1.5 MB">
-  <!ENTITY xtrans-time          "0.1 SBU">
 ]>
 
 <sect1 id="xtrans" xreflabel="xtrans-&xtrans-version;">
@@ -20,16 +11,8 @@
   <title>xtrans-&xtrans-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      xtrans is a library of code that is shared among various X packages to
-      handle network protocol transport in a modular fashion, allowing a single
-      place to add new transport types. It is used by the X server, libX11,
-      libICE, the X font server, and related components.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xtrans-download-http;"/>
+          Download: <ulink url="&xtrans-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xtrans-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xtrans-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xtrans-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xtrans-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xtrans-time;
+          MD5 sum: &xtrans-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -92,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -101,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make pkgconfigdir=/lib/pkgconfig -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xtrans-&xtrans-version; -E $PWD "make pkgconfigdir=/lib/pkgconfig -j1 install"</userinput></screen>
 
   </sect2>
 
