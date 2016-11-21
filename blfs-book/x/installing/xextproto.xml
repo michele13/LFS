@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xextproto-homepage      " ">
-  <!ENTITY xextproto-wikipedia     " ">
-  <!ENTITY xextproto-download-http "&xorg-download-http;/proto/xextproto-&xextproto-version;.tar.bz2">
-  <!ENTITY xextproto-download-ftp  "&xorg-download-ftp;/proto/xextproto-&xextproto-version;.tar.bz2">
-  <!ENTITY xextproto-md5sum        "70c90f313b4b0851758ef77b95019584">
-  <!ENTITY xextproto-size          "224 KB">
-  <!ENTITY xextproto-buildsize     "2.4 MB">
-  <!ENTITY xextproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="xextproto" xreflabel="xextproto-&xextproto-version;">
@@ -20,15 +11,8 @@
   <title>xextproto-&xextproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This packages provides development headers describing the wire protocol
-      for various extensions, the client-side libraries of which are provided in
-      the Xext library.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xextproto-download-http;"/>
+          Download: <ulink url="&xextproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xextproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xextproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xextproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xextproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xextproto-time;
+          MD5 sum: &xextproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -91,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xextproto-&xextproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

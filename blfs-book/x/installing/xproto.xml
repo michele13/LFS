@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xproto-homepage      " ">
-  <!ENTITY xproto-wikipedia     " ">
-  <!ENTITY xproto-download-http "&xorg-download-http;/proto/xproto-&xproto-version;.tar.bz2">
-  <!ENTITY xproto-download-ftp  "&xorg-download-ftp;/proto/xproto-&xproto-version;.tar.bz2">
-  <!ENTITY xproto-md5sum        "16791f7ca8c51a20608af11702e51083">
-  <!ENTITY xproto-size          "290 KB">
-  <!ENTITY xproto-buildsize     "3.5 MB">
-  <!ENTITY xproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="xproto" xreflabel="xproto-&xproto-version;">
@@ -20,17 +11,8 @@
   <title>xproto-&xproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package provides the headers and specification documents defining the
-      X Window System Core Protocol, Version 11. It also includes a number of 
-      headers that aren't purely protocol related, but are depended upon by many
-      other X Window System packages to provide common definitions and porting
-      layer.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,36 +26,17 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xproto-download-http;"/>
+          Download: <ulink url="&xproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xproto-time;
+          MD5 sum: &xproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -85,6 +48,7 @@
     <para>
       <xref linkend="pkgconf"/>
     </para>
+-->
 
   </sect2>
 
@@ -98,7 +62,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -107,7 +71,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xproto-&xproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
