@@ -3,16 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY python-homepage      "http://www.python.org/">
-  <!ENTITY python-wikipedia     "http://en.wikipedia.org/wiki/Python_&#40;programming_language&#41;">
-  <!ENTITY python-download-http "https://www.python.org/ftp/python/&python-version;/Python-&python-version;.tar.xz">
-  <!ENTITY python-download-ftp  " ">
-  <!ENTITY python-md5sum        "8906efbacfcdc7c3c9198aeefafd159e">
-  <!ENTITY python-size          "15 MB">
-  <!ENTITY python-buildsize     "274 MB">
-  <!ENTITY python-time          "1.2 SBU">
-
 ]>
 
 <sect1 id="python" xreflabel="python-&python-version;">
@@ -21,15 +11,8 @@
   <title>python-&python-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Python 3 package contains the Python development environment. This is
-      useful for object-oriented programming, writing scripts, prototyping
-      large programs or developing entire applications.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&python-download-http;"/>
+          Download: <ulink url="&python-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&python-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &python-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &python-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &python-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &python-time;
+          MD5 sum: &python-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -86,7 +49,7 @@
       <xref linkend="bzip2"/>,
       <xref linkend="xz"/>,
       <xref linkend="gdbm"/>,
-      <xref linkend="netbsd-curses"/>,
+      <xref linkend="ncurses"/>,
       <xref linkend="libressl"/>,
       <!--<xref linkend="libuuid"/>,-->
       <xref linkend="readline"/>, and
@@ -99,7 +62,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=/ \
@@ -108,8 +71,41 @@
             --with-system-ffi \
             --without-ensurepip</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-system-expat</parameter></term>
+        <listitem>
+          <para>
+            This switch enables linking against system version of expat.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-system-ffi</parameter></term>
+        <listitem>
+          <para>
+            This switch enables linking against system version of libffi.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-ensurepip</parameter></term>
+        <listitem>
+          <para>
+            This switch disables building pip and setuptools packaging
+            programs.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -118,33 +114,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp python-&python-version; -E $PWD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-<!--
-      <para>
-        <envar>CXX="/bin/g++"</envar>: Avoid an annoying message during
-        configuration.
-      </para>
--->
-      <para>
-        <parameter>--with-system-expat</parameter>: This switch enables linking
-        against system version of expat.
-      </para>
-
-      <para>
-        <parameter>--with-system-ffi</parameter>: This switch enables linking against
-        system version of libffi.
-      </para>
-
-      <para>
-        <parameter>--without-ensurepip</parameter>: This switch disables
-        building <command>pip</command> and <command>setuptools</command>
-        packaging programs.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp python-&python-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

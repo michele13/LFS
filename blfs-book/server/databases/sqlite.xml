@@ -3,18 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY sqlite-dl-version    "3150100">
-
-  <!ENTITY sqlite-homepage      "http://www.sqlite.org/">
-  <!ENTITY sqlite-wikipedia     "http://en.wikipedia.org/wiki/SQLite">
-  <!ENTITY sqlite-download-http "http://sqlite.org/2016/sqlite-autoconf-&sqlite-dl-version;.tar.gz">
-  <!ENTITY sqlite-download-ftp  " ">
-  <!ENTITY sqlite-md5sum        "0259d52be88f085d104c6d2aaa8349ac">
-  <!ENTITY sqlite-size          "2.4 MB">
-  <!ENTITY sqlite-buildsize     "73 MB">
-  <!ENTITY sqlite-time          "0.4 SBU">
-
 ]>
 
 <sect1 id="sqlite" xreflabel="sqlite-&sqlite-version;">
@@ -23,14 +11,8 @@
   <title>sqlite-&sqlite-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The SQLite package is a software library that implements a self-contained,
-      serverless, zero-configuration, transactional SQL database engine.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&sqlite-download-http;"/>
+          Download: <ulink url="&sqlite-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&sqlite-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &sqlite-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &sqlite-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &sqlite-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &sqlite-time;
+          MD5 sum: &sqlite-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,7 +50,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -100,8 +62,33 @@
                     -DSQLITE_SECURE_DELETE=1 \
                     -DSQLITE_ENABLE_DBSTAT_VTAB=1"</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>
+          CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1
+          -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_SECURE_DELETE
+          -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 -DSQLITE_ENABLE_DBSTAT_VTAB=1"
+        </parameter></term>
+        <listitem>
+          <para>
+            Applications such as Firefox require secure delete, enable unlock
+            notify and dbstat virtual table to be turned on. Since firefox-41
+            the dbstat virtual table is also required. The only way to do this
+            is to include them in the CFLAGS. By default, these are set to "-g
+            -O2" so we specify that to preserve those settings. You may, of
+            course, wish to omit the '-g' if you do not wish to create
+            debugging information. For further information on what can be
+            specified see <ulink url="http://www.sqlite.org/compile.html"/>.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -110,28 +97,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp sqlite-&sqlite-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp sqlite-&sqlite-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libsqlite3.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>CFLAGS="-g -O2 -DSQLITE_ENABLE_FTS3=1
-        -DSQLITE_ENABLE_COLUMN_METADATA=1 -DSQLITE_SECURE_DELETE
-        -DSQLITE_ENABLE_UNLOCK_NOTIFY=1
-        -DSQLITE_ENABLE_DBSTAT_VTAB=1"</parameter>: Applications such as
-        Firefox require secure delete, enable unlock notify and dbstat virtual
-        table to be turned on. Since firefox-41 the dbstat virtual table is
-        also required. The only way to do this is to include them in the
-        CFLAGS. By default, these are set to <literal>"-g -O2"</literal> so we
-        specify that to preserve those settings. You may, of course, wish to
-        omit the <literal>'-g'</literal> if you do not wish to create debugging
-        information. For further information on what can be specified see
-        <ulink url="http://www.sqlite.org/compile.html"/>.
-      </para>
-
-    </sect3>
 
   </sect2>
 
