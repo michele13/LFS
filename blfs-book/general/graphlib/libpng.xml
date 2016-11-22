@@ -3,17 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libpng-homepage      "http://www.libpng.org/pub/png/libpng.html">
-  <!ENTITY libpng-wikipedia     "http://en.wikipedia.org/wiki/Libpng">
-  <!ENTITY libpng-download-http "&sourceforge-repo;/libpng/libpng-&libpng-version;.tar.xz">
-  <!ENTITY libpng-download-ftp  "ftp://ftp.simplesystems.org/pub/libpng/png/src/libpng-&libpng-version;.tar.xz">
-  <!ENTITY libpng-md5sum        "faed9bb495d2e12dd0c9ec561ca60cd8">
-  <!ENTITY libpng-size          "964 KB">
-  <!ENTITY libpng-buildsize     "14 MB">
-  <!ENTITY libpng-time          "0.1 SBU">
-
-  <!ENTITY apng-patch   "&sourceforge-repo;/project/apng/libpng/libpng16/libpng-&libpng-version;-apng.patch.gz">
 ]>
 
 <sect1 id="libpng" xreflabel="libpng-&libpng-version;">
@@ -22,16 +11,8 @@
   <title>libpng-&libpng-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libpng package contains libraries used by other programs for reading
-      and writing PNG files. The PNG format was designed as a replacement for
-      GIF and, to a lesser extent, TIFF, with many improvements and extensions
-      and lack of patent problems.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -45,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libpng-download-http;"/>
+          Download: <ulink url="&libpng-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libpng-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libpng-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libpng-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libpng-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libpng-time;
+          MD5 sum: &libpng-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -98,14 +59,14 @@
 <screen><userinput>gzip -cd ../libpng-&libpng-version;-apng.patch.gz | patch -p0</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -114,9 +75,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
-rm -v /lib/libpng.la &amp;&amp;
-rm -v /lib/libpng16.la"</userinput></screen>
+<screen><userinput>porg -lp libpng-&libpng-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libpng*.la"</userinput></screen>
 
   </sect2>
 
