@@ -14,10 +14,10 @@
   <!ENTITY tree-time          "0.1 SBU">
 ]>
 
-<sect1 id="tree" xreflabel="Tree-&tree-version;">
+<sect1 id="tree" xreflabel="tree-&tree-version;">
   <?dbhtml filename="tree.html"?>
 
-  <title>Tree-&tree-version;</title>
+  <title>tree-&tree-version;</title>
 
   <sect2 role="package">
     <title>Introduction</title>
@@ -77,33 +77,17 @@
     <title>Installation</title>
 
     <para>
-      Install Tree by running the following commands:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
 
     <para>
-      Now, as the <systemitem class="username">root</systemitem> user:
+      Install the package:
     </para>
 
-<screen role="root"><userinput>make MANDIR=/usr/share/man/man1 install &amp;&amp;
-chmod -v 644 /usr/share/man/man1/tree.1</userinput></screen>
-
-  </sect2>
-
-  <sect2>
-    <title>Contents</title>
-
-    <indexterm zone="tree">
-      <primary sortas="b-tree">tree</primary>
-    </indexterm>
-
-    <para>
-      Incomplete list of installed files and directories:
-    </para>
-
-<screen><literal>/usr/bin/tree
-/usr/share/man/man1/tree.1</literal></screen>
+<screen><userinput>porg -lp tree-&tree-version; -E $PWD "make prefix= MANDIR=/share/man/man1 -j1 install &amp;&amp;
+chmod -v 644 /share/man/man1/tree.1"</userinput></screen>
 
   </sect2>
 
