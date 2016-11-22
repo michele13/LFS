@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY fontconfig-homepage      "http://www.fontconfig.org/">
-  <!ENTITY fontconfig-wikipedia     "http://en.wikipedia.org/wiki/Fontconfig">
-  <!ENTITY fontconfig-download-http "http://www.freedesktop.org/software/fontconfig/release/fontconfig-&fontconfig-version;.tar.bz2">
-  <!ENTITY fontconfig-download-ftp  " ">
-  <!ENTITY fontconfig-md5sum        "2f239690057d1438aa282e051f721d08">
-  <!ENTITY fontconfig-size          "1.4 MB">
-  <!ENTITY fontconfig-buildsize     "16 MB">
-  <!ENTITY fontconfig-time          "0.4 SBU">
 ]>
 
 <sect1 id="fontconfig" xreflabel="fontconfig-&fontconfig-version;">
@@ -20,14 +11,8 @@
   <title>fontconfig-&fontconfig-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Fontconfig package contains a library and support programs used for
-      configuring and customizing font access.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&fontconfig-download-http;"/>
+          Download: <ulink url="&fontconfig-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&fontconfig-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &fontconfig-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &fontconfig-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &fontconfig-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &fontconfig-time;
+          MD5 sum: &fontconfig-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -75,8 +40,8 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Optional patch:
-          <ulink url="&patch-root;fontconfig/fontconfig-&fontconfig-version;-infinality-1.patch"/>
+          Optional patch: <ulink
+          url="&patch-root;fontconfig/fontconfig-&fontconfig-version;-infinality-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -104,10 +69,10 @@
       If you wish to use Infinality, use the following command:
     </para>
 
-<screen><userinput>patch -p1 -i ../fontconfig-&fontconfig-version;-infinality-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../fontconfig-&fontconfig-version;-infinality-1.patch</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -115,7 +80,7 @@
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -124,49 +89,36 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp fontconfig-&fontconfig-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libfontconfig.la"</userinput></screen>
 
     <para>
-      If you wish to use Infinality, as the <systemitem class="username">root</systemitem> user:
+      If you applied Infinality patch, use the following commands:
     </para>
 
-<screen role="root"><userinput>porg -lD+ "cp -rv etc/fonts/* /etc/fonts  &amp;&amp;
+<screen><userinput>porg -lp+ fontconfig-&fontconfig-version; "cp -rv etc/fonts/* /etc/fonts  &amp;&amp;
 ln -sv styles.conf.avail/linux /etc/fonts/infinality/conf.d"</userinput></screen>
 
   </sect2>
 
-  <sect2 role="configuration">
+  <sect2>
     <title>Configuration</title>
 
     <para>
-      The main configuration file for Fontconfig is
-      <filename>/etc/fonts/fonts.conf</filename>. Generally you do not want to
-      edit this file. It will also read any files in <filename
-      class="directory">/etc/fonts/conf.d</filename>. To put a new font
-      directory in the configuration, add a new file in <filename
-      class="directory">/etc/fonts/conf.d</filename>. The default location of
-      fonts in Fontconfig is:
+      The main configuration file for Fontconfig is /etc/fonts/fonts.conf.
+      Generally you do not want to edit this file. It will also read any files
+      in /etc/fonts/conf.d. To put a new font directory in the configuration,
+      add a new file in /etc/fonts/conf.d. The default location of fonts in
+      Fontconfig is /share/fonts and ~/.fonts.
     </para>
 
-    <itemizedlist spacing="compact">
-      <listitem>
-        <para>/usr/share/fonts</para>
-      </listitem>
-      <listitem>
-        <para>~/.fonts</para>
-      </listitem>
-    </itemizedlist>
-
     <para>
-      Fontconfig also ships many example configuration files in the <filename
-      class="directory">/usr/share/fontconfig/conf.avail</filename> directory.
-      Symlinking specific files to <filename
-      class="directory">/etc/fonts/conf.d</filename> will enable them. The
-      default setup is generally good enough for most users. See
-      <filename>/etc/fonts/conf.d/README</filename> for a description of the
-      configuration files and if you used Infinality,
-      <filename>/etc/fonts/infinality/README</filename>.
+      Fontconfig also ships many example configuration files in the
+      /share/fontconfig/conf.avail directory. Symlinking specific files to
+      /etc/fonts/conf.d will enable them. The default setup is generally good
+      enough for most users. See /etc/fonts/conf.d/README for a description of
+      the configuration files and if you used Infinality patch,
+      /etc/fonts/infinality/README.
     </para>
 
   </sect2>
