@@ -3,32 +3,16 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY atk-homepage      "https://developer.gnome.org/atk/">
-  <!ENTITY atk-wikipedia     "http://en.wikipedia.org/wiki/Accessibility_Toolkit">
-  <!ENTITY atk-download-http "&gnome-download-http;/atk/2.22/atk-&atk-version;.tar.xz">
-  <!ENTITY atk-download-ftp  "&gnome-download-ftp;/atk/2.22/atk-&atk-version;.tar.xz">
-  <!ENTITY atk-md5sum        "c7f2adcf75e4058727174cde970e9129">
-  <!ENTITY atk-size          "732 KB">
-  <!ENTITY atk-buildsize     "17 MB">
-  <!ENTITY atk-time          "0.1 SBU">
 ]>
 
-<sect1 id="atk" xreflabel="ATK-&atk-version;">
+<sect1 id="atk" xreflabel="atk-&atk-version;">
   <?dbhtml filename="atk.html" ?>
 
-  <title>ATK-&atk-version;</title>
+  <title>atk-&atk-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      ATK provides the set of accessibility interfaces that are implemented by
-      other toolkits and applications. Using the ATK interfaces, accessibility
-      tools have full access to view and control running applications.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&atk-download-http;"/>
+          Download: <ulink url="&atk-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&atk-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &atk-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &atk-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &atk-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &atk-time;
+          MD5 sum: &atk-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -76,7 +40,8 @@
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
-      <xref linkend="glib"/>
+      <xref linkend="glib"/>,
+      <xref linkend="perl"/>
     </para>
 
   </sect2>
@@ -92,13 +57,13 @@
 sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -107,7 +72,7 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp atk-&atk-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libatk-1.0.la"</userinput></screen>
 
   </sect2>

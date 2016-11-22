@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY perl-homepage      "http://www.perl.org/">
-  <!ENTITY perl-wikipedia     "http://en.wikipedia.org/wiki/Perl">
-  <!ENTITY perl-download-http "http://www.cpan.org/src/5.0/perl-&perl-version;.tar.bz2">
-  <!ENTITY perl-download-ftp  " ">
-  <!ENTITY perl-md5sum        "99f39abe614b50719d9915431e54fc1e">
-  <!ENTITY perl-size          "13 MB">
-  <!ENTITY perl-buildsize     "236 MB" >
-  <!ENTITY perl-time          "7.5 SBU">
 ]>
 
 <sect1 id="perl" xreflabel="perl-&perl-version;">
@@ -20,13 +11,8 @@
   <title>perl-&perl-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The perl package contains the Practical Extraction and Report Language.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&perl-download-http;"/>
+          Download: <ulink url="&perl-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&perl-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &perl-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &perl-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &perl-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &perl-time;
+          MD5 sum: &perl-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -112,8 +78,44 @@ export BUILD_BZIP2=0</userinput></screen>
             -Dman3dir=/share/man/man3 \
             -Duseshrplib</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>-Dvendorprefix=</parameter></term>
+        <listitem>
+          <para>
+            This ensures perl knows how to tell packages where they should
+            install their perl modules.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>-Dman1dir=/share/man/man1
+        -Dman3dir=/share/man/man3</parameter></term>
+        <listitem>
+          <para>
+            Since groff is not installed, Configure thinks that we do not want
+            man pages for Perl. Issuing these parameters overrides this
+            decision.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>-Duseshrplib</parameter></term>
+        <listitem>
+          <para>
+            Build a shared libperl needed by some perl modules.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -122,29 +124,8 @@ export BUILD_BZIP2=0</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"
+<screen><userinput>porg -lp perl-&perl-version; -E $PWD "make -j1 install"
 unset BUILD_ZLIB BUILD_BZIP2</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>-Dvendorprefix=</parameter>: This ensures perl knows how
-        to tell packages where they should install their perl modules.
-      </para>
-
-      <para>
-        <parameter>-Dman1dir=/share/man/man1 -Dman3dir=/share/man/man3</parameter>:
-        Since groff is not installed, Configure thinks that we do not want man
-        pages for Perl. Issuing these parameters overrides this decision.
-      </para>
-
-      <para>
-        <parameter>-Duseshrplib</parameter>: Build a shared libperl needed by
-        some perl modules.
-      </para>
-
-    </sect3>
 
   </sect2>
 

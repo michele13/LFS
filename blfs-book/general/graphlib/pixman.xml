@@ -3,32 +3,16 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY pixman-homepage      "http://pixman.org/">
-  <!ENTITY pixman-wikipedia     " ">
-  <!ENTITY pixman-download-http "http://cairographics.org/releases/pixman-&pixman-version;.tar.gz">
-  <!ENTITY pixman-download-ftp  " ">
-  <!ENTITY pixman-md5sum        "e80ebae4da01e77f68744319f01d52a3">
-  <!ENTITY pixman-size          "860 KB">
-  <!ENTITY pixman-buildsize     "37 MB">
-  <!ENTITY pixman-time          "0.4 SBU">
 ]>
 
-<sect1 id="pixman" xreflabel="Pixman-&pixman-version;">
+<sect1 id="pixman" xreflabel="pixman-&pixman-version;">
   <?dbhtml filename="pixman.html"?>
 
-  <title>Pixman-&pixman-version;</title>
+  <title>pixman-&pixman-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Pixman package contains a library that provides low-level pixel
-      manipulation features such as image compositing and trapezoid
-      rasterization.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&pixman-download-http;"/>
+          Download: <ulink url="&pixman-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&pixman-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &pixman-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &pixman-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &pixman-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &pixman-time;
+          MD5 sum: &pixman-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -78,14 +42,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -94,7 +58,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp pixman-&pixman-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libpixman-1.la"</userinput></screen>
 
   </sect2>
