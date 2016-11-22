@@ -71,6 +71,16 @@
       </listitem>
     </itemizedlist>
 
+    <bridgehead renderas="sect3">Additional Downloads</bridgehead>
+    <itemizedlist spacing="compact">
+      <listitem>
+        <para>
+          Required patch:
+          <ulink url="&patch-root;flex/flex-&flex-version;-fixes-1.patch"/>
+        </para>
+      </listitem>
+    </itemizedlist>
+
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
@@ -89,6 +99,12 @@
 
 <screen><userinput>sed 's/m: install-dist_docDATA/m:/' -i Makefile.in
 sed 's/ install-info-am / /' -i doc/Makefile.in</userinput></screen>
+
+    <para>
+      Fix an issue that was discovered after release:
+    </para>
+
+<screen><userinput>patch -Np1 -i ../flex-&flex-version;-fixes-1.patch</userinput></screen>
 
     <para>
       Prepare the package for compilation:
