@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxt-homepage      " ">
-  <!ENTITY libxt-wikipedia     " ">
-  <!ENTITY libxt-download-http "&xorg-download-http;/lib/libXt-&libxt-version;.tar.bz2">
-  <!ENTITY libxt-download-ftp  "&xorg-download-ftp;/lib/libXt-&libxt-version;.tar.bz2">
-  <!ENTITY libxt-md5sum        "8f5b5576fbabba29a05f3ca2226f74d3">
-  <!ENTITY libxt-size          "745 KB">
-  <!ENTITY libxt-buildsize     "20 MB">
-  <!ENTITY libxt-time          "0.2 SBU">
 ]>
 
 <sect1 id="libxt" xreflabel="libxt-&libxt-version;">
@@ -20,15 +11,8 @@
   <title>libxt-&libxt-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXt provides the X Toolkit Intrinsics, an abstract widget library upon
-      which other toolkits are based. Xt is the basis for many toolkits,
-      including the Athena widgets (Xaw), and LessTif (a Motif implementation).
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxt-download-http;"/>
+          Download: <ulink url="&libxt-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxt-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxt-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxt-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxt-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxt-time;
+          MD5 sum: &libxt-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,14 +56,14 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -108,7 +72,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxt-&libxt-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxt-&libxt-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXt.la"</userinput></screen>
 
   </sect2>

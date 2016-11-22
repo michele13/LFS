@@ -3,72 +3,35 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY glib2-homepage      "http://library.gnome.org/devel/glib/">
-  <!ENTITY glib2-wikipedia     "http://en.wikipedia.org/wiki/GLib">
-  <!ENTITY glib2-download-http "&gnome-download-http;/glib/2.50/glib-&glib2-version;.tar.xz">
-  <!ENTITY glib2-download-ftp  "&gnome-download-ftp;/glib/2.50/glib-&glib2-version;.tar.xz">
-  <!ENTITY glib2-md5sum        "0fd6d3339cd7e4714eb643c6fa4b6499">
-  <!ENTITY glib2-size          "7.2 MB">
-  <!ENTITY glib2-buildsize     "187 MB">
-  <!ENTITY glib2-time          "0.8 SBU">
 ]>
 
-<sect1 id="glib2" xreflabel="glib-&glib2-version;">
-  <?dbhtml filename="glib2.html"?>
+<sect1 id="glib" xreflabel="glib-&glib-version;">
+  <?dbhtml filename="glib.html"?>
 
-  <title>glib-&glib2-version;</title>
+  <title>glib-&glib-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The GLib package contains low-level libraries useful for providing data
-      structure handling for C, portability wrappers and interfaces for such
-      runtime functionality as an event loop, threads, dynamic loading and an
-      object system.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Homepage: <ulink url="&glib2-homepage;"/>
+          Homepage: <ulink url="&glib-homepage;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Wikipedia: <ulink url="&glib2-wikipedia;"/>
+          Wikipedia: <ulink url="&glib-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&glib2-download-http;"/>
+          Download: <ulink url="&glib-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&glib2-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &glib2-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &glib2-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &glib2-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &glib2-time;
+          MD5 sum: &glib-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -103,15 +66,30 @@ sed "s/ install-data-local//" -i docs/reference/gobject/Makefile.in
 sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-libmount \
             --with-pcre=system</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-pcre=system</parameter></term>
+        <listitem>
+          <para>
+            This switch causes the build to use a system-provided version of
+            the PCRE library instead of an internal version.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -120,23 +98,8 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /usr/lib/libgio-2.0.la &amp;&amp;
-rm -v /usr/lib/libglib-2.0.la &amp;&amp;
-rm -v /usr/lib/libgmodule-2.0.la &amp;&amp;
-rm -v /usr/lib/libgobject-2.0.la &amp;&amp;
-rm -v /usr/lib/libgthread-2.0.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-pcre=system</parameter>: This switch causes the build
-        to use a system-provided version of the PCRE library instead of an
-        internal version.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp glib-&glib-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /usr/lib/libg*-2.0.la"</userinput></screen>
 
   </sect2>
 
