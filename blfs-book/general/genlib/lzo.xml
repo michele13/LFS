@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY lzo-homepage      "http://www.oberhumer.com/opensource/lzo/">
-  <!ENTITY lzo-wikipedia     "http://en.wikipedia.org/wiki/Lempel&ndash;Ziv&ndash;Oberhumer">
-  <!ENTITY lzo-download-http "http://www.oberhumer.com/opensource/lzo/download/lzo-&lzo-version;.tar.gz">
-  <!ENTITY lzo-download-ftp  " ">
-  <!ENTITY lzo-md5sum        "c7ffc9a103afe2d1bba0b015e7aa887f">
-  <!ENTITY lzo-size          "584 KB">
-  <!ENTITY lzo-buildsize     "8.4 MB">
-  <!ENTITY lzo-time          "0.2 SBU">
 ]>
 
 <sect1 id="lzo" xreflabel="lzo-&lzo-version;">
@@ -20,15 +11,8 @@
   <title>lzo-&lzo-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      LZO is a data compression library which is suitable for data decompression
-      and compression in real-time. This means it favors speed over compression
-      ratio.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&lzo-download-http;"/>
+          Download: <ulink url="&lzo-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&lzo-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &lzo-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &lzo-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &lzo-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &lzo-time;
+          MD5 sum: &lzo-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -84,7 +48,7 @@
 <screen><userinput>sed "s/ install-docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -92,7 +56,7 @@
             --enable-shared</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -101,7 +65,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp lzo-&lzo-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/liblzo2.la"</userinput></screen>
 
   </sect2>
