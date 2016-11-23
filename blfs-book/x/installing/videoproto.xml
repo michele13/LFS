@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY videoproto-homepage      " ">
-  <!ENTITY videoproto-wikipedia     " ">
-  <!ENTITY videoproto-download-http "&xorg-download-http;/proto/videoproto-&videoproto-version;.tar.bz2">
-  <!ENTITY videoproto-download-ftp  "&xorg-download-ftp;/proto/videoproto-&videoproto-version;.tar.bz2">
-  <!ENTITY videoproto-md5sum        "fe86de8ea3eb53b5a8f52956c5cd3174">
-  <!ENTITY videoproto-size          "118 KB">
-  <!ENTITY videoproto-buildsize     "916 KB">
-  <!ENTITY videoproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="videoproto" xreflabel="videoproto-&videoproto-version;">
@@ -20,14 +11,8 @@
   <title>videoproto-&videoproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension provides a protocol for a video output mechanism, mainly to
-      rescale video playback in the video controller hardware.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&videoproto-download-http;"/>
+          Download: <ulink url="&videoproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&videoproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &videoproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &videoproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &videoproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &videoproto-time;
+          MD5 sum: &videoproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -90,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -99,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp videoproto-&videoproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

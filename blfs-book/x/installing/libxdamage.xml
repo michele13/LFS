@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxdamage-homepage      " ">
-  <!ENTITY libxdamage-wikipedia     " ">
-  <!ENTITY libxdamage-download-http "&xorg-download-http;/lib/libXdamage-&libxdamage-version;.tar.bz2">
-  <!ENTITY libxdamage-download-ftp  "&xorg-download-ftp;/lib/libXdamage-&libxdamage-version;.tar.bz2">
-  <!ENTITY libxdamage-md5sum        "0cf292de2a9fa2e9a939aefde68fd34f">
-  <!ENTITY libxdamage-size          "273 KB">
-  <!ENTITY libxdamage-buildsize     "2.3 MB">
-  <!ENTITY libxdamage-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxdamage" xreflabel="libxdamage-&libxdamage-version;">
@@ -20,13 +11,8 @@
   <title>libxdamage-&libxdamage-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package contains the library for the X Damage extension.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxdamage-download-http;"/>
+          Download: <ulink url="&libxdamage-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxdamage-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxdamage-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxdamage-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxdamage-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxdamage-time;
+          MD5 sum: &libxdamage-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -84,14 +50,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxdamage-&libxdamage-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxdamage-&libxdamage-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXdamage.la"</userinput></screen>
 
   </sect2>

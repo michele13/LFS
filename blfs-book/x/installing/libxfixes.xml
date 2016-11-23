@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxfixes-homepage      " ">
-  <!ENTITY libxfixes-wikipedia     " ">
-  <!ENTITY libxfixes-download-http "&xorg-download-http;/lib/libXfixes-&libxfixes-version;.tar.bz2">
-  <!ENTITY libxfixes-download-ftp  "&xorg-download-ftp;/lib/libXfixes-&libxfixes-version;.tar.bz2">
-  <!ENTITY libxfixes-md5sum        "07e01e046a0215574f36a3aacb148be0">
-  <!ENTITY libxfixes-size          "286 KB">
-  <!ENTITY libxfixes-buildsize     "3.0 MB">
-  <!ENTITY libxfixes-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxfixes" xreflabel="libxfixes-&libxfixes-version;">
@@ -20,14 +11,8 @@
   <title>libxfixes-&libxfixes-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXfixes provides an X Window System client interface to the 'XFIXES'
-      extension to the X protocol.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxfixes-download-http;"/>
+          Download: <ulink url="&libxfixes-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxfixes-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxfixes-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxfixes-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxfixes-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxfixes-time;
+          MD5 sum: &libxfixes-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -85,14 +50,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -101,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxfixes-&libxfixes-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxfixes-&libxfixes-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXfixes.la"</userinput></screen>
 
   </sect2>
