@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY dri2proto-homepage      " ">
-  <!ENTITY dri2proto-wikipedia     " ">
-  <!ENTITY dri2proto-download-http "&xorg-download-http;/proto/dri2proto-&dri2proto-version;.tar.bz2">
-  <!ENTITY dri2proto-download-ftp  "&xorg-download-ftp;/proto/dri2proto-&dri2proto-version;.tar.bz2">
-  <!ENTITY dri2proto-md5sum        "b2721d5d24c04d9980a0c6540cb5396a">
-  <!ENTITY dri2proto-size          "107 KB">
-  <!ENTITY dri2proto-buildsize     "844 KB">
-  <!ENTITY dri2proto-time          "0.1 SBU">
 ]>
 
 <sect1 id="dri2proto" xreflabel="dri2proto-&dri2proto-version;">
@@ -20,15 +11,8 @@
   <title>dri2proto-&dri2proto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension defines a protocol to securely allow user applications to
-      access the video hardware without requiring data to be passed through the
-      X server.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&dri2proto-download-http;"/>
+          Download: <ulink url="&dri2proto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&dri2proto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &dri2proto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &dri2proto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &dri2proto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &dri2proto-time;
+          MD5 sum: &dri2proto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -91,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp dri2proto-&dri2proto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY damageproto-homepage      " ">
-  <!ENTITY damageproto-wikipedia     " ">
-  <!ENTITY damageproto-download-http "&xorg-download-http;/proto/damageproto-&damageproto-version;.tar.bz2">
-  <!ENTITY damageproto-download-ftp  "&xorg-download-ftp;/proto/damageproto-&damageproto-version;.tar.bz2">
-  <!ENTITY damageproto-md5sum        "998e5904764b82642cc63d97b4ba9e95">
-  <!ENTITY damageproto-size          "97 KB">
-  <!ENTITY damageproto-buildsize     "596 KB">
-  <!ENTITY damageproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="damageproto" xreflabel="damageproto-&damageproto-version;">
@@ -20,14 +11,8 @@
   <title>damageproto-&damageproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package contains header files and documentation for the X Damage
-      extension.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&damageproto-download-http;"/>
+          Download: <ulink url="&damageproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&damageproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &damageproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &damageproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &damageproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &damageproto-time;
+          MD5 sum: &damageproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -90,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -99,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp damageproto-&damageproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY fixesproto-homepage      " ">
-  <!ENTITY fixesproto-wikipedia     " ">
-  <!ENTITY fixesproto-download-http "&xorg-download-http;/proto/fixesproto-&fixesproto-version;.tar.bz2">
-  <!ENTITY fixesproto-download-ftp  "&xorg-download-ftp;/proto/fixesproto-&fixesproto-version;.tar.bz2">
-  <!ENTITY fixesproto-md5sum        "e7431ab84d37b2678af71e29355e101d">
-  <!ENTITY fixesproto-size          "99 KB">
-  <!ENTITY fixesproto-buildsize     "636 KB">
-  <!ENTITY fixesproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="fixesproto" xreflabel="fixesproto-&fixesproto-version;">
@@ -20,15 +11,8 @@
   <title>fixesproto-&fixesproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension makes changes to many areas of the protocol to resolve
-      issues raised by application interaction with core protocol mechanisms
-      that cannot be adequately worked around on the client side of the wire.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&fixesproto-download-http;"/>
+          Download: <ulink url="&fixesproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&fixesproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &fixesproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &fixesproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &fixesproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &fixesproto-time;
+          MD5 sum: &fixesproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -91,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp fixesproto-&fixesproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
