@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY mesa-homepage      "http://www.mesa3d.org/">
-  <!ENTITY mesa-wikipedia     "http://en.wikipedia.org/wiki/Mesa_&#40;computer_graphics&#41;">
-  <!ENTITY mesa-download-http " ">
-  <!ENTITY mesa-download-ftp  "ftp://ftp.freedesktop.org/pub/mesa/&mesa-version;/mesa-&mesa-version;.tar.xz">
-  <!ENTITY mesa-md5sum        "72b7f4d0c2407f367484abd201cb8276">
-  <!ENTITY mesa-size          "8.2 MB">
-  <!ENTITY mesa-buildsize     "188 MB">
-  <!ENTITY mesa-time          "4.5 SBU">
 ]>
 
 <sect1 id="mesa" xreflabel="mesa-&mesa-version;">
@@ -20,13 +11,8 @@
   <title>mesa-&mesa-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Mesa is an OpenGL compatible 3D graphics library.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&mesa-download-http;"/>
+          Download: <ulink url="&mesa-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&mesa-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &mesa-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &mesa-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &mesa-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &mesa-time;
+          MD5 sum: &mesa-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -80,8 +46,8 @@
       </listitem>
       <listitem>
         <para>
-          Recommended patch:
-          <ulink url="&patch-root;mesa/mesa-&mesa-version;-add_xdemos-1.patch"/>
+          Recommended patch: <ulink
+          url="&patch-root;mesa/mesa-&mesa-version;-add_xdemos-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -100,9 +66,10 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
-      <!--<xref linkend="presentproto"/> after dri3proto and libxshmfence are added-->
-      <xref linkend="libxvmc"/> and
-      <xref linkend="libxxf86vm"/>
+      <xref linkend="libxxf86vm"/>,
+      <xref linkend="dri3proto"/>,
+      <xref linkend="presentproto"/>,
+      <xref linkend="libxshmfence"/>
     </para>
 
   </sect2>
@@ -124,7 +91,7 @@
 <screen><userinput>export PATH=/opt/python2/bin:/bin</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>patch -p1 -i ../mesa-&mesa-version;-pthread_stubs-1.patch &amp;&amp;
@@ -140,15 +107,109 @@
             --with-gallium-drivers= \
             --with-dri-drivers=i965</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>CFLAGS="-O2" CXXFLAGS="-O2"</parameter></term>
+        <listitem>
+          <para>
+            By default, Autoconf sets CFLAGS and CXXFLAGS to "-g -O2". That
+            results in binaries and libraries being built with debugging
+            symbols which make them bigger. Override the default flags to omit
+            -g compiler flag so the final libraries are smaller.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-sysfs</parameter></term>
+        <listitem>
+          <para>
+            This switch enables simple PCI identification method, required for
+            building DRI on systems without udev.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-texture-float</parameter></term>
+        <listitem>
+          <para>
+            This switch enables floating-point textures and render buffers.
+            Please consult docs/patents.txt to see if there are any legal
+            issues if you use this feature.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-osmesa</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building of the libOSMesa library.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-xa</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building of the XA X Acceleration API (Required
+            for VMware 3D Driver).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-glx-tls</parameter></term>
+        <listitem>
+          <para>
+            This switch enables TLS (Thread Local Storage) support in GLX.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-egl-platforms=...</parameter></term>
+        <listitem>
+          <para>
+            This switch controls which platforms EGL will be built for.
+            Available are drm, x11 and wayland.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-gallium-drivers=...</parameter></term>
+        <listitem>
+          <para>
+            This parameter controls which Gallium3D drivers should be built.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-dri3</option></term>
+        <listitem>
+          <para>
+            Use this switch if you want to disable support for DRI3.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
 
     <para>
-      If you have applied the xdemos patch, build the demo programs by
-      running the following command:
+      If you have applied the xdemos patch, build the demo programs by running
+      the following command:
     </para>
 
 <screen><userinput>make -C xdemos DEMOS_PREFIX=</userinput></screen>
@@ -157,84 +218,24 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libEGL.la &amp;&amp;
-rm -v /lib/libGL.la &amp;&amp;
-rm -v /lib/libGLESv1_CM.la &amp;&amp;
-rm -v /lib/libGLESv2.la &amp;&amp;
+<screen><userinput>porg -lp mesa-&mesa-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/lib*GL*.la &amp;&amp;
 rm -v /lib/libOSMesa.la &amp;&amp;
 rm -v /lib/libgbm.la &amp;&amp;
 rm -v /lib/libglapi.la"</userinput></screen>
 
     <para>
-      If you have built the demo programs, install them by running the following
-      command:
+      If you have built the demo programs, install them by running the
+      following command:
     </para>
 
-<screen role="root"><userinput>porg -lD+ "make -C xdemos DEMOS_PREFIX= -j1 install"</userinput></screen>
+<screen><userinput>porg -lp+ mesa-&mesa-version; -E $PWD "make -C xdemos DEMOS_PREFIX= -j1 install"</userinput></screen>
 
     <para>
       TODO
     </para>
 
 <screen><userinput>export PATH=/bin</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>CFLAGS="-O2" CXXFLAGS="-O2"</parameter>: By default, Autoconf
-        sets CFLAGS and CXXFLAGS to "-g -O2". That results in binaries and
-        libraries being built with debugging symbols which make them bigger.
-        Override the default flags to omit -g compiler flag so the final
-        libraries are smaller.
-      </para>
-
-      <para>
-        <parameter>--disable-dri3</parameter>: This switch disables support for
-        DRI3 as it requires libudev.
-      </para>
-
-      <para>
-        <parameter>--enable-sysfs</parameter>: This switch enables simple PCI
-        identification method, required for building DRI on systems without
-        udev.
-      </para>
-
-      <para>
-        <parameter>--enable-texture-float</parameter>: This switch enables
-        floating-point textures and render buffers. Please consult
-        <filename>docs/patents.txt</filename> to see if there are any legal
-        issues if you use this feature.
-      </para>
-
-      <para>
-        <parameter>--enable-osmesa</parameter>: This switch enables building of
-        the <filename class="libraryfile">libOSMesa</filename> library.
-      </para>
-
-      <para>
-        <option>--enable-xa</option>: This switch enables building of the XA X
-        Acceleration API (Required for VMware 3D Driver).
-      </para>
-
-      <para>
-        <parameter>--enable-glx-tls</parameter>: This switch enables TLS (Thread
-        Local Storage) support in GLX.
-      </para>
-
-      <para>
-        <parameter>--with-egl-platforms=...</parameter>: This parameter
-        controls which platforms EGL will be built for. Available
-        are drm, x11 and wayland.
-      </para>
-
-      <para>
-        <parameter>--with-gallium-drivers=...</parameter>: This parameter
-        controls which Gallium3D drivers should be built.
-      </para>
-
-    </sect3>
 
   </sect2>
 

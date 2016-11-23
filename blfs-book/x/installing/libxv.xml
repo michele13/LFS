@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxv-homepage      " ">
-  <!ENTITY libxv-wikipedia     " ">
-  <!ENTITY libxv-download-http "&xorg-download-http;/lib/libXv-&libxv-version;.tar.bz2">
-  <!ENTITY libxv-download-ftp  "&xorg-download-ftp;/lib/libXv-&libxv-version;.tar.bz2">
-  <!ENTITY libxv-md5sum        "210b6ef30dda2256d54763136faa37b9">
-  <!ENTITY libxv-size          "294 KB">
-  <!ENTITY libxv-buildsize     "3.1 MB">
-  <!ENTITY libxv-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxv" xreflabel="libxv-&libxv-version;">
@@ -20,16 +11,8 @@
   <title>libxv-&libxv-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXv provides an X Window System client interface to the XVideo extension
-      to the X protocol. The XVideo extension allows for accelerated drawing of
-      videos. Hardware adaptors are exposed to clients, which may draw in a
-      number of colourspaces, including YUV.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxv-download-http;"/>
+          Download: <ulink url="&libxv-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxv-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxv-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxv-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxv-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxv-time;
+          MD5 sum: &libxv-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -87,14 +50,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -103,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxv-&libxv-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxv-&libxv-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXv.la"</userinput></screen>
 
   </sect2>
