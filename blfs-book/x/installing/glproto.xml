@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY glproto-homepage      " ">
-  <!ENTITY glproto-wikipedia     " ">
-  <!ENTITY glproto-download-http "&xorg-download-http;/proto/glproto-&glproto-version;.tar.bz2">
-  <!ENTITY glproto-download-ftp  "&xorg-download-ftp;/proto/glproto-&glproto-version;.tar.bz2">
-  <!ENTITY glproto-md5sum        "5565f1b0facf4a59c2778229c1f70d10">
-  <!ENTITY glproto-size          "124 KB">
-  <!ENTITY glproto-buildsize     "1.0 MB">
-  <!ENTITY glproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="glproto" xreflabel="glproto-&glproto-version;">
@@ -20,14 +11,8 @@
   <title>glproto-&glproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension defines a protocol for the client to send 3D rendering
-      commands to the X server.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&glproto-download-http;"/>
+          Download: <ulink url="&glproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&glproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &glproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &glproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &glproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &glproto-time;
+          MD5 sum: &glproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -84,7 +51,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -93,7 +60,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp glproto-&glproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libpciaccess-homepage      " ">
-  <!ENTITY libpciaccess-wikipedia     " ">
-  <!ENTITY libpciaccess-download-http "&xorg-download-http;/lib/libpciaccess-&libpciaccess-version;.tar.bz2">
-  <!ENTITY libpciaccess-download-ftp  "&xorg-download-ftp;/lib/libpciaccess-&libpciaccess-version;.tar.bz2">
-  <!ENTITY libpciaccess-md5sum        "ace78aec799b1cf6dfaea55d3879ed9f">
-  <!ENTITY libpciaccess-size          "351 KB">
-  <!ENTITY libpciaccess-buildsize     "3.3 MB">
-  <!ENTITY libpciaccess-time          "0.1 SBU">
 ]>
 
 <sect1 id="libpciaccess" xreflabel="libpciaccess-&libpciaccess-version;">
@@ -20,13 +11,8 @@
   <title>libpciaccess-&libpciaccess-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This packages provides a generic PCI access library.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libpciaccess-download-http;"/>
+          Download: <ulink url="&libpciaccess-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libpciaccess-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libpciaccess-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libpciaccess-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libpciaccess-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libpciaccess-time;
+          MD5 sum: &libpciaccess-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -83,14 +51,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -99,7 +67,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libpciaccess-&libpciaccess-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libpciaccess.la"</userinput></screen>
 
   </sect2>
