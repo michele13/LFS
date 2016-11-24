@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY harfbuzz-homepage      "http://www.freedesktop.org/wiki/Software/HarfBuzz/">
-  <!ENTITY harfbuzz-wikipedia     "http://en.wikipedia.org/wiki/HarfBuzz">
-  <!ENTITY harfbuzz-download-http "http://www.freedesktop.org/software/harfbuzz/release/harfbuzz-&harfbuzz-version;.tar.bz2">
-  <!ENTITY harfbuzz-download-ftp  "ftp://ftp.osuosl.org/pub/blfs/svn/h/harfbuzz-&harfbuzz-version;.tar.bz2">
-  <!ENTITY harfbuzz-md5sum        "97ae15a72a93f1f27324a2b8d9bd3b1d">
-  <!ENTITY harfbuzz-size          "1.3 MB">
-  <!ENTITY harfbuzz-buildsize     "29 MB">
-  <!ENTITY harfbuzz-time          "0.3 SBU">
 ]>
 
 <sect1 id="harfbuzz" xreflabel="harfbuzz-&harfbuzz-version;">
@@ -20,13 +11,8 @@
   <title>harfbuzz-&harfbuzz-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Harfbuzz package contains an OpenType text shaping engine.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&harfbuzz-download-http;"/>
+          Download: <ulink url="&harfbuzz-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&harfbuzz-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &harfbuzz-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &harfbuzz-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &harfbuzz-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &harfbuzz-time;
+          MD5 sum: &harfbuzz-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -97,13 +63,27 @@
 <screen><userinput>sed "s/ install-data-local//" -i docs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><option>--with-graphite2</option></term>
+        <listitem>
+          <para>
+            Use this switch to enable Graphite2 support.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -112,19 +92,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libharfbuzz-icu.la &amp;&amp;
-rm -v /lib/libharfbuzz.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <option>--with-graphite2</option>: This switch enables Graphite2
-        support.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp harfbuzz-&harfbuzz-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libharfbuzz*.la"</userinput></screen>
 
   </sect2>
 
