@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libarchive-homepage      "http://www.libarchive.org/">
-  <!ENTITY libarchive-wikipedia     " ">
-  <!ENTITY libarchive-download-http "http://www.libarchive.org/downloads/libarchive-&libarchive-version;.tar.gz">
-  <!ENTITY libarchive-download-ftp  " ">
-  <!ENTITY libarchive-md5sum        "1ec00b7dcaf969dd2a5712f85f23c764">
-  <!ENTITY libarchive-size          "5.2 MB">
-  <!ENTITY libarchive-buildsize     "35 MB (add 25 MB for tests)">
-  <!ENTITY libarchive-time          "0.3 SBU (add 1.4 SBU for tests)">
 ]>
 
 <sect1 id="libarchive" xreflabel="libarchive-&libarchive-version;">
@@ -20,14 +11,8 @@
   <title>libarchive-&libarchive-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libarchive library provides a single interface for reading/writing
-      various compression formats.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libarchive-download-http;"/>
+          Download: <ulink url="&libarchive-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libarchive-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libarchive-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libarchive-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libarchive-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libarchive-time;
+          MD5 sum: &libarchive-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,7 +53,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -96,8 +61,33 @@
             --without-xml2 \
             --without-nettle</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--without-xml2</parameter></term>
+        <listitem>
+          <para>
+            This switch sets expat for xar archive format support instead of
+            preferred libxml2 if both packages are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--without-nettle</parameter></term>
+        <listitem>
+          <para>
+            This switch sets LibreSSL for crypto support instead of preferred
+            Nettle if both packages are installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -106,25 +96,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libarchive-&libarchive-version; "make -j1 install &amp;&amp;
 rm -v /lib/libarchive.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--without-xml2</parameter>: This switch sets expat for xar
-        archive format support instead of preferred libxml2 if both packages are
-        installed.
-      </para>
-
-      <para>
-        <parameter>--without-nettle</parameter>: This switch sets LibreSSL for
-        crypto support instead of preferred Nettle if both packages are
-        installed.
-      </para>
-
-    </sect3>
 
   </sect2>
 

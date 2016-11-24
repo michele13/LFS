@@ -3,42 +3,16 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY cairo-homepage      "http://www.cairographics.org/">
-  <!ENTITY cairo-wikipedia     "https://en.wikipedia.org/wiki/Cairo_&#40;graphics&#41;">
-  <!ENTITY cairo-download-http "http://cairographics.org/releases/cairo-&cairo-version;.tar.xz">
-  <!ENTITY cairo-download-ftp  " ">
-  <!ENTITY cairo-md5sum        "23a0b2f0235431d35238df1d3a517fdb">
-  <!ENTITY cairo-size          "35 MB">
-  <!ENTITY cairo-buildsize     "144 MB">
-  <!ENTITY cairo-time          "0.8 SBU">
 ]>
 
-<sect1 id="cairo" xreflabel="Cairo-&cairo-version;">
+<sect1 id="cairo" xreflabel="cairo-&cairo-version;">
   <?dbhtml filename="cairo.html"?>
 
-  <title>Cairo-&cairo-version;</title>
+  <title>cairo-&cairo-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Cairo is a 2D graphics library with support for multiple output devices.
-      Currently supported output targets include the X Window System, win32,
-      image buffers, PostScript, PDF and SVG. Experimental backends include
-      OpenGL, Quartz and XCB file output. Cairo is designed to produce
-      consistent output on all output media while taking advantage of display
-      hardware acceleration when available (e.g., through the X Render
-      Extension). The Cairo API provides operations similar to the drawing
-      operators of PostScript and PDF. Operations in Cairo include stroking and
-      filling cubic B&eacute;zier splines, transforming and compositing
-      translucent images, and antialiased text rendering. All drawing
-      operations can be transformed by any <ulink
-      url="http://en.wikipedia.org/wiki/Affine_transformation">affine
-      transformation</ulink> (scale, rotation, shear, etc.).
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -52,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&cairo-download-http;"/>
+          Download: <ulink url="&cairo-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&cairo-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &cairo-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &cairo-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &cairo-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &cairo-time;
+          MD5 sum: &cairo-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -130,16 +84,52 @@
 <screen><userinput>sed "s/ install-data-local//" -i doc/public/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../cairo-&cairo-version;-respect_fontconfig-1.patch &amp;&amp;
+<screen><userinput>patch -Np1 -i ../cairo-&cairo-version;-respect_fontconfig-1.patch &amp;&amp;
 ./configure --prefix= \
             --disable-static \
             --enable-tee</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--enable-tee</parameter></term>
+        <listitem>
+          <para>
+            This switch enables experimental tee surface backend which is
+            required if using system-installed Cairo with Mozilla applications.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--enable-xlib-xcb</option></term>
+        <listitem>
+          <para>
+            This switch enables experimental Xlib/XCB functions used by some
+            window managers.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--enable-gl</option></term>
+        <listitem>
+          <para>
+            This switch enables Cairo's experimental OpenGL surface which is
+            required for Wayland compositor and some other packages that are
+            not part of BLFS.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -148,33 +138,9 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libcairo-gobject.la &amp;&amp;
-rm -v /lib/libcairo-script-interpreter.la &amp;&amp;
-rm -v /lib/libcairo.la &amp;&amp;
+<screen><userinput>porg -lp cairo-&cairo-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libcairo*.la &amp;&amp;
 rm -v /lib/cairo/*.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--enable-tee</parameter>: This switch enables experimental
-        tee surface backend which is required if using system-installed Cairo
-        with Mozilla applications.
-      </para>
-
-      <para>
-        <option>--enable-xlib-xcb</option>: This switch enables experimental
-        Xlib/XCB functions used by some window managers.
-      </para>
-
-      <para>
-        <option>--enable-gl</option>: This switch enables Cairo's experimental
-        OpenGL surface which is required for Wayland compositor and some other
-        packages that are not part of BLFS.
-      </para>
-
-    </sect3>
 
   </sect2>
 

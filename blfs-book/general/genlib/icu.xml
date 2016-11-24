@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY icu-homepage      "http://site.icu-project.org/">
-  <!ENTITY icu-wikipedia     "http://en.wikipedia.org/wiki/International_Components_for_Unicode">
-  <!ENTITY icu-download-http "http://download.icu-project.org/files/icu4c/&icu-version;/icu4c-&icu-dl-version;-src.tgz">
-  <!ENTITY icu-download-ftp  " ">
-  <!ENTITY icu-md5sum        "1901302aaff1c1633ef81862663d2917">
-  <!ENTITY icu-size          "22 MB">
-  <!ENTITY icu-buildsize     "302 MB">
-  <!ENTITY icu-time          "1.5 SBU">
 ]>
 
 <sect1 id="icu" xreflabel="icu-&icu-version;">
@@ -20,16 +11,8 @@
   <title>icu-&icu-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The International Components for Unicode (ICU) package is a mature, widely
-      used set of C/C++ libraries providing Unicode and Globalization support
-      for software applications.  ICU is widely portable and gives applications
-      the same results on all platforms.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&icu-download-http;"/>
+          Download: <ulink url="&icu-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&icu-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &icu-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &icu-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &icu-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &icu-time;
+          MD5 sum: &icu-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -95,7 +58,7 @@
 <screen><userinput>patch -Np1 -i ../icu4c-&icu-version;-fix_enumeration-1.patch</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>cd source &amp;&amp;
@@ -103,7 +66,7 @@
             --sbindir=/bin</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -112,7 +75,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp icu-&icu-version; -E $PWD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp icu-&icu-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
