@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY jbigkit-homepage      "http://www.cl.cam.ac.uk/~mgk25/jbigkit/">
-  <!ENTITY jbigkit-wikipedia     "http://en.wikipedia.org/wiki/JBIG">
-  <!ENTITY jbigkit-download-http "http://www.cl.cam.ac.uk/~mgk25/download/jbigkit-&jbigkit-version;.tar.gz">
-  <!ENTITY jbigkit-download-ftp  "ftp://ftp.openbsd.com/ports/distfiles/jbigkit-&jbigkit-version;.tar.gz">
-  <!ENTITY jbigkit-md5sum        "ebcf09bed9f14d7fa188d3bd57349522">
-  <!ENTITY jbigkit-size          "428 KB">
-  <!ENTITY jbigkit-buildsize     "1.6 MB">
-  <!ENTITY jbigkit-time          "0.1 SBU">
 ]>
 
 <sect1 id="jbigkit" xreflabel="jbigkit-&jbigkit-version;">
@@ -22,13 +13,6 @@
   <sect2 role="package">
     <title>Introduction</title>
 
-    <para>
-      JBIG-KIT is a software implementation of the JBIG1 data compression
-      standard (ITU-T T.82), which was designed for bi-level high-resolution
-      image data such as scanned documents.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&jbigkit-download-http;"/>
+          Download: <ulink url="&jbigkit-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&jbigkit-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &jbigkit-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &jbigkit-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &jbigkit-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &jbigkit-time;
+          MD5 sum: &jbigkit-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,13 +52,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../jbigkit-&jbigkit-version;-fixes-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../jbigkit-&jbigkit-version;-fixes-1.patch</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -103,7 +67,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"
+<screen><userinput>porg -lp jbigkit-&jbigkit-version; -E $PWD "make -j1 install"
 chmod -v 755 /lib/libjbig.so</userinput></screen>
 
   </sect2>

@@ -3,71 +3,35 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libjpeg-homepage      "http://libjpeg-turbo.virtualgl.org/">
-  <!ENTITY libjpeg-wikipedia     "http://en.wikipedia.org/wiki/Libjpeg">
-  <!ENTITY libjpeg-download-http "&sourceforge-repo;/libjpeg-turbo/libjpeg-turbo-&libjpeg-turbo-version;.tar.gz">
-  <!ENTITY libjpeg-download-ftp  " ">
-  <!ENTITY libjpeg-md5sum        "55deb139b0cac3c8200b75d485fc13f3">
-  <!ENTITY libjpeg-size          "1.6 MB">
-  <!ENTITY libjpeg-buildsize     "15 MB">
-  <!ENTITY libjpeg-time          "0.6 SBU">
 ]>
 
-<sect1 id="libjpeg" xreflabel="libjpeg-turbo-&libjpeg-turbo-version;">
-  <?dbhtml filename="libjpeg.html"?>
+<sect1 id="libjpeg-turbo" xreflabel="libjpeg-turbo-&libjpeg-turbo-version;">
+  <?dbhtml filename="libjpeg-turbo.html"?>
 
   <title>libjpeg-turbo-&libjpeg-turbo-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libjpeg-turbo is a fork of the original IJG libjpeg which uses SIMD to
-      accelerate baseline JPEG compression and decompression. libjpeg is a
-      library that implements JPEG image encoding, decoding and transcoding.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Homepage: <ulink url="&libjpeg-homepage;"/>
+          Homepage: <ulink url="&libjpeg-turbo-homepage;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Wikipedia: <ulink url="&libjpeg-wikipedia;"/>
+          Wikipedia: <ulink url="&libjpeg-turbo-wikipedia;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libjpeg-download-http;"/>
+          Download: <ulink url="&libjpeg-turbo-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libjpeg-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libjpeg-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libjpeg-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libjpeg-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libjpeg-time;
+          MD5 sum: &libjpeg-turbo-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,7 +56,7 @@
 <screen><userinput>sed "s/install-dist_docDATA install-dist_exampleDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -100,8 +64,22 @@
             --disable-static \
             --with-jpeg8</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-jpeg8</parameter></term>
+        <listitem>
+          <para>
+            This switch enables compatibility with libjpeg version 8.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -110,19 +88,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
-rm -v /usr/lib/libjpeg.la &amp;&amp;
-rm -v /usr/lib/libturbojpeg.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-jpeg8</parameter>: This switch enables compatibility
-        with libjpeg version 8.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp libjpeg-turbo-&libjpeg-turbo-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /usr/lib/lib*jpeg.la"</userinput></screen>
 
   </sect2>
 

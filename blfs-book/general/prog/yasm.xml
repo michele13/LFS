@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY yasm-homepage      "http://yasm.tortall.net/">
-  <!ENTITY yasm-wikipedia     "http://en.wikipedia.org/wiki/Yasm">
-  <!ENTITY yasm-download-http "http://www.tortall.net/projects/yasm/releases/yasm-&yasm-version;.tar.gz">
-  <!ENTITY yasm-download-ftp  " ">
-  <!ENTITY yasm-md5sum        "fc9e586751ff789b34b1f21d572d96af">
-  <!ENTITY yasm-size          "1.5 MB">
-  <!ENTITY yasm-buildsize     "27 MB (additional 12 MB for the tests)">
-  <!ENTITY yasm-time          "0.1 SBU (additional 0.1 SBU for the tests)">
 ]>
 
 <sect1 id="yasm" xreflabel="yasm-&yasm-version;">
@@ -20,15 +11,8 @@
   <title>yasm-&yasm-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Yasm is a complete rewrite of the <xref linkend="nasm"/> assembler. It
-      supports the x86 and AMD64 instruction sets, accepts NASM and GAS
-      assembler syntaxes and outputs binary, ELF32 and ELF64 object formats.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&yasm-download-http;"/>
+          Download: <ulink url="&yasm-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&yasm-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &yasm-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &yasm-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &yasm-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &yasm-time;
+          MD5 sum: &yasm-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -78,14 +42,29 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>sed -i 's#) ytasm.*#)#' Makefile.in &amp;&amp;
 ./configure --prefix=</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>sed -i 's#) ytasm.*#)#' Makefile.in</command></term>
+        <listitem>
+          <para>
+            This sed prevents it compiling 2 programs (vsyasm and ytasm) that
+            are only of use on Microsoft Windows.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -94,18 +73,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i 's#) ytasm.*#)#' Makefile.in</command>: This sed
-        prevents it compiling 2 programs (vsyasm and ytasm) that are only of use
-        on Microsoft Windows.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp yasm-&yasm-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
