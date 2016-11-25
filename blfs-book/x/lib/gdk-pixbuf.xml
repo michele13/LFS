@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY gdk-pixbuf-homepage      " ">
-  <!ENTITY gdk-pixbuf-wikipedia     " ">
-  <!ENTITY gdk-pixbuf-download-http "&gnome-download-http;/gdk-pixbuf/2.36/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
-  <!ENTITY gdk-pixbuf-download-ftp  "&gnome-download-ftp;/gdk-pixbuf/2.36/gdk-pixbuf-&gdk-pixbuf-version;.tar.xz">
-  <!ENTITY gdk-pixbuf-md5sum        "1a3baf91956c7923dab49ee3de100ce1">
-  <!ENTITY gdk-pixbuf-size          "2.6 MB">
-  <!ENTITY gdk-pixbuf-buildsize     "31 MB">
-  <!ENTITY gdk-pixbuf-time          "0.2 SBU">
 ]>
 
 <sect1 id="gdk-pixbuf" xreflabel="gdk-pixbuf-&gdk-pixbuf-version;">
@@ -20,14 +11,8 @@
   <title>gdk-pixbuf-&gdk-pixbuf-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The GDK-Pixbuf is a toolkit for image loading and pixel buffer
-      manipulation.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&gdk-pixbuf-download-http;"/>
+          Download: <ulink url="&gdk-pixbuf-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&gdk-pixbuf-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &gdk-pixbuf-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &gdk-pixbuf-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &gdk-pixbuf-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &gdk-pixbuf-time;
+          MD5 sum: &gdk-pixbuf-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -103,15 +68,41 @@
 <screen><userinput>sed "s/ install-data-local//" -i docs/reference/gdk-pixbuf/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-nls \
             --with-x11</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-x11</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building of the GDK-Pixbuf X11 library which is
+            needed for many packages.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--with-libjasper</option></term>
+        <listitem>
+          <para>
+            If you've installed <xref linkend="jasper"/> and you want
+            GDK-Pixbuf to use it to compile a JPEG2000 image loader, pass this
+            switch to configure.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -120,10 +111,10 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libgdk_pixbuf-2.0.la &amp;&amp;
-rm -v /lib/libgdk_pixbuf_xlib-2.0.la"</userinput></screen>
+<screen><userinput>porg -lp gdk-pixbuf-&gdk-pixbuf-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libgdk_pixbuf*-2.0.la"</userinput></screen>
 
+<!--
     <note>
       <para>
         If you installed the package on to your system using a
@@ -132,26 +123,10 @@ rm -v /lib/libgdk_pixbuf_xlib-2.0.la"</userinput></screen>
         command as the <systemitem class="username">root</systemitem> user:
       </para>
 
-<screen role="root"><userinput>gdk-pixbuf-query-loaders --update-cache</userinput></screen>
+<screen role="root"><userinput>gdk-pixbuf-query-loaders - -update-cache</userinput></screen>
 
     </note>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-x11</parameter>: This switch enables building of the
-        GDK-Pixbuf X11 library which is needed for <emphasis>many</emphasis>
-        packages.
-      </para>
-
-      <para>
-        <option>--with-libjasper</option>: If you've installed <xref
-        linkend="jasper"/> and you want GDK-Pixbuf to use it to compile a
-        JPEG2000 image loader, pass this switch to configure.
-      </para>
-
-    </sect3>
+-->
 
   </sect2>
 

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY tiff-homepage      "http://www.remotesensing.org/libtiff/">
-  <!ENTITY tiff-wikipedia     "http://en.wikipedia.org/wiki/Libtiff">
-  <!ENTITY tiff-download-http "http://download.osgeo.org/libtiff/tiff-&tiff-version;.tar.gz">
-  <!ENTITY tiff-download-ftp  "ftp://ftp.remotesensing.org/libtiff/tiff-&tiff-version;.tar.gz">
-  <!ENTITY tiff-md5sum        "77ae928d2c6b7fb46a21c3a29325157b">
-  <!ENTITY tiff-size          "2.1 MB">
-  <!ENTITY tiff-buildsize     "25 MB">
-  <!ENTITY tiff-time          "0.4 SBU">
 ]>
 
 <sect1 id="tiff" xreflabel="tiff-&tiff-version;">
@@ -20,15 +11,8 @@
   <title>tiff-&tiff-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The LibTIFF package contains the TIFF libraries and associated utilities.
-      The libraries are used by many programs for reading and writing TIFF files
-      and the utilities are used for general work with TIFF files.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&tiff-download-http;"/>
+          Download: <ulink url="&tiff-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&tiff-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &tiff-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &tiff-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &tiff-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &tiff-time;
+          MD5 sum: &tiff-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -97,14 +61,14 @@ sed "s/ install-dist_docDATA//" -i html/images/Makefile.in
 sed "s/ install-dist_docDATA//" -i html/man/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -113,9 +77,8 @@ sed "s/ install-dist_docDATA//" -i html/man/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libtiff.la &amp;&amp;
-rm -v /lib/libtiffxx.la"</userinput></screen>
+<screen><userinput>porg -lp tiff-&tiff-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libtiff*.la"</userinput></screen>
 
   </sect2>
 
