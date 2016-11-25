@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxrandr-homepage      " ">
-  <!ENTITY libxrandr-wikipedia     " ">
-  <!ENTITY libxrandr-download-http "&xorg-download-http;/lib/libXrandr-&libxrandr-version;.tar.bz2">
-  <!ENTITY libxrandr-download-ftp  "&xorg-download-ftp;/lib/libXrandr-&libxrandr-version;.tar.bz2">
-  <!ENTITY libxrandr-md5sum        "28e486f1d491b757173dd85ba34ee884">
-  <!ENTITY libxrandr-size          "308 KB">
-  <!ENTITY libxrandr-buildsize     "4.1 MB">
-  <!ENTITY libxrandr-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxrandr" xreflabel="libxrandr-&libxrandr-version;">
@@ -20,16 +11,8 @@
   <title>libxrandr-&libxrandr-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXrandr provides an X Window System client interface to the RandR
-      extension to the X protocol. The RandR extension allows for run-time
-      configuration of display attributes such as resolution, rotation, and
-      reflection.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxrandr-download-http;"/>
+          Download: <ulink url="&libxrandr-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxrandr-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxrandr-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxrandr-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxrandr-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxrandr-time;
+          MD5 sum: &libxrandr-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,14 +51,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -104,7 +67,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxrandr-&libxrandr-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxrandr-&libxrandr-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXrandr.la"</userinput></screen>
 
   </sect2>
