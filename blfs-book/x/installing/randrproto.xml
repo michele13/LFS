@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY randrproto-homepage      " ">
-  <!ENTITY randrproto-wikipedia     " ">
-  <!ENTITY randrproto-download-http "&xorg-download-http;/proto/randrproto-&randrproto-version;.tar.bz2">
-  <!ENTITY randrproto-download-ftp  "&xorg-download-ftp;/proto/randrproto-&randrproto-version;.tar.bz2">
-  <!ENTITY randrproto-md5sum        "a46765c8dcacb7114c821baf0df1e797">
-  <!ENTITY randrproto-size          "131 KB">
-  <!ENTITY randrproto-buildsize     "1.0 MB">
-  <!ENTITY randrproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="randrproto" xreflabel="randrproto-&randrproto-version;">
@@ -20,15 +11,8 @@
   <title>randrproto-&randrproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package provides development headers describing the wire protocol for
-      the RandR extension, used to change display properties such as resolution,
-      rotation, reflection, et al, on the fly.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&randrproto-download-http;"/>
+          Download: <ulink url="&randrproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&randrproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &randrproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &randrproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &randrproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &randrproto-time;
+          MD5 sum: &randrproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -91,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_docDATA//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp randrproto-&randrproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
