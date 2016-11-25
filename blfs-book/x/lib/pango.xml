@@ -3,16 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY pango-homepage      "http://www.pango.org/">
-  <!ENTITY pango-wikipedia     "http://en.wikipedia.org/wiki/Pango">
-  <!ENTITY pango-download-http "&gnome-download-http;/pango/1.32/pango-&pango-version;.tar.xz">
-  <!ENTITY pango-download-ftp  "&gnome-download-ftp;/pango/1.32/pango-&pango-version;.tar.xz">
-  <!ENTITY pango-md5sum        "8e846804d6e219bc795a26a4a39b5bfd">
-  <!ENTITY pango-size          "976 KB">
-  <!ENTITY pango-buildsize     "33 MB">
-  <!ENTITY pango-time          "0.3 SBU">
-
 ]>
 
 <sect1 id="pango" xreflabel="pango-&pango-version;">
@@ -21,16 +11,8 @@
   <title>pango-&pango-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Pango is a library for laying out and rendering of text, with an emphasis
-      on internationalization. It can be used anywhere that text layout is
-      needed, though most of the work on Pango so far has been done in the
-      context of the GTK+ widget toolkit.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&pango-download-http;"/>
+          Download: <ulink url="&pango-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&pango-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &pango-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &pango-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &pango-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &pango-time;
+          MD5 sum: &pango-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -101,13 +63,13 @@
 <screen><userinput>sed "s/ install-data-local//" -i docs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -116,11 +78,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libpango-1.0.la &amp;&amp;
-rm -v /lib/libpangocairo-1.0.la &amp;&amp;
-rm -v /lib/libpangoft2-1.0.la &amp;&amp;
-rm -v /lib/libpangoxft-1.0.la"</userinput></screen>
+<screen><userinput>porg -lp pango-&pango-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libpango*-1.0.la"</userinput></screen>
 
 <!--
     <note>
@@ -135,28 +94,6 @@ rm -v /lib/libpangoxft-1.0.la"</userinput></screen>
 
     </note>
 -->
-  </sect2>
-
-  <sect2>
-    <title>Configuration</title>
-
-    <para>
-      The Pango module path is specified by the key
-      <userinput><parameter>Pango/ModulesPath</parameter></userinput> in the
-      Pango config database, which is read from the config files listed below.
-    </para>
-
-    <sect3>
-      <title>Config Files</title>
-
-      <para>
-        <filename>/etc/pango/pangorc</filename>, <filename>~/.pangorc</filename>
-        and the file specified in the environment variable
-        <envar>PANGO_RC_FILE</envar>
-      </para>
-
-    </sect3>
-
   </sect2>
 
 </sect1>

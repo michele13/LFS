@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY nasm-homepage      "http://www.nasm.us/">
-  <!ENTITY nasm-wikipedia     "http://en.wikipedia.org/wiki/Netwide_Assembler">
-  <!ENTITY nasm-download-http "http://www.nasm.us/pub/nasm/releasebuilds/&nasm-version;/nasm-&nasm-version;.tar.xz">
-  <!ENTITY nasm-download-ftp  " ">
-  <!ENTITY nasm-md5sum        "b90a3d85b93e51a7fa5a67e2a8fccfef">
-  <!ENTITY nasm-size          "764 KB">
-  <!ENTITY nasm-buildsize     "31 MB" >
-  <!ENTITY nasm-time          "0.1 SBU">
 ]>
 
 <sect1 id="nasm" xreflabel="nasm-&nasm-version;">
@@ -20,14 +11,8 @@
   <title>nasm-&nasm-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      NASM (Netwide Assembler) is an 80x86 assembler designed for portability
-      and modularity. It includes a disassembler as well.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&nasm-download-http;"/>
+          Download: <ulink url="&nasm-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&nasm-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &nasm-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &nasm-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &nasm-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &nasm-time;
+          MD5 sum: &nasm-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,13 +42,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -93,7 +58,7 @@
     </para>
 
 <!-- dev note: make INSTALLROOT=<DESTDIR> install -->
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp nasm-&nasm-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

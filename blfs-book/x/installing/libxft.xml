@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxft-homepage      "http://www.freedesktop.org/wiki/Software/Xft/">
-  <!ENTITY libxft-wikipedia     "http://en.wikipedia.org/wiki/Xft">
-  <!ENTITY libxft-download-http "&xorg-download-http;/lib/libXft-&libxft-version;.tar.bz2">
-  <!ENTITY libxft-download-ftp  "&xorg-download-ftp;/lib/libXft-&libxft-version;.tar.bz2">
-  <!ENTITY libxft-md5sum        "331b3a2a3a1a78b5b44cfbd43f86fcfe">
-  <!ENTITY libxft-size          "328 KB">
-  <!ENTITY libxft-buildsize     "5.0 MB">
-  <!ENTITY libxft-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxft" xreflabel="libxft-&libxft-version;">
@@ -20,16 +11,8 @@
   <title>libxft-&libxft-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Xft provides a client-side font API for X applications, making the
-      FreeType font rasterizer available to X clients. Fontconfig is used for
-      font specification resolution. Where available, the RENDER extension
-      handles glyph drawing; otherwise, the core X protocol is used.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxft-download-http;"/>
+          Download: <ulink url="&libxft-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxft-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxft-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxft-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxft-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxft-time;
+          MD5 sum: &libxft-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -87,14 +50,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -103,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxft-&libxft-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxft-&libxft-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXft.la"</userinput></screen>
 
   </sect2>
