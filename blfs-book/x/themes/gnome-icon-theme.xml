@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY gnome-icon-theme-homepage      " ">
-  <!ENTITY gnome-icon-theme-wikipedia     " ">
-  <!ENTITY gnome-icon-theme-download-http "&gnome-download-http;/gnome-icon-theme/3.12/gnome-icon-theme-&gnome-icon-theme-version;.tar.xz">
-  <!ENTITY gnome-icon-theme-download-ftp  "&gnome-download-ftp;/gnome-icon-theme/3.12/gnome-icon-theme-&gnome-icon-theme-version;.tar.xz">
-  <!ENTITY gnome-icon-theme-md5sum        "f14bed7f804e843189ffa7021141addd">
-  <!ENTITY gnome-icon-theme-size          "17 MB">
-  <!ENTITY gnome-icon-theme-buildsize     "85 MB">
-  <!ENTITY gnome-icon-theme-time          "0.5 SBU">
 ]>
 
 <sect1 id="gnome-icon-theme" xreflabel="gnome-icon-theme-&gnome-icon-theme-version;">
@@ -20,14 +11,8 @@
   <title>gnome-icon-theme-&gnome-icon-theme-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The GNOME Icon Theme package contains an assortment of non-scalable icons
-      of different sizes and themes.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&gnome-icon-theme-download-http;"/>
+          Download: <ulink url="&gnome-icon-theme-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&gnome-icon-theme-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &gnome-icon-theme-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &gnome-icon-theme-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &gnome-icon-theme-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &gnome-icon-theme-time;
+          MD5 sum: &gnome-icon-theme-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -93,13 +58,13 @@
 <screen><userinput>sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -108,7 +73,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make pkgconfigdir=/lib/pkgconfig -j1 install"</userinput></screen>
+<screen><userinput>porg -lp gnome-icon-theme-&gnome-icon-theme-version; -E $PWD "make pkgconfigdir=/lib/pkgconfig -j1 install"</userinput></screen>
 
   </sect2>
 

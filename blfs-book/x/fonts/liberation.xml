@@ -3,16 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY liberation-homepage      "https://fedorahosted.org/liberation-fonts/">
-  <!ENTITY liberation-wikipedia     "http://en.wikipedia.org/wiki/Liberation_fonts">
-  <!ENTITY liberation-download-http "https://fedorahosted.org/releases/l/i/liberation-fonts/liberation-fonts-ttf-&liberation-version;.tar.gz">
-  <!ENTITY liberation-download-ftp  "ftp://ftp.lug.ro/gentoo/distfiles/liberation-fonts-ttf-&liberation-version;.tar.gz">
-  <!ENTITY liberation-md5sum        "5c781723a0d9ed6188960defba8e91cf">
-  <!ENTITY liberation-size          "2.2 MB">
-  <!ENTITY liberation-buildsize     "8 MB">
-  <!ENTITY liberation-time          "0.1 SBU">
-
 ]>
 
 <sect1 id="liberation" xreflabel="liberation-&liberation-version;">
@@ -21,16 +11,8 @@
   <title>liberation-&liberation-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para> 
-      This package provides a set of serif, sans-serif and monospaced fonts from
-      Red Hat with exactly the same metrics as the (non-free) Microsoft Times,
-      Arial and Courier fonts, which implies those fonts can serve as a drop-in
-      replacement. The font family is named Liberation.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&liberation-download-http;"/>
+          Download: <ulink url="&liberation-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&liberation-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &liberation-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &liberation-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &liberation-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &liberation-time;
+          MD5 sum: &liberation-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -90,8 +52,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>mkdir -pv /share/fonts/liberation &amp;&amp;
-porg -lD "install -v -m644 *.ttf /share/fonts/liberation" &amp;&amp;
+<screen><userinput>mkdir -pv /share/fonts/liberation
+porg -lp liberation-&liberation-version; "install -v -m644 *.ttf /share/fonts/liberation"
 fc-cache -v</userinput></screen>
 
   </sect2>
