@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY intltool-homepage      "http://freedesktop.org/wiki/Software/intltool/">
-  <!ENTITY intltool-wikipedia     " ">
-  <!ENTITY intltool-download-http "http://launchpad.net/intltool/trunk/&intltool-version;/+download/intltool-&intltool-version;.tar.gz">
-  <!ENTITY intltool-download-ftp  "ftp://anduin.linuxfromscratch.org/BLFS/svn/i/intltool-&intltool-version;.tar.gz">
-  <!ENTITY intltool-md5sum        "12e517cac2b57a0121cda351570f1e63">
-  <!ENTITY intltool-size          "188 KB">
-  <!ENTITY intltool-buildsize     "1.4 MB">
-  <!ENTITY intltool-time          "less than 0.1 SBU">
 ]>
 
 <sect1 id="intltool" xreflabel="intltool-&intltool-version;">
@@ -20,18 +11,8 @@
   <title>intltool-&intltool-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Intltool is an internationalization tool used for extracting
-      translatable strings from source files, collecting the extracted strings
-      with messages from traditional source files (<filename
-      class="directory">&lt;source directory&gt;/&lt;package&gt;/po</filename>)
-      and merging the translations into <filename>.xml</filename>,
-      <filename>.desktop</filename> and <filename>.oaf</filename> files.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -45,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&intltool-download-http;"/>
+          Download: <ulink url="&intltool-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&intltool-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &intltool-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &intltool-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &intltool-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &intltool-time;
+          MD5 sum: &intltool-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,13 +49,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -103,7 +64,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp intltool-&intltool-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
