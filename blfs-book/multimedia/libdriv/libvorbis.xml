@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libvorbis-homepage      "http://xiph.org/vorbis/">
-  <!ENTITY libvorbis-wikipedia     "http://en.wikipedia.org/wiki/Vorbis">
-  <!ENTITY libvorbis-download-http "http://downloads.xiph.org/releases/vorbis/libvorbis-&libvorbis-version;.tar.xz">
-  <!ENTITY libvorbis-download-ftp  " ">
-  <!ENTITY libvorbis-md5sum        "28cb28097c07a735d6af56e598e1c90f">
-  <!ENTITY libvorbis-size          "1.1 MB">
-  <!ENTITY libvorbis-buildsize     "15 MB">
-  <!ENTITY libvorbis-time          "0.1 SBU">
 ]>
 
 <sect1 id="libvorbis" xreflabel="libvorbis-&libvorbis-version;">
@@ -20,15 +11,8 @@
   <title>libvorbis-&libvorbis-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libvorbis package contains a general purpose audio and music encoding
-      format. This is useful for creating (encoding) and playing (decoding)
-      sound in an open (patent free) format.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libvorbis-download-http;"/>
+          Download: <ulink url="&libvorbis-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libvorbis-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libvorbis-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libvorbis-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libvorbis-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libvorbis-time;
+          MD5 sum: &libvorbis-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -94,14 +58,14 @@ sed "s/ install-docDATA//" -i doc/vorbisenc/Makefile.in
 sed "s/ install-docDATA//" -i doc/vorbisfile/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -110,10 +74,8 @@ sed "s/ install-docDATA//" -i doc/vorbisfile/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libvorbis.la &amp;&amp;
-rm -v /lib/libvorbisenc.la &amp;&amp;
-rm -v /lib/libvorbisfile.la"</userinput></screen>
+<screen><userinput>porg -lp libvorbis-&libvorbis-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libvorbis*.la"</userinput></screen>
 
   </sect2>
 

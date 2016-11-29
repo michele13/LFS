@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY flac-homepage      "http://www.xiph.org/flac/">
-  <!ENTITY flac-wikipedia     "http://en.wikipedia.org/wiki/FLAC">
-  <!ENTITY flac-download-http "http://downloads.xiph.org/releases/flac/flac-&flac-version;.tar.xz">
-  <!ENTITY flac-download-ftp  "ftp://downloads.xiph.org/pub/xiph/releases/flac/flac-&flac-version;.tar.xz">
-  <!ENTITY flac-md5sum        "b9922c9a0378c88d3e901b234f852698">
-  <!ENTITY flac-size          "920 KB">
-  <!ENTITY flac-buildsize     "31 MB">
-  <!ENTITY flac-time          "0.3 SBU">
 ]>
 
 <sect1 id="flac" xreflabel="flac-&flac-version;">
@@ -20,14 +11,8 @@
   <title>flac-&flac-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      FLAC is an audio CODEC similar to MP3, but lossless, meaning that audio
-      is compressed without losing any information.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&flac-download-http;"/>
+          Download: <ulink url="&flac-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&flac-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &flac-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &flac-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &flac-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &flac-time;
+          MD5 sum: &flac-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -93,13 +58,13 @@ sed "s/ install-docDATA//" -i doc/html/Makefile.in
 sed "s/ install-docDATA//" -i doc/html/images/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -108,7 +73,7 @@ sed "s/ install-docDATA//" -i doc/html/images/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp flac-&flac-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libFLAC++.la &amp;&amp;
 rm -v /lib/libFLAC.la"</userinput></screen>
 
