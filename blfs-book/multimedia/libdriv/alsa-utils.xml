@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY alsa-utils-homepage      "http://www.alsa-project.org/">
-  <!ENTITY alsa-utils-wikipedia     "http://en.wikipedia.org/wiki/Advanced_Linux_Sound_Architecture">
-  <!ENTITY alsa-utils-download-http "&alsa-download-http;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
-  <!ENTITY alsa-utils-download-ftp  "&alsa-download-ftp;/utils/alsa-utils-&alsa-utils-version;.tar.bz2">
-  <!ENTITY alsa-utils-md5sum        "38ac7c781f80c41c02b4664d8cbafa87">
-  <!ENTITY alsa-utils-size          "1.1 MB">
-  <!ENTITY alsa-utils-buildsize     "9.4 MB">
-  <!ENTITY alsa-utils-time          "0.1 SBU">
 ]>
 
 <sect1 id="alsa-utils" xreflabel="alsa-utils-&alsa-utils-version;">
@@ -20,14 +11,8 @@
   <title>alsa-utils-&alsa-utils-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The ALSA Utilities package contains various utilities which are useful for
-      controlling your sound card.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&alsa-utils-download-http;"/>
+          Download: <ulink url="&alsa-utils-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&alsa-utils-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &alsa-utils-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &alsa-utils-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &alsa-utils-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &alsa-utils-time;
+          MD5 sum: &alsa-utils-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -96,7 +61,7 @@
 <screen><userinput>sed "s/install-udevrulesDATA$//" -i alsactl/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -107,8 +72,53 @@
             --disable-xmlto \
             --with-curses=ncursesw</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--disable-alsaconf</parameter></term>
+        <listitem>
+          <para>
+            This switch disables building the alsaconf configuration tool which
+            is deprecated.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-bat</parameter></term>
+        <listitem>
+          <para>
+            Omit this switch if you have installed <ulink
+            url="http://www.fftw.org/">FFTW</ulink> and wish to install the
+            Basic Audio Tester (BAT).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-xmlto</parameter></term>
+        <listitem>
+          <para>
+            This switch disables man page creation and ensures successful build
+            without xmlto installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-curses=ncursesw</parameter></term>
+        <listitem>
+          <para>
+            This switch forces the use of wide-character ncurses libraries.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -117,34 +127,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--disable-alsaconf</parameter>: This switch disables building
-        the <command>alsaconf</command> configuration tool which is deprecated.
-      </para>
-
-      <para>
-        <parameter>--disable-bat</parameter>: Omit this switch if you have
-        installed <ulink url="http://www.fftw.org/">FFTW</ulink> and wish to
-        install the Basic Audio Tester (BAT).
-      </para>
-
-      <para>
-        <parameter>--disable-xmlto</parameter>: This switch disables man page
-        creation and ensures successful build without <command>xmlto</command>
-        installed.
-      </para>
-
-      <para>
-        <parameter>--with-curses=ncursesw</parameter>: This switch forces the
-        use of wide-character ncurses libraries.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp alsa-utils-&alsa-utils-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
@@ -153,33 +136,30 @@
 
     <para>
       Note that all channels of your sound card are muted by default. You can
-      use the <command>alsamixer</command> program to change this. Use
-      <command>speaker-test</command> to check that your settings have been
-      applied correctly. You should hear <quote>pink noise</quote> on your
-      speakers.
+      use the alsamixer program to change this. Use speaker-test to check that
+      your settings have been applied correctly. You should hear "pink noise"
+      on your speakers.
     </para>
 
     <para>
-      The first time <command>alsactl</command> program is run, it will complain
-      that there is no state in <filename>/var/lib/alsa/asound.state</filename>.
-      You can prevent this by running the following commands as the <systemitem
-      class="username">root</systemitem> user:
+      The first time alsactl program is run, it will complain that there is no
+      state in /var/lib/alsa/asound.state. You can prevent this by running the
+      following command:
     </para>
 
-<screen role="root"><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "alsactl -L store"</userinput></screen>
+<screen><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "alsactl -L store"</userinput></screen>
 
     <para>
       The volume settings should be restored from the saved state during boot.
     </para>
 
     <para>
-      All sound devices are not accessible for any user except <systemitem
-      class="username">root</systemitem> and members of the <systemitem
-      class="groupname">audio</systemitem> group. Add any users that might use
-      the sound devices to that group:
+      All sound devices are not accessible for any user except root and members
+      of the audio group. Add any users that might use the sound devices to
+      that group:
     </para>
 
-<screen role="root"><userinput>addgroup <replaceable>&lt;username&gt;</replaceable> audio</userinput></screen>
+<screen><userinput>addgroup <replaceable>&lt;username&gt;</replaceable> audio</userinput></screen>
 
     <note>
       <para>
@@ -195,11 +175,11 @@
 
       <para>
         To automatically store and restore volume settings when the system is
-        rebooted, install the <filename>/etc/rc.d/init.d/alsa</filename> boot
-        script from the <xref linkend="bootscripts"/> package.
+        rebooted, install the /etc/rc.d/init.d/alsa boot script from the <xref
+        linkend="bootscripts"/> package:
       </para>
 
-<screen role="root"><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "make install-alsa"</userinput></screen>
+<screen><userinput>porg -lp+ alsa-utils-&alsa-utils-version; "make install-alsa"</userinput></screen>
 
     </sect3>
 

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libsamplerate-homepage      "http://www.mega-nerd.com/SRC/">
-  <!ENTITY libsamplerate-wikipedia     " ">
-  <!ENTITY libsamplerate-download-http "http://www.mega-nerd.com/SRC/libsamplerate-&libsamplerate-version;.tar.gz">
-  <!ENTITY libsamplerate-download-ftp  " ">
-  <!ENTITY libsamplerate-md5sum        "2b78ae9fe63b36b9fbb6267fad93f259">
-  <!ENTITY libsamplerate-size          "4.1 MB">
-  <!ENTITY libsamplerate-buildsize     "17 MB">
-  <!ENTITY libsamplerate-time          "0.1 SBU">
 ]>
 
 <sect1 id="libsamplerate" xreflabel="libsamplerate-&libsamplerate-version;">
@@ -20,13 +11,8 @@
   <title>libsamplerate-&libsamplerate-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libsamplerate is a sample rate converter for audio.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libsamplerate-download-http;"/>
+          Download: <ulink url="&libsamplerate-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libsamplerate-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libsamplerate-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libsamplerate-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libsamplerate-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libsamplerate-time;
+          MD5 sum: &libsamplerate-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -89,14 +55,14 @@
 <screen><userinput>sed "s/ install-htmlDATA//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -105,7 +71,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libsamplerate-&libsamplerate-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libsamplerate.la"</userinput></screen>
 
   </sect2>
