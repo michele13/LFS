@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY lame-homepage      "http://lame.sourceforge.net/">
-  <!ENTITY lame-wikipedia     "https://en.wikipedia.org/wiki/LAME">
-  <!ENTITY lame-download-http "&sourceforge-repo;/lame/lame-&lame-version;.tar.gz">
-  <!ENTITY lame-download-ftp  " ">
-  <!ENTITY lame-md5sum        "84835b313d4a8b68f5349816d33e07ce">
-  <!ENTITY lame-size          "1.4 MB">
-  <!ENTITY lame-buildsize     "11 MB">
-  <!ENTITY lame-time          "0.3 SBU">
 ]>
 
 <sect1 id="lame" xreflabel="lame-&lame-version;">
@@ -20,15 +11,8 @@
   <title>lame-&lame-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The LAME package contains an MP3 encoder and optionally, an MP3 frame
-      analyzer. This is useful for creating and analyzing compressed audio
-      files.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&lame-download-http;"/>
+          Download: <ulink url="&lame-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&lame-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &lame-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &lame-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &lame-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &lame-time;
+          MD5 sum: &lame-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -94,15 +58,42 @@
 <screen><userinput>sed "s/ install-pkghtmlDATA//" -i doc/html/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <!-- borked curses - -enable-mp3rtp -->
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+<!--
+      <varlistentry>
+        <term><parameter>- -enable-mp3rtp</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building the encode-to-RTP program.
+
+          </para>
+        </listitem>
+      </varlistentry>
+-->
+
+      <varlistentry>
+        <term><option>--enable-nasm</option></term>
+        <listitem>
+          <para>
+            Use this switch to enable the use of <xref linkend="nasm"/> to
+            compile optimized assembly routines.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -111,23 +102,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp lame-&lame-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libmp3lame.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-<!--
-      <para>
-        <parameter>- -enable-mp3rtp</parameter>: This switch enables building
-        the encode-to-RTP program.
-      </para>
--->
-      <para>
-        <option>--enable-nasm</option>: Enable the use of <xref
-        linkend="nasm"/> to compile optimized assembly routines.
-      </para>
-
-    </sect3>
 
   </sect2>
 

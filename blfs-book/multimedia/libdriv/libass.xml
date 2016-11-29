@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libass-homepage      "https://code.google.com/p/libass/">
-  <!ENTITY libass-wikipedia     "http://en.wikipedia.org/wiki/SubStation_Alpha">
-  <!ENTITY libass-download-http "https://github.com/libass/libass/releases/download/&libass-version;/libass-&libass-version;.tar.xz">
-  <!ENTITY libass-download-ftp  " ">
-  <!ENTITY libass-md5sum        "8e6a506b4e5a637764183083421dc827">
-  <!ENTITY libass-size          "328 KB">
-  <!ENTITY libass-buildsize     "6.2 MB">
-  <!ENTITY libass-time          "0.1 SBU">
 ]>
 
 <sect1 id="libass" xreflabel="libass-&libass-version;">
@@ -20,15 +11,8 @@
   <title>libass-&libass-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libass is a portable subtitle renderer for the ASS/SSA (Advanced
-      Substation Alpha/Substation Alpha) subtitle format that allows for more
-      advanced subtitles than the conventional SRT and similar formats.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libass-download-http;"/>
+          Download: <ulink url="&libass-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libass-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libass-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libass-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libass-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libass-time;
+          MD5 sum: &libass-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -96,14 +60,28 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><option>--disable-fontconfig</option></term>
+        <listitem>
+          <para>
+            Use this switch if you didn't install Fontconfig.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -112,18 +90,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libass-&libass-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libass.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <option>--disable-fontconfig</option>: Use this switch if you didn't
-        install Fontconfig.
-      </para>
-
-    </sect3>
 
   </sect2>
 

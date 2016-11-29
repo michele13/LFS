@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY fdk-aac-homepage      "https://github.com/mstorsjo/fdk-aac">
-  <!ENTITY fdk-aac-wikipedia     "http://en.wikipedia.org/wiki/FAAC">
-  <!ENTITY fdk-aac-download-http "&sourceforge-repo;/opencore-amr/fdk-aac-&fdk-aac-version;.tar.gz">
-  <!ENTITY fdk-aac-download-ftp  " ">
-  <!ENTITY fdk-aac-md5sum        "e274a7d7f6cd92c71ec5c78e4dc9f8b7">
-  <!ENTITY fdk-aac-size          "1.9 MB">
-  <!ENTITY fdk-aac-buildsize     "26 MB">
-  <!ENTITY fdk-aac-time          "0.3 SBU">
 ]>
 
 <sect1 id="fdk-aac" xreflabel="fdk-aac-&fdk-aac-version;">
@@ -20,14 +11,8 @@
   <title>fdk-aac-&fdk-aac-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      fdk-aac package provides the Fraunhofer FDK AAC library, which is
-      purported to be a high quality Advanced Audio Coding implementation.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&fdk-aac-download-http;"/>
+          Download: <ulink url="&fdk-aac-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&fdk-aac-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &fdk-aac-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &fdk-aac-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &fdk-aac-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &fdk-aac-time;
+          MD5 sum: &fdk-aac-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,15 +42,30 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>CXXFLAGS=-Wno-narrowing \
 ./configure --prefix= \
             --disable-static</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><envar>CXXFLAGS=-Wno-narrowing</envar></term>
+        <listitem>
+          <para>
+            GCC 6 does not support integer narrowing. Setting CXXFLAGS this way
+            allows to suppress the associated error.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -94,18 +74,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp fdk-aac-&fdk-aac-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libfdk-aac.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-      <para>
-        <envar>CXXFLAGS=-Wno-narrowing</envar>: GCC 6 does not support
-        integer narrowing. Setting CXXFLAGS this way allows to suppress the
-        associated error.
-      </para>
-
-    </sect3>
 
   </sect2>
 
