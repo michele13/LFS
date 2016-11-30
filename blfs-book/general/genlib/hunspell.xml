@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY hunspell-homepage      "http://hunspell.github.io/">
-  <!ENTITY hunspell-wikipedia     "https://en.wikipedia.org/wiki/Hunspell">
-  <!ENTITY hunspell-download-http "https://github.com/hunspell/hunspell/archive/v&hunspell-version;.tar.gz">
-  <!ENTITY hunspell-download-ftp  " ">
-  <!ENTITY hunspell-md5sum        "33d370f7fe5a030985e445a5672b2067">
-  <!ENTITY hunspell-size          "977 KB">
-  <!ENTITY hunspell-buildsize     "14 MB">
-  <!ENTITY hunspell-time          "0.3 SBU">
 ]>
 
 <sect1 id="hunspell" xreflabel="hunspell-&hunspell-version;">
@@ -20,15 +11,8 @@
   <title>hunspell-&hunspell-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Hunspell is a spell checker and morphological analyzer library and program
-      designed for languages with rich morphology and complex word compounding
-      or character encoding.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&hunspell-download-http;"/>
+          Download: <ulink url="&hunspell-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&hunspell-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &hunspell-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &hunspell-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &hunspell-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &hunspell-time;
+          MD5 sum: &hunspell-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,7 +56,7 @@
 sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>CPPFLAGS=-I/include/ncursesw \
@@ -101,8 +65,31 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
             --with-ui \
             --with-readline</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-ui</parameter></term>
+        <listitem>
+          <para>
+            This switch enables Curses terminal user interface.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-readline</parameter></term>
+        <listitem>
+          <para>
+            This switch enables Readline support for command input editing.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -111,23 +98,8 @@ sed "s/ install-data$//" -i po/Makefile.in.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp hunspell-&hunspell-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libhunspell-1.4.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-ui</parameter>: This switch enables Curses terminal
-        user interface.
-      </para>
-
-      <para>
-        <parameter>--with-readline</parameter>: This switch enables Readline
-        support for command input editing.
-      </para>
-
-    </sect3>
 
   </sect2>
 

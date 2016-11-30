@@ -3,17 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY nss-url "ftp.mozilla.org/pub/mozilla.org/security/nss/releases">
-
-  <!ENTITY nss-homepage      "https://developer.mozilla.org/en/docs/NSS">
-  <!ENTITY nss-wikipedia     "http://en.wikipedia.org/wiki/Network_Security_Services">
-  <!ENTITY nss-download-http "https://&nss-url;/NSS_3_27_1_RTM/src/nss-&nss-version;.tar.gz">
-  <!ENTITY nss-download-ftp  "ftp://&nss-url;/NSS_3_27_1_RTM/src/nss-&nss-version;.tar.gz">
-  <!ENTITY nss-md5sum        "f18e1ebfe07969c84b890e45843edcb7">
-  <!ENTITY nss-size          "7.1 MB">
-  <!ENTITY nss-buildsize     "84 MB">
-  <!ENTITY nss-time          "0.9 SBU">
 ]>
 
 <sect1 id="nss" xreflabel="nss-&nss-version;">
@@ -22,19 +11,8 @@
   <title>nss-&nss-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Network Security Services (NSS) package is a set of libraries designed
-      to support cross-platform development of security-enabled client and
-      server applications. Applications built with NSS can support SSL v2 and
-      v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, S/MIME, X.509 v3
-      certificates, and other security standards. This is useful for
-      implementing SSL and S/MIME or other Internet security standards into an
-      application.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -48,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&nss-download-http;"/>
+          Download: <ulink url="&nss-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&nss-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &nss-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &nss-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &nss-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &nss-time;
+          MD5 sum: &nss-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -82,8 +40,8 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Required patch:
-          <ulink url="&patch-root;nss/nss-&nss-version;-standalone-1.patch"/>
+          Required patch: <ulink
+          url="&patch-root;nss/nss-&nss-version;-standalone-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -112,13 +70,13 @@
     </note>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../nss-&nss-version;-standalone-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../nss-&nss-version;-standalone-1.patch</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>cd nss &amp;&amp;
@@ -129,11 +87,78 @@ make BUILD_OPT=1 \
      USE_64=1 \
      $([ -f /include/sqlite3.h ] &amp;&amp; echo NSS_USE_SYSTEM_SQLITE=1) -j1</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>BUILD_OPT=1</parameter></term>
+        <listitem>
+          <para>
+            This option is passed to make so that the build is performed with
+            no debugging symbols built into the binaries and the default
+            compiler optimizations are used.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>NSPR_INCLUDE_DIR=/include/nspr</parameter></term>
+        <listitem>
+          <para>
+            This option sets the location of the nspr headers.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>USE_SYSTEM_ZLIB=1</parameter></term>
+        <listitem>
+          <para>
+            This option is passed to make to ensure that the libssl3.so library
+            is linked to the system installed zlib instead of the in-tree
+            version.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>ZLIB_LIBS=-lz</parameter></term>
+        <listitem>
+          <para>
+            This option provides the linker flags needed to link to the system
+            zlib.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>USE_64=1</parameter></term>
+        <listitem>
+          <para>
+            This option is required on x86_64, otherwise make will try (and
+            fail) to create 32-bit objects.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><command>... NSS_USE_SYSTEM_SQLITE=1</command></term>
+        <listitem>
+          <para>
+            This tests if sqlite is installed and if so it echoes the option
+            NSS_USE_SYSTEM_SQLITE=1 to make so that libsoftokn3.so will link
+            against the system version of sqlite.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>cd ../dist &amp;&amp;
+<screen><userinput>cd ../dist &amp;&amp;
 porg -lp nss-&nss-version; "install -v -m755 Linux*/lib/*.so /lib &amp;&amp;
 install -v -m644 Linux*/lib/*.chk Linux*/lib/libcrmf.a /lib &amp;&amp;
 install -v -m755 -d /include/nss &amp;&amp;
@@ -141,50 +166,6 @@ cp -v -RL public/nss/* private/nss/* /include/nss &amp;&amp;
 chmod -v 644 /include/nss/* &amp;&amp;
 install -v -m755 Linux*/bin/certutil Linux*/bin/nss-config Linux*/bin/pk12util /bin &amp;&amp;
 install -v -m644 Linux*/lib/pkgconfig/nss.pc /lib/pkgconfig"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>BUILD_OPT=1</parameter>: This option is passed to
-        <command>make</command> so that the build is performed with no debugging
-        symbols built into the binaries and the default compiler optimizations
-        are used.
-      </para>
-
-      <para>
-        <parameter>NSPR_INCLUDE_DIR=/include/nspr</parameter>: This option
-        sets the location of the nspr headers.
-      </para>
-
-      <para>
-        <parameter>USE_SYSTEM_ZLIB=1</parameter>: This option is passed to
-        <command>make</command> to ensure that the <filename
-        class="libraryfile">libssl3.so</filename> library is linked to the
-        system installed zlib instead of the in-tree version.
-      </para>
-
-      <para>
-        <parameter>ZLIB_LIBS=-lz</parameter>: This option provides the linker
-        flags needed to link to the system zlib.
-      </para>
-
-      <para>
-        <parameter>USE_64=1</parameter>: This option is <emphasis>required on
-        x86_64</emphasis>, otherwise <command>make</command> will try (and fail)
-        to create 32-bit objects.
-      </para>
-
-      <para>
-        <command>([ -f /include/sqlite3.h ] &amp;&amp; echo
-        NSS_USE_SYSTEM_SQLITE=1)</command>: This tests if sqlite is installed
-        and if so it <command>echo</command>s the option NSS_USE_SYSTEM_SQLITE=1
-        to <command>make</command> so that <filename
-        class="libraryfile">libsoftokn3.so</filename> will link against the
-        system version of sqlite.
-      </para>
-
-    </sect3>
 
   </sect2>
 

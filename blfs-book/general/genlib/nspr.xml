@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY nspr-homepage      "https://developer.mozilla.org/en-US/docs/NSPR">
-  <!ENTITY nspr-wikipedia     "http://en.wikipedia.org/wiki/Netscape_portable_runtime">
-  <!ENTITY nspr-download-http "https://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
-  <!ENTITY nspr-download-ftp  "ftp://ftp.mozilla.org/pub/mozilla.org/nspr/releases/v&nspr-version;/src/nspr-&nspr-version;.tar.gz">
-  <!ENTITY nspr-md5sum        "9c44298a6fc478b3c0a4e98f4f9981ed">
-  <!ENTITY nspr-size          "1.1 MB">
-  <!ENTITY nspr-buildsize     "11 MB">
-  <!ENTITY nspr-time          "0.1 SBU">
 ]>
 
 <sect1 id="nspr" xreflabel="nspr-&nspr-version;">
@@ -20,14 +11,8 @@
   <title>nspr-&nspr-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Netscape Portable Runtime (NSPR) provides a platform-neutral API for
-      system level and libc like functions.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&nspr-download-http;"/>
+          Download: <ulink url="&nspr-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&nspr-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &nspr-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-         Download size: &nspr-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &nspr-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &nspr-time;
+          MD5 sum: &nspr-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,7 +42,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>cd nspr &amp;&amp;
@@ -86,10 +51,63 @@ sed -i 's#$(LIBRARY) ##' config/rules.mk &amp;&amp;
 ./configure --prefix= \
             --with-mozilla \
             --with-pthreads \
-            $([ $(uname -m) = x86_64 ] &amp;&amp; echo --enable-64bit)</userinput></screen>
+            --enable-64bit</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>sed -ri ... pr/src/misc/Makefile.in</command></term>
+        <listitem>
+          <para>
+            This sed disables installing two unneeded scripts.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><command>sed -i ... config/rules.mk</command></term>
+        <listitem>
+          <para>
+            This sed disables installing the static libraries.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-mozilla</parameter></term>
+        <listitem>
+          <para>
+            This parameter adds Mozilla support to the libraries (required if
+            you want to build any other Mozilla products and link them to these
+            libraries).
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-pthreads</parameter></term>
+        <listitem>
+          <para>
+            This parameter forces use of the system pthread library.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-64bit</parameter></term>
+        <listitem>
+          <para>
+            This switch is required on an x86_64 system to prevent configure
+            failing with a claim that this is a system without pthread support.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -98,43 +116,7 @@ sed -i 's#$(LIBRARY) ##' config/rules.mk &amp;&amp;
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp nspr-&nspr-version; "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -ri 's#^(RELEASE_BINS =).*#\1#'
-        pr/src/misc/Makefile.in</command>: This sed disables installing two
-        unneeded scripts.
-      </para>
-
-      <para>
-        <command>sed -i 's#$(LIBRARY) ##' config/rules.mk</command>: This sed
-        disables installing the static libraries.
-      </para>
-
-      <para>
-        <parameter>--with-mozilla</parameter>: This parameter adds Mozilla
-        support to the libraries (required if you want to build any other
-        Mozilla products and link them to these libraries).
-      </para>
-
-      <para>
-        <parameter>--with-pthreads</parameter>: This parameter forces use of the
-        system pthread library.
-      </para>
-
-      <para>
-        <parameter>$([ $(uname -m) = x86_64 ] &amp;&amp; echo
-        --enable-64bit)</parameter>: The --enable-64bit parameter is
-        <emphasis>required</emphasis> on an x86_64 system to prevent
-        <command>configure</command> failing with a claim that this is a system
-        without pthread support. The [ $(uname -m) = x86_64 ] test ensures it
-        has no effect on a 32 bit system.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp nspr-&nspr-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
