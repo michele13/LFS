@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libevent-homepage      "http://www.libevent.org/">
-  <!ENTITY libevent-wikipedia     "https://en.wikipedia.org/wiki/Libevent">
-  <!ENTITY libevent-download-http "&sourceforge-repo;/levent/libevent-&libevent-version;-stable.tar.gz">
-  <!ENTITY libevent-download-ftp  " ">
-  <!ENTITY libevent-md5sum        "c4c56f986aa985677ca1db89630a2e11">
-  <!ENTITY libevent-size          "835 KB">
-  <!ENTITY libevent-buildsize     "19 MB">
-  <!ENTITY libevent-time          "0.3 SBU">
 ]>
 
 <sect1 id="libevent" xreflabel="libevent-&libevent-version;">
@@ -20,17 +11,8 @@
   <title>libevent-&libevent-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libevent is an asynchronous event notification software library. The
-      libevent API provides a mechanism to execute a callback function when a
-      specific event occurs on a file descriptor or after a timeout has been
-      reached. Furthermore, libevent also supports callbacks due to signals or
-      regular timeouts.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libevent-download-http;"/>
+          Download: <ulink url="&libevent-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libevent-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libevent-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libevent-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libevent-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libevent-time;
+          MD5 sum: &libevent-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -93,14 +55,14 @@
 <screen><userinput>sed "s/ install-dist_binSCRIPTS//" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,12 +71,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libevent-&libevent-version; "make -j1 install &amp;&amp;
-rm -v /lib/libevent.la &amp;&amp;
-rm -v /lib/libevent_core.la &amp;&amp;
-rm -v /lib/libevent_extra.la &amp;&amp;
-rm -v /lib/libevent_openssl.la &amp;&amp;
-rm -v /lib/libevent_pthreads.la"</userinput></screen>
+<screen><userinput>porg -lp libevent-&libevent-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libevent*.la"</userinput></screen>
 
   </sect2>
 
