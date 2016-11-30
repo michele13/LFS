@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY opus-homepage      "http://www.opus-codec.org/">
-  <!ENTITY opus-wikipedia     "http://en.wikipedia.org/wiki/Opus_&#40;audio_codec&#41;">
-  <!ENTITY opus-download-http "http://downloads.xiph.org/releases/opus/opus-&opus-version;.tar.gz">
-  <!ENTITY opus-download-ftp  " ">
-  <!ENTITY opus-md5sum        "32bbb6b557fe1b6066adc0ae1f08b629">
-  <!ENTITY opus-size          "956 KB">
-  <!ENTITY opus-buildsize     "16 MB">
-  <!ENTITY opus-time          "0.2 SBU">
 ]>
 
 <sect1 id="opus" xreflabel="opus-&opus-version;">
@@ -20,16 +11,8 @@
   <title>opus-&opus-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Opus is a lossy audio compression format developed by the Internet
-      Engineering Task Force (IETF) that is particularly suitable for
-      interactive speech and audio transmission over the Internet. This package
-      provides the Opus development library and headers.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&opus-download-http;"/>
+          Download: <ulink url="&opus-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&opus-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &opus-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &opus-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &opus-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &opus-time;
+          MD5 sum: &opus-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -79,14 +42,14 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -95,7 +58,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp opus-&opus-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libopus.la"</userinput></screen>
 
   </sect2>
