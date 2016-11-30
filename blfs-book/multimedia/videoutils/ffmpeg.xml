@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY ffmpeg-homepage      "https://www.ffmpeg.org/">
-  <!ENTITY ffmpeg-wikipedia     "https://en.wikipedia.org/wiki/FFmpeg">
-  <!ENTITY ffmpeg-download-http "http://ffmpeg.org/releases/ffmpeg-&ffmpeg-version;.tar.xz">
-  <!ENTITY ffmpeg-download-ftp  " ">
-  <!ENTITY ffmpeg-md5sum        "10eaee7cca7d1e745eec6e4217772361">
-  <!ENTITY ffmpeg-size          "7.6 MB">
-  <!ENTITY ffmpeg-buildsize     "142 MB">
-  <!ENTITY ffmpeg-time          "5.2 SBU">
 ]>
 
 <sect1 id="ffmpeg" xreflabel="ffmpeg-&ffmpeg-version;">
@@ -20,20 +11,8 @@
   <title>ffmpeg-&ffmpeg-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      FFmpeg is a solution to record, convert and stream audio and video. It is
-      a very fast video and audio converter and it can also acquire from a live
-      audio/video source. Designed to be intuitive, the command-line interface
-      (<command>ffmpeg</command>) tries to figure out all the parameters, when
-      possible. FFmpeg can also convert from any sample rate to any other, and
-      resize video on the fly with a high quality polyphase filter. FFmpeg can
-      use a Video4Linux compatible video source and any Open Sound System audio
-      source.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -47,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&ffmpeg-download-http;"/>
+          Download: <ulink url="&ffmpeg-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&ffmpeg-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &ffmpeg-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &ffmpeg-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &ffmpeg-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &ffmpeg-time;
+          MD5 sum: &ffmpeg-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -147,10 +106,10 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../ffmpeg-&ffmpeg-version;-busybox-2.patch &amp;&amp;
+<screen><userinput>patch -Np1 -i ../ffmpeg-&ffmpeg-version;-busybox-2.patch &amp;&amp;
 sed -i "s/-lflite\"/-lflite -lasound\"/" configure &amp;&amp;
 ./configure --prefix=/ \
             --disable-static \
@@ -171,141 +130,183 @@ sed -i "s/-lflite\"/-lflite -lasound\"/" configure &amp;&amp;
             --enable-libx265 \
             --enable-openssl</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>sed -i ... configure</command></term>
+        <listitem>
+          <para>
+            This command adds the ALSA library to the Flite LDFLAGS variable
+            and enables the discovery of Flite.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-gpl</parameter></term>
+        <listitem>
+          <para>
+            Enables the use of GPL code and permits support for postprocessing,
+            swscale and many other features.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-version3</parameter></term>
+        <listitem>
+          <para>
+            Enables the use of (L)GPL version 3 code.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-nonfree</parameter></term>
+        <listitem>
+          <para>
+            Enables the use of nonfree code. Note that the resulting libraries
+            and binaries will be unredistributable.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libass</parameter></term>
+        <listitem>
+          <para>
+            Enables ASS/SSA subtitle format rendering via libass.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libfdk-aac</parameter></term>
+        <listitem>
+          <para>
+            Enables currently the highest-quality AAC audio encoding via
+            libfdk-aac.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libmp3lame</parameter></term>
+        <listitem>
+          <para>
+            Enables MP3 audio encoding via libmp3lame.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libopus</parameter></term>
+        <listitem>
+          <para>
+            Enables Opus audio encoding via libmp3lame.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libtheora --enable-libvorbis</parameter></term>
+        <listitem>
+          <para>
+            Enables Theora video encoding via libtheora and libvorbis.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libvpx --enable-libvorbis</parameter></term>
+        <listitem>
+          <para>
+            Enables WebM video encoding via libvpx and libvorbis.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libx264</parameter></term>
+        <listitem>
+          <para>
+            Enables high-quality H.264/MPEG-4 AVC video encoding via libx264.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-libx265</parameter></term>
+        <listitem>
+          <para>
+            Enables high-quality H.265/HEVC video encoding via libx265.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-openssl</parameter></term>
+        <listitem>
+          <para>
+            Enables HTTPS protocol for network streams.
+          </para>
+        </listitem>
+      </varlistentry>
+
+<!--
+      <varlistentry>
+        <term><parameter>- -enable-x11grab</parameter></term>
+        <listitem>
+          <para>
+            Enables X11 grabbing.
+          </para>
+        </listitem>
+      </varlistentry>
+-->
+
+    </variablelist>
+
+    <note>
+      <para>
+        Support for most of the dependency packages requires using options
+        passed to the configure script. View the output from ./configure --help
+        for complete information about enabling dependency packages.
+      </para>
+    </note>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make &amp;&amp;
 gcc tools/qt-faststart.c -o tools/qt-faststart</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>gcc tools/qt-faststart.c -o tools/qt-faststart</command></term>
+        <listitem>
+          <para>
+            This builds the qt-faststart program which can modify QuickTime
+            formatted movies (.mov or .mp4) so that the header information is
+            located at the beginning of the file instead of the end. This
+            allows the movie file to begin playing before the entire file has
+            been downloaded.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp ffmpeg-&ffmpeg-version; -E $PWD "make -j1 install &amp;&amp;
 install -v -m755 tools/qt-faststart /bin"</userinput></screen>
 
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed -i ... configure</command>: This command adds the ALSA
-        library to the Flite <envar>LDFLAGS</envar> variable and enables the
-        discovery of Flite.
-      </para>
-
-      <para>
-        <parameter>--enable-gpl</parameter>: Enables the use of GPL code and
-        permits support for postprocessing, swscale and many other features.
-      </para>
-
-      <para>
-        <parameter>--enable-version3</parameter>: Enables the use of (L)GPL
-        version 3 code.
-      </para>
-
-      <para>
-        <parameter>--enable-nonfree</parameter>: Enables the use of nonfree
-        code. Note that the resulting libraries and binaries will be
-        unredistributable.
-      </para>
-
-      <para>
-        <parameter>--enable-libass</parameter>: Enables ASS/SSA subtitle format
-        rendering via <filename class="libraryfile">libass</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libfdk-aac</parameter>: Enables currently the
-        highest-quality AAC audio encoding via <filename
-        class="libraryfile">libfdk-aac</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libmp3lame</parameter>: Enables MP3 audio encoding
-        via <filename class="libraryfile">libmp3lame</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libopus</parameter>: Enables Opus audio encoding
-        via <filename class="libraryfile">libmp3lame</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libtheora --enable-libvorbis</parameter>: Enables
-        Theora video encoding via <filename
-        class="libraryfile">libtheora</filename> and <filename
-        class="libraryfile">libvorbis</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libvpx --enable-libvorbis</parameter>: Enables WebM
-        video encoding via <filename class="libraryfile">libvpx</filename> and
-        <filename class="libraryfile">libvorbis</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libx264</parameter>: Enables high-quality
-        H.264/MPEG-4 AVC video encoding via <filename
-        class="libraryfile">libx264</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-libx265</parameter>: Enables high-quality
-        H.265/HEVC video encoding via <filename
-        class="libraryfile">libx265</filename>.
-      </para>
-
-      <para>
-        <parameter>--enable-openssl</parameter>: Enables HTTPS protocol for
-        network streams.
-      </para>
-<!--
-      <para>
-        <parameter>- -enable-x11grab</parameter>: Enables X11 grabbing.
-      </para>
--->
-      <para>
-        <command>gcc tools/qt-faststart.c -o tools/qt-faststart</command>: This
-        builds the <command>qt-faststart</command> program which can modify
-        QuickTime formatted movies (<filename class="extension">.mov</filename>
-        or <filename class="extension">.mp4</filename>) so that the header
-        information is located at the beginning of the file instead of the end.
-        This allows the movie file to begin playing before the entire file has
-        been downloaded.
-      </para>
-
-      <note>
-        <para>
-          Support for most of the dependency packages requires using options
-          passed to the <command>configure</command> script. View the output
-          from <command>./configure --help</command> for complete information
-          about enabling dependency packages.
-        </para>
-      </note>
-
-    </sect3>
-
   </sect2>
-<!--
-  <sect2>
-    <title>Configuration</title>
 
-    <sect3>
-      <title>Config Files</title>
-
-      <para>
-        <filename>/etc/ffserver.conf</filename> and
-        <filename>~/.ffmpeg/ffserver-config</filename>
-      </para>
-
-      <para>
-        You'll find a sample <command>ffserver</command> configuration file at
-        <filename>doc/ffserver.conf</filename> in the source tree.
-      </para>
-
-    </sect3>
-
-  </sect2>
--->
 </sect1>

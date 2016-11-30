@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY x265-homepage      "http://x265.org/">
-  <!ENTITY x265-wikipedia     "https://en.wikipedia.org/wiki/X265">
-  <!ENTITY x265-download-http "https://bitbucket.org/multicoreware/x265/downloads/x265_&x265-version;.tar.gz">
-  <!ENTITY x265-download-ftp  " ">
-  <!ENTITY x265-md5sum        "c2657ab0925bee1fe7f3675b3f199ac0">
-  <!ENTITY x265-size          "1.0 MB">
-  <!ENTITY x265-buildsize     "21 MB">
-  <!ENTITY x265-time          "0.8 SBU">
 ]>
 
 <sect1 id="x265" xreflabel="x265-&x265-version;">
@@ -20,14 +11,8 @@
   <title>x265-&x265-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      x265 package provides a library for encoding video streams into the
-      H.265/HEVC format.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&x265-download-http;"/>
+          Download: <ulink url="&x265-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&x265-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &x265-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &x265-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &x265-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &x265-time;
+          MD5 sum: &x265-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -104,10 +69,10 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../x265_&x265-version;-enable_static-1.patch &amp;&amp;
+<screen><userinput>patch -Np1 -i ../x265_&x265-version;-enable_static-1.patch &amp;&amp;
 mkdir bld &amp;&amp;
 cd bld &amp;&amp;
 cmake -DCMAKE_INSTALL_PREFIX= \
@@ -115,7 +80,7 @@ cmake -DCMAKE_INSTALL_PREFIX= \
       ../source</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -124,7 +89,7 @@ cmake -DCMAKE_INSTALL_PREFIX= \
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp x265-&x265-version; -E $PWD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp x265-&x265-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
