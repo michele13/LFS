@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY thunderbird-homepage      "https://www.mozilla.org/thunderbird/">
-  <!ENTITY thunderbird-wikipedia     "https://en.wikipedia.org/wiki/Mozilla_Thunderbird">
-  <!ENTITY thunderbird-download-http "&mozilla-http;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
-  <!ENTITY thunderbird-download-ftp  "&mozilla-ftp;/thunderbird/releases/&thunderbird-version;/source/thunderbird-&thunderbird-version;.source.tar.xz">
-  <!ENTITY thunderbird-md5sum        "39b50c7659fa106eb53e5ea4c8bc7b2a">
-  <!ENTITY thunderbird-size          "192 MB">
-  <!ENTITY thunderbird-buildsize     "3.9 GB">
-  <!ENTITY thunderbird-time          "72 SBU">
 ]>
 
 <sect1 id="thunderbird" xreflabel="thunderbird-&thunderbird-version;">
@@ -20,15 +11,8 @@
   <title>thunderbird-&thunderbird-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Thunderbird is a stand-alone mail/news client based on the Mozilla
-      codebase. It uses the Gecko rendering engine to enable it to display and
-      compose HTML emails.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&thunderbird-download-http;"/>
+          Download: <ulink url="&thunderbird-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&thunderbird-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &thunderbird-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &thunderbird-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &thunderbird-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &thunderbird-time;
+          MD5 sum: &thunderbird-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -85,6 +49,7 @@
 
     <bridgehead renderas="sect4">Recommended</bridgehead>
     <para>
+      <xref linkend="hunspell"/>,
       <xref linkend="libevent"/>,
       <xref linkend="libvpx"/>,
       <xref linkend="nspr"/>, and
@@ -106,23 +71,14 @@
       <para>
         With Thunderbird-31.0 and later versions, you must have installed
         libressl before python2, or the build system will quickly fail with
-        output including "ImportError: cannot import name HTTPSHandler". If you
-        are in any doubt about this (e.g. upgrading from an older version of
-        Thunderbird), check if
-        <filename>/usr/lib/python2.7/lib-dynload/_ssl.so</filename> exists. If
-        it does not, reinstall python2 (after
-        installing <xref linkend="libressl"/> - the latest version of any
-        <emphasis>currently maintained</emphasis> version of Openssl should be
-        satisfactory if already installed - if that package has not already
-        been installed).
+        output including "ImportError: cannot import name HTTPSHandler".
       </para>
     </note>
 
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
       <xref linkend="curl"/>,
-      <xref linkend="cyrus-sasl"/>, and
-      <xref linkend="hunspell"/>
+      <xref linkend="cyrus-sasl"/>
     </para>
 
   </sect2>
@@ -131,30 +87,27 @@
     <title>Installation</title>
 
     <para>
-      The configuration of Thunderbird is accomplished by creating a
-      <filename>mozconfig</filename> file containing the desired configuration
-      options. A default <filename>mozconfig</filename> is created below. To
-      see the entire list of available configuration options (and a brief
-      description of each), issue <command>mozilla/configure --help</command>.
-      Create the file with the following command:
+      The configuration of Thunderbird is accomplished by creating a mozconfig
+      file containing the desired configuration options. A default mozconfig is
+      created below. To see the entire list of available configuration options
+      (and a brief description of each), issue mozilla/configure --help. Create
+      the file with the following command:
     </para>
 
 <screen><userinput>cat &gt; mozconfig &lt;&lt; "EOF"
-<literal># Uncomment these lines if you have installed optional dependencies:
-#ac_add_options --enable-system-hunspell
-
-# If you want to compile the Mozilla Calendar, uncomment this line:
+<literal># If you want to compile the Mozilla Calendar, uncomment this line:
 #ac_add_options --enable-calendar
 
 # Comment out following options if you have not installed
 # recommended dependencies:
 # Do not use system SQLite for Thunderbird 45.x
-#ac_add_options --enable-system-sqlite
 ac_add_options --with-system-libevent
 ac_add_options --with-system-libvpx
 ac_add_options --with-system-nspr
 ac_add_options --with-system-nss
 ac_add_options --with-system-icu
+#ac_add_options --enable-system-sqlite
+ac_add_options --enable-system-hunspell
 
 # The BLFS editors recommend not changing anything below this line:
 ac_add_options --prefix=
@@ -205,7 +158,7 @@ EOF</userinput></screen>
 <screen><userinput>export PATH=/opt/python2/bin:/bin</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <!--<screen><userinput>SHELL=/bin/sh make -f client.mk</userinput></screen>-->
@@ -216,15 +169,51 @@ sed -e '/#include/a\
     print OUT "#undef _GLIBCXX_INCLUDE_NEXT_C_HEADERS\\n"\;' \
     -i mozilla/nsprpub/config/make-system-wrappers.pl &amp;&amp;
 SHELL=/bin/sh \
-CFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
 CXXFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2" \
 make -f client.mk</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>sed ...</command></term>
+        <listitem>
+          <para>
+            These commands correct the source to be compatible with gcc6 by
+            preventing C++ scope errors.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><command>CXXFLAGS= ...</command></term>
+        <listitem>
+          <para>
+            These settings work around code which gcc6 would otherwise regard
+            as out-of-specification and allow it to produce a working program.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><command>make -f client.mk</command></term>
+        <listitem>
+          <para>
+            Mozilla products are packaged to allow the use of a configuration
+            file which can be used to pass the configuration settings to the
+            configure command. make uses the client.mk file to get initial
+            configuration and setup parameters.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -f client.mk install INSTALL_SDK= &amp;&amp;
+<screen><userinput>porg -lp thunderbird-&thunderbird-version; -E $PWD "make -f client.mk install INSTALL_SDK= &amp;&amp;
 chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
 
     <para>
@@ -232,30 +221,6 @@ chown -R 0:0 /lib/thunderbird-&thunderbird-version;"</userinput></screen>
     </para>
 
 <screen><userinput>export PATH=/bin</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed ...</command>: These commands correct the source to be
-        compatible with gcc6 by preventing C++ scope errors.
-      </para>
-
-      <para>
-        <command>CFLAGS= ... CXXFLAGS= ...</command>: These settings work
-        around code which gcc6 would otherwise regard as out-of-specification
-        and allow it to produce a working program.
-      </para>
-
-      <para>
-        <command>make -f client.mk</command>: Mozilla products are packaged to
-        allow the use of a configuration file which can be used to pass the
-        configuration settings to the <command>configure</command> command.
-        <command>make</command> uses the <filename>client.mk</filename> file to
-        get initial configuration and setup parameters.
-      </para>
-
-    </sect3>
 
   </sect2>
 
