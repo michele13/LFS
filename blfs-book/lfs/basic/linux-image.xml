@@ -100,11 +100,22 @@
     </para>
 
 <screen><userinput>sed 's/\(CONFIG_NFS_V4\)=y/# \1 is not set/' -i .config</userinput></screen>
+
 <!--
     <para>Enable some common network device drivers:</para>
 
 <screen><userinput>sed 's/# \(CONFIG_E1000E\) is not set/\1=m/' -i .config</userinput></screen>
 -->
+
+    <!-- Remove at 4.8.13 -->
+    <para>
+      Fix an out of memory issue that affects recent kernels:
+    </para>
+
+<screen><userinput>sed -e '/sk_sndbuf/s/u32/int/' \
+    -e '/sk_rcvbuf/s/u32/int/' \
+    -i net/core/sock.c</userinput></screen>
+
     <para>
       Build the kernel image and modules:</para>
 
