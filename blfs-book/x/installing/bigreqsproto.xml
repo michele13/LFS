@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY bigreqsproto-homepage      " ">
-  <!ENTITY bigreqsproto-wikipedia     " ">
-  <!ENTITY bigreqsproto-download-http "&xorg-download-http;/proto/bigreqsproto-&bigreqsproto-version;.tar.bz2">
-  <!ENTITY bigreqsproto-download-ftp  "&xorg-download-ftp;/proto/bigreqsproto-&bigreqsproto-version;.tar.bz2">
-  <!ENTITY bigreqsproto-md5sum        "1a05fb01fa1d5198894c931cf925c025">
-  <!ENTITY bigreqsproto-size          "111 KB">
-  <!ENTITY bigreqsproto-buildsize     "904 KB">
-  <!ENTITY bigreqsproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="bigreqsproto" xreflabel="bigreqsproto-&bigreqsproto-version;">
@@ -20,14 +11,8 @@
   <title>bigreqsproto-&bigreqsproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension defines a protocol to enable the use of requests that
-      exceed 262140 bytes in length.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&bigreqsproto-download-http;"/>
+          Download: <ulink url="&bigreqsproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&bigreqsproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &bigreqsproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &bigreqsproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &bigreqsproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &bigreqsproto-time;
+          MD5 sum: &bigreqsproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -90,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -99,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp bigreqsproto-&bigreqsproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

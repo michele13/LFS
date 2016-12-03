@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY fontsproto-homepage      " ">
-  <!ENTITY fontsproto-wikipedia     " ">
-  <!ENTITY fontsproto-download-http "&xorg-download-http;/proto/fontsproto-&fontsproto-version;.tar.bz2">
-  <!ENTITY fontsproto-download-ftp  "&xorg-download-ftp;/proto/fontsproto-&fontsproto-version;.tar.bz2">
-  <!ENTITY fontsproto-md5sum        "36934d00b00555eaacde9f091f392f97">
-  <!ENTITY fontsproto-size          "139 KB">
-  <!ENTITY fontsproto-buildsize     "1.2 MB">
-  <!ENTITY fontsproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="fontsproto" xreflabel="fontsproto-&fontsproto-version;">
@@ -20,15 +11,8 @@
   <title>fontsproto-&fontsproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package provides development headers describing the wire protocol for
-      font-related extensions, used to control the server-side font
-      configuration, and also the font server headers.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&fontsproto-download-http;"/>
+          Download: <ulink url="&fontsproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&fontsproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &fontsproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &fontsproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &fontsproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &fontsproto-time;
+          MD5 sum: &fontsproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -91,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -100,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp fontsproto-&fontsproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
