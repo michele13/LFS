@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xf86-input-mouse-homepage      " ">
-  <!ENTITY xf86-input-mouse-wikipedia     " ">
-  <!ENTITY xf86-input-mouse-download-http "&xorg-download-http;/driver/xf86-input-mouse-&xf86-input-mouse-version;.tar.bz2">
-  <!ENTITY xf86-input-mouse-download-ftp  "&xorg-download-ftp;/driver/xf86-input-mouse-&xf86-input-mouse-version;.tar.bz2">
-  <!ENTITY xf86-input-mouse-md5sum        "ce2d679283a22c8e0dccdd9248594845">
-  <!ENTITY xf86-input-mouse-size          "340 KB">
-  <!ENTITY xf86-input-mouse-buildsize     "3.9 MB">
-  <!ENTITY xf86-input-mouse-time          "0.1 SBU">
 ]>
 
 <sect1 id="xf86-input-mouse" xreflabel="xf86-input-mouse-&xf86-input-mouse-version;">
@@ -20,13 +11,8 @@
   <title>xf86-input-mouse-&xf86-input-mouse-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package provides mouse input driver for the Xorg X server.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xf86-input-mouse-download-http;"/>
+          Download: <ulink url="&xf86-input-mouse-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xf86-input-mouse-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xf86-input-mouse-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xf86-input-mouse-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xf86-input-mouse-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xf86-input-mouse-time;
+          MD5 sum: &xf86-input-mouse-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -83,13 +49,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -98,14 +64,14 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xf86-input-mouse-&xf86-input-mouse-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
   <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cat &gt; /etc/X11/xorg.conf.d/30-mouse.conf &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/X11/xorg.conf.d/30-mouse.conf &lt;&lt; "EOF"
 <literal>Section "InputDevice"
         identifier      "Mouse0"
         driver          "mouse"
@@ -117,7 +83,7 @@
         # put into your .xinitrc something like 'xset m 1 1 &amp;'
 EndSection</literal>
 EOF
-ls /etc/X11/xorg.conf.d/30-mouse.conf | porg -lD+</userinput></screen>
+ls /etc/X11/xorg.conf.d/30-mouse.conf | porg -lp+ xf86-input-mouse-&xf86-input-mouse-version;</userinput></screen>
 
   </sect2>
 

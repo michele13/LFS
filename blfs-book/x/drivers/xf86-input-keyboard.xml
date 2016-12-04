@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xf86-input-keyboard-homepage      " ">
-  <!ENTITY xf86-input-keyboard-wikipedia     " ">
-  <!ENTITY xf86-input-keyboard-download-http "&xorg-download-http;/driver/xf86-input-keyboard-&xf86-input-keyboard-version;.tar.bz2">
-  <!ENTITY xf86-input-keyboard-download-ftp  "&xorg-download-ftp;/driver/xf86-input-keyboard-&xf86-input-keyboard-version;.tar.bz2">
-  <!ENTITY xf86-input-keyboard-md5sum        "a3a3f0dd32361dcdbd406e894dafe090">
-  <!ENTITY xf86-input-keyboard-size          "312 KB">
-  <!ENTITY xf86-input-keyboard-buildsize     "3.5 MB">
-  <!ENTITY xf86-input-keyboard-time          "0.1 SBU">
 ]>
 
 <sect1 id="xf86-input-keyboard" xreflabel="xf86-input-keyboard-&xf86-input-keyboard-version;">
@@ -20,13 +11,8 @@
   <title>xf86-input-keyboard-&xf86-input-keyboard-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This package provides keyboard input driver for the Xorg X server.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xf86-input-keyboard-download-http;"/>
+          Download: <ulink url="&xf86-input-keyboard-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xf86-input-keyboard-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xf86-input-keyboard-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xf86-input-keyboard-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xf86-input-keyboard-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xf86-input-keyboard-time;
+          MD5 sum: &xf86-input-keyboard-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -83,13 +49,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -98,25 +64,25 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xf86-input-keyboard-&xf86-input-keyboard-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
   <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cat &gt; /etc/X11/xorg.conf.d/10-keyboard.conf &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/X11/xorg.conf.d/10-keyboard.conf &lt;&lt; "EOF"
 <literal>Section "InputDevice"
         identifier      "keyboard0"
         driver          "kbd"
         option          "AutoServerLayout" "on"
-        # Croatian keyboard map.
+        # Swedish keyboard map.
         option          "XkbRules" "xorg"
         option          "XkbModel" "pc105"
         option          "XkbLayout" "se"
 EndSection</literal>
 EOF
-ls /etc/X11/xorg.conf.d/10-keyboard.conf | porg -lD+</userinput></screen>
+ls /etc/X11/xorg.conf.d/10-keyboard.conf | porg -lp+ xf86-input-keyboard-&xf86-input-keyboard-version;</userinput></screen>
 
   </sect2>
 

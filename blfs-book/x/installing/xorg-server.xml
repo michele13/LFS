@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xorg-server-homepage      "http://www.x.org/">
-  <!ENTITY xorg-server-wikipedia     "https://en.wikipedia.org/wiki/X.Org_Server">
-  <!ENTITY xorg-server-download-http "&xorg-download-http;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
-  <!ENTITY xorg-server-download-ftp  "&xorg-download-ftp;/xserver/xorg-server-&xorg-server-version;.tar.bz2">
-  <!ENTITY xorg-server-md5sum        "6a4d01e4e5047ab8f556960424ba1fa9">
-  <!ENTITY xorg-server-size          "5.7 MB">
-  <!ENTITY xorg-server-buildsize     "516 MB">
-  <!ENTITY xorg-server-time          "1.6 SBU">
 ]>
 
 <sect1 id="xorg-server" xreflabel="xorg-server-&xorg-server-version;">
@@ -20,13 +11,8 @@
   <title>xorg-server-&xorg-server-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Xorg Server is the core of the X Window system.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xorg-server-download-http;"/>
+          Download: <ulink url="&xorg-server-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xorg-server-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xorg-server-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xorg-server-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xorg-server-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xorg-server-time;
+          MD5 sum: &xorg-server-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -103,8 +69,9 @@
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para>
       <xref linkend="xf86driproto"/>,
-      <xref linkend="xf86bigfontproto"/>, and
-      <xref linkend="xf86dgaproto"/>
+      <xref linkend="xf86bigfontproto"/>,
+      <xref linkend="xf86dgaproto"/>,
+      <ulink url="https://github.com/anholt/libepoxy">libepoxy</ulink>
     </para>
 
     <bridgehead renderas="sect4">Required (runtime)</bridgehead>
@@ -121,7 +88,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -131,10 +98,135 @@
             --enable-suid-wrapper \
             --with-sha1=libcrypto \
             --disable-xnest \
-            --disable-dri</userinput></screen>
+            --disable-dri \
+            --disable-glamor</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--enable-install-setuid</parameter></term>
+        <listitem>
+          <para>
+            The Xorg binary must run as the root user. This switch ensures that
+            the binary is installed setuid when make is run by an unprivileged
+            user.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-suid-wrapper</parameter></term>
+        <listitem>
+          <para>
+            Build suid-root wrapper for legacy driver support on rootless
+            xserver systems.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-sha1=libcrypto</parameter></term>
+        <listitem>
+          <para>
+            This switch forces using LibreSSL SHA1 implementation.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-xnest</parameter></term>
+        <listitem>
+          <para>
+            This switch disables building Xnest server.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-dri</parameter></term>
+        <listitem>
+          <para>
+            This switch disables bulding DRI extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--disable-glamor</parameter></term>
+        <listitem>
+          <para>
+            This switch disables bulding the Glamor DIX (Device Independent X)
+            module which is currently required for Southern Islands and Sea
+            Islands radeon video chipsets, optional for some other radeons, and
+            also optional for the intel driver. It is also used by the
+            modesetting driver (which is part of this package) for hardware
+            using KMS which offers acceleration. Enabling this requires
+            libepoxy.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-glx</option></term>
+        <listitem>
+          <para>
+            This switch disables building GLX extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-composite</option></term>
+        <listitem>
+          <para>
+            This switch disables building Composite extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-record</option></term>
+        <listitem>
+          <para>
+            This switch disables building Record extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-screensaver</option></term>
+        <listitem>
+          <para>
+            This switch disables building ScreenSaver extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--disable-present</option></term>
+        <listitem>
+          <para>
+            This switch disables building Present extension.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><command>cat &gt;&gt; /etc/rc.boot ...</command></term>
+        <listitem>
+          <para>
+            This command creates the /tmp/.ICE-unix and /tmp/.X11-unix
+            directories at startup, and ensures that the permissions and
+            ownership are correct as required by the server.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -143,88 +235,24 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install" &amp;&amp;
-mkdir -pv /etc/X11/xorg.conf.d &amp;&amp;
+<screen><userinput>porg -lp xorg-server-&xorg-server-version; -E $PWD "make -j1 install"
 cat &gt;&gt; /etc/rc.boot &lt;&lt; "EOF"
 <literal>install -d -o root -g root -m 1777 /tmp/.ICE-unix
 install -d -o root -g root -m 1777 /tmp/.X11-unix</literal>
 EOF</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--enable-install-setuid</parameter>: The Xorg binary must
-        run as the root user. This switch ensures that the binary is installed
-        setuid when <command>make</command> is run by an unprivileged user.
-      </para>
-
-      <para>
-        <parameter>--enable-suid-wrapper</parameter>: Build suid-root wrapper
-        for legacy driver support on rootless xserver systems.
-      </para>
-
-      <para>
-        <parameter>--with-sha1=libcrypto</parameter>: This switch forces using
-        LibreSSL SHA1 implementation.
-      </para>
-
-      <para>
-        <parameter>--disable-xnest</parameter>: This switch disables building
-        Xnest server.
-      </para>
-
-      <para>
-        <parameter>--disable-dri</parameter>: This switch disables bulding DRI
-        extension.
-      </para>
-
-      <para>
-        <option>--disable-glx</option>: This switch disables building GLX
-        extension.
-      </para>
-
-      <para>
-        <option>--disable-composite</option>: This switch disables building
-        Composite extension.
-      </para>
-
-      <para>
-        <option>--disable-record</option>: This switch disables building
-        Record extension.
-      </para>
-
-      <para>
-        <option>--disable-screensaver</option>: This switch disables building
-        ScreenSaver extension.
-      </para>
-
-      <para>
-        <option>--disable-present</option>: This switch disables building
-        Present extension.
-      </para>
-
-      <para>
-        <command>cat &gt;&gt; /etc/rc.d/rcS.d/oneandonly ...</command>: This
-        command creates the <filename class="directory">/tmp/.ICE-unix</filename>
-        and <filename class="directory">/tmp/.X11-unix</filename> directories at
-        startup, and ensures that the permissions and ownership are correct as
-        required by the server.
-      </para>
-
-    </sect3>
 
   </sect2>
 
   <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cat &gt; /etc/X11/xorg.conf.d/00-disable-hotplug.conf &lt;&lt; "EOF"
+<screen><userinput>mkdir -pv /etc/X11/xorg.conf.d
+cat &gt; /etc/X11/xorg.conf.d/00-disable-hotplug.conf &lt;&lt; "EOF"
 <literal>Section "ServerFlags"
         option "AutoAddDevices" "False"
 EndSection</literal>
 EOF
-ls /etc/X11/xorg.conf.d/00-disable-hotplug.conf | porg -lD+</userinput></screen>
+ls /etc/X11/xorg.conf.d/00-disable-hotplug.conf | porg -lp+ xorg-server-&xorg-server-version;</userinput></screen>
 
   </sect2>
 
