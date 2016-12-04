@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY scrnsaverproto-homepage      " ">
-  <!ENTITY scrnsaverproto-wikipedia     " ">
-  <!ENTITY scrnsaverproto-download-http "&xorg-download-http;/proto/scrnsaverproto-&scrnsaverproto-version;.tar.bz2">
-  <!ENTITY scrnsaverproto-download-ftp  "&xorg-download-ftp;/proto/scrnsaverproto-&scrnsaverproto-version;.tar.bz2">
-  <!ENTITY scrnsaverproto-md5sum        "edd8a73775e8ece1d69515dd17767bfb">
-  <!ENTITY scrnsaverproto-size          "117 KB">
-  <!ENTITY scrnsaverproto-buildsize     "952 KB">
-  <!ENTITY scrnsaverproto-time          "0.1 SBU">
 ]>
 
 <sect1 id="scrnsaverproto" xreflabel="scrnsaverproto-&scrnsaverproto-version;">
@@ -20,14 +11,8 @@
   <title>scrnsaverproto-&scrnsaverproto-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This extension defines a protocol to control screensaver features and also
-      to query screensaver info on specific windows.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,42 +26,24 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&scrnsaverproto-download-http;"/>
+          Download: <ulink url="&scrnsaverproto-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&scrnsaverproto-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &scrnsaverproto-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &scrnsaverproto-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &scrnsaverproto-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &scrnsaverproto-time;
+          MD5 sum: &scrnsaverproto-md5sum;
         </para>
       </listitem>
     </itemizedlist>
 
+<!--
     <bridgehead renderas="sect3">Dependencies</bridgehead>
 
     <bridgehead renderas="sect4">Required</bridgehead>
     <para>
       <xref linkend="util-macros"/>
     </para>
+-->
 
   </sect2>
 
@@ -90,7 +57,7 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
@@ -99,7 +66,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp scrnsaverproto-&scrnsaverproto-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
