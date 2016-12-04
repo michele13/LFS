@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xf86-input-synaptics-homepage      " ">
-  <!ENTITY xf86-input-synaptics-wikipedia     " ">
-  <!ENTITY xf86-input-synaptics-download-http "&xorg-download-http;/driver/xf86-input-synaptics-&xf86-input-synaptics-version;.tar.bz2">
-  <!ENTITY xf86-input-synaptics-download-ftp  "&xorg-download-ftp;/driver/xf86-input-synaptics-&xf86-input-synaptics-version;.tar.bz2">
-  <!ENTITY xf86-input-synaptics-md5sum        "58e5b7722a402114093bf193962d1e3a">
-  <!ENTITY xf86-input-synaptics-size          "468 KB">
-  <!ENTITY xf86-input-synaptics-buildsize     "5.5 MB">
-  <!ENTITY xf86-input-synaptics-time          "0.1 SBU">
 ]>
 
 <sect1 id="xf86-input-synaptics" xreflabel="xf86-input-synaptics-&xf86-input-synaptics-version;">
@@ -20,14 +11,8 @@
   <title>xf86-input-synaptics-&xf86-input-synaptics-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The xf86-input-synaptics package contains the X.Org Input Driver,
-      support programs and SDK for Synaptics touchpads.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xf86-input-synaptics-download-http;"/>
+          Download: <ulink url="&xf86-input-synaptics-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xf86-input-synaptics-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xf86-input-synaptics-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xf86-input-synaptics-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xf86-input-synaptics-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xf86-input-synaptics-time;
+          MD5 sum: &xf86-input-synaptics-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -91,13 +56,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -106,14 +71,14 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xf86-input-synaptics-&xf86-input-synaptics-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
   <sect2>
     <title>Configuration</title>
 
-<screen role="root"><userinput>cat &gt; /etc/X11/xorg.conf.d/20-synaptics.conf &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/X11/xorg.conf.d/20-synaptics.conf &lt;&lt; "EOF"
 <literal>Section "InputDevice"
         identifier      "touchpad0"
         driver          "synaptics"
@@ -137,7 +102,7 @@
         Option  "VertScrollDelta"       "100"
 EndSection</literal>
 EOF
-ls /etc/X11/xorg.conf.d/20-synaptics.conf | porg -lD+</userinput></screen>
+ls /etc/X11/xorg.conf.d/20-synaptics.conf | porg -lp+ xf86-input-synaptics-&xf86-input-synaptics-version;</userinput></screen>
 
   </sect2>
 

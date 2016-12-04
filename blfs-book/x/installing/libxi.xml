@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxi-homepage      " ">
-  <!ENTITY libxi-wikipedia     " ">
-  <!ENTITY libxi-download-http "&xorg-download-http;/lib/libXi-&libxi-version;.tar.bz2">
-  <!ENTITY libxi-download-ftp  "&xorg-download-ftp;/lib/libXi-&libxi-version;.tar.bz2">
-  <!ENTITY libxi-md5sum        "94afc83e553d3c38a153f8f60301fd62">
-  <!ENTITY libxi-size          "454 KB">
-  <!ENTITY libxi-buildsize     "13 MB">
-  <!ENTITY libxi-time          "0.1 SBU">
 ]>
 
 <sect1 id="libxi" xreflabel="libxi-&libxi-version;">
@@ -20,16 +11,8 @@
   <title>libxi-&libxi-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXi provides an X Window System client interface to the XINPUT extension
-      to the X protocol. The Input extension allows setup and configuration of
-      multiple input devices, and will soon allow hotplugging of input devices;
-      to be added and removed on the fly.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxi-download-http;"/>
+          Download: <ulink url="&libxi-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxi-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxi-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxi-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxi-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxi-time;
+          MD5 sum: &libxi-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -93,14 +56,14 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i specs/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,7 +72,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxi-&libxi-version; "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxi-&libxi-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libXi.la"</userinput></screen>
 
   </sect2>
