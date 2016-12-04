@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xf86-video-intel-homepage      " ">
-  <!ENTITY xf86-video-intel-wikipedia     " ">
-  <!ENTITY xf86-video-intel-download-http "&sources-anduin-http;/xf86-video-intel/xf86-video-intel-&xf86-video-intel-version;.tar.bz2">
-  <!ENTITY xf86-video-intel-download-ftp  "&sources-anduin-ftp;/xf86-video-intel/xf86-video-intel-&xf86-video-intel-version;.tar.bz2">
-  <!ENTITY xf86-video-intel-md5sum        "aff145a655f96761d2ad1935c0d10ab4">
-  <!ENTITY xf86-video-intel-size          "13 MB">
-  <!ENTITY xf86-video-intel-buildsize     "70 MB">
-  <!ENTITY xf86-video-intel-time          "0.6 SBU">
 ]>
 
 <sect1 id="xf86-video-intel" xreflabel="xf86-video-intel-&xf86-video-intel-version;">
@@ -20,13 +11,7 @@
   <title>xf86-video-intel-&xf86-video-intel-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
-
-    <para>
-      The Xorg Intel Driver package contains the X.Org Video Driver for Intel
-      integrated video cards including 8xx, 9xx, Gxx, Qxx and HD graphics
-      processors (SandyBridge, IvyBridge and Haswell).
-    </para>
+    <title>Package Information</title>
 
     <note>
       <para>
@@ -35,7 +20,6 @@
       </para>
     </note>
 
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -49,32 +33,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xf86-video-intel-download-http;"/>
+          Download: <ulink url="&xf86-video-intel-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xf86-video-intel-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xf86-video-intel-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xf86-video-intel-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xf86-video-intel-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xf86-video-intel-time;
+          MD5 sum: &xf86-video-intel-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,10 +56,10 @@
     <title>Kernel Configuration</title>
 
   <para>
-    Enable the following options in the kernel configuration. Only one of
-    the lines <quote>Intel I810</quote> or <quote>Intel 8xx/9xx...</quote>
-    needs to be selected. If you select the latter, <quote>Enable
-    modesetting...</quote> is needed too. Recompile the kernel if necessary:
+    Enable the following options in the kernel configuration. Only one of the
+    lines "Intel I810" or "Intel 8xx/9xx..." needs to be selected. If you
+    select the latter, "Enable modesetting..." is needed too. Recompile the
+    kernel if necessary:
   </para>
 
 <screen><literal>Device Drivers  ---&gt;
@@ -110,14 +74,28 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --enable-kms-only</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--enable-kms-only</parameter></term>
+        <listitem>
+          <para>
+            This switch omits the UMS (User Mode Setting) code.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -126,17 +104,7 @@
       Install the package
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
-
-    <sect3 role="commands">
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--enable-kms-only</parameter>: This switch omits the UMS
-        (User Mode Setting) code.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp xf86-video-intel-&xf86-video-intel-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
