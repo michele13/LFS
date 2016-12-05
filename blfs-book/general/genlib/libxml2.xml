@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxml2-homepage      "http://www.xmlsoft.org/">
-  <!ENTITY libxml2-wikipedia     "http://en.wikipedia.org/wiki/Libxml2">
-  <!ENTITY libxml2-download-http "http://xmlsoft.org/sources/libxml2-&libxml2-version;.tar.gz">
-  <!ENTITY libxml2-download-ftp  "ftp://xmlsoft.org/libxml2/libxml2-&libxml2-version;.tar.gz">
-  <!ENTITY libxml2-md5sum        "ae249165c173b1ff386ee8ad676815f5">
-  <!ENTITY libxml2-size          "5.1 MB">
-  <!ENTITY libxml2-buildsize     "77 MB">
-  <!ENTITY libxml2-time          "0.5 SBU">
 ]>
 
 <sect1 id="libxml2" xreflabel="libxml2-&libxml2-version;">
@@ -20,14 +11,8 @@
   <title>libxml2-&libxml2-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libxml2 package contains libraries and utilities used for parsing XML
-      files.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxml2-download-http;"/>
+          Download: <ulink url="&libxml2-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxml2-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxml2-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxml2-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxml2-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxml2-time;
+          MD5 sum: &libxml2-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -105,7 +70,7 @@ sed "s/ install-dist_exampleDATA//" -i python/tests/Makefile.in
 sed "s/ install-dist_devhelpDATA//" -i doc/devhelp/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -113,8 +78,32 @@ sed "s/ install-dist_devhelpDATA//" -i doc/devhelp/Makefile.in</userinput></scre
             --with-python=/bin/python3 \
             --with-history</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-python=/bin/python3</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building the Python module.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-history</parameter></term>
+        <listitem>
+          <para>
+            This switch enables Readline support when running xmlcatalog or
+            xmllint in shell mode.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -123,24 +112,8 @@ sed "s/ install-dist_devhelpDATA//" -i doc/devhelp/Makefile.in</userinput></scre
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libxml2-&libxml2-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libxml2.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-python=/bin/python3</parameter>: This switch
-        enables building the Python module.
-      </para>
-
-      <para>
-        <parameter>--with-history</parameter>: This switch enables Readline
-        support when running <command>xmlcatalog</command> or
-        <command>xmllint</command> in shell mode.
-      </para>
-
-    </sect3>
 
   </sect2>
 
