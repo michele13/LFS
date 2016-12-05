@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY flex-homepage      "http://flex.sourceforge.net/">
-  <!ENTITY flex-wikipedia     "http://en.wikipedia.org/wiki/Flex_lexical_analyser">
-  <!ENTITY flex-download-http "https://github.com/westes/flex/releases/download/v&flex-version;/flex-&flex-version;.tar.gz">
-  <!ENTITY flex-download-ftp  " ">
-  <!ENTITY flex-md5sum        "cc6d76c333db7653d5caf423a3335239">
-  <!ENTITY flex-size          "1.4 MB">
-  <!ENTITY flex-buildsize     "36 MB">
-  <!ENTITY flex-time          "0.4 SBU">
 ]>
 
 <sect1 id="flex" xreflabel="flex-&flex-version;">
@@ -20,14 +11,8 @@
   <title>flex-&flex-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The flex package contains a utility for generating programs that recognize
-      patterns in text.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&flex-download-http;"/>
+          Download: <ulink url="&flex-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&flex-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &flex-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &flex-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &flex-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &flex-time;
+          MD5 sum: &flex-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -75,8 +40,8 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Required patch:
-          <ulink url="&patch-root;flex/flex-&flex-version;-fixes-1.patch"/>
+          Required patch: <ulink
+          url="&patch-root;flex/flex-&flex-version;-fixes-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -104,10 +69,11 @@ sed 's/ install-info-am / /' -i doc/Makefile.in</userinput></screen>
       Fix an issue that was discovered after release:
     </para>
 
-<screen><userinput>patch -Np1 -i ../flex-&flex-version;-fixes-1.patch</userinput></screen>
+<screen><userinput>patch -Np1 -i ../flex-&flex-version;-fixes-1.patch
+touch src/scan.*</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>HELP2MAN=/bin/true \
@@ -132,7 +98,7 @@ sed 's/ install-info-am / /' -i doc/Makefile.in</userinput></screen>
     </variablelist>
 
     <para>
-      Compile the package: 
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -141,9 +107,8 @@ sed 's/ install-info-am / /' -i doc/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
-rm -v /lib/libfl.la &amp;&amp;
-rm -v /lib/libfl_pic.la"</userinput></screen>
+<screen><userinput>porg -lp flex-&flex-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libfl*.la"</userinput></screen>
 
     <para>
       A few programs do not know about flex yet and try to run its predecessor,
@@ -151,7 +116,7 @@ rm -v /lib/libfl_pic.la"</userinput></screen>
       runs flex in lex emulation mode: 
     </para>
 
-<screen role="root"><userinput>porg -lD+ "ln -sv flex /bin/lex"</userinput></screen>
+<screen><userinput>porg -lp+ flex-&flex-version; "ln -sv flex /bin/lex"</userinput></screen>
 
   </sect2>
 

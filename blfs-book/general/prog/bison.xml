@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY bison-homepage      "http://www.gnu.org/software/bison/">
-  <!ENTITY bison-wikipedia     "http://en.wikipedia.org/wiki/GNU_bison">
-  <!ENTITY bison-download-http "http://ftp.gnu.org/gnu/bison/bison-&bison-version;.tar.xz">
-  <!ENTITY bison-download-ftp  "ftp://ftp.gnu.org/gnu/bison/bison-&bison-version;.tar.xz">
-  <!ENTITY bison-md5sum        "c342201de104cc9ce0a21e0ad10d4021">
-  <!ENTITY bison-size          "1.9 MB">
-  <!ENTITY bison-buildsize     "35 MB">
-  <!ENTITY bison-time          "2.6 SBU">
 ]>
 
 <sect1 id="bison" xreflabel="bison-&bison-version;">
@@ -20,13 +11,8 @@
   <title>bison-&bison-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The bison package contains a parser generator.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&bison-download-http;"/>
+          Download: <ulink url="&bison-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&bison-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &bison-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &bison-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &bison-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &bison-time;
+          MD5 sum: &bison-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -93,14 +59,14 @@
     -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-nls</userinput></screen>
 
     <para>
-      Compile the package: 
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,7 +75,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp bison-&bison-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

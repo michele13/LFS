@@ -3,16 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libnl-homepage      "http://www.carisma.slowglass.com/~tgr/libnl/">
-  <!ENTITY libnl-wikipedia     "http://en.wikipedia.org/wiki/Netlink">
-  <!ENTITY libnl-download-http "https://github.com/thom311/libnl/releases/download/libnl&libnl-dl-version;/libnl-&libnl-version;.tar.gz">
-  <!ENTITY libnl-download-ftp  " ">
-  <!ENTITY libnl-md5sum        "bab12db1eb94a42129f712a44be91a67">
-  <!ENTITY libnl-size          "920 KB">
-  <!ENTITY libnl-buildsize     "22 MB">
-  <!ENTITY libnl-time          "0.4 SBU">
-
 ]>
 
 <sect1 id="libnl" xreflabel="libnl-&libnl-version;">
@@ -21,14 +11,8 @@
   <title>libnl-&libnl-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libnl suite is a collection of libraries providing APIs to netlink
-      protocol based Linux kernel interfaces.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libnl-download-http;"/>
+          Download: <ulink url="&libnl-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libnl-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libnl-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libnl-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libnl-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libnl-time;
+          MD5 sum: &libnl-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -85,15 +49,30 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static \
             --disable-cli</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--disable-cli</parameter></term>
+        <listitem>
+          <para>
+            This switch disables installation of cli tools provided by the
+            package.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -102,23 +81,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
-rm -v /lib/libnl-3.la &amp;&amp;
-rm -v /lib/libnl-genl-3.la &amp;&amp;
-rm -v /lib/libnl-idiag-3.la &amp;&amp;
-rm -v /lib/libnl-nf-3.la &amp;&amp;
-rm -v /lib/libnl-route-3.la &amp;&amp;
-rm -v /lib/libnl-xfrm-3.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--disable-cli</parameter>: This switch disables installation
-        of cli tools provided by the package.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp libnl-&libnl-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libnl-*3.la"</userinput></screen>
 
   </sect2>
 
