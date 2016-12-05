@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY wpa_supplicant-homepage      "https://w1.fi/wpa_supplicant/">
-  <!ENTITY wpa_supplicant-wikipedia     "https://en.wikipedia.org/wiki/Wpa_supplicant">
-  <!ENTITY wpa_supplicant-download-http "http://hostap.epitest.fi/releases/wpa_supplicant-&wpa_supplicant-version;.tar.gz">
-  <!ENTITY wpa_supplicant-download-ftp  " ">
-  <!ENTITY wpa_supplicant-md5sum        "091569eb4440b7d7f2b4276dbfc03c3c">
-  <!ENTITY wpa_supplicant-size          "2.6 MB">
-  <!ENTITY wpa_supplicant-buildsize     "31 MB">
-  <!ENTITY wpa_supplicant-time          "0.4 SBU">
 ]>
 
 <sect1 id="wpa_supplicant" xreflabel="wpa_supplicant-&wpa_supplicant-version;">
@@ -20,18 +11,8 @@
   <title>wpa_supplicant-&wpa_supplicant-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      WPA Supplicant is a Wi-Fi Protected Access (WPA) client and IEEE 802.1X
-      supplicant. It implements WPA key negotiation with a WPA Authenticator
-      and Extensible Authentication Protocol (EAP) authentication with an
-      Authentication Server. In addition, it controls the roaming and IEEE
-      802.11 authentication/association of the wireless LAN driver. This is
-      useful for connecting to a password protected wireless access point.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -45,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&wpa_supplicant-download-http;"/>
+          Download: <ulink url="&wpa_supplicant-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&wpa_supplicant-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &wpa_supplicant-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &wpa_supplicant-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &wpa_supplicant-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &wpa_supplicant-time;
+          MD5 sum: &wpa_supplicant-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -79,8 +40,8 @@
     <itemizedlist spacing="compact">
       <listitem>
         <para>
-          Recommended patch:
-          <ulink url="&patch-root;wpa_supplicant/wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch"/>
+          Recommended patch: <ulink
+          url="&patch-root;wpa_supplicant/wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch"/>
         </para>
       </listitem>
     </itemizedlist>
@@ -116,9 +77,9 @@ Device Drivers  ---&gt;
     [*] Wireless LAN  ---&gt;                                [CONFIG_WLAN]</literal></screen>
 
     <para>
-      Open the submenu and select the options that support your hardware:
-      <command>lspci</command> from <xref linkend="pciutils"/> can be used to
-      view your hardware configuration.
+      Open the submenu and select the options that support your hardware: lspci
+      from <xref linkend="pciutils"/> can be used to view your hardware
+      configuration.
     </para>
 
   </sect2>
@@ -127,13 +88,13 @@ Device Drivers  ---&gt;
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
-<screen><userinput>patch -p1 -i ../wpa_supplicant-2.5-libressl-1.patch &amp;&amp;
-cd wpa_supplicant &amp;&amp;
-sed "s/ncurses/ncursesw/" -i Makefile &amp;&amp;
-cp defconfig .config &amp;&amp;
+<screen><userinput>patch -Np1 -i ../wpa_supplicant-&wpa_supplicant-version;-libressl-1.patch
+cd wpa_supplicant
+sed "s/ncurses/ncursesw/" -i Makefile
+cp defconfig .config
 cat >> .config &lt;&lt; "EOF"
 <literal>CONFIG_DEBUG_FILE=y
 CONFIG_DEBUG_SYSLOG=y
@@ -142,7 +103,8 @@ CONFIG_READLINE=y</literal>
 EOF</userinput></screen>
 
     <para>
-      If you want to use <xref linkend="libnl-tiny"/>, execute the following command:
+      If you want to use <xref linkend="libnl-tiny"/>, execute the following
+      command:
     </para>
 
 <screen><userinput>cat >> .config &lt;&lt; "EOF"
@@ -153,7 +115,8 @@ CFLAGS += -D_GNU_SOURCE</literal>
 EOF</userinput></screen>
 
     <para>
-      Otherwise, if you want to use <xref linkend="libnl"/>, execute the following command:
+      Otherwise, if you want to use <xref linkend="libnl"/>, execute the
+      following command:
     </para>
 
 <screen><userinput>cat >> .config &lt;&lt; "EOF"
@@ -162,7 +125,7 @@ CFLAGS += -I/include/libnl3</literal>
 EOF</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make BINDIR=/bin LIBDIR=/lib</userinput></screen>
@@ -171,7 +134,7 @@ EOF</userinput></screen>
       Instal the package:
     </para>
 
-<screen role="root"><userinput>porg -lp wpa_supplicant-&wpa_supplicant-version; "install -v -m755 wpa_cli wpa_passphrase wpa_supplicant /bin &amp;&amp;
+<screen><userinput>porg -lp wpa_supplicant-&wpa_supplicant-version; "install -v -m755 wpa_cli wpa_passphrase wpa_supplicant /bin &amp;&amp;
 install -v -m644 doc/docbook/wpa_supplicant.conf.5 /share/man/man5 &amp;&amp;
 install -v -m644 doc/docbook/wpa_cli.8 doc/docbook/wpa_passphrase.8 doc/docbook/wpa_supplicant.8 /share/man/man8"</userinput></screen>
 
@@ -182,25 +145,23 @@ install -v -m644 doc/docbook/wpa_cli.8 doc/docbook/wpa_passphrase.8 doc/docbook/
 
     <para>
       To connect to an access point that uses a password, you need to put the
-      pre-shared key in <filename>
-      /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf</filename>.
+      pre-shared key in /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf.
       SSID is the string that the access point/router transmits to identify
-      itself. Run the following command as the <systemitem
-      class="username">root</systemitem> user:
+      itself. Run the following command:
     </para>
 
-<screen role="root"><userinput>wpa_passphrase <replaceable>SSID</replaceable> <replaceable>SECRET_PASSWORD</replaceable> >> /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf</userinput></screen>
+<screen><userinput>wpa_passphrase <replaceable>SSID</replaceable> <replaceable>SECRET_PASSWORD</replaceable> >> /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf</userinput></screen>
 
     <para>
-      <filename>/etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf
-      </filename> can hold the details of several access points. When
-      <command>wpa_supplicant</command> is started, it will scan for the SSIDs
-      it can see and choose the appropriate password to connect.
+      /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf can
+      hold the details of several access points. When wpa_supplicant is
+      started, it will scan for the SSIDs it can see and choose the appropriate
+      password to connect.
     </para>
 
     <para>
       If you want to connect to an access point that isn't password protected,
-      put an entry like this in <filename> /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf</filename>.
+      put an entry like this in /etc/sysconfig/wpa_supplicant-<replaceable>wlan0</replaceable>.conf.
       Replace "Some-SSID" with the SSID of the access point/router.
     </para>
 
@@ -210,33 +171,30 @@ install -v -m644 doc/docbook/wpa_cli.8 doc/docbook/wpa_passphrase.8 doc/docbook/
 }</screen>
 
     <para>
-      There are many options that you could use to tweak how you connect
-      to each access point. They are described in some detail in the
-      <filename>wpa_supplicant/wpa_supplicant.conf</filename> file in the
-      source tree.
+      There are many options that you could use to tweak how you connect to
+      each access point. They are described in some detail in the
+      wpa_supplicant/wpa_supplicant.conf file in the source tree.
     </para>
 
     <sect3>
       <title>Connecting to an Access Point</title>
 
-      <para id="wpa-service">
+      <para>
         If you want to configure network interfaces at boot using
-        <command>wpa_supplicant</command>, you need to install the
-        <filename>/lib/services/wpa</filename> script
+        wpa_supplicant, you need to install the /lib/services/wpa script
         included in <xref linkend="bootscripts"/> package:
       </para>
 
-<screen role="root"><userinput>porg -lp+ wpa_supplicant-&wpa_supplicant-version; "make -j1 install-service-wpa"</userinput></screen>
+<screen><userinput>porg -lp+ wpa_supplicant-&wpa_supplicant-version; "make -j1 install-service-wpa"</userinput></screen>
 
       <para>
         If your router/access point uses DHCP to allocate IP addresses, you can
-        install <xref linkend="dhcp"/> client and use it to automatically obtain
-        network addresses. Create the <filename>/etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
-        </filename> by running the following command as the <systemitem
-        class="username">root</systemitem> user:
+        install <xref linkend="dhcp"/> client and use it to automatically
+        obtain network addresses. Create the /etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
+        by running the following command:
       </para>
 
-<screen role="root"><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
 <literal>ONBOOT="yes"
 IFACE="<replaceable>wlan0</replaceable>"
 SERVICE="wpa"
@@ -259,12 +217,11 @@ EOF</userinput></screen>
 
       <para>
         If you prefer <xref linkend="dhcpcd"/> instead of <xref linkend="dhcp"/>
-        client, then create the <filename>/etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
-        </filename> by running the following command as the <systemitem
-        class="username">root</systemitem> user:
+        client, then create the /etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
+        by running the following command:
       </para>
 
-<screen role="root"><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
 <literal>ONBOOT="yes"
 IFACE="<replaceable>wlan0</replaceable>"
 SERVICE="wpa"
@@ -273,18 +230,17 @@ SERVICE="wpa"
 WPA_ARGS=""
 
 WPA_SERVICE="dhcpcd"
-DHCP_START="-b -q <replaceable>&lt;insert appropriate start options here&gt;</replaceable>"
-DHCP_STOP="-k <replaceable>&lt;insert additional stop options here&gt;</replaceable>"</literal>
+DHCP_START="-b -q"
+DHCP_STOP="-k"</literal>
 EOF</userinput></screen>
 
       <para>
         Alternatively, if you use static addresses on your local network, then
-        create the <filename>/etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
-        </filename> by running the following command as the <systemitem
-        class="username">root</systemitem> user:
+        create the /etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
+        by running the following command:
       </para>
 
-<screen role="root"><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
+<screen><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
 <literal>ONBOOT="yes"
 IFACE="<replaceable>wlan0</replaceable>"
 SERVICE="wpa"
@@ -301,17 +257,17 @@ EOF</userinput></screen>
 
       <para>
         You can connect to the wireless access point by running the following
-        command as the <systemitem class="username">root</systemitem> user:
+        command:
       </para>
 
-<screen role="root"><userinput>ifup <replaceable>wlan0</replaceable></userinput></screen>
+<screen><userinput>ifup <replaceable>wlan0</replaceable></userinput></screen>
 
       <para>
         Replace <replaceable>wlan0</replaceable> with the correct wireless
-        interface and <replaceable>wlan0</replaceable> with desired name for the
-        configuration file. Please note that <filename>wpa_supplicant-*.conf</filename>
-        and <filename>ifconfig.*</filename> configuration files need to have
-        identical names, ie both contain <replaceable>wlan0</replaceable> in their name.
+        interface and name for the configuration file. Please note that
+        wpa_supplicant-*.conf and ifconfig.* configuration files need to have
+        identical names, ie both contain <replaceable>wlan0</replaceable> in
+        their name, for example.
       </para>
 
     </sect3>
