@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libedit-homepage      "http://www.thrysoee.dk/editline/">
-  <!ENTITY libedit-wikipedia     " ">
-  <!ENTITY libedit-download-http "http://www.thrysoee.dk/editline/libedit-&libedit-version;.tar.gz">
-  <!ENTITY libedit-download-ftp  " ">
-  <!ENTITY libedit-md5sum        "b6e60f326a3fce91bea1a6fe4700af58">
-  <!ENTITY libedit-size          "497 KB">
-  <!ENTITY libedit-buildsize     "5.9 MB">
-  <!ENTITY libedit-time          "0.1 SBU">
 ]>
 
 <sect1 id="libedit" xreflabel="libedit-&libedit-version;">
@@ -20,14 +11,8 @@
   <title>libedit-&libedit-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-  <para>
-    libedit is a command line editor library providing generic line editing,
-    history, and tokenization functions, similar to those found in Readline.
-  </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libedit-download-http;"/>
+          Download: <ulink url="&libedit-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libedit-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libedit-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libedit-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libedit-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libedit-time;
+          MD5 sum: &libedit-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -84,7 +49,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>sed "/LIBS/s/ncurses/ncursesw/" -i configure &amp;&amp;
@@ -94,7 +59,7 @@ CPPFLAGS=-I/include/ncursesw \
             --disable-examples</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -103,7 +68,7 @@ CPPFLAGS=-I/include/ncursesw \
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libedit-&libedit-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libedit.la"</userinput></screen>
 
   </sect2>
