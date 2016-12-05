@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libxmu-homepage      " ">
-  <!ENTITY libxmu-wikipedia     " ">
-  <!ENTITY libxmu-download-http "&xorg-download-http;/lib/libXmu-&libxmu-version;.tar.bz2">
-  <!ENTITY libxmu-download-ftp  "&xorg-download-ftp;/lib/libXmu-&libxmu-version;.tar.bz2">
-  <!ENTITY libxmu-md5sum        "41d92ab627dfa06568076043f3e089e4">
-  <!ENTITY libxmu-size          "387 KB">
-  <!ENTITY libxmu-buildsize     "6.0 MB">
-  <!ENTITY libxmu-time          "0.2 SBU">
 ]>
 
 <sect1 id="libxmu" xreflabel="libxmu-&libxmu-version;">
@@ -20,15 +11,8 @@
   <title>libxmu-&libxmu-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      libXmu provides a set of miscellaneous utility convenience functions for X
-      libraries to use. libXmuu is a lighter-weight version that does not depend
-      on libXt or libXext.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libxmu-download-http;"/>
+          Download: <ulink url="&libxmu-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libxmu-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libxmu-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libxmu-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libxmu-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libxmu-time;
+          MD5 sum: &libxmu-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,14 +56,14 @@
 <screen><userinput>sed "s/ install-dist_shelfDATA install-shelfDATA//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -108,9 +72,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp libxmu-&libxmu-version; "make -j1 install &amp;&amp;
-rm -v /lib/libXmu.la &amp;&amp;
-rm -v /lib/libXmuu.la"</userinput></screen>
+<screen><userinput>porg -lp libxmu-&libxmu-version; -E $PWD "make -j1 install &amp;&amp;
+rm -v /lib/libXmu*.la"</userinput></screen>
 
   </sect2>
 

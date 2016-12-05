@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xauth-homepage      " ">
-  <!ENTITY xauth-wikipedia     "http://en.wikipedia.org/wiki/X_Window_authorization">
-  <!ENTITY xauth-download-http "http://xorg.freedesktop.org/releases/individual/app/xauth-&xauth-version;.tar.bz2">
-  <!ENTITY xauth-download-ftp  "ftp://ftp.x.org/pub/individual/app/xauth-&xauth-version;.tar.bz2">
-  <!ENTITY xauth-md5sum        "7d6003f32838d5b688e2c8a131083271">
-  <!ENTITY xauth-size          "144 KB">
-  <!ENTITY xauth-buildsize     "1.7 MB">
-  <!ENTITY xauth-time          "0.1 SBU">
 ]>
 
 <sect1 id="xauth" xreflabel="xauth-&xauth-version;">
@@ -20,15 +11,8 @@
   <title>xauth-&xauth-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      xauth is a small utility to read and manipulate Xauthority files, which
-      are used by servers and clients alike to control authentication and
-      access to X sessions.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xauth-download-http;"/>
+          Download: <ulink url="&xauth-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xauth-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xauth-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xauth-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xauth-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xauth-time;
+          MD5 sum: &xauth-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -85,13 +49,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -100,7 +64,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xauth-&xauth-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

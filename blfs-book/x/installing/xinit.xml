@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xinit-homepage      " ">
-  <!ENTITY xinit-wikipedia     "http://en.wikipedia.org/wiki/Xinit">
-  <!ENTITY xinit-download-http "http://xorg.freedesktop.org/releases/individual/app/xinit-&xinit-version;.tar.bz2">
-  <!ENTITY xinit-download-ftp  "ftp://ftp.x.org/pub/individual/app/xinit-&xinit-version;.tar.bz2">
-  <!ENTITY xinit-md5sum        "4e928452dfaf73851413a2d8b8c76388">
-  <!ENTITY xinit-size          "161 KB">
-  <!ENTITY xinit-buildsize     "1.6 MB">
-  <!ENTITY xinit-time          "0.1 SBU">
 ]>
 
 <sect1 id="xinit" xreflabel="xinit-&xinit-version;">
@@ -20,13 +11,8 @@
   <title>xinit-&xinit-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The xinit package contains a usable script to start the xserver.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -40,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xinit-download-http;"/>
+          Download: <ulink url="&xinit-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xinit-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xinit-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xinit-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xinit-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xinit-time;
+          MD5 sum: &xinit-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -94,21 +60,21 @@
     <title>Installation</title>
 
     <para>
-      First, modify <command>startx</command>, hence the X session starts on
-      the first unused virtual terminal, which normally is vt7:
+      First, modify startx, hence the X session starts on the first unused
+      virtual terminal, which normally is vt7:
     </para>
 
 <screen><userinput>sed -e '/$serverargs $vtarg/ s/serverargs/: #&amp;/' -i startx.cpp</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --with-xinitdir=/etc/X11/app-defaults</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -117,7 +83,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp xinit-&xinit-version; -E $PWD "make -j1 install &amp;&amp;
 echo openbox-session > /etc/X11/app-defaults/xinitrc"</userinput></screen>
 
   </sect2>
