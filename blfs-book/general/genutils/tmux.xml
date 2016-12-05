@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY tmux-homepage      "https://tmux.github.io/">
-  <!ENTITY tmux-wikipedia     "https://en.wikipedia.org/wiki/Tmux">
-  <!ENTITY tmux-download-http "https://github.com/tmux/tmux/releases/download/&tmux-version;/tmux-&tmux-version;.tar.gz">
-  <!ENTITY tmux-download-ftp  " ">
-  <!ENTITY tmux-md5sum        "bd95ee7205e489c62c616bb7af040099">
-  <!ENTITY tmux-size          "456 KB">
-  <!ENTITY tmux-buildsize     " MB">
-  <!ENTITY tmux-time          " SBU">
 ]>
 
 <sect1 id="tmux" xreflabel="tmux-&tmux-version;">
@@ -20,15 +11,8 @@
   <title>tmux-&tmux-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      tmux is a terminal multiplexer that lets you switch easily between
-      several programs in one terminal, detach them and reattach them to a
-      different terminal.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&tmux-download-http;"/>
+          Download: <ulink url="&tmux-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&tmux-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &tmux-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &tmux-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &tmux-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &tmux-time;
+          MD5 sum: &tmux-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -78,7 +42,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>sed "s/ncurses/ncursesw/" -i configure
@@ -87,7 +51,7 @@ CPPFLAGS=-I/include/ncursesw \
 ./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -96,7 +60,7 @@ CPPFLAGS=-I/include/ncursesw \
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp tmux-&tmux-version; -E $PWD "make -j1 install"</userinput></screen>
 <!--install -v -m 644 examples/screen-keys.conf /etc/tmux.conf-->
 
   </sect2>

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY openssh-homepage      "http://www.openssh.org/">
-  <!ENTITY openssh-wikipedia     "http://en.wikipedia.org/wiki/OpenSSH">
-  <!ENTITY openssh-download-http "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-&openssh-version;.tar.gz">
-  <!ENTITY openssh-download-ftp  "ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-&openssh-version;.tar.gz">
-  <!ENTITY openssh-md5sum        "dfadd9f035d38ce5d58a3bf130b86d08">
-  <!ENTITY openssh-size          "1.5 MB">
-  <!ENTITY openssh-buildsize     "37 MB">
-  <!ENTITY openssh-time          "0.4 SBU">
 ]>
 
 <sect1 id="openssh" xreflabel="openssh-&openssh-version;">
@@ -20,17 +11,8 @@
   <title>openssh-&openssh-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-  <para>
-    The OpenSSH package contains <command>ssh</command> clients and the
-    <command>sshd</command> daemon. This is useful for encrypting authentication
-    and subsequent traffic over a network. The <command>ssh</command> and
-    <command>scp</command> commands are secure implementions of
-    <command>telnet</command> and <command>rcp</command> respectively.
-  </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -44,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&openssh-download-http;"/>
+          Download: <ulink url="&openssh-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&openssh-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &openssh-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &openssh-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &openssh-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &openssh-time;
+          MD5 sum: &openssh-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -99,17 +61,16 @@
       first process is a privileged process and controls the issuance of
       privileges as necessary. The second process communicates with the network.
       Additional installation steps are necessary to set up the proper
-      environment, which are performed by issuing the following commands as the
-      <systemitem class="username">root</systemitem> user:
+      environment, which are performed by issuing the following commands:
     </para>
 
-<screen role="root"><userinput>install -v -m700 -d /var/lib/sshd &amp;&amp;
+<screen><userinput>install -v -m700 -d /var/lib/sshd &amp;&amp;
 chown -v root:sys /var/lib/sshd &amp;&amp;
 adduser -g 'sshd PrivSep' -h /var/lib/sshd \
     -s /bin/false -u 50 -D -H sshd</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -120,8 +81,42 @@ adduser -g 'sshd PrivSep' -h /var/lib/sshd \
             --with-privsep-path=/var/lib/sshd \
             --with-default-path=/bin</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-md5-passwords</parameter></term>
+        <listitem>
+          <para>
+            This enables the use of MD5 passwords.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-xauth=/bin/xauth</parameter></term>
+        <listitem>
+          <para>
+            Set the default location for the xauth binary for X authentication.
+            This can also be controlled from sshd_config with the XAuthLocation
+            keyword. You can omit this switch if Xorg is already installed.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--with-libedit</option></term>
+        <listitem>
+          <para>
+            This option enables line editing and history features for sftp.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -130,38 +125,9 @@ adduser -g 'sshd PrivSep' -h /var/lib/sshd \
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp openssh-&openssh-version; -E $PWD "make -j1 install &amp;&amp;
 install -v -m755 contrib/ssh-copy-id /bin &amp;&amp;
 install -v -m644 contrib/ssh-copy-id.1 /share/man/man1"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--sysconfdir=/etc/ssh</parameter>: This prevents the
-        configuration files from being installed in <filename
-        class="directory">/usr/etc</filename>.
-      </para>
-
-      <para>
-        <parameter>--with-md5-passwords</parameter>: This enables the use of MD5
-        passwords.
-      </para>
-
-      <para>
-        <option>--with-xauth=/bin/xauth</option>: Set the default location
-        for the <command>xauth</command> binary for X authentication. This can
-        also be controlled from <filename>sshd_config</filename> with the
-        XAuthLocation keyword. You can omit this switch if Xorg is already
-        installed.
-      </para>
-
-      <para>
-        <option>--with-libedit</option>: This option enables line editing and
-        history features for <command>sftp</command>.
-      </para>
-
-    </sect3>
 
   </sect2>
 
@@ -169,28 +135,23 @@ install -v -m644 contrib/ssh-copy-id.1 /share/man/man1"</userinput></screen>
     <title>Configuration</title>
 
     <para>
-      There are no required changes to any of these files. However,
-      you may wish to view the
-      <filename class='directory'>/etc/ssh/</filename> files and make any
-      changes appropriate for the security of your system. One recommended
-      change is that you disable
-      <systemitem class='username'>root</systemitem> login via
-      <command>ssh</command>. Execute the following command as the
-      <systemitem class='username'>root</systemitem> user to disable
-      <systemitem class='username'>root</systemitem> login via
-      <command>ssh</command>:
+      There are no required changes to any of these files. However, you may
+      wish to view the /etc/ssh/ files and make any changes appropriate for the
+      security of your system. One recommended change is that you disable root
+      login via ssh. Execute the following command to disable root login via
+      ssh:
     </para>
 
-<screen role="root"><userinput>echo "PermitRootLogin no" &gt;&gt; /etc/ssh/sshd_config</userinput></screen>
+<screen><userinput>echo "PermitRootLogin no" &gt;&gt; /etc/ssh/sshd_config</userinput></screen>
 
     <para>
       If you want to be able to log in without typing in your password, first
-      create ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub with
-      <command>ssh-keygen</command> and then copy ~/.ssh/id_rsa.pub to
-      ~/.ssh/authorized_keys on the remote computer that you want to log into.
-      You'll need to change REMOTE_USERNAME and REMOTE_HOSTNAME for the username and hostname of the remote
-      computer and you'll also need to enter your password for the ssh-copy-id command
-      to succeed:
+      create ~/.ssh/id_rsa and ~/.ssh/id_rsa.pub with ssh-keygen and then copy
+      ~/.ssh/id_rsa.pub to ~/.ssh/authorized_keys on the remote computer that
+      you want to log into. You'll need to change REMOTE_USERNAME and
+      REMOTE_HOSTNAME for the username and hostname of the remote computer and
+      you'll also need to enter your password for the ssh-copy-id command to
+      succeed:
     </para>
 
 <screen><userinput>ssh-keygen &amp;&amp;
@@ -200,17 +161,16 @@ ssh-copy-id -i ~/.ssh/id_rsa.pub <replaceable>REMOTE_USERNAME</replaceable>@<rep
       Once you've got passwordless logins working it's actually more secure
       than logging in with a password (as the private key is much longer than
       most people's passwords). If you would like to now disable password
-      logins, as the <systemitem class="username">root</systemitem> user:
+      logins:
     </para>
 
 
-<screen role="root"><userinput>echo "PasswordAuthentication no" >> /etc/ssh/sshd_config &amp;&amp;
+<screen><userinput>echo "PasswordAuthentication no" >> /etc/ssh/sshd_config &amp;&amp;
 echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></screen>
 
     <para>
-      Additional configuration information can be found in the man
-      pages for <command>sshd</command>, <command>ssh</command> and
-      <command>ssh-agent</command>.
+      Additional configuration information can be found in the man pages for
+      sshd, ssh and ssh-agent.
     </para>
 
     <sect3>
@@ -218,11 +178,11 @@ echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config</userinput></s
 
       <para>
         To start the SSH server at system boot, install the
-        <filename>/etc/rc.d/init.d/sshd</filename> init script included in the
-        <xref linkend="bootscripts"/> package.
+        /etc/rc.d/init.d/sshd init script included in the <xref
+        linkend="bootscripts"/> package.
       </para>
 
-<screen role="root"><userinput>porg -lp+ openssh-&openssh-version; "make -j1 install-sshd"</userinput></screen>
+<screen><userinput>porg -lp+ openssh-&openssh-version; "make -j1 install-sshd"</userinput></screen>
 
     </sect3>
 
