@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY sudo-homepage      "http://www.sudo.ws/">
-  <!ENTITY sudo-wikipedia     "http://en.wikipedia.org/wiki/Sudo">
-  <!ENTITY sudo-download-http "http://www.sudo.ws/dist/sudo-&sudo-version;.tar.gz">
-  <!ENTITY sudo-download-ftp  "ftp://ftp.sudo.ws/pub/sudo/sudo-&sudo-version;.tar.gz">
-  <!ENTITY sudo-md5sum        "28f5214d5bcb5af5710decb95184a0a6">
-  <!ENTITY sudo-size          "2.7 MB">
-  <!ENTITY sudo-buildsize     "24 MB">
-  <!ENTITY sudo-time          "0.4 SBU">
 ]>
 
 <sect1 id="sudo" xreflabel="sudo-&sudo-version;">
@@ -20,16 +11,8 @@
   <title>sudo-&sudo-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Sudo package allows a system administrator to give certain users (or
-      groups of users) the ability to run some (or all) commands as <systemitem
-      class="username">root</systemitem> or another user while logging the
-      commands and arguments.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&sudo-download-http;"/>
+          Download: <ulink url="&sudo-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&sudo-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &sudo-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &sudo-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &sudo-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &sudo-time;
+          MD5 sum: &sudo-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -104,7 +67,7 @@ sed "s/ install-doc//" -i examples/Makefile.in
 sed "s/\$(DESTDIR)\$(docdir) //" -i plugins/sudoers/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -115,8 +78,50 @@ sed "s/\$(DESTDIR)\$(docdir) //" -i plugins/sudoers/Makefile.in</userinput></scr
             --with-env-editor \
             --with-passprompt="[sudo] password for %p: "</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--libexecdir=/lib</parameter></term>
+        <listitem>
+          <para>
+            This switch controls where private programs are installed.
+            Everything in that directory is a library, so they belong under
+            /lib instead of /libexec.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-all-insults</parameter></term>
+        <listitem>
+          <para>
+            This switch includes all the sudo insult sets.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-env-editor</parameter></term>
+        <listitem>
+          <para>
+            This switch enables use of the environment variable EDITOR for
+            visudo.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
+    <note>
+      <para>
+        There are many options to sudo's configure command. Check the configure
+        --help output for a complete list.
+      </para>
+    </note>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -127,38 +132,7 @@ sed "s/\$(DESTDIR)\$(docdir) //" -i plugins/sudoers/Makefile.in</userinput></scr
 
 <!-- dev note: make -j1 DESTDIR=<DESTDIR> install_uid=1000 install_gid=1000 install -->
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--libexecdir=/lib</parameter>: This switch controls
-        where private programs are installed. Everything in that directory is a
-        library, so they belong under <filename class="directory">/lib</filename>
-        instead of <filename class="directory">/libexec</filename>.
-      </para>
-
-      <para>
-        <parameter>--with-all-insults</parameter>: This switch includes all the
-        Sudo insult sets.
-      </para>
-
-      <para>
-        <parameter>--with-env-editor</parameter>: This switch enables use of the
-        environment variable <envar>EDITOR</envar> for
-        <command>visudo</command>.
-      </para>
-
-      <note>
-        <para>
-          There are many options to Sudo's <command>configure</command> command.
-          Check the <command>configure --help</command> output for a complete
-          list.
-        </para>
-      </note>
-
-    </sect3>
+<screen><userinput>porg -lp sudo-&sudo-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
@@ -166,10 +140,10 @@ sed "s/\$(DESTDIR)\$(docdir) //" -i plugins/sudoers/Makefile.in</userinput></scr
     <title>Configuration</title>
 
     <para>
-      The <filename>sudoers</filename> file can be quite complicated. It is
-      composed of two types of entries: aliases (basically variables) and user
-      specifications (which specify who may run what). The installation installs
-      a default configuration that has no privileges installed for any user.
+      The /etc/sudoers file can be quite complicated. It is composed of two
+      types of entries: aliases (basically variables) and user specifications
+      (which specify who may run what). The installation installs a default
+      configuration that has no privileges installed for any user.
     </para>
 
     <para>
@@ -185,15 +159,15 @@ User_Alias  ADMIN = YourLoginId
 ADMIN       ALL = NOPASSWD: ALL</literal></screen>
 
     <para>
-      For details, see <command>man sudoers</command>.
+      For details, see man sudoers.
     </para>
 
     <note>
       <para>
-        The Sudo developers highly recommend using the <command>visudo</command>
-        program to edit the <filename>sudoers</filename> file. This will provide
-        basic sanity checking like syntax parsing and file permission to avoid
-        some possible mistakes that could lead to a vulnerable configuration.
+        The sudo developers highly recommend using the visudo program to edit
+        the sudoers file. This will provide basic sanity checking like syntax
+        parsing and file permission to avoid some possible mistakes that could
+        lead to a vulnerable configuration.
       </para>
     </note>
 
