@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY xkbcomp-homepage      " ">
-  <!ENTITY xkbcomp-wikipedia     " ">
-  <!ENTITY xkbcomp-download-http "http://xorg.freedesktop.org/releases/individual/app/xkbcomp-&xkbcomp-version;.tar.bz2">
-  <!ENTITY xkbcomp-download-ftp  "ftp://ftp.x.org/pub/individual/app/xkbcomp-&xkbcomp-version;.tar.bz2">
-  <!ENTITY xkbcomp-md5sum        "a4d8353daf6cb0a9c47379b7413c42c6">
-  <!ENTITY xkbcomp-size          "237 KB">
-  <!ENTITY xkbcomp-buildsize     "4.6 MB">
-  <!ENTITY xkbcomp-time          "0.1 SBU">
 ]>
 
 <sect1 id="xkbcomp" xreflabel="xkbcomp-&xkbcomp-version;">
@@ -20,14 +11,8 @@
   <title>xkbcomp-&xkbcomp-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      xkbcomp is a tool to compile XKB definitions into map files the server can
-      use.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&xkbcomp-download-http;"/>
+          Download: <ulink url="&xkbcomp-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&xkbcomp-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &xkbcomp-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &xkbcomp-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &xkbcomp-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &xkbcomp-time;
+          MD5 sum: &xkbcomp-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -84,13 +49,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -99,7 +64,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp xkbcomp-&xkbcomp-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

@@ -3,16 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY noto-cjk-homepage      "https://www.google.com/get/noto/help/cjk/">
-  <!ENTITY noto-cjk-wikipedia     "https://en.wikipedia.org/wiki/Noto_fonts">
-  <!ENTITY noto-cjk-download-http "https://github.com/googlei18n/noto-cjk/archive/v&noto-cjk-version;.tar.gz">
-  <!ENTITY noto-cjk-download-ftp  " ">
-  <!ENTITY noto-cjk-md5sum        "33b747b334e73d806ddd31a9ff5b087d">
-  <!ENTITY noto-cjk-size          "785 MB">
-  <!ENTITY noto-cjk-buildsize     " MB">
-  <!ENTITY noto-cjk-time          " SBU">
-
 ]>
 
 <sect1 id="noto-cjk" xreflabel="noto-cjk-&noto-cjk-version;">
@@ -21,14 +11,8 @@
   <title>noto-cjk-&noto-cjk-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para> 
-      This package contains Noto font families for Traditional Chinese,
-      Simplified Chinese, Japanese and Korean.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&noto-cjk-download-http;"/>
+          Download: <ulink url="&noto-cjk-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&noto-cjk-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &noto-cjk-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &noto-cjk-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &noto-cjk-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &noto-cjk-time;
+          MD5 sum: &noto-cjk-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -86,12 +50,18 @@
     <title>Installation</title>
 
     <para>
+      Download the package:
+    </para>
+
+<screen><userinput>wget &noto-cjk-download; -O noto-cjk-&noto-cjk-version;.tar.gz</userinput></screen>
+
+    <para>
       Install the package:
     </para>
 
-<screen role="root"><userinput>unzip NotoSansCJK.ttc.zip &amp;&amp;
-mkdir -pv /share/fonts/noto-cjk &amp;&amp;
-porg -lD "install -v -m644 NotoSansCJK.ttc /share/fonts/noto-cjk" &amp;&amp;
+<screen><userinput>unzip NotoSansCJK.ttc.zip
+mkdir -pv /share/fonts/noto-cjk
+porg -lp noto-cjk-&noto-cjk-version; "install -v -m644 NotoSansCJK.ttc /share/fonts/noto-cjk"
 fc-cache -v</userinput></screen>
 
   </sect2>
