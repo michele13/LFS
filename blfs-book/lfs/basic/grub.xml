@@ -68,7 +68,27 @@ sed "s/: install-bashcompletionDATA/:/" -i util/bash-completion.d/Makefile.in</u
 
 <screen><userinput>./configure --prefix= \
             --sbindir=/bin \
-            --disable-nls</userinput></screen>
+            --disable-nls \
+            --disable-efiemu \
+            --disable-grub-mkfont \
+            --disable-grub-themes \
+            --disable-liblzma \
+            --disable-werror</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--disable-werror</parameter></term>
+        <listitem>
+          <para>
+            This allows the build to complete with warnings introduced by more
+            recent Flex versions.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Build the package:
