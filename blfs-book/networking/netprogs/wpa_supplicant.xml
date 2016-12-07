@@ -189,35 +189,8 @@ install -v -m644 doc/docbook/wpa_cli.8 doc/docbook/wpa_passphrase.8 doc/docbook/
 
       <para>
         If your router/access point uses DHCP to allocate IP addresses, you can
-        install <xref linkend="dhcp"/> client and use it to automatically
+        install <xref linkend="dhcpcd"/> client and use it to automatically
         obtain network addresses. Create the /etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
-        by running the following command:
-      </para>
-
-<screen><userinput>cat &gt; /etc/sysconfig/ifconfig.<replaceable>wlan0</replaceable> &lt;&lt; "EOF"
-<literal>ONBOOT="yes"
-IFACE="<replaceable>wlan0</replaceable>"
-SERVICE="wpa"
-
-# Additional arguments to wpa_supplicant
-WPA_ARGS=""
-
-WPA_SERVICE="dhclient"
-DHCP_START=""
-DHCP_STOP=""
-
-# Set PRINTIP="yes" to have the script print
-# the DHCP assigned IP address
-PRINTIP="no"
-
-# Set PRINTALL="yes" to print the DHCP assigned values for
-# IP, SM, DG, and 1st NS. This requires PRINTIP="yes".
-PRINTALL="no"</literal>
-EOF</userinput></screen>
-
-      <para>
-        If you prefer <xref linkend="dhcpcd"/> instead of <xref linkend="dhcp"/>
-        client, then create the /etc/sysconfig/ifconfig-<replaceable>wlan0</replaceable>
         by running the following command:
       </para>
 
