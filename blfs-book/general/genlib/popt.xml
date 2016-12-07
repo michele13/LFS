@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY popt-homepage      "http://rpm5.org/">
-  <!ENTITY popt-wikipedia     "http://en.wikipedia.org/wiki/Popt">
-  <!ENTITY popt-download-http "http://rpm5.org/files/popt/popt-&popt-version;.tar.gz">
-  <!ENTITY popt-download-ftp  " ">
-  <!ENTITY popt-md5sum        "3743beefa3dd6247a73f8f7a32c14c33">
-  <!ENTITY popt-size          "702 kB">
-  <!ENTITY popt-buildsize     "8 MB">
-  <!ENTITY popt-time          "0.1 SBU">
 ]>
 
 <sect1 id="popt" xreflabel="popt-&popt-version;">
@@ -20,14 +11,8 @@
   <title>popt-&popt-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The popt package contains the popt library which is used by some programs
-      to parse command-line options.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&popt-download-http;"/>
+          Download: <ulink url="&popt-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&popt-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &popt-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &popt-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &popt-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &popt-time;
+          MD5 sum: &popt-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,7 +42,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -85,7 +50,7 @@
             --disable-nls</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -94,7 +59,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp popt-&popt-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libpopt.la"</userinput></screen>
 
   </sect2>

@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY iptables-homepage      "http://www.netfilter.org/projects/iptables/">
-  <!ENTITY iptables-wikipedia     "https://en.wikipedia.org/wiki/Iptables">
-  <!ENTITY iptables-download-http "http://www.netfilter.org/projects/iptables/files/iptables-&iptables-version;.tar.bz2">
-  <!ENTITY iptables-download-ftp  "ftp://ftp.netfilter.org/pub/iptables/iptables-&iptables-version;.tar.bz2">
-  <!ENTITY iptables-md5sum        "27ba3451cb622467fc9267a176f19a31">
-  <!ENTITY iptables-size          "596 KB">
-  <!ENTITY iptables-buildsize     "19 MB">
-  <!ENTITY iptables-time          "0.1 SBU">
 ]>
 
 <sect1 id="iptables" xreflabel="iptables-&iptables-version;">
@@ -20,15 +11,8 @@
   <title>iptables-&iptables-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The next part of this chapter deals with firewalls. The principal
-      firewall tool for Linux is iptables. You will need to install iptables if
-      you intend on using any form of a firewall.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&iptables-download-http;"/>
+          Download: <ulink url="&iptables-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&iptables-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &iptables-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &iptables-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &iptables-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &iptables-time;
+          MD5 sum: &iptables-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -104,18 +68,17 @@
         The installation below does not include building some specialized
         extension libraries which require the raw headers in the Linux source
         code. If you wish to build the additional extensions (if you aren't
-        sure, then you probably don't), you can look at the
-        <filename>INSTALL</filename> file to see an example of how to change
-        the <parameter>KERNEL_DIR=</parameter> parameter to point at the Linux
-        source code. Note that if you upgrade the kernel version, you may also
-        need to recompile iptables and that the BLFS team has not tested using
-        the raw kernel headers.
+        sure, then you probably don't), you can look at the INSTALL file to see
+        an example of how to change the KERNEL_DIR= parameter to point at the
+        Linux source code. Note that if you upgrade the kernel version, you may
+        also need to recompile iptables and that the BLFS team has not tested
+        using the raw kernel headers.
       </para>
 
       <para>
         For some non-x86 architectures, the raw kernel headers may be required.
-        In that case, modify the <parameter>KERNEL_DIR=</parameter> parameter
-        to point at the Linux source code.
+        In that case, modify the KERNEL_DIR= parameter to point at the Linux
+        source code.
       </para>
     </note>
 
@@ -126,6 +89,40 @@
 <screen><userinput>./configure --prefix= \
             --sbindir=/bin \
             --disable-nftables</userinput></screen>
+
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--disable-nftables</parameter></term>
+        <listitem>
+          <para>
+            This switch disables building nftables compat.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--enable-libipq</option></term>
+        <listitem>
+          <para>
+            This switch enables building of libipq.so which can be used by some
+            packages outside of LFS.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--enable-nfsynproxy</option></term>
+        <listitem>
+          <para>
+            This switch enables installation of nfsynproxy SYNPROXY
+            configuration tool.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
 
     <para>
       Build the package:
@@ -139,36 +136,22 @@
 
 <screen><userinput>porg -lp iptables-&iptables-version; -E $PWD "make -j1 install &amp;&amp;
 ln -sfv xtables-multi /bin/iptables-xml &amp;&amp;
-rm -v /lib/libip4tc.la &amp;&amp;
-rm -v /lib/libip6tc.la &amp;&amp;
-rm -v /lib/libiptc.la &amp;&amp;
+rm -v /lib/libip*.la &amp;&amp;
 rm -v /lib/libxtables.la"</userinput></screen>
 
-    <sect3>
+    <variablelist>
       <title>Explanation</title>
 
-      <para>
-        <parameter>--disable-nftables</parameter>: This switch disables
-        building nftables compat.
-      </para>
+      <varlistentry>
+        <term><command>ln -sfv xtables-multi /bin/iptables-xml</command></term>
+        <listitem>
+          <para>
+            Ensure the symbolic link for iptables-xml is relative.
+          </para>
+        </listitem>
+      </varlistentry>
 
-      <para>
-        <option>--enable-libipq</option>: This switch enables building of
-        <filename class="libraryfile">libipq.so</filename> which can be used by
-        some packages outside of BLFS.
-      </para>
-
-      <para>
-        <option>--enable-nfsynproxy</option>: This switch enables installation
-        of nfsynproxy SYNPROXY configuration tool.
-      </para>
-
-      <para>
-        <command>ln -sfv xtables-multi /bin/iptables-xml</command>: Ensure the
-        symbolic link for <command>iptables-xml</command> is relative.
-      </para>
-
-    </sect3>
+    </variablelist>
 
   </sect2>
 
@@ -184,9 +167,8 @@ rm -v /lib/libxtables.la"</userinput></screen>
       <title>Boot Script</title>
 
       <para>
-        To set up the iptables firewall at boot, install the
-        <filename>/etc/rc.d/init.d/iptables</filename> init script included in
-        the <xref linkend="bootscripts"/> package.
+        To set up the iptables firewall at boot, install the /etc/rc.d/init.d/iptables
+        init script included in the <xref linkend="bootscripts"/> package.
       </para>
 
 <screen><userinput>porg -lp+ iptables-&iptables-version; "make install-iptables"</userinput></screen>

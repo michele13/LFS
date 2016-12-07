@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY rsync-homepage      "https://rsync.samba.org/">
-  <!ENTITY rsync-wikipedia     "https://en.wikipedia.org/wiki/Rsync">
-  <!ENTITY rsync-download-http "https://www.samba.org/ftp/rsync/src/rsync-&rsync-version;.tar.gz">
-  <!ENTITY rsync-download-ftp  " ">
-  <!ENTITY rsync-md5sum        "0f758d7e000c0f7f7d3792610fad70cb">
-  <!ENTITY rsync-size          "872 KB">
-  <!ENTITY rsync-buildsize     "11 MB">
-  <!ENTITY rsync-time          "0.5 SBU">
 ]>
 
 <sect1 id="rsync" xreflabel="rsync-&rsync-version;">
@@ -20,14 +11,8 @@
   <title>rsync-&rsync-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The rsync package contains the <command>rsync</command> utility. This is
-      useful for synchronizing large file archives over a network.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&rsync-download-http;"/>
+          Download: <ulink url="&rsync-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&rsync-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &rsync-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &rsync-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &rsync-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &rsync-time;
+          MD5 sum: &rsync-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -82,6 +47,7 @@
 
   <sect2>
     <title>Installation</title>
+
 <!--
     <para>For security reasons, running the <application>rsync</application>
     server as an unprivileged user and group is encouraged. If you intend to
@@ -94,15 +60,30 @@
 useradd -c "rsyncd Daemon" -d /home/rsync -g rsyncd \
     -s /bin/false -u 48 rsyncd</userinput></screen>
 -->
+
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --without-included-zlib</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--without-included-zlib</parameter></term>
+        <listitem>
+          <para>
+            This switch enables compilation with system-installed zlib library.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -111,17 +92,7 @@ useradd -c "rsyncd Daemon" -d /home/rsync -g rsyncd \
       Install the package:
     </para>
 
-<screen role='root'><userinput>porg -lD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--without-included-zlib</parameter>: This switch enables
-        compilation with system-installed zlib library.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp rsync-&rsync-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 <!--
