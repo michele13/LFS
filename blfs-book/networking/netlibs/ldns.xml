@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY ldns-homepage      "http://www.nlnetlabs.nl/projects/ldns/">
-  <!ENTITY ldns-wikipedia     " ">
-  <!ENTITY ldns-download-http "http://www.nlnetlabs.nl/downloads/ldns/ldns-&ldns-version;.tar.gz">
-  <!ENTITY ldns-download-ftp  " ">
-  <!ENTITY ldns-md5sum        "a79423bcc4129e6d59b616b1cae11e5e">
-  <!ENTITY ldns-size          "1.3 MB">
-  <!ENTITY ldns-buildsize     "18 MB">
-  <!ENTITY ldns-time          "0.2 SBU">
 ]>
 
 <sect1 id="ldns" xreflabel="ldns-&ldns-version;">
@@ -20,16 +11,8 @@
   <title>ldns-&ldns-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      ldns is a fast DNS library with the goal to simplify DNS programming and
-      to allow developers to easily create software conforming to current RFCs
-      and Internet drafts. This packages also includes the
-      <command>drill</command> tool.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&ldns-download-http;"/>
+          Download: <ulink url="&ldns-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&ldns-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &ldns-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &ldns-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &ldns-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &ldns-time;
+          MD5 sum: &ldns-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,15 +55,29 @@
 <screen><userinput>sed "/^install-manpages/{n;N;N;N;d;}" -i Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --disable-static \
             --with-drill</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-drill</parameter></term>
+        <listitem>
+          <para>
+            This switch enables building of the drill tool.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,18 +86,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp ldns-&ldns-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libldns.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-drill</parameter>: This switch enables building of the
-        <command>drill</command> tool.
-      </para>
-
-    </sect3>
 
   </sect2>
 

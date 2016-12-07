@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY links-homepage      "http://links.twibright.com/">
-  <!ENTITY links-wikipedia     "https://en.wikipedia.org/wiki/Links_&#40;web_browser&#41;">
-  <!ENTITY links-download-http "http://links.twibright.com/download/links-&links-version;.tar.bz2">
-  <!ENTITY links-download-ftp  " ">
-  <!ENTITY links-md5sum        "0d11b388de22ba280008a36a409a34c6">
-  <!ENTITY links-size          "6.2 MB">
-  <!ENTITY links-buildsize     "51 MB">
-  <!ENTITY links-time          "0.3 SBU">
 ]>
 
 <sect1 id="links" xreflabel="links-&links-version;">
@@ -20,15 +11,8 @@
   <title>links-&links-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      Links is a text and graphics mode WWW browser. It includes support for
-      rendering tables and frames, features background downloads, can display
-      colors and has many other features.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&links-download-http;"/>
+          Download: <ulink url="&links-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&links-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &links-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &links-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &links-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &links-time;
+          MD5 sum: &links-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -78,6 +42,7 @@
     <para>
       <xref linkend="libressl"/>
     </para>
+
 <!--
     <bridgehead renderas="sect4">Optional</bridgehead>
     <para role="optional">Graphics mode requires at least one of
@@ -92,20 +57,21 @@
     <xref linkend="libjpeg-turbo"/>, and
     <xref linkend="tiff"/></para>
 -->
+
   </sect2>
 
   <sect2>
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --mandir=/share/man</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -114,9 +80,10 @@
       Install the package:
     </para>
 
-<screen role='root'><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp links-&links-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
+
 <!--
   <sect2 role="commands">
     <title>Command Explanations</title>
@@ -126,4 +93,5 @@
 
   </sect2>
 -->
+
 </sect1>
