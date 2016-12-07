@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY librsvg-homepage      "https://wiki.gnome.org/LibRsvg">
-  <!ENTITY librsvg-wikipedia     "http://en.wikipedia.org/wiki/Librsvg">
-  <!ENTITY librsvg-download-http "&gnome-download-http;/librsvg/2.36/librsvg-&librsvg-version;.tar.xz">
-  <!ENTITY librsvg-download-ftp  "&gnome-download-ftp;/librsvg/2.36/librsvg-&librsvg-version;.tar.xz">
-  <!ENTITY librsvg-md5sum        "3c94524c8ccf668e30b236f409239f54">
-  <!ENTITY librsvg-size          "502 KB">
-  <!ENTITY librsvg-buildsize     "15 MB">
-  <!ENTITY librsvg-time          "0.2 SBU">
 ]>
 
 <sect1 id="librsvg" xreflabel="librsvg-&librsvg-version;">
@@ -20,14 +11,8 @@
   <title>librsvg-&librsvg-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The librsvg package contains a library and a tool used to manipulate,
-      convert and view Scalable Vector Graphic (SVG) images.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&librsvg-download-http;"/>
+          Download: <ulink url="&librsvg-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&librsvg-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &librsvg-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &librsvg-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &librsvg-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &librsvg-time;
+          MD5 sum: &librsvg-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,7 +57,7 @@
 <screen><userinput>sed "s/ install-data-local//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -101,7 +66,7 @@
             --disable-gtk-theme</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -110,7 +75,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD -E $PWD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp librsvg-&librsvg-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/librsvg-2.la"</userinput></screen>
   </sect2>
 

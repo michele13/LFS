@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY vim-homepage      "http://www.vim.org/">
-  <!ENTITY vim-wikipedia     "http://en.wikipedia.org/wiki/Vim_&#40;text_editor&#41;">
-  <!ENTITY vim-download-http "http://ftp.vim.org/vim/unix/vim-&vim-version;.tar.bz2">
-  <!ENTITY vim-download-ftp  " ">
-  <!ENTITY vim-md5sum        "457543a7754b0d3c1c0aa4d4c3bb4070">
-  <!ENTITY vim-size          "10.1 MB">
-  <!ENTITY vim-buildsize     "119 MB">
-  <!ENTITY vim-time          "1.8 SBU">
 ]>
 
 <sect1 id="vim" xreflabel="vim-&vim-version;">
@@ -20,15 +11,8 @@
   <title>vim-&vim-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Vim package, which is an abbreviation for VI IMproved, contains a
-      <command>vi</command> clone with extra features as compared to the original
-      <command>vi</command>.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&vim-download-http;"/>
+          Download: <ulink url="&vim-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&vim-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &vim-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &vim-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &vim-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &vim-time;
+          MD5 sum: &vim-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -88,7 +52,7 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>echo '#define SYS_VIMRC_FILE  "/etc/vim/vimrc"' &gt;&gt; src/feature.h &amp;&amp;
@@ -99,8 +63,52 @@
             --without-x \
             --with-tlib=ncursesw</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><parameter>--with-features=huge</parameter></term>
+        <listitem>
+          <para>
+            This switch enables all the additional features available in Vim,
+            including support for multibyte characters.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--enable-gui=no</parameter> <parameter>--without-x</parameter></term>
+        <listitem>
+          <para>
+            This will prevent compilation of the GUI and linking against X.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><parameter>--with-tlib=ncursesw</parameter></term>
+        <listitem>
+          <para>
+            This switch forces Vim to link against the libncursesw library.
+          </para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term><option>--enable-luainterp</option> <option>--enable-perlinterp</option>
+        <option>--enable-python3interp</option> <option>--enable-rubyinterp</option></term>
+        <listitem>
+          <para>
+            These options include the Lua, Perl, Python, or Ruby interpreters
+            that allow using other application code in vim scripts.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,35 +117,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lp vim-&vim-version; -E $PWD "make -j1 install"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <parameter>--with-features=huge</parameter>: This switch enables all the
-        additional features available in Vim, including support for multibyte
-        characters.
-      </para>
-
-      <para>
-        <parameter>--enable-gui=no</parameter> <parameter>--without-x</parameter>:
-        This will prevent compilation of the GUI and linking against X.
-      </para>
-
-      <para>
-        <parameter>--with-tlib=ncursesw</parameter>: This switch forces Vim to link
-        against the <filename class="libraryfile">libncursesw</filename> library.
-      </para>
-
-      <para>
-        <option>--enable-luainterp</option> <option>--enable-perlinterp</option>
-        <option>--enable-python3interp</option> <option>--enable-rubyinterp</option>:
-        These options include the Lua, Perl, Python, or Ruby interpreters that
-        allow using other application code in vim scripts.
-      </para>
-
-    </sect3>
+<screen><userinput>porg -lp vim-&vim-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
@@ -145,14 +125,13 @@
     <title>Configuration</title>
 
     <para>
-      At startup, <command>vim</command> reads the global configuration file
-      (<filename>/etc/vim/vimrc</filename>) as well as a user-specific file
-      (<filename>~/.vimrc</filename>). Either or both can be tailored to suit
-      the needs of your particular system. Create an example <command>vim</command>
+      At startup, vim reads the global configuration file /etc/vim/vimrc as
+      well as a user-specific file ~/.vimrc. Either or both can be tailored to
+      suit the needs of your particular system. Create an example vim
       configuration file by running the following:
     </para>
 
-<screen role="root"><userinput>mkdir -v /etc/vim &amp;&amp;
+<screen><userinput>mkdir -v /etc/vim &amp;&amp;
 cat &gt; /etc/vim/vimrc &lt;&lt; "EOF"
 <literal>" This option stops vim from behaving in a strongly vi-compatible way. It should
 " be at the start of any vimrc file as it can affect lots of other options which
@@ -190,16 +169,14 @@ ls /etc/vim/vimrc | porg -lp+ vim-&vim-version;</userinput></screen>
 
     <para>
       Note that the comment tags are " instead of the more usual # or //.  This
-      is correct, the syntax for <filename>vimrc</filename> is slightly unusual.
+      is correct, the syntax for vimrc is slightly unusual.
     </para>
 
     <para>
-      More information on the <emphasis>many</emphasis> <command>vim</command>
-      options can be found by reading the help inside <command>vim</command>
-      itself. Do this by typing <command>:</command><option>help</option> in
-      <command>vim</command> to get the general help, or by typing
-      <command>:</command><option>help usr_toc.txt</option> to view the User
-      Manual Table of Contents.
+      More information on the many vim options can be found by reading the help
+      inside vim itself. Do this by typing :help in vim to get the general
+      help, or by typing :help usr_toc.txt to view the User Manual Table of
+      Contents.
     </para>
 
     <para>
@@ -217,9 +194,9 @@ ls /etc/vim/vimrc | porg -lp+ vim-&vim-version;</userinput></screen>
     <para>
       By default, Vim only installs spell files for the English language. If a
       spell file is not available for a language, then Vim will call the
-      <filename>$VIMRUNTIME/plugin/spellfile.vim</filename> plugin and will try
-      to obtain the *.spl and optionally *.sug from the vim ftp server, by using
-      the <filename>$VIMRUNTIME/plugin/netrwPlugin.vim</filename> plugin.
+      $VIMRUNTIME/plugin/spellfile.vim plugin and will try to obtain the *.spl
+      and optionally *.sug from the vim ftp server, by using the
+      $VIMRUNTIME/plugin/netrwPlugin.vim plugin.
     </para>
 
 <!-- When updating, be sure to change the line below for the proper 'vimxx' unpacked
@@ -227,8 +204,7 @@ ls /etc/vim/vimrc | porg -lp+ vim-&vim-version;</userinput></screen>
     <para>
       Alternatively you can manually download the *.spl and *.sug files from:
       <ulink url="ftp://ftp.vim.org/pub/vim/runtime/spell/"/> and save them to
-      <filename class="directory"> ~/.vim/spell </filename> or in <filename
-      class="directory">/share/vim/vim80/spell/</filename>.
+      ~/.vim/spell or in /share/vim/vim80/spell/.
     </para>
 
     <para>
