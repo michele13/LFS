@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libglade-homepage      " ">
-  <!ENTITY libglade-wikipedia     " ">
-  <!ENTITY libglade-download-http "&gnome-download-http;/libglade/2.6/libglade-&libglade-version;.tar.bz2">
-  <!ENTITY libglade-download-ftp  "&gnome-download-ftp;/libglade/2.6/libglade-&libglade-version;.tar.bz2">
-  <!ENTITY libglade-md5sum        "d1776b40f4e166b5e9c107f1c8fe4139">
-  <!ENTITY libglade-size          "348 KB">
-  <!ENTITY libglade-buildsize     "5 MB">
-  <!ENTITY libglade-time          "0.1 SBU">
 ]>
 
 <sect1 id="libglade" xreflabel="libglade-&libglade-version;">
@@ -20,15 +11,8 @@
   <title>libglade-&libglade-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libglade package contains <filename
-      class="libraryfile">libglade</filename> libraries. These are useful for
-      loading Glade interface files in a program at runtime.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libglade-download-http;"/>
+          Download: <ulink url="&libglade-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libglade-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libglade-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libglade-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libglade-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libglade-time;
+          MD5 sum: &libglade-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -92,15 +56,31 @@
 <screen><userinput>sed "s/ install-data-local//" -i doc/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>sed "/DG_DISABLE_DEPRECATED/d" -i glade/Makefile.in &amp;&amp;
 ./configure --prefix= \
             --disable-static</userinput></screen>
 
+    <variablelist>
+      <title>Explanation</title>
+
+      <varlistentry>
+        <term><command>sed "/DG_DISABLE_DEPRECATED/d" ...</command></term>
+        <listitem>
+          <para>
+            Some of the glib functions that libglade uses were declared
+            deprecated in glib-2.30. This sed removes the G_DISABLE_DEPRECATED
+            CFLAG.
+          </para>
+        </listitem>
+      </varlistentry>
+
+    </variablelist>
+
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -109,19 +89,8 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libglade-&libglade-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libglade-2.0.la"</userinput></screen>
-
-    <sect3>
-      <title>Command Explanations</title>
-
-      <para>
-        <command>sed "/DG_DISABLE_DEPRECATED/d"</command>: Some of the glib
-        functions that libglade uses were declared deprecated in glib-2.30.
-        This sed removes the G_DISABLE_DEPRECATED CFLAG.
-      </para>
-
-    </sect3>
 
   </sect2>
 

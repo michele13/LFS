@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY libexif-homepage      "http://libexif.sourceforge.net/">
-  <!ENTITY libexif-wikipedia     "http://en.wikipedia.org/wiki/Exchangeable_image_file_format">
-  <!ENTITY libexif-download-http "&sourceforge-repo;/libexif/libexif-&libexif-version;.tar.bz2">
-  <!ENTITY libexif-download-ftp  " ">
-  <!ENTITY libexif-md5sum        "27339b89850f28c8f1c237f233e05b27">
-  <!ENTITY libexif-size          "1.4 MB">
-  <!ENTITY libexif-buildsize     "17 MB">
-  <!ENTITY libexif-time          "0.2 SBU">
 ]>
 
 <sect1 id="libexif" xreflabel="libexif-&libexif-version;">
@@ -20,16 +11,8 @@
   <title>libexif-&libexif-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The libexif package contains a library for parsing, editing, and saving
-      Exif data. Most digital cameras produce Exif files, which are JPEG files
-      with extra tags that contain information about the image. All Exif tags
-      described in Exif standard 2.1 are supported.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&libexif-download-http;"/>
+          Download: <ulink url="&libexif-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&libexif-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &libexif-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &libexif-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &libexif-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &libexif-time;
+          MD5 sum: &libexif-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -87,7 +50,7 @@ sed "s/ install-docDATA//" -i doc/Makefile.in</userinput></screen>
 
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
@@ -95,7 +58,7 @@ sed "s/ install-docDATA//" -i doc/Makefile.in</userinput></screen>
             --disable-nls</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -104,7 +67,7 @@ sed "s/ install-docDATA//" -i doc/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp libexif-&libexif-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libexif.la"</userinput></screen>
 
   </sect2>
