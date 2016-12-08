@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY pwgen-homepage      "http://sourceforge.net/projects/pwgen/">
-  <!ENTITY pwgen-wikipedia     "https://en.wikipedia.org/wiki/Random_password_generator">
-  <!ENTITY pwgen-download-http "&sourceforge-repo;/pwgen/pwgen-&pwgen-version;.tar.gz">
-  <!ENTITY pwgen-download-ftp  " ">
-  <!ENTITY pwgen-md5sum        "935aebcbe610fbc9de8125e7b7d71297">
-  <!ENTITY pwgen-size          "31 KB">
-  <!ENTITY pwgen-buildsize     "500 KB">
-  <!ENTITY pwgen-time          "0.1 SBU">
 ]>
 
 <sect1 id="pwgen" xreflabel="pwgen-&pwgen-version;">
@@ -20,14 +11,8 @@
   <title>pwgen-&pwgen-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      pwgen is a small password generator which creates passwords which can be
-      easily memorized by a human.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&pwgen-download-http;"/>
+          Download: <ulink url="&pwgen-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&pwgen-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &pwgen-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &pwgen-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &pwgen-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &pwgen-time;
+          MD5 sum: &pwgen-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,13 +42,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -92,7 +57,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp pwgen-&pwgen-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 

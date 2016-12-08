@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY file-homepage      "http://www.darwinsys.com/file/">
-  <!ENTITY file-wikipedia     "http://en.wikipedia.org/wiki/File_&#40;command&#41;">
-  <!ENTITY file-download-http " ">
-  <!ENTITY file-download-ftp  "ftp://ftp.astron.com/pub/file/file-&file-version;.tar.gz">
-  <!ENTITY file-md5sum        "b7b57b36b577c9cede2f2d1342203302">
-  <!ENTITY file-size          "756 KB">
-  <!ENTITY file-buildsize     "13 MB">
-  <!ENTITY file-time          "0.2 SBU">
 ]>
 
 <sect1 id="file" xreflabel="file-&file-version;">
@@ -20,14 +11,8 @@
   <title>file-&file-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The file package contains a utility for determining the type of a given
-      file or files.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -41,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&file-download-http;"/>
+          Download: <ulink url="&file-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&file-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &file-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &file-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &file-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &file-time;
+          MD5 sum: &file-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -77,13 +42,13 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -92,7 +57,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp file-&file-version; -E $PWD "make -j1 install &amp;&amp;
 rm -v /lib/libmagic.la"</userinput></screen>
 
   </sect2>

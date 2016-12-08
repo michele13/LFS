@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY pm-utils-homepage      "http://pm-utils.freedesktop.org/">
-  <!ENTITY pm-utils-wikipedia     " ">
-  <!ENTITY pm-utils-download-http "http://pm-utils.freedesktop.org/releases/pm-utils-&pm-utils-version;.tar.gz">
-  <!ENTITY pm-utils-download-ftp  " ">
-  <!ENTITY pm-utils-md5sum        "1742a556089c36c3a89eb1b957da5a60">
-  <!ENTITY pm-utils-size          "204 KB">
-  <!ENTITY pm-utils-buildsize     "1.6 MB">
-  <!ENTITY pm-utils-time          "0.1 SBU">
 ]>
 
 <sect1 id="pm-utils" xreflabel="pm-utils-&pm-utils-version;">
@@ -20,15 +11,8 @@
   <title>pm-utils-&pm-utils-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      The Power Management Utilities is a small collection of scripts to suspend
-      and hibernate computer that can be used to run user supplied scripts on
-      suspend and resume.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -42,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&pm-utils-download-http;"/>
+          Download: <ulink url="&pm-utils-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&pm-utils-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &pm-utils-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &pm-utils-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &pm-utils-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &pm-utils-time;
+          MD5 sum: &pm-utils-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -98,14 +62,14 @@
 sed "s/ install-dist_docDATA//" -i pm/Makefile.in</userinput></screen>
 
     <para>
-      Prepare the package for compilation:
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix= \
             --sbindir=/bin</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -114,7 +78,7 @@ sed "s/ install-dist_docDATA//" -i pm/Makefile.in</userinput></screen>
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install &amp;&amp;
+<screen><userinput>porg -lp pm-utils-&pm-utils-version; -E $PWD "make -j1 install &amp;&amp;
 install -v -m644 man/*.1 /share/man/man1 &amp;&amp;
 install -v -m644 man/*.8 /share/man/man8 &amp;&amp;
 ln -sv pm-action.8 /share/man/man8/pm-suspend.8 &amp;&amp;
@@ -127,13 +91,11 @@ ln -sv pm-action.8 /share/man/man8/pm-suspend-hybrid.8"</userinput></screen>
     <title>Configuration</title>
 
     <para>
-      Suspend or resume functionality can be easily modified by installing files
-      into the <filename class="directory">/etc/pm/sleep.d</filename> directory.
-      These files, known as hooks, are run when the system is put into a sleep
-      state or resumed. Default hooks are located in <filename
-      class="directory">/lib/pm-utils/sleep.d</filename>, and user hooks
-      should be put in <filename class="directory">/etc/pm/sleep.d</filename>.
-      See the pm-action(8) man page for more information.
+      Suspend or resume functionality can be easily modified by installing
+      files into the /etc/pm/sleep.d directory.  These files, known as hooks,
+      are run when the system is put into a sleep state or resumed. Default
+      hooks are located in /lib/pm-utils/sleep.d, and user hooks should be put
+      in /etc/pm/sleep.d. See the pm-action(8) man page for more information.
     </para>
 
     <para>
