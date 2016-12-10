@@ -3,15 +3,6 @@
    "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" [
   <!ENTITY % general-entities SYSTEM "../../general.ent">
   %general-entities;
-
-  <!ENTITY pax-utils-homepage      "http://dev.gentoo.org/~solar/pax-utils/">
-  <!ENTITY pax-utils-wikipedia     " ">
-  <!ENTITY pax-utils-download-http "http://ftp.debian.org/debian/pool/main/p/pax-utils/pax-utils_&pax-utils-version;.orig.tar.xz">
-  <!ENTITY pax-utils-download-ftp  "ftp://ftp.debian.org/debian/pool/main/p/pax-utils/pax-utils_&pax-utils-version;.orig.tar.xz">
-  <!ENTITY pax-utils-md5sum        "96f56a5a10ed50f2448c5ccebd27764f">
-  <!ENTITY pax-utils-size          "632 KB">
-  <!ENTITY pax-utils-buildsize     "11 MB">
-  <!ENTITY pax-utils-time          "0.2 SBU">
 ]>
 
 <sect1 id="pax-utils" xreflabel="pax-utils-&pax-utils-version;">
@@ -20,16 +11,8 @@
   <title>pax-utils-&pax-utils-version;</title>
 
   <sect2 role="package">
-    <title>Introduction</title>
+    <title>Package Information</title>
 
-    <para>
-      This is a small set of various PaX aware and related utilities for ELF
-      binaries. It can check ELF binary files and running processes for issues
-      that might be relevant when using ELF binaries along with PaX, such as
-      non-PIC code or executable stack and heap.
-    </para>
-
-    <bridgehead renderas="sect3">Package Information</bridgehead>
     <itemizedlist spacing="compact">
       <listitem>
         <para>
@@ -43,32 +26,12 @@
       </listitem>
       <listitem>
         <para>
-          Download (HTTP): <ulink url="&pax-utils-download-http;"/>
+          Download: <ulink url="&pax-utils-download;"/>
         </para>
       </listitem>
       <listitem>
         <para>
-          Download (FTP): <ulink url="&pax-utils-download-ftp;"/>
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download MD5 sum: &pax-utils-md5sum;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Download size: &pax-utils-size;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated disk space required: &pax-utils-buildsize;
-        </para>
-      </listitem>
-      <listitem>
-        <para>
-          Estimated build time: &pax-utils-time;
+          MD5 sum: &pax-utils-md5sum;
         </para>
       </listitem>
     </itemizedlist>
@@ -79,13 +42,19 @@
     <title>Installation</title>
 
     <para>
-      Prepare the package for compilation:
+      Download the package:
+    </para>
+
+<screen><userinput>wget &pax-utils-download; -O pax-utils-&pax-utils-version;.tar.xz</userinput></screen>
+
+    <para>
+      Prepare the package:
     </para>
 
 <screen><userinput>./configure --prefix=</userinput></screen>
 
     <para>
-      Compile the package:
+      Build the package:
     </para>
 
 <screen><userinput>make</userinput></screen>
@@ -94,7 +63,7 @@
       Install the package:
     </para>
 
-<screen role="root"><userinput>porg -lD "make -j1 install"</userinput></screen>
+<screen><userinput>porg -lp pax-utils-&pax-utils-version; -E $PWD "make -j1 install"</userinput></screen>
 
   </sect2>
 
